@@ -1,11 +1,10 @@
-package org.apache.lucene.spatial.quadtree;
+package org.apache.lucene.spatial.quads;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.commons.lang.mutable.MutableInt;
-import org.apache.lucene.spatial.quadtree.shape.BBoxIndexible;
+import org.apache.lucene.spatial.geometry.shape.Geometry2D;
+import org.apache.lucene.spatial.geometry.shape.IntersectCase;
+import org.apache.lucene.spatial.geometry.shape.Rectangle;
 
 
 /**
@@ -31,15 +30,15 @@ public class SpatialGrid
   final double ymid;
   final int maxLevels;
 
-  final double gridW;
-  final double gridH;
+  public final double gridW;
+  public final double gridH;
 
   final double[] levelW;
   final double[] levelH;
   final int[]    levelS; // side
   final int[]    levelN; // number
 
-  int resolution = 4; // how far down past the 'bbox level'
+  public int resolution = 4; // how far down past the 'bbox level'
 
 
   public SpatialGrid( double xmin, double xmax, double ymin, double ymax, int maxLevels )
@@ -87,12 +86,14 @@ public class SpatialGrid
     for( int i=0; i<maxLevels; i++ ) {
       System.out.println( i + "]\t"+nf.format(levelW[i])+"\t"+nf.format(levelH[i])+"\t"+levelS[i]+"\t"+(levelS[i]*levelS[i]) );
     }
+    
   }
 
-  public int getBBoxLevel( QuadIndexable geo )
+  public int getBBoxLevel( Geometry2D geo )
   {
-    double w = geo.getWidth();
-    double h = geo.getHeight();
+    Rectangle bbox = geo.boundingRectangle();
+    double w = bbox.getWidth();
+    double h = bbox.getHeight();
 
     for( int i=0; i<maxLevels; i++ ) {
       if( w > levelW[i] ) return i;
@@ -101,71 +102,80 @@ public class SpatialGrid
     return maxLevels;
   }
 
-  public List<String> read( QuadIndexable geo, MutableInt bboxLevel )
-  {
-    int maxLevel = getBBoxLevel( geo );
-    if( bboxLevel != null ) {
-      bboxLevel.setValue( maxLevel );
-    }
-    maxLevel = Math.min( maxLevels, maxLevel+resolution );
-    ArrayList<String> vals = new ArrayList<String>();
+  public MatchInfo read( Geometry2D geo )
+  { 
+    long startTime = System.currentTimeMillis();
+    MatchInfo vals = new MatchInfo();
+    vals.bboxLevel = getBBoxLevel( geo );
+    vals.maxLevel = Math.min( maxLevels, vals.bboxLevel+resolution );
 
-    build( xmid, ymid, 0, vals, new StringBuilder(), geo, maxLevel );
+    build( xmid, ymid, 0, vals, new StringBuilder(), geo );
+    vals.timeToCalculate = System.currentTimeMillis()-startTime;
     return vals;
   }
 
   private void build( double x, double y, int level,
-    List<String> matches, StringBuilder str,
-    QuadIndexable geo, int maxLevel )
+    MatchInfo matches, StringBuilder str,
+    Geometry2D geo )
   {
     double w = levelW[level]/2;
     double h = levelH[level]/2;
-
+    
     // Z-Order
     // http://en.wikipedia.org/wiki/Z-order_%28curve%29
-    checkBattenberg( 'A', x-w, y+h, level, matches, str, geo, maxLevel );
-    checkBattenberg( 'B', x+w, y+h, level, matches, str, geo, maxLevel );
-    checkBattenberg( 'C', x-w, y-h, level, matches, str, geo, maxLevel );
-    checkBattenberg( 'D', x+w, y-h, level, matches, str, geo, maxLevel );
+    checkBattenberg( 'A', x-w, y+h, level, matches, str, geo );
+    checkBattenberg( 'B', x+w, y+h, level, matches, str, geo );
+    checkBattenberg( 'C', x-w, y-h, level, matches, str, geo );
+    checkBattenberg( 'D', x+w, y-h, level, matches, str, geo );
 
     // possibly consider hilbert curve
     // http://en.wikipedia.org/wiki/Hilbert_curve
     // http://blog.notdot.net/2009/11/Damn-Cool-Algorithms-Spatial-indexing-with-Quadtrees-and-Hilbert-Curves
     // if we actually use the range property in the query, this could be useful
-
   }
 
   private void checkBattenberg(
     char c, double cx, double cy,
     int level,
-    List<String> matches, StringBuilder str,
-    QuadIndexable geo, int maxLevel)
+    MatchInfo matches, StringBuilder str,
+    Geometry2D geo)
   {
     double w = levelW[level]/2;
     double h = levelH[level]/2;
+    
+    LevelMatchInfo info = matches.getLevelInfo( level, true );
 
     int strlen = str.length();
-    MatchState v = geo.test( cx-w, cx+w, cy-h, cy+h );
-    if( MatchState.COVERS == v ) {
+    Rectangle r = new Rectangle( cx-w, cy-h, cx+w, cy+h );
+    IntersectCase v = geo.intersect( r );
+    if( IntersectCase.CONTAINS == v ) {
       str.append( c );
+      info.covers.add( str.toString() );
+      
       str.append( '*' );
-      matches.add( str.toString() );
+      matches.tokens.add( str.toString() );
     }
-    else if( MatchState.TOUCHES == v ) {
+    else if( IntersectCase.OUTSIDE == v ) {
+      // nothing
+    }
+    else { // IntersectCase.WITHIN, IntersectCase.INTERSECTS
       str.append( c );
+      
       int nextLevel = level+1;
-      if( nextLevel >= maxLevel ) {
-        str.append( '-' );
-        matches.add( str.toString() );
+      if( nextLevel >= matches.maxLevel ) {
+        info.depth.add( str.toString() );
+        str.append( '-' ); // not necessary?
+        matches.tokens.add( str.toString() );
       }
       else {
-        build( cx,cy, nextLevel, matches, str, geo, maxLevel );
+        info.intersects.add( str.toString() );
+        build( cx,cy, nextLevel, matches, str, geo );
       }
     }
     str.setLength( strlen );
   }
 
-  public BBoxIndexible getRectangle( CharSequence seq )
+  public Rectangle getRectangle( CharSequence seq )
   {
     double xmin = this.xmin;
     double ymin = this.ymin;
@@ -185,19 +195,13 @@ public class SpatialGrid
       else if( 'D' == c ) {
         xmin += levelW[i];
       }
-      else if( '*' == c || '-' == c ) {
-        return new BBoxIndexible(
-            xmin, xmin+2*levelW[i],
-            ymin, ymin+2*levelH[i] );
-      }
       else {
         throw new RuntimeException( "unexpected char: "+c );
       }
     }
-
-    // this happens when the string goes to the full resolution
-    return new BBoxIndexible(
-        xmin, xmin+levelW[maxLevels-1],
-        ymin, ymin+levelH[maxLevels-1] );
+    int len = seq.length()-1;
+    return new Rectangle(
+        xmin, ymin,
+        xmin+levelW[len], ymin+levelH[len] );
   }
 }
