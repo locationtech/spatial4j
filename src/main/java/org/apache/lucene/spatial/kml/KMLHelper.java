@@ -1,9 +1,6 @@
 package org.apache.lucene.spatial.kml;
 
-import java.awt.Color;
-import java.awt.Graphics;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +11,6 @@ import org.apache.lucene.spatial.quads.LevelMatchInfo;
 import org.apache.lucene.spatial.quads.MatchInfo;
 import org.apache.lucene.spatial.quads.SpatialGrid;
 
-import com.sun.org.apache.xml.internal.utils.StylesheetPIHandler;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import de.micromata.opengis.kml.v_2_2_0.ColorMode;
@@ -26,11 +22,10 @@ import de.micromata.opengis.kml.v_2_2_0.KmlFactory;
 import de.micromata.opengis.kml.v_2_2_0.LineStyle;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import de.micromata.opengis.kml.v_2_2_0.PolyStyle;
-import de.micromata.opengis.kml.v_2_2_0.Style;
 import de.micromata.opengis.kml.v_2_2_0.StyleMap;
 import de.micromata.opengis.kml.v_2_2_0.StyleState;
 
-public class KMLHelper 
+public class KMLHelper
 {
   public static void addStyles( Document document )
   {
@@ -55,7 +50,7 @@ public class KMLHelper
     sm = document.createAndAddStyleMap().withId( "ccc" );
     sm.createAndAddPair().withKey( StyleState.NORMAL ).withStyleUrl( "#CoversStyleNorm" );
     sm.createAndAddPair().withKey( StyleState.HIGHLIGHT ).withStyleUrl( "#CoversStyleHI" );
-    
+
     // Covers
     document.createAndAddStyle().withId( "MaxStyleNorm" )
       .withPolyStyle( new PolyStyle().withColor( "991400E6" ).withColorMode( ColorMode.RANDOM ) )
@@ -67,12 +62,12 @@ public class KMLHelper
     sm.createAndAddPair().withKey( StyleState.NORMAL ).withStyleUrl( "#MaxStyleNorm" );
     sm.createAndAddPair().withKey( StyleState.HIGHLIGHT ).withStyleUrl( "#MaxStyleHI" );
   }
-  
+
 
   private static Placemark create( String key, String style, SpatialGrid grid )
   {
     Rectangle r = grid.getRectangle( key );
-    
+
     List<Coordinate> coords = null;
     coords = new ArrayList<Coordinate>(5);
     coords.add( new Coordinate( r.getMinX(),r.getMinY() ) );
@@ -80,27 +75,27 @@ public class KMLHelper
     coords.add( new Coordinate( r.getMaxX(),r.getMaxY() ) );
     coords.add( new Coordinate( r.getMinX(),r.getMaxY() ) );
     coords.add( new Coordinate( r.getMinX(),r.getMinY() ) );
-    
+
     Placemark p = new Placemark().withName( key )
       .withDescription( "descriptio..." )
       .withStyleUrl( style );
-    
+
     p.createAndSetPolygon()
         .withTessellate( true )
         .createAndSetOuterBoundaryIs()
           .createAndSetLinearRing().withCoordinates( coords );
-  
+
     return p;
   }
-  
+
   public static Kml toKML( MatchInfo info, String name, SpatialGrid grid )
   {
     final Kml kml = KmlFactory.createKml();
     Document document = kml.createAndSetDocument()
       .withName( name ).withOpen(true);
-    
+
     addStyles( document );
-    
+
     for( LevelMatchInfo level : info.levels ) {
       Folder folder = document.createAndAddFolder().withName( "Level "+level.level ).withOpen(false);
       for( String c : level.intersects ) {
@@ -113,11 +108,11 @@ public class KMLHelper
         folder.getFeature().add( create( c, "#ccc", grid ) );
       }
     }
-    
+
     return kml;
   }
 
-  public static void main( String[] args ) throws Exception 
+  public static void main( String[] args ) throws Exception
   {
     SpatialGrid grid = new SpatialGrid( 0, 10, 0, 10, 10 );
     grid = new SpatialGrid( -180, 180, -90-180, 90, 16 );
@@ -132,8 +127,8 @@ public class KMLHelper
 //    shape = JtsGeom.parseGeometry( "MULTIPOINT((3.5 5.6), (4.8 9.5))" );
 //    shape = JtsGeom.parseGeometry( "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))" );
 //    shape = JtsGeom.parseGeometry( "LINESTRING(3 4,5 7,8 2)" );
-    
-    
+
+
 //    shape = new JTSIndexible( "POINT(6 8)" ); // very small display!
 //    shape = new JTSIndexible( "POINT(3.5 5.6)" );
 
@@ -147,7 +142,7 @@ public class KMLHelper
 
     MatchInfo vals = grid.read( shape );
     vals.printInfo();
-    
+
     File outfile = new File( "c:/temp/test.kml" );
     Kml kml = toKML( vals, "test", grid );
     kml.marshal(outfile);

@@ -17,12 +17,20 @@
 
 package org.apache.lucene.spatial.geometry.shape;
 
-import com.vividsolutions.jts.geom.*;
+import org.apache.lucene.queryParser.ParseException;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.IntersectionMatrix;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
-import org.apache.lucene.queryParser.ParseException;
 
 /**
  * A Geometry2D based on <a href="http://tsusiatsoftware.net/jts/main.html">JTS Topology Suite</a>.

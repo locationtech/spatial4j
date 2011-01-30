@@ -98,14 +98,14 @@ public class Ellipse implements Geometry2D {
   /**
    * Determines if a line segment intersects the ellipse and if so finds the
    * point(s) of intersection.
-   * 
+   *
    * @param seg
    *            Line segment to test for intersection
    * @param pt0
    *            OUT - intersection point (if it exists)
    * @param pt1
    *            OUT - second intersection point (if it exists)
-   * 
+   *
    * @return Returns the number of intersection points (0, 1, or 2).
    */
   public int intersect(LineSegment seg, Point2D pt0, Point2D pt1) {
@@ -228,7 +228,7 @@ public class Ellipse implements Geometry2D {
     double dx = pt.x() - center.x();
     double dy = pt.y() - center.y();
     double eq=(((k1 * SQR(dx)) + (k2 * dx * dy) + (k3 * SQR(dy)) - 1));
-    
+
     return eq<=0;
   }
 

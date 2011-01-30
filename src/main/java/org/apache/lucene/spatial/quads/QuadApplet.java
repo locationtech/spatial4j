@@ -2,7 +2,6 @@ package org.apache.lucene.spatial.quads;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.List;
 
 import javax.swing.JApplet;
 
@@ -33,8 +32,8 @@ public class QuadApplet extends JApplet
 //    shape = JtsGeom.parseGeometry( "MULTIPOINT((3.5 5.6), (4.8 9.5))" );
 //    shape = JtsGeom.parseGeometry( "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))" );
 //    shape = JtsGeom.parseGeometry( "LINESTRING(3 4,5 7,8 2)" );
-    
-    
+
+
 //    shape = new JTSIndexible( "POINT(6 8)" ); // very small display!
 //    shape = new JTSIndexible( "POINT(3.5 5.6)" );
 
@@ -53,7 +52,7 @@ public class QuadApplet extends JApplet
   int square;
   double gridW;
   double gridH;
-  
+
 
   @Override
   public void paint(Graphics g) {
@@ -81,7 +80,7 @@ public class QuadApplet extends JApplet
     gridH = grid.ymax - grid.ymin;
 
     for( LevelMatchInfo level : vals.levels ) {
-      
+
       for( String c : level.intersects ) {
         draw( g, c, Color.GRAY, null );
       }
@@ -93,7 +92,7 @@ public class QuadApplet extends JApplet
       }
     }
   }
-  
+
   private void draw( Graphics g, String c, Color line, Color fill )
   {
     Rectangle r = grid.getRectangle( c );

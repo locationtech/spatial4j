@@ -29,20 +29,20 @@ package org.apache.lucene.spatial.geometry;
 public class CartesianPoint {
   private int x;
   private int y;
-  
+
   public CartesianPoint(int x, int y) {
     this.x=x;
     this.y=y;
   }
-  
+
   public int getX() {
     return x;
   }
-  
+
   public int getY() {
     return y;
   }
-  
+
   @Override
   public String toString() {
     return "Point(" + x + "," + y + ")";
@@ -79,5 +79,5 @@ public class CartesianPoint {
       return false;
     return true;
   }
-  
+
 }

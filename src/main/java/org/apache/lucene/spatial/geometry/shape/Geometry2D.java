@@ -31,18 +31,18 @@ public interface Geometry2D {
    * @param v
    */
   public void translate(Vector2D v);
-  
+
   /**
    * Does the shape contain the given point
    * @param p
    */
   public boolean contains(Point2D p);
-  
+
   /**
    * Return the area
    */
   public double area();
-  
+
   /**
    * Return the centroid
    */

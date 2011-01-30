@@ -42,12 +42,12 @@ public class LineSegment {
   /**
    * Finds the distance of a specified point from the line segment and the
    * closest point on the segment to the specified point.
-   * 
+   *
    * @param P
    *            Test point.
    * @param closestPt
    *            (Return) Closest point on the segment to c.
-   * 
+   *
    * @return Returns the distance from P to the closest point on the segment.
    */
   public double distance(Point2D P, Point2D /* out */closestPt) {
@@ -113,5 +113,5 @@ public class LineSegment {
       return false;
     return true;
   }
-  
+
 }

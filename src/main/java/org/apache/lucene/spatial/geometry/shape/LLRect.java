@@ -31,17 +31,17 @@ import org.apache.lucene.spatial.geometry.LatLng;
  */
 public class LLRect {
   private LatLng ll, ur;
-  
+
   public LLRect(LatLng ll, LatLng ur) {
     this.ll=ll;
     this.ur=ur;
   }
-  
+
   public LLRect(LLRect other) {
     this.ll=other.ll;
     this.ur=other.ur;
   }
-  
+
   /**
    * Return the area in units of lat-lng squared.  This is a contrived unit
    * that only has value when comparing to something else.
@@ -53,11 +53,11 @@ public class LLRect {
   public LatLng getLowerLeft() {
     return ll;
   }
-  
+
   public LatLng getUpperRight() {
     return ur;
   }
-  
+
   @Override
   public String toString() {
     return "{" + ll + ", " + ur + "}";
@@ -83,7 +83,7 @@ public class LLRect {
     //System.err.println("boxCorners: ll " + ll.getLat() + ',' + ll.getLng());
     return new LLRect(ll, ur);
   }
-  
+
   /**
    * Returns a rectangle shape for the bounding box
    */
@@ -186,6 +186,6 @@ public class LLRect {
       return false;
     return true;
   }
-  
-  
+
+
 }

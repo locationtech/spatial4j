@@ -1,11 +1,8 @@
 package org.apache.lucene.spatial.quads;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 
-import org.apache.commons.lang.time.DurationFormatUtils;
-
-public class MatchInfo 
+public class MatchInfo
 {
   public long timeToCalculate = -1;
   public int bboxLevel = -1;
@@ -30,7 +27,7 @@ public class MatchInfo
     }
     return v;
   }
-  
+
   public void printInfo()
   {
     System.out.println( "MatchInfo:" );

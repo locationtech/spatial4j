@@ -33,30 +33,30 @@ public class Point2D {
     this.x=x;
     this.y=y;
   }
-  
+
   public Point2D() {
     this.x=0;
     this.y=0;
   }
-  
+
   public Point2D(Point2D other) {
     this.x=other.x;
     this.y=other.y;
   }
-  
+
   @Override
   public String toString() {
     return "(" + x + "," + y + ")";
   }
-  
+
   public double getX() {
     return x;
   }
-  
+
   public double getY() {
     return y;
   }
-  
+
   public double x() {
     return x;
   }
@@ -76,11 +76,11 @@ public class Point2D {
   public void setX(double x) {
     this.x = x;
   }
-  
+
   public void setY(double y) {
     this.y = y;
   }
-  
+
   public void set(double x, double y) {
     this.x=x;
     this.y=y;
@@ -105,7 +105,7 @@ public class Point2D {
     this.x=v.getX();
     this.y=v.getY();
   }
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -133,5 +133,5 @@ public class Point2D {
       return false;
     return true;
   }
-  
+
 }

@@ -19,7 +19,7 @@ package org.apache.lucene.spatial.geometry.shape;
 
 
 /**
- * Rectangle shape.  
+ * Rectangle shape.
  *
  * <p><font color="red"><b>NOTE:</b> This API is still in
  * flux and might change in incompatible ways in the next
@@ -27,18 +27,18 @@ package org.apache.lucene.spatial.geometry.shape;
  */
 public class Rectangle implements Geometry2D {
   private final Point2D ptMin, ptMax;
-  
+
   public Rectangle() {
     ptMin=new Point2D(-1, 1);
     ptMax=new Point2D(1, 1);
   }
-  
+
   public Rectangle(Point2D ptMin, Point2D ptMax) {
     assert ptMin.getX() <= ptMax.getX() && ptMin.getY() <= ptMax.getY();
     this.ptMin=new Point2D(ptMin);
     this.ptMax=new Point2D(ptMax);
   }
-  
+
   public Rectangle(double x1, double y1, double x2, double y2) {
     this(new Point2D(x1,y1),new Point2D(x2,y2));
   }
@@ -51,7 +51,7 @@ public class Rectangle implements Geometry2D {
   public double area() {
     return (ptMax.getX() - ptMin.getX()) * (ptMax.getY() - ptMin.getY());
   }
-  
+
   public double getWidth()  { return ptMax.getX() - ptMin.getX(); }
   public double getHeight() { return ptMax.getY() - ptMin.getY(); }
 
@@ -66,7 +66,7 @@ public class Rectangle implements Geometry2D {
   }
 
   public boolean contains(Point2D p) {
-    return p.getX() >= ptMin.getX() && 
+    return p.getX() >= ptMin.getX() &&
       p.getX() <= ptMax.getX() &&
       p.getY() >= ptMin.getY() &&
       p.getY() <= ptMax.getY();

@@ -32,7 +32,7 @@ public class Vector2D {
   /**
    * Create a vector from the origin of the coordinate system to the given
    * point
-   * 
+   *
    * @param x
    * @param y
    */
@@ -51,7 +51,7 @@ public class Vector2D {
 
   /**
    * Create a vector from one point to another
-   * 
+   *
    * @param from
    * @param to
    */
@@ -141,5 +141,5 @@ public class Vector2D {
       return false;
     return true;
   }
-  
+
 }

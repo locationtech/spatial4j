@@ -21,7 +21,7 @@ package org.apache.lucene.spatial.geometry;
 /**
  * Abstract base lat-lng class which can manipulate fixed point or floating
  * point based coordinates. Instances are immutable.
- * 
+ *
  * @see FloatLatLng
  *
  * <p><font color="red"><b>NOTE:</b> This API is still in
@@ -49,26 +49,26 @@ public abstract class LatLng {
   public abstract FixedLatLng toFixed();
 
   public abstract FloatLatLng toFloat();
-  
+
   /**
    * Convert the lat/lng into the cartesian coordinate plane such that all
    * world coordinates are represented in the first quadrant.
    * The x dimension corresponds to latitude and y corresponds to longitude.
-   * The translation starts with the normalized latlng and adds 180 to the latitude and 
+   * The translation starts with the normalized latlng and adds 180 to the latitude and
    * 90 to the longitude (subject to fixed point scaling).
    */
   public CartesianPoint toCartesian() {
     LatLng ll=normalize();
-    
+
     int lat=ll.getFixedLat();
     int lng=ll.getFixedLng();
-    
+
     return new CartesianPoint(
         lng+180*FixedLatLng.SCALE_FACTOR_INT,
         lat+90*FixedLatLng.SCALE_FACTOR_INT
     );
   }
-  
+
   /**
    * The inverse of toCartesian().  Always returns a FixedLatLng.
    * @param pt
@@ -76,17 +76,17 @@ public abstract class LatLng {
   public static LatLng fromCartesian(CartesianPoint pt) {
     int lat=pt.getY() - 90 * FixedLatLng.SCALE_FACTOR_INT;
     int lng=pt.getX() - 180 * FixedLatLng.SCALE_FACTOR_INT;
-    
+
     return new FixedLatLng(lat, lng);
   }
-  
+
   /**
    * Calculates the distance between two lat/lng's in miles.
    * Imported from mq java client.
-   * 
+   *
    * @param ll2
    *            Second lat,lng position to calculate distance to.
-   * 
+   *
    * @return Returns the distance in miles.
    */
   public double arcDistance(LatLng ll2) {
@@ -96,12 +96,12 @@ public abstract class LatLng {
   /**
    * Calculates the distance between two lat/lng's in miles or meters.
    * Imported from mq java client.  Variable references changed to match.
-   * 
+   *
    * @param ll2
    *            Second lat,lng position to calculate distance to.
    * @param lUnits
    *            Units to calculate distance, defaults to miles
-   * 
+   *
    * @return Returns the distance in meters or miles.
    */
   public double arcDistance(LatLng ll2, DistanceUnits lUnits) {
@@ -151,7 +151,7 @@ public abstract class LatLng {
    * @param other
    */
   public abstract LatLng calculateMidpoint(LatLng other);
-  
+
   @Override
   public abstract int hashCode();
 

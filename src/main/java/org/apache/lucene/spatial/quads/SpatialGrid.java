@@ -86,7 +86,7 @@ public class SpatialGrid
     for( int i=0; i<maxLevels; i++ ) {
       System.out.println( i + "]\t"+nf.format(levelW[i])+"\t"+nf.format(levelH[i])+"\t"+levelS[i]+"\t"+(levelS[i]*levelS[i]) );
     }
-    
+
   }
 
   public int getBBoxLevel( Geometry2D geo )
@@ -103,7 +103,7 @@ public class SpatialGrid
   }
 
   public MatchInfo read( Geometry2D geo )
-  { 
+  {
     long startTime = System.currentTimeMillis();
     MatchInfo vals = new MatchInfo();
     vals.bboxLevel = getBBoxLevel( geo );
@@ -120,7 +120,7 @@ public class SpatialGrid
   {
     double w = levelW[level]/2;
     double h = levelH[level]/2;
-    
+
     // Z-Order
     // http://en.wikipedia.org/wiki/Z-order_%28curve%29
     checkBattenberg( 'A', x-w, y+h, level, matches, str, geo );
@@ -142,7 +142,7 @@ public class SpatialGrid
   {
     double w = levelW[level]/2;
     double h = levelH[level]/2;
-    
+
     LevelMatchInfo info = matches.getLevelInfo( level, true );
 
     int strlen = str.length();
@@ -151,7 +151,7 @@ public class SpatialGrid
     if( IntersectCase.CONTAINS == v ) {
       str.append( c );
       info.covers.add( str.toString() );
-      
+
       str.append( '*' );
       matches.tokens.add( str.toString() );
     }
@@ -160,7 +160,7 @@ public class SpatialGrid
     }
     else { // IntersectCase.WITHIN, IntersectCase.INTERSECTS
       str.append( c );
-      
+
       int nextLevel = level+1;
       if( nextLevel >= matches.maxLevel ) {
         info.depth.add( str.toString() );

@@ -29,9 +29,9 @@ public enum DistanceUnits {
   private static final double MILES_KILOMETRES_RATIO = 1.609344;
 
   private final String unit;
-  
+
   private final double earthCircumference;
-  
+
   private final double earthRadius;
 
   /**
@@ -67,7 +67,7 @@ public enum DistanceUnits {
   }
 
   /**
-   * Converts the given distance in given DistanceUnit, to a distance in the unit represented by {@code this} 
+   * Converts the given distance in given DistanceUnit, to a distance in the unit represented by {@code this}
    *
    * @param distance Distance to convert
    * @param from Unit to convert the distance from
@@ -88,7 +88,7 @@ public enum DistanceUnits {
   public String getUnit() {
     return unit;
   }
-  
+
   /**
    * Returns the <a href="http://en.wikipedia.org/wiki/Earth_radius">average earth radius</a>
    *
@@ -97,10 +97,10 @@ public enum DistanceUnits {
   public double earthRadius() {
     return earthRadius;
   }
-  
+
   /**
    * Returns the <a href="http://www.lyberty.com/encyc/articles/earth.html">circumference of the Earth</a>
-   * 
+   *
    * @return  the circumference of the Earth
    */
   public double earthCircumference() {

@@ -1,11 +1,7 @@
 package org.apache.lucene.spatial.quads;
 
-import java.util.List;
 
 import junit.framework.TestCase;
-
-import org.apache.commons.lang.mutable.MutableInt;
-import org.apache.lucene.spatial.quads.SpatialGrid;
 
 
 
