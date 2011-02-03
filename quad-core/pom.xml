@@ -13,7 +13,7 @@
   <artifactId>quad-core</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
-  <name>Quad - Base</name>
+  <name>Quad - Core</name>
   <description>
     Quad core stuff
   </description>
