@@ -9,9 +9,6 @@ import voyager.quads.MatchInfo;
 import voyager.quads.SpatialGrid;
 import voyager.quads.geometry.GeometryShape;
 import voyager.quads.geometry.Shape;
-import voyager.quads.strtree.Boundable;
-import voyager.quads.strtree.Item;
-import voyager.quads.strtree.Node;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
@@ -83,7 +80,7 @@ public class KMLHelper
     List<Coordinate> coords = getCoords( r );
 
     Placemark p = new Placemark().withName( key )
-      .withDescription( "descriptio..." )
+      .withDescription( r.toString() )
       .withStyleUrl( style );
 
     p.createAndSetPolygon()
@@ -92,63 +89,6 @@ public class KMLHelper
           .createAndSetLinearRing().withCoordinates( coords );
 
     return p;
-  }
-
-  private static void addNode( Folder c, Node node )
-  {
-    for( Boundable b : node.getChildren() ) {
-      if( b instanceof Item ) {
-//        // if its a point...
-//        Item item = (Item)b;
-//        if( b.getBounds().getArea() == 0 ) {
-//          ArrayList<Coordinate> pts = new ArrayList<Coordinate>();
-//          pts.add( new Coordinate( item.getBounds().getMaxX(),item.getBounds().getMaxY() ));
-//
-//          Placemark p = new Placemark().withName( item.item );
-//          p.withDescription( item.item );
-//          p.createAndSetPoint().withCoordinates( pts );
-//          c.getFeature().add( p );
-//        }
-//        else {
-//          Placemark p = new Placemark().withName( item.item )
-//            .withStyleUrl( "#mmm" );
-//          p.createAndSetPolygon()
-//              .withTessellate( true )
-//              .createAndSetOuterBoundaryIs()
-//                .createAndSetLinearRing().withCoordinates( getCoords( b.getBounds() ) );
-//          c.getFeature().add( p );
-//        }
-      }
-      else if( b instanceof Node ) {
-        Node child = (Node)b;
-        Placemark p = new Placemark().withName( "level: "+child.getLevel() + " ["+child.getChildren().size()+"]" )
-          .withStyleUrl( "#iii" );
-
-        p.createAndSetPolygon()
-            .withTessellate( true )
-            .createAndSetOuterBoundaryIs()
-              .createAndSetLinearRing().withCoordinates( getCoords( b.getBounds() ) );
-
-        c.getFeature().add( p );
-
-        Folder sub = c.createAndAddFolder().withName( p.getName() );
-        addNode( sub, child );
-      }
-    }
-  }
-
-  public static Kml toKML( String name, Node root )
-  {
-    final Kml kml = KmlFactory.createKml();
-    Document document = kml.createAndSetDocument()
-      .withName( name ).withOpen(true);
-
-    addStyles( document );
-
-    Folder folder = document.createAndAddFolder().withName( "root" );
-    addNode( folder, root );
-
-    return kml;
   }
 
 

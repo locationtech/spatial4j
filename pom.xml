@@ -18,6 +18,10 @@
     <maven.compile.target>1.6</maven.compile.target>
     <maven.compile.optimize>true</maven.compile.optimize>
     <maven.compile.deprecation>true</maven.compile.deprecation>
+    
+    <wicket.version>1.4.15</wicket.version>
+    <jetty.version>7.2.2.v20101205</jetty.version>
+    
   </properties>
 
   <scm>

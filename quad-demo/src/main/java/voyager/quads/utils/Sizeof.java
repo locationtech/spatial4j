@@ -3,7 +3,12 @@ package voyager.quads.utils;
 import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTReader;
 
-// FROM: http://www.javaworld.com/javaworld/javatips/jw-javatip130.html
+/**
+ *  FROM: http://www.javaworld.com/javaworld/javatips/jw-javatip130.html
+ *
+ * Trying to get a sense of how big the java objects are
+ *
+ */
 public class Sizeof
 {
   public static void main (String [] args) throws Exception
