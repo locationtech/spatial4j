@@ -1,0 +1,47 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <artifactId>quad-parent</artifactId>
+		<groupId>org.apache.lucene.spatial.quad</groupId>
+		<version>0.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  
+	<groupId>org.apache.lucene.spatial.quad</groupId>
+  <artifactId>quad-core</artifactId>
+	<version>0.1-SNAPSHOT</version>
+	
+  <name>Quad - core library</name>
+  <description>
+    Quad core stuff
+  </description>
+  <packaging>jar</packaging>  
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compile.source>1.6</maven.compile.source>
+    <maven.compile.target>1.6</maven.compile.target>
+    <maven.compile.optimize>true</maven.compile.optimize>
+    <maven.compile.deprecation>true</maven.compile.deprecation>
+  </properties>
+
+  <dependencies>
+	  <dependency>
+	    <groupId>com.vividsolutions</groupId>
+	    <artifactId>jts</artifactId>
+	    <version>1.11</version>
+	  </dependency>
+
+    <!-- TESTING -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  
+  
+</project>
