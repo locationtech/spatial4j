@@ -1,5 +1,6 @@
 package voyager.quads;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -55,26 +56,52 @@ public class MatchInfo
     }
   }
 
-  public void printInfo()
+  public String getInfoString()
   {
-    System.out.println( "MatchInfo:" );
-    System.out.println( " bboxLevel:"+bboxLevel );
-    System.out.println( " maxLevel:"+maxLevel );
-    if( timeToCalculate >= 0 ) {
-      System.out.println( " time:"+timeToCalculate );
-    }
     int total = 0;
     for( LevelMatchInfo level : levels ) {
-      System.out.println( " Level: "+level.level );
-      System.out.println( "  intersect: "+level.intersects );
-      System.out.println( "  depth: "+level.depth );
-      System.out.println( "  covers: "+level.covers );
       total += level.covers.size();
       total += level.intersects.size();
       total += level.depth.size();
     }
-    System.out.println( " Total Tokens:"+total );
-    System.out.println( " Description:"+(tokens.size())+" :: "+tokens );
+    StringBuilder str = new StringBuilder();
+    str.append( " Tokens: "+total+" / "+tokens.size()+"\n" );
+    str.append( " bboxLevel:"+bboxLevel+"\n" );
+    str.append( " maxLevel:"+maxLevel+"\n" );
+    if( timeToCalculate >= 0 ) {
+      str.append( " time:"+timeToCalculate+"\n" );
+    }
+    for( LevelMatchInfo level : levels ) {
+      str.append( " Level: "+level.level+"\n" );
+      str.append( "  intersect: "+level.intersects+"\n" );
+      str.append( "  depth: "+level.depth+"\n" );
+      str.append( "  covers: "+level.covers+"\n" );
+    }
+    str.append( " Description:"+(tokens.size())+" :: "+tokens+"\n" );
+    return str.toString();
+  }
+
+
+  public void printInfo( PrintStream out )
+  {
+    out.println( "MatchInfo:" );
+    out.println( " bboxLevel:"+bboxLevel );
+    out.println( " maxLevel:"+maxLevel );
+    if( timeToCalculate >= 0 ) {
+      out.println( " time:"+timeToCalculate );
+    }
+    int total = 0;
+    for( LevelMatchInfo level : levels ) {
+      out.println( " Level: "+level.level );
+      out.println( "  intersect: "+level.intersects );
+      out.println( "  depth: "+level.depth );
+      out.println( "  covers: "+level.covers );
+      total += level.covers.size();
+      total += level.intersects.size();
+      total += level.depth.size();
+    }
+    out.println( " Total Tokens:"+total );
+    out.println( " Description:"+(tokens.size())+" :: "+tokens );
 //    for( String t : tokens ) {
 //      System.out.println( " "+t );
 //    }

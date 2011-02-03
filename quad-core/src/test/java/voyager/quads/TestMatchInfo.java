@@ -36,7 +36,7 @@ public class TestMatchInfo extends TestCase
     descr.add( "AAA*" );
     descr.add( "AABC*" );
     MatchInfo q = MatchInfo.getMostlyWithinQueryTokens( descr );
-    q.printInfo();
+    q.printInfo( System.out );
     q.validate();
   }
 }

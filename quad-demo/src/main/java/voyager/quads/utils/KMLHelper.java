@@ -98,6 +98,8 @@ public class KMLHelper
     Document document = kml.createAndSetDocument()
       .withName( name ).withOpen(true);
 
+    document.withDescription( info.getInfoString() );
+
     addStyles( document );
 
     for( LevelMatchInfo level : info.levels ) {
@@ -184,7 +186,7 @@ public class KMLHelper
   //  shape = new Rectangle( -170,-85, 170, 85 );
 
     MatchInfo vals = grid.read( shape ); //new GeometryShape( shape ) ); //new EnvelopeShape( shape.getEnvelopeInternal() ) );
-    vals.printInfo();
+    vals.printInfo( System.out );
 
 //    StringBuilder str = new StringBuilder();
 //    vals = new MatchInfo();
@@ -195,7 +197,7 @@ public class KMLHelper
 //    vals.printInfo();
 
     vals = MatchInfo.getMostlyWithinQueryTokens( vals.tokens );
-    vals.printInfo();
+    vals.printInfo( System.out );
 
     File outfile = new File( "c:/temp/test.kml" );
     Kml kml = toKML( vals, "test: 3785", grid, true );

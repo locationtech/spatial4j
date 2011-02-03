@@ -1,4 +1,4 @@
-package voyager.quads;
+package voyager.quads.demo;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +6,7 @@ import java.io.IOException;
 import voyager.quads.utils.geonames.Geoname;
 import voyager.quads.utils.geonames.GeonamesReader;
 
-public class GeonamesFutzer
+public class GeonamesLoader
 {
   public static void main( String[] args ) throws IOException
   {

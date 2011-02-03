@@ -1,0 +1,81 @@
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+  <head>  
+    <title>Quad Demo</title>
+    
+<style type="text/css">
+h4 { margin:10px 2px; padding:0px; }
+</style>
+
+  </head>
+  <body>
+    <strong>Wicket Quickstart Archetype Homepage</strong>
+    <br/><br/>
+    <span wicket:id="message">message will be here</span>
+    
+    <hr/>
+    <h3>Make Tokens</h3>
+    <form action="quad" method="get" style="width:100%;">
+    
+    
+      <h4>Name (for KML, optional)</h4>
+      <input name="name" type="text" style="width:100%;"/>
+      
+      <h4>Geo - [X Y] [MinX MinY MaxX MaxY], or [WKT]</h4>
+      <textarea name="geo" style="width:100%;" rows="7">POLYGON((172.67870664597 -34.318349361419, 172.85448789597 -35.285146236419, 173.90917539597 -36.427724361419, 174.52440977097 -37.394521236419, 174.70019102097 -38.449208736419, 173.73339414597 -38.800771236419, 172.06347227097 -40.734364986419, 171.27245664597 -41.437489986419, 170.74511289597 -42.580068111419, 167.31737852097 -44.601552486419, 166.08690977097 -45.656239986419, 166.08690977097 -46.359364986419, 167.49315977097 -46.710927486419, 169.25097227097 -47.238271236419, 171.27245664597 -45.832021236419, 171.79980039597 -44.162099361419, 173.20605039597 -43.986318111419, 173.46972227097 -43.195302486419, 174.61230039597 -41.701161861419, 176.63378477097 -41.349599361419, 177.42480039597 -39.591786861419, 179.09472227097 -37.482411861419, 178.21581602097 -37.042958736419, 177.51269102097 -37.658193111419, 176.19433164597 -37.218739986419, 176.01855039597 -36.076161861419, 174.61230039597 -34.933583736419, 172.67870664597 -34.318349361419))</textarea>
+      
+      <h4>Format</h4>
+      <select name="format">
+			  <option value="kml">KML</option>
+			  <option value="text">text</option>
+			</select>
+			
+			<input id="intersections" type="checkbox" name="intersections" />
+			<label for="intersections">Show Intersections</label>
+			
+			
+      <h4>Grid</h4>
+      <select name="depth" style="width:50px">
+			  <option value="1">1</option>
+			  <option value="2">2</option>
+			  <option value="3">3</option>
+			  <option value="4">4</option>
+			  <option value="5">5</option>
+			  <option value="6">6</option>
+			  <option value="7">7</option>
+			  <option value="8">8</option>
+			  <option value="9">9</option>
+			  <option value="11">11</option>
+			  <option value="12">12</option>
+			  <option value="13">13</option>
+			  <option value="14">14</option>
+			  <option value="15">15</option>
+			  <option value="16" selected="selected">16</option>
+			  <option value="17">17</option>
+			  <option value="18">18</option>
+			  <option value="19">19</option>
+			  <option value="20">20</option>
+			</select>
+			<span>Maximum Depth</span>
+			<br>
+      
+      <select name="resolution" style="width:50px">
+			  <option value="1">1</option>
+			  <option value="2">2</option>
+			  <option value="3">3</option>
+			  <option value="4" selected="selected">4</option>
+			  <option value="5">5</option>
+			  <option value="6">6</option>
+			  <option value="7">7</option>
+			  <option value="8">8</option>
+			  <option value="9">9</option>
+			</select>
+			<span>Resolution (how many levels past the 'best fit')</span>
+			<br>
+			
+			
+			<br/><br/>
+			<input type="submit" />
+    <form>
+    
+  </body>
+</html>

@@ -45,7 +45,7 @@ public class QuadApplet extends JApplet
 
 
     vals = grid.read( new GeometryShape(shape) );
-    vals.printInfo();
+    vals.printInfo( System.out );
   }
 
   int square;

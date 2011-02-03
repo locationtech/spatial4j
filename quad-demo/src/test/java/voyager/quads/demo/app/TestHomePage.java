@@ -1,11 +1,8 @@
-package voyager.quad.demo.app;
+package voyager.quads.demo.app;
 
 import junit.framework.TestCase;
 
 import org.apache.wicket.util.tester.WicketTester;
-
-import voyager.quads.demo.app.HomePage;
-import voyager.quads.demo.app.WicketApplication;
 
 /**
  * Simple test using the WicketTester
