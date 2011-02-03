@@ -19,14 +19,6 @@
   </description>
   <packaging>jar</packaging>  
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compile.source>1.6</maven.compile.source>
-    <maven.compile.target>1.6</maven.compile.target>
-    <maven.compile.optimize>true</maven.compile.optimize>
-    <maven.compile.deprecation>true</maven.compile.deprecation>
-  </properties>
-
   <dependencies>
 	  <dependency>
 	    <groupId>com.vividsolutions</groupId>
