@@ -20,7 +20,8 @@
     <maven.compile.deprecation>true</maven.compile.deprecation>
     
     <wicket.version>1.4.15</wicket.version>
-    <jetty.version>7.2.2.v20101205</jetty.version>
+		<jetty.version>6.1.25</jetty.version>
+		<slf4j.version>1.5.8</slf4j.version>
     
   </properties>
 
@@ -143,35 +144,15 @@
         </configuration>
       </plugin>
       
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.1.2</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>cim</report>
-              <!-- too long
-              <report>dependencies</report> too long -->
-              <report>dependency-convergence</report>
-              <report>dependency-management</report>
-              <!-- not needed
-              <report>index</report> not needed
-              <report>issue-tracking</report>
-              <report>license</report>
-              <report>mailing-list</report>
-              <report>project-team</report>
-              <report>scm</report>
-              <report>plugin-management</report> -->
-              <report>plugins</report>
-              <report>summary</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.8</version>
+				<configuration>
+					<downloadSources>true</downloadSources>
+				</configuration>
+			</plugin>
 
     </plugins>
   </reporting>
