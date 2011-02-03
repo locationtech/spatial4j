@@ -6,7 +6,7 @@
 	<groupId>org.apache.lucene.spatial.quad</groupId>
 	<version>0.1-SNAPSHOT</version>
 	
-  <name>Lucene Quad-Tree indexing</name>
+  <name>Quad - Parent</name>
   <description>
    Lucene Spatial Playground
   </description>
@@ -273,6 +273,16 @@
     <snapshots>
       <enabled>true</enabled>
     </snapshots>
+   </repository>
+
+   <repository>
+     <id>lucene-hudson-trunk</id>
+     <name>Lucene hudson trunk</name>
+     <url>https://hudson.apache.org/hudson/job/Lucene-Solr-Maven-trunk/lastSuccessfulBuild/artifact/maven_artifacts</url>
+     <layout>default</layout>
+     <snapshots>
+       <enabled>true</enabled>
+     </snapshots>
    </repository>
 
   </repositories>
