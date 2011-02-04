@@ -41,6 +41,7 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.response.TextResponseWriter;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
+import org.apache.solr.schema.SchemaAware;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.schema.SpatialQueryable;
 import org.apache.solr.search.QParser;
@@ -55,7 +56,7 @@ import voyager.quads.geometry.Shape;
  * Syntax for the field input:
  *
  * (1) QuadTokens: List of the fields it exists in:
- *    [ABA* CAA* AAAAAB*]
+ *    [ABA* CAA* AAAAAB-]
  *
  * (2) Point: X Y
  *   1.23 4.56
@@ -67,7 +68,7 @@ import voyager.quads.geometry.Shape;
  *   POLYGON( ... )
  *
  */
-public class QuadTreeField extends FieldType implements SpatialQueryable
+public class QuadTreeField extends FieldType implements SchemaAware, SpatialQueryable
 {
   // This is copied from Field type since they are private
   final static int INDEXED             = 0x00000001;
@@ -80,6 +81,7 @@ public class QuadTreeField extends FieldType implements SpatialQueryable
   protected SpatialGrid grid;
 
   // Optionally copy a subset with maximum length
+  protected FieldType cellType;
   protected String fprefix = null;
   protected byte[] resolutions = new byte[0];
 
@@ -106,6 +108,18 @@ public class QuadTreeField extends FieldType implements SpatialQueryable
     grid.resolution = 5; // how far past the best fit to go
   }
 
+  public void inform(IndexSchema schema) {
+
+    cellType = schema.getFieldTypeByName( "string" );
+
+    //Just set these, delegate everything else to the field type
+
+    //Just set these, delegate everything else to the field type
+    int p = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
+
+    SchemaField sf = new SchemaField(fprefix+"*", cellType, p, null );
+    schema.registerDynamicField( sf );
+  }
 
 
   @Override

@@ -78,6 +78,16 @@
    <field name="sqKM"     type="float"   indexed="true" stored="true" />
    <field name="pop2005"  type="long"    indexed="true" stored="true" />
    
+   
+   <!-- geoeye -->
+   <field name="source"       type="string"  indexed="true" stored="true" />
+   <field name="sensorMode"   type="string"  indexed="true" stored="true" />
+   <field name="stripID"      type="string"  indexed="true" stored="true" />
+   <field name="sceneID"      type="string"  indexed="true" stored="true" />
+   <field name="imageURL"     type="string"  indexed="true" stored="true" />
+   <field name="metadataURL"  type="string"  indexed="true" stored="true" />
+   <field name="collectionDate"  type="date"    indexed="true" stored="true" />
+   
  </fields>
 
  <!-- Field to use to determine and enforce document uniqueness. 
