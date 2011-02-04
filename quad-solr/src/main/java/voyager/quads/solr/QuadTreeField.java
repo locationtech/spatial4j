@@ -31,10 +31,10 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.Field.TermVector;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.FilteredQuery;
-import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.solr.common.SolrException;
@@ -46,7 +46,6 @@ import org.apache.solr.schema.SpatialQueryable;
 import org.apache.solr.search.QParser;
 import org.apache.solr.search.SpatialOptions;
 
-import voyager.quads.LevelMatchInfo;
 import voyager.quads.MatchInfo;
 import voyager.quads.SpatialGrid;
 import voyager.quads.geometry.Shape;
@@ -171,30 +170,14 @@ public class QuadTreeField extends FieldType implements SpatialQueryable
     try {
       Shape geo = Shape.parse( externalVal );
       MatchInfo match = grid.read(geo);
-      MatchInfo qmatch = MatchInfo.getMostlyWithinQueryTokens( match.tokens );
-      int bestfit = match.bboxLevel; // use as boost
-      int depth = match.levels.size();
 
       BooleanQuery query = new BooleanQuery( true );
-      for( LevelMatchInfo level : qmatch.levels ) {
-        String fname = fprefix+nf.format( level.level );
-
-        if( level.intersects.size() > 0 ) {
-          FieldValuesFilter filter = new FieldValuesFilter( fname, level.intersects );
-          Query q = new FilteredQuery( new MatchAllDocsQuery(), filter );
-          query.add( new BooleanClause( q, BooleanClause.Occur.SHOULD  ) );
-        }
-        if( level.covers.size() > 0 ) {
-          FieldValuesFilter filter = new FieldValuesFilter( fname+"_cover", level.covers );
-          Query q = new FilteredQuery( new MatchAllDocsQuery(), filter );
-          q.setBoost( (depth - level.level) + 2 ); // TODO.. use bestfit???
-          query.add( new BooleanClause( q, BooleanClause.Occur.SHOULD  ) );
-        }
+      for( String token : match.tokens ) {
+        Term term = new Term( field.getName(), token );
+        term.bytes().length--; // drop the last * or -
+        query.add( new BooleanClause( new PrefixQuery( term ), BooleanClause.Occur.SHOULD  ) );
       }
-
       System.out.println( "QUERY: " + query );
-
-      //CustomScoreQuery q = new CustomScoreQuery()
       return query;
     }
     catch (Exception e) {

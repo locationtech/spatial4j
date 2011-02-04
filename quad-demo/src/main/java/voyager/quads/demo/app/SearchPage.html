@@ -3,15 +3,20 @@
     <title>Solr Quad Playground</title>
   </head>
   <body>
+  <div style="float:right">
+   <a href="solr/select?q=*:*">[solr]</a>
+   <a wicket:id="playground" href="#">[playground]</a>
+  </div>
+  
     <form wicket:id="search">
       <div>
         <strong>Text</strong><br/>
-        <input type="text"/>
+        <input wicket:id="text" type="text"/>
       </div>
       
       <div>
         <strong>Within</strong><br/>
-        <input type="text"/>
+        <input wicket:id="geo" type="text"/>
       </div>
       <input type="submit" value="search"/>
     </form>

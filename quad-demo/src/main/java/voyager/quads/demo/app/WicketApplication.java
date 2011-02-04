@@ -1,6 +1,7 @@
 package voyager.quads.demo.app;
 
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.target.coding.HybridUrlCodingStrategy;
 
 /**
  * Application object for your web application. If you want to run this application without deploying, run the Start class.
@@ -16,13 +17,19 @@ public class WicketApplication extends WebApplication
 	{
 	}
 
-	/**
-	 * @see org.apache.wicket.Application#getHomePage()
-	 */
 	@Override
-  public Class<HomePage> getHomePage()
+  public Class<SearchPage> getHomePage()
 	{
-		return HomePage.class;
+		return SearchPage.class;
 	}
+
+  @Override
+  protected void init() {
+    super.init();
+
+    mount( new HybridUrlCodingStrategy( "search", SearchPage.class ) );
+    mount( new HybridUrlCodingStrategy( "playground", PlaygroundPage.class ) );
+  }
+
 
 }

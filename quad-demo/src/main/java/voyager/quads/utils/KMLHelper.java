@@ -91,6 +91,23 @@ public class KMLHelper
     return p;
   }
 
+  public static Kml toKML(String name, SpatialGrid grid, List<String> tokens )
+  {
+    final Kml kml = KmlFactory.createKml();
+    Document document = kml.createAndSetDocument()
+      .withName( name ).withOpen(false);
+
+    document.withDescription( tokens.size()+"" );
+
+    addStyles( document );
+
+    Folder folder = document.createAndAddFolder().withName( "tokens" );
+    for( String token : tokens ) {
+      String style = token.endsWith( "*" ) ? "#ccc" : "#mmm";
+      folder.getFeature().add( create( token.substring(0,token.length()-1), style, grid ) );
+    }
+    return kml;
+  }
 
   public static Kml toKML( MatchInfo info, String name, SpatialGrid grid, boolean showIntersects )
   {

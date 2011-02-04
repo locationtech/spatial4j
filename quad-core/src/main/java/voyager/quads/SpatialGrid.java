@@ -1,7 +1,10 @@
 package voyager.quads;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import voyager.quads.geometry.IntersectCase;
 import voyager.quads.geometry.Shape;
@@ -205,6 +208,16 @@ public class SpatialGrid
     return new Envelope(
         xmin, xmin+levelW[len],
         ymin, ymin+levelH[len] );
+  }
+
+  public List<String> parseStrings(String cells)
+  {
+    ArrayList<String> tokens = new ArrayList<String>();
+    StringTokenizer st = new StringTokenizer( cells, "[], " );
+    while( st.hasMoreTokens() ) {
+      tokens.add( st.nextToken() );
+    }
+    return tokens;
   }
 
   //------------------------------------------------------------------------------------------------------
