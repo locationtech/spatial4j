@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.miscellaneous.LengthFilter;
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.document.AbstractField;
 import org.apache.lucene.document.Fieldable;
@@ -137,8 +136,8 @@ public class QuadTreeField extends FieldType implements SchemaAware, SpatialQuer
         // Get the distinct shorter strings
         fields[i] = new SimpleAbstractField( fprefix+resolutions[i-1], false );
         fields[i].tokens = new RemoveDuplicatesTokenFilter(
-            new LengthFilter( false,
-                new QuadCellsTokenizer( new StringReader( externalVal ) ), 1, resolutions[i-1] ) );
+            new TruncateFilter(
+                new QuadCellsTokenizer( new StringReader( externalVal ) ), resolutions[i-1] ) );
       }
     }
     else {
@@ -161,8 +160,8 @@ public class QuadTreeField extends FieldType implements SchemaAware, SpatialQuer
         // Get the distinct shorter strings
         fields[i] = new SimpleAbstractField( fprefix+resolutions[i-1], false );
         fields[i].tokens = new RemoveDuplicatesTokenFilter(
-            new LengthFilter( false,
-                new StringListTokenizer( match.tokens ), 1, resolutions[i-1] ) );
+            new TruncateFilter(
+                new StringListTokenizer( match.tokens ), resolutions[i-1] ) );
       }
     }
     return fields;

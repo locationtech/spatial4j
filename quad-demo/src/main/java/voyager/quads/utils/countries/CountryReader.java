@@ -70,20 +70,6 @@ public class CountryReader
 
   public static final void main( String[] args )
   {
-    File file = new File( "../data/countries/cntry06.shp" );
-    System.out.println( "indexing: "+file.getAbsolutePath() );
-
-    try {
-      //StreamingUpdateSolrServer solr = new StreamingUpdateSolrServer( "http://localhost:8080/solr", 50, 3 );
-      SolrServer solr = new CommonsHttpSolrServer( "http://localhost:8080/solr" );
-      CountryReader.indexCountries( solr, file );
-      solr.commit( true, true );
-    }
-    catch( Exception ex ) {
-      ex.printStackTrace();
-    }
-    System.out.println( "done." );
-
 //
 //    ShapeReader reader = new ShapeReader( file );
 //    int cnt = reader.getCount();

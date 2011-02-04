@@ -101,38 +101,4 @@ public class GeoeyeReader
       System.out.println( (++count)+"/"+total + " :: " +c.imageID );
     }
   }
-
-  public static final void main( String[] args )
-  {
-    File file = new File( "../data/ikonos_2011/ikonos_2011.shp" );
-    System.out.println( "indexing: "+file.getAbsolutePath() );
-
-    try {
-      //StreamingUpdateSolrServer solr = new StreamingUpdateSolrServer( "http://localhost:8080/solr", 50, 3 );
-      SolrServer solr = new CommonsHttpSolrServer( "http://localhost:8080/solr" );
-      GeoeyeReader.indexItems( solr, file );
-      solr.commit( true, true );
-    }
-    catch( Exception ex ) {
-      ex.printStackTrace();
-    }
-    System.out.println( "done." );
-
-//
-//    ShapeReader reader = new ShapeReader( file );
-//    int cnt = reader.getCount();
-//    reader.describe( System.out );
-//    System.out.println( "Count:"+cnt );
-//    FeatureReader<SimpleFeatureType, SimpleFeature> iter = reader.getFeatures();
-//    ArrayList<CountryInfo> countries = new ArrayList<CountryInfo>(300);
-//    while( iter.hasNext() ) {
-//      SimpleFeature f = iter.next();
-//      countries.add( CountryReader.read( f ) );
-//    }
-//    Collections.sort( countries, CountryInfo.POPULATION_ORDER );
-//    for( CountryInfo info : countries ) {
-//      System.out.println( "<option value=\""+info.fips+"\">"+info.name+"</option>" );
-//    }
-//    System.out.println( "done." );
-  }
 }
