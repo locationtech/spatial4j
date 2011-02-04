@@ -17,19 +17,12 @@ package voyager.quads.solr;
  */
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Map;
-import java.util.StringTokenizer;
 
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.miscellaneous.LengthFilter;
-import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
-import org.apache.lucene.document.AbstractField;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.Field.TermVector;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -41,6 +34,7 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.response.TextResponseWriter;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
+import org.apache.solr.schema.SchemaAware;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.schema.SpatialQueryable;
 import org.apache.solr.search.QParser;
@@ -52,23 +46,8 @@ import voyager.quads.SpatialGrid;
 import voyager.quads.geometry.Shape;
 
 
-/**
- * Syntax for the field input:
- *
- * (1) QuadTokens: List of the fields it exists in:
- *    [ABA* CAA* AAAAAB*]
- *
- * (2) Point: X Y
- *   1.23 4.56
- *
- * (3) BOX: XMin YMin XMax YMax
- *   1.23 4.56 7.87 4.56
- *
- * (3) WKT
- *   POLYGON( ... )
- *
- */
-public class QuadTreeField extends FieldType implements SpatialQueryable
+
+public class QuadTreeFieldOld extends FieldType implements SchemaAware, SpatialQueryable
 {
   // This is copied from Field type since they are private
   final static int INDEXED             = 0x00000001;
@@ -78,81 +57,70 @@ public class QuadTreeField extends FieldType implements SpatialQueryable
   final static int OMIT_NORMS          = 0x00000010;
   final static int OMIT_TF_POSITIONS   = 0x00000020;
 
+  protected String fprefix;
   protected SpatialGrid grid;
-
-  // Optionally copy a subset with maximum length
-  protected String fprefix = null;
-  protected byte[] resolutions = new byte[0];
+  protected FieldType cellType;
+  protected IndexSchema schema;
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
+    this.schema = schema;
 
-    String res = args.remove( "resolutions" );
-    if( res != null ) {
-      StringTokenizer st = new StringTokenizer( res, ", " );
-      resolutions = new byte[st.countTokens()];
-      for( int i=0; i<resolutions.length; i++ ) {
-        resolutions[i] = Byte.parseByte( st.nextToken() );
-      }
-
-      fprefix = args.remove( "prefix" );
-      if( fprefix == null ) {
-        throw new RuntimeException( "missing prefix field" );
-      }
+    fprefix = args.remove( "prefix" );
+    if( fprefix == null ) {
+      throw new RuntimeException( "missing prefix field" );
     }
-
-    // TODO, allow configuration
     grid = new SpatialGrid( -180, 180, -90-180, 90, 16 );
     grid.resolution = 5; // how far past the best fit to go
   }
 
+  public void inform(IndexSchema schema) {
 
+    cellType = schema.getFieldTypeByName( "string" );
+
+    //Just set these, delegate everything else to the field type
+
+    //Just set these, delegate everything else to the field type
+    int p = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
+
+    SchemaField sf = new SchemaField(fprefix+"*", cellType, p, null );
+    schema.registerDynamicField( sf );
+  }
 
   @Override
   public Fieldable[] createFields(SchemaField field, String externalVal, float boost)
   {
-    SimpleAbstractField[] fields = new SimpleAbstractField[1+resolutions.length];
-    fields[0] = new SimpleAbstractField( field.getName(), field.stored() );
-
-    // The input *may* already define quad cells -- in this case, just use them
-    if( externalVal.startsWith( "[" ) ) {
-      // These are raw values... we will just reuse them
-      fields[0].value = externalVal;
-      fields[0].tokens = new QuadCellsTokenizer( new StringReader( externalVal ) );
-      for( int i=1; i<=resolutions.length; i++ ) {
-        // Get the distinct shorter strings
-        fields[i] = new SimpleAbstractField( fprefix+resolutions[i-1], false );
-        fields[i].tokens = new RemoveDuplicatesTokenFilter(
-            new LengthFilter( false,
-                new QuadCellsTokenizer( new StringReader( externalVal ) ), 1, resolutions[i-1] ) );
-      }
+    ArrayList<Fieldable> fields = new ArrayList<Fieldable>();
+    if( field.stored() ) {
+      fields.add( createField(field.getName(), externalVal,
+          getFieldStore(field, externalVal), Field.Index.NO, Field.TermVector.NO,
+          false, false, boost));
     }
-    else {
-      Shape shape = null;
-      try {
-        shape = Shape.parse( externalVal );
-      }
-      catch (Exception e) {
-        throw new SolrException( SolrException.ErrorCode.BAD_REQUEST, e );
-      }
-      MatchInfo match = grid.read(shape);
 
+    NumberFormat nf = NumberFormat.getIntegerInstance();
+    nf.setMinimumIntegerDigits( 2 );
 
-      if( field.stored() ) {
-        // Store the cells, not the raw geometry
-        fields[0].value = match.tokens.toString();
+    try {
+      Shape geo = Shape.parse( externalVal );
+      MatchInfo match = grid.read(geo);
+
+      for( LevelMatchInfo level : match.levels ) {
+        String pfix = fprefix + nf.format( level.level );
+
+        if( !level.intersects.isEmpty() ) {
+          fields.add( new Field( pfix, new StringListTokenizer( level.intersects ), TermVector.NO ) );
+        }
+        level.covers.addAll( level.depth ); // TODO?  distinction? new field?
+        if( !level.covers.isEmpty() ) {
+          fields.add( new Field( pfix+"_cover", new StringListTokenizer( level.covers ), TermVector.NO ) );
+        }
       }
-      fields[0].tokens = new StringListTokenizer( match.tokens );
-      for( int i=1; i<=resolutions.length; i++ ) {
-        // Get the distinct shorter strings
-        fields[i] = new SimpleAbstractField( fprefix+resolutions[i-1], false );
-        fields[i].tokens = new RemoveDuplicatesTokenFilter(
-            new LengthFilter( false,
-                new StringListTokenizer( match.tokens ), 1, resolutions[i-1] ) );
-      }
+      return fields.toArray( new Fieldable[fields.size()] );
     }
-    return fields;
+    catch (Exception e) {
+      throw new SolrException( SolrException.ErrorCode.BAD_REQUEST, e );
+    }
   }
 
 
@@ -226,32 +194,12 @@ public class QuadTreeField extends FieldType implements SpatialQueryable
   public SortField getSortField(SchemaField field, boolean top) {
     throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "Sorting not supported on QuadTreeField " + field.getName());
   }
+
+  @Override
+  public Field createField(SchemaField field, String externalVal, float boost) {
+    throw new UnsupportedOperationException("QuadField needs multiple fields.  field=" + field.getName());
+  }
 }
 
 
-class SimpleAbstractField extends AbstractField
-{
-  public String value;
-  public TokenStream tokens;
-
-  public SimpleAbstractField( String name, boolean stored ) {
-    super( name, stored?Store.YES:Store.NO, Index.ANALYZED_NO_NORMS, TermVector.NO );
-    setOmitTermFreqAndPositions( true );
-  }
-
-  @Override
-  public Reader readerValue() {
-    return new StringReader( value );
-  }
-
-  @Override
-  public String stringValue() {
-    return value;
-  }
-
-  @Override
-  public TokenStream tokenStreamValue() {
-    return tokens;
-  }
-};
 

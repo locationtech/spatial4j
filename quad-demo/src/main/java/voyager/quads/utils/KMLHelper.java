@@ -96,7 +96,7 @@ public class KMLHelper
   {
     final Kml kml = KmlFactory.createKml();
     Document document = kml.createAndSetDocument()
-      .withName( name ).withOpen(true);
+      .withName( name ).withOpen(false);
 
     document.withDescription( info.getInfoString() );
 

@@ -1,10 +1,29 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
-    <head>  
-        <title>Wicket Quickstart Archetype Homepage</title>
-    </head>
-    <body>
-        <strong>Wicket Quickstart Archetype Homepage</strong>
-        <br/><br/>
-        <span wicket:id="message">message will be here</span>
-    </body>
+  <head>  
+    <title>Solr Quad Playground</title>
+  </head>
+  <body>
+    <form wicket:id="search">
+      <div>
+        <strong>Text</strong><br/>
+        <input type="text"/>
+      </div>
+      
+      <div>
+        <strong>Within</strong><br/>
+        <input type="text"/>
+      </div>
+      <input type="submit" value="search"/>
+    </form>
+    
+    <div wicket:id="results">
+      <ul>
+        <li wicket:id="item">
+          <span wicket:id="name">name</span>
+          <a wicket:id="kml" href="#">[KML]</a>
+        </li>
+      </ul>
+    </div>
+    
+  </body>
 </html>

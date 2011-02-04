@@ -54,7 +54,10 @@
     </fieldType>
 
 
-    <!-- Existing Spatial Search optios -->
+    <!-- Quadtree, resolutions are optionally copied to different fields -->
+    <fieldtype name="quadtree" class="voyager.quads.solr.QuadTreeField" resolutions="5,10" prefix="quad_" />
+
+    <!-- Existing Spatial Search options -->
     <fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
     <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
     <fieldtype name="geohash" class="solr.GeoHashField"/>
@@ -63,9 +66,17 @@
 
 
  <fields>
-   <field name="id"    type="string" indexed="true" stored="true" required="true" /> 
-   <field name="name"  type="text"   indexed="true" stored="true" required="true" />
+   <field name="id"     type="string"  indexed="true" stored="true" required="true" /> 
+   <field name="name"   type="text"    indexed="true" stored="true" required="true" />
    
+	 <!-- geometry, stores the cells -->
+   <field name="geo" type="quadtree"  indexed="true" stored="true"  multiValued="false" />
+   
+   <!-- country fields -->
+   <field name="status"   type="string"  indexed="true" stored="true" />
+   <field name="sqMI"     type="float"   indexed="true" stored="true" />
+   <field name="sqKM"     type="float"   indexed="true" stored="true" />
+   <field name="pop2005"  type="long"    indexed="true" stored="true" />
    
  </fields>
 

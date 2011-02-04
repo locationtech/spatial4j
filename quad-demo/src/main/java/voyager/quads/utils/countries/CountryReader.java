@@ -1,10 +1,10 @@
 package voyager.quads.utils.countries;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.common.SolrInputDocument;
 import org.geotools.data.FeatureReader;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -15,7 +15,6 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class CountryReader
 {
-
   public static CountryInfo read( SimpleFeature f )
   {
     CountryInfo c = new CountryInfo();
@@ -50,24 +49,56 @@ public class CountryReader
     return c;
   }
 
-  public static final void main( String[] args ) throws IOException
+  public static void indexCountries( SolrServer solr, File shp ) throws Exception
   {
-    File file = new File( "F:/workspace/lucene-spatial/data/countries/cntry06.shp" );
-
-    ShapeReader reader = new ShapeReader( file );
-    int cnt = reader.getCount();
+    ShapeReader reader = new ShapeReader( shp );
+    int total = reader.getCount();
     reader.describe( System.out );
-    System.out.println( "Count:"+cnt );
+    int count = 0;
     FeatureReader<SimpleFeatureType, SimpleFeature> iter = reader.getFeatures();
-    ArrayList<CountryInfo> countries = new ArrayList<CountryInfo>(300);
     while( iter.hasNext() ) {
-      SimpleFeature f = iter.next();
-      countries.add( CountryReader.read( f ) );
+      CountryInfo c = read( iter.next() );
+      SolrInputDocument doc = new SolrInputDocument();
+      doc.setField( "id", c.fips );
+      doc.setField( "name", c.name );
+      doc.setField( "geo", c.geometry.toText() );
+      doc.setField( "pop2005", c.population2005 );
+      solr.add( doc );
+      System.out.println( (++count)+"/"+total + " :: " +c.name );
     }
-    Collections.sort( countries, CountryInfo.POPULATION_ORDER );
-    for( CountryInfo info : countries ) {
-      System.out.println( "<option value=\""+info.fips+"\">"+info.name+"</option>" );
+  }
+
+  public static final void main( String[] args )
+  {
+    File file = new File( "../data/countries/cntry06.shp" );
+    System.out.println( "indexing: "+file.getAbsolutePath() );
+
+    try {
+      //StreamingUpdateSolrServer solr = new StreamingUpdateSolrServer( "http://localhost:8080/solr", 50, 3 );
+      SolrServer solr = new CommonsHttpSolrServer( "http://localhost:8080/solr" );
+      CountryReader.indexCountries( solr, file );
+      solr.commit( true, true );
+    }
+    catch( Exception ex ) {
+      ex.printStackTrace();
     }
     System.out.println( "done." );
+
+//
+//    ShapeReader reader = new ShapeReader( file );
+//    int cnt = reader.getCount();
+//    reader.describe( System.out );
+//    System.out.println( "Count:"+cnt );
+//    FeatureReader<SimpleFeatureType, SimpleFeature> iter = reader.getFeatures();
+//    ArrayList<CountryInfo> countries = new ArrayList<CountryInfo>(300);
+//    while( iter.hasNext() ) {
+//      SimpleFeature f = iter.next();
+//      countries.add( CountryReader.read( f ) );
+//    }
+//    Collections.sort( countries, CountryInfo.POPULATION_ORDER );
+//    for( CountryInfo info : countries ) {
+//      System.out.println( "<option value=\""+info.fips+"\">"+info.name+"</option>" );
+//    }
+//    System.out.println( "done." );
   }
 }
