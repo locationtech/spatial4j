@@ -2,6 +2,8 @@ package voyager.quads.demo.app;
 
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -11,6 +13,8 @@ import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.params.SolrParams;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -21,6 +25,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.RepeatingView;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -60,12 +65,7 @@ public class SearchPage extends WebPage
   {
     add( new BookmarkablePageLink<Void>( "playground", PlaygroundPage.class ) );
 
-    Form<Query> searchForm = new Form<Query>( "search", new CompoundPropertyModel<Query>(query) ) {
-      @Override
-      protected void onSubmit() {
-        System.out.println( query.getObject().toSolrQuery() );
-      }
-    };
+    Form<Query> searchForm = new Form<Query>( "search", new CompoundPropertyModel<Query>(query) );
     searchForm.add( new TextField<String>( "text" ) );
     searchForm.add( new TextField<String>( "geo" ) );
     add( searchForm );
@@ -74,7 +74,7 @@ public class SearchPage extends WebPage
       @Override
       protected QueryResponse load() {
         try {
-          return solr.query( query.getObject().toSolrQuery() );
+          return solr.query( query.getObject().toSolrQuery( 100 ) );
         }
         catch (SolrServerException e) {
           throw new RuntimeException( e );
@@ -125,6 +125,43 @@ public class SearchPage extends WebPage
       }
     };
     results.add( new WebMarkupContainer( "item" ) ); // will get replaced
+    results.add( new Label("count", new AbstractReadOnlyModel<String>() {
+      @Override
+      public String getObject() {
+        SolrDocumentList docs = queryResponse.getObject().getResults();
+        return docs.getStart() + " - " + (docs.getStart()+docs.size()) + " of " + docs.getNumFound();
+      }
+    }));
+    results.add( new WebMarkupContainer( "solr" ).add( new AttributeModifier( "href", true, new AbstractReadOnlyModel<CharSequence>() {
+      @Override
+      public CharSequence getObject() {
+        StringBuilder url = new StringBuilder();
+        url.append( "http://localhost:8080/solr/select?debugQuery=true" );
+        SolrParams params = query.getObject().toSolrQuery( 10 );
+
+        for(Iterator<String> it=params.getParameterNamesIterator(); it.hasNext(); ) {
+          final String name = it.next();
+          try {
+            final String [] values = params.getParams(name);
+            if( values.length > 0 ) {
+              for( String v : values ) {
+                url.append( "&"+URLEncoder.encode( name, "UTF-8" ) );
+                url.append( '=' );
+                url.append( URLEncoder.encode( v, "UTF-8" ) );
+              }
+            }
+            else {
+              url.append( "&"+URLEncoder.encode( name, "UTF-8" ) );
+            }
+          }
+          catch( Exception ex ) {
+            ex.printStackTrace();
+          }
+        }
+        return url;
+      }
+    })));
+
     add( results );
   }
 

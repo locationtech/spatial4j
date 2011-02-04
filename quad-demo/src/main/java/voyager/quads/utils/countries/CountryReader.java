@@ -3,7 +3,6 @@ package voyager.quads.utils.countries;
 import java.io.File;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.geotools.data.FeatureReader;
 import org.opengis.feature.simple.SimpleFeature;

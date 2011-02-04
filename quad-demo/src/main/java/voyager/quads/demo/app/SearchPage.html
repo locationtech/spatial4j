@@ -17,11 +17,14 @@
       <div>
         <strong>Within</strong><br/>
         <input wicket:id="geo" type="text"/>
+        TODO, <a href="http://openlayers.org/dev/examples/vector-formats.html">generate WKT polygon</a>
       </div>
       <input type="submit" value="search"/>
     </form>
     
     <div wicket:id="results">
+      <span wicket:id="count">A - B of C</span>
+      <a wicket:id="solr" href="#">[solr]</a>
       <ul>
         <li wicket:id="item">
           <span wicket:id="name">name</span>

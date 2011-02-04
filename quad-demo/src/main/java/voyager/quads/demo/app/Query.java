@@ -11,22 +11,28 @@ public class Query implements Serializable
   public String text;
   public String geo;
 
-  public SolrParams toSolrQuery()
+  public SolrParams toSolrQuery( int rows )
   {
-    SolrQuery q = new SolrQuery();
-    if( text == null || text.length() < 1 ) {
-      q.setQuery( "*:*" );
+    SolrQuery params = new SolrQuery();
+    String q = text;
+
+    boolean hasGeo = (geo != null && geo.length() > 0);
+
+    if( q == null || q.length() < 1 ) {
+      if( hasGeo ) {
+        q = "geo:"+ClientUtils.escapeQueryChars( geo );
+      }
+      else {
+        q = "*:*";
+      }
     }
-    else {
-      q.setQuery( text );
+    else if( hasGeo ) {
+      params.addFilterQuery( "geo:"+ClientUtils.escapeQueryChars( geo ) );
     }
 
-    if( geo != null && geo.length() > 0 ) {
-      q.addFilterQuery( "geo:"+ClientUtils.escapeQueryChars( geo ) );
-    }
-
-    q.setRows( 100 );
-    q.setFields( "id,name" );
-    return q;
+    params.setQuery( q );
+    params.setRows( rows );
+    params.setFields( "id,name" );
+    return params;
   }
 }
