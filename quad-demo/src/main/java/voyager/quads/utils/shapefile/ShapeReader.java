@@ -3,6 +3,7 @@ package voyager.quads.utils.shapefile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
@@ -14,9 +15,6 @@ import org.opengis.feature.type.AttributeType;
 import org.opengis.filter.Filter;
 
 
-
-/**
- */
 public class ShapeReader
 {
   final ShapefileDataStore store;
@@ -26,14 +24,19 @@ public class ShapeReader
     store = new ShapefileDataStore ( f.toURL() );
   }
 
-
-//  public void dispose() {
-//    store.dispose();
-//  }
-
   public SimpleFeatureType getSchema() throws IOException
   {
     return store.getSchema();
+  }
+
+  public void describe( PrintStream out ) throws IOException
+  {
+    SimpleFeatureType schema = store.getSchema();
+    for( int i=0; i<schema.getAttributeCount(); i++ ) {
+      AttributeDescriptor ad = schema.getDescriptor( i );
+      AttributeType at = ad.getType();
+      out.println( i+"] "+ad.getName() + " :: " + at.getBinding() );
+    }
   }
 
   public int getCount() throws IOException
@@ -46,54 +49,10 @@ public class ShapeReader
     });
   }
 
-  public void read( FeatureVisitor visitor ) throws IOException
+  public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatures() throws IOException
   {
-    int idx = 0;
-    FeatureReader<SimpleFeatureType, SimpleFeature> rrr = store.getFeatureReader();
-    while( rrr.hasNext() ) {
-      visitor.visit( rrr.next(), idx++ );
-    }
+    return store.getFeatureReader();
   }
-
-
-  public static SolrFieldMapper guess( SimpleFeatureType schema )
-  {
-    SolrFieldMapper mapper = new SolrFieldMapper();
-
-    for( int i=0; i<schema.getAttributeCount(); i++ ) {
-      AttributeDescriptor ad = schema.getDescriptor( i );
-      AttributeType at = ad.getType();
-
-      EntryFieldType t = EntryFieldType.forClass( at.getBinding() );
-      String sfield = EntryUtils.getSolrFieldPrefix( t, ad.getMaxOccurs()>1 ) + ad.getName();
-
-      mapper.register( new SolrFieldMapInfo( i, ad.getLocalName(), sfield ) );
-    }
-
-    return mapper;
-  }
-
-
-  public static void main( String[] args ) throws Exception {
-    File dir = new File( "F:/workspace/lucene-spatial/data/" );
-    File shp = new File( dir, "ikonos_2010/ikonos_2010.shp" );
-
-
-    ShapeReader reader = new ShapeReader( shp );
-    final float count = reader.getCount();
-    reader.read( new FeatureVisitor() {
-      @Override
-      public void visit(SimpleFeature f, int idx) {
-        // TODO Auto-generated method stub
-
-        float per = idx/count;
-        System.out.println( idx + " :: " + per );
-      }
-    });
-
-    System.out.println( "done." );
-  }
-
 }
 
 

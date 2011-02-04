@@ -38,6 +38,7 @@ public class SpatialGrid
   final int[]    levelS; // side
   final int[]    levelN; // number
 
+  public int minResolution = 6; // Go at least this deep
   public int resolution = 4; // how far down past the 'bbox level'
 
   public SpatialGrid( double xmin, double xmax, double ymin, double ymax, int maxLevels )
@@ -105,6 +106,9 @@ public class SpatialGrid
     MatchInfo vals = new MatchInfo();
     vals.bboxLevel = getBBoxLevel( geo );
     vals.maxLevel = Math.min( maxLevels, vals.bboxLevel+resolution );
+    if( vals.maxLevel < minResolution ) {
+      vals.maxLevel = minResolution;
+    }
 
     build( xmid, ymid, 0, vals, new StringBuilder(), geo );
     Collections.sort( vals.tokens, MatchInfo.LEVEL_ORDER );
