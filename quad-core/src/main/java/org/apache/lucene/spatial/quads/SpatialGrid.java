@@ -1,12 +1,11 @@
 package org.apache.lucene.spatial.quads;
 
+import java.io.IOException;
 import java.util.List;
-
-import com.vividsolutions.jts.io.ParseException;
 
 public interface SpatialGrid
 {
-  public Shape readShape( String str ) throws ParseException;
+  public Shape readShape( String str ) throws IOException;
 
   public int getBestLevel( Shape geo );
 

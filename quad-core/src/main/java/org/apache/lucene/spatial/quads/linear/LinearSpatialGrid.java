@@ -1,5 +1,6 @@
 package org.apache.lucene.spatial.quads.linear;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +12,6 @@ import org.apache.lucene.spatial.quads.Rectangle;
 import org.apache.lucene.spatial.quads.Shape;
 import org.apache.lucene.spatial.quads.ShapeExtent;
 import org.apache.lucene.spatial.quads.SpatialGrid;
-
-import com.vividsolutions.jts.io.ParseException;
 
 
 
@@ -218,7 +217,7 @@ public class LinearSpatialGrid implements SpatialGrid
   }
 
   @Override
-  public Shape readShape(String str) throws ParseException {
+  public Shape readShape(String str) throws IOException {
     if( str.length() < 1 ) {
       throw new RuntimeException( "invalid string" );
     }

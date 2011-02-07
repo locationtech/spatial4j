@@ -1,5 +1,6 @@
 package org.apache.lucene.spatial.quads.gis;
 
+import java.io.IOException;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.quads.Shape;
@@ -11,7 +12,6 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
 public class JtsLinearSpatialGrid extends LinearSpatialGrid
@@ -31,7 +31,7 @@ public class JtsLinearSpatialGrid extends LinearSpatialGrid
 
 
   @Override
-  public Shape readShape(String str) throws ParseException {
+  public Shape readShape(String str) throws IOException {
     if( str.length() < 1 ) {
       throw new RuntimeException( "invalid string" );
     }
@@ -48,11 +48,15 @@ public class JtsLinearSpatialGrid extends LinearSpatialGrid
     }
 
     WKTReader reader = new WKTReader(factory);
-    Geometry geo = reader.read( str );
-    if( geo instanceof Point ) {
-      return new JtsPoint2D((Point)geo);
+    try {
+      Geometry geo = reader.read( str );
+      if( geo instanceof Point ) {
+        return new JtsPoint2D((Point)geo);
+      }
+      return new JtsGeometry( geo );
     }
-    return new JtsGeometry( geo );
-
+    catch( com.vividsolutions.jts.io.ParseException ex ) {
+      throw new IOException( "error reading shape", ex );
+    }
   }
 }

@@ -100,6 +100,7 @@ public class JtsEnvelope implements ShapeExtent
     throw new IllegalArgumentException( "JtsEnvelope can be compared with Envelope or Geogmetry" );
   }
 
+  @Override
   public String toString()
   {
     return envelope.toString();

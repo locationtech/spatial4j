@@ -93,7 +93,8 @@ public class Rectangle implements ShapeExtent
     }
     return IntersectCase.INTERSECTS;
   }
-  
+
+  @Override
   public String toString()
   {
     return "["+minX+","+maxX+","+minY+","+maxY+"]";
