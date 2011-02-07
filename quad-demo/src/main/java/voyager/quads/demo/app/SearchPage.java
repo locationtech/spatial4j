@@ -6,6 +6,8 @@ import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.lucene.spatial.quads.gis.JtsLinearSpatialGrid;
+import org.apache.lucene.spatial.quads.linear.LinearSpatialGrid;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -34,7 +36,6 @@ import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.StringResourceStream;
 
-import voyager.quads.SpatialGrid;
 import voyager.quads.utils.KMLHelper;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 
@@ -42,7 +43,7 @@ import de.micromata.opengis.kml.v_2_2_0.Kml;
 public class SearchPage extends WebPage
 {
   // Dirty Dirty Dirty Hack...
-  static final SpatialGrid grid = new SpatialGrid( -180, 180, -90-180, 90, 16 );
+  static final JtsLinearSpatialGrid grid = new JtsLinearSpatialGrid( -180, 180, -90-180, 90, 16 );
   static final SolrServer solr;
   static {
     SolrServer s = null;
@@ -93,6 +94,7 @@ public class SearchPage extends WebPage
           final String id = (String)doc.getFieldValue( "id" );
           WebMarkupContainer row = new WebMarkupContainer( rv.newChildId() );
           row.add( new Label( "name", (String)doc.getFieldValue( "name" ) ) );
+          row.add( new Label( "tokens", (String)doc.getFieldValue( "geo" ) ) );
 
           row.add( new Link<Void>( "kml" ) {
             @Override
@@ -173,7 +175,7 @@ public class SearchPage extends WebPage
       if( docs.size() > 0 ) {
         String cells = (String)docs.get(0).get( "geo" );
         String name = (String)docs.get(0).get( "name" );
-        List<String> tokens = grid.parseStrings( cells );
+        List<String> tokens = LinearSpatialGrid.parseStrings( cells );
         return KMLHelper.toKML(name, grid, tokens);
       }
     }

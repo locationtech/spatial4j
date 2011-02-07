@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -36,6 +37,8 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.spatial.quads.Shape;
+import org.apache.lucene.spatial.quads.gis.JtsLinearSpatialGrid;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.response.TextResponseWriter;
 import org.apache.solr.schema.FieldType;
@@ -45,10 +48,6 @@ import org.apache.solr.schema.SchemaField;
 import org.apache.solr.schema.SpatialQueryable;
 import org.apache.solr.search.QParser;
 import org.apache.solr.search.SpatialOptions;
-
-import voyager.quads.MatchInfo;
-import voyager.quads.SpatialGrid;
-import voyager.quads.geometry.Shape;
 
 
 /**
@@ -77,7 +76,7 @@ public class QuadTreeField extends FieldType implements SchemaAware, SpatialQuer
   final static int OMIT_NORMS          = 0x00000010;
   final static int OMIT_TF_POSITIONS   = 0x00000020;
 
-  protected SpatialGrid grid;
+  protected JtsLinearSpatialGrid grid;
 
   // Optionally copy a subset with maximum length
   protected FieldType cellType;
@@ -103,7 +102,7 @@ public class QuadTreeField extends FieldType implements SchemaAware, SpatialQuer
     }
 
     // TODO, allow configuration
-    grid = new SpatialGrid( -180, 180, -90-180, 90, 16 );
+    grid = new JtsLinearSpatialGrid( -180, 180, -90-180, 90, 16 );
     grid.resolution = 5; // how far past the best fit to go
   }
 
@@ -143,25 +142,25 @@ public class QuadTreeField extends FieldType implements SchemaAware, SpatialQuer
     else {
       Shape shape = null;
       try {
-        shape = Shape.parse( externalVal );
+        shape = grid.readShape( externalVal );
       }
       catch (Exception e) {
         throw new SolrException( SolrException.ErrorCode.BAD_REQUEST, e );
       }
-      MatchInfo match = grid.read(shape);
+      List<CharSequence> match = grid.readCells(shape);
 
 
       if( field.stored() ) {
         // Store the cells, not the raw geometry
-        fields[0].value = match.tokens.toString();
+        fields[0].value = match.toString();
       }
-      fields[0].tokens = new StringListTokenizer( match.tokens );
+      fields[0].tokens = new StringListTokenizer( match );
       for( int i=1; i<=resolutions.length; i++ ) {
         // Get the distinct shorter strings
         fields[i] = new SimpleAbstractField( fprefix+resolutions[i-1], false );
         fields[i].tokens = new RemoveDuplicatesTokenFilter(
             new TruncateFilter(
-                new StringListTokenizer( match.tokens ), resolutions[i-1] ) );
+                new StringListTokenizer( match ), resolutions[i-1] ) );
       }
     }
     return fields;
@@ -181,12 +180,12 @@ public class QuadTreeField extends FieldType implements SchemaAware, SpatialQuer
 
     // assume 'mostly within' query
     try {
-      Shape geo = Shape.parse( externalVal );
-      MatchInfo match = grid.read(geo);
+      Shape geo = grid.readShape( externalVal );
+      List<CharSequence> match = grid.readCells(geo);
 
       BooleanQuery query = new BooleanQuery( true );
-      for( String token : match.tokens ) {
-        Term term = new Term( field.getName(), token );
+      for( CharSequence token : match ) {
+        Term term = new Term( field.getName(), token.toString() );
         term.bytes().length--; // drop the last * or -
         query.add( new BooleanClause( new PrefixQuery( term ), BooleanClause.Occur.SHOULD  ) );
       }

@@ -1,15 +1,10 @@
-package voyager.quads;
+package org.apache.lucene.spatial.quads.linear;
 
-import java.text.NumberFormat;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
 
 /**
  * following:
  * http://blog.notdot.net/2009/11/Damn-Cool-Algorithms-Spatial-indexing-with-Quadtrees-and-Hilbert-Curves
- * 
+ *
  */
 public class HilbertSpatialGrid
 {

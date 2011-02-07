@@ -12,10 +12,10 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
  */
 class StringListTokenizer extends Tokenizer
 {
-  final Iterable<String> tokens;
-  Iterator<String> iter = null;
+  final Iterable<CharSequence> tokens;
+  Iterator<CharSequence> iter = null;
 
-  public StringListTokenizer(Iterable<String> tokens) {
+  public StringListTokenizer(Iterable<CharSequence> tokens) {
     this.tokens = tokens;
   }
 
@@ -29,7 +29,7 @@ class StringListTokenizer extends Tokenizer
       iter = tokens.iterator();
     }
     if( iter.hasNext() ) {
-      String t = iter.next();
+      CharSequence t = iter.next();
       termAtt.setLength(0);
       termAtt.append( t );
       return true;

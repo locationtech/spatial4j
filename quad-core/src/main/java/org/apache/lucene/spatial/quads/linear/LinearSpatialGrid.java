@@ -1,29 +1,22 @@
-package voyager.quads;
+package org.apache.lucene.spatial.quads.linear;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import voyager.quads.geometry.IntersectCase;
-import voyager.quads.geometry.Shape;
+import org.apache.lucene.spatial.quads.IntersectCase;
+import org.apache.lucene.spatial.quads.Point2D;
+import org.apache.lucene.spatial.quads.Rectangle;
+import org.apache.lucene.spatial.quads.Shape;
+import org.apache.lucene.spatial.quads.ShapeExtent;
+import org.apache.lucene.spatial.quads.SpatialGrid;
 
-import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.io.ParseException;
 
 
 
-/**
- * This is a linear example... but hopefully could support:
- *  http://en.wikipedia.org/wiki/Mercator_projection
- *  http://en.wikipedia.org/wiki/Sinusoidal_projection
- *
- * Consider something like:
- *  http://code.google.com/p/h2database/source/browse/trunk/h2/src/main/org/h2/tools/MultiDimension.java
- *  http://code.google.com/p/h2database/source/browse/trunk/h2/src/test/org/h2/test/db/TestMultiDimension.java
- *
- */
-public class SpatialGrid
+public class LinearSpatialGrid implements SpatialGrid
 {
   public final double xmin;
   public final double xmax;
@@ -44,7 +37,7 @@ public class SpatialGrid
   public int minResolution = 6; // Go at least this deep
   public int resolution = 4; // how far down past the 'bbox level'
 
-  public SpatialGrid( double xmin, double xmax, double ymin, double ymax, int maxLevels )
+  public LinearSpatialGrid( double xmin, double xmax, double ymin, double ymax, int maxLevels )
   {
     this.xmin = xmin;
     this.xmax = xmax;
@@ -74,7 +67,7 @@ public class SpatialGrid
     }
   }
 
-  public SpatialGrid()
+  public LinearSpatialGrid()
   {
     this( -180, 180, -90, 90, 12 );
   }
@@ -91,10 +84,11 @@ public class SpatialGrid
     }
   }
 
-  public int getBBoxLevel( Shape geo )
-  {
-    double w = geo.getWidth();
-    double h = geo.getHeight();
+  @Override
+  public int getBestLevel(Shape geo) {
+    ShapeExtent ext = geo.getExtent();
+    double w = ext.getWidth();
+    double h = ext.getHeight();
 
     for( int i=0; i<maxLevels; i++ ) {
       if( w > levelW[i] ) return i;
@@ -103,35 +97,32 @@ public class SpatialGrid
     return maxLevels;
   }
 
-  public MatchInfo read( Shape geo )
+  public List<CharSequence> readCells( Shape geo )
   {
-    long startTime = System.currentTimeMillis();
-    MatchInfo vals = new MatchInfo();
-    vals.bboxLevel = getBBoxLevel( geo );
-    vals.maxLevel = Math.min( maxLevels, vals.bboxLevel+resolution );
-    if( vals.maxLevel < minResolution ) {
-      vals.maxLevel = minResolution;
+    ArrayList<CharSequence> vals = new ArrayList<CharSequence>();
+    int bboxLevel = getBestLevel( geo );
+    int maxLevel = Math.min( maxLevels, bboxLevel+resolution );
+    if( maxLevel < minResolution ) {
+      maxLevel = minResolution;
     }
 
-    build( xmid, ymid, 0, vals, new StringBuilder(), geo );
-    Collections.sort( vals.tokens, MatchInfo.LEVEL_ORDER );
-    vals.timeToCalculate = System.currentTimeMillis()-startTime;
+    build( xmid, ymid, 0, vals, new StringBuilder(), geo, maxLevel );
     return vals;
   }
 
   private void build( double x, double y, int level,
-    MatchInfo matches, StringBuilder str,
-    Shape geo )
+    List<CharSequence> matches, StringBuilder str,
+    Shape geo, int maxLevel )
   {
     double w = levelW[level]/2;
     double h = levelH[level]/2;
 
     // Z-Order
     // http://en.wikipedia.org/wiki/Z-order_%28curve%29
-    checkBattenberg( 'A', x-w, y+h, level, matches, str, geo );
-    checkBattenberg( 'B', x+w, y+h, level, matches, str, geo );
-    checkBattenberg( 'C', x-w, y-h, level, matches, str, geo );
-    checkBattenberg( 'D', x+w, y-h, level, matches, str, geo );
+    checkBattenberg( 'A', x-w, y+h, level, matches, str, geo, maxLevel );
+    checkBattenberg( 'B', x+w, y+h, level, matches, str, geo, maxLevel );
+    checkBattenberg( 'C', x-w, y-h, level, matches, str, geo, maxLevel );
+    checkBattenberg( 'D', x+w, y-h, level, matches, str, geo, maxLevel );
 
     // possibly consider hilbert curve
     // http://en.wikipedia.org/wiki/Hilbert_curve
@@ -142,62 +133,62 @@ public class SpatialGrid
   private void checkBattenberg(
     char c, double cx, double cy,
     int level,
-    MatchInfo matches, StringBuilder str,
-    Shape geo)
+    List<CharSequence> matches, StringBuilder str,
+    Shape geo, int maxLevel)
   {
     double w = levelW[level]/2;
     double h = levelH[level]/2;
 
-    LevelMatchInfo info = matches.getLevelInfo( level, true );
-
     int strlen = str.length();
-    Envelope cell = new Envelope( cx-w, cx+w, cy-h, cy+h );
-    IntersectCase v = geo.intersection( cell );
+    ShapeExtent cell = makeExtent( cx-w, cx+w, cy-h, cy+h );
+    IntersectCase v = geo.intersect( cell, this );
     if( IntersectCase.CONTAINS == v ) {
       str.append( c );
-      info.covers.add( str.toString() );
-
       str.append( '*' );
-      matches.tokens.add( str.toString() );
+      matches.add( str.toString() );
     }
     else if( IntersectCase.OUTSIDE == v ) {
       // nothing
     }
     else { // IntersectCase.WITHIN, IntersectCase.INTERSECTS
-      str.append( c );
-
-      int nextLevel = level+1;
-      if( nextLevel >= matches.maxLevel ) {
-        info.depth.add( str.toString() );
-        str.append( '-' ); // not necessary?
-        matches.tokens.add( str.toString() );
+      if( IntersectCase.WITHIN == v ) {
+        str.append( Character.toLowerCase( c ) );
       }
       else {
-        info.intersects.add( str.toString() );
-        build( cx,cy, nextLevel, matches, str, geo );
+        str.append( c );
+      }
+
+      int nextLevel = level+1;
+      if( nextLevel >= maxLevel ) {
+        str.append( '+' );
+        matches.add( str.toString() );
+      }
+      else {
+        build( cx,cy, nextLevel, matches, str, geo, maxLevel );
       }
     }
     str.setLength( strlen );
   }
 
-  public Envelope getRectangle( CharSequence seq )
+  @Override
+  public ShapeExtent getCell( CharSequence seq )
   {
     double xmin = this.xmin;
     double ymin = this.ymin;
 
     for( int i=0; i<seq.length() && i<maxLevels; i++ ) {
       char c = seq.charAt( i );
-      if( 'A' == c ) {
+      if( 'A' == c || 'a' == c ) {
         ymin += levelH[i];
       }
-      else if( 'B' == c ) {
+      else if( 'B' == c || 'b' == c ) {
         xmin += levelW[i];
         ymin += levelH[i];
       }
-      else if( 'C' == c ) {
+      else if( 'C' == c || 'c' == c ) {
         // nothing really
       }
-      else if( 'D' == c ) {
+      else if( 'D' == c || 'd' == c ) {
         xmin += levelW[i];
       }
       else {
@@ -205,12 +196,12 @@ public class SpatialGrid
       }
     }
     int len = seq.length()-1;
-    return new Envelope(
+    return makeExtent(
         xmin, xmin+levelW[len],
         ymin, ymin+levelH[len] );
   }
 
-  public List<String> parseStrings(String cells)
+  public static List<String> parseStrings(String cells)
   {
     ArrayList<String> tokens = new ArrayList<String>();
     StringTokenizer st = new StringTokenizer( cells, "[], " );
@@ -218,6 +209,28 @@ public class SpatialGrid
       tokens.add( st.nextToken() );
     }
     return tokens;
+  }
+
+  // Subclasses could pick something explicit
+  protected ShapeExtent makeExtent( double xmin, double xmax, double ymin, double ymax )
+  {
+    return new Rectangle( xmin, xmax, ymin, ymax );
+  }
+
+  @Override
+  public Shape readShape(String str) throws ParseException {
+    if( str.length() < 1 ) {
+      throw new RuntimeException( "invalid string" );
+    }
+    StringTokenizer st = new StringTokenizer( str, " " );
+    double p0 = Double.parseDouble( st.nextToken() );
+    double p1 = Double.parseDouble( st.nextToken() );
+    if( st.hasMoreTokens() ) {
+      double p2 = Double.parseDouble( st.nextToken() );
+      double p3 = Double.parseDouble( st.nextToken() );
+      return new Rectangle( p0, p2, p1, p3 );
+    }
+    return new Point2D(p0, p1 );
   }
 
   //------------------------------------------------------------------------------------------------------

@@ -48,7 +48,7 @@ public class QuadCellsTokenizer extends Tokenizer
       if( c == 'c' || c == 'C' ) { buffer[length++] = 'C'; continue; }
       if( c == 'd' || c == 'D' ) { buffer[length++] = 'D'; continue; }
       if( c == '*' )             { buffer[length++] = '*'; continue; }
-      if( c == '-' )             { buffer[length++] = '-'; continue; }
+      if( c == '+' )             { buffer[length++] = '+'; continue; }
 
       if( length > 0 ) {
         // Skip any other character

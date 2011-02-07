@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -11,14 +12,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.lucene.spatial.quads.Shape;
+import org.apache.lucene.spatial.quads.gis.JtsGeometry;
+import org.apache.lucene.spatial.quads.gis.JtsLinearSpatialGrid;
 import org.geotools.data.FeatureReader;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import voyager.quads.MatchInfo;
-import voyager.quads.SpatialGrid;
-import voyager.quads.geometry.GeometryShape;
-import voyager.quads.geometry.Shape;
 import voyager.quads.utils.KMLHelper;
 import voyager.quads.utils.countries.CountryInfo;
 import voyager.quads.utils.countries.CountryReader;
@@ -60,7 +60,7 @@ public class QuadInfoServlet extends HttpServlet
         CountryInfo info = CountryReader.read( iter.next() );
         if( country.equalsIgnoreCase( info.fips ) ) {
           name = info.name;
-          shape = new GeometryShape( info.geometry );
+          shape = new JtsGeometry( info.geometry );
           break;
         }
       }
@@ -70,6 +70,9 @@ public class QuadInfoServlet extends HttpServlet
         return;
       }
     }
+    int depth = getIntParam( req, "depth", 16 );
+    JtsLinearSpatialGrid grid = new JtsLinearSpatialGrid( -180, 180, -90-180, 90, depth ); // make it like WGS84
+    grid.resolution = getIntParam( req, "resolution", 4 );
 
     // If they don't set a country, then use the input
     if( shape == null ) {
@@ -79,7 +82,7 @@ public class QuadInfoServlet extends HttpServlet
         return;
       }
       try {
-        shape = Shape.parse( geo );
+        shape = grid.readShape( geo );
       }
       catch( Exception ex ) {
         ex.printStackTrace();
@@ -87,18 +90,13 @@ public class QuadInfoServlet extends HttpServlet
       }
     }
 
-    int depth = getIntParam( req, "depth", 16 );
-    SpatialGrid grid = new SpatialGrid( -180, 180, -90-180, 90, depth ); // make it like WGS84
-    grid.resolution = getIntParam( req, "resolution", 4 );
-
-    MatchInfo info = grid.read( shape );
+    List<CharSequence> info = grid.readCells( shape );
     String format = req.getParameter( "format" );
     if( "kml".equals( format ) ) {
       if( name == null || name.length() < 2 ) {
         name = "KML - "+new Date( System.currentTimeMillis() );
       }
-      boolean showIntersects = "on".equals( req.getParameter( "intersections" ) );
-      Kml kml = KMLHelper.toKML( info, name, grid, showIntersects );
+      Kml kml = KMLHelper.toKML( name, grid, info );
 
       res.setHeader("Content-Disposition","attachment; filename=\"" + name + "\";");
       res.setContentType( "application/vnd.google-earth.kml+xml" );
@@ -108,7 +106,7 @@ public class QuadInfoServlet extends HttpServlet
 
     res.setContentType( "text/plain" );
     PrintStream out = new PrintStream( res.getOutputStream() );
-    info.printInfo( out );
+    out.println( info.toString() );
     return;
   }
 }
