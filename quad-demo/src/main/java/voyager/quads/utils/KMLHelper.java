@@ -79,7 +79,7 @@ public class KMLHelper
 
   private static Placemark create( String key, String style, SpatialGrid grid )
   {
-    Shape r = grid.getCell( key );
+    Shape r = grid.getCellShape( key );
     List<Coordinate> coords = getCoords( r );
 
     Placemark p = new Placemark().withName( key )

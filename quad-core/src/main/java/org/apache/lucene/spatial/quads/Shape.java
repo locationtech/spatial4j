@@ -14,5 +14,8 @@ public interface Shape
    */
   IntersectCase intersect( Shape other, SpatialGrid grid );
 
+  /**
+   * Get the bounding box for this Shape
+   */
   ShapeExtent getExtent();
 }

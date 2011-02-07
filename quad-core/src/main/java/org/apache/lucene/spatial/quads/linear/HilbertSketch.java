@@ -6,7 +6,7 @@ package org.apache.lucene.spatial.quads.linear;
  * http://blog.notdot.net/2009/11/Damn-Cool-Algorithms-Spatial-indexing-with-Quadtrees-and-Hilbert-Curves
  *
  */
-public class HilbertSpatialGrid
+public class HilbertSketch
 {
   static class HilbertLink {
     HilbertState down;

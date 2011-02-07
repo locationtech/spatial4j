@@ -170,7 +170,7 @@ public class LinearSpatialGrid implements SpatialGrid
   }
 
   @Override
-  public ShapeExtent getCell( CharSequence seq )
+  public ShapeExtent getCellShape( CharSequence seq )
   {
     double xmin = this.xmin;
     double ymin = this.ymin;
