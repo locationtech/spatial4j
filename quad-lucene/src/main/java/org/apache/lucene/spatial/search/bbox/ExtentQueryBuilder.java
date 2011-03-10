@@ -1,27 +1,4 @@
-/* See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * Esri Inc. licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package org.apache.lucene.spatial.search.extent;
-//
-//import com.esri.gpt.catalog.discovery.Discoverable;
-//import com.esri.gpt.catalog.discovery.DiscoveryException;
-//import com.esri.gpt.catalog.discovery.LogicalClause;
-//import com.esri.gpt.catalog.discovery.SpatialClause;
-//import com.esri.gpt.framework.collection.StringAttributeMap;
-//import com.esri.gpt.framework.context.RequestContext;
-//import com.esri.gpt.framework.geometry.Envelope;
-//import com.esri.gpt.framework.util.Val;
+package org.apache.lucene.spatial.search.bbox;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
@@ -29,49 +6,28 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.function.ValueSourceQuery;
+import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.core.Extent;
 import org.apache.lucene.spatial.core.SpatialOperation;
+import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
-
-/**
- * Adapts a catalog discovery SpatialClause to the Lucene model.
- */
-public class SpatialClauseAdapter
+public class ExtentQueryBuilder extends SpatialQueryBuilder
 {
-  private ExtentFieldNameInfo fields;
+  private ExtentFieldInfo fields;
   private Extent queryExtent;
 
+  double queryPower = 1.0;
+  double targetPower = 1.0f;
 
-
-  protected void adaptSpatialClause(SpatialOperation spatialClause)
+  @Override
+  public ValueSource makeValueSource(SpatialOperation op)
   {
-    // determine spatialRelevance parameters
-    // (original defaults were queryPower=2.0, targetPower=0.5)
-    double queryPower = 1.0; //Val.chkDbl(params.getValue("spatialRelevance.queryPower"),1.0);
-    double targetPower = 1.0f; //Val.chkDbl(params.getValue("spatialRelevance.targetPower"),1.0);
-    boolean bUseSpatialRanking = false;
-
-    // No spatial scoring for:
-    // SpatialClause.GeometryIsDisjointTo
-    // SpatialClause.GeometryIsEqualTo
-
-
-    if (bUseSpatialRanking) {
-      SpatialRankingValueSource srvs = new SpatialRankingValueSource(queryExtent,
-          queryPower,targetPower, "fieldname" );
-      Query spatialRankingQuery = new ValueSourceQuery(srvs);
-//        BooleanQuery bq = new BooleanQuery();
-//        bq.add(spatialQuery,BooleanClause.Occur.MUST);
-//        bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
-//        appendQuery(activeBooleanQuery,activeLogicalClause,bq);
-//        this.getQueryAdapter().setHasScoredExpression(true);
-    }
-
-    SpatialOperation op = null;
+    return new SpatialRankingValueSource(
+        new AreaSimilarity( queryExtent, queryPower,targetPower ), fields );
   }
 
-  public Query make( SpatialOperation op )
+  @Override
+  public Query getFilterQuery(SpatialOperation op)
   {
     switch( op )
     {
@@ -87,13 +43,16 @@ public class SpatialClauseAdapter
     throw new RuntimeException("UnspporetedOperation: "+op);
   }
 
+  //-------------------------------------------------------------------------------
+  //
+  //-------------------------------------------------------------------------------
 
   /**
    * Constructs a query to retrieve documents that fully contain the input envelope.
    * @return the spatial query
    */
-  private Query makeContains() {
-
+  private Query makeContains()
+  {
     /*
     // the original contains query does not work for envelopes that cross the date line
     // docMinX <= queryExtent.getMinX(), docMinY <= queryExtent.getMinY(), docMaxX >= queryExtent.getMaxX(), docMaxY >= queryExtent.getMaxY()
@@ -114,8 +73,8 @@ public class SpatialClauseAdapter
 
     // Y conditions
     // docMinY <= queryExtent.getMinY() AND docMaxY >= queryExtent.getMaxY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.docMinY,null,queryExtent.getMinY(),false,true);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.docMaxY,queryExtent.getMaxY(),null,true,false);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,null,queryExtent.getMinY(),false,true);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,queryExtent.getMaxY(),null,true,false);
     Query yConditions = this.makeQuery(new Query[]{qMinY,qMaxY},BooleanClause.Occur.MUST);
 
     // X conditions
@@ -127,8 +86,8 @@ public class SpatialClauseAdapter
       // X Conditions for documents that do not cross the date line,
       // documents that contain the min X and max X of the query envelope,
       // docMinX <= queryExtent.getMinX() AND docMaxX >= queryExtent.getMaxX()
-      Query qMinX = NumericRangeQuery.newDoubleRange(fields.docMinX,null,queryExtent.getMinX(),false,true);
-      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.docMaxX,queryExtent.getMaxX(),null,true,false);
+      Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,null,queryExtent.getMinX(),false,true);
+      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,queryExtent.getMaxX(),null,true,false);
       Query qMinMax = this.makeQuery(new Query[]{qMinX,qMaxX},BooleanClause.Occur.MUST);
       Query qNonXDL = this.makeXDL(false,qMinMax);
 
@@ -136,8 +95,8 @@ public class SpatialClauseAdapter
       // the left portion of the document contains the min X of the query
       // OR the right portion of the document contains the max X of the query,
       // docMinXLeft <= queryExtent.getMinX() OR docMaxXRight >= queryExtent.getMaxX()
-      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.docMinXLeft,null,queryExtent.getMinX(),false,true);
-      Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.docMaxXRight,queryExtent.getMaxX(),null,true,false);
+      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.minX,null,queryExtent.getMinX(),false,true);
+      Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,queryExtent.getMaxX(),null,true,false);
       Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft,qXDLRight},BooleanClause.Occur.SHOULD);
       Query qXDL = this.makeXDL(true,qXDLLeftRight);
 
@@ -153,8 +112,8 @@ public class SpatialClauseAdapter
       // the left portion of the document contains the min X of the query
       // AND the right portion of the document contains the max X of the query,
       // docMinXLeft <= queryExtent.getMinX() AND docMaxXRight >= queryExtent.getMaxX()
-      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.docMinXLeft,null,queryExtent.getMinX(),false,true);
-      Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.docMaxXRight,queryExtent.getMaxX(),null,true,false);
+      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.minX,null,queryExtent.getMinX(),false,true);
+      Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,queryExtent.getMaxX(),null,true,false);
       Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft,qXDLRight},BooleanClause.Occur.MUST);
       Query qXDL = this.makeXDL(true,qXDLLeftRight);
 
@@ -191,8 +150,8 @@ public class SpatialClauseAdapter
 
     // Y conditions
     // docMinY > queryExtent.getMaxY() OR docMaxY < queryExtent.getMinY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.docMinY,queryExtent.getMaxY(),null,false,false);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.docMaxY,null,queryExtent.getMinY(),false,false);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,queryExtent.getMaxY(),null,false,false);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,null,queryExtent.getMinY(),false,false);
     Query yConditions = this.makeQuery(new Query[]{qMinY,qMaxY},BooleanClause.Occur.SHOULD);
 
     // X conditions
@@ -203,8 +162,8 @@ public class SpatialClauseAdapter
 
       // X Conditions for documents that do not cross the date line,
       // docMinX > queryExtent.getMaxX() OR docMaxX < queryExtent.getMinX()
-      Query qMinX = NumericRangeQuery.newDoubleRange(fields.docMinX,queryExtent.getMaxX(),null,false,false);
-      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.docMaxX,null,queryExtent.getMinX(),false,false);
+      Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMaxX(),null,false,false);
+      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,null,queryExtent.getMinX(),false,false);
       Query qMinMax = this.makeQuery(new Query[]{qMinX,qMaxX},BooleanClause.Occur.SHOULD);
       Query qNonXDL = this.makeXDL(false,qMinMax);
 
@@ -215,8 +174,8 @@ public class SpatialClauseAdapter
       // where: docMaxXLeft = 180.0, docMinXRight = -180.0
       // (docMaxXLeft  < queryExtent.getMinX()) equates to (180.0  < queryExtent.getMinX()) and is ignored
       // (docMinXRight > queryExtent.getMaxX()) equates to (-180.0 > queryExtent.getMaxX()) and is ignored
-      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.docMinXLeft,queryExtent.getMaxX(),null,false,false);
-      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.docMaxXRight,null,queryExtent.getMinX(),false,false);
+      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMaxX(),null,false,false);
+      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.maxX,null,queryExtent.getMinX(),false,false);
       Query qLeftRight = this.makeQuery(new Query[]{qMinXLeft,qMaxXRight},BooleanClause.Occur.MUST);
       Query qXDL = this.makeXDL(true,qLeftRight);
 
@@ -230,10 +189,10 @@ public class SpatialClauseAdapter
       // the document must be disjoint to both the left and right query portions
       // (docMinX > queryExtent.getMaxX()Left OR docMaxX < queryExtent.getMinX()) AND (docMinX > queryExtent.getMaxX() OR docMaxX < queryExtent.getMinX()Left)
       // where: queryExtent.getMaxX()Left = 180.0, queryExtent.getMinX()Left = -180.0
-      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.docMinX,180.0,null,false,false);
-      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fields.docMaxX,null,queryExtent.getMinX(),false,false);
-      Query qMinXRight = NumericRangeQuery.newDoubleRange(fields.docMinX,queryExtent.getMaxX(),null,false,false);
-      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.docMaxX,null,-180.0,false,false);
+      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.minX,180.0,null,false,false);
+      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fields.maxX,null,queryExtent.getMinX(),false,false);
+      Query qMinXRight = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMaxX(),null,false,false);
+      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.maxX,null,-180.0,false,false);
       Query qLeft = this.makeQuery(new Query[]{qMinXLeft,qMaxXLeft},BooleanClause.Occur.SHOULD);
       Query qRight = this.makeQuery(new Query[]{qMinXRight,qMaxXRight},BooleanClause.Occur.SHOULD);
       Query qLeftRight = this.makeQuery(new Query[]{qLeft,qRight},BooleanClause.Occur.MUST);
@@ -256,10 +215,10 @@ public class SpatialClauseAdapter
   private Query makeEquals() {
 
     // docMinX = queryExtent.getMinX() AND docMinY = queryExtent.getMinY() AND docMaxX = queryExtent.getMaxX() AND docMaxY = queryExtent.getMaxY()
-    Query qMinX = NumericRangeQuery.newDoubleRange(fields.docMinX,queryExtent.getMinX(),queryExtent.getMinX(),true,true);
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.docMinY,queryExtent.getMinY(),queryExtent.getMinY(),true,true);
-    Query qMaxX = NumericRangeQuery.newDoubleRange(fields.docMaxX,queryExtent.getMaxX(),queryExtent.getMaxX(),true,true);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.docMaxY,queryExtent.getMaxY(),queryExtent.getMaxY(),true,true);
+    Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMinX(),queryExtent.getMinX(),true,true);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,queryExtent.getMinY(),queryExtent.getMinY(),true,true);
+    Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,queryExtent.getMaxX(),queryExtent.getMaxX(),true,true);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,queryExtent.getMaxY(),queryExtent.getMaxY(),true,true);
     BooleanQuery bq = new BooleanQuery();
     bq.add(qMinX,BooleanClause.Occur.MUST);
     bq.add(qMinY,BooleanClause.Occur.MUST);
@@ -336,8 +295,8 @@ public class SpatialClauseAdapter
 
     // Y conditions
     // docMinY >= queryExtent.getMinY() AND docMaxY <= queryExtent.getMaxY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.docMinY,queryExtent.getMinY(),null,true,false);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.docMaxY,null,queryExtent.getMaxY(),false,true);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,queryExtent.getMinY(),null,true,false);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,null,queryExtent.getMaxY(),false,true);
     Query yConditions = this.makeQuery(new Query[]{qMinY,qMaxY},BooleanClause.Occur.MUST);
 
     // X conditions
@@ -348,8 +307,8 @@ public class SpatialClauseAdapter
     // AND the right portion of the document must be within the right portion of the query
     // docMinXLeft >= queryExtent.getMinX() AND docMaxXLeft <= 180.0
     // AND docMinXRight >= -180.0 AND docMaxXRight <= queryExtent.getMaxX()
-    Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.docMinXLeft,queryExtent.getMinX(),null,true,false);
-    Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.docMaxXRight,null,queryExtent.getMaxX(),false,true);
+    Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMinX(),null,true,false);
+    Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,null,queryExtent.getMaxX(),false,true);
     Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft,qXDLRight},BooleanClause.Occur.MUST);
     Query qXDL  = this.makeXDL(true,qXDLLeftRight);
 
@@ -358,8 +317,8 @@ public class SpatialClauseAdapter
 
       // X Conditions for documents that do not cross the date line,
       // docMinX >= queryExtent.getMinX() AND docMaxX <= queryExtent.getMaxX()
-      Query qMinX = NumericRangeQuery.newDoubleRange(fields.docMinX,queryExtent.getMinX(),null,true,false);
-      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.docMaxX,null,queryExtent.getMaxX(),false,true);
+      Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMinX(),null,true,false);
+      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,null,queryExtent.getMaxX(),false,true);
       Query qMinMax = this.makeQuery(new Query[]{qMinX,qMaxX},BooleanClause.Occur.MUST);
       Query qNonXDL = this.makeXDL(false,qMinMax);
 
@@ -377,14 +336,14 @@ public class SpatialClauseAdapter
 
       // the document should be within the left portion of the query
       // docMinX >= queryExtent.getMinX() AND docMaxX <= 180.0
-      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.docMinX,queryExtent.getMinX(),null,true,false);
-      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fields.docMaxX,null,180.0,false,true);
+      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMinX(),null,true,false);
+      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fields.maxX,null,180.0,false,true);
       Query qLeft = this.makeQuery(new Query[]{qMinXLeft,qMaxXLeft},BooleanClause.Occur.MUST);
 
       // the document should be within the right portion of the query
       // docMinX >= -180.0 AND docMaxX <= queryExtent.getMaxX()
-      Query qMinXRight = NumericRangeQuery.newDoubleRange(fields.docMinX,-180.0,null,true,false);
-      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.docMaxX,null,queryExtent.getMaxX(),false,true);
+      Query qMinXRight = NumericRangeQuery.newDoubleRange(fields.minX,-180.0,null,true,false);
+      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.maxX,null,queryExtent.getMaxX(),false,true);
       Query qRight = this.makeQuery(new Query[]{qMinXRight,qMaxXRight},BooleanClause.Occur.MUST);
 
       // either left or right conditions should occur,
@@ -423,5 +382,4 @@ public class SpatialClauseAdapter
     bq.add(query,BooleanClause.Occur.MUST);
     return bq;
   }
-
 }

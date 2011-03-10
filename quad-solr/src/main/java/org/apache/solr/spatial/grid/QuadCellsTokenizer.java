@@ -1,4 +1,4 @@
-package voyager.quads.solr;
+package org.apache.solr.spatial.grid;
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more

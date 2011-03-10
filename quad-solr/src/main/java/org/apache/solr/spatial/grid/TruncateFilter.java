@@ -1,4 +1,4 @@
-package voyager.quads.solr;
+package org.apache.solr.spatial.grid;
 
 
 import java.io.IOException;
