@@ -14,13 +14,12 @@
  */
 package org.apache.lucene.spatial.core;
 
-import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
  * A clause that compares a stored geometry to a supplied geometry.
  */
-public enum SpatialOperation 
+public enum SpatialOperation
 {
   BBOXIntersects( true ),
   Contains( true ),
@@ -29,16 +28,16 @@ public enum SpatialOperation
   IsDisjointTo( false ),
   IsWithin( true ),
   Overlaps( true ),
-  
+
   // Point
   DistanceTo( true ),
-  
+
   // Fuzzy
   SimilarTo( true ),
   ;
-  
+
   public final boolean scoreIsMeaningful;
-  
+
   private SpatialOperation( boolean v ) {
     scoreIsMeaningful = v;
   }

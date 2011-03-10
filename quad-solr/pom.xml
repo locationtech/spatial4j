@@ -22,7 +22,7 @@
   <dependencies>
 	  <dependency>
 		  <groupId>org.apache.lucene.spatial.quad</groupId>
-	    <artifactId>quad-core</artifactId>
+	    <artifactId>quad-lucene</artifactId>
 	    <version>0.1-SNAPSHOT</version>
 	  </dependency>
 

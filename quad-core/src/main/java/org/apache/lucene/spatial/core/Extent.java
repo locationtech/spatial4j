@@ -12,7 +12,7 @@ public interface Extent extends Shape
   public double getMaxY();
 
   public double getArea(); // optional
-  public boolean getCrossesDateLine(); 
+  public boolean getCrossesDateLine();
 
   /**
    * Width and height have a meaningful value

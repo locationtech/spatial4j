@@ -1,6 +1,5 @@
 package org.apache.lucene.spatial.core;
 
-import org.apache.lucene.spatial.grid.SpatialGrid;
 
 
 /**
@@ -33,12 +32,12 @@ public class Rectangle implements Extent
     }
     return Math.abs(maxX - minX) * Math.abs(maxY - minY);
   }
-  
+
   public boolean getCrossesDateLine()
   {
     return (minX > maxX);
   }
-  
+
   //----------------------------------------
   //----------------------------------------
 

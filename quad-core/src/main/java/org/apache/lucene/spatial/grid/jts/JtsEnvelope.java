@@ -3,7 +3,6 @@ package org.apache.lucene.spatial.grid.jts;
 import org.apache.lucene.spatial.core.Extent;
 import org.apache.lucene.spatial.core.IntersectCase;
 import org.apache.lucene.spatial.core.Shape;
-import org.apache.lucene.spatial.grid.SpatialGrid;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -28,12 +27,12 @@ public class JtsEnvelope implements Extent
   {
     return getWidth() * getHeight();
   }
-  
+
   public boolean getCrossesDateLine()
   {
     return false;
   }
-  
+
   //----------------------------------------
   //----------------------------------------
 

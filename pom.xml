@@ -264,6 +264,7 @@
   
   <modules>
     <module>quad-core</module>
+    <module>quad-lucene</module>
     <module>quad-solr</module>
     <module>quad-demo</module>
   </modules>

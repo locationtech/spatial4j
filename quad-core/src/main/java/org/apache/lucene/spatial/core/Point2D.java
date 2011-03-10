@@ -1,6 +1,5 @@
 package org.apache.lucene.spatial.core;
 
-import org.apache.lucene.spatial.grid.SpatialGrid;
 
 
 

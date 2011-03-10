@@ -1,18 +1,18 @@
-package org.apache.lucene.spatial.search.gpt;
+package org.apache.lucene.spatial.search.extent;
 
 import org.apache.lucene.spatial.core.Extent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExtentRanking 
+public class ExtentRanking
 {
   /** The Logger. */
   private static Logger log = LoggerFactory.getLogger(SpatialRankingValueSource.class);
-  
+
   /** Properties associated with the query envelope */
   private final Extent queryExtent;
   private final double queryArea;
-  
+
   private final double targetPower;
   private final double queryPower;
 
@@ -23,7 +23,7 @@ public class ExtentRanking
 
     this.queryPower = queryPower;
     this.targetPower = targetPower;
-    
+
 //  if (this.qryMinX > queryExtent.getMaxX()) {
 //    this.qryCrossedDateline = true;
 //    this.qryArea = Math.abs(qryMaxX + 360.0 - qryMinX) * Math.abs(qryMaxY - qryMinY);
@@ -40,7 +40,7 @@ public class ExtentRanking
   public String getDelimiterQueryParameters() {
     return queryExtent.toString()+";"+queryPower+";"+targetPower;
   }
-  
+
   public float calculate(Extent target) {
     if (target == null || queryArea <= 0) {
       return 0.f;
@@ -55,7 +55,7 @@ public class ExtentRanking
     double bottom = Math.max(queryExtent.getMinY(),target.getMinY());
     double height = top - bottom;
     double width  = 0;
-    
+
     // queries that cross the date line
     if( queryExtent.getCrossesDateLine() ) {
       // documents that cross the date line
@@ -64,13 +64,13 @@ public class ExtentRanking
         double right = Math.min(queryExtent.getMaxX(),target.getMaxX());
         width = right + 360.0 - left;
       }
-      else {        
+      else {
         double qryWestLeft  = Math.max(queryExtent.getMinX(), target.getMaxX());
         double qryWestRight = Math.min(target.getMaxX(),180.0);
         double qryWestWidth = qryWestRight - qryWestLeft;
         if (qryWestWidth > 0) {
           width = qryWestWidth;
-        } 
+        }
         else {
           double qryEastLeft  = Math.max(target.getMaxX(),-180.0);
           double qryEastRight = Math.min(queryExtent.getMaxX(),target.getMaxX());
@@ -81,10 +81,10 @@ public class ExtentRanking
         }
       }
     }
-    
+
     // queries that do not cross the date line
     else {
-      
+
       if( target.getCrossesDateLine() ) {
         double tgtWestLeft  = Math.max(queryExtent.getMinX(), target.getMinX() );
         double tgtWestRight = Math.min(queryExtent.getMaxX(),180.0);
@@ -106,17 +106,17 @@ public class ExtentRanking
         width = right - left;
       }
     }
-          
-        
+
+
     // calculate the score
     if ((width > 0) && (height > 0)) {
-      double intersectionArea = width * height;          
+      double intersectionArea = width * height;
       double queryRatio  = intersectionArea / queryArea;
       double targetRatio = intersectionArea / targetArea;
       double queryFactor  = Math.pow(queryRatio,queryPower);
       double targetFactor = Math.pow(targetRatio,targetPower);
       score = queryFactor * targetFactor * 10000.0;
-                
+
       if ( log.isTraceEnabled() ) {
         StringBuffer sb = new StringBuffer();
         sb.append("\nscore="+score);

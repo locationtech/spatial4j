@@ -1,6 +1,6 @@
-package org.apache.lucene.spatial.search.gpt.extent;
+package org.apache.lucene.spatial.search.extent;
 
-public class ExtentFieldNameInfo 
+public class ExtentFieldNameInfo
 {
   public String docMinX = "envelope.minx";
   public String docMinY = "envelope.miny";
