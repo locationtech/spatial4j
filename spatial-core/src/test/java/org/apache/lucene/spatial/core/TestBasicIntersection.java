@@ -2,7 +2,6 @@ package org.apache.lucene.spatial.core;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.spatial.core.IntersectCase;
 import org.apache.lucene.spatial.core.grid.LinearSpatialGrid;
 import org.apache.lucene.spatial.core.grid.SpatialGrid;
 import org.apache.lucene.spatial.core.grid.jts.JtsEnvelope;

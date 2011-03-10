@@ -1,7 +1,7 @@
 package org.apache.lucene.spatial.core.grid.jts;
 
 
-import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.BBox;
 import org.apache.lucene.spatial.core.IntersectCase;
 import org.apache.lucene.spatial.core.Shape;
 
@@ -28,15 +28,15 @@ public class JtsPoint2D implements Shape
   //----------------------------------------
 
   @Override
-  public JtsEnvelope getExtent() {
+  public JtsEnvelope getBoundingBox() {
     return new JtsEnvelope( p.getEnvelopeInternal() );
   }
 
   @Override
   public IntersectCase intersect(Shape other, Object context)
   {
-    if( other instanceof Extent ) {
-      Extent ext = other.getExtent();
+    if( other instanceof BBox ) {
+      BBox ext = other.getBoundingBox();
       if( p.getX() >= ext.getMinX() &&
           p.getX() <= ext.getMaxX() &&
           p.getY() >= ext.getMinY() &&

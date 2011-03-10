@@ -24,7 +24,6 @@ import org.apache.lucene.search.cache.CachedArray.DoubleValues;
 import org.apache.lucene.search.function.DocValues;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.core.Rectangle;
-import org.apache.lucene.spatial.core.bbox.ExtentSimilarity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,15 +32,15 @@ import org.slf4j.LoggerFactory;
  * An implementation of the Lucene ValueSource model to support spatial relevance ranking.
  *
  */
-public class SpatialRankingValueSource extends ValueSource
+public class BBoxSimilarityValueSource extends ValueSource
 {
-  private static final int HCODE = SpatialRankingValueSource.class.hashCode();
+  private static final int HCODE = BBoxSimilarityValueSource.class.hashCode();
 
   /** The Logger. */
-  private static Logger log = LoggerFactory.getLogger(SpatialRankingValueSource.class);
+  private static Logger log = LoggerFactory.getLogger(BBoxSimilarityValueSource.class);
 
-  private final ExtentFieldInfo field;
-  private final ExtentSimilarity similarity;
+  private final BBoxFieldInfo field;
+  private final BBoxSimilarity similarity;
 
   /**
    * Constructor.
@@ -49,7 +48,7 @@ public class SpatialRankingValueSource extends ValueSource
    * @param queryPower the query power (scoring algorithm)
    * @param targetPower the target power (scoring algorithm)
    */
-  public SpatialRankingValueSource(ExtentSimilarity similarity, ExtentFieldInfo field)
+  public BBoxSimilarityValueSource(BBoxSimilarity similarity, BBoxFieldInfo field)
   {
     this.similarity = similarity;
     this.field = field;
@@ -107,10 +106,10 @@ public class SpatialRankingValueSource extends ValueSource
    */
   @Override
   public boolean equals(Object o) {
-    if (o.getClass() !=  SpatialRankingValueSource.class)
+    if (o.getClass() !=  BBoxSimilarityValueSource.class)
       return false;
 
-    SpatialRankingValueSource other = (SpatialRankingValueSource)o;
+    BBoxSimilarityValueSource other = (BBoxSimilarityValueSource)o;
     return similarity.equals( other.similarity );
   }
 

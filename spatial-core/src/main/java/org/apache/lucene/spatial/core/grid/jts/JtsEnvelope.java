@@ -1,12 +1,12 @@
 package org.apache.lucene.spatial.core.grid.jts;
 
-import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.BBox;
 import org.apache.lucene.spatial.core.IntersectCase;
 import org.apache.lucene.spatial.core.Shape;
 
 import com.vividsolutions.jts.geom.Envelope;
 
-public class JtsEnvelope implements Extent
+public class JtsEnvelope implements BBox
 {
   public final Envelope envelope;
 
@@ -75,15 +75,15 @@ public class JtsEnvelope implements Extent
   //----------------------------------------
 
   @Override
-  public Extent getExtent() {
+  public BBox getBoundingBox() {
     return this;
   }
 
   @Override
   public IntersectCase intersect(Shape other, Object context)
   {
-    if( other instanceof Extent ) {
-      Extent ext = other.getExtent();
+    if( other instanceof BBox ) {
+      BBox ext = other.getBoundingBox();
       if (ext.getMinX() > envelope.getMaxX() ||
           ext.getMaxX() < envelope.getMinX() ||
           ext.getMinY() > envelope.getMaxY() ||

@@ -3,7 +3,7 @@ package org.apache.lucene.spatial.core.grid.jts;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.BBox;
 import org.apache.lucene.spatial.core.Shape;
 import org.apache.lucene.spatial.core.grid.LinearSpatialGrid;
 
@@ -24,7 +24,7 @@ public class JtsLinearSpatialGrid extends LinearSpatialGrid
   }
 
   @Override
-  protected Extent makeExtent( double xmin, double xmax, double ymin, double ymax )
+  protected BBox makeExtent( double xmin, double xmax, double ymin, double ymax )
   {
     return new JtsEnvelope( new Envelope( xmin, xmax, ymin, ymax) );
   }

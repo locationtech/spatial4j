@@ -1,6 +1,6 @@
 package org.apache.lucene.spatial.core.grid.jts;
 
-import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.BBox;
 import org.apache.lucene.spatial.core.IntersectCase;
 import org.apache.lucene.spatial.core.Shape;
 
@@ -24,7 +24,7 @@ public class JtsGeometry implements Shape
   //----------------------------------------
 
   @Override
-  public JtsEnvelope getExtent() {
+  public JtsEnvelope getBoundingBox() {
     return new JtsEnvelope( geo.getEnvelopeInternal() );
   }
 
@@ -38,7 +38,7 @@ public class JtsGeometry implements Shape
   @Override
   public IntersectCase intersect(Shape other, Object context)
   {
-    Extent ext = other.getExtent();
+    BBox ext = other.getBoundingBox();
     if( !ext.hasSize() ) {
       throw new IllegalArgumentException( "the query shape must cover some area (not a point or line)" );
     }
@@ -60,8 +60,8 @@ public class JtsGeometry implements Shape
     else if( other instanceof JtsGeometry ) {
       qGeo = (Polygon)((JtsGeometry)other).geo;
     }
-    else if( other instanceof Extent ) {
-      Extent e = (Extent)other;
+    else if( other instanceof BBox ) {
+      BBox e = (BBox)other;
       Envelope env = new Envelope( e.getMinX(), e.getMaxX(), e.getMinY(), e.getMaxY() );
       qGeo = (Polygon) getGeometryFactory(context).toGeometry(env);
     }

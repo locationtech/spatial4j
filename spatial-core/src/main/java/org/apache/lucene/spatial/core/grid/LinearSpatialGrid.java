@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.BBox;
 import org.apache.lucene.spatial.core.IntersectCase;
 import org.apache.lucene.spatial.core.Point2D;
 import org.apache.lucene.spatial.core.Rectangle;
@@ -84,7 +84,7 @@ public class LinearSpatialGrid implements SpatialGrid
 
   @Override
   public int getBestLevel(Shape geo) {
-    Extent ext = geo.getExtent();
+    BBox ext = geo.getBoundingBox();
     double w = ext.getWidth();
     double h = ext.getHeight();
 
@@ -138,7 +138,7 @@ public class LinearSpatialGrid implements SpatialGrid
     double h = levelH[level]/2;
 
     int strlen = str.length();
-    Extent cell = makeExtent( cx-w, cx+w, cy-h, cy+h );
+    BBox cell = makeExtent( cx-w, cx+w, cy-h, cy+h );
     IntersectCase v = geo.intersect( cell, this );
     if( IntersectCase.CONTAINS == v ) {
       str.append( c );
@@ -169,7 +169,7 @@ public class LinearSpatialGrid implements SpatialGrid
   }
 
   @Override
-  public Extent getCellShape( CharSequence seq )
+  public BBox getCellShape( CharSequence seq )
   {
     double xmin = this.xmin;
     double ymin = this.ymin;
@@ -210,7 +210,7 @@ public class LinearSpatialGrid implements SpatialGrid
   }
 
   // Subclasses could pick something explicit
-  protected Extent makeExtent( double xmin, double xmax, double ymin, double ymax )
+  protected BBox makeExtent( double xmin, double xmax, double ymin, double ymax )
   {
     return new Rectangle( xmin, xmax, ymin, ymax );
   }

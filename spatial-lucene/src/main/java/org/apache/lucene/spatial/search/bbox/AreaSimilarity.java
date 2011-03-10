@@ -1,6 +1,6 @@
-package org.apache.lucene.spatial.core.bbox;
+package org.apache.lucene.spatial.search.bbox;
 
-import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.BBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,19 +25,19 @@ import org.slf4j.LoggerFactory;
  * <br/>  score = queryFactor * targetFactor;
  *
  */
-public class AreaSimilarity implements ExtentSimilarity
+public class AreaSimilarity implements BBoxSimilarity
 {
   /** The Logger. */
   private static Logger log = LoggerFactory.getLogger(AreaSimilarity.class);
 
   /** Properties associated with the query envelope */
-  private final Extent queryExtent;
+  private final BBox queryExtent;
   private final double queryArea;
 
   private final double targetPower;
   private final double queryPower;
 
-  public AreaSimilarity( Extent queryExtent, double queryPower, double targetPower )
+  public AreaSimilarity( BBox queryExtent, double queryPower, double targetPower )
   {
     this.queryExtent = queryExtent;
     this.queryArea = queryExtent.getArea();
@@ -53,7 +53,7 @@ public class AreaSimilarity implements ExtentSimilarity
 //  }
   }
 
-  public AreaSimilarity( Extent queryExtent )
+  public AreaSimilarity( BBox queryExtent )
   {
     this( queryExtent, 2.0, 0.5 );
   }
@@ -64,7 +64,7 @@ public class AreaSimilarity implements ExtentSimilarity
   }
 
   @Override
-  public double score(Extent target) {
+  public double score(BBox target) {
     if (target == null || queryArea <= 0) {
       return 0;
     }

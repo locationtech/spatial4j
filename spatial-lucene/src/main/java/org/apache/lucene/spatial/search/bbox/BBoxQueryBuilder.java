@@ -7,15 +7,14 @@ import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.function.ValueSource;
-import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.BBox;
 import org.apache.lucene.spatial.core.SpatialOperation;
-import org.apache.lucene.spatial.core.bbox.AreaSimilarity;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
-public class ExtentQueryBuilder extends SpatialQueryBuilder
+public class BBoxQueryBuilder extends SpatialQueryBuilder
 {
-  private ExtentFieldInfo fields;
-  private Extent queryExtent;
+  private BBoxFieldInfo fields;
+  private BBox queryExtent;
 
   double queryPower = 1.0;
   double targetPower = 1.0f;
@@ -23,7 +22,7 @@ public class ExtentQueryBuilder extends SpatialQueryBuilder
   @Override
   public ValueSource makeValueSource(SpatialOperation op)
   {
-    return new SpatialRankingValueSource(
+    return new BBoxSimilarityValueSource(
         new AreaSimilarity( queryExtent, queryPower,targetPower ), fields );
   }
 

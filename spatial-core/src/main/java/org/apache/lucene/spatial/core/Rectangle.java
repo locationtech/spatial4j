@@ -6,7 +6,7 @@ package org.apache.lucene.spatial.core;
  * When minX > maxX, this will assume it is world coordinates that cross the
  * date line using degrees
  */
-public class Rectangle implements Extent
+public class Rectangle implements BBox
 {
   private double minX;
   private double maxX;
@@ -81,17 +81,17 @@ public class Rectangle implements Extent
   //----------------------------------------
 
   @Override
-  public Extent getExtent() {
+  public BBox getBoundingBox() {
     return this;
   }
 
   @Override
   public IntersectCase intersect(Shape shape, Object context)
   {
-    if( !(shape instanceof Extent) ) {
+    if( !(shape instanceof BBox) ) {
       throw new IllegalArgumentException( "Rectangle can only be compared with another Extent" );
     }
-    Extent ext = shape.getExtent();
+    BBox ext = shape.getBoundingBox();
     if (ext.getMinX() > maxX ||
         ext.getMaxX() < minX ||
         ext.getMinY() > maxY ||

@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.grid;
+package org.apache.lucene.spatial.core;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import org.apache.lucene.spatial.core.grid.LinearSpatialGrid;
 
 /**
  */
-public class TestMatchInfo extends TestCase
+public class TestGridMatchInfo extends TestCase
 {
   public void testMatchInfo() throws Exception
   {

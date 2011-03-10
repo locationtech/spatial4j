@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.BBox;
 import org.apache.lucene.spatial.core.Shape;
 import org.apache.lucene.spatial.core.grid.SpatialGrid;
 import org.apache.lucene.spatial.core.grid.jts.JtsGeometry;
@@ -64,8 +64,8 @@ public class KMLHelper
 
   private static List<Coordinate> getCoords( Shape s )
   {
-    if( s instanceof Extent ) {
-      Extent r = (Extent)s;
+    if( s instanceof BBox ) {
+      BBox r = (BBox)s;
       List<Coordinate> coords = new ArrayList<Coordinate>(5);
       coords.add( new Coordinate( r.getMinX(),r.getMinY() ) );
       coords.add( new Coordinate( r.getMaxX(),r.getMinY() ) );

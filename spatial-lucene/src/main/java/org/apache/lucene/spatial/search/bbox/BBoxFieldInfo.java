@@ -3,7 +3,7 @@ package org.apache.lucene.spatial.search.bbox;
 /**
  * Fieldnames to store
  */
-public class ExtentFieldInfo
+public class BBoxFieldInfo
 {
   public String minX = "envelope.minx";
   public String minY = "envelope.miny";

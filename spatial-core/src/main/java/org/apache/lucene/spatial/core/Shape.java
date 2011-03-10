@@ -18,5 +18,5 @@ public interface Shape
   /**
    * Get the bounding box for this Shape
    */
-  Extent getExtent();
+  BBox getBoundingBox();
 }

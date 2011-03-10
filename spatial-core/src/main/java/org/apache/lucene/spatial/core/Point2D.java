@@ -29,17 +29,17 @@ public class Point2D implements Shape
   //----------------------------------------
 
   @Override
-  public Extent getExtent() {
+  public BBox getBoundingBox() {
     return new Rectangle( x, x, y, y );
   }
 
   @Override
   public IntersectCase intersect(Shape shape, Object context)
   {
-    if( !(shape instanceof Extent) ) {
+    if( !(shape instanceof BBox) ) {
       throw new IllegalArgumentException( "Point can only be compared with another Extent" );
     }
-    Extent ext = shape.getExtent();
+    BBox ext = shape.getBoundingBox();
     if( x >= ext.getMinX() &&
         x <= ext.getMaxX() &&
         y >= ext.getMinY() &&
