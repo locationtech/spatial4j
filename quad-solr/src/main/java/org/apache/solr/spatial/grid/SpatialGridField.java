@@ -66,7 +66,7 @@ import org.apache.solr.search.SpatialOptions;
  *   POLYGON( ... )
  *
  */
-public class QuadTreeField extends FieldType implements SchemaAware, SpatialQueryable
+public class SpatialGridField extends FieldType implements SchemaAware, SpatialQueryable
 {
   // This is copied from Field type since they are private
   final static int INDEXED             = 0x00000001;
@@ -130,13 +130,13 @@ public class QuadTreeField extends FieldType implements SchemaAware, SpatialQuer
     if( externalVal.startsWith( "[" ) ) {
       // These are raw values... we will just reuse them
       fields[0].value = externalVal;
-      fields[0].tokens = new QuadCellsTokenizer( new StringReader( externalVal ) );
+      fields[0].tokens = new GridCellsTokenizer( new StringReader( externalVal ) );
       for( int i=1; i<=resolutions.length; i++ ) {
         // Get the distinct shorter strings
         fields[i] = new SimpleAbstractField( fprefix+resolutions[i-1], false );
         fields[i].tokens = new RemoveDuplicatesTokenFilter(
             new TruncateFilter(
-                new QuadCellsTokenizer( new StringReader( externalVal ) ), resolutions[i-1] ) );
+                new GridCellsTokenizer( new StringReader( externalVal ) ), resolutions[i-1] ) );
       }
     }
     else {

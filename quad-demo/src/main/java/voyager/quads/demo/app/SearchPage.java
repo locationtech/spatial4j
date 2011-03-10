@@ -35,6 +35,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.StringResourceStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import voyager.quads.utils.KMLHelper;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
@@ -42,6 +44,8 @@ import de.micromata.opengis.kml.v_2_2_0.Kml;
 
 public class SearchPage extends WebPage
 {
+  static Logger log = LoggerFactory.getLogger( SearchPage.class );
+
   // Dirty Dirty Dirty Hack...
   static final JtsLinearSpatialGrid grid = new JtsLinearSpatialGrid( -180, 180, -90-180, 90, 16 );
   static final SolrServer solr;
@@ -78,7 +82,8 @@ public class SearchPage extends WebPage
           return solr.query( query.getObject().toSolrQuery( 100 ) );
         }
         catch (SolrServerException e) {
-          throw new RuntimeException( e );
+          log.warn( "unable to execute query..."+e );
+          return null;
         }
       }
     };
@@ -90,38 +95,42 @@ public class SearchPage extends WebPage
       {
         RepeatingView rv = new RepeatingView( "item" );
         replace( rv );
-        for( SolrDocument doc : queryResponse.getObject().getResults() ) {
-          final String id = (String)doc.getFieldValue( "id" );
-          WebMarkupContainer row = new WebMarkupContainer( rv.newChildId() );
-          row.add( new Label( "name", (String)doc.getFieldValue( "name" ) ) );
-          row.add( new Label( "tokens", (String)doc.getFieldValue( "geo" ) ) );
 
-          row.add( new Link<Void>( "kml" ) {
-            @Override
-            public void onClick() {
-              StringWriter out = new StringWriter();
-              Kml kml = getKML( id );
-              kml.marshal( out );
-              final String name = kml.getFeature().getName();
-              IResourceStream resourceStream = new StringResourceStream(
-                  out.getBuffer(), "application/vnd.google-earth.kml+xml" );
-              getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream)
-              {
-                @Override
-                public String getFileName()
-                {
-                  return name+".kml";
-                }
+        QueryResponse rsp = queryResponse.getObject();
+        if( rsp != null ) {
+          for( SolrDocument doc : rsp.getResults() ) {
+            final String id = (String)doc.getFieldValue( "id" );
+            WebMarkupContainer row = new WebMarkupContainer( rv.newChildId() );
+            row.add( new Label( "name", (String)doc.getFieldValue( "name" ) ) );
+            row.add( new Label( "tokens", (String)doc.getFieldValue( "geo" ) ) );
 
-                @Override
-                public void respond(RequestCycle requestCycle)
+            row.add( new Link<Void>( "kml" ) {
+              @Override
+              public void onClick() {
+                StringWriter out = new StringWriter();
+                Kml kml = getKML( id );
+                kml.marshal( out );
+                final String name = kml.getFeature().getName();
+                IResourceStream resourceStream = new StringResourceStream(
+                    out.getBuffer(), "application/vnd.google-earth.kml+xml" );
+                getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream)
                 {
-                  super.respond(requestCycle);
-                }
-              });
-            }
-          });
-          rv.add( row );
+                  @Override
+                  public String getFileName()
+                  {
+                    return name+".kml";
+                  }
+
+                  @Override
+                  public void respond(RequestCycle requestCycle)
+                  {
+                    super.respond(requestCycle);
+                  }
+                });
+              }
+            });
+            rv.add( row );
+          }
         }
         super.onBeforeRender();
       }
@@ -130,7 +139,11 @@ public class SearchPage extends WebPage
     results.add( new Label("count", new AbstractReadOnlyModel<String>() {
       @Override
       public String getObject() {
-        SolrDocumentList docs = queryResponse.getObject().getResults();
+        QueryResponse rsp = queryResponse.getObject();
+        if( rsp == null ) {
+          return "unable to execute query";
+        }
+        SolrDocumentList docs = rsp.getResults();
         return docs.getStart() + " - " + (docs.getStart()+docs.size()) + " of " + docs.getNumFound();
       }
     }));

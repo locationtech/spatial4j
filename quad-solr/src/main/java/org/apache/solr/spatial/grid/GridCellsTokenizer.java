@@ -27,9 +27,9 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 /**
  *
  */
-public class QuadCellsTokenizer extends Tokenizer
+public class GridCellsTokenizer extends Tokenizer
 {
-  public QuadCellsTokenizer(Reader input) {
+  public GridCellsTokenizer(Reader input) {
     super(input);
   }
 

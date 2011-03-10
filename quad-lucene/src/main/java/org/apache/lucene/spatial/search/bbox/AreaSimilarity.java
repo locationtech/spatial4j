@@ -58,7 +58,7 @@ public class AreaSimilarity implements ExtentSimilarity
     this( queryExtent, 2.0, 0.5 );
   }
 
-  
+
   public String getDelimiterQueryParameters() {
     return queryExtent.toString()+";"+queryPower+";"+targetPower;
   }
@@ -155,7 +155,7 @@ public class AreaSimilarity implements ExtentSimilarity
     }
     return (float)score;
   }
-  
+
 
   /**
    * Determines if this ValueSource is equal to another.

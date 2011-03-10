@@ -12,22 +12,22 @@ import com.vividsolutions.jts.geom.Point;
 
 /**
  * SUPER early sketches for a possible API.
- * 
+ *
  * Mostly looking at the idea of well typed arguments and response
- * 
+ *
  */
 public class SSS
 {
   //--------------------
   // High Level
   //--------------------
-  
-  public class SpatialResult 
+
+  public class SpatialResult
   {
     public Bits matches;     // which docs match... maybe DocIdSet?
     public DocValues values; // the score object, could be used for sorting
   }
-  
+
   public class SpatialArguments
   {
     public boolean calculateMatches = true;
@@ -45,17 +45,17 @@ public class SSS
   // This kind of interface could live in lucene core
   // min/max would avoid use of {frange}
   //-------------------------------------------------
-  
+
   public class DistanceSpatialArguments extends SpatialArguments
   {
     public Point2D point = null;
-    
+
     public Double min = null;
     public Double max = null;
   }
-  
+
   public class SimpleDistanceOperator implements LuceneSpatialOperator<DistanceSpatialArguments>
-  {    
+  {
     @Override
     public SpatialResult execute( AtomicReaderContext readerContext, DistanceSpatialArguments args ) throws IOException
     {
@@ -64,27 +64,27 @@ public class SSS
       return res;
     }
   }
-  
+
 
   //-------------------------------------------------
   // Simple Geometry Query
   //-------------------------------------------------
-  
+
   public enum OPERATION {
     WITHIN,
     CONTAINS,
     INTERSECTS,
     SIMILAR  // fuzzy geometry matching
   };
-  
+
   public class GeometrySpatialArguments extends SpatialArguments
   {
     public Geometry shape = null;
     public OPERATION op = OPERATION.WITHIN;
   }
-  
+
   public class GeometryOperator implements LuceneSpatialOperator<GeometrySpatialArguments>
-  {    
+  {
     @Override
     public SpatialResult execute( AtomicReaderContext readerContext, GeometrySpatialArguments args ) throws IOException
     {
@@ -93,26 +93,26 @@ public class SSS
       return res;
     }
   }
-  
-  
+
+
   //-------------------------------------------------
   // Complex Geometry Query
-  // outside the scope of lucene, but we should have 
+  // outside the scope of lucene, but we should have
   // an API that makes it possible
   //-------------------------------------------------
-  
-  public class GeometrySpatialResult extends SpatialResult 
+
+  public class GeometrySpatialResult extends SpatialResult
   {
     public Geometry output;
   }
-  
+
   public class UnionGeometryOperator implements LuceneSpatialOperator<GeometrySpatialArguments>
-  {    
+  {
     @Override
     public GeometrySpatialResult execute( AtomicReaderContext readerContext, GeometrySpatialArguments args ) throws IOException
     {
       GeometrySpatialResult res = new GeometrySpatialResult();
-      res.output = new Point(null,null); 
+      res.output = new Point(null,null);
       for( int i=0; i<readerContext.reader.maxDoc(); i++ ) {
         if( args.onlyLookAt.get( i ) ) {
           Geometry g = readGeometry( readerContext, i );
@@ -121,13 +121,13 @@ public class SSS
       }
       return res;
     }
-    
-    Geometry readGeometry(AtomicReaderContext readerContext, int i) 
+
+    Geometry readGeometry(AtomicReaderContext readerContext, int i)
     {
       // could read WKB from terms....
       return null;
     }
   }
-  
- 
+
+
 }

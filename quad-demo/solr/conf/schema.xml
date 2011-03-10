@@ -55,7 +55,7 @@
 
 
     <!-- Quadtree, resolutions are optionally copied to different fields -->
-    <fieldtype name="quadtree" class="voyager.quads.solr.QuadTreeField" resolutions="7,11" prefix="quad_" />
+    <fieldtype name="quadtree" class="org.apache.solr.spatial.grid.SpatialGridField" resolutions="7,11" prefix="grid_" />
 
     <!-- Existing Spatial Search options -->
     <fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
