@@ -8,9 +8,9 @@ import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.core.BBox;
 import org.apache.lucene.spatial.core.IntersectCase;
-import org.apache.lucene.spatial.core.Point2D;
 import org.apache.lucene.spatial.core.Rectangle;
 import org.apache.lucene.spatial.core.Shape;
+import org.apache.lucene.spatial.core.SimpleShapeReader;
 
 
 
@@ -216,19 +216,9 @@ public class LinearSpatialGrid implements SpatialGrid
   }
 
   @Override
-  public Shape readShape(String str) throws IOException {
-    if( str.length() < 1 ) {
-      throw new RuntimeException( "invalid string" );
-    }
-    StringTokenizer st = new StringTokenizer( str, " " );
-    double p0 = Double.parseDouble( st.nextToken() );
-    double p1 = Double.parseDouble( st.nextToken() );
-    if( st.hasMoreTokens() ) {
-      double p2 = Double.parseDouble( st.nextToken() );
-      double p3 = Double.parseDouble( st.nextToken() );
-      return new Rectangle( p0, p2, p1, p3 );
-    }
-    return new Point2D(p0, p1 );
+  public Shape readShape(String str) throws IOException
+  {
+    return SimpleShapeReader.readSimpleShape( str );
   }
 
   //------------------------------------------------------------------------------------------------------

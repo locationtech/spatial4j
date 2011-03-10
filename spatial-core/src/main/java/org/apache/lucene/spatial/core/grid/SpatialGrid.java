@@ -1,11 +1,11 @@
 package org.apache.lucene.spatial.core.grid;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.lucene.spatial.core.Shape;
+import org.apache.lucene.spatial.core.ShapeReader;
 
-public interface SpatialGrid
+public interface SpatialGrid extends ShapeReader
 {
   /**
    * Get a list of tokens that describe the shape within the grid
@@ -21,9 +21,4 @@ public interface SpatialGrid
    * Get the shape for a given cell description
    */
   public Shape getCellShape( CharSequence seq );
-
-  /**
-   * Read a shape from a given string (ie, X Y, XMin XMax... WKT)
-   */
-  public Shape readShape( String str ) throws IOException;
 }
