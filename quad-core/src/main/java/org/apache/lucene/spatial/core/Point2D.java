@@ -1,4 +1,6 @@
-package org.apache.lucene.spatial.quads;
+package org.apache.lucene.spatial.core;
+
+import org.apache.lucene.spatial.grid.SpatialGrid;
 
 
 
@@ -28,17 +30,17 @@ public class Point2D implements Shape
   //----------------------------------------
 
   @Override
-  public ShapeExtent getExtent() {
+  public Extent getExtent() {
     return new Rectangle( x, x, y, y );
   }
 
   @Override
-  public IntersectCase intersect(Shape shape, SpatialGrid grid)
+  public IntersectCase intersect(Shape shape, Object context)
   {
-    if( !(shape instanceof ShapeExtent) ) {
+    if( !(shape instanceof Extent) ) {
       throw new IllegalArgumentException( "Point can only be compared with another Extent" );
     }
-    ShapeExtent ext = shape.getExtent();
+    Extent ext = shape.getExtent();
     if( x >= ext.getMinX() &&
         x <= ext.getMaxX() &&
         y >= ext.getMinY() &&

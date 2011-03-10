@@ -1,7 +1,9 @@
-package org.apache.lucene.spatial.quads;
+package org.apache.lucene.spatial.grid;
 
 import java.io.IOException;
 import java.util.List;
+
+import org.apache.lucene.spatial.core.Shape;
 
 public interface SpatialGrid
 {

@@ -1,13 +1,13 @@
-package org.apache.lucene.spatial.quads.gis;
+package org.apache.lucene.spatial.grid.jts;
 
-import org.apache.lucene.spatial.quads.IntersectCase;
-import org.apache.lucene.spatial.quads.Shape;
-import org.apache.lucene.spatial.quads.ShapeExtent;
-import org.apache.lucene.spatial.quads.SpatialGrid;
+import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.IntersectCase;
+import org.apache.lucene.spatial.core.Shape;
+import org.apache.lucene.spatial.grid.SpatialGrid;
 
 import com.vividsolutions.jts.geom.Envelope;
 
-public class JtsEnvelope implements ShapeExtent
+public class JtsEnvelope implements Extent
 {
   public final Envelope envelope;
 
@@ -21,6 +21,19 @@ public class JtsEnvelope implements ShapeExtent
     this.envelope = new Envelope( x1,x2,y1,y2 );
   }
 
+  //----------------------------------------
+  //----------------------------------------
+
+  public double getArea()
+  {
+    return getWidth() * getHeight();
+  }
+  
+  public boolean getCrossesDateLine()
+  {
+    return false;
+  }
+  
   //----------------------------------------
   //----------------------------------------
 
@@ -63,15 +76,15 @@ public class JtsEnvelope implements ShapeExtent
   //----------------------------------------
 
   @Override
-  public ShapeExtent getExtent() {
+  public Extent getExtent() {
     return this;
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialGrid grid)
+  public IntersectCase intersect(Shape other, Object context)
   {
-    if( other instanceof ShapeExtent ) {
-      ShapeExtent ext = other.getExtent();
+    if( other instanceof Extent ) {
+      Extent ext = other.getExtent();
       if (ext.getMinX() > envelope.getMaxX() ||
           ext.getMaxX() < envelope.getMinX() ||
           ext.getMinY() > envelope.getMaxY() ||

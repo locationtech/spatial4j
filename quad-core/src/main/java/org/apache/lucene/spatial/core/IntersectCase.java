@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.quads;
+package org.apache.lucene.spatial.core;
 
 
 public enum IntersectCase {

@@ -2,9 +2,11 @@ package org.apache.lucene.spatial.quads;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.spatial.quads.gis.JtsEnvelope;
-import org.apache.lucene.spatial.quads.gis.JtsPoint2D;
-import org.apache.lucene.spatial.quads.linear.LinearSpatialGrid;
+import org.apache.lucene.spatial.core.IntersectCase;
+import org.apache.lucene.spatial.grid.SpatialGrid;
+import org.apache.lucene.spatial.grid.jts.JtsEnvelope;
+import org.apache.lucene.spatial.grid.jts.JtsPoint2D;
+import org.apache.lucene.spatial.grid.linear.LinearSpatialGrid;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;

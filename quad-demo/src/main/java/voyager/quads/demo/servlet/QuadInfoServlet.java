@@ -12,9 +12,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.lucene.spatial.quads.Shape;
-import org.apache.lucene.spatial.quads.gis.JtsGeometry;
-import org.apache.lucene.spatial.quads.gis.JtsLinearSpatialGrid;
+import org.apache.lucene.spatial.core.Shape;
+import org.apache.lucene.spatial.grid.jts.JtsGeometry;
+import org.apache.lucene.spatial.grid.jts.JtsLinearSpatialGrid;
 import org.geotools.data.FeatureReader;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;

@@ -1,10 +1,11 @@
-package org.apache.lucene.spatial.quads.linear;
+package org.apache.lucene.spatial.scratch;
 
 
 /**
  * following:
  * http://blog.notdot.net/2009/11/Damn-Cool-Algorithms-Spatial-indexing-with-Quadtrees-and-Hilbert-Curves
  *
+ * Not sure if there is an advantage to using hilbert numbering...
  */
 public class HilbertSketch
 {

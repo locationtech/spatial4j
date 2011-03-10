@@ -1,11 +1,11 @@
-package org.apache.lucene.spatial.quads.gis;
+package org.apache.lucene.spatial.grid.jts;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-import org.apache.lucene.spatial.quads.Shape;
-import org.apache.lucene.spatial.quads.ShapeExtent;
-import org.apache.lucene.spatial.quads.linear.LinearSpatialGrid;
+import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.Shape;
+import org.apache.lucene.spatial.grid.linear.LinearSpatialGrid;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -24,7 +24,7 @@ public class JtsLinearSpatialGrid extends LinearSpatialGrid
   }
 
   @Override
-  protected ShapeExtent makeExtent( double xmin, double xmax, double ymin, double ymax )
+  protected Extent makeExtent( double xmin, double xmax, double ymin, double ymax )
   {
     return new JtsEnvelope( new Envelope( xmin, xmax, ymin, ymax) );
   }

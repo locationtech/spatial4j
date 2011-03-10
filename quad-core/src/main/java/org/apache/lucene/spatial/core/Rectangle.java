@@ -1,8 +1,13 @@
-package org.apache.lucene.spatial.quads;
+package org.apache.lucene.spatial.core;
+
+import org.apache.lucene.spatial.grid.SpatialGrid;
 
 
-
-public class Rectangle implements ShapeExtent
+/**
+ * When minX > maxX, this will assume it is world coordinates that cross the
+ * date line using degrees
+ */
+public class Rectangle implements Extent
 {
   private double minX;
   private double maxX;
@@ -17,6 +22,23 @@ public class Rectangle implements ShapeExtent
     this.maxY = maxY;
   }
 
+  //----------------------------------------
+  //----------------------------------------
+
+  public double getArea()
+  {
+    // CrossedDateline = true;
+    if (minX > maxX) {
+      return Math.abs(maxX + 360.0 - minX) * Math.abs(maxY - minY);
+    }
+    return Math.abs(maxX - minX) * Math.abs(maxY - minY);
+  }
+  
+  public boolean getCrossesDateLine()
+  {
+    return (minX > maxX);
+  }
+  
   //----------------------------------------
   //----------------------------------------
 
@@ -60,17 +82,17 @@ public class Rectangle implements ShapeExtent
   //----------------------------------------
 
   @Override
-  public ShapeExtent getExtent() {
+  public Extent getExtent() {
     return this;
   }
 
   @Override
-  public IntersectCase intersect(Shape shape, SpatialGrid grid)
+  public IntersectCase intersect(Shape shape, Object context)
   {
-    if( !(shape instanceof ShapeExtent) ) {
+    if( !(shape instanceof Extent) ) {
       throw new IllegalArgumentException( "Rectangle can only be compared with another Extent" );
     }
-    ShapeExtent ext = shape.getExtent();
+    Extent ext = shape.getExtent();
     if (ext.getMinX() > maxX ||
         ext.getMaxX() < minX ||
         ext.getMinY() > maxY ||

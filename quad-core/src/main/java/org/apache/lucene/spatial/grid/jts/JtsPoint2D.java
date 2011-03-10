@@ -1,10 +1,10 @@
-package org.apache.lucene.spatial.quads.gis;
+package org.apache.lucene.spatial.grid.jts;
 
 
-import org.apache.lucene.spatial.quads.IntersectCase;
-import org.apache.lucene.spatial.quads.Shape;
-import org.apache.lucene.spatial.quads.ShapeExtent;
-import org.apache.lucene.spatial.quads.SpatialGrid;
+import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.IntersectCase;
+import org.apache.lucene.spatial.core.Shape;
+import org.apache.lucene.spatial.grid.SpatialGrid;
 
 import com.vividsolutions.jts.geom.Point;
 
@@ -34,10 +34,10 @@ public class JtsPoint2D implements Shape
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialGrid grid)
+  public IntersectCase intersect(Shape other, Object context)
   {
-    if( other instanceof ShapeExtent ) {
-      ShapeExtent ext = other.getExtent();
+    if( other instanceof Extent ) {
+      Extent ext = other.getExtent();
       if( p.getX() >= ext.getMinX() &&
           p.getX() <= ext.getMaxX() &&
           p.getY() >= ext.getMinY() &&

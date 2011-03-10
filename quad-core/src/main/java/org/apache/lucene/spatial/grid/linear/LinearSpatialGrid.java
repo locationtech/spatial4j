@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.quads.linear;
+package org.apache.lucene.spatial.grid.linear;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.lucene.spatial.quads.IntersectCase;
-import org.apache.lucene.spatial.quads.Point2D;
-import org.apache.lucene.spatial.quads.Rectangle;
-import org.apache.lucene.spatial.quads.Shape;
-import org.apache.lucene.spatial.quads.ShapeExtent;
-import org.apache.lucene.spatial.quads.SpatialGrid;
+import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.IntersectCase;
+import org.apache.lucene.spatial.core.Point2D;
+import org.apache.lucene.spatial.core.Rectangle;
+import org.apache.lucene.spatial.core.Shape;
+import org.apache.lucene.spatial.grid.SpatialGrid;
 
 
 
@@ -85,7 +85,7 @@ public class LinearSpatialGrid implements SpatialGrid
 
   @Override
   public int getBestLevel(Shape geo) {
-    ShapeExtent ext = geo.getExtent();
+    Extent ext = geo.getExtent();
     double w = ext.getWidth();
     double h = ext.getHeight();
 
@@ -139,7 +139,7 @@ public class LinearSpatialGrid implements SpatialGrid
     double h = levelH[level]/2;
 
     int strlen = str.length();
-    ShapeExtent cell = makeExtent( cx-w, cx+w, cy-h, cy+h );
+    Extent cell = makeExtent( cx-w, cx+w, cy-h, cy+h );
     IntersectCase v = geo.intersect( cell, this );
     if( IntersectCase.CONTAINS == v ) {
       str.append( c );
@@ -170,7 +170,7 @@ public class LinearSpatialGrid implements SpatialGrid
   }
 
   @Override
-  public ShapeExtent getCellShape( CharSequence seq )
+  public Extent getCellShape( CharSequence seq )
   {
     double xmin = this.xmin;
     double ymin = this.ymin;
@@ -211,7 +211,7 @@ public class LinearSpatialGrid implements SpatialGrid
   }
 
   // Subclasses could pick something explicit
-  protected ShapeExtent makeExtent( double xmin, double xmax, double ymin, double ymax )
+  protected Extent makeExtent( double xmin, double xmax, double ymin, double ymax )
   {
     return new Rectangle( xmin, xmax, ymin, ymax );
   }

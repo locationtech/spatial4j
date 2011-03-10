@@ -6,8 +6,8 @@ import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.lucene.spatial.quads.gis.JtsLinearSpatialGrid;
-import org.apache.lucene.spatial.quads.linear.LinearSpatialGrid;
+import org.apache.lucene.spatial.grid.jts.JtsLinearSpatialGrid;
+import org.apache.lucene.spatial.grid.linear.LinearSpatialGrid;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;

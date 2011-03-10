@@ -1,4 +1,6 @@
-package org.apache.lucene.spatial.quads;
+package org.apache.lucene.spatial.core;
+
+import org.apache.lucene.spatial.grid.SpatialGrid;
 
 public interface Shape
 {
@@ -10,12 +12,12 @@ public interface Shape
    *   this is OUTSIDE other
    *   this INTERSECTS other
    *
-   * The grid is useful for context -- it may include spatial reference
+   * The context object is optional -- it may include spatial reference
    */
-  IntersectCase intersect( Shape other, SpatialGrid grid );
+  IntersectCase intersect( Shape other, Object context );
 
   /**
    * Get the bounding box for this Shape
    */
-  ShapeExtent getExtent();
+  Extent getExtent();
 }

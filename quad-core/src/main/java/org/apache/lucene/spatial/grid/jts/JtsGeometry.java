@@ -1,9 +1,9 @@
-package org.apache.lucene.spatial.quads.gis;
+package org.apache.lucene.spatial.grid.jts;
 
-import org.apache.lucene.spatial.quads.IntersectCase;
-import org.apache.lucene.spatial.quads.Shape;
-import org.apache.lucene.spatial.quads.ShapeExtent;
-import org.apache.lucene.spatial.quads.SpatialGrid;
+import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.IntersectCase;
+import org.apache.lucene.spatial.core.Shape;
+import org.apache.lucene.spatial.grid.SpatialGrid;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -29,17 +29,17 @@ public class JtsGeometry implements Shape
     return new JtsEnvelope( geo.getEnvelopeInternal() );
   }
 
-  private GeometryFactory getGeometryFactory( SpatialGrid grid ) {
-    if( grid instanceof JtsLinearSpatialGrid ) {
-      return ((JtsLinearSpatialGrid)grid).factory;
+  private GeometryFactory getGeometryFactory( Object context ) {
+    if( context instanceof JtsLinearSpatialGrid ) {
+      return ((JtsLinearSpatialGrid)context).factory;
     }
     return new GeometryFactory();
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialGrid grid)
+  public IntersectCase intersect(Shape other, Object context)
   {
-    ShapeExtent ext = other.getExtent();
+    Extent ext = other.getExtent();
     if( !ext.hasSize() ) {
       throw new IllegalArgumentException( "the query shape must cover some area (not a point or line)" );
     }
@@ -56,15 +56,15 @@ public class JtsGeometry implements Shape
     Polygon qGeo = null;
     if( other instanceof JtsEnvelope ) {
       Envelope env = ((JtsEnvelope)other).envelope;
-      qGeo = (Polygon) getGeometryFactory(grid).toGeometry(env);
+      qGeo = (Polygon) getGeometryFactory(context).toGeometry(env);
     }
     else if( other instanceof JtsGeometry ) {
       qGeo = (Polygon)((JtsGeometry)other).geo;
     }
-    else if( other instanceof ShapeExtent ) {
-      ShapeExtent e = (ShapeExtent)other;
+    else if( other instanceof Extent ) {
+      Extent e = (Extent)other;
       Envelope env = new Envelope( e.getMinX(), e.getMaxX(), e.getMinY(), e.getMaxY() );
-      qGeo = (Polygon) getGeometryFactory(grid).toGeometry(env);
+      qGeo = (Polygon) getGeometryFactory(context).toGeometry(env);
     }
     else {
       throw new IllegalArgumentException( "this field only support intersectio with Extents or JTS Geometry" );

@@ -4,11 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.spatial.quads.Shape;
-import org.apache.lucene.spatial.quads.ShapeExtent;
-import org.apache.lucene.spatial.quads.SpatialGrid;
-import org.apache.lucene.spatial.quads.gis.JtsGeometry;
-import org.apache.lucene.spatial.quads.gis.JtsLinearSpatialGrid;
+import org.apache.lucene.spatial.core.Extent;
+import org.apache.lucene.spatial.core.Shape;
+import org.apache.lucene.spatial.grid.SpatialGrid;
+import org.apache.lucene.spatial.grid.jts.JtsGeometry;
+import org.apache.lucene.spatial.grid.jts.JtsLinearSpatialGrid;
 
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
@@ -64,8 +64,8 @@ public class KMLHelper
 
   private static List<Coordinate> getCoords( Shape s )
   {
-    if( s instanceof ShapeExtent ) {
-      ShapeExtent r = (ShapeExtent)s;
+    if( s instanceof Extent ) {
+      Extent r = (Extent)s;
       List<Coordinate> coords = new ArrayList<Coordinate>(5);
       coords.add( new Coordinate( r.getMinX(),r.getMinY() ) );
       coords.add( new Coordinate( r.getMaxX(),r.getMinY() ) );
