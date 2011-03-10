@@ -3,14 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <artifactId>quad-parent</artifactId>
-		<groupId>org.apache.lucene.spatial.quad</groupId>
+    <artifactId>lucene-spatial-parent</artifactId>
+		<groupId>org.apache.lucene.spatial</groupId>
 		<version>0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   
-	<groupId>org.apache.lucene.spatial.quad</groupId>
-  <artifactId>quad-demo</artifactId>
+	<groupId>org.apache.lucene.spatial</groupId>
+  <artifactId>spatial-demo</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
   <name>Quad - Demo</name>
@@ -21,8 +21,8 @@
 
   <dependencies>
 	  <dependency>
-		  <groupId>org.apache.lucene.spatial.quad</groupId>
-	    <artifactId>quad-solr</artifactId>
+		  <groupId>org.apache.lucene.spatial</groupId>
+	    <artifactId>spatial-solr</artifactId>
 	    <version>0.1-SNAPSHOT</version>
 	  </dependency>
 

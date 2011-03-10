@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.quads;
+package org.apache.lucene.spatial.grid;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 import org.apache.lucene.spatial.core.Point2D;
 import org.apache.lucene.spatial.core.Rectangle;
 import org.apache.lucene.spatial.core.Shape;
-import org.apache.lucene.spatial.grid.linear.LinearSpatialGrid;
+import org.apache.lucene.spatial.core.grid.LinearSpatialGrid;
 
 
 

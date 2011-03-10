@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search.bbox;
+package org.apache.lucene.spatial.core.bbox;
 
 import org.apache.lucene.spatial.core.Extent;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class AreaSimilarity implements ExtentSimilarity
 {
   /** The Logger. */
-  private static Logger log = LoggerFactory.getLogger(SpatialRankingValueSource.class);
+  private static Logger log = LoggerFactory.getLogger(AreaSimilarity.class);
 
   /** Properties associated with the query envelope */
   private final Extent queryExtent;
@@ -64,13 +64,13 @@ public class AreaSimilarity implements ExtentSimilarity
   }
 
   @Override
-  public float score(Extent target) {
+  public double score(Extent target) {
     if (target == null || queryArea <= 0) {
-      return 0.f;
+      return 0;
     }
     double targetArea = target.getArea();
     if( targetArea <= 0 ) {
-      return 0.f;
+      return 0;
     }
     double score = 0;
 
@@ -153,7 +153,7 @@ public class AreaSimilarity implements ExtentSimilarity
         log.trace( sb.toString() );
       }
     }
-    return (float)score;
+    return score;
   }
 
 

@@ -3,14 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <artifactId>quad-parent</artifactId>
-		<groupId>org.apache.lucene.spatial.quad</groupId>
+    <artifactId>lucene-spatial-parent</artifactId>
+		<groupId>org.apache.lucene.spatial</groupId>
 		<version>0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   
-	<groupId>org.apache.lucene.spatial.quad</groupId>
-  <artifactId>quad-core</artifactId>
+	<groupId>org.apache.lucene.spatial</groupId>
+  <artifactId>spatial-core</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
   <name>Quad - Core</name>
@@ -34,6 +34,19 @@
 	    <artifactId>jts</artifactId>
 	    <version>1.11</version>
 	  </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+			<version>1.5.11</version>
+    </dependency> 
+    
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+			<version>1.5.11</version>
+      <scope>runtime</scope>
+    </dependency>
 
     <!-- TESTING -->
     <dependency>

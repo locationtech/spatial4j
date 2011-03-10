@@ -38,7 +38,7 @@ import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.core.Shape;
-import org.apache.lucene.spatial.grid.jts.JtsLinearSpatialGrid;
+import org.apache.lucene.spatial.core.grid.jts.JtsLinearSpatialGrid;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.response.TextResponseWriter;
 import org.apache.solr.schema.FieldType;

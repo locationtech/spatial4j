@@ -2,11 +2,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>quad-parent</artifactId>
-	<groupId>org.apache.lucene.spatial.quad</groupId>
+  <artifactId>lucene-spatial-parent</artifactId>
+	<groupId>org.apache.lucene.spatial</groupId>
 	<version>0.1-SNAPSHOT</version>
 	
-  <name>Quad - Parent</name>
+  <name>Lucene Spatial</name>
   <description>
    Lucene Spatial Playground
   </description>
@@ -263,10 +263,10 @@
   </repositories>
   
   <modules>
-    <module>quad-core</module>
-    <module>quad-lucene</module>
-    <module>quad-solr</module>
-    <module>quad-demo</module>
+    <module>spatial-core</module>
+    <module>spatial-lucene</module>
+    <module>spatial-solr</module>
+    <module>spatial-demo</module>
   </modules>
   
 </project>

@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.grid.linear;
+package org.apache.lucene.spatial.core.grid;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -11,7 +11,6 @@ import org.apache.lucene.spatial.core.IntersectCase;
 import org.apache.lucene.spatial.core.Point2D;
 import org.apache.lucene.spatial.core.Rectangle;
 import org.apache.lucene.spatial.core.Shape;
-import org.apache.lucene.spatial.grid.SpatialGrid;
 
 
 

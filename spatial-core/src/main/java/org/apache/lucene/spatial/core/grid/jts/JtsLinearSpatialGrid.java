@@ -1,11 +1,11 @@
-package org.apache.lucene.spatial.grid.jts;
+package org.apache.lucene.spatial.core.grid.jts;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.core.Extent;
 import org.apache.lucene.spatial.core.Shape;
-import org.apache.lucene.spatial.grid.linear.LinearSpatialGrid;
+import org.apache.lucene.spatial.core.grid.LinearSpatialGrid;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;

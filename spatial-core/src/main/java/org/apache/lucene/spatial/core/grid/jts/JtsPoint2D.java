@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.grid.jts;
+package org.apache.lucene.spatial.core.grid.jts;
 
 
 import org.apache.lucene.spatial.core.Extent;

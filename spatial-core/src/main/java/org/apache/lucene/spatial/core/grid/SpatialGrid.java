@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.grid;
+package org.apache.lucene.spatial.core.grid;
 
 import java.io.IOException;
 import java.util.List;

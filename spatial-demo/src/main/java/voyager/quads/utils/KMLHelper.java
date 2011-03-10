@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.apache.lucene.spatial.core.Extent;
 import org.apache.lucene.spatial.core.Shape;
-import org.apache.lucene.spatial.grid.SpatialGrid;
-import org.apache.lucene.spatial.grid.jts.JtsGeometry;
-import org.apache.lucene.spatial.grid.jts.JtsLinearSpatialGrid;
+import org.apache.lucene.spatial.core.grid.SpatialGrid;
+import org.apache.lucene.spatial.core.grid.jts.JtsGeometry;
+import org.apache.lucene.spatial.core.grid.jts.JtsLinearSpatialGrid;
 
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 

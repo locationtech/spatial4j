@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.scratch;
+package org.apache.lucene.spatial.search.sketch;
 
 
 /**

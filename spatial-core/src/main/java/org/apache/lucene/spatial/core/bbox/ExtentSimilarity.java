@@ -1,7 +1,7 @@
-package org.apache.lucene.spatial.search.bbox;
+package org.apache.lucene.spatial.core.bbox;
 
 import org.apache.lucene.spatial.core.Extent;
 
 public interface ExtentSimilarity {
-  public float score( Extent extent );
+  public double score( Extent extent );
 }

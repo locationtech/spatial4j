@@ -9,6 +9,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.core.Extent;
 import org.apache.lucene.spatial.core.SpatialOperation;
+import org.apache.lucene.spatial.core.bbox.AreaSimilarity;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
 public class ExtentQueryBuilder extends SpatialQueryBuilder
