@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.core.grid.jts;
+package org.apache.lucene.spatial.core.jts;
 
 import org.apache.lucene.spatial.core.BBox;
 import org.apache.lucene.spatial.core.IntersectCase;

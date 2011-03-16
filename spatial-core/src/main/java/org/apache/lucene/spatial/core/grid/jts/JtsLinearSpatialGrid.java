@@ -6,6 +6,9 @@ import java.util.StringTokenizer;
 import org.apache.lucene.spatial.core.BBox;
 import org.apache.lucene.spatial.core.Shape;
 import org.apache.lucene.spatial.core.grid.LinearSpatialGrid;
+import org.apache.lucene.spatial.core.jts.JtsEnvelope;
+import org.apache.lucene.spatial.core.jts.JtsGeometry;
+import org.apache.lucene.spatial.core.jts.JtsPoint2D;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;

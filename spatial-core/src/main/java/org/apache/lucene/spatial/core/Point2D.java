@@ -1,8 +1,6 @@
 package org.apache.lucene.spatial.core;
 
 
-
-
 public class Point2D implements Shape
 {
   private double x;

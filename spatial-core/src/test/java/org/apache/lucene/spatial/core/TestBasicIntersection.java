@@ -4,8 +4,8 @@ import junit.framework.TestCase;
 
 import org.apache.lucene.spatial.core.grid.LinearSpatialGrid;
 import org.apache.lucene.spatial.core.grid.SpatialGrid;
-import org.apache.lucene.spatial.core.grid.jts.JtsEnvelope;
-import org.apache.lucene.spatial.core.grid.jts.JtsPoint2D;
+import org.apache.lucene.spatial.core.jts.JtsEnvelope;
+import org.apache.lucene.spatial.core.jts.JtsPoint2D;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;

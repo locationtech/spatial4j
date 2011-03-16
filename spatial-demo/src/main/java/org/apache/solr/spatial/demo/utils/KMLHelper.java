@@ -7,8 +7,8 @@ import java.util.List;
 import org.apache.lucene.spatial.core.BBox;
 import org.apache.lucene.spatial.core.Shape;
 import org.apache.lucene.spatial.core.grid.SpatialGrid;
-import org.apache.lucene.spatial.core.grid.jts.JtsGeometry;
 import org.apache.lucene.spatial.core.grid.jts.JtsLinearSpatialGrid;
+import org.apache.lucene.spatial.core.jts.JtsGeometry;
 
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
