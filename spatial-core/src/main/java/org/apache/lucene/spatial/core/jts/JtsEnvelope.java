@@ -23,6 +23,11 @@ public class JtsEnvelope implements BBox
   //----------------------------------------
   //----------------------------------------
 
+  @Override
+  public boolean hasArea() {
+    return getWidth() > 0 && getHeight() > 0;
+  }
+  
   public double getArea()
   {
     return getWidth() * getHeight();

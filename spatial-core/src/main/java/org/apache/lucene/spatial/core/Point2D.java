@@ -46,4 +46,9 @@ public class Point2D implements Shape
     }
     return IntersectCase.OUTSIDE;
   }
+
+  @Override
+  public boolean hasArea() {
+    return false;
+  }
 }

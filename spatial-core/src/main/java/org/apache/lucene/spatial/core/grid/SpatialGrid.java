@@ -7,6 +7,9 @@ import org.apache.lucene.spatial.core.ShapeReader;
 
 public interface SpatialGrid extends ShapeReader
 {
+  public static final char COVER = '*';
+  public static final char INTERSECTS = '+';
+  
   /**
    * Get a list of tokens that describe the shape within the grid
    */

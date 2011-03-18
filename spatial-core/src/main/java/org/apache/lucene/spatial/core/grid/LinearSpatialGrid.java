@@ -142,7 +142,7 @@ public class LinearSpatialGrid implements SpatialGrid
     IntersectCase v = geo.intersect( cell, this );
     if( IntersectCase.CONTAINS == v ) {
       str.append( c );
-      str.append( '*' );
+      str.append( SpatialGrid.COVER );
       matches.add( str.toString() );
     }
     else if( IntersectCase.OUTSIDE == v ) {
@@ -158,7 +158,7 @@ public class LinearSpatialGrid implements SpatialGrid
 
       int nextLevel = level+1;
       if( nextLevel >= maxLevel ) {
-        str.append( '+' );
+        str.append( SpatialGrid.INTERSECTS );
         matches.add( str.toString() );
       }
       else {

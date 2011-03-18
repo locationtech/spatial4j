@@ -21,24 +21,29 @@ package org.apache.lucene.spatial.core;
  */
 public enum SpatialOperation
 {
-  BBOXIntersects( true ),
-  Contains( true ),
-  Intersects( true ),
-  IsEqualTo( false ),
-  IsDisjointTo( false ),
-  IsWithin( true ),
-  Overlaps( true ),
+  // Geometry Operations
+  BBOXIntersects( true, false, false ),
+  Contains( true, true, false ),
+  Intersects( true, false, false ),
+  IsEqualTo( false, false, false ),
+  IsDisjointTo( false, false, false ),
+  IsWithin( true, false, true ),
+  Overlaps( true, false, true ),
 
-  // Point
-  DistanceTo( true ),
+  // Point/Radius
+  WithinDistance( true, false, false ),
 
-  // Fuzzy
-  SimilarTo( true ),
+  // Fuzzy Shape matching
+  SimilarTo( true, false, false ),
   ;
 
   public final boolean scoreIsMeaningful;
+  public final boolean sourceNeedsArea;
+  public final boolean targetNeedsArea;
 
-  private SpatialOperation( boolean v ) {
+  private SpatialOperation( boolean v, boolean sa, boolean ta ) {
     scoreIsMeaningful = v;
+    sourceNeedsArea = sa;
+    targetNeedsArea = ta;
   }
 }

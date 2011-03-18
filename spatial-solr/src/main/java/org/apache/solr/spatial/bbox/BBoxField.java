@@ -105,9 +105,9 @@ public class BBoxField extends FieldType implements SchemaAware
   }
 
   @Override
-  public Fieldable[] createFields(SchemaField field, String externalVal, float boost)
+  public Fieldable[] createFields(SchemaField field, Object val, float boost)
   {
-    Shape shape = SimpleShapeReader.readSimpleShape( externalVal );
+    Shape shape = (val instanceof Shape)?((Shape)val):SimpleShapeReader.readSimpleShape( val.toString() );
     BBox bbox = shape.getBoundingBox();
 
     String name = field.getName();

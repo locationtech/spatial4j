@@ -215,13 +215,22 @@
     </lst>
   </requestHandler>
 
-	<!-- update -->
-  <requestHandler name="/update" class="solr.XmlUpdateRequestHandler" />
-  <requestHandler name="/update/javabin" class="solr.BinaryUpdateRequestHandler" startup="lazy"/>
-  <requestHandler name="/update/csv" class="solr.CSVRequestHandler" startup="lazy" />
-  <requestHandler name="/update/json" class="solr.JsonUpdateRequestHandler" startup="lazy" />
 
-	<!-- analysis -->
+  <!-- sp -->
+  <updateRequestProcessorChain name="spatial">
+    <processor class="org.apache.solr.spatial.demo.solr.SpatialDemoUpdateProcessorFactory" />
+    <processor class="solr.LogUpdateProcessorFactory" />
+    <processor class="solr.RunUpdateProcessorFactory" />
+  </updateRequestProcessorChain>
+
+  <!-- update -->
+  <requestHandler name="/update" class="solr.XmlUpdateRequestHandler" >
+    <lst name="defaults">
+      <str name="update.processor">spatial</str>
+    </lst>
+  </requestHandler>
+  
+  <!-- analysis -->
   <requestHandler name="/analysis/document" class="solr.DocumentAnalysisRequestHandler" />
   <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" />
 

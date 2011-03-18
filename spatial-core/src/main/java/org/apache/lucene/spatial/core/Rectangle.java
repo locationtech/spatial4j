@@ -24,6 +24,12 @@ public class Rectangle implements BBox
   //----------------------------------------
   //----------------------------------------
 
+  @Override
+  public boolean hasArea() {
+    return getWidth() > 0 && getHeight() > 0;
+  }
+  
+  @Override
   public double getArea()
   {
     // CrossedDateline = true;
@@ -33,6 +39,7 @@ public class Rectangle implements BBox
     return Math.abs(maxX - minX) * Math.abs(maxY - minY);
   }
 
+  @Override
   public boolean getCrossesDateLine()
   {
     return (minX > maxX);
@@ -45,7 +52,6 @@ public class Rectangle implements BBox
   public double getHeight() {
     return maxY - minY;
   }
-
 
   @Override
   public double getWidth() {

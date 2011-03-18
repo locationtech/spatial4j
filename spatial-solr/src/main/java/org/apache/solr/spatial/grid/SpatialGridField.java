@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.management.RuntimeErrorException;
+
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.document.AbstractField;
@@ -121,47 +123,52 @@ public class SpatialGridField extends FieldType implements SchemaAware, SpatialQ
 
 
   @Override
-  public Fieldable[] createFields(SchemaField field, String externalVal, float boost)
+  public Fieldable[] createFields(SchemaField field, Object val, float boost)
   {
     SimpleAbstractField[] fields = new SimpleAbstractField[1+resolutions.length];
     fields[0] = new SimpleAbstractField( field.getName(), field.stored() );
 
-    // The input *may* already define quad cells -- in this case, just use them
-    if( externalVal.startsWith( "[" ) ) {
-      // These are raw values... we will just reuse them
-      fields[0].value = externalVal;
-      fields[0].tokens = new GridCellsTokenizer( new StringReader( externalVal ) );
-      for( int i=1; i<=resolutions.length; i++ ) {
-        // Get the distinct shorter strings
-        fields[i] = new SimpleAbstractField( fprefix+resolutions[i-1], false );
-        fields[i].tokens = new RemoveDuplicatesTokenFilter(
-            new TruncateFilter(
-                new GridCellsTokenizer( new StringReader( externalVal ) ), resolutions[i-1] ) );
-      }
+    Shape shape = null;
+    if( val instanceof Shape ) {
+      shape = (Shape)val;
     }
     else {
-      Shape shape = null;
+      String externalVal = val.toString();
+
+      // The input *may* already define quad cells -- in this case, just use them
+      if( externalVal.startsWith( "[" ) ) {
+        // These are raw values... we will just reuse them
+        fields[0].value = externalVal;
+        fields[0].tokens = new GridCellsTokenizer( new StringReader( externalVal ) );
+        for( int i=1; i<=resolutions.length; i++ ) {
+          // Get the distinct shorter strings
+          fields[i] = new SimpleAbstractField( fprefix+resolutions[i-1], false );
+          fields[i].tokens = new RemoveDuplicatesTokenFilter(
+              new TruncateFilter(
+                  new GridCellsTokenizer( new StringReader( externalVal ) ), resolutions[i-1] ) );
+        }
+        return fields;
+      }  
       try {
         shape = grid.readShape( externalVal );
+      } 
+      catch (IOException e) {
+        throw new RuntimeException( "error reading: "+externalVal );
       }
-      catch (Exception e) {
-        throw new SolrException( SolrException.ErrorCode.BAD_REQUEST, e );
-      }
-      List<CharSequence> match = grid.readCells(shape);
-
-
-      if( field.stored() ) {
-        // Store the cells, not the raw geometry
-        fields[0].value = match.toString();
-      }
-      fields[0].tokens = new StringListTokenizer( match );
-      for( int i=1; i<=resolutions.length; i++ ) {
-        // Get the distinct shorter strings
-        fields[i] = new SimpleAbstractField( fprefix+resolutions[i-1], false );
-        fields[i].tokens = new RemoveDuplicatesTokenFilter(
-            new TruncateFilter(
-                new StringListTokenizer( match ), resolutions[i-1] ) );
-      }
+    }
+    
+    List<CharSequence> match = grid.readCells(shape);
+    if( field.stored() ) {
+      // Store the cells, not the raw geometry
+      fields[0].value = match.toString();
+    }
+    fields[0].tokens = new StringListTokenizer( match );
+    for( int i=1; i<=resolutions.length; i++ ) {
+      // Get the distinct shorter strings
+      fields[i] = new SimpleAbstractField( fprefix+resolutions[i-1], false );
+      fields[i].tokens = new RemoveDuplicatesTokenFilter(
+          new TruncateFilter(
+              new StringListTokenizer( match ), resolutions[i-1] ) );
     }
     return fields;
   }

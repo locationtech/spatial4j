@@ -9,21 +9,30 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.IntersectionMatrix;
+import com.vividsolutions.jts.geom.Lineal;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Puntal;
 import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
 
 public class JtsGeometry implements Shape
 {
   public final Geometry geo;
-
+  private final boolean _hasArea;
+  
   public JtsGeometry(Geometry geo)
   {
     this.geo = geo;
+    _hasArea = !((geo instanceof Lineal) || (geo instanceof Puntal));
   }
 
   //----------------------------------------
   //----------------------------------------
 
+  @Override
+  public boolean hasArea() {
+    return _hasArea;
+  }
+  
   @Override
   public JtsEnvelope getBoundingBox() {
     return new JtsEnvelope( geo.getEnvelopeInternal() );
@@ -31,7 +40,7 @@ public class JtsGeometry implements Shape
 
   private GeometryFactory getGeometryFactory( Object context ) {
     if( context instanceof JtsLinearSpatialGrid ) {
-      return ((JtsLinearSpatialGrid)context).factory;
+      return (((JtsLinearSpatialGrid)context)).reader.factory;
     }
     return new GeometryFactory();
   }

@@ -28,6 +28,11 @@ public class JtsPoint2D implements Shape
   //----------------------------------------
 
   @Override
+  public boolean hasArea() {
+    return false;
+  }
+  
+  @Override
   public JtsEnvelope getBoundingBox() {
     return new JtsEnvelope( p.getEnvelopeInternal() );
   }
