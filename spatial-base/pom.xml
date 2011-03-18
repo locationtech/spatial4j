@@ -13,7 +13,7 @@
   <artifactId>spatial-base</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
-  <name>Spatial Base</name>
+  <name>Spatial - Base</name>
   <description>
     base spatial library (no lucene runtime)
   </description>

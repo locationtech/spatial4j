@@ -13,7 +13,7 @@
   <artifactId>spatial-demo</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
-  <name>Quad - Demo</name>
+  <name>Spatial - Demo</name>
   <description>
     Show solr + KML stuff
   </description>

@@ -13,7 +13,7 @@
   <artifactId>spatial-lucene</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
-  <name>Quad - lucene</name>
+  <name>Spatial - lucene</name>
   <description>
     lucene stuff
   </description>
@@ -22,7 +22,7 @@
   <dependencies>
 	  <dependency>
 		  <groupId>org.apache.lucene.spatial</groupId>
-	    <artifactId>spatial-core</artifactId>
+	    <artifactId>spatial-base</artifactId>
 	    <version>0.1-SNAPSHOT</version>
 	  </dependency>
 

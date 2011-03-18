@@ -13,9 +13,9 @@
   <artifactId>spatial-solr</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
-  <name>Quad - Solr</name>
+  <name>Spatial - Solr</name>
   <description>
-    Solr stuff (could be in lucene)
+    Solr spatial stuff...
   </description>
   <packaging>jar</packaging>  
 
