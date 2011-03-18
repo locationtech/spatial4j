@@ -12,9 +12,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.lucene.spatial.core.Shape;
-import org.apache.lucene.spatial.core.grid.jts.JtsLinearSpatialGrid;
-import org.apache.lucene.spatial.core.jts.JtsGeometry;
+import org.apache.lucene.spatial.base.Shape;
+import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
+import org.apache.lucene.spatial.base.jts.JtsGeometry;
 import org.apache.solr.spatial.demo.utils.KMLHelper;
 import org.apache.solr.spatial.demo.utils.countries.CountryInfo;
 import org.apache.solr.spatial.demo.utils.countries.CountryReader;

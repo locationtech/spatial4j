@@ -6,7 +6,7 @@ import java.util.BitSet;
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
-import org.apache.lucene.spatial.core.Shape;
+import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.util.DocIdBitSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,9 +1,9 @@
-package org.apache.lucene.spatial.core.grid;
+package org.apache.lucene.spatial.base.grid;
 
 import java.util.List;
 
-import org.apache.lucene.spatial.core.Shape;
-import org.apache.lucene.spatial.core.ShapeReader;
+import org.apache.lucene.spatial.base.Shape;
+import org.apache.lucene.spatial.base.ShapeReader;
 
 public interface SpatialGrid extends ShapeReader
 {

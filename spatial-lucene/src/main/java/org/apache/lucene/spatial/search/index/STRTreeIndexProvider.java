@@ -1,6 +1,6 @@
 package org.apache.lucene.spatial.search.index;
 
-import org.apache.lucene.spatial.core.ShapeReader;
+import org.apache.lucene.spatial.base.ShapeReader;
 
 import com.vividsolutions.jts.index.SpatialIndex;
 import com.vividsolutions.jts.index.strtree.STRtree;

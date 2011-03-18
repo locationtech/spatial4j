@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.core;
+package org.apache.lucene.spatial.base;
 
 
 public interface Shape

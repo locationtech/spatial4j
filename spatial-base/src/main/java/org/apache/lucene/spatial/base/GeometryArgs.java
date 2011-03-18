@@ -1,8 +1,8 @@
-package org.apache.lucene.spatial.core;
+package org.apache.lucene.spatial.base;
 
 import java.io.IOException;
 
-import org.apache.lucene.spatial.core.exception.InvalidSpatialArgument;
+import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 
 public class GeometryArgs extends SpatialArgs
 {

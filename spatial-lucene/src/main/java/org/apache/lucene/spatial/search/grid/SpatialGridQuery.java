@@ -19,7 +19,7 @@ package org.apache.lucene.spatial.search.grid;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.AutomatonQuery;
-import org.apache.lucene.spatial.core.grid.SpatialGrid;
+import org.apache.lucene.spatial.base.grid.SpatialGrid;
 import org.apache.lucene.util.ToStringUtils;
 import org.apache.lucene.util.automaton.Automaton;
 import org.apache.lucene.util.automaton.BasicAutomata;

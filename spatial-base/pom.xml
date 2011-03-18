@@ -10,12 +10,12 @@
   </parent>
   
 	<groupId>org.apache.lucene.spatial</groupId>
-  <artifactId>spatial-core</artifactId>
+  <artifactId>spatial-base</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
-  <name>Quad - Core</name>
+  <name>Spatial Base</name>
   <description>
-    Quad core stuff
+    base spatial library (no lucene runtime)
   </description>
   <packaging>jar</packaging>  
 

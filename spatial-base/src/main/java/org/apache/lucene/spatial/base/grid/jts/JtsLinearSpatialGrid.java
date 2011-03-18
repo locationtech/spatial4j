@@ -1,10 +1,10 @@
-package org.apache.lucene.spatial.core.grid.jts;
+package org.apache.lucene.spatial.base.grid.jts;
 
 import java.io.IOException;
-import org.apache.lucene.spatial.core.BBox;
-import org.apache.lucene.spatial.core.Shape;
-import org.apache.lucene.spatial.core.grid.LinearSpatialGrid;
-import org.apache.lucene.spatial.core.jts.JtsEnvelope;
+import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.Shape;
+import org.apache.lucene.spatial.base.grid.LinearSpatialGrid;
+import org.apache.lucene.spatial.base.jts.JtsEnvelope;
 import com.vividsolutions.jts.geom.Envelope;
 
 public class JtsLinearSpatialGrid extends LinearSpatialGrid

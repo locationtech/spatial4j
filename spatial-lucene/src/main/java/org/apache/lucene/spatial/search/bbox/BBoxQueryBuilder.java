@@ -7,8 +7,8 @@ import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.function.ValueSource;
-import org.apache.lucene.spatial.core.BBox;
-import org.apache.lucene.spatial.core.SpatialOperation;
+import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.SpatialOperation;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
 public class BBoxQueryBuilder extends SpatialQueryBuilder

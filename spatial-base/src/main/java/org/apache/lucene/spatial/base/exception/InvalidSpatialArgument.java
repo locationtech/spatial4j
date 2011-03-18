@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.core.exception;
+package org.apache.lucene.spatial.base.exception;
 
 public class InvalidSpatialArgument extends RuntimeException 
 {

@@ -1,11 +1,11 @@
-package org.apache.lucene.spatial.core;
+package org.apache.lucene.spatial.base;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.spatial.core.grid.LinearSpatialGrid;
-import org.apache.lucene.spatial.core.grid.SpatialGrid;
-import org.apache.lucene.spatial.core.jts.JtsEnvelope;
-import org.apache.lucene.spatial.core.jts.JtsPoint2D;
+import org.apache.lucene.spatial.base.grid.LinearSpatialGrid;
+import org.apache.lucene.spatial.base.grid.SpatialGrid;
+import org.apache.lucene.spatial.base.jts.JtsEnvelope;
+import org.apache.lucene.spatial.base.jts.JtsPoint2D;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;

@@ -2,7 +2,7 @@ package org.apache.lucene.spatial.search.grid;
 
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
-import org.apache.lucene.spatial.core.SpatialOperation;
+import org.apache.lucene.spatial.base.SpatialOperation;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
 public class GridQueryBuilder extends SpatialQueryBuilder

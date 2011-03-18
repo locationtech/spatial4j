@@ -1,8 +1,8 @@
-package org.apache.lucene.spatial.core;
+package org.apache.lucene.spatial.base;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.spatial.core.grid.jts.WKTShapeReader;
+import org.apache.lucene.spatial.base.grid.jts.WKTShapeReader;
 
 
 

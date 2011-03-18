@@ -1,7 +1,7 @@
 package org.apache.lucene.spatial.search.geo;
 
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.core.Shape;
+import org.apache.lucene.spatial.base.Shape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

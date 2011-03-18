@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.function.DocValues;
-import org.apache.lucene.spatial.core.Point2D;
+import org.apache.lucene.spatial.base.Point2D;
 import org.apache.lucene.util.Bits;
 
 import com.vividsolutions.jts.geom.Geometry;

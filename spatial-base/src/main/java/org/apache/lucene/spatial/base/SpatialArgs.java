@@ -1,11 +1,11 @@
-package org.apache.lucene.spatial.core;
+package org.apache.lucene.spatial.base;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.lucene.spatial.core.exception.InvalidSpatialArgument;
+import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 
 public abstract class SpatialArgs 
 {

@@ -1,10 +1,10 @@
-package org.apache.lucene.spatial.core;
+package org.apache.lucene.spatial.base;
 
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.spatial.core.grid.LinearSpatialGrid;
+import org.apache.lucene.spatial.base.grid.LinearSpatialGrid;
 
 
 

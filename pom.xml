@@ -263,7 +263,7 @@
   </repositories>
   
   <modules>
-    <module>spatial-core</module>
+    <module>spatial-base</module>
     <module>spatial-lucene</module>
     <module>spatial-solr</module>
     <module>spatial-demo</module>

@@ -1,9 +1,9 @@
-package org.apache.lucene.spatial.core.jts;
+package org.apache.lucene.spatial.base.jts;
 
-import org.apache.lucene.spatial.core.BBox;
-import org.apache.lucene.spatial.core.IntersectCase;
-import org.apache.lucene.spatial.core.Shape;
-import org.apache.lucene.spatial.core.grid.jts.JtsLinearSpatialGrid;
+import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.Shape;
+import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;

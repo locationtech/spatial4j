@@ -1,9 +1,9 @@
-package org.apache.lucene.spatial.core.jts;
+package org.apache.lucene.spatial.base.jts;
 
 
-import org.apache.lucene.spatial.core.BBox;
-import org.apache.lucene.spatial.core.IntersectCase;
-import org.apache.lucene.spatial.core.Shape;
+import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.Shape;
 
 import com.vividsolutions.jts.geom.Point;
 
