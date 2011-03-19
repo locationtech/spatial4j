@@ -1,13 +1,12 @@
-package org.apache.lucene.spatial.base.grid.jts;
+package org.apache.lucene.spatial.base.jts;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
 
+import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.ShapeReader;
-import org.apache.lucene.spatial.base.jts.JtsEnvelope;
-import org.apache.lucene.spatial.base.jts.JtsGeometry;
-import org.apache.lucene.spatial.base.jts.JtsPoint2D;
+import org.apache.lucene.spatial.base.ShapeIO;
+import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -16,7 +15,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.WKTReader;
 
-public class WKTShapeReader implements ShapeReader
+public class WKTShapeReader implements ShapeIO
 { 
   public GeometryFactory factory;
   
@@ -30,10 +29,10 @@ public class WKTShapeReader implements ShapeReader
     factory = f;
   }
   
-  public Shape readShape( String str ) throws IOException
+  public Shape readShape( String str ) throws InvalidShapeException
   {
     if( str.length() < 1 ) {
-      throw new RuntimeException( "invalid string" );
+      throw new InvalidShapeException( str );
     }
     if( !Character.isLetter(str.charAt(0)) ) {
       StringTokenizer st = new StringTokenizer( str, " " );
@@ -56,7 +55,32 @@ public class WKTShapeReader implements ShapeReader
       return new JtsGeometry( geo );
     }
     catch( com.vividsolutions.jts.io.ParseException ex ) {
-      throw new IOException( "error reading shape: "+str, ex );
+      throw new InvalidShapeException( "error reading WKT", ex );
     }
+  }
+
+  @Override
+  public BBox readBBox(String value) throws InvalidShapeException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public BBox readBBox(byte[] bytes, int offset, int length)
+      throws InvalidShapeException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public byte[] toBytes(Shape shape) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String toString(Shape shape) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

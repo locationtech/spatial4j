@@ -16,34 +16,32 @@ package org.apache.solr.spatial.index;
  * limitations under the License.
  */
 
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.GeometryArgs;
 import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.SimpleShapeReader;
+import org.apache.lucene.spatial.base.SpatialArgs;
+import org.apache.lucene.spatial.base.WithinDistanceArgs;
+import org.apache.lucene.spatial.base.simple.SimpleShapeReader;
+import org.apache.lucene.spatial.search.index.STRTreeIndexProvider;
+import org.apache.lucene.spatial.search.index.SpatialIndexFilter;
 import org.apache.lucene.spatial.search.index.SpatialIndexProvider;
-import org.apache.lucene.util.BytesRef;
-import org.apache.solr.common.SolrException;
-import org.apache.solr.response.TextResponseWriter;
-import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
-import org.apache.solr.schema.SchemaAware;
 import org.apache.solr.schema.SchemaField;
-import org.apache.solr.schema.StrField;
 import org.apache.solr.search.QParser;
+import org.apache.solr.spatial.SpatialFieldType;
 
 
 /**
  */
-public class SpatialIndexField extends StrField
+public class SpatialIndexField extends SpatialFieldType
 {
   SpatialIndexProvider provider = null;
   
@@ -53,19 +51,18 @@ public class SpatialIndexField extends StrField
 
     String v = args.remove( "doubleType" );
     
+    reader = new SimpleShapeReader();
+    provider = new STRTreeIndexProvider(10, "xxx", reader);
   }
 
   @Override
-  public Fieldable createField(SchemaField field, Object val, float boost)
+  public Fieldable createField(SchemaField field, Shape shape, float boost)
   {
-    Shape shape = (val instanceof Shape)?((Shape)val):SimpleShapeReader.readSimpleShape( val.toString() );
     BBox bbox = shape.getBoundingBox();
-
     if( bbox.getCrossesDateLine() ) {
       throw new RuntimeException( this.getClass() + " does not support BBox crossing the date line" );
     }
     
-
     // within a single thread
     NumberFormat nf = NumberFormat.getInstance(Locale.US);
     nf.setMaximumFractionDigits(2);
@@ -84,38 +81,20 @@ public class SpatialIndexField extends StrField
             field.omitTf(), boost);
   }
 
+  
   @Override
-  public Query getRangeQuery(QParser parser, SchemaField field, String part1, String part2, boolean minInclusive, boolean maxInclusive) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Query getFieldQuery(QParser parser, SchemaField field, String externalVal)
+  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
-    // WITHIN( xmin xmax ymin ymax );
-    System.out.println( "externalVal:"+externalVal );
-
-    return new MatchAllDocsQuery();
-  }
-
-//  @Override
-//  public ValueSource getValueSource(SchemaField field, QParser parser) {
-//    return new StrFieldSource(field.name);
-//  }
-
-  @Override
-  public boolean isPolyField() {
-    return false;
-  }
-
-  @Override
-  public void write(TextResponseWriter writer, String name, Fieldable f) throws IOException {
-    writer.writeStr(name, f.stringValue(), false);
-  }
-
-  @Override
-  public SortField getSortField(SchemaField field, boolean top) {
-    throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "Sorting not supported on QuadTreeField " + field.getName());
+    if( args instanceof WithinDistanceArgs ) {
+      throw new UnsupportedOperationException( "distance calculation is not yet supported" );
+    }
+    GeometryArgs g = (GeometryArgs)args;
+    if( g.shape.getBoundingBox().getCrossesDateLine() ) {
+      throw new UnsupportedOperationException( "Spatial Index does not (yet) support queries that cross the date line" );
+    }
+    
+    // just a filter wrapper for now...
+    SpatialIndexFilter filter = new SpatialIndexFilter(provider, g );
+    return new FilteredQuery( new MatchAllDocsQuery(), filter );
   }
 }
-

@@ -3,8 +3,8 @@ package org.apache.solr.spatial.demo.solr;
 import java.io.IOException;
 
 import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.ShapeReader;
-import org.apache.lucene.spatial.base.grid.jts.WKTShapeReader;
+import org.apache.lucene.spatial.base.ShapeIO;
+import org.apache.lucene.spatial.base.jts.WKTShapeReader;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.request.SolrQueryRequest;
 import org.apache.solr.response.SolrQueryResponse;
@@ -15,7 +15,7 @@ import org.apache.solr.update.processor.UpdateRequestProcessorFactory;
 
 public class SpatialDemoUpdateProcessorFactory extends UpdateRequestProcessorFactory
 {
-  final ShapeReader reader = new WKTShapeReader();
+  final ShapeIO reader = new WKTShapeReader();
   
   @Override
   public DemoUpdateProcessor getInstance(SolrQueryRequest req, SolrQueryResponse rsp, UpdateRequestProcessor next)

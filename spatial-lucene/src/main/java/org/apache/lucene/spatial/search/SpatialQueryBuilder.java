@@ -7,5 +7,5 @@ import org.apache.lucene.spatial.base.SpatialOperation;
 public abstract class SpatialQueryBuilder
 {
   public abstract ValueSource makeValueSource( SpatialOperation op );
-  public abstract Query getFilterQuery( SpatialOperation op );
+  public abstract Query getQuery( SpatialOperation op );
 }

@@ -17,7 +17,7 @@ public abstract class SpatialArgs
     this.op = op;
   }
   
-  public abstract void read(  String v, ShapeReader reader ) throws IOException;
+  public abstract void read(  String v, ShapeIO reader ) throws IOException;
   
   /**
    * Check if the arguments make sense -- throw an exception if not
@@ -28,7 +28,7 @@ public abstract class SpatialArgs
   }
   
 
-  public static SpatialArgs parse( String v, ShapeReader reader ) throws InvalidSpatialArgument
+  public static SpatialArgs parse( String v, ShapeIO reader ) throws InvalidSpatialArgument
   {
     int idx = v.indexOf( '[' );
     int edx = v.indexOf( ']' );

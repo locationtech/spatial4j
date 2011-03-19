@@ -1,7 +1,12 @@
-package org.apache.lucene.spatial.base;
+package org.apache.lucene.spatial.base.simple;
+
+import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.Point;
+import org.apache.lucene.spatial.base.Shape;
 
 
-public class Point2D implements Shape
+public class Point2D implements Point
 {
   private double x;
   private double y;
@@ -15,10 +20,12 @@ public class Point2D implements Shape
   //----------------------------------------
   //----------------------------------------
 
+  @Override
   public double getX() {
     return x;
   }
 
+  @Override
   public double getY() {
     return y;
   }

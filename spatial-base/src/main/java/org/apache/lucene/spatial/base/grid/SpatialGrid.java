@@ -3,9 +3,9 @@ package org.apache.lucene.spatial.base.grid;
 import java.util.List;
 
 import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.ShapeReader;
+import org.apache.lucene.spatial.base.ShapeIO;
 
-public interface SpatialGrid extends ShapeReader
+public interface SpatialGrid
 {
   public static final char COVER = '*';
   public static final char INTERSECTS = '+';

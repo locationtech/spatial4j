@@ -5,6 +5,8 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.lucene.spatial.base.grid.LinearSpatialGrid;
+import org.apache.lucene.spatial.base.simple.Point2D;
+import org.apache.lucene.spatial.base.simple.Rectangle;
 
 
 

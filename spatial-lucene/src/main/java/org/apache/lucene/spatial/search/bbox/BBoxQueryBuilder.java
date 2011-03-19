@@ -11,6 +11,12 @@ import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.SpatialOperation;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
+/**
+ * 
+ * came from:
+ *  http://geoportal.svn.sourceforge.net/svnroot/geoportal/Geoportal/trunk/src/com/esri/gpt/catalog/lucene/SpatialClauseAdapter.java
+ *  
+ */
 public class BBoxQueryBuilder extends SpatialQueryBuilder
 {
   private BBoxFieldInfo fields;
@@ -27,11 +33,12 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
   }
 
   @Override
-  public Query getFilterQuery(SpatialOperation op)
+  public Query getQuery(SpatialOperation op)
   {
     switch( op )
     {
-    case BBOXIntersects: return makeIntersects();
+    case BBoxIntersects: return makeIntersects();
+    case BBoxWithin: return makeWithin();
     case Contains: return makeContains();
     case Intersects: return makeIntersects();
     case IsEqualTo: return makeEquals();
@@ -40,7 +47,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
     case Overlaps: return makeIntersects();
     }
 
-    throw new RuntimeException("UnspporetedOperation: "+op);
+    throw new UnsupportedOperationException( op.name() );
   }
 
   //-------------------------------------------------------------------------------
@@ -366,7 +373,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * @return the query
    */
   private Query makeXDL(boolean crossedDateLine) {
-    return new TermQuery(new Term(fields.docXDL,""+crossedDateLine));
+    return new TermQuery(new Term(fields.xdl,""+crossedDateLine));
   }
 
   /**

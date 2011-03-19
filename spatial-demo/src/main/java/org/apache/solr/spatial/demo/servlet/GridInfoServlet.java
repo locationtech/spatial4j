@@ -13,8 +13,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.lucene.spatial.base.Shape;
+import org.apache.lucene.spatial.base.ShapeIO;
 import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
 import org.apache.lucene.spatial.base.jts.JtsGeometry;
+import org.apache.lucene.spatial.base.jts.WKTShapeReader;
 import org.apache.solr.spatial.demo.utils.KMLHelper;
 import org.apache.solr.spatial.demo.utils.countries.CountryInfo;
 import org.apache.solr.spatial.demo.utils.countries.CountryReader;
@@ -71,6 +73,7 @@ public class GridInfoServlet extends HttpServlet
       }
     }
     int depth = getIntParam( req, "depth", 16 );
+    ShapeIO reader = new WKTShapeReader();
     JtsLinearSpatialGrid grid = new JtsLinearSpatialGrid( -180, 180, -90-180, 90, depth ); // make it like WGS84
     grid.resolution = getIntParam( req, "resolution", 4 );
 
@@ -82,7 +85,7 @@ public class GridInfoServlet extends HttpServlet
         return;
       }
       try {
-        shape = grid.readShape( geo );
+        shape = reader.readShape( geo );
       }
       catch( Exception ex ) {
         ex.printStackTrace();

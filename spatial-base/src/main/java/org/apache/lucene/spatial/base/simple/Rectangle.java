@@ -1,4 +1,8 @@
-package org.apache.lucene.spatial.base;
+package org.apache.lucene.spatial.base.simple;
+
+import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.Shape;
 
 
 

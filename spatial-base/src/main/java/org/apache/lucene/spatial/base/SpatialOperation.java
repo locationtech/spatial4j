@@ -22,7 +22,8 @@ package org.apache.lucene.spatial.base;
 public enum SpatialOperation
 {
   // Geometry Operations
-  BBOXIntersects( true, false, false ),
+  BBoxIntersects( true, false, false ),
+  BBoxWithin( true, false, false ),
   Contains( true, true, false ),
   Intersects( true, false, false ),
   IsEqualTo( false, false, false ),

@@ -2,7 +2,8 @@ package org.apache.lucene.spatial.base;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.spatial.base.grid.jts.WKTShapeReader;
+import org.apache.lucene.spatial.base.jts.WKTShapeReader;
+import org.apache.lucene.spatial.base.simple.SimpleShapeReader;
 
 
 
@@ -10,7 +11,7 @@ import org.apache.lucene.spatial.base.grid.jts.WKTShapeReader;
  */
 public class TestSpatialArgs extends TestCase
 {
-  public void checkSimpleArgs( ShapeReader reader) throws Exception
+  public void checkSimpleArgs( ShapeIO reader) throws Exception
   {
     String arg = SpatialOperation.IsWithin+"[-10 -20 10 20] cache=true score=false";
     GeometryArgs out = (GeometryArgs)SpatialArgs.parse(arg, reader);
@@ -47,7 +48,7 @@ public class TestSpatialArgs extends TestCase
 
   public void testJTSArgs() throws Exception
   {
-    ShapeReader reader = new WKTShapeReader();
+    ShapeIO reader = new WKTShapeReader();
     checkSimpleArgs( reader );
     
     // now check the complex stuff...

@@ -3,6 +3,7 @@ package org.apache.lucene.spatial.base;
 import java.util.Map;
 
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
+import org.apache.lucene.spatial.base.simple.Point2D;
 
 public class WithinDistanceArgs extends SpatialArgs
 {
@@ -15,7 +16,7 @@ public class WithinDistanceArgs extends SpatialArgs
   }
 
   @Override
-  public void read(String v, ShapeReader reader) throws InvalidSpatialArgument {
+  public void read(String v, ShapeIO reader) throws InvalidSpatialArgument {
 
     Map<String,String> aa = parseMap( v );
     method = aa.remove( "method" );

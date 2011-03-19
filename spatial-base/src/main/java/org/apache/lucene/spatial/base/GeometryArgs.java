@@ -13,7 +13,7 @@ public class GeometryArgs extends SpatialArgs
   }
 
   @Override
-  public void read(String v, ShapeReader reader) throws IOException {
+  public void read(String v, ShapeIO reader) throws IOException {
     shape = reader.readShape( v );
   }
   

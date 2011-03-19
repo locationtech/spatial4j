@@ -8,7 +8,7 @@ import org.apache.lucene.spatial.base.Shape;
 import com.vividsolutions.jts.geom.Point;
 
 
-public class JtsPoint2D implements Shape
+public class JtsPoint2D implements org.apache.lucene.spatial.base.Point
 {
   private Point p;
 
@@ -57,5 +57,15 @@ public class JtsPoint2D implements Shape
       return IntersectCase.OUTSIDE;
     }
     throw new IllegalArgumentException( "JtsEnvelope can be compared with Envelope or Geogmetry" );
+  }
+
+  @Override
+  public double getX() {
+    return p.getX();
+  }
+
+  @Override
+  public double getY() {
+    return p.getY();
   }
 }

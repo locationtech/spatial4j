@@ -15,7 +15,7 @@ public class GridQueryBuilder extends SpatialQueryBuilder
   }
 
   @Override
-  public Query getFilterQuery(SpatialOperation op)
+  public Query getQuery(SpatialOperation op)
   { 
     // make a big boolean query...  set boost based on length?
 

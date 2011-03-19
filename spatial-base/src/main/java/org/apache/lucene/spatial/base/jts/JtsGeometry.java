@@ -39,8 +39,8 @@ public class JtsGeometry implements Shape
   }
 
   private GeometryFactory getGeometryFactory( Object context ) {
-    if( context instanceof JtsLinearSpatialGrid ) {
-      return (((JtsLinearSpatialGrid)context)).reader.factory;
+    if( context instanceof GeometryFactory ) {
+      return (GeometryFactory)context;
     }
     return new GeometryFactory();
   }

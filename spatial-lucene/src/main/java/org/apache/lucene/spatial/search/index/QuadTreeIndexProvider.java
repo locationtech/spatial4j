@@ -1,34 +1,17 @@
 package org.apache.lucene.spatial.search.index;
 
-import java.io.IOException;
-import java.util.WeakHashMap;
-
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.DocsEnum;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.search.DocIdSetIterator;
-import org.apache.lucene.spatial.base.BBox;
-import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.ShapeReader;
-import org.apache.lucene.spatial.base.jts.JtsEnvelope;
-import org.apache.lucene.util.BytesRef;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.vividsolutions.jts.geom.Envelope;
+import org.apache.lucene.spatial.base.ShapeIO;
 import com.vividsolutions.jts.index.SpatialIndex;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
-import com.vividsolutions.jts.index.strtree.STRtree;
 
 public class QuadTreeIndexProvider extends CachedIndexProvider
 {
-  public QuadTreeIndexProvider( String shapeField, ShapeReader reader )
+  public QuadTreeIndexProvider( String shapeField, ShapeIO reader )
   {
     super( shapeField, reader );
   }
   
+  @Override
   protected SpatialIndex createEmptyIndex()
   {
     return new Quadtree();

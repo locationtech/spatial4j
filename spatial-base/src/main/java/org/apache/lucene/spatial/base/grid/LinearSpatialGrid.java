@@ -8,9 +8,10 @@ import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.IntersectCase;
-import org.apache.lucene.spatial.base.Rectangle;
 import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.SimpleShapeReader;
+import org.apache.lucene.spatial.base.exception.InvalidShapeException;
+import org.apache.lucene.spatial.base.simple.Rectangle;
+import org.apache.lucene.spatial.base.simple.SimpleShapeReader;
 
 
 
@@ -213,12 +214,6 @@ public class LinearSpatialGrid implements SpatialGrid
   protected BBox makeExtent( double xmin, double xmax, double ymin, double ymax )
   {
     return new Rectangle( xmin, xmax, ymin, ymax );
-  }
-
-  @Override
-  public Shape readShape(String str) throws IOException
-  {
-    return SimpleShapeReader.readSimpleShape( str );
   }
 
   //------------------------------------------------------------------------------------------------------

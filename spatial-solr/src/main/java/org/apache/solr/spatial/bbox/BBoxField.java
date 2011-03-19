@@ -1,4 +1,5 @@
 package org.apache.solr.spatial.bbox;
+
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -16,23 +17,26 @@ package org.apache.solr.spatial.bbox;
  * limitations under the License.
  */
 
-import java.io.IOException;
 import java.util.Map;
 
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.SimpleShapeReader;
-import org.apache.solr.common.SolrException;
-import org.apache.solr.response.TextResponseWriter;
+import org.apache.lucene.spatial.base.SpatialArgs;
+import org.apache.lucene.spatial.search.bbox.BBoxFieldInfo;
+import org.apache.lucene.spatial.search.bbox.BBoxQueryBuilder;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaAware;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
+import org.apache.solr.spatial.SpatialFieldType;
+
+
+import org.apache.lucene.search.BooleanClause;
 
 
 /**
@@ -41,17 +45,8 @@ import org.apache.solr.search.QParser;
  * (1) QuadTokens: List of the fields it exists in:
  *    [ABA* CAA* AAAAAB-]
  *
- * (2) Point: X Y
- *   1.23 4.56
- *
- * (3) BOX: XMin YMin XMax YMax
- *   1.23 4.56 7.87 4.56
- *
- * (3) WKT
- *   POLYGON( ... )
- *
  */
-public class BBoxField extends FieldType implements SchemaAware
+public class BBoxField extends SpatialFieldType implements SchemaAware
 {
   // This is copied from Field type since they are private
   final static int INDEXED             = 0x00000001;
@@ -67,6 +62,9 @@ public class BBoxField extends FieldType implements SchemaAware
   protected final int fieldProps = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
   protected FieldType doubleType;
   protected FieldType booleanType;
+
+  double queryPower = 1.0;
+  double targetPower = 1.0f;
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
@@ -105,19 +103,23 @@ public class BBoxField extends FieldType implements SchemaAware
   }
 
   @Override
-  public Fieldable[] createFields(SchemaField field, Object val, float boost)
-  {
-    Shape shape = (val instanceof Shape)?((Shape)val):SimpleShapeReader.readSimpleShape( val.toString() );
-    BBox bbox = shape.getBoundingBox();
+  public Fieldable createField(SchemaField field, Shape value, float boost) {
+    throw new UnsupportedOperationException( "this is a multivalued field" );
+  }
 
+  @Override
+  public Fieldable[] createFields(SchemaField field, Shape shape, float boost)
+  {
+    BBox bbox = shape.getBoundingBox();
+    
     String name = field.getName();
 
     Fieldable[] fields = new Fieldable[5];
-    fields[0] = new SchemaField( name+"__minX", doubleType, fieldProps, null ).createField( String.valueOf(bbox.getMinX()), 1.0f);
-    fields[0] = new SchemaField( name+"__maxX", doubleType, fieldProps, null ).createField( String.valueOf(bbox.getMinY()), 1.0f);
-    fields[0] = new SchemaField( name+"__minY", doubleType, fieldProps, null ).createField( String.valueOf(bbox.getMaxX()), 1.0f);
-    fields[0] = new SchemaField( name+"__maxY", doubleType, fieldProps, null ).createField( String.valueOf(bbox.getMaxY()), 1.0f);
-    fields[0] = new SchemaField( name+"__xxdl", doubleType, fieldProps, null ).createField( String.valueOf(bbox.getCrossesDateLine()), 1.0f);
+    fields[0] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MINX, doubleType, fieldProps, null ).createField( new Double(bbox.getMinX()), 1.0f);
+    fields[0] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MAXX, doubleType, fieldProps, null ).createField( new Double(bbox.getMaxX()), 1.0f);
+    fields[0] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MINY, doubleType, fieldProps, null ).createField( new Double(bbox.getMinY()), 1.0f);
+    fields[0] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MAXY, doubleType, fieldProps, null ).createField( new Double(bbox.getMaxY()), 1.0f);
+    fields[0] = new SchemaField( name+BBoxFieldInfo.SUFFIX_XDL, booleanType, fieldProps, null ).createField( new Boolean(bbox.getCrossesDateLine()), 1.0f);
     return fields;
   }
 
@@ -127,11 +129,20 @@ public class BBoxField extends FieldType implements SchemaAware
   }
 
   @Override
-  public Query getFieldQuery(QParser parser, SchemaField field, String externalVal)
+  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
-    System.out.println( "externalVal:"+externalVal );
-
-    return new MatchAllDocsQuery();
+    BBoxFieldInfo fields = new BBoxFieldInfo();
+    fields.setFieldsPrefix( field.getName() );
+    BBoxQueryBuilder builder = new BBoxQueryBuilder();
+    Query query = builder.getQuery(args.op);
+    if( args.calculateScore ) {
+      Query spatialRankingQuery = new ValueSourceQuery( builder.makeValueSource( args.op ) );
+      BooleanQuery bq = new BooleanQuery();
+      bq.add(query,BooleanClause.Occur.MUST);
+      bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
+      return bq;
+    }
+    return query;
   }
 
 //  @Override
@@ -142,16 +153,6 @@ public class BBoxField extends FieldType implements SchemaAware
   @Override
   public boolean isPolyField() {
     return true;
-  }
-
-  @Override
-  public void write(TextResponseWriter writer, String name, Fieldable f) throws IOException {
-    writer.writeStr(name, f.stringValue(), false);
-  }
-
-  @Override
-  public SortField getSortField(SchemaField field, boolean top) {
-    throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "Sorting not supported on QuadTreeField " + field.getName());
   }
 }
 
