@@ -1,6 +1,5 @@
 package org.apache.lucene.spatial.base.grid;
 
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +8,7 @@ import java.util.StringTokenizer;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.simple.Rectangle;
-import org.apache.lucene.spatial.base.simple.SimpleShapeReader;
 
 
 

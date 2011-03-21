@@ -1,6 +1,5 @@
 package org.apache.lucene.spatial.base.simple;
 
-import java.io.IOException;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.base.BBox;
@@ -8,7 +7,7 @@ import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.ShapeIO;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 
-public class SimpleShapeReader implements ShapeIO
+public class SimpleShapeIO implements ShapeIO
 {
   public Shape readShape( String value ) throws InvalidShapeException
   {

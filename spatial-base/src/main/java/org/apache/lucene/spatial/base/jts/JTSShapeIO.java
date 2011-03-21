@@ -1,6 +1,7 @@
 package org.apache.lucene.spatial.base.jts;
 
-import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.base.BBox;
@@ -15,16 +16,16 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.WKTReader;
 
-public class WKTShapeReader implements ShapeIO
+public class JTSShapeIO implements ShapeIO
 { 
   public GeometryFactory factory;
   
-  public WKTShapeReader()
+  public JTSShapeIO()
   {
     factory = new GeometryFactory();
   }
   
-  public WKTShapeReader( GeometryFactory f )
+  public JTSShapeIO( GeometryFactory f )
   {
     factory = f;
   }
@@ -74,13 +75,32 @@ public class WKTShapeReader implements ShapeIO
 
   @Override
   public byte[] toBytes(Shape shape) {
-    // TODO Auto-generated method stub
-    return null;
+    return new byte[10];
   }
 
   @Override
-  public String toString(Shape shape) {
-    // TODO Auto-generated method stub
-    return null;
+  public String toString(Shape shape) 
+  {
+    if( shape instanceof org.apache.lucene.spatial.base.Point ) {
+      NumberFormat nf = NumberFormat.getInstance( Locale.US );
+      nf.setGroupingUsed( false );
+      nf.setMaximumFractionDigits( 6 );
+      nf.setMinimumFractionDigits( 6 );
+      org.apache.lucene.spatial.base.Point point = (org.apache.lucene.spatial.base.Point)shape;
+      return nf.format( point.getX() ) + " " + nf.format( point.getY() );
+    }
+    else if( shape instanceof BBox ) {
+      NumberFormat nf = NumberFormat.getInstance( Locale.US );
+      nf.setGroupingUsed( false );
+      nf.setMaximumFractionDigits( 6 );
+      nf.setMinimumFractionDigits( 6 );
+      org.apache.lucene.spatial.base.Point point = (org.apache.lucene.spatial.base.Point)shape;
+      return nf.format( point.getX() ) + " " + nf.format( point.getY() );
+    }
+    else if( shape instanceof JtsGeometry ) {
+      JtsGeometry geo = (JtsGeometry)shape;
+      return geo.geo.toText();
+    }
+    return shape.toString();
   }
 }

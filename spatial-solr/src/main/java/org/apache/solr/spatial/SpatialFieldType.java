@@ -10,12 +10,16 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.response.TextResponseWriter;
 import org.apache.solr.schema.*;
 import org.apache.solr.search.QParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 
 /**
  */
 public abstract class SpatialFieldType extends FieldType 
 {
+  static final Logger log = LoggerFactory.getLogger( SpatialFieldType.class );
   protected ShapeIO reader;
   
 
@@ -23,6 +27,10 @@ public abstract class SpatialFieldType extends FieldType
   public Fieldable createField(SchemaField field, Object val, float boost)
   {
     Shape shape = (val instanceof Shape)?((Shape)val):reader.readShape( val.toString() );
+    if( shape == null ) {
+      log.warn( "null shape for input: "+val );
+      return null;
+    }
     return createField(field, shape, boost);
   }
 

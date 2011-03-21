@@ -10,7 +10,7 @@ import org.apache.lucene.spatial.base.ShapeIO;
 import org.apache.lucene.spatial.base.grid.SpatialGrid;
 import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
 import org.apache.lucene.spatial.base.jts.JtsGeometry;
-import org.apache.lucene.spatial.base.jts.WKTShapeReader;
+import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
@@ -148,7 +148,7 @@ public class KMLHelper
 //    shape = new JTSIndexible( "POINT(6 8)" ); // very small display!
 //    shape = new JTSIndexible( "POINT(3.5 5.6)" );
 
-    ShapeIO reader = new WKTShapeReader();
+    ShapeIO reader = new JTSShapeIO();
     GeometricShapeFactory gsf = new GeometricShapeFactory();
     gsf.setCentre( new com.vividsolutions.jts.geom.Coordinate( 4,2 ) );
     gsf.setSize( 4 );

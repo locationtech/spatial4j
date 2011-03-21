@@ -57,7 +57,7 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
   final static int OMIT_TF_POSITIONS   = 0x00000020;
 
   protected String doubleFieldName = "double";
-  protected String booleanFieldName = "bool";
+  protected String booleanFieldName = "boolean";
 
   protected final int fieldProps = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
   protected FieldType doubleType;
@@ -89,9 +89,8 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
     if( doubleType == null ) {
       throw new RuntimeException( "Can not find double: "+doubleFieldName );
     }
-
     if( booleanType == null ) {
-      throw new RuntimeException( "Can not find boolean: "+booleanType );
+      throw new RuntimeException( "Can not find boolean: "+booleanFieldName );
     }
 
     //Just set these, delegate everything else to the field type

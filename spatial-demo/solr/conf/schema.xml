@@ -55,7 +55,10 @@
 
 
     <!-- Quadtree, resolutions are optionally copied to different fields -->
-    <fieldtype name="quadtree" class="org.apache.solr.spatial.grid.SpatialGridField" resolutions="7,11" prefix="grid_" />
+    <fieldtype name="geo"   class="org.apache.solr.spatial.geo.GeometryField" />
+    <fieldtype name="grid"  class="org.apache.solr.spatial.grid.SpatialGridField" />
+    <fieldtype name="bbox"  class="org.apache.solr.spatial.bbox.BBoxField" />
+    <fieldtype name="rtree" class="org.apache.solr.spatial.index.SpatialIndexField" />
 
     <!-- Existing Spatial Search options -->
     <fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
@@ -69,8 +72,11 @@
    <field name="id"     type="string"  indexed="true" stored="true" required="true" /> 
    <field name="name"   type="text"    indexed="true" stored="true" required="true" />
    
-	 <!-- geometry, stores the cells -->
-   <field name="geo" type="quadtree"  indexed="true" stored="true"  multiValued="false" />
+   <!-- geometry -->
+   <field name="geo"   type="geo"    indexed="true" stored="true"  multiValued="false" />
+   <field name="grid"  type="grid"   indexed="true" stored="true"  multiValued="false" />
+   <field name="bbox"  type="bbox"   indexed="true" stored="true"  multiValued="false" />
+   <field name="rtree" type="rtree"  indexed="true" stored="true"  multiValued="false" />
    
    <!-- country fields -->
    <field name="status"   type="string"  indexed="true" stored="true" />
@@ -94,6 +100,11 @@
       Unless this field is marked with required="false", it will be a required field
    -->
  <uniqueKey>id</uniqueKey>
+
+ <!-- Various index strategies -->
+ <copyField source="geo" dest="grid"/>
+ <copyField source="geo" dest="bbox"/>
+ <copyField source="geo" dest="rtree"/>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>name</defaultSearchField>

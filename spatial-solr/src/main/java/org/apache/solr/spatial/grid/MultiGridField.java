@@ -107,13 +107,13 @@ public class MultiGridField extends SpatialFieldType implements SchemaAware
     if( val instanceof String && val.toString().startsWith( "[" )) {
       String externalVal = val.toString();
       if( externalVal.startsWith( "[" ) ) {
-        BasicGridField[] fields = new BasicGridField[1+resolutions.length];
-        fields[0] = new BasicGridField( field.getName(), field.stored() );
+        BasicGridFieldable[] fields = new BasicGridFieldable[1+resolutions.length];
+        fields[0] = new BasicGridFieldable( field.getName(), field.stored() );
         fields[0].value = externalVal;
         fields[0].tokens = new GridCellsTokenizer( new StringReader( externalVal ) );
         for( int i=1; i<=resolutions.length; i++ ) {
           // Get the distinct shorter strings
-          fields[i] = new BasicGridField( fprefix+resolutions[i-1], false );
+          fields[i] = new BasicGridFieldable( fprefix+resolutions[i-1], false );
           fields[i].tokens = new RemoveDuplicatesTokenFilter(
               new TruncateFilter(
                   new GridCellsTokenizer( new StringReader( externalVal ) ), resolutions[i-1] ) );
@@ -132,7 +132,7 @@ public class MultiGridField extends SpatialFieldType implements SchemaAware
   @Override
   public Fieldable[] createFields(SchemaField field, Shape shape, float boost) 
   {
-    BasicGridField[] fields = new BasicGridField[1+resolutions.length];
+    BasicGridFieldable[] fields = new BasicGridFieldable[1+resolutions.length];
     List<CharSequence> match = grid.readCells(shape);
     if( field.stored() ) {
       // Store the cells, not the raw geometry
@@ -141,7 +141,7 @@ public class MultiGridField extends SpatialFieldType implements SchemaAware
     fields[0].tokens = new StringListTokenizer( match );
     for( int i=1; i<=resolutions.length; i++ ) {
       // Get the distinct shorter strings
-      fields[i] = new BasicGridField( fprefix+resolutions[i-1], false );
+      fields[i] = new BasicGridFieldable( fprefix+resolutions[i-1], false );
       fields[i].tokens = new RemoveDuplicatesTokenFilter(
           new TruncateFilter( new StringListTokenizer( match ), resolutions[i-1] ) );
     }

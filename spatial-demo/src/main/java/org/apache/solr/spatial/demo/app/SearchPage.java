@@ -16,10 +16,13 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.SolrParams;
+import org.apache.solr.spatial.demo.SampleDataLoader;
 import org.apache.solr.spatial.demo.utils.KMLHelper;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -102,7 +105,8 @@ public class SearchPage extends WebPage
             final String id = (String)doc.getFieldValue( "id" );
             WebMarkupContainer row = new WebMarkupContainer( rv.newChildId() );
             row.add( new Label( "name", (String)doc.getFieldValue( "name" ) ) );
-            row.add( new Label( "tokens", (String)doc.getFieldValue( "geo" ) ) );
+            row.add( new Label( "geo", (String)doc.getFieldValue( "geo" ) ).setVisible( false ) );
+            row.add( new Label( "tokens", (String)doc.getFieldValue( "grid" ) ) );
 
             row.add( new Link<Void>( "kml" ) {
               @Override
@@ -178,15 +182,30 @@ public class SearchPage extends WebPage
     })));
 
     add( results );
+    
+    add( new IndicatingAjaxLink<Void>("load") {
+      @Override
+      public void onClick(AjaxRequestTarget target) {
+        System.out.println( "loading..." );
+        try {
+          SampleDataLoader.load( solr );
+        } 
+        catch (Exception e) {
+          e.printStackTrace();
+        }
+        System.out.println( "done..." );
+      } 
+    });
   }
 
   public Kml getKML( String id )
   {
     try {
-      QueryResponse rsp = solr.query( new SolrQuery( "id:"+id ).setFields( "geo,name" ) );
+      QueryResponse rsp = solr.query( new SolrQuery( "id:"+id ).setFields( "geo,grid,name" ) );
       SolrDocumentList docs = rsp.getResults();
       if( docs.size() > 0 ) {
-        String cells = (String)docs.get(0).get( "geo" );
+        String wkt = (String)docs.get(0).get( "geo" );
+        String cells = (String)docs.get(0).get( "grid" );
         String name = (String)docs.get(0).get( "name" );
         List<String> tokens = LinearSpatialGrid.parseStrings( cells );
         return KMLHelper.toKML(name, grid, tokens);

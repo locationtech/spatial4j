@@ -1,8 +1,5 @@
 package org.apache.lucene.spatial.base;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 
 public interface ShapeIO

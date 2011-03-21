@@ -32,7 +32,7 @@ public class Query implements Serializable
 
     params.setQuery( q );
     params.setRows( rows );
-    params.setFields( "id,name,geo" );
+    params.setFields( "id,name,geo,grid" );
     return params;
   }
 }

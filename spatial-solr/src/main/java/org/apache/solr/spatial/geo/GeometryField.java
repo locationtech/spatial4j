@@ -1,4 +1,4 @@
-package org.apache.solr.spatial.index;
+package org.apache.solr.spatial.geo;
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -27,6 +27,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.GeometryArgs;
 import org.apache.lucene.spatial.base.Shape;
+import org.apache.lucene.spatial.base.ShapeIO;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.WithinDistanceArgs;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
@@ -42,41 +43,18 @@ import org.apache.solr.spatial.SpatialFieldType;
 
 /**
  */
-public class SpatialIndexField extends SpatialFieldType
+public class GeometryField extends SpatialFieldType
 {
-  SpatialIndexProvider provider = null;
-  
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-
-    String v = args.remove( "doubleType" );
-
     reader = new JTSShapeIO();
-    provider = new STRTreeIndexProvider(10, "xxx", reader);
   }
 
   @Override
   public Fieldable createField(SchemaField field, Shape shape, float boost)
   {
-    BBox bbox = shape.getBoundingBox();
-    if( bbox.getCrossesDateLine() ) {
-      throw new RuntimeException( this.getClass() + " does not support BBox crossing the date line" );
-    }
-    
-    // within a single thread
-    NumberFormat nf = NumberFormat.getInstance(Locale.US);
-    nf.setMaximumFractionDigits(2);
-    nf.setMaximumFractionDigits(2);
-    nf.setMaximumIntegerDigits(3);
-    nf.setMinimumIntegerDigits(3);
-    
-    String v = 
-      nf.format( bbox.getMinX() ) + " " +
-      nf.format( bbox.getMaxX() ) + " " +
-      nf.format( bbox.getMinY() ) + " " +
-      nf.format( bbox.getMaxY() );
-
+    String v = reader.toString( shape );
     return createField(field.getName(), v, getFieldStore(field, v),
             getFieldIndex(field, v), getFieldTermVec(field, v), field.omitNorms(),
             field.omitTf(), boost);
@@ -94,8 +72,6 @@ public class SpatialIndexField extends SpatialFieldType
       throw new UnsupportedOperationException( "Spatial Index does not (yet) support queries that cross the date line" );
     }
     
-    // just a filter wrapper for now...
-    SpatialIndexFilter filter = new SpatialIndexFilter(provider, g );
-    return new FilteredQuery( new MatchAllDocsQuery(), filter );
+    return new MatchAllDocsQuery();
   }
 }

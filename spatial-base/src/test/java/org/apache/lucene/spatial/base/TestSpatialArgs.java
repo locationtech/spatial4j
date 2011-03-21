@@ -2,8 +2,8 @@ package org.apache.lucene.spatial.base;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.spatial.base.jts.WKTShapeReader;
-import org.apache.lucene.spatial.base.simple.SimpleShapeReader;
+import org.apache.lucene.spatial.base.jts.JTSShapeIO;
+import org.apache.lucene.spatial.base.simple.SimpleShapeIO;
 
 
 
@@ -43,12 +43,12 @@ public class TestSpatialArgs extends TestCase
   
   public void testSimpleArgs() throws Exception
   {
-    checkSimpleArgs( new SimpleShapeReader() );
+    checkSimpleArgs( new SimpleShapeIO() );
   }
 
   public void testJTSArgs() throws Exception
   {
-    ShapeIO reader = new WKTShapeReader();
+    ShapeIO reader = new JTSShapeIO();
     checkSimpleArgs( reader );
     
     // now check the complex stuff...

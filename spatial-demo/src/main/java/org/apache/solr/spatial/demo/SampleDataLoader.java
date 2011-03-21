@@ -1,8 +1,11 @@
 package org.apache.solr.spatial.demo;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.spatial.demo.utils.countries.CountryReader;
@@ -13,17 +16,14 @@ import org.apache.solr.spatial.demo.utils.geonames.GeonamesReader;
 
 public class SampleDataLoader
 {
-  public static void main( String[] args ) throws Exception
+  public static void load( SolrServer solr ) throws Exception
   {
     File file = null;
-    SolrServer solr = new StreamingUpdateSolrServer( "http://localhost:8080/solr", 50, 3 );
-    //SolrServer solr = new CommonsHttpSolrServer( "http://localhost:8080/solr" );
-
-    file = new File( "../data/ikonos_2011/ikonos_2011.shp" );
-    if( file.exists() ) {
-      GeoeyeReader.indexItems( solr, file );
-      solr.commit( true, true );
-    }
+//    file = new File( "../data/ikonos_2011/ikonos_2011.shp" );
+//    if( file.exists() ) {
+//      GeoeyeReader.indexItems( solr, file );
+//      solr.commit( true, true );
+//    }
 
     file = new File( "../data/countries/cntry06.shp" );
     if( file.exists() ) {
@@ -49,7 +49,14 @@ public class SampleDataLoader
       }
       solr.commit( true, true );
     }
+  }
+  
+  public static void main( String[] args ) throws Exception
+  {
+  //  SolrServer solr = new StreamingUpdateSolrServer( "http://localhost:8080/solr", 50, 3 );
+    SolrServer solr = new CommonsHttpSolrServer( "http://localhost:8080/solr" );
 
+    load( solr );
     System.out.println( "done." );
   }
 }

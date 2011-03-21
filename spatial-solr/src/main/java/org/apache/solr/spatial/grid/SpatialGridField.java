@@ -29,6 +29,7 @@ import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.WithinDistanceArgs;
 import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
+import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.grid.SpatialGridQuery;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.schema.IndexSchema;
@@ -61,6 +62,7 @@ public class SpatialGridField extends SpatialFieldType
     }
 
     // TODO, allow configuration
+    reader = new JTSShapeIO();
     grid = new JtsLinearSpatialGrid( -180, 180, -90-180, 90, 16 );
     grid.resolution = 5; // how far past the best fit to go
   }
@@ -70,7 +72,7 @@ public class SpatialGridField extends SpatialFieldType
   public Fieldable createField(SchemaField field, Shape shape, float boost) 
   {
     List<CharSequence> match = grid.readCells(shape);
-    BasicGridField f = new BasicGridField(field.getName(), field.stored());
+    BasicGridFieldable f = new BasicGridFieldable(field.getName(), field.stored());
     if( resolution > 0 ) {
       f.tokens = new RemoveDuplicatesTokenFilter(
           new TruncateFilter( new StringListTokenizer( match ), resolution ) );
@@ -79,7 +81,7 @@ public class SpatialGridField extends SpatialFieldType
       f.tokens = new StringListTokenizer( match );
     }
     if( field.stored() ) {
-      f.value = reader.toString( shape );
+      f.value = match.toString(); //reader.toString( shape );
     }
     return f;
   }
