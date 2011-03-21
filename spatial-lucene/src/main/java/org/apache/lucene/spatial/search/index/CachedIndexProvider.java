@@ -31,18 +31,18 @@ public abstract class CachedIndexProvider implements SpatialIndexProvider
 
   protected final String shapeField;
   protected final ShapeIO shapeReader;
-  
+
   public CachedIndexProvider( String shapeField, ShapeIO reader )
   {
     this.shapeField = shapeField;
     this.shapeReader = reader;
   }
-  
+
   protected abstract SpatialIndex createEmptyIndex();
-  
+
   @Override
-  public SpatialIndex getSpatialIndex(IndexReader reader) throws CorruptIndexException, IOException 
-  { 
+  public SpatialIndex getSpatialIndex(IndexReader reader) throws CorruptIndexException, IOException
+  {
     SpatialIndex idx = sidx.get( reader );
     if( idx == null ) {  // TODO, locking etc, make sure there is not overlap
       Long lastmodified = IndexReader.lastModified( reader.directory() );

@@ -1,6 +1,6 @@
 package org.apache.lucene.spatial.base.exception;
 
-public class InvalidShapeException extends RuntimeException 
+public class InvalidShapeException extends RuntimeException
 {
   public InvalidShapeException( String reason, Throwable cause )
   {

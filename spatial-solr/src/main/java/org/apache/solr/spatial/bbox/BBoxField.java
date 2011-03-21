@@ -20,6 +20,7 @@ package org.apache.solr.spatial.bbox;
 import java.util.Map;
 
 import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSourceQuery;
@@ -37,9 +38,6 @@ import org.apache.solr.schema.SchemaAware;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
 import org.apache.solr.spatial.SpatialFieldType;
-
-
-import org.apache.lucene.search.BooleanClause;
 
 
 /**
@@ -62,7 +60,7 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
   protected String doubleFieldName = "double";
   protected String booleanFieldName = "boolean";
 
-  protected final int fieldProps = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS); 
+  protected final int fieldProps = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
   protected FieldType doubleType;
   protected FieldType booleanType;
 
@@ -74,7 +72,7 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
     super.init(schema, args);
 
     reader = new JTSShapeIO();
-    
+
     String v = args.remove( "doubleType" );
     if( v != null ) {
       doubleFieldName = v;
@@ -115,9 +113,9 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
   public Fieldable[] createFields(SchemaField field, Shape shape, float boost)
   {
     BBox bbox = shape.getBoundingBox();
-    
+
     String name = field.getName();
-    
+
     int fp = fieldProps | STORED;  // useful for debugging
 
     Fieldable[] fields = new Fieldable[5];
@@ -140,14 +138,14 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
     BBoxQueryBuilder builder = new BBoxQueryBuilder();
     builder.fields = new BBoxFieldInfo();
     builder.fields.setFieldsPrefix( field.getName() );
-    
+
     if( args instanceof WithinDistanceArgs ) {
       throw new UnsupportedOperationException( "not supported yet: "+args.op );
     }
     else if( args instanceof GeometryArgs ) {
       builder.queryExtent = ((GeometryArgs)args).shape.getBoundingBox();
     }
-    
+
     Query query = builder.getQuery(args.op);
     if( args.calculateScore ) {
       Query spatialRankingQuery = new ValueSourceQuery( builder.makeValueSource( args.op ) );

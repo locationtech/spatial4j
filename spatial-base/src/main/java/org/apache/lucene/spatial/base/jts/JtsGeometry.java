@@ -3,6 +3,7 @@ package org.apache.lucene.spatial.base.jts;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.Shape;
+
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -16,7 +17,7 @@ public class JtsGeometry implements Shape
 {
   public final Geometry geo;
   private final boolean _hasArea;
-  
+
   public JtsGeometry(Geometry geo)
   {
     this.geo = geo;
@@ -30,7 +31,7 @@ public class JtsGeometry implements Shape
   public boolean hasArea() {
     return _hasArea;
   }
-  
+
   @Override
   public JtsEnvelope getBoundingBox() {
     return new JtsEnvelope( geo.getEnvelopeInternal() );

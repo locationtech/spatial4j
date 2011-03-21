@@ -17,19 +17,19 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.WKTReader;
 
 public class JTSShapeIO implements ShapeIO
-{ 
+{
   public GeometryFactory factory;
-  
+
   public JTSShapeIO()
   {
     factory = new GeometryFactory();
   }
-  
+
   public JTSShapeIO( GeometryFactory f )
   {
     factory = f;
   }
-  
+
   public Shape readShape( String str ) throws InvalidShapeException
   {
     if( str.length() < 1 ) {
@@ -79,7 +79,7 @@ public class JTSShapeIO implements ShapeIO
   }
 
   @Override
-  public String toString(Shape shape) 
+  public String toString(Shape shape)
   {
     if( shape instanceof org.apache.lucene.spatial.base.Point ) {
       NumberFormat nf = NumberFormat.getInstance( Locale.US );

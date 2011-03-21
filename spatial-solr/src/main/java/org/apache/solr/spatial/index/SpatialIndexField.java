@@ -30,7 +30,6 @@ import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.WithinDistanceArgs;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
-import org.apache.lucene.spatial.base.simple.SimpleShapeIO;
 import org.apache.lucene.spatial.search.index.STRTreeIndexProvider;
 import org.apache.lucene.spatial.search.index.SpatialIndexFilter;
 import org.apache.lucene.spatial.search.index.SpatialIndexProvider;
@@ -45,7 +44,7 @@ import org.apache.solr.spatial.SpatialFieldType;
 public class SpatialIndexField extends SpatialFieldType
 {
   SpatialIndexProvider provider = null;
-  
+
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
@@ -63,15 +62,15 @@ public class SpatialIndexField extends SpatialFieldType
     if( bbox.getCrossesDateLine() ) {
       throw new RuntimeException( this.getClass() + " does not support BBox crossing the date line" );
     }
-    
+
     // within a single thread
     NumberFormat nf = NumberFormat.getInstance(Locale.US);
     nf.setMaximumFractionDigits(2);
     nf.setMaximumFractionDigits(2);
     nf.setMaximumIntegerDigits(3);
     nf.setMinimumIntegerDigits(3);
-    
-    String v = 
+
+    String v =
       nf.format( bbox.getMinX() ) + " " +
       nf.format( bbox.getMaxX() ) + " " +
       nf.format( bbox.getMinY() ) + " " +
@@ -82,7 +81,7 @@ public class SpatialIndexField extends SpatialFieldType
             field.omitTf(), boost);
   }
 
-  
+
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
@@ -93,7 +92,7 @@ public class SpatialIndexField extends SpatialFieldType
     if( g.shape.getBoundingBox().getCrossesDateLine() ) {
       throw new UnsupportedOperationException( "Spatial Index does not (yet) support queries that cross the date line" );
     }
-    
+
     // just a filter wrapper for now...
     SpatialIndexFilter filter = new SpatialIndexFilter(provider, g );
     return new FilteredQuery( new MatchAllDocsQuery(), filter );

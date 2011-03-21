@@ -7,26 +7,26 @@ import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 
-public abstract class SpatialArgs 
+public abstract class SpatialArgs
 {
   public final SpatialOperation op;
   public boolean cacheable = true;
   public boolean calculateScore = true;
-  
+
   protected SpatialArgs( SpatialOperation op ) {
     this.op = op;
   }
-  
+
   public abstract void read(  String v, ShapeIO reader ) throws IOException;
-  
+
   /**
    * Check if the arguments make sense -- throw an exception if not
-   */ 
+   */
   public void validate() throws InvalidSpatialArgument
   {
     // OK by default
   }
-  
+
 
   public static SpatialArgs parse( String v, ShapeIO reader ) throws InvalidSpatialArgument
   {
@@ -77,7 +77,7 @@ public abstract class SpatialArgs
     }
     return args;
   }
-  
+
   protected static boolean readBool( String v, boolean defaultValue )
   {
     if( v == null ) {
@@ -85,7 +85,7 @@ public abstract class SpatialArgs
     }
     return Boolean.parseBoolean( v );
   }
-  
+
   protected static Map<String,String> parseMap( String body )
   {
     Map<String,String> map = new HashMap<String,String>();

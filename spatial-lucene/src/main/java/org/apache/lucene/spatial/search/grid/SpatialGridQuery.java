@@ -17,6 +17,9 @@ package org.apache.lucene.spatial.search.grid;
  * limitations under the License.
  */
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.AutomatonQuery;
 import org.apache.lucene.spatial.base.grid.SpatialGrid;
@@ -25,58 +28,55 @@ import org.apache.lucene.util.automaton.Automaton;
 import org.apache.lucene.util.automaton.BasicAutomata;
 import org.apache.lucene.util.automaton.BasicOperations;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/** 
- * 
+/**
+ *
  * @see AutomatonQuery, WildcardQuery
  */
-public class SpatialGridQuery extends AutomatonQuery 
-{  
+public class SpatialGridQuery extends AutomatonQuery
+{
   /**
-   * Constructs a query for terms matching <code>term</code>. 
+   * Constructs a query for terms matching <code>term</code>.
    */
   public SpatialGridQuery(Term term) {
     super(term, toAutomaton(term));
   }
-  
+
   /**
    * Convert Grid syntax into an automaton.
    */
   public static Automaton toAutomaton(Term wildcardquery) {
     List<Automaton> automata = new ArrayList<Automaton>();
-    
+
     String wildcardText = wildcardquery.text();
-    
+
     for (int i = 0; i < wildcardText.length();) {
       final int c = wildcardText.codePointAt(i);
       int length = Character.charCount(c);
       switch(c) {
-        case SpatialGrid.COVER: 
+        case SpatialGrid.COVER:
           automata.add(BasicAutomata.makeAnyString());
           break;
 
-        case SpatialGrid.INTERSECTS: 
+        case SpatialGrid.INTERSECTS:
           automata.add(BasicAutomata.makeAnyString()); // same as cover?
           break;
-          
+
         default:
           automata.add(BasicAutomata.makeChar(c));
       }
       i += length;
     }
-    
+
     return BasicOperations.concatenate(automata);
   }
-  
+
   /**
    * Returns the pattern term.
    */
   public Term getTerm() {
     return term;
   }
-  
+
   /** Prints a user-readable version of this query. */
   @Override
   public String toString(String field) {

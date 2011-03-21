@@ -1,15 +1,11 @@
 package org.apache.solr.spatial.demo;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
-import org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.spatial.demo.utils.countries.CountryReader;
-import org.apache.solr.spatial.demo.utils.geoeye.GeoeyeReader;
 import org.apache.solr.spatial.demo.utils.geonames.Geoname;
 import org.apache.solr.spatial.demo.utils.geonames.GeonamesReader;
 
@@ -50,7 +46,7 @@ public class SampleDataLoader
       solr.commit( true, true );
     }
   }
-  
+
   public static void main( String[] args ) throws Exception
   {
   //  SolrServer solr = new StreamingUpdateSolrServer( "http://localhost:8080/solr", 50, 3 );

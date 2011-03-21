@@ -9,8 +9,8 @@ import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.ShapeIO;
 import org.apache.lucene.spatial.base.grid.SpatialGrid;
 import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
-import org.apache.lucene.spatial.base.jts.JtsGeometry;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
+import org.apache.lucene.spatial.base.jts.JtsGeometry;
 
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 

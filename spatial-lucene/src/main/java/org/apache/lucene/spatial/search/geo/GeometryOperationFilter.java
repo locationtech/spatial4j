@@ -24,12 +24,12 @@ public class GeometryOperationFilter extends Filter
   }
 
   @Override
-  public DocIdSet getDocIdSet(AtomicReaderContext context) throws IOException 
+  public DocIdSet getDocIdSet(AtomicReaderContext context) throws IOException
   {
-    final BitSet bits = new BitSet();    
-    
+    final BitSet bits = new BitSet();
+
     // check the operation...
-    
+
     return new DocIdBitSet( bits );
   }
 }

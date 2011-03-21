@@ -33,7 +33,7 @@ public class SpatialIndexFilter extends Filter
   {
     this.provider = sidx;
     this.op = args.op;
-    
+
     BBox bbox = args.shape.getBoundingBox();
     if( bbox instanceof JtsEnvelope ) {
       this.bounds = ((JtsEnvelope)bbox).envelope;
@@ -41,17 +41,17 @@ public class SpatialIndexFilter extends Filter
     else {
       this.bounds = new Envelope(bbox.getMinX(), bbox.getMaxX(), bbox.getMinY(), bbox.getMaxY() );
     }
-    
+
     this.shape = null;
 //    op.
-    
+
   }
 
   @Override
-  public DocIdSet getDocIdSet(AtomicReaderContext context) throws IOException 
+  public DocIdSet getDocIdSet(AtomicReaderContext context) throws IOException
   {
     SpatialIndex sidx = provider.getSpatialIndex( context.reader );
-    final BitSet bits = new BitSet();    
+    final BitSet bits = new BitSet();
     sidx.query( bounds, new ItemVisitor() {
       @Override
       public void visitItem(Object item) {

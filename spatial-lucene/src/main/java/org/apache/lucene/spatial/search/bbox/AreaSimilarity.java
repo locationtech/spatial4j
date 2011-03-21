@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * <br/>  targetFactor = Math.pow(targetRatio,targetPower);
  * <br/>  score = queryFactor * targetFactor;
  *
- * came from: 
+ * came from:
  *  http://geoportal.svn.sourceforge.net/svnroot/geoportal/Geoportal/trunk/src/com/esri/gpt/catalog/lucene/SpatialRankingValueSource.java
  *
  */

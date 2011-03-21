@@ -13,10 +13,10 @@ import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 import org.apache.lucene.util.NumericUtils;
 
 /**
- * 
+ *
  * came from:
  *  http://geoportal.svn.sourceforge.net/svnroot/geoportal/Geoportal/trunk/src/com/esri/gpt/catalog/lucene/SpatialClauseAdapter.java
- *  
+ *
  */
 public class BBoxQueryBuilder extends SpatialQueryBuilder
 {
@@ -25,7 +25,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
 
   public double queryPower = 1.0;
   public double targetPower = 1.0f;
-  
+
 
   @Override
   public ValueSource makeValueSource(SpatialOperation op)
@@ -303,8 +303,8 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
     // docMinX >= queryExtent.getMinX() AND docMinY >= queryExtent.getMinY() AND docMaxX <= queryExtent.getMaxX() AND docMaxY <= queryExtent.getMaxY()
 
     int step = NumericUtils.PRECISION_STEP_DEFAULT;
-    
-    
+
+
     // Y conditions
     // docMinY >= queryExtent.getMinY() AND docMaxY <= queryExtent.getMaxY()
     Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,step,queryExtent.getMinY(),null,true,false);

@@ -16,16 +16,16 @@ import org.apache.solr.update.processor.UpdateRequestProcessorFactory;
 public class SpatialDemoUpdateProcessorFactory extends UpdateRequestProcessorFactory
 {
   final ShapeIO reader = new JTSShapeIO();
-  
+
   @Override
   public DemoUpdateProcessor getInstance(SolrQueryRequest req, SolrQueryResponse rsp, UpdateRequestProcessor next)
   {
     return new DemoUpdateProcessor(next);
   }
-  
+
 
   class DemoUpdateProcessor extends UpdateRequestProcessor
-  { 
+  {
     public DemoUpdateProcessor(UpdateRequestProcessor next) {
       super(next);
     }

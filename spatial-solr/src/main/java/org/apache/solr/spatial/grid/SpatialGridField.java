@@ -18,6 +18,7 @@ package org.apache.solr.spatial.grid;
 
 import java.util.List;
 import java.util.Map;
+
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
@@ -45,7 +46,7 @@ import org.apache.solr.spatial.SpatialFieldType;
  *    [ABA* CAA* AAAAAB-]
  *
  * (2) Something for the field reader....
- * 
+ *
  */
 public class SpatialGridField extends SpatialFieldType
 {
@@ -67,9 +68,9 @@ public class SpatialGridField extends SpatialFieldType
     grid.resolution = 5; // how far past the best fit to go
   }
 
-  
+
   @Override
-  public Fieldable createField(SchemaField field, Shape shape, float boost) 
+  public Fieldable createField(SchemaField field, Shape shape, float boost)
   {
     List<CharSequence> match = grid.readCells(shape);
     BasicGridFieldable f = new BasicGridFieldable(field.getName(), field.stored());
@@ -85,7 +86,7 @@ public class SpatialGridField extends SpatialFieldType
     }
     return f;
   }
-  
+
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args )
   {
@@ -93,7 +94,7 @@ public class SpatialGridField extends SpatialFieldType
       throw new UnsupportedOperationException( "distance calculation is not yet supported" );
     }
     GeometryArgs g = (GeometryArgs)args;
-    
+
     // assume 'mostly within' query
     try {
       List<CharSequence> match = grid.readCells(g.shape);
@@ -102,7 +103,7 @@ public class SpatialGridField extends SpatialFieldType
       BooleanQuery query = new BooleanQuery( true );
       for( CharSequence token : match ) {
         Term term = new Term( field.getName(), token.toString() );
-        query.add( new BooleanClause( 
+        query.add( new BooleanClause(
             new SpatialGridQuery( term ), BooleanClause.Occur.SHOULD  ) );
       }
       System.out.println( "QUERY: " + query );

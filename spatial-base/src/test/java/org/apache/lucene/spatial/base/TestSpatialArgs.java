@@ -21,13 +21,13 @@ public class TestSpatialArgs extends TestCase
     BBox bounds = (BBox)out.shape;
     assertEquals( -10.0, bounds.getMinX() );
     assertEquals( 10.0, bounds.getMaxX() );
-    
+
     // Disjoint should not be scored
     arg = SpatialOperation.IsDisjointTo+" [-10 10 -20 20] score=true";
     out = (GeometryArgs)SpatialArgs.parse(arg, reader);
     assertEquals( SpatialOperation.IsDisjointTo, out.op );
     assertFalse( out.calculateScore );
-    
+
     try {
       SpatialArgs.parse( SpatialOperation.IsDisjointTo+"[ ]", reader);
       fail( "spatial operations need args");
@@ -40,7 +40,7 @@ public class TestSpatialArgs extends TestCase
     }
     catch( Exception ex ) { }
   }
-  
+
   public void testSimpleArgs() throws Exception
   {
     checkSimpleArgs( new SimpleShapeIO() );
@@ -50,7 +50,7 @@ public class TestSpatialArgs extends TestCase
   {
     ShapeIO reader = new JTSShapeIO();
     checkSimpleArgs( reader );
-    
+
     // now check the complex stuff...
   }
 }

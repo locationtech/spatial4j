@@ -3,6 +3,7 @@ package org.apache.solr.spatial.grid;
 
 import java.io.Reader;
 import java.io.StringReader;
+
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.AbstractField;
 import org.apache.lucene.document.Field.Index;

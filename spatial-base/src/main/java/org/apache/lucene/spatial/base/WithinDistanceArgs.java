@@ -10,7 +10,7 @@ public class WithinDistanceArgs extends SpatialArgs
   public Point2D center;
   public double radius;
   public String method;
-  
+
   protected WithinDistanceArgs() {
     super( SpatialOperation.WithinDistance );
   }

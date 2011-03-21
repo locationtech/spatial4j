@@ -44,7 +44,7 @@ import org.apache.solr.spatial.SpatialFieldType;
 
 /**
  * NOT IMPLEMENTED YET...
- * 
+ *
  * lets start with the simple SpatialGridField....
  */
 public class MultiGridField extends SpatialFieldType implements SchemaAware
@@ -130,7 +130,7 @@ public class MultiGridField extends SpatialFieldType implements SchemaAware
   }
 
   @Override
-  public Fieldable[] createFields(SchemaField field, Shape shape, float boost) 
+  public Fieldable[] createFields(SchemaField field, Shape shape, float boost)
   {
     BasicGridFieldable[] fields = new BasicGridFieldable[1+resolutions.length];
     List<CharSequence> match = grid.readCells(shape);
@@ -147,7 +147,7 @@ public class MultiGridField extends SpatialFieldType implements SchemaAware
     }
     return fields;
   }
-  
+
 
   @Override
   public Query getRangeQuery(QParser parser, SchemaField field, String part1, String part2, boolean minInclusive, boolean maxInclusive) {
@@ -161,7 +161,7 @@ public class MultiGridField extends SpatialFieldType implements SchemaAware
       throw new UnsupportedOperationException( "distance calculation is not yet supported" );
     }
     GeometryArgs g = (GeometryArgs)args;
-    
+
     // assume 'mostly within' query
     try {
       List<CharSequence> match = grid.readCells(g.shape);
@@ -170,7 +170,7 @@ public class MultiGridField extends SpatialFieldType implements SchemaAware
       BooleanQuery query = new BooleanQuery( true );
       for( CharSequence token : match ) {
         Term term = new Term( field.getName(), token.toString() );
-        query.add( new BooleanClause( 
+        query.add( new BooleanClause(
             new SpatialGridQuery( term ), BooleanClause.Occur.SHOULD  ) );
       }
       System.out.println( "QUERY: " + query );

@@ -7,7 +7,7 @@ import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 public class GeometryArgs extends SpatialArgs
 {
   public Shape shape;
-  
+
   protected GeometryArgs( SpatialOperation op ) {
     super( op );
   }
@@ -16,7 +16,7 @@ public class GeometryArgs extends SpatialArgs
   public void read(String v, ShapeIO reader) throws IOException {
     shape = reader.readShape( v );
   }
-  
+
   @Override
   public void validate() throws InvalidSpatialArgument
   {

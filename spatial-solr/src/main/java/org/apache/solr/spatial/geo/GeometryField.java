@@ -16,25 +16,16 @@ package org.apache.solr.spatial.geo;
  * limitations under the License.
  */
 
-import java.text.NumberFormat;
-import java.util.Locale;
 import java.util.Map;
 
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.GeometryArgs;
 import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.ShapeIO;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.WithinDistanceArgs;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
-import org.apache.lucene.spatial.base.simple.SimpleShapeIO;
-import org.apache.lucene.spatial.search.index.STRTreeIndexProvider;
-import org.apache.lucene.spatial.search.index.SpatialIndexFilter;
-import org.apache.lucene.spatial.search.index.SpatialIndexProvider;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
@@ -60,7 +51,7 @@ public class GeometryField extends SpatialFieldType
             field.omitTf(), boost);
   }
 
-  
+
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
@@ -71,7 +62,7 @@ public class GeometryField extends SpatialFieldType
     if( g.shape.getBoundingBox().getCrossesDateLine() ) {
       throw new UnsupportedOperationException( "Spatial Index does not (yet) support queries that cross the date line" );
     }
-    
+
     return new MatchAllDocsQuery();
   }
 }

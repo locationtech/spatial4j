@@ -32,7 +32,7 @@ public class Rectangle implements BBox
   public boolean hasArea() {
     return getWidth() > 0 && getHeight() > 0;
   }
-  
+
   @Override
   public double getArea()
   {

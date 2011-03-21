@@ -31,7 +31,7 @@ public class JtsPoint2D implements org.apache.lucene.spatial.base.Point
   public boolean hasArea() {
     return false;
   }
-  
+
   @Override
   public JtsEnvelope getBoundingBox() {
     return new JtsEnvelope( p.getEnvelopeInternal() );

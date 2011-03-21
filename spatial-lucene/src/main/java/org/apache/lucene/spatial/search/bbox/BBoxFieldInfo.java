@@ -12,7 +12,7 @@ public class BBoxFieldInfo
   public static final String SUFFIX_MINY = "__minY";
   public static final String SUFFIX_MAXY = "__maxY";
   public static final String SUFFIX_XDL  = "__xdl";
-  
+
   public int precisionStep = NumericUtils.PRECISION_STEP_DEFAULT;
 
   public String minX = "envelope.minx";
@@ -22,7 +22,7 @@ public class BBoxFieldInfo
 
   // crosses dateline
   public String xdl = "envelope.xdl";
-  
+
   public void setFieldsPrefix( String prefix )
   {
     minX = prefix + SUFFIX_MINX;

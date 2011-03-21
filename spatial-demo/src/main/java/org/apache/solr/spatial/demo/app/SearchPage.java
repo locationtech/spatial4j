@@ -182,19 +182,19 @@ public class SearchPage extends WebPage
     })));
 
     add( results );
-    
+
     add( new IndicatingAjaxLink<Void>("load") {
       @Override
       public void onClick(AjaxRequestTarget target) {
         System.out.println( "loading..." );
         try {
           SampleDataLoader.load( solr );
-        } 
+        }
         catch (Exception e) {
           e.printStackTrace();
         }
         System.out.println( "done..." );
-      } 
+      }
     });
   }
 
