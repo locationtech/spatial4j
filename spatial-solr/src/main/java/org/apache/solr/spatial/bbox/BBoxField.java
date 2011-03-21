@@ -24,8 +24,11 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.GeometryArgs;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
+import org.apache.lucene.spatial.base.WithinDistanceArgs;
+import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.bbox.BBoxFieldInfo;
 import org.apache.lucene.spatial.search.bbox.BBoxQueryBuilder;
 import org.apache.solr.schema.FieldType;
@@ -59,7 +62,7 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
   protected String doubleFieldName = "double";
   protected String booleanFieldName = "boolean";
 
-  protected final int fieldProps = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
+  protected final int fieldProps = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS); 
   protected FieldType doubleType;
   protected FieldType booleanType;
 
@@ -70,6 +73,8 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
 
+    reader = new JTSShapeIO();
+    
     String v = args.remove( "doubleType" );
     if( v != null ) {
       doubleFieldName = v;
@@ -94,11 +99,11 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
     }
 
     //Just set these, delegate everything else to the field type
-    schema.registerDynamicField( new SchemaField( "*__minX", doubleType, fieldProps, null ) );
-    schema.registerDynamicField( new SchemaField( "*__minY", doubleType, fieldProps, null ) );
-    schema.registerDynamicField( new SchemaField( "*__maxX", doubleType, fieldProps, null ) );
-    schema.registerDynamicField( new SchemaField( "*__maxY", doubleType, fieldProps, null ) );
-    schema.registerDynamicField( new SchemaField( "*__xxdl", booleanType, fieldProps, null ) );
+    schema.registerDynamicField( new SchemaField( "*"+BBoxFieldInfo.SUFFIX_MINX, doubleType, fieldProps, null ) );
+    schema.registerDynamicField( new SchemaField( "*"+BBoxFieldInfo.SUFFIX_MINY, doubleType, fieldProps, null ) );
+    schema.registerDynamicField( new SchemaField( "*"+BBoxFieldInfo.SUFFIX_MAXX, doubleType, fieldProps, null ) );
+    schema.registerDynamicField( new SchemaField( "*"+BBoxFieldInfo.SUFFIX_MAXY, doubleType, fieldProps, null ) );
+    schema.registerDynamicField( new SchemaField( "*"+BBoxFieldInfo.SUFFIX_XDL, booleanType, fieldProps, null ) );
   }
 
   @Override
@@ -112,13 +117,15 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
     BBox bbox = shape.getBoundingBox();
     
     String name = field.getName();
+    
+    int fp = fieldProps | STORED;  // useful for debugging
 
     Fieldable[] fields = new Fieldable[5];
-    fields[0] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MINX, doubleType, fieldProps, null ).createField( new Double(bbox.getMinX()), 1.0f);
-    fields[0] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MAXX, doubleType, fieldProps, null ).createField( new Double(bbox.getMaxX()), 1.0f);
-    fields[0] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MINY, doubleType, fieldProps, null ).createField( new Double(bbox.getMinY()), 1.0f);
-    fields[0] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MAXY, doubleType, fieldProps, null ).createField( new Double(bbox.getMaxY()), 1.0f);
-    fields[0] = new SchemaField( name+BBoxFieldInfo.SUFFIX_XDL, booleanType, fieldProps, null ).createField( new Boolean(bbox.getCrossesDateLine()), 1.0f);
+    fields[0] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MINX, doubleType, fp, null ).createField( new Double(bbox.getMinX()), 1.0f);
+    fields[1] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MAXX, doubleType, fp, null ).createField( new Double(bbox.getMaxX()), 1.0f);
+    fields[2] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MINY, doubleType, fp, null ).createField( new Double(bbox.getMinY()), 1.0f);
+    fields[3] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MAXY, doubleType, fp, null ).createField( new Double(bbox.getMaxY()), 1.0f);
+    fields[4] = new SchemaField( name+BBoxFieldInfo.SUFFIX_XDL, booleanType, fp, null ).createField( new Boolean(bbox.getCrossesDateLine()), 1.0f);
     return fields;
   }
 
@@ -130,9 +137,17 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
-    BBoxFieldInfo fields = new BBoxFieldInfo();
-    fields.setFieldsPrefix( field.getName() );
     BBoxQueryBuilder builder = new BBoxQueryBuilder();
+    builder.fields = new BBoxFieldInfo();
+    builder.fields.setFieldsPrefix( field.getName() );
+    
+    if( args instanceof WithinDistanceArgs ) {
+      throw new UnsupportedOperationException( "not supported yet: "+args.op );
+    }
+    else if( args instanceof GeometryArgs ) {
+      builder.queryExtent = ((GeometryArgs)args).shape.getBoundingBox();
+    }
+    
     Query query = builder.getQuery(args.op);
     if( args.calculateScore ) {
       Query spatialRankingQuery = new ValueSourceQuery( builder.makeValueSource( args.op ) );

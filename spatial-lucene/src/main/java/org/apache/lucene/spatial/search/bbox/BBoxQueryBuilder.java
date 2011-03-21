@@ -10,6 +10,7 @@ import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.SpatialOperation;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
+import org.apache.lucene.util.NumericUtils;
 
 /**
  * 
@@ -19,11 +20,12 @@ import org.apache.lucene.spatial.search.SpatialQueryBuilder;
  */
 public class BBoxQueryBuilder extends SpatialQueryBuilder
 {
-  private BBoxFieldInfo fields;
-  private BBox queryExtent;
+  public BBoxFieldInfo fields;
+  public BBox queryExtent;
 
-  double queryPower = 1.0;
-  double targetPower = 1.0f;
+  public double queryPower = 1.0;
+  public double targetPower = 1.0f;
+  
 
   @Override
   public ValueSource makeValueSource(SpatialOperation op)
@@ -300,10 +302,13 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
     // general case
     // docMinX >= queryExtent.getMinX() AND docMinY >= queryExtent.getMinY() AND docMaxX <= queryExtent.getMaxX() AND docMaxY <= queryExtent.getMaxY()
 
+    int step = NumericUtils.PRECISION_STEP_DEFAULT;
+    
+    
     // Y conditions
     // docMinY >= queryExtent.getMinY() AND docMaxY <= queryExtent.getMaxY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,queryExtent.getMinY(),null,true,false);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,null,queryExtent.getMaxY(),false,true);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,step,queryExtent.getMinY(),null,true,false);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,step,null,queryExtent.getMaxY(),false,true);
     Query yConditions = this.makeQuery(new Query[]{qMinY,qMaxY},BooleanClause.Occur.MUST);
 
     // X conditions
@@ -314,8 +319,8 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
     // AND the right portion of the document must be within the right portion of the query
     // docMinXLeft >= queryExtent.getMinX() AND docMaxXLeft <= 180.0
     // AND docMinXRight >= -180.0 AND docMaxXRight <= queryExtent.getMaxX()
-    Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMinX(),null,true,false);
-    Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,null,queryExtent.getMaxX(),false,true);
+    Query qXDLLeft  = NumericRangeQuery.newDoubleRange(fields.minX,step,queryExtent.getMinX(),null,true,false);
+    Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,step,null,queryExtent.getMaxX(),false,true);
     Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft,qXDLRight},BooleanClause.Occur.MUST);
     Query qXDL  = this.makeXDL(true,qXDLLeftRight);
 
