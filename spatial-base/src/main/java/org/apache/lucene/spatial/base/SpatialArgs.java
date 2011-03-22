@@ -66,7 +66,7 @@ public class SpatialArgs
     if( body.length() < 1 ) {
       throw new InvalidSpatialArgument( "missing body : "+v, null );
     }
-    args.shape = reader.readShape( v );
+    args.shape = reader.readShape( body );
 
     if( v.length() > (edx+1) ) {
       body = v.substring( edx+1 ).trim();

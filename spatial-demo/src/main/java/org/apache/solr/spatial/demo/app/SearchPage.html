@@ -1,25 +1,80 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
   <head>  
-    <title>Solr Quad Playground</title>
-  </head>
-  <body>
+    <title>Solr Spatial Playground</title>    
+    
+    <script src="http://openlayers.org/dev/OpenLayers.js"></script>
+    <script type="text/javascript">
+    var map, vectors, formats;
+    function init(){
+        map = new OpenLayers.Map('map');
+        var wms = new OpenLayers.Layer.WMS( "OpenLayers WMS",
+            "http://vmap0.tiles.osgeo.org/wms/vmap0?", {layers: 'basic'});
+
+        vectors = new OpenLayers.Layer.Vector("Vector Layer");
+
+        map.addLayers([wms, vectors]);
+        map.addControl(new OpenLayers.Control.MousePosition());
+        map.addControl(new OpenLayers.Control.EditingToolbar(vectors));
+        
+        map.setCenter(new OpenLayers.LonLat(0, 0), 1);
+    }
+    </script>
+
+  </head>  
+  <body onload="init()">
+
+  
   <div style="float:right">
    <a href="solr/select?q=*:*">[solr]</a>
    <a wicket:id="playground" href="#">[playground]</a>
   </div>
   
     <form wicket:id="search">
-      <div>
-        <strong>Text</strong><br/>
-        <input wicket:id="text" type="text"/>
-      </div>
+      
+      <table>
+       <tr>
+        <td>Text</td>
+       </tr>
+       <tr>
+         <td colspan="3"><input wicket:id="text" type="text"/></td>
+        </tr>
+      <tr>
+        <td>Field</td>
+        <td>Operation</td>
+        <td>Geometry</td>
+        <td>Extra</td>
+      </tr>
+
+      <tr>
+        <td>
+          <select wicket:id="field">
+            <option value="volvo">Geometry</option>
+            <option value="saab">RTree</option>
+            <option value="mercedes">BBox</option>
+            <option value="audi">Point</option>
+          </select>
+        </td>
+        <td>
+          <select wicket:id="op">
+            <option value="volvo">Within</option>
+            <option value="saab">BBoxWithin</option>
+            <option value="mercedes">Intersects</option>
+            <option value="audi">...</option>
+          </select>
+        </td>
+        <td><input type="text" style="width:200px;" wicket:id="geo"/></td>
+        <td><input type="text" style="width:100px;"/></td>
+        
+        <td><input type="submit" value="search"/></td>
+      </tr>
+      </table>
+    
       
       <div>
-        <strong>Within</strong><br/>
-        <input wicket:id="geo" type="text"/>
+        <div id="map" style="width:500px; height:300px; border:1px solid #CCC;"/>
         TODO, <a href="http://openlayers.org/dev/examples/vector-formats.html">generate WKT polygon</a>
       </div>
-      <input type="submit" value="search"/>
+      
     </form>
     
     <div wicket:id="results">

@@ -41,14 +41,16 @@ public abstract class CachedIndexProvider implements SpatialIndexProvider
   protected abstract SpatialIndex createEmptyIndex();
 
   @Override
-  public SpatialIndex getSpatialIndex(IndexReader reader) throws CorruptIndexException, IOException
+  public synchronized SpatialIndex getSpatialIndex(IndexReader reader) throws CorruptIndexException, IOException
   {
     SpatialIndex idx = sidx.get( reader );
-    if( idx == null ) {  // TODO, locking etc, make sure there is not overlap
+    if( idx == null ) {
+      long startTime = System.currentTimeMillis();
       Long lastmodified = IndexReader.lastModified( reader.directory() );
-      log.info( "Building RTree. "+lastmodified );
+      log.info( "Building Index. "+lastmodified + " ["+reader.maxDoc()+"]" );
       idx = createEmptyIndex();
 
+      int count = 0;
       DocsEnum docs = null;
       Terms terms = reader.terms(shapeField);
       if( terms != null ) {
@@ -73,12 +75,14 @@ public abstract class CachedIndexProvider implements SpatialIndexProvider
             idx.insert( envelope, docid );
             log.trace( " "+docid );
             docid = new Integer( docs.nextDoc() );
+            count++;
           }
           term = te.next();
         }
       }
+      long elapsed = System.currentTimeMillis() - startTime;
       idx.query( new Envelope( -1, 1, -1, 1 ) ); // this will build the index
-      log.info( "initalized: "+idx );
+      log.info( "Indexed: ["+count+" in "+elapsed+"ms] "+idx );
       sidx.put( reader, idx );
     }
     return idx;

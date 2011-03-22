@@ -11,6 +11,9 @@ public class StartDemo
 {
 	public static void main(String[] args) throws Exception
 	{
+	  // this add resource reloading...
+    System.setProperty( "wicket.configuration", "development" );
+
 	  File dir = new File( "src/main/webapp" );
 	  System.out.println( "dir: "+dir.getAbsolutePath() + " :: "+dir.exists() );
 

@@ -3,9 +3,11 @@ package org.apache.solr.spatial.demo.app;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.lucene.spatial.base.SpatialOperation;
 import org.apache.lucene.spatial.base.grid.LinearSpatialGrid;
 import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -26,6 +28,7 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -75,6 +78,11 @@ public class SearchPage extends WebPage
 
     Form<Query> searchForm = new Form<Query>( "search", new CompoundPropertyModel<Query>(query) );
     searchForm.add( new TextField<String>( "text" ) );
+    searchForm.add( new DropDownChoice<String>("field",
+        Arrays.asList( "geo", "bbox", "grid", "rtree", "point" ) ));
+    searchForm.add( new DropDownChoice<SpatialOperation>("op",
+        Arrays.asList( SpatialOperation.values() ) ));
+
     searchForm.add( new TextField<String>( "geo" ) );
     add( searchForm );
 

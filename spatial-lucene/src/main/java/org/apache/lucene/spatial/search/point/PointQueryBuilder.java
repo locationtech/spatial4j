@@ -30,10 +30,14 @@ import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class PointQueryBuilder extends SpatialQueryBuilder
 {
+  static final Logger log = LoggerFactory.getLogger( PointQueryBuilder.class );
+
   public static final String SUFFIX_X = "__x";
   public static final String SUFFIX_Y = "__y";
 
@@ -80,11 +84,16 @@ public class PointQueryBuilder extends SpatialQueryBuilder
     }
 
     if( args.calculateScore ) {
-      Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( fname, args ) );
-      BooleanQuery bq = new BooleanQuery();
-      bq.add(spatial,BooleanClause.Occur.MUST);
-      bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
-      return bq;
+      try {
+        Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( fname, args ) );
+        BooleanQuery bq = new BooleanQuery();
+        bq.add(spatial,BooleanClause.Occur.MUST);
+        bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
+        return bq;
+      }
+      catch( Exception ex ) {
+        log.warn( "error making score", ex );
+      }
     }
     return spatial;
   }
