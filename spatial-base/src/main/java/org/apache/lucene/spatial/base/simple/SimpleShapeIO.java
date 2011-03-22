@@ -39,6 +39,20 @@ public class SimpleShapeIO implements ShapeIO
     if( str.length() < 1 ) {
       throw new InvalidShapeException( str );
     }
+    if( str.startsWith( "RADIUS(" ) ) {
+      try {
+        int idx = str.indexOf( '(' );
+        int edx = str.lastIndexOf( ')' );
+        StringTokenizer st = new StringTokenizer( str.substring(idx+1,edx), " " );
+        double p0 = Double.parseDouble( st.nextToken() );
+        double p1 = Double.parseDouble( st.nextToken() );
+        double rr = Double.parseDouble( st.nextToken() );
+        return new Radius2D( new Point2D(p0,p1), rr );
+      }
+      catch( Exception ex ) {
+        throw new InvalidShapeException( "invalid radius: "+str, ex );
+      }
+    }
     StringTokenizer st = new StringTokenizer( str, " " );
     double p0 = Double.parseDouble( st.nextToken() );
     double p1 = Double.parseDouble( st.nextToken() );

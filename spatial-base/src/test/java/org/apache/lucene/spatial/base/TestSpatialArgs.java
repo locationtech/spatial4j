@@ -39,6 +39,12 @@ public class TestSpatialArgs extends TestCase
       fail( "unknown operation!");
     }
     catch( Exception ex ) { }
+
+    // Check radius
+    arg = SpatialOperation.IsWithin+"(RADIUS(1 2 3))";
+    out = SpatialArgs.parse(arg, reader);
+    assertEquals( SpatialOperation.IsWithin, out.op );
+    assertTrue( out.shape instanceof Radius );
   }
 
   public void testSimpleArgs() throws Exception

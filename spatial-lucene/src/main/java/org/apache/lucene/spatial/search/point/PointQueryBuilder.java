@@ -29,23 +29,17 @@ import org.apache.lucene.spatial.base.Radius;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
-import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class PointQueryBuilder extends SpatialQueryBuilder
+public class PointQueryBuilder
 {
   static final Logger log = LoggerFactory.getLogger( PointQueryBuilder.class );
 
-  public static final String SUFFIX_X = "__x";
-  public static final String SUFFIX_Y = "__y";
-
-  @Override
-  public ValueSource makeValueSource(String fname, SpatialArgs args)
+  public ValueSource makeValueSource(PointFieldInfo fields, SpatialArgs args)
   {
     DistanceCalculator calc = new EuclidianDistanceCalculator();
-    String[] fields = new String[] {fname+SUFFIX_X,fname+SUFFIX_Y};
     if( args.shape instanceof Radius ) {
       DistanceValueSource vs = new DistanceValueSource( ((Radius)args.shape).getPoint(),
           calc, fields );
@@ -58,8 +52,7 @@ public class PointQueryBuilder extends SpatialQueryBuilder
     throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
   }
 
-  @Override
-  public Query makeQuery(String fname, SpatialArgs args)
+  public Query makeQuery(PointFieldInfo fields, SpatialArgs args)
   {
     // For starters, just limit the bbox
     BBox bbox = args.shape.getBoundingBox();
@@ -67,7 +60,7 @@ public class PointQueryBuilder extends SpatialQueryBuilder
       throw new UnsupportedOperationException( "Crossing dateline not yet supported" );
     }
 
-    PointQueryHelper helper = new PointQueryHelper(bbox,fname+SUFFIX_X,fname+SUFFIX_Y);
+    PointQueryHelper helper = new PointQueryHelper(bbox,fields);
     Query spatial = null;
     switch( args.op )
     {
@@ -85,7 +78,7 @@ public class PointQueryBuilder extends SpatialQueryBuilder
 
     if( args.calculateScore ) {
       try {
-        Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( fname, args ) );
+        Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( fields, args ) );
         BooleanQuery bq = new BooleanQuery();
         bq.add(spatial,BooleanClause.Occur.MUST);
         bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
@@ -103,14 +96,12 @@ public class PointQueryBuilder extends SpatialQueryBuilder
 class PointQueryHelper
 {
   final BBox queryExtent;
-  final String fieldX;
-  final String fieldY;
+  final PointFieldInfo field;
 
-  public PointQueryHelper( BBox bbox, String x, String y )
+  public PointQueryHelper( BBox bbox, PointFieldInfo field )
   {
     this.queryExtent = bbox;
-    this.fieldX = x;
-    this.fieldY = y;
+    this.field = field;
   }
 
   //-------------------------------------------------------------------------------
@@ -123,8 +114,8 @@ class PointQueryHelper
    */
   Query makeWithin()
   {
-    Query qX = NumericRangeQuery.newDoubleRange(fieldX,queryExtent.getMinX(),queryExtent.getMaxX(),true,true);
-    Query qY = NumericRangeQuery.newDoubleRange(fieldY,queryExtent.getMinY(),queryExtent.getMaxY(),true,true);
+    Query qX = NumericRangeQuery.newDoubleRange(field.fieldX,queryExtent.getMinX(),queryExtent.getMaxX(),true,true);
+    Query qY = NumericRangeQuery.newDoubleRange(field.fieldY,queryExtent.getMinY(),queryExtent.getMaxY(),true,true);
 
     BooleanQuery bq = new BooleanQuery();
     bq.add(qX,BooleanClause.Occur.MUST);

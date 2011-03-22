@@ -21,9 +21,6 @@ import java.io.IOException;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
-import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.search.cache.CachedArrayCreator;
-import org.apache.lucene.search.cache.DoubleValuesCreator;
 import org.apache.lucene.search.cache.CachedArray.DoubleValues;
 import org.apache.lucene.search.function.DocValues;
 import org.apache.lucene.search.function.ValueSource;
@@ -38,7 +35,7 @@ import org.apache.lucene.spatial.base.simple.Point2D;
  */
 public class DistanceValueSource extends ValueSource
 {
-  private final String[] fields;
+  private final PointFieldInfo fields;
   private final DistanceCalculator calculator;
   private final Point from;
 
@@ -52,7 +49,7 @@ public class DistanceValueSource extends ValueSource
    * @param queryPower the query power (scoring algorithm)
    * @param targetPower the target power (scoring algorithm)
    */
-  public DistanceValueSource(Point from, DistanceCalculator calc, String[] fields)
+  public DistanceValueSource(Point from, DistanceCalculator calc, PointFieldInfo fields)
   {
     this.from = from;
     this.fields = fields;
@@ -80,8 +77,8 @@ public class DistanceValueSource extends ValueSource
     IndexReader reader = context.reader;
     // How do we make sure to get the right entry creator?
     // Can we get it from solr?
-    final DoubleValues ptX = FieldCache.DEFAULT.getDoubles( reader, fields[0], new DoubleValuesCreator( fields[0], null, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
-    final DoubleValues ptY = FieldCache.DEFAULT.getDoubles( reader, fields[1], new DoubleValuesCreator( fields[1], null, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
+    final DoubleValues ptX = fields.getXValues( reader );
+    final DoubleValues ptY = fields.getYValues( reader );
 
     return new DocValues() {
       @Override

@@ -27,7 +27,6 @@ import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.SpatialArgs;
-import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 import org.apache.lucene.util.NumericUtils;
 
 /**
@@ -36,29 +35,21 @@ import org.apache.lucene.util.NumericUtils;
  *  http://geoportal.svn.sourceforge.net/svnroot/geoportal/Geoportal/trunk/src/com/esri/gpt/catalog/lucene/SpatialClauseAdapter.java
  *
  */
-public class BBoxQueryBuilder extends SpatialQueryBuilder
+public class BBoxQueryBuilder
 {
   public double queryPower = 1.0;
   public double targetPower = 1.0f;
 
 
-  @Override
-  public ValueSource makeValueSource(String fname, SpatialArgs args)
+  public ValueSource makeValueSource(BBoxFieldInfo fields, SpatialArgs args)
   {
-    BBoxFieldInfo fields = new BBoxFieldInfo();
-    fields.setFieldsPrefix( fname );
-
     return new BBoxSimilarityValueSource(
         new AreaSimilarity( args.shape.getBoundingBox(), queryPower,targetPower ), fields );
   }
 
-  @Override
-  public Query makeQuery(String fname, SpatialArgs args)
+  public Query makeQuery(BBoxFieldInfo fields, SpatialArgs args)
   {
     BBox bbox = args.shape.getBoundingBox();
-    BBoxFieldInfo fields = new BBoxFieldInfo();
-    fields.setFieldsPrefix( fname );
-
     BBoxQueryHelper helper = new BBoxQueryHelper(bbox,fields);
 
     Query spatial = null;
@@ -77,7 +68,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
     }
 
     if( args.calculateScore ) {
-      Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( fname, args ) );
+      Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( fields, args ) );
       BooleanQuery bq = new BooleanQuery();
       bq.add(spatial,BooleanClause.Occur.MUST);
       bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);

@@ -13,9 +13,8 @@ import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.SpatialOperation;
 import org.apache.lucene.spatial.base.grid.SpatialGrid;
-import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
-public class GridQueryBuilder extends SpatialQueryBuilder
+public class GridQueryBuilder
 {
   final SpatialGrid grid;
 
@@ -44,13 +43,11 @@ public class GridQueryBuilder extends SpatialQueryBuilder
   //-----------------------------------------------------
   //-----------------------------------------------------
 
-  @Override
   public ValueSource makeValueSource(String fname, SpatialArgs args)
   {
     throw new UnsupportedOperationException( "not implemented yet..." );
   }
 
-  @Override
   public Query makeQuery(String fname, SpatialArgs args)
   {
     if( args.op != SpatialOperation.BBoxIntersects ||

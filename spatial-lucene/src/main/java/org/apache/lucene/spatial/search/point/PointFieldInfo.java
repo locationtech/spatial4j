@@ -15,39 +15,47 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.bbox;
+package org.apache.lucene.spatial.search.point;
 
+import java.io.IOException;
+
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.search.FieldCache.DoubleParser;
+import org.apache.lucene.search.cache.CachedArrayCreator;
+import org.apache.lucene.search.cache.DoubleValuesCreator;
+import org.apache.lucene.search.cache.CachedArray.DoubleValues;
 import org.apache.lucene.util.NumericUtils;
 
 /**
  * Fieldnames to store
  */
-public class BBoxFieldInfo
+public class PointFieldInfo
 {
-  public static final String SUFFIX_MINX = "__minX";
-  public static final String SUFFIX_MAXX = "__maxX";
-  public static final String SUFFIX_MINY = "__minY";
-  public static final String SUFFIX_MAXY = "__maxY";
-  public static final String SUFFIX_XDL  = "__xdl";
+  public static final String SUFFIX_X = "__x";
+  public static final String SUFFIX_Y = "__y";
 
   public int precisionStep = NumericUtils.PRECISION_STEP_DEFAULT;
   public DoubleParser parser = null;
 
-  public String minX = "envelope.minx";
-  public String minY = "envelope.miny";
-  public String maxX = "envelope.maxx";
-  public String maxY = "envelope.maxy";
-
-  // crosses dateline
-  public String xdl = "envelope.xdl";
+  public String fieldX = "point__x";
+  public String fieldY = "point__y";
 
   public void setFieldsPrefix( String prefix )
   {
-    minX = prefix + SUFFIX_MINX;
-    maxX = prefix + SUFFIX_MAXX;
-    minY = prefix + SUFFIX_MINY;
-    maxY = prefix + SUFFIX_MAXY;
-    xdl  = prefix + SUFFIX_XDL;
+    fieldX = prefix + SUFFIX_X;
+    fieldY = prefix + SUFFIX_Y;
+  }
+
+  public DoubleValues getXValues( IndexReader reader ) throws IOException
+  {
+    return FieldCache.DEFAULT.getDoubles( reader, fieldX,
+        new DoubleValuesCreator( fieldX, parser, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
+  }
+
+  public DoubleValues getYValues( IndexReader reader ) throws IOException
+  {
+    return FieldCache.DEFAULT.getDoubles( reader, fieldY,
+        new DoubleValuesCreator( fieldY, parser, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
   }
 }

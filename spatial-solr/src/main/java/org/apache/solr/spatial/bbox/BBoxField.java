@@ -120,7 +120,10 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
     BBoxQueryBuilder builder = new BBoxQueryBuilder();
-    return builder.makeQuery(field.getName(), args);
+    BBoxFieldInfo fields = new BBoxFieldInfo();
+    fields.setFieldsPrefix( field.getName() );
+
+    return builder.makeQuery(fields, args);
   }
 
 // TODO -- this is a solr ValueSource...
