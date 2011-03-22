@@ -24,6 +24,7 @@ import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.function.ValueSource;
+import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
@@ -37,37 +38,65 @@ import org.apache.lucene.util.NumericUtils;
  */
 public class BBoxQueryBuilder extends SpatialQueryBuilder
 {
-  public BBoxFieldInfo fields;
-
   public double queryPower = 1.0;
   public double targetPower = 1.0f;
 
 
   @Override
-  public ValueSource makeValueSource(SpatialArgs args)
+  public ValueSource makeValueSource(String fname, SpatialArgs args)
   {
+    BBoxFieldInfo fields = new BBoxFieldInfo();
+    fields.setFieldsPrefix( fname );
+
     return new BBoxSimilarityValueSource(
         new AreaSimilarity( args.shape.getBoundingBox(), queryPower,targetPower ), fields );
   }
 
   @Override
-  public Query getQuery(SpatialArgs args)
+  public Query makeQuery(String fname, SpatialArgs args)
   {
     BBox bbox = args.shape.getBoundingBox();
+    BBoxFieldInfo fields = new BBoxFieldInfo();
+    fields.setFieldsPrefix( fname );
 
+    BBoxQueryHelper helper = new BBoxQueryHelper(bbox,fields);
+
+    Query spatial = null;
     switch( args.op )
     {
-    case BBoxIntersects: return makeIntersects(bbox);
-    case BBoxWithin: return makeWithin(bbox);
-    case Contains: return makeContains(bbox);
-    case Intersects: return makeIntersects(bbox);
-    case IsEqualTo: return makeEquals(bbox);
-    case IsDisjointTo: return makeDisjoint(bbox);
-    case IsWithin: return makeWithin(bbox);
-    case Overlaps: return makeIntersects(bbox);
+      case BBoxIntersects: spatial = helper.makeIntersects(); break;
+      case BBoxWithin: spatial =  helper.makeWithin(); break;
+      case Contains: spatial =  helper.makeContains(); break;
+      case Intersects: spatial =  helper.makeIntersects(); break;
+      case IsEqualTo: spatial =  helper.makeEquals(); break;
+      case IsDisjointTo: spatial =  helper.makeDisjoint(); break;
+      case IsWithin: spatial =  helper.makeWithin(); break;
+      case Overlaps: spatial =  helper.makeIntersects(); break;
+      default:
+        throw new UnsupportedOperationException( args.op.name() );
     }
 
-    throw new UnsupportedOperationException( args.op.name() );
+    if( args.calculateScore ) {
+      Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( fname, args ) );
+      BooleanQuery bq = new BooleanQuery();
+      bq.add(spatial,BooleanClause.Occur.MUST);
+      bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
+      return bq;
+    }
+    return spatial;
+  }
+}
+
+
+class BBoxQueryHelper
+{
+  final BBox queryExtent;
+  final BBoxFieldInfo fields;
+
+  public BBoxQueryHelper( BBox bbox, BBoxFieldInfo fields )
+  {
+    this.queryExtent = bbox;
+    this.fields = fields;
   }
 
   //-------------------------------------------------------------------------------
@@ -78,7 +107,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * Constructs a query to retrieve documents that fully contain the input envelope.
    * @return the spatial query
    */
-  private Query makeContains(BBox queryExtent)
+  Query makeContains()
   {
     /*
     // the original contains query does not work for envelopes that cross the date line
@@ -156,7 +185,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * Constructs a query to retrieve documents that are disjoint to the input envelope.
    * @return the spatial query
    */
-  private Query makeDisjoint(BBox queryExtent) {
+  Query makeDisjoint() {
 
     /*
     // the original disjoint query does not work for envelopes that cross the date line
@@ -239,7 +268,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * Constructs a query to retrieve documents that equal the input envelope.
    * @return the spatial query
    */
-  private Query makeEquals(BBox queryExtent) {
+  Query makeEquals() {
 
     // docMinX = queryExtent.getMinX() AND docMinY = queryExtent.getMinY() AND docMaxX = queryExtent.getMaxX() AND docMaxY = queryExtent.getMaxY()
     Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMinX(),queryExtent.getMinX(),true,true);
@@ -258,7 +287,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * Constructs a query to retrieve documents that intersect the input envelope.
    * @return the spatial query
    */
-  private Query makeIntersects(BBox queryExtent) {
+  Query makeIntersects() {
 
     // the original intersects query does not work for envelopes that cross the date line,
     // switch to a NOT Disjoint query
@@ -267,7 +296,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
     // to get round it we add all documents as a SHOULD
 
     // there must be an envelope, it must not be disjoint
-    Query qDisjoint = makeDisjoint(queryExtent);
+    Query qDisjoint = makeDisjoint();
     Query qIsNonXDL = this.makeXDL(false);
     Query qIsXDL = this.makeXDL(true);
     Query qHasEnv = this.makeQuery(new Query[]{qIsNonXDL,qIsXDL},BooleanClause.Occur.SHOULD);
@@ -288,7 +317,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * @param occur the logical operator
    * @return the query
    */
-  private BooleanQuery makeQuery(Query[] queries, BooleanClause.Occur occur) {
+  BooleanQuery makeQuery(Query[] queries, BooleanClause.Occur occur) {
     BooleanQuery bq = new BooleanQuery();
     for (Query query: queries) {
       bq.add(query,occur);
@@ -300,7 +329,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * Constructs a query to retrieve documents are fully within the input envelope.
    * @return the spatial query
    */
-  private Query makeWithin(BBox queryExtent) {
+  Query makeWithin() {
 
     /*
     // the original within query does not work for envelopes that cross the date line
@@ -395,7 +424,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * @param crossedDateLine <code>true</true> for documents that cross the date line
    * @return the query
    */
-  private Query makeXDL(boolean crossedDateLine) {
+  Query makeXDL(boolean crossedDateLine) {
     // The 'T' and 'F' values match solr fields
     return new TermQuery(new Term(fields.xdl,crossedDateLine?"T":"F"));
   }
@@ -407,10 +436,13 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * @param query the spatial query
    * @return the query
    */
-  private Query makeXDL(boolean crossedDateLine, Query query) {
+  Query makeXDL(boolean crossedDateLine, Query query) {
     BooleanQuery bq = new BooleanQuery();
     bq.add(this.makeXDL(crossedDateLine),BooleanClause.Occur.MUST);
     bq.add(query,BooleanClause.Occur.MUST);
     return bq;
   }
 }
+
+
+

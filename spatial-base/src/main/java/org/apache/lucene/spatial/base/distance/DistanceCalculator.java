@@ -15,10 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base;
+package org.apache.lucene.spatial.base.distance;
+
+import org.apache.lucene.spatial.base.Point;
+import org.apache.lucene.spatial.base.Shape;
 
 
 public interface DistanceCalculator {
-  public double calculate( Shape shape );
-  public double calculate( Point point );
+  public double calculate( Point from, Shape shape );
+  public double calculate( Point from, Point point );
 }

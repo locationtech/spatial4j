@@ -47,6 +47,7 @@ public abstract class SpatialFieldType extends FieldType
 
   static final Logger log = LoggerFactory.getLogger( SpatialFieldType.class );
   protected ShapeIO reader;
+  protected boolean ignoreIncompatibleGeometry = true;
 
 
   @Override
@@ -90,8 +91,14 @@ public abstract class SpatialFieldType extends FieldType
 
   @Override
   public void write(TextResponseWriter writer, String name, Fieldable f) throws IOException {
-    // TODO? WTB?
-    writer.writeStr(name, f.stringValue(), false);
+    if( f.isBinary() ) {
+      byte[] bytes = f.getBinaryValue();
+      Shape s = reader.readShape( bytes, 0, bytes.length );
+      writer.writeStr(name, reader.toString(s), true);
+    }
+    else {
+      writer.writeStr(name, f.stringValue(), true);
+    }
   }
 
   @Override

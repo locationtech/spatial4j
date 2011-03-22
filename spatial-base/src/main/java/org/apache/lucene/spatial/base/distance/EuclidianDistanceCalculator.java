@@ -1,5 +1,3 @@
-package org.apache.lucene.spatial.base.distance;
-
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,23 +15,32 @@ package org.apache.lucene.spatial.base.distance;
  * limitations under the License.
  */
 
-import org.apache.lucene.spatial.base.DistanceCalculator;
+package org.apache.lucene.spatial.base.distance;
+
 import org.apache.lucene.spatial.base.Point;
 import org.apache.lucene.spatial.base.Shape;
 
 
 public class EuclidianDistanceCalculator implements DistanceCalculator
 {
-  public final double centerX = 0;
-  public final double centerY = 0;
-
-  public double calculate( Shape shape )
+  public double calculate( Point from, Shape shape )
   {
-    throw new UnsupportedOperationException( "not implemented" );
+    if( shape instanceof Point ) {
+      return calculate(from, (Point)shape);
+    }
+    throw new UnsupportedOperationException( "Distance to shape is not yet supported" );
   }
 
-  public double calculate( Point point )
+  public double calculate( Point from, Point point )
   {
-    return 10;
+    double result = 0;
+
+    double v = from.getX()-point.getX();
+    result += (v*v);
+
+    v = from.getY()-point.getY();
+    result += (v*v);
+
+    return Math.sqrt( result );
   }
 }

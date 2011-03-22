@@ -32,21 +32,16 @@ package org.apache.solr.spatial.grid;
  * limitations under the License.
  */
 
-import java.util.List;
 import java.util.Map;
 
-import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
+import org.apache.lucene.spatial.base.grid.SpatialGrid;
 import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
-import org.apache.lucene.spatial.search.grid.SpatialGridQuery;
-import org.apache.solr.common.SolrException;
+import org.apache.lucene.spatial.search.grid.GridQueryBuilder;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
@@ -64,63 +59,42 @@ import org.apache.solr.spatial.SpatialFieldType;
  */
 public class SpatialGridField extends SpatialFieldType
 {
-  protected JtsLinearSpatialGrid grid;
-  protected int resolution = -1;
+  int maxLength = -1;
+  GridQueryBuilder builder;
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
 
-    String res = args.remove( "resolution" );
+    String res = args.remove( "maxLength" );
     if( res != null ) {
-      resolution = Integer.parseInt( res );
+      maxLength = Integer.parseInt( res );
     }
 
     // TODO, allow configuration
     reader = new JTSShapeIO();
-    grid = new JtsLinearSpatialGrid( -180, 180, -90-180, 90, 16 );
+    JtsLinearSpatialGrid grid = new JtsLinearSpatialGrid( -180, 180, -90-180, 90, 16 );
     grid.resolution = 5; // how far past the best fit to go
+
+    this.init(grid, maxLength);
   }
 
+  public void init( SpatialGrid grid, int maxLength )
+  {
+    this.maxLength = maxLength;
+    this.builder = new GridQueryBuilder( grid );
+  }
 
   @Override
   public Fieldable createField(SchemaField field, Shape shape, float boost)
   {
-    List<CharSequence> match = grid.readCells(shape);
-    BasicGridFieldable f = new BasicGridFieldable(field.getName(), field.stored());
-    if( resolution > 0 ) {
-      f.tokens = new RemoveDuplicatesTokenFilter(
-          new TruncateFilter( new StringListTokenizer( match ), resolution ) );
-    }
-    else {
-      f.tokens = new StringListTokenizer( match );
-    }
-    if( field.stored() ) {
-      f.value = match.toString(); //reader.toString( shape );
-    }
-    return f;
+    return builder.makeField(field.getName(), shape, maxLength, field.stored() );
   }
 
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args )
   {
-    // assume 'mostly within' query
-    try {
-      List<CharSequence> match = grid.readCells(args.shape);
-
-      // TODO -- could optimize to use the right resolutions
-      BooleanQuery query = new BooleanQuery( true );
-      for( CharSequence token : match ) {
-        Term term = new Term( field.getName(), token.toString() );
-        query.add( new BooleanClause(
-            new SpatialGridQuery( term ), BooleanClause.Occur.SHOULD  ) );
-      }
-      System.out.println( "QUERY: " + query );
-      return query;
-    }
-    catch (Exception e) {
-      throw new SolrException( SolrException.ErrorCode.BAD_REQUEST, e );
-    }
+    return builder.makeQuery(field.getName(), args);
   }
 }
 

@@ -23,6 +23,6 @@ import org.apache.lucene.spatial.base.SpatialArgs;
 
 public abstract class SpatialQueryBuilder
 {
-  public abstract ValueSource makeValueSource( SpatialArgs args );
-  public abstract Query getQuery( SpatialArgs args );
+  public abstract ValueSource makeValueSource( String fname, SpatialArgs args );
+  public abstract Query makeQuery( String fname, SpatialArgs args );
 }

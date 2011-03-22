@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.grid;
+package org.apache.lucene.spatial.search.grid;
 
 import java.io.IOException;
 import java.io.Reader;

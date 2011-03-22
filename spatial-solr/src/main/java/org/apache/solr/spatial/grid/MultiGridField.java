@@ -16,12 +16,10 @@ package org.apache.solr.spatial.grid;
  * limitations under the License.
  */
 
-import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
@@ -90,6 +88,7 @@ public class MultiGridField extends SpatialFieldType implements SchemaAware
     schema.registerDynamicField( sf );
   }
 
+  /**
 
   @Override
   public Fieldable[] createFields(SchemaField field, Object val, float boost)
@@ -138,11 +137,7 @@ public class MultiGridField extends SpatialFieldType implements SchemaAware
     return fields;
   }
 
-
-  @Override
-  public Query getRangeQuery(QParser parser, SchemaField field, String part1, String part2, boolean minInclusive, boolean maxInclusive) {
-    throw new UnsupportedOperationException();
-  }
+**/
 
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args )
@@ -175,5 +170,11 @@ public class MultiGridField extends SpatialFieldType implements SchemaAware
   @Override
   public boolean isPolyField() {
     return true;
+  }
+
+  @Override
+  public Fieldable createField(SchemaField field, Shape value, float boost) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

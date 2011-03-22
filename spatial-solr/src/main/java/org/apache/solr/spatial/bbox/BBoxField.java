@@ -20,10 +20,7 @@ package org.apache.solr.spatial.bbox;
 import java.util.Map;
 
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
@@ -123,20 +120,11 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
     BBoxQueryBuilder builder = new BBoxQueryBuilder();
-    builder.fields = new BBoxFieldInfo();
-    builder.fields.setFieldsPrefix( field.getName() );
-
-    Query query = builder.getQuery(args);
-    if( args.calculateScore ) {
-      Query spatialRankingQuery = new ValueSourceQuery( builder.makeValueSource( args ) );
-      BooleanQuery bq = new BooleanQuery();
-      bq.add(query,BooleanClause.Occur.MUST);
-      bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
-      return bq;
-    }
-    return query;
+    return builder.makeQuery(field.getName(), args);
   }
 
+// TODO -- this is a solr ValueSource...
+//
 //  @Override
 //  public ValueSource getValueSource(SchemaField field, QParser parser) {
 //    return new StrFieldSource(field.name);

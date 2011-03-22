@@ -38,12 +38,12 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.Point;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
+import org.apache.lucene.spatial.search.point.PointQueryBuilder;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaAware;
@@ -54,9 +54,6 @@ import org.apache.solr.spatial.SpatialFieldType;
 
 public class PointField extends SpatialFieldType implements SchemaAware
 {
-  private static final String SUFFIX_X = "__x";
-  private static final String SUFFIX_Y = "__y";
-
   FieldType pointType;
 
   @Override
@@ -74,8 +71,8 @@ public class PointField extends SpatialFieldType implements SchemaAware
     for( SchemaField sf : schema.getFields().values() ) {
       if( sf.getType() == this ) {
         String name = sf.getName();
-        schema.getFields().put( name+SUFFIX_X, new SchemaField( name+SUFFIX_X, pointType, p, null ) );
-        schema.getFields().put( name+SUFFIX_Y, new SchemaField( name+SUFFIX_Y, pointType, p, null ) );
+        schema.getFields().put( name+PointQueryBuilder.SUFFIX_X, new SchemaField( name+PointQueryBuilder.SUFFIX_X, pointType, p, null ) );
+        schema.getFields().put( name+PointQueryBuilder.SUFFIX_Y, new SchemaField( name+PointQueryBuilder.SUFFIX_Y, pointType, p, null ) );
       }
     }
   }
@@ -92,14 +89,16 @@ public class PointField extends SpatialFieldType implements SchemaAware
       Point point = (Point)shape;
       int p = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
       Fieldable[] f = new Fieldable[field.stored()?3:2];
-      f[0] = pointType.createField( new SchemaField( field.getName()+SUFFIX_X, pointType, p, null ), new Double( point.getX() ), boost);
-      f[1] = pointType.createField( new SchemaField( field.getName()+SUFFIX_Y, pointType, p, null ), new Double( point.getY() ), boost);
+      f[0] = pointType.createField( new SchemaField( field.getName()+PointQueryBuilder.SUFFIX_X, pointType, p, null ), new Double( point.getX() ), boost);
+      f[1] = pointType.createField( new SchemaField( field.getName()+PointQueryBuilder.SUFFIX_Y, pointType, p, null ), new Double( point.getY() ), boost);
       if( field.stored() ) {
         f[2] = new Field( field.getName(), reader.toString( shape ), Store.YES, Index.NO );
       }
       return f;
     }
-    // TODO?  optionally throw an error if it is not a shape?
+    if( !ignoreIncompatibleGeometry ) {
+      throw new IllegalArgumentException( "PointField does not support: "+shape );
+    }
     return null;
   }
 
@@ -111,14 +110,8 @@ public class PointField extends SpatialFieldType implements SchemaAware
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args )
   {
-    String fx = field.getName()+SUFFIX_X;
-    String fy = field.getName()+SUFFIX_Y;
-
-    // BBOX Query wrapped with the sort...
-    // TODO..
-
-
-    return new MatchAllDocsQuery();
+    PointQueryBuilder b = new PointQueryBuilder();
+    return b.makeQuery(field.getName(), args);
   }
 }
 

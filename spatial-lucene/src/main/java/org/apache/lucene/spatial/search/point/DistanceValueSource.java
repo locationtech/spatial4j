@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.bbox;
+package org.apache.lucene.spatial.search.point;
 
 import java.io.IOException;
 
@@ -27,17 +27,24 @@ import org.apache.lucene.search.cache.DoubleValuesCreator;
 import org.apache.lucene.search.cache.CachedArray.DoubleValues;
 import org.apache.lucene.search.function.DocValues;
 import org.apache.lucene.search.function.ValueSource;
-import org.apache.lucene.spatial.base.simple.Rectangle;
+import org.apache.lucene.spatial.base.Point;
+import org.apache.lucene.spatial.base.distance.DistanceCalculator;
+import org.apache.lucene.spatial.base.simple.Point2D;
 
 /**
  *
  * An implementation of the Lucene ValueSource model to support spatial relevance ranking.
  *
  */
-public class BBoxSimilarityValueSource extends ValueSource
+public class DistanceValueSource extends ValueSource
 {
-  private final BBoxFieldInfo field;
-  private final BBoxSimilarity similarity;
+  private final String[] fields;
+  private final DistanceCalculator calculator;
+  private final Point from;
+
+  public double min = Double.MIN_VALUE;
+  public double max = Double.MAX_VALUE;
+
 
   /**
    * Constructor.
@@ -45,10 +52,11 @@ public class BBoxSimilarityValueSource extends ValueSource
    * @param queryPower the query power (scoring algorithm)
    * @param targetPower the target power (scoring algorithm)
    */
-  public BBoxSimilarityValueSource(BBoxSimilarity similarity, BBoxFieldInfo field)
+  public DistanceValueSource(Point from, DistanceCalculator calc, String[] fields)
   {
-    this.similarity = similarity;
-    this.field = field;
+    this.from = from;
+    this.fields = fields;
+    this.calculator = calc;
   }
 
   /**
@@ -57,8 +65,9 @@ public class BBoxSimilarityValueSource extends ValueSource
    */
   @Override
   public String description() {
-    return "SpatialRankingValueSource("+similarity+")";
+    return "DistanceValueSource("+calculator+")";
   }
+
 
 
   /**
@@ -71,23 +80,29 @@ public class BBoxSimilarityValueSource extends ValueSource
     IndexReader reader = context.reader;
     // How do we make sure to get the right entry creator?
     // Can we get it from solr?
-    final DoubleValues minX = FieldCache.DEFAULT.getDoubles( reader, field.minX, new DoubleValuesCreator( field.minX, null, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
-    final DoubleValues minY = FieldCache.DEFAULT.getDoubles( reader, field.minY, new DoubleValuesCreator( field.minY, null, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
-    final DoubleValues maxX = FieldCache.DEFAULT.getDoubles( reader, field.maxX, new DoubleValuesCreator( field.maxX, null, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
-    final DoubleValues maxY = FieldCache.DEFAULT.getDoubles( reader, field.maxY, new DoubleValuesCreator( field.maxY, null, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
+    final DoubleValues ptX = FieldCache.DEFAULT.getDoubles( reader, fields[0], new DoubleValuesCreator( fields[0], null, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
+    final DoubleValues ptY = FieldCache.DEFAULT.getDoubles( reader, fields[1], new DoubleValuesCreator( fields[1], null, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
 
     return new DocValues() {
       @Override
       public float floatVal(int doc) {
+        return (float)doubleVal(doc);
+      }
+
+      @Override
+      public double doubleVal(int doc) {
         // make sure it has minX and area
-        if( minX.valid.get( doc ) && maxX.valid.get( doc ) ) {
-          Rectangle rect = new Rectangle(
-              minX.values[doc],maxX.values[doc],
-              minY.values[doc],maxY.values[doc]);
-          return (float) similarity.score( rect );
+        if( ptX.valid.get( doc ) && ptY.valid.get( doc ) ) {
+          Point2D pt = new Point2D( ptX.values[doc],  ptY.values[doc] );
+          double v = calculator.calculate(from, pt);
+          if( v > max || v < min )
+            return 0;
+
+          return v;
         }
         return 0;
       }
+
       @Override
       public String toString(int doc) {
         return description()+"="+floatVal(doc);
@@ -102,15 +117,15 @@ public class BBoxSimilarityValueSource extends ValueSource
    */
   @Override
   public boolean equals(Object o) {
-    if (o.getClass() !=  BBoxSimilarityValueSource.class)
+    if (o.getClass() !=  DistanceValueSource.class)
       return false;
 
-    BBoxSimilarityValueSource other = (BBoxSimilarityValueSource)o;
-    return similarity.equals( other.similarity );
+    DistanceValueSource other = (DistanceValueSource)o;
+    return calculator.equals( other.calculator );
   }
 
   @Override
   public int hashCode() {
-    return BBoxSimilarityValueSource.class.hashCode()+similarity.hashCode();
+    return DistanceValueSource.class.hashCode()+calculator.hashCode();
   }
 }

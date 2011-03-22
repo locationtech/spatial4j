@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.grid;
+package org.apache.lucene.spatial.search.grid;
 /**
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
