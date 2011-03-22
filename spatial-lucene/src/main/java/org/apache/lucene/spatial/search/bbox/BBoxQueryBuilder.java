@@ -1,3 +1,20 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.lucene.spatial.search.bbox;
 
 import org.apache.lucene.index.Term;
@@ -8,48 +25,49 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.BBox;
-import org.apache.lucene.spatial.base.SpatialOperation;
+import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 import org.apache.lucene.util.NumericUtils;
 
 /**
  *
- * came from:
+ * original:
  *  http://geoportal.svn.sourceforge.net/svnroot/geoportal/Geoportal/trunk/src/com/esri/gpt/catalog/lucene/SpatialClauseAdapter.java
  *
  */
 public class BBoxQueryBuilder extends SpatialQueryBuilder
 {
   public BBoxFieldInfo fields;
-  public BBox queryExtent;
 
   public double queryPower = 1.0;
   public double targetPower = 1.0f;
 
 
   @Override
-  public ValueSource makeValueSource(SpatialOperation op)
+  public ValueSource makeValueSource(SpatialArgs args)
   {
     return new BBoxSimilarityValueSource(
-        new AreaSimilarity( queryExtent, queryPower,targetPower ), fields );
+        new AreaSimilarity( args.shape.getBoundingBox(), queryPower,targetPower ), fields );
   }
 
   @Override
-  public Query getQuery(SpatialOperation op)
+  public Query getQuery(SpatialArgs args)
   {
-    switch( op )
+    BBox bbox = args.shape.getBoundingBox();
+
+    switch( args.op )
     {
-    case BBoxIntersects: return makeIntersects();
-    case BBoxWithin: return makeWithin();
-    case Contains: return makeContains();
-    case Intersects: return makeIntersects();
-    case IsEqualTo: return makeEquals();
-    case IsDisjointTo: return makeDisjoint();
-    case IsWithin: return makeWithin();
-    case Overlaps: return makeIntersects();
+    case BBoxIntersects: return makeIntersects(bbox);
+    case BBoxWithin: return makeWithin(bbox);
+    case Contains: return makeContains(bbox);
+    case Intersects: return makeIntersects(bbox);
+    case IsEqualTo: return makeEquals(bbox);
+    case IsDisjointTo: return makeDisjoint(bbox);
+    case IsWithin: return makeWithin(bbox);
+    case Overlaps: return makeIntersects(bbox);
     }
 
-    throw new UnsupportedOperationException( op.name() );
+    throw new UnsupportedOperationException( args.op.name() );
   }
 
   //-------------------------------------------------------------------------------
@@ -60,7 +78,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * Constructs a query to retrieve documents that fully contain the input envelope.
    * @return the spatial query
    */
-  private Query makeContains()
+  private Query makeContains(BBox queryExtent)
   {
     /*
     // the original contains query does not work for envelopes that cross the date line
@@ -138,7 +156,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * Constructs a query to retrieve documents that are disjoint to the input envelope.
    * @return the spatial query
    */
-  private Query makeDisjoint() {
+  private Query makeDisjoint(BBox queryExtent) {
 
     /*
     // the original disjoint query does not work for envelopes that cross the date line
@@ -221,7 +239,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * Constructs a query to retrieve documents that equal the input envelope.
    * @return the spatial query
    */
-  private Query makeEquals() {
+  private Query makeEquals(BBox queryExtent) {
 
     // docMinX = queryExtent.getMinX() AND docMinY = queryExtent.getMinY() AND docMaxX = queryExtent.getMaxX() AND docMaxY = queryExtent.getMaxY()
     Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMinX(),queryExtent.getMinX(),true,true);
@@ -240,7 +258,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * Constructs a query to retrieve documents that intersect the input envelope.
    * @return the spatial query
    */
-  private Query makeIntersects() {
+  private Query makeIntersects(BBox queryExtent) {
 
     // the original intersects query does not work for envelopes that cross the date line,
     // switch to a NOT Disjoint query
@@ -249,7 +267,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
     // to get round it we add all documents as a SHOULD
 
     // there must be an envelope, it must not be disjoint
-    Query qDisjoint = makeDisjoint();
+    Query qDisjoint = makeDisjoint(queryExtent);
     Query qIsNonXDL = this.makeXDL(false);
     Query qIsXDL = this.makeXDL(true);
     Query qHasEnv = this.makeQuery(new Query[]{qIsNonXDL,qIsXDL},BooleanClause.Occur.SHOULD);
@@ -282,7 +300,7 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * Constructs a query to retrieve documents are fully within the input envelope.
    * @return the spatial query
    */
-  private Query makeWithin() {
+  private Query makeWithin(BBox queryExtent) {
 
     /*
     // the original within query does not work for envelopes that cross the date line

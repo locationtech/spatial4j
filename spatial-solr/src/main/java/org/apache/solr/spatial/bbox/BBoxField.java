@@ -41,20 +41,9 @@ import org.apache.solr.spatial.SpatialFieldType;
 /**
  * Syntax for the field input:
  *
- * (1) QuadTokens: List of the fields it exists in:
- *    [ABA* CAA* AAAAAB-]
- *
  */
 public class BBoxField extends SpatialFieldType implements SchemaAware
 {
-  // This is copied from Field type since they are private
-  final static int INDEXED             = 0x00000001;
-  final static int TOKENIZED           = 0x00000002;
-  final static int STORED              = 0x00000004;
-  final static int BINARY              = 0x00000008;
-  final static int OMIT_NORMS          = 0x00000010;
-  final static int OMIT_TF_POSITIONS   = 0x00000020;
-
   protected String doubleFieldName = "double";
   protected String booleanFieldName = "boolean";
 
@@ -136,11 +125,10 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
     BBoxQueryBuilder builder = new BBoxQueryBuilder();
     builder.fields = new BBoxFieldInfo();
     builder.fields.setFieldsPrefix( field.getName() );
-    builder.queryExtent = args.shape.getBoundingBox();
 
-    Query query = builder.getQuery(args.op);
+    Query query = builder.getQuery(args);
     if( args.calculateScore ) {
-      Query spatialRankingQuery = new ValueSourceQuery( builder.makeValueSource( args.op ) );
+      Query spatialRankingQuery = new ValueSourceQuery( builder.makeValueSource( args ) );
       BooleanQuery bq = new BooleanQuery();
       bq.add(query,BooleanClause.Occur.MUST);
       bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
