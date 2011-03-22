@@ -31,9 +31,6 @@ public enum SpatialOperation
   IsWithin( true, false, true ),
   Overlaps( true, false, true ),
 
-  // Point/Radius
-  WithinDistance( true, false, false ),
-
   // Fuzzy Shape matching
   SimilarTo( true, false, false ),
   ;
