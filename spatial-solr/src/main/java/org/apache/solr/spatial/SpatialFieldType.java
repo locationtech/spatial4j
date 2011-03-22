@@ -20,6 +20,14 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class SpatialFieldType extends FieldType
 {
+  // This is copied from Field type since they are private
+  protected final static int INDEXED             = 0x00000001;
+  protected final static int TOKENIZED           = 0x00000002;
+  protected final static int STORED              = 0x00000004;
+  protected final static int BINARY              = 0x00000008;
+  protected final static int OMIT_NORMS          = 0x00000010;
+  protected final static int OMIT_TF_POSITIONS   = 0x00000020;
+
   static final Logger log = LoggerFactory.getLogger( SpatialFieldType.class );
   protected ShapeIO reader;
 

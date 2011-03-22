@@ -56,12 +56,11 @@ public class SpatialIndexField extends SpatialFieldType
     if( bbox.getCrossesDateLine() ) {
       throw new RuntimeException( this.getClass() + " does not support BBox crossing the date line" );
     }
-    String v = reader.writeBBox( bbox );
+    String v = reader.toString( bbox );
     return createField(field.getName(), v, getFieldStore(field, v),
             getFieldIndex(field, v), getFieldTermVec(field, v), field.omitNorms(),
             field.omitTf(), boost);
   }
-
 
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)

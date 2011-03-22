@@ -16,24 +16,33 @@ package org.apache.solr.spatial.geo;
  * limitations under the License.
  */
 
+import java.io.IOException;
 import java.util.Map;
 
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
+import org.apache.lucene.spatial.search.geo.GeometryOperationFilter;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
 import org.apache.solr.spatial.SpatialFieldType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
+ * Indexed field is WKB (can we store WKT??)
  */
 public class GeometryField extends SpatialFieldType
 {
+  static final Logger log = LoggerFactory.getLogger( GeometryField.class );
+
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
@@ -43,19 +52,26 @@ public class GeometryField extends SpatialFieldType
   @Override
   public Fieldable createField(SchemaField field, Shape shape, float boost)
   {
-    String v = reader.toString( shape );
-    return createField(field.getName(), v, getFieldStore(field, v),
-            getFieldIndex(field, v), getFieldTermVec(field, v), field.omitNorms(),
-            field.omitTf(), boost);
-  }
+    if (!field.stored()) {
+      log.trace("Ignoring unstored binary field: " + field);
+      return null;
+    }
 
+    try {
+      byte[] bytes = reader.toBytes( shape );
+      Field f = new Field(field.getName(), bytes, 0, bytes.length);
+      f.setBoost(boost);
+      return f;
+    }
+    catch( IOException ex ) {
+      throw new RuntimeException("bad shape", ex);
+    }
+  }
 
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
-    if( args.shape.getBoundingBox().getCrossesDateLine() ) {
-      throw new UnsupportedOperationException( "Spatial Index does not (yet) support queries that cross the date line" );
-    }
-    return new MatchAllDocsQuery();
+    GeometryOperationFilter filter = new GeometryOperationFilter( field.getName(), args, reader );
+    return new FilteredQuery( new MatchAllDocsQuery(), filter );
   }
 }

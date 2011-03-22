@@ -5,6 +5,9 @@ import org.apache.lucene.spatial.base.Point;
 import org.apache.lucene.spatial.base.Radius;
 import org.apache.lucene.spatial.base.Shape;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.util.GeometricShapeFactory;
+
 
 public class JtsRadius2D implements Radius
 {
@@ -42,10 +45,18 @@ public class JtsRadius2D implements Radius
     return radius > 0;
   }
 
+  private JtsGeometry circle = null;
+
   @Override
   public IntersectCase intersect(Shape other, Object context)
   {
-    // TODO... something better!
-    return getBoundingBox().intersect(other, context);
+    if( circle == null ) {
+      GeometricShapeFactory gsf = new GeometricShapeFactory();
+      gsf.setSize(radius/2.0);
+      gsf.setNumPoints(100);
+      gsf.setBase(new Coordinate(point.getX(),point.getY()));
+      circle = new JtsGeometry( gsf.createCircle() );
+    }
+    return circle.intersect(other, context);
   }
 }

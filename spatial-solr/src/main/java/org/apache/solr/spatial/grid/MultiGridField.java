@@ -47,14 +47,6 @@ import org.apache.solr.spatial.SpatialFieldType;
  */
 public class MultiGridField extends SpatialFieldType implements SchemaAware
 {
-  // This is copied from Field type since they are private
-  final static int INDEXED             = 0x00000001;
-  final static int TOKENIZED           = 0x00000002;
-  final static int STORED              = 0x00000004;
-  final static int BINARY              = 0x00000008;
-  final static int OMIT_NORMS          = 0x00000010;
-  final static int OMIT_TF_POSITIONS   = 0x00000020;
-
   protected JtsLinearSpatialGrid grid;
 
   // Optionally copy a subset with maximum length

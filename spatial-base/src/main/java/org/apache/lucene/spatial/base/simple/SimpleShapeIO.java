@@ -1,5 +1,6 @@
 package org.apache.lucene.spatial.base.simple;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -32,24 +33,6 @@ public class SimpleShapeIO implements ShapeIO
     return new Point2D(p0, p1 );
   }
 
-
-  @Override
-  public BBox readBBox(String value) throws InvalidShapeException {
-    throw new UnsupportedOperationException("not implemented yet");
-  }
-
-  @Override
-  public BBox readBBox(byte[] bytes, int offset, int length) throws InvalidShapeException
-  {
-    throw new UnsupportedOperationException("not implemented yet");
-  }
-
-  @Override
-  public byte[] toBytes(Shape shape) {
-    throw new UnsupportedOperationException("not implemented yet");
-  }
-
-  @Override
   public String writeBBox(BBox bbox)
   {
     NumberFormat nf = NumberFormat.getInstance( Locale.US );
@@ -78,5 +61,16 @@ public class SimpleShapeIO implements ShapeIO
       writeBBox( (BBox)shape );
     }
     return shape.toString();
+  }
+
+  @Override
+  public Shape readShape(byte[] bytes, int offset, int length)
+      throws InvalidShapeException {
+    throw new UnsupportedOperationException("not implemented yet");
+  }
+
+  @Override
+  public byte[] toBytes(Shape shape) throws IOException {
+    throw new UnsupportedOperationException("not implemented yet");
   }
 }
