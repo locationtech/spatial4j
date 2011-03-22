@@ -47,6 +47,23 @@ public class JTSShapeIO implements ShapeIO
       return new JtsPoint2D( factory.createPoint(new Coordinate(p0, p1)) );
     }
 
+    if( str.startsWith( "RADIUS(" ) ) {
+      try {
+        int idx = str.indexOf( '(' );
+        int edx = str.lastIndexOf( ')' );
+        StringTokenizer st = new StringTokenizer( str.substring(idx+1,edx), " " );
+        double p0 = Double.parseDouble( st.nextToken() );
+        double p1 = Double.parseDouble( st.nextToken() );
+        double rr = Double.parseDouble( st.nextToken() );
+        Point p = factory.createPoint( new Coordinate( p0, p1 ) );
+        return new JtsRadius2D( new JtsPoint2D(p), rr );
+      }
+      catch( Exception ex ) {
+        throw new InvalidShapeException( "invalid radius: "+str, ex );
+      }
+    }
+
+
     WKTReader reader = new WKTReader(factory);
     try {
       Geometry geo = reader.read( str );

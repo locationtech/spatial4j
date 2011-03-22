@@ -25,10 +25,8 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.GeometryArgs;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
-import org.apache.lucene.spatial.base.WithinDistanceArgs;
 import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.grid.SpatialGridQuery;
@@ -90,14 +88,9 @@ public class SpatialGridField extends SpatialFieldType
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args )
   {
-    if( args instanceof WithinDistanceArgs ) {
-      throw new UnsupportedOperationException( "distance calculation is not yet supported" );
-    }
-    GeometryArgs g = (GeometryArgs)args;
-
     // assume 'mostly within' query
     try {
-      List<CharSequence> match = grid.readCells(g.shape);
+      List<CharSequence> match = grid.readCells(args.shape);
 
       // TODO -- could optimize to use the right resolutions
       BooleanQuery query = new BooleanQuery( true );

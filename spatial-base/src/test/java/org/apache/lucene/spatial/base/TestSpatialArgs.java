@@ -14,7 +14,7 @@ public class TestSpatialArgs extends TestCase
   public void checkSimpleArgs( ShapeIO reader) throws Exception
   {
     String arg = SpatialOperation.IsWithin+"(-10 -20 10 20) cache=true score=false";
-    GeometryArgs out = (GeometryArgs)SpatialArgs.parse(arg, reader);
+    SpatialArgs out = SpatialArgs.parse(arg, reader);
     assertEquals( SpatialOperation.IsWithin, out.op );
     assertTrue( out.cacheable );
     assertFalse( out.calculateScore );
@@ -24,7 +24,7 @@ public class TestSpatialArgs extends TestCase
 
     // Disjoint should not be scored
     arg = SpatialOperation.IsDisjointTo+" (-10 10 -20 20) score=true";
-    out = (GeometryArgs)SpatialArgs.parse(arg, reader);
+    out = SpatialArgs.parse(arg, reader);
     assertEquals( SpatialOperation.IsDisjointTo, out.op );
     assertFalse( out.calculateScore );
 

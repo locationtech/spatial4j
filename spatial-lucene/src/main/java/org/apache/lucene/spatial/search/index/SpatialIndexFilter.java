@@ -7,7 +7,7 @@ import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.spatial.base.BBox;
-import org.apache.lucene.spatial.base.GeometryArgs;
+import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.SpatialOperation;
 import org.apache.lucene.spatial.base.jts.JtsEnvelope;
 import org.apache.lucene.util.DocIdBitSet;
@@ -29,7 +29,7 @@ public class SpatialIndexFilter extends Filter
   final Geometry shape;
   final SpatialOperation op;
 
-  public SpatialIndexFilter( SpatialIndexProvider sidx, GeometryArgs args )
+  public SpatialIndexFilter( SpatialIndexProvider sidx, SpatialArgs args )
   {
     this.provider = sidx;
     this.op = args.op;

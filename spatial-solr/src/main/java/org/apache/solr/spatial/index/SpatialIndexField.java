@@ -24,10 +24,8 @@ import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.BBox;
-import org.apache.lucene.spatial.base.GeometryArgs;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
-import org.apache.lucene.spatial.base.WithinDistanceArgs;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.index.STRTreeIndexProvider;
 import org.apache.lucene.spatial.search.index.SpatialIndexFilter;
@@ -68,11 +66,7 @@ public class SpatialIndexField extends SpatialFieldType
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
-    if( args instanceof WithinDistanceArgs ) {
-      throw new UnsupportedOperationException( "distance calculation is not yet supported" );
-    }
-    GeometryArgs g = (GeometryArgs)args;
-    if( g.shape.getBoundingBox().getCrossesDateLine() ) {
+    if( args.shape.getBoundingBox().getCrossesDateLine() ) {
       throw new UnsupportedOperationException( "Spatial Index does not (yet) support queries that cross the date line" );
     }
 
@@ -83,7 +77,7 @@ public class SpatialIndexField extends SpatialFieldType
     }
 
     // just a filter wrapper for now...
-    SpatialIndexFilter filter = new SpatialIndexFilter( p, g );
+    SpatialIndexFilter filter = new SpatialIndexFilter( p, args );
     return new FilteredQuery( new MatchAllDocsQuery(), filter );
   }
 }

@@ -25,10 +25,8 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.BBox;
-import org.apache.lucene.spatial.base.GeometryArgs;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
-import org.apache.lucene.spatial.base.WithinDistanceArgs;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.bbox.BBoxFieldInfo;
 import org.apache.lucene.spatial.search.bbox.BBoxQueryBuilder;
@@ -138,13 +136,7 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
     BBoxQueryBuilder builder = new BBoxQueryBuilder();
     builder.fields = new BBoxFieldInfo();
     builder.fields.setFieldsPrefix( field.getName() );
-
-    if( args instanceof WithinDistanceArgs ) {
-      throw new UnsupportedOperationException( "not supported yet: "+args.op );
-    }
-    else if( args instanceof GeometryArgs ) {
-      builder.queryExtent = ((GeometryArgs)args).shape.getBoundingBox();
-    }
+    builder.queryExtent = args.shape.getBoundingBox();
 
     Query query = builder.getQuery(args.op);
     if( args.calculateScore ) {

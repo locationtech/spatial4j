@@ -1,15 +1,16 @@
 package org.apache.lucene.spatial.base;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 
-public abstract class SpatialArgs
+public class SpatialArgs
 {
   public final SpatialOperation op;
+  public Shape shape;
   public boolean cacheable = true;
   public boolean calculateScore = true;
 
@@ -17,18 +18,18 @@ public abstract class SpatialArgs
     this.op = op;
   }
 
-  public abstract void read(  String v, ShapeIO reader ) throws IOException;
-
   /**
    * Check if the arguments make sense -- throw an exception if not
    */
   public void validate() throws InvalidSpatialArgument
   {
-    // OK by default
+    if( op.targetNeedsArea && !shape.hasArea() ) {
+      throw new InvalidSpatialArgument( op.name() + " only supports geometry with area" );
+    }
   }
 
 
-  public static SpatialArgs parse( String v, ShapeIO reader ) throws InvalidSpatialArgument
+  public static SpatialArgs parse( String v, ShapeIO reader ) throws InvalidSpatialArgument, InvalidShapeException
   {
     int idx = v.indexOf( '(' );
     int edx = v.indexOf( ')' );
@@ -43,23 +44,13 @@ public abstract class SpatialArgs
     catch( Exception ex ) {
       throw new InvalidSpatialArgument( "Unknown Operation: "+v.substring(0, idx), ex );
     }
-    SpatialArgs args = null;
-    if( op == SpatialOperation.WithinDistance ) {
-      args = new WithinDistanceArgs();
-    }
-    else {
-      args = new GeometryArgs( op );
-    }
+    SpatialArgs args = new SpatialArgs( op );
     String body = v.substring( idx+1, edx ).trim();
     if( body.length() < 1 ) {
       throw new InvalidSpatialArgument( "missing body : "+v, null );
     }
-    try {
-      args.read(body, reader);
-    }
-    catch (IOException e) {
-      throw new InvalidSpatialArgument( "Unable read: "+body, e );
-    }
+    args.shape = reader.readShape( v );
+
     if( v.length() > (edx+1) ) {
       body = v.substring( edx+1 ).trim();
       if( body.length() > 0 ) {

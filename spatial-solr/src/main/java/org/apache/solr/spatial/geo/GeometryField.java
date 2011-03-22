@@ -21,10 +21,8 @@ import java.util.Map;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.GeometryArgs;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
-import org.apache.lucene.spatial.base.WithinDistanceArgs;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
@@ -55,14 +53,9 @@ public class GeometryField extends SpatialFieldType
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
-    if( args instanceof WithinDistanceArgs ) {
-      throw new UnsupportedOperationException( "distance calculation is not yet supported" );
-    }
-    GeometryArgs g = (GeometryArgs)args;
-    if( g.shape.getBoundingBox().getCrossesDateLine() ) {
+    if( args.shape.getBoundingBox().getCrossesDateLine() ) {
       throw new UnsupportedOperationException( "Spatial Index does not (yet) support queries that cross the date line" );
     }
-
     return new MatchAllDocsQuery();
   }
 }
