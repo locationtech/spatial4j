@@ -62,20 +62,32 @@ public class JTSShapeIO implements ShapeIO
 
   @Override
   public BBox readBBox(String value) throws InvalidShapeException {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException("not implemented yet");
   }
 
   @Override
-  public BBox readBBox(byte[] bytes, int offset, int length)
-      throws InvalidShapeException {
-    // TODO Auto-generated method stub
-    return null;
+  public BBox readBBox(byte[] bytes, int offset, int length) throws InvalidShapeException
+  {
+    throw new UnsupportedOperationException("not implemented yet");
   }
 
   @Override
   public byte[] toBytes(Shape shape) {
-    return new byte[10];
+    throw new UnsupportedOperationException("not implemented yet");
+  }
+
+  @Override
+  public String writeBBox(BBox bbox)
+  {
+    NumberFormat nf = NumberFormat.getInstance( Locale.US );
+    nf.setGroupingUsed( false );
+    nf.setMaximumFractionDigits( 6 );
+    nf.setMinimumFractionDigits( 6 );
+    return
+      nf.format( bbox.getMinX() ) + " " +
+      nf.format( bbox.getMinY() ) + " " +
+      nf.format( bbox.getMaxX() ) + " " +
+      nf.format( bbox.getMaxY() );
   }
 
   @Override
@@ -90,12 +102,7 @@ public class JTSShapeIO implements ShapeIO
       return nf.format( point.getX() ) + " " + nf.format( point.getY() );
     }
     else if( shape instanceof BBox ) {
-      NumberFormat nf = NumberFormat.getInstance( Locale.US );
-      nf.setGroupingUsed( false );
-      nf.setMaximumFractionDigits( 6 );
-      nf.setMinimumFractionDigits( 6 );
-      org.apache.lucene.spatial.base.Point point = (org.apache.lucene.spatial.base.Point)shape;
-      return nf.format( point.getX() ) + " " + nf.format( point.getY() );
+      writeBBox( (BBox)shape );
     }
     else if( shape instanceof JtsGeometry ) {
       JtsGeometry geo = (JtsGeometry)shape;

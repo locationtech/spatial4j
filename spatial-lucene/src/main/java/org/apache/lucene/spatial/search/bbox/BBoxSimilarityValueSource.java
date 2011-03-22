@@ -19,13 +19,12 @@ import java.io.IOException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.search.cache.EntryCreator;
+import org.apache.lucene.search.cache.CachedArrayCreator;
+import org.apache.lucene.search.cache.DoubleValuesCreator;
 import org.apache.lucene.search.cache.CachedArray.DoubleValues;
 import org.apache.lucene.search.function.DocValues;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.simple.Rectangle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -35,9 +34,6 @@ import org.slf4j.LoggerFactory;
 public class BBoxSimilarityValueSource extends ValueSource
 {
   private static final int HCODE = BBoxSimilarityValueSource.class.hashCode();
-
-  /** The Logger. */
-  private static Logger log = LoggerFactory.getLogger(BBoxSimilarityValueSource.class);
 
   private final BBoxFieldInfo field;
   private final BBoxSimilarity similarity;
@@ -74,11 +70,11 @@ public class BBoxSimilarityValueSource extends ValueSource
   public DocValues getValues(AtomicReaderContext context) throws IOException {
     IndexReader reader = context.reader;
     // How do we make sure to get the right entry creator?
-    // what will solr do?
-    final DoubleValues minX = FieldCache.DEFAULT.getDoubles( reader, field.minX, (EntryCreator<DoubleValues>)null );
-    final DoubleValues minY = FieldCache.DEFAULT.getDoubles( reader, field.minY, (EntryCreator<DoubleValues>)null );
-    final DoubleValues maxX = FieldCache.DEFAULT.getDoubles( reader, field.maxX, (EntryCreator<DoubleValues>)null );
-    final DoubleValues maxY = FieldCache.DEFAULT.getDoubles( reader, field.maxY, (EntryCreator<DoubleValues>)null );
+    // Can we get it from solr?
+    final DoubleValues minX = FieldCache.DEFAULT.getDoubles( reader, field.minX, new DoubleValuesCreator( field.minX, null, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
+    final DoubleValues minY = FieldCache.DEFAULT.getDoubles( reader, field.minY, new DoubleValuesCreator( field.minY, null, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
+    final DoubleValues maxX = FieldCache.DEFAULT.getDoubles( reader, field.maxX, new DoubleValuesCreator( field.maxX, null, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
+    final DoubleValues maxY = FieldCache.DEFAULT.getDoubles( reader, field.maxY, new DoubleValuesCreator( field.maxY, null, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
 
     return new DocValues() {
       @Override

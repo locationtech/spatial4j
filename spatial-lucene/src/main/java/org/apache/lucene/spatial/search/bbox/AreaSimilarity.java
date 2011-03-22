@@ -143,7 +143,7 @@ public class AreaSimilarity implements BBoxSimilarity
       double targetFactor = Math.pow(targetRatio,targetPower);
       score = queryFactor * targetFactor * 10000.0;
 
-      if ( log.isTraceEnabled() ) {
+      if ( log.isInfoEnabled() ) {
         StringBuffer sb = new StringBuffer();
         sb.append("\nscore="+score);
         sb.append("\n  query="+queryExtent.toString() );
@@ -153,7 +153,7 @@ public class AreaSimilarity implements BBoxSimilarity
         sb.append("\n  queryRatio="+queryRatio+" targetRatio="+targetRatio);
         sb.append("\n  queryFactor="+queryFactor+" targetFactor="+targetFactor);
         sb.append(" (queryPower="+queryPower+" targetPower="+targetPower+")");
-        log.trace( sb.toString() );
+        log.info( sb.toString() );
       }
     }
     return score;

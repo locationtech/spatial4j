@@ -378,7 +378,8 @@ public class BBoxQueryBuilder extends SpatialQueryBuilder
    * @return the query
    */
   private Query makeXDL(boolean crossedDateLine) {
-    return new TermQuery(new Term(fields.xdl,""+crossedDateLine));
+    // The 'T' and 'F' values match solr fields
+    return new TermQuery(new Term(fields.xdl,crossedDateLine?"T":"F"));
   }
 
   /**

@@ -30,8 +30,8 @@ public abstract class SpatialArgs
 
   public static SpatialArgs parse( String v, ShapeIO reader ) throws InvalidSpatialArgument
   {
-    int idx = v.indexOf( '[' );
-    int edx = v.indexOf( ']' );
+    int idx = v.indexOf( '(' );
+    int edx = v.indexOf( ')' );
     if( idx < 0 || idx > edx ) {
       throw new InvalidSpatialArgument( "missing parens: "+v, null );
     }

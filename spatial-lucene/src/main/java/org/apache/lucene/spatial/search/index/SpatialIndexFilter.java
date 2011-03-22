@@ -41,10 +41,7 @@ public class SpatialIndexFilter extends Filter
     else {
       this.bounds = new Envelope(bbox.getMinX(), bbox.getMaxX(), bbox.getMinY(), bbox.getMaxY() );
     }
-
     this.shape = null;
-//    op.
-
   }
 
   @Override

@@ -16,9 +16,8 @@ package org.apache.solr.spatial.index;
  * limitations under the License.
  */
 
-import java.text.NumberFormat;
-import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.FilteredQuery;
@@ -43,16 +42,13 @@ import org.apache.solr.spatial.SpatialFieldType;
  */
 public class SpatialIndexField extends SpatialFieldType
 {
-  SpatialIndexProvider provider = null;
+  final Map<String, SpatialIndexProvider> provider
+    = new ConcurrentHashMap<String, SpatialIndexProvider>();
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-
-    String v = args.remove( "doubleType" );
-
     reader = new JTSShapeIO();
-    provider = new STRTreeIndexProvider(10, "xxx", reader);
   }
 
   @Override
@@ -62,20 +58,7 @@ public class SpatialIndexField extends SpatialFieldType
     if( bbox.getCrossesDateLine() ) {
       throw new RuntimeException( this.getClass() + " does not support BBox crossing the date line" );
     }
-
-    // within a single thread
-    NumberFormat nf = NumberFormat.getInstance(Locale.US);
-    nf.setMaximumFractionDigits(2);
-    nf.setMaximumFractionDigits(2);
-    nf.setMaximumIntegerDigits(3);
-    nf.setMinimumIntegerDigits(3);
-
-    String v =
-      nf.format( bbox.getMinX() ) + " " +
-      nf.format( bbox.getMaxX() ) + " " +
-      nf.format( bbox.getMinY() ) + " " +
-      nf.format( bbox.getMaxY() );
-
+    String v = reader.writeBBox( bbox );
     return createField(field.getName(), v, getFieldStore(field, v),
             getFieldIndex(field, v), getFieldTermVec(field, v), field.omitNorms(),
             field.omitTf(), boost);
@@ -93,8 +76,14 @@ public class SpatialIndexField extends SpatialFieldType
       throw new UnsupportedOperationException( "Spatial Index does not (yet) support queries that cross the date line" );
     }
 
+    SpatialIndexProvider p = provider.get( field.getName() );
+    if( p == null ) {
+      p = new STRTreeIndexProvider( 30, field.getName(), reader );
+      provider.put( field.getName(), p );
+    }
+
     // just a filter wrapper for now...
-    SpatialIndexFilter filter = new SpatialIndexFilter(provider, g );
+    SpatialIndexFilter filter = new SpatialIndexFilter( p, g );
     return new FilteredQuery( new MatchAllDocsQuery(), filter );
   }
 }

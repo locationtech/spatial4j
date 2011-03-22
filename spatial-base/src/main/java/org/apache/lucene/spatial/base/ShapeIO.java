@@ -29,6 +29,8 @@ public interface ShapeIO
 
   public BBox readBBox( byte[] bytes, int offset, int length ) throws InvalidShapeException;
 
+  public String writeBBox( BBox bbox );
+
   public String toString( Shape shape );
 
   public byte[] toBytes( Shape shape );
