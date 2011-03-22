@@ -54,16 +54,12 @@
     </fieldType>
 
 
-    <!-- Quadtree, resolutions are optionally copied to different fields -->
+    <!-- Geometry Fields -->
     <fieldtype name="geo"   class="org.apache.solr.spatial.geo.GeometryField" />
     <fieldtype name="grid"  class="org.apache.solr.spatial.grid.SpatialGridField" />
     <fieldtype name="bbox"  class="org.apache.solr.spatial.bbox.BBoxField" />
     <fieldtype name="rtree" class="org.apache.solr.spatial.index.SpatialIndexField" />
-
-    <!-- Existing Spatial Search options -->
-    <fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
-    <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
-    <fieldtype name="geohash" class="solr.GeoHashField"/>
+    <fieldtype name="point" class="org.apache.solr.spatial.point.PointField" />
 
  </types>
 
@@ -77,6 +73,7 @@
    <field name="grid"  type="grid"   indexed="true" stored="true"  multiValued="false" />
    <field name="bbox"  type="bbox"   indexed="true" stored="true"  multiValued="false" />
    <field name="rtree" type="rtree"  indexed="true" stored="true"  multiValued="false" />
+   <field name="point" type="point"  indexed="true" stored="true"  multiValued="false" />
    
    <!-- country fields -->
    <field name="status"   type="string"  indexed="true" stored="true" />
@@ -105,6 +102,7 @@
  <copyField source="geo" dest="grid"/>
  <copyField source="geo" dest="bbox"/>
  <copyField source="geo" dest="rtree"/>
+ <copyField source="geo" dest="point"/>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>name</defaultSearchField>

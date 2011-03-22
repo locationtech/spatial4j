@@ -34,6 +34,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.InStream;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTReader;
 
@@ -148,7 +151,7 @@ public class JTSShapeIO implements ShapeIO
   }
 
   @Override
-  public Shape readShape(byte[] array, int offset, int length) throws InvalidShapeException
+  public Shape readShape(final byte[] array, final int offset, final int length) throws InvalidShapeException
   {
     ByteBuffer bytes = ByteBuffer.wrap(array, offset, length);
     byte type = bytes.get();
@@ -162,7 +165,29 @@ public class JTSShapeIO implements ShapeIO
           bytes.getDouble(),bytes.getDouble());
     }
     else if( type == TYPE_GEO ) {
+      WKBReader reader = new WKBReader(factory);
+      try {
+        return new JtsGeometry( reader.read( new InStream(){
+          int off = offset+1; // skip the type marker
 
+          @Override
+          public void read(byte[] buf) throws IOException {
+            if( off+buf.length > length ) {
+              throw new InvalidShapeException( "Asking for too many bytes" );
+            }
+            for( int i=0;i<buf.length; i++ ) {
+              buf[i] = array[off+i];
+            }
+            off += buf.length;
+          }
+        }));
+      }
+      catch( ParseException ex ) {
+        throw new InvalidShapeException( "error reading WKT", ex );
+      }
+      catch (IOException ex ) {
+        throw new InvalidShapeException( "error reading WKT", ex );
+      }
     }
     else if( type == TYPE_RADIUS ) {
       return new JtsRadius2D( new JtsPoint2D( factory.createPoint(

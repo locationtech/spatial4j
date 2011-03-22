@@ -32,6 +32,8 @@ package org.apache.solr.spatial.point;
  * limitations under the License.
  */
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.lucene.document.Field;
@@ -68,7 +70,8 @@ public class PointField extends SpatialFieldType implements SchemaAware
 
     //Just set these, delegate everything else to the field type
     int p = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
-    for( SchemaField sf : schema.getFields().values() ) {
+    List<SchemaField> fields = new ArrayList<SchemaField>( schema.getFields().values() );
+    for( SchemaField sf : fields ) {
       if( sf.getType() == this ) {
         String name = sf.getName();
         schema.getFields().put( name+PointQueryBuilder.SUFFIX_X, new SchemaField( name+PointQueryBuilder.SUFFIX_X, pointType, p, null ) );
