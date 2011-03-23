@@ -40,6 +40,7 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
+import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.geo.GeometryOperationFilter;
 import org.apache.lucene.spatial.search.geo.WellKnownGeoField;
@@ -50,12 +51,17 @@ import org.apache.solr.spatial.SpatialFieldType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKBWriter;
+import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 
 /**
- * Indexed field is WKB (can we store WKT??)
+ * Indexed field is WKB (store WKT)
+ *
+ * Maximum bytes for WKB is 3200, this will simplify geometry till there are fewer then 32K bytes
+ *
  */
 public class WellKnownGeoFieldType extends SpatialFieldType
 {
@@ -77,6 +83,27 @@ public class WellKnownGeoFieldType extends SpatialFieldType
     if( field.indexed() ) {
       WKBWriter writer = new WKBWriter();
       wkb = writer.write( geo );
+
+      if( wkb.length > 32000 ) {
+        long last = wkb.length;
+        Envelope env = geo.getEnvelopeInternal();
+        double mins = Math.min( env.getWidth(), env.getHeight() );
+        double div = 1000;
+        while( true ) {
+          double tolerance = mins/div;
+          log.info( "Simplifying long geometry: WKB.length="+wkb.length+ " tolerance="+tolerance );
+          Geometry simple = TopologyPreservingSimplifier.simplify( geo, tolerance );
+          wkb = writer.write( simple );
+          if( wkb.length < 32000 ) {
+            break;
+          }
+          if( wkb.length == last ) {
+            throw new InvalidShapeException( "Can not simplify geometry smaller then max. "+last );
+          }
+          last = wkb.length;
+          div *= .70;
+        }
+      }
     }
 
     WellKnownGeoField f = new WellKnownGeoField(field.getName(), wkb, wkt );

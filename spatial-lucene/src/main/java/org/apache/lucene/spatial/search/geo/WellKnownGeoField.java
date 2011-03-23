@@ -23,10 +23,18 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.AbstractField;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.TermVector;
+import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.StringHelper;
 
 
+/**
+ * This has an indexed WKB value.
+ *
+ * In the future, this should use Column Stride Fields rather then indexing
+ * the data.
+ *
+ */
 public final class WellKnownGeoField extends AbstractField implements Fieldable
 {
   private final String wkt;
@@ -47,6 +55,10 @@ public final class WellKnownGeoField extends AbstractField implements Fieldable
       bytes = null;
     }
     else {
+      if( wkb.length > 32000 ) {
+        throw new InvalidShapeException( "WKB must be less then 32K ["+wkb.length+"]" );
+      }
+
       bytes = new BytesRef();
       bytes.bytes = wkb;
       bytes.length = wkb.length;

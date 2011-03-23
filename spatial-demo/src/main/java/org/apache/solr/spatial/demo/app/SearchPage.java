@@ -31,6 +31,7 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -94,6 +95,9 @@ public class SearchPage extends WebPage
         target.addComponent( results );
       }
     });
+
+    searchForm.add( new CheckBox( "score" ) );
+    searchForm.add( new CheckBox( "cache" ) );
     add( searchForm );
 
     queryResponse = new LoadableDetachableModel<QueryResponse>() {

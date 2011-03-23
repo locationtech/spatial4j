@@ -1,7 +1,6 @@
 package org.apache.solr.spatial.demo.app;
 
 import java.io.Serializable;
-import java.text.NumberFormat;
 
 import org.apache.lucene.spatial.base.SpatialOperation;
 import org.apache.solr.client.solrj.SolrQuery;

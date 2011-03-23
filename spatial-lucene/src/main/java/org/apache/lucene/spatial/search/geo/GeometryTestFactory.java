@@ -36,7 +36,7 @@ public class GeometryTestFactory
     case IsWithin: return new IsWithinTester(geo);
     case Overlaps: return new OverlapsTester(geo);
     }
-    return null;
+    throw new UnsupportedOperationException( op.name() );
   }
 
   private abstract static class BaseTester implements GeometryTest {

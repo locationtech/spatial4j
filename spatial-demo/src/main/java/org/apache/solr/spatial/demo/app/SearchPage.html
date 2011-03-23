@@ -63,17 +63,17 @@
         map.addControl(new OpenLayers.Control.MousePosition());
 
         drawControls = {
-      //      point: new OpenLayers.Control.DrawFeature(featureLayer, 
-      //        OpenLayers.Handler.Point, {'featureAdded': addedPoint}),
+            point: new OpenLayers.Control.DrawFeature(featureLayer, 
+              OpenLayers.Handler.Point, {'featureAdded': addedPoint}),
             bbox: new OpenLayers.Control.DrawFeature(featureLayer,
               OpenLayers.Handler.RegularPolygon, {'featureAdded': addedBBox} ),
-            circle: new OpenLayers.Control.DrawFeature(featureLayer,
-              OpenLayers.Handler.RegularPolygon, {'featureAdded': addedCircle} ),
+//            circle: new OpenLayers.Control.DrawFeature(featureLayer,
+//              OpenLayers.Handler.RegularPolygon, {'featureAdded': addedCircle} ),
             polygon: new OpenLayers.Control.DrawFeature(featureLayer,
               OpenLayers.Handler.Polygon, {'featureAdded': addedPolygon} )
         };
         drawControls['bbox'].handler.setOptions({sides: 4, irregular:true});
-        drawControls['circle'].handler.setOptions({sides: 40});
+      //  drawControls['circle'].handler.setOptions({sides: 40});
 
         for(var key in drawControls) {
             map.addControl(drawControls[key]);
@@ -123,7 +123,6 @@
         <td>Field</td>
         <td>Operation</td>
         <td>Geometry</td>
-        <td>Extra</td>
       </tr>
 
       <tr>
@@ -143,8 +142,7 @@
             <option value="audi">...</option>
           </select>
         </td>
-        <td><input id="geo" type="text" style="width:200px;" wicket:id="geo"/></td>
-        <td><input type="text" style="width:100px;"/></td>
+        <td><input id="geo" type="text" style="width:330px;" wicket:id="geo"/></td>
         
         <td><input wicket:id="submit" type="submit" value="search"/></td>
       </tr>
@@ -162,25 +160,36 @@
                      onclick="toggleControl(this);" checked="checked" />
               <label for="noneToggle">navigate</label>
           </li>
-          <!--
           <li>
               <input type="radio" name="type" value="point" id="pointToggle" onclick="toggleControl(this);" />
               <label for="pointToggle">draw point</label>
           </li>
-          -->
           <li>
               <input type="radio" name="type" value="bbox" id="bboxToggle" onclick="toggleControl(this);" />
               <label for="bboxToggle">draw bbox</label>
           </li>
+          <!--
           <li>
               <input type="radio" name="type" value="circle" id="circleToggle" onclick="toggleControl(this);" />
               <label for="circleToggle">draw circle</label>
           </li>
+          -->
           <li>
               <input type="radio" name="type" value="polygon" id="polygonToggle" onclick="toggleControl(this);" />
               <label for="polygonToggle">draw polygon</label>
           </li>
         </ul>
+        
+        <br/>
+        <div>
+          <input wicket:id="score" type="checkbox" id="checkScore" />
+          <label for="checkScore">Score</label>
+        </div>
+        <div>
+          <input wicket:id="cache" type="checkbox" id="checkCache" />
+          <label for="checkCache">Cache</label>
+        </div>
+        
       </td>
       </tr>
       </table>

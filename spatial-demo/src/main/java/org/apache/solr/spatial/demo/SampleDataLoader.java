@@ -17,7 +17,7 @@ public class SampleDataLoader
   {
     File file = null;
     file = new File( "../data/ikonos_2011/ikonos_2011.shp" );
-    if( false && file.exists() ) {
+    if( file.exists() ) {
       GeoeyeReader.indexItems( solr, file );
       solr.commit( true, true );
     }
@@ -30,7 +30,7 @@ public class SampleDataLoader
 
     // Geonames
     file = new File( "../data/geonames/US.txt" );
-    if( false && file.exists() ) {
+    if( file.exists() ) {
       GeonamesReader reader = new GeonamesReader( file );
       while( reader.hasNext() ) {
         Geoname name = reader.next();
