@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.lucene.spatial.base.SpatialOperation;
 import org.apache.lucene.spatial.base.grid.LinearSpatialGrid;
 import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
@@ -77,6 +78,7 @@ public class SearchPage extends WebPage
   final IModel<Query> query = new Model<Query>( new Query() );
   final IModel<QueryResponse> queryResponse;
   final IModel<String> error = new Model<String>( null );
+  final IModel<Long> elapsed = new Model<Long>( null );
   final WebMarkupContainer results;
 
   public SearchPage(final PageParameters parameters)
@@ -105,9 +107,11 @@ public class SearchPage extends WebPage
     queryResponse = new LoadableDetachableModel<QueryResponse>() {
       @Override
       protected QueryResponse load() {
+        long now = System.currentTimeMillis();
+        QueryResponse rsp = null;
         error.setObject( null );
         try {
-          return solr.query( query.getObject().toSolrQuery( 100 ) );
+          rsp = solr.query( query.getObject().toSolrQuery( 100 ) );
         }
         catch (SolrServerException ex) {
           Throwable t = ex.getCause();
@@ -121,7 +125,8 @@ public class SearchPage extends WebPage
           log.warn( "unable to execute query", ex );
           error.setObject( toTraceString(ex) );
         }
-        return null;
+        elapsed.setObject( System.currentTimeMillis()-now );
+        return rsp;
       }
     };
 
@@ -180,11 +185,16 @@ public class SearchPage extends WebPage
       @Override
       public String getObject() {
         QueryResponse rsp = queryResponse.getObject();
+        String v = null;
         if( rsp == null ) {
-          return "unable to execute query";
+          v = "unable to execute query";
         }
-        SolrDocumentList docs = rsp.getResults();
-        return docs.getStart() + " - " + (docs.getStart()+docs.size()) + " of " + docs.getNumFound();
+        else {
+          SolrDocumentList docs = rsp.getResults();
+          v = docs.getStart() + " - " + (docs.getStart()+docs.size()) + " of " + docs.getNumFound();
+        }
+        v += " ["+DurationFormatUtils.formatDurationHMS(elapsed.getObject())+"]";
+        return v;
       }
     }));
     results.add( new WebMarkupContainer( "solr" ).add( new AttributeModifier( "href", true, new AbstractReadOnlyModel<CharSequence>() {
