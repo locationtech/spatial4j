@@ -31,6 +31,10 @@ public class SpatialArgs
   public boolean cacheable = true;
   public boolean calculateScore = true;
 
+  // Useful for 'distance' calculations
+  public Double min;
+  public Double max;
+
   public SpatialArgs( SpatialOperation op ) {
     this.op = op;
   }
@@ -74,6 +78,8 @@ public class SpatialArgs
         Map<String,String> aa = parseMap( body );
         args.cacheable = readBool( aa.remove("cache"), args.cacheable );
         args.calculateScore = readBool( aa.remove("score"), args.calculateScore );
+        args.min = readDouble( aa.remove("min"), null );
+        args.max = readDouble( aa.remove("max"), null );
         if( !aa.isEmpty() ) {
           throw new InvalidSpatialArgument( "unused parameters: "+aa, null );
         }
@@ -84,6 +90,14 @@ public class SpatialArgs
       args.calculateScore = false;
     }
     return args;
+  }
+
+  protected static Double readDouble( String v, Double defaultValue )
+  {
+    if( v == null ) {
+      return defaultValue;
+    }
+    return Double.valueOf( v );
   }
 
   protected static boolean readBool( String v, boolean defaultValue )

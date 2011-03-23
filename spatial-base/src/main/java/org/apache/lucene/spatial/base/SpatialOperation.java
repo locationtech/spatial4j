@@ -33,6 +33,9 @@ public enum SpatialOperation
 
   // Fuzzy Shape matching
   SimilarTo( true, false, false ),
+
+  // Distance Calculation
+  Distance( true, false, false ),
   ;
 
   public final boolean scoreIsMeaningful;

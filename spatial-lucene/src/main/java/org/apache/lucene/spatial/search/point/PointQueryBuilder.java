@@ -25,10 +25,10 @@ import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.Point;
-import org.apache.lucene.spatial.base.Radius;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
+import org.apache.lucene.spatial.base.simple.Rectangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,14 +40,10 @@ public class PointQueryBuilder
   public ValueSource makeValueSource(PointFieldInfo fields, SpatialArgs args)
   {
     DistanceCalculator calc = new EuclidianDistanceCalculator();
-    if( args.shape instanceof Radius ) {
-      DistanceValueSource vs = new DistanceValueSource( ((Radius)args.shape).getPoint(),
-          calc, fields );
-      vs.max = ((Radius)args.shape).getRadius();
-      return vs;
-    }
     if( args.shape instanceof Point ) {
-      return new DistanceValueSource( ((Point)args.shape), calc, fields );
+      DistanceValueSource dvs = new DistanceValueSource( ((Point)args.shape), calc, fields );
+      if( args.min != null ) dvs.min = args.min.doubleValue();
+      if( args.max != null ) dvs.max = args.max.doubleValue();
     }
     throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
   }
@@ -70,8 +66,24 @@ public class PointQueryBuilder
       case Intersects: spatial =  helper.makeWithin(); break;
       case IsWithin: spatial =  helper.makeWithin(); break;
       case Overlaps: spatial =  helper.makeWithin(); break;
-//      case IsEqualTo: spatial =  helper.makeEquals(); break;
-//      case IsDisjointTo: spatial =  helper.makeDisjoint(); break;
+      case IsDisjointTo: spatial =  helper.makeDisjoint(); break;
+
+
+      case Distance: {
+        if( args.max == null ) {
+          // no bbox to limit
+          return new ValueSourceQuery( makeValueSource( fields, args ) );
+        }
+        if( args.shape instanceof Point ) {
+          // first make a BBox Query
+          Point p = (Point)args.shape;
+          double r = args.max.doubleValue();
+          helper.queryExtent = new Rectangle( p.getX()-r, p.getX()+r, p.getY()-r, p.getY()+r );
+          spatial =  helper.makeWithin(); break;
+        }
+        throw new IllegalArgumentException( "Distance only works with point (on point fields)" );
+      }
+
       default:
         throw new UnsupportedOperationException( args.op.name() );
     }
@@ -95,8 +107,8 @@ public class PointQueryBuilder
 
 class PointQueryHelper
 {
-  final BBox queryExtent;
-  final PointFieldInfo field;
+  BBox queryExtent;
+  PointFieldInfo field;
 
   public PointQueryHelper( BBox bbox, PointFieldInfo field )
   {
@@ -120,6 +132,22 @@ class PointQueryHelper
     BooleanQuery bq = new BooleanQuery();
     bq.add(qX,BooleanClause.Occur.MUST);
     bq.add(qY,BooleanClause.Occur.MUST);
+    return bq;
+  }
+
+
+  /**
+   * Constructs a query to retrieve documents that fully contain the input envelope.
+   * @return the spatial query
+   */
+  Query makeDisjoint()
+  {
+    Query qX = NumericRangeQuery.newDoubleRange(field.fieldX,field.precisionStep,queryExtent.getMinX(),queryExtent.getMaxX(),true,true);
+    Query qY = NumericRangeQuery.newDoubleRange(field.fieldY,field.precisionStep,queryExtent.getMinY(),queryExtent.getMaxY(),true,true);
+
+    BooleanQuery bq = new BooleanQuery();
+    bq.add(qX,BooleanClause.Occur.MUST_NOT);
+    bq.add(qY,BooleanClause.Occur.MUST_NOT);
     return bq;
   }
 }

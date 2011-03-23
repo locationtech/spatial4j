@@ -40,11 +40,13 @@ public class TestSpatialArgs extends TestCase
     }
     catch( Exception ex ) { }
 
-    // Check radius
-    arg = SpatialOperation.IsWithin+"(RADIUS(1 2 3))";
+    // Check distance
+    arg = SpatialOperation.Distance+"(1 2) min=2.3 max=4.5";
     out = SpatialArgs.parse(arg, reader);
-    assertEquals( SpatialOperation.IsWithin, out.op );
-    assertTrue( out.shape instanceof Radius );
+    assertEquals( SpatialOperation.Distance, out.op );
+    assertTrue( out.shape instanceof Point );
+    assertEquals( 2.3, out.min.doubleValue() );
+    assertEquals( 4.5, out.max.doubleValue() );
   }
 
   public void testSimpleArgs() throws Exception

@@ -25,7 +25,6 @@ import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.Point;
-import org.apache.lucene.spatial.base.Radius;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.ShapeIO;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
@@ -71,22 +70,6 @@ public class JTSShapeIO implements ShapeIO
       return new JtsPoint2D( factory.createPoint(new Coordinate(p0, p1)) );
     }
 
-    if( str.startsWith( "RADIUS(" ) ) {
-      try {
-        int idx = str.indexOf( '(' );
-        int edx = str.lastIndexOf( ')' );
-        StringTokenizer st = new StringTokenizer( str.substring(idx+1,edx), " " );
-        double p0 = Double.parseDouble( st.nextToken() );
-        double p1 = Double.parseDouble( st.nextToken() );
-        double rr = Double.parseDouble( st.nextToken() );
-        com.vividsolutions.jts.geom.Point p = factory.createPoint( new Coordinate( p0, p1 ) );
-        return new JtsRadius2D( new JtsPoint2D(p), rr );
-      }
-      catch( Exception ex ) {
-        throw new InvalidShapeException( "invalid radius: "+str, ex );
-      }
-    }
-
     WKTReader reader = new WKTReader(factory);
     try {
       Geometry geo = reader.read( str );
@@ -103,7 +86,6 @@ public class JTSShapeIO implements ShapeIO
   private static final byte TYPE_POINT = 0;
   private static final byte TYPE_BBOX = 1;
   private static final byte TYPE_GEO = 2;
-  private static final byte TYPE_RADIUS = 3;
 
   @Override
   public byte[] toBytes(Shape shape) throws IOException
@@ -134,16 +116,6 @@ public class JTSShapeIO implements ShapeIO
       ByteBuffer bytes = ByteBuffer.wrap( new byte[1+bb.length] );
       bytes.put( TYPE_GEO );
       bytes.put( bb );
-      return bytes.array();
-    }
-
-    if( shape instanceof Radius ) {
-      Radius p = ((Radius)shape);
-      ByteBuffer bytes = ByteBuffer.wrap( new byte[1+(4*8)] );
-      bytes.put( TYPE_RADIUS );
-      bytes.putDouble( p.getPoint().getX() );
-      bytes.putDouble( p.getPoint().getY() );
-      bytes.putDouble( p.getRadius() );
       return bytes.array();
     }
 
@@ -188,10 +160,6 @@ public class JTSShapeIO implements ShapeIO
       catch (IOException ex ) {
         throw new InvalidShapeException( "error reading WKT", ex );
       }
-    }
-    else if( type == TYPE_RADIUS ) {
-      return new JtsRadius2D( new JtsPoint2D( factory.createPoint(
-          new Coordinate(bytes.getDouble(),bytes.getDouble())) ), bytes.getDouble() );
     }
     throw new InvalidShapeException( "shape not handled: "+type );
   }

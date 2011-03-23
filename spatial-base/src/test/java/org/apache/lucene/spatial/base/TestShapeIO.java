@@ -40,18 +40,5 @@ public class TestShapeIO extends TestCase
     assertEquals( -20.0, b.getMinY() );
     assertEquals(  10.0, b.getMaxX() );
     assertEquals(  20.0, b.getMaxY() );
-
-    // RADIUS
-    s = reader.readShape( "RADIUS( 10 20 30 )" );
-    Radius r = (Radius)s;
-    assertEquals( 10.0, r.getPoint().getX() );
-    assertEquals( 20.0, r.getPoint().getY() );
-    assertEquals( 30.0, r.getRadius() );
-    buff = reader.toBytes( s );
-    s = reader.readShape( buff, 0, buff.length );
-    r = (Radius)s;
-    assertEquals( 10.0, r.getPoint().getX() );
-    assertEquals( 20.0, r.getPoint().getY() );
-    assertEquals( 30.0, r.getRadius() );
   }
 }

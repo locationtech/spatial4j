@@ -1,6 +1,7 @@
 package org.apache.solr.spatial.demo.app;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
 
 import org.apache.lucene.spatial.base.SpatialOperation;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -13,7 +14,11 @@ public class Query implements Serializable
   public String field = "geo";
   public SpatialOperation op = SpatialOperation.IsWithin;
   public String geo;
-  public String extra;
+
+  public Boolean cache;
+  public Boolean score;
+  public String min;
+  public String max;
 
 
   public SolrParams toSolrQuery( int rows )
@@ -24,8 +29,17 @@ public class Query implements Serializable
     boolean hasGeo = (geo != null && geo.length() > 0);
     if( hasGeo ) {
       q = field + ":\""+op.name()+"("+geo+")";
-      if( extra != null ) {
-        q += " " + extra;
+      if( min != null ) {
+        q += " min=" + min;
+      }
+      if( max != null ) {
+        q += " max=" + max;
+      }
+      if( cache != null ) {
+        q += " cache=" + cache;
+      }
+      if( score != null ) {
+        q += " score=" + score;
       }
       q += '"';
     }
