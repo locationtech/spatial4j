@@ -1,22 +1,103 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
   <head>  
     <title>Solr Spatial Playground</title>    
-    
-    <script src="http://openlayers.org/dev/OpenLayers.js"></script>
+
+    <link rel="stylesheet" href="/openlayers/theme/default/style.css" type="text/css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script src="/openlayers/OpenLayers.js"></script>
     <script type="text/javascript">
-    var map, vectors, formats;
+
+    var map, drawControls, wkt, featureLayer;
+    
+    addedPolygon = function(feature)
+    {
+      featureLayer.removeAllFeatures();
+      featureLayer.addFeatures( [feature] );
+      
+      //do something with polygon
+      $('#geo').val( wkt.write( feature, true ) );
+    };
+    
+    
+    addedPoint = function(feature)
+    {
+      featureLayer.removeAllFeatures();
+      featureLayer.addFeatures( [feature] );
+      
+      //do something with polygon
+      $('#geo').val( feature.geometry.x + " " + feature.geometry.y );
+    };
+    
+    addedBBox = function(feature)
+    {
+      featureLayer.removeAllFeatures();
+      featureLayer.addFeatures( [feature] );
+      
+      var box = feature.geometry.bounds;
+      $('#geo').val( box.toBBOX().replace( /,/g, ' ' ) );
+    };
+    
+    addedCircle = function(feature)
+    {
+      featureLayer.removeAllFeatures();
+      featureLayer.addFeatures( [feature] );
+      
+      var box = feature.geometry.bounds;
+      var www = box.getWidth();
+      var sss = box.getSize();
+      var ccc = box.getCenterLonLat();
+      
+      //do something with polygon
+      $('#geo').val( "RADIUS("+ccc.lon+" "+ccc.lat+" "+(www/2.0)+")" );
+    };
+
     function init(){
         map = new OpenLayers.Map('map');
-        var wms = new OpenLayers.Layer.WMS( "OpenLayers WMS",
+
+        var wmsLayer = new OpenLayers.Layer.WMS( "OpenLayers WMS",
             "http://vmap0.tiles.osgeo.org/wms/vmap0?", {layers: 'basic'});
 
-        vectors = new OpenLayers.Layer.Vector("Vector Layer");
+        featureLayer = new OpenLayers.Layer.Vector("Query");
 
-        map.addLayers([wms, vectors]);
+        map.addLayers([wmsLayer, featureLayer]);
         map.addControl(new OpenLayers.Control.MousePosition());
-        map.addControl(new OpenLayers.Control.EditingToolbar(vectors));
+
+        drawControls = {
+      //      point: new OpenLayers.Control.DrawFeature(featureLayer, 
+      //        OpenLayers.Handler.Point, {'featureAdded': addedPoint}),
+            bbox: new OpenLayers.Control.DrawFeature(featureLayer,
+              OpenLayers.Handler.RegularPolygon, {'featureAdded': addedBBox} ),
+            circle: new OpenLayers.Control.DrawFeature(featureLayer,
+              OpenLayers.Handler.RegularPolygon, {'featureAdded': addedCircle} ),
+            polygon: new OpenLayers.Control.DrawFeature(featureLayer,
+              OpenLayers.Handler.Polygon, {'featureAdded': addedPolygon} )
+        };
+        drawControls['bbox'].handler.setOptions({sides: 4, irregular:true});
+        drawControls['circle'].handler.setOptions({sides: 40});
+
+        for(var key in drawControls) {
+            map.addControl(drawControls[key]);
+        }
+
+        map.setCenter(new OpenLayers.LonLat(-98, 37), 3);
+
+        document.getElementById('noneToggle').checked = true;
         
-        map.setCenter(new OpenLayers.LonLat(0, 0), 1);
+        wkt = new OpenLayers.Format.WKT({
+          'internalProjection': map.baseLayer.projection,
+          'externalProjection': new OpenLayers.Projection('EPSG:4326')
+        });
+    }
+
+    function toggleControl(element) {
+          for(key in drawControls) {
+            var control = drawControls[key];
+            if(element.value == key && element.checked) {
+                control.activate();
+            } else {
+                control.deactivate();
+            }
+        }
     }
     </script>
 
@@ -33,10 +114,10 @@
       
       <table>
        <tr>
-        <td>Text</td>
+        <td>Filter</td>
        </tr>
        <tr>
-         <td colspan="3"><input wicket:id="text" type="text"/></td>
+         <td colspan="3"><input wicket:id="fq" type="text"/></td>
         </tr>
       <tr>
         <td>Field</td>
@@ -62,18 +143,47 @@
             <option value="audi">...</option>
           </select>
         </td>
-        <td><input type="text" style="width:200px;" wicket:id="geo"/></td>
+        <td><input id="geo" type="text" style="width:200px;" wicket:id="geo"/></td>
         <td><input type="text" style="width:100px;"/></td>
         
-        <td><input type="submit" value="search"/></td>
+        <td><input wicket:id="submit" type="submit" value="search"/></td>
       </tr>
       </table>
     
       
-      <div>
-        <div id="map" style="width:500px; height:300px; border:1px solid #CCC;"/>
-        TODO, <a href="http://openlayers.org/dev/examples/vector-formats.html">generate WKT polygon</a>
-      </div>
+
+      <table>
+      <tr valign="top">
+      <td><div id="map" style="width:512px; height:300px; border:1px solid #CCC;"></div></td>
+      <td>
+        <ul id="controlToggle" style="margin-left:5px; padding:0px;">
+          <li>
+              <input type="radio" name="type" value="none" id="noneToggle"
+                     onclick="toggleControl(this);" checked="checked" />
+              <label for="noneToggle">navigate</label>
+          </li>
+          <!--
+          <li>
+              <input type="radio" name="type" value="point" id="pointToggle" onclick="toggleControl(this);" />
+              <label for="pointToggle">draw point</label>
+          </li>
+          -->
+          <li>
+              <input type="radio" name="type" value="bbox" id="bboxToggle" onclick="toggleControl(this);" />
+              <label for="bboxToggle">draw bbox</label>
+          </li>
+          <li>
+              <input type="radio" name="type" value="circle" id="circleToggle" onclick="toggleControl(this);" />
+              <label for="circleToggle">draw circle</label>
+          </li>
+          <li>
+              <input type="radio" name="type" value="polygon" id="polygonToggle" onclick="toggleControl(this);" />
+              <label for="polygonToggle">draw polygon</label>
+          </li>
+        </ul>
+      </td>
+      </tr>
+      </table>
       
     </form>
     
@@ -83,11 +193,10 @@
       <ul>
         <li wicket:id="item">
           <span wicket:id="name">name</span>
-          <a wicket:id="kml" href="#">[KML]</a><br/>
-          <div>
-           <b>geo:</b><span wicket:id="geo">tokens...</span><br/>
-           <b>tokens:</b><span wicket:id="tokens">tokens...</span><br/>
-          </div>
+          (<span wicket:id="source">source</span>)
+          <span wicket:id="score">score</span>
+          <a wicket:id="link" href="#">[detail]</a>
+          <a wicket:id="kml" href="#">[KML]</a>
         </li>
       </ul>
     </div>

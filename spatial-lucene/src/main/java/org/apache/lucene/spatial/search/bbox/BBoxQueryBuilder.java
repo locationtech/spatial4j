@@ -27,7 +27,6 @@ import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.SpatialArgs;
-import org.apache.lucene.util.NumericUtils;
 
 /**
  *
@@ -120,8 +119,8 @@ class BBoxQueryHelper
 
     // Y conditions
     // docMinY <= queryExtent.getMinY() AND docMaxY >= queryExtent.getMaxY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,null,queryExtent.getMinY(),false,true);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,queryExtent.getMaxY(),null,true,false);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,fields.precisionStep,null,queryExtent.getMinY(),false,true);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,fields.precisionStep,queryExtent.getMaxY(),null,true,false);
     Query yConditions = this.makeQuery(new Query[]{qMinY,qMaxY},BooleanClause.Occur.MUST);
 
     // X conditions
@@ -133,8 +132,8 @@ class BBoxQueryHelper
       // X Conditions for documents that do not cross the date line,
       // documents that contain the min X and max X of the query envelope,
       // docMinX <= queryExtent.getMinX() AND docMaxX >= queryExtent.getMaxX()
-      Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,null,queryExtent.getMinX(),false,true);
-      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,queryExtent.getMaxX(),null,true,false);
+      Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,null,queryExtent.getMinX(),false,true);
+      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,queryExtent.getMaxX(),null,true,false);
       Query qMinMax = this.makeQuery(new Query[]{qMinX,qMaxX},BooleanClause.Occur.MUST);
       Query qNonXDL = this.makeXDL(false,qMinMax);
 
@@ -142,8 +141,8 @@ class BBoxQueryHelper
       // the left portion of the document contains the min X of the query
       // OR the right portion of the document contains the max X of the query,
       // docMinXLeft <= queryExtent.getMinX() OR docMaxXRight >= queryExtent.getMaxX()
-      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.minX,null,queryExtent.getMinX(),false,true);
-      Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,queryExtent.getMaxX(),null,true,false);
+      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,null,queryExtent.getMinX(),false,true);
+      Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,queryExtent.getMaxX(),null,true,false);
       Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft,qXDLRight},BooleanClause.Occur.SHOULD);
       Query qXDL = this.makeXDL(true,qXDLLeftRight);
 
@@ -159,8 +158,8 @@ class BBoxQueryHelper
       // the left portion of the document contains the min X of the query
       // AND the right portion of the document contains the max X of the query,
       // docMinXLeft <= queryExtent.getMinX() AND docMaxXRight >= queryExtent.getMaxX()
-      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.minX,null,queryExtent.getMinX(),false,true);
-      Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,queryExtent.getMaxX(),null,true,false);
+      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,null,queryExtent.getMinX(),false,true);
+      Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,queryExtent.getMaxX(),null,true,false);
       Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft,qXDLRight},BooleanClause.Occur.MUST);
       Query qXDL = this.makeXDL(true,qXDLLeftRight);
 
@@ -197,8 +196,8 @@ class BBoxQueryHelper
 
     // Y conditions
     // docMinY > queryExtent.getMaxY() OR docMaxY < queryExtent.getMinY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,queryExtent.getMaxY(),null,false,false);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,null,queryExtent.getMinY(),false,false);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,fields.precisionStep,queryExtent.getMaxY(),null,false,false);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,fields.precisionStep,null,queryExtent.getMinY(),false,false);
     Query yConditions = this.makeQuery(new Query[]{qMinY,qMaxY},BooleanClause.Occur.SHOULD);
 
     // X conditions
@@ -209,8 +208,8 @@ class BBoxQueryHelper
 
       // X Conditions for documents that do not cross the date line,
       // docMinX > queryExtent.getMaxX() OR docMaxX < queryExtent.getMinX()
-      Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMaxX(),null,false,false);
-      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,null,queryExtent.getMinX(),false,false);
+      Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMaxX(),null,false,false);
+      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,queryExtent.getMinX(),false,false);
       Query qMinMax = this.makeQuery(new Query[]{qMinX,qMaxX},BooleanClause.Occur.SHOULD);
       Query qNonXDL = this.makeXDL(false,qMinMax);
 
@@ -221,8 +220,8 @@ class BBoxQueryHelper
       // where: docMaxXLeft = 180.0, docMinXRight = -180.0
       // (docMaxXLeft  < queryExtent.getMinX()) equates to (180.0  < queryExtent.getMinX()) and is ignored
       // (docMinXRight > queryExtent.getMaxX()) equates to (-180.0 > queryExtent.getMaxX()) and is ignored
-      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMaxX(),null,false,false);
-      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.maxX,null,queryExtent.getMinX(),false,false);
+      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMaxX(),null,false,false);
+      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,queryExtent.getMinX(),false,false);
       Query qLeftRight = this.makeQuery(new Query[]{qMinXLeft,qMaxXRight},BooleanClause.Occur.MUST);
       Query qXDL = this.makeXDL(true,qLeftRight);
 
@@ -236,10 +235,10 @@ class BBoxQueryHelper
       // the document must be disjoint to both the left and right query portions
       // (docMinX > queryExtent.getMaxX()Left OR docMaxX < queryExtent.getMinX()) AND (docMinX > queryExtent.getMaxX() OR docMaxX < queryExtent.getMinX()Left)
       // where: queryExtent.getMaxX()Left = 180.0, queryExtent.getMinX()Left = -180.0
-      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.minX,180.0,null,false,false);
-      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fields.maxX,null,queryExtent.getMinX(),false,false);
-      Query qMinXRight = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMaxX(),null,false,false);
-      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.maxX,null,-180.0,false,false);
+      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,180.0,null,false,false);
+      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,queryExtent.getMinX(),false,false);
+      Query qMinXRight = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMaxX(),null,false,false);
+      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,-180.0,false,false);
       Query qLeft = this.makeQuery(new Query[]{qMinXLeft,qMaxXLeft},BooleanClause.Occur.SHOULD);
       Query qRight = this.makeQuery(new Query[]{qMinXRight,qMaxXRight},BooleanClause.Occur.SHOULD);
       Query qLeftRight = this.makeQuery(new Query[]{qLeft,qRight},BooleanClause.Occur.MUST);
@@ -262,10 +261,10 @@ class BBoxQueryHelper
   Query makeEquals() {
 
     // docMinX = queryExtent.getMinX() AND docMinY = queryExtent.getMinY() AND docMaxX = queryExtent.getMaxX() AND docMaxY = queryExtent.getMaxY()
-    Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMinX(),queryExtent.getMinX(),true,true);
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,queryExtent.getMinY(),queryExtent.getMinY(),true,true);
-    Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,queryExtent.getMaxX(),queryExtent.getMaxX(),true,true);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,queryExtent.getMaxY(),queryExtent.getMaxY(),true,true);
+    Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMinX(),queryExtent.getMinX(),true,true);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,fields.precisionStep,queryExtent.getMinY(),queryExtent.getMinY(),true,true);
+    Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,queryExtent.getMaxX(),queryExtent.getMaxX(),true,true);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,fields.precisionStep,queryExtent.getMaxY(),queryExtent.getMaxY(),true,true);
     BooleanQuery bq = new BooleanQuery();
     bq.add(qMinX,BooleanClause.Occur.MUST);
     bq.add(qMinY,BooleanClause.Occur.MUST);
@@ -340,13 +339,10 @@ class BBoxQueryHelper
     // general case
     // docMinX >= queryExtent.getMinX() AND docMinY >= queryExtent.getMinY() AND docMaxX <= queryExtent.getMaxX() AND docMaxY <= queryExtent.getMaxY()
 
-    int step = NumericUtils.PRECISION_STEP_DEFAULT;
-
-
     // Y conditions
     // docMinY >= queryExtent.getMinY() AND docMaxY <= queryExtent.getMaxY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,step,queryExtent.getMinY(),null,true,false);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,step,null,queryExtent.getMaxY(),false,true);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,fields.precisionStep,queryExtent.getMinY(),null,true,false);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,fields.precisionStep,null,queryExtent.getMaxY(),false,true);
     Query yConditions = this.makeQuery(new Query[]{qMinY,qMaxY},BooleanClause.Occur.MUST);
 
     // X conditions
@@ -357,8 +353,8 @@ class BBoxQueryHelper
     // AND the right portion of the document must be within the right portion of the query
     // docMinXLeft >= queryExtent.getMinX() AND docMaxXLeft <= 180.0
     // AND docMinXRight >= -180.0 AND docMaxXRight <= queryExtent.getMaxX()
-    Query qXDLLeft  = NumericRangeQuery.newDoubleRange(fields.minX,step,queryExtent.getMinX(),null,true,false);
-    Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,step,null,queryExtent.getMaxX(),false,true);
+    Query qXDLLeft  = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMinX(),null,true,false);
+    Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,queryExtent.getMaxX(),false,true);
     Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft,qXDLRight},BooleanClause.Occur.MUST);
     Query qXDL  = this.makeXDL(true,qXDLLeftRight);
 
@@ -367,8 +363,8 @@ class BBoxQueryHelper
 
       // X Conditions for documents that do not cross the date line,
       // docMinX >= queryExtent.getMinX() AND docMaxX <= queryExtent.getMaxX()
-      Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMinX(),null,true,false);
-      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,null,queryExtent.getMaxX(),false,true);
+      Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMinX(),null,true,false);
+      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,queryExtent.getMaxX(),false,true);
       Query qMinMax = this.makeQuery(new Query[]{qMinX,qMaxX},BooleanClause.Occur.MUST);
       Query qNonXDL = this.makeXDL(false,qMinMax);
 
@@ -386,14 +382,14 @@ class BBoxQueryHelper
 
       // the document should be within the left portion of the query
       // docMinX >= queryExtent.getMinX() AND docMaxX <= 180.0
-      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.minX,queryExtent.getMinX(),null,true,false);
-      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fields.maxX,null,180.0,false,true);
+      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMinX(),null,true,false);
+      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,180.0,false,true);
       Query qLeft = this.makeQuery(new Query[]{qMinXLeft,qMaxXLeft},BooleanClause.Occur.MUST);
 
       // the document should be within the right portion of the query
       // docMinX >= -180.0 AND docMaxX <= queryExtent.getMaxX()
-      Query qMinXRight = NumericRangeQuery.newDoubleRange(fields.minX,-180.0,null,true,false);
-      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.maxX,null,queryExtent.getMaxX(),false,true);
+      Query qMinXRight = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,-180.0,null,true,false);
+      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,queryExtent.getMaxX(),false,true);
       Query qRight = this.makeQuery(new Query[]{qMinXRight,qMaxXRight},BooleanClause.Occur.MUST);
 
       // either left or right conditions should occur,

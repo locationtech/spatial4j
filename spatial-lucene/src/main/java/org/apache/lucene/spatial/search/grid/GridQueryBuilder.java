@@ -50,9 +50,9 @@ public class GridQueryBuilder
 
   public Query makeQuery(String fname, SpatialArgs args)
   {
-    if( args.op != SpatialOperation.BBoxIntersects ||
-        args.op != SpatialOperation.Intersects ||
-        args.op != SpatialOperation.Overlaps ||
+    if( args.op != SpatialOperation.BBoxIntersects &&
+        args.op != SpatialOperation.Intersects &&
+        args.op != SpatialOperation.Overlaps &&
         args.op != SpatialOperation.SimilarTo ) {
       // TODO -- can translate these other query types
       throw new UnsupportedOperationException( "Unsupported Operation: "+args.op );

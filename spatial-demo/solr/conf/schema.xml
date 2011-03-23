@@ -67,6 +67,7 @@
  <fields>
    <field name="id"     type="string"  indexed="true" stored="true" required="true" /> 
    <field name="name"   type="text"    indexed="true" stored="true" required="true" />
+   <field name="source" type="string"  indexed="true" stored="true" />
    
    <!-- geometry -->
    <field name="geo"   type="geo"    indexed="true" stored="true"  multiValued="false" />
@@ -83,7 +84,7 @@
    
    
    <!-- geoeye -->
-   <field name="source"       type="string"  indexed="true" stored="true" />
+   <field name="sourceC"      type="string"  indexed="true" stored="true" />
    <field name="sensorMode"   type="string"  indexed="true" stored="true" />
    <field name="stripID"      type="string"  indexed="true" stored="true" />
    <field name="sceneID"      type="string"  indexed="true" stored="true" />

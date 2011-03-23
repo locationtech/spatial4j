@@ -40,6 +40,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.Point;
 import org.apache.lucene.spatial.base.Shape;
@@ -120,7 +121,9 @@ public class PointField extends SpatialFieldType implements SchemaAware
     PointQueryBuilder b = new PointQueryBuilder();
     PointFieldInfo info = new PointFieldInfo();
     info.setFieldsPrefix( field.getName() );
-    // TODO fill parser
+    // TODO make sure the parser and precision step are set!
+    info.parser = FieldCache.NUMERIC_UTILS_DOUBLE_PARSER;
+    info.precisionStep = Integer.MAX_VALUE; // set to zero
     return b.makeQuery(info, args);
   }
 }

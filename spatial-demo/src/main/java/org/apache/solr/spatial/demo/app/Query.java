@@ -8,7 +8,7 @@ import org.apache.solr.common.params.SolrParams;
 
 public class Query implements Serializable
 {
-  public String text;
+  public String fq;
 
   public String field = "geo";
   public SpatialOperation op = SpatialOperation.IsWithin;
@@ -29,18 +29,16 @@ public class Query implements Serializable
       }
       q += '"';
     }
-
-    if( text != null ) {
-      q += " " + text;
-    }
-
-    if( q.length() < 2 ) {
+    else {
       q = "*:*";
+    }
+    if( fq != null ) {
+      params.setFilterQueries( fq );
     }
 
     params.setQuery( q );
     params.setRows( rows );
-    params.setFields( "id,name,geo,grid" );
+    params.setFields( "id,name,source,score" );
     return params;
   }
 }

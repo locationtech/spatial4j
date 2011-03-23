@@ -87,13 +87,15 @@ public class GeoeyeReader
       doc.setField( "name", c.imageID );
       doc.setField( "geo", c.geometry.toText() );
 
-      doc.setField( "source", c.source );
+      doc.setField( "sourceC", c.source ); // source taken...
       doc.setField( "sensorMode", c.sensorMode );
       doc.setField( "stripID", c.stripID );
       doc.setField( "sceneID", c.sceneID );
       doc.setField( "collectionDate", c.collectionDate );
       doc.setField( "imageURL", c.imageURL );
       doc.setField( "metadataURL", c.metadataURL );
+
+      doc.setField( "source", "geoeye" );
 
       solr.add( doc );
       System.out.println( (++count)+"/"+total + " :: " +c.imageID );

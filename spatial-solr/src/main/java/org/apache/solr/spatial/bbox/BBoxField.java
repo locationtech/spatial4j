@@ -20,6 +20,7 @@ package org.apache.solr.spatial.bbox;
 import java.util.Map;
 
 import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.Shape;
@@ -120,18 +121,14 @@ public class BBoxField extends SpatialFieldType implements SchemaAware
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
     BBoxQueryBuilder builder = new BBoxQueryBuilder();
-    BBoxFieldInfo fields = new BBoxFieldInfo();
-    fields.setFieldsPrefix( field.getName() );
-
-    return builder.makeQuery(fields, args);
+    BBoxFieldInfo info = new BBoxFieldInfo();
+    info.setFieldsPrefix( field.getName() );
+    // TODO make sure the parser and precision step are set!
+    // TODO make sure the parser and precision step are set!
+    info.parser = FieldCache.NUMERIC_UTILS_DOUBLE_PARSER;
+    info.precisionStep = Integer.MAX_VALUE; // set to zero
+    return builder.makeQuery(info, args);
   }
-
-// TODO -- this is a solr ValueSource...
-//
-//  @Override
-//  public ValueSource getValueSource(SchemaField field, QParser parser) {
-//    return new StrFieldSource(field.name);
-//  }
 
   @Override
   public boolean isPolyField() {

@@ -14,7 +14,9 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.SolrParams;
@@ -24,6 +26,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -32,6 +35,7 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
@@ -77,13 +81,19 @@ public class SearchPage extends WebPage
     add( new BookmarkablePageLink<Void>( "playground", PlaygroundPage.class ) );
 
     Form<Query> searchForm = new Form<Query>( "search", new CompoundPropertyModel<Query>(query) );
-    searchForm.add( new TextField<String>( "text" ) );
+    searchForm.add( new TextField<String>( "fq" ) );
     searchForm.add( new DropDownChoice<String>("field",
         Arrays.asList( "geo", "bbox", "grid", "rtree", "point" ) ));
     searchForm.add( new DropDownChoice<SpatialOperation>("op",
         Arrays.asList( SpatialOperation.values() ) ));
 
     searchForm.add( new TextField<String>( "geo" ) );
+    searchForm.add( new IndicatingAjaxButton( "submit" ) {
+      @Override
+      protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+        target.addComponent( results );
+      }
+    });
     add( searchForm );
 
     queryResponse = new LoadableDetachableModel<QueryResponse>() {
@@ -113,8 +123,9 @@ public class SearchPage extends WebPage
             final String id = (String)doc.getFieldValue( "id" );
             WebMarkupContainer row = new WebMarkupContainer( rv.newChildId() );
             row.add( new Label( "name", (String)doc.getFieldValue( "name" ) ) );
-            row.add( new Label( "geo", (String)doc.getFieldValue( "geo" ) ).setVisible( false ) );
-            row.add( new Label( "tokens", (String)doc.getFieldValue( "grid" ) ) );
+            row.add( new Label( "source", (String)doc.getFieldValue( "source" ) ));
+            row.add( new Label( "score", doc.getFieldValue( "score" )+"" ));
+            row.add( new ExternalLink( "link", "/solr/select?q=id:"+ClientUtils.escapeQueryChars(id) ));
 
             row.add( new Link<Void>( "kml" ) {
               @Override
@@ -147,6 +158,7 @@ public class SearchPage extends WebPage
         super.onBeforeRender();
       }
     };
+    results.setOutputMarkupId( true );
     results.add( new WebMarkupContainer( "item" ) ); // will get replaced
     results.add( new Label("count", new AbstractReadOnlyModel<String>() {
       @Override
@@ -196,7 +208,10 @@ public class SearchPage extends WebPage
       public void onClick(AjaxRequestTarget target) {
         System.out.println( "loading..." );
         try {
-          SampleDataLoader.load( solr );
+          SolrServer sss = new StreamingUpdateSolrServer(
+              "http://localhost:8080/solr", 50, 3 );
+
+          SampleDataLoader.load( sss );
         }
         catch (Exception e) {
           e.printStackTrace();

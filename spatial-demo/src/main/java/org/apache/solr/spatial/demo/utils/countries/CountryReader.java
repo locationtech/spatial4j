@@ -61,6 +61,7 @@ public class CountryReader
       doc.setField( "name", c.name );
       doc.setField( "geo", c.geometry.toText() );
       doc.setField( "pop2005", c.population2005 );
+      doc.setField( "source", "countries" );
       solr.add( doc );
       System.out.println( (++count)+"/"+total + " :: " +c.name );
     }

@@ -114,8 +114,8 @@ class PointQueryHelper
    */
   Query makeWithin()
   {
-    Query qX = NumericRangeQuery.newDoubleRange(field.fieldX,queryExtent.getMinX(),queryExtent.getMaxX(),true,true);
-    Query qY = NumericRangeQuery.newDoubleRange(field.fieldY,queryExtent.getMinY(),queryExtent.getMaxY(),true,true);
+    Query qX = NumericRangeQuery.newDoubleRange(field.fieldX,field.precisionStep,queryExtent.getMinX(),queryExtent.getMaxX(),true,true);
+    Query qY = NumericRangeQuery.newDoubleRange(field.fieldY,field.precisionStep,queryExtent.getMinY(),queryExtent.getMaxY(),true,true);
 
     BooleanQuery bq = new BooleanQuery();
     bq.add(qX,BooleanClause.Occur.MUST);
