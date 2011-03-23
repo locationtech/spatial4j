@@ -40,7 +40,7 @@ import org.apache.solr.spatial.SpatialFieldType;
  * Syntax for the field input:
  *
  */
-public class BBoxField extends SpatialFieldType implements SchemaAware
+public class BBoxFieldType extends SpatialFieldType implements SchemaAware
 {
   protected String doubleFieldName = "double";
   protected String booleanFieldName = "boolean";

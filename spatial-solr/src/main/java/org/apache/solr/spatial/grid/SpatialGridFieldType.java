@@ -57,7 +57,7 @@ import org.apache.solr.spatial.SpatialFieldType;
  * (2) Something for the field reader....
  *
  */
-public class SpatialGridField extends SpatialFieldType
+public class SpatialGridFieldType extends SpatialFieldType
 {
   int maxLength = -1;
   GridQueryBuilder builder;

@@ -56,7 +56,7 @@ import org.apache.solr.search.QParser;
 import org.apache.solr.spatial.SpatialFieldType;
 
 
-public class PointField extends SpatialFieldType implements SchemaAware
+public class PointFieldType extends SpatialFieldType implements SchemaAware
 {
   protected final int fieldProps = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
 

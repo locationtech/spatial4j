@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base;
+package org.apache.lucene.spatial.search.geo;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 
-public interface ShapeTester {
-  public boolean matches( Shape shape );
+public interface GeometryTester {
+  public boolean matches( Geometry geo );
 }

@@ -41,7 +41,7 @@ import org.apache.solr.spatial.SpatialFieldType;
 /**
  * Field loads an in memory SpatialIndex (RTree or QuadTree)
  */
-public class SpatialIndexField extends SpatialFieldType
+public class SpatialIndexFieldType extends SpatialFieldType
 {
   final Map<String, SpatialIndexProvider> provider
     = new ConcurrentHashMap<String, SpatialIndexProvider>();

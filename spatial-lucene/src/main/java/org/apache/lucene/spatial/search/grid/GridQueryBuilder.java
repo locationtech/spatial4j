@@ -1,12 +1,17 @@
 package org.apache.lucene.spatial.search.grid;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.Shape;
@@ -50,23 +55,54 @@ public class GridQueryBuilder
 
   public Query makeQuery(String fname, SpatialArgs args)
   {
-    if( args.op != SpatialOperation.BBoxIntersects &&
-        args.op != SpatialOperation.Intersects &&
+    if( args.op != SpatialOperation.Intersects &&
+        args.op != SpatialOperation.IsWithin &&
         args.op != SpatialOperation.Overlaps &&
         args.op != SpatialOperation.SimilarTo ) {
       // TODO -- can translate these other query types
       throw new UnsupportedOperationException( "Unsupported Operation: "+args.op );
     }
 
-    // assume 'mostly within' query
+    // TODO... resolution should help scoring...
+    int resolution = grid.getBestLevel( args.shape );
     List<CharSequence> match = grid.readCells(args.shape);
 
     // TODO -- could this all happen in one pass?
     BooleanQuery query = new BooleanQuery( true );
-    for( CharSequence token : match ) {
-      Term term = new Term( fname, token.toString() );
-      query.add( new BooleanClause(
-          new SpatialGridQuery( term ), BooleanClause.Occur.SHOULD  ) );
+
+
+    if( args.op == SpatialOperation.IsWithin ) {
+      for( CharSequence token : match ) {
+        Term term = new Term( fname, token.toString() );
+        SpatialGridQuery q = new SpatialGridQuery( term );
+        query.add( new BooleanClause( q, BooleanClause.Occur.SHOULD  ) );
+      }
+    }
+    else {
+      // Need to add all the parent queries
+      Set<String> terms = new HashSet<String>();
+      Set<String> parents = new HashSet<String>();
+      for( CharSequence token : match ) {
+        for( int i=1; i<token.length(); i++ ) {
+          parents.add( token.subSequence(0, i)+"*" );
+        }
+        terms.add( token.toString().replace( '+', '*' ) );
+
+        Term term = new Term( fname, token.toString() );
+        SpatialGridQuery q = new SpatialGridQuery( term );
+        query.add( new BooleanClause( q, BooleanClause.Occur.SHOULD  ) );
+      }
+
+      // These all include the '*'
+      List<String> sorted = new ArrayList<String>( parents );
+      Collections.sort( sorted );
+      for( String t : sorted ) {
+        if( !terms.contains( t ) ) {
+          Term term = new Term( fname, t );
+          PrefixQuery q = new PrefixQuery( term );
+          query.add( new BooleanClause( q, BooleanClause.Occur.SHOULD  ) );
+        }
+      }
     }
     return query;
   }

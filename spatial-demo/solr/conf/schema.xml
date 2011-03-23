@@ -55,11 +55,11 @@
 
 
     <!-- Geometry Fields -->
-    <fieldtype name="geo"   class="org.apache.solr.spatial.geo.GeometryField" />
-    <fieldtype name="grid"  class="org.apache.solr.spatial.grid.SpatialGridField" />
-    <fieldtype name="bbox"  class="org.apache.solr.spatial.bbox.BBoxField" />
-    <fieldtype name="rtree" class="org.apache.solr.spatial.index.SpatialIndexField" />
-    <fieldtype name="point" class="org.apache.solr.spatial.point.PointField" />
+    <fieldtype name="geo"   class="org.apache.solr.spatial.geo.WellKnownGeoFieldType" />
+    <fieldtype name="grid"  class="org.apache.solr.spatial.grid.SpatialGridFieldType" />
+    <fieldtype name="bbox"  class="org.apache.solr.spatial.bbox.BBoxFieldType" />
+    <fieldtype name="rtree" class="org.apache.solr.spatial.index.SpatialIndexFieldType" />
+    <fieldtype name="point" class="org.apache.solr.spatial.point.PointFieldType" />
 
  </types>
 

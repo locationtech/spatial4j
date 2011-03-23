@@ -225,4 +225,20 @@ public class JTSShapeIO implements ShapeIO
     }
     return shape.toString();
   }
+
+
+  public Geometry getGeometryFrom( Shape shape )
+  {
+    if( shape instanceof JtsGeometry ) {
+      return ((JtsGeometry)shape).geo;
+    }
+    if( shape instanceof JtsPoint2D ) {
+      return ((JtsPoint2D)shape).getPoint();
+    }
+    if( shape instanceof JtsEnvelope ) {
+      return factory.toGeometry( ((JtsEnvelope)shape).envelope );
+    }
+
+    throw new InvalidShapeException( "can't make Geometry from: "+shape );
+  }
 }

@@ -32,10 +32,8 @@ package org.apache.solr.spatial.geo;
  * limitations under the License.
  */
 
-import java.io.IOException;
 import java.util.Map;
 
-import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -44,6 +42,7 @@ import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.geo.GeometryOperationFilter;
+import org.apache.lucene.spatial.search.geo.WellKnownGeoField;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
@@ -51,13 +50,17 @@ import org.apache.solr.spatial.SpatialFieldType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.WKBWriter;
+
 
 /**
  * Indexed field is WKB (can we store WKT??)
  */
-public class GeometryField extends SpatialFieldType
+public class WellKnownGeoFieldType extends SpatialFieldType
 {
-  static final Logger log = LoggerFactory.getLogger( GeometryField.class );
+  static final Logger log = LoggerFactory.getLogger( WellKnownGeoFieldType.class );
+
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
@@ -68,26 +71,23 @@ public class GeometryField extends SpatialFieldType
   @Override
   public Fieldable createField(SchemaField field, Shape shape, float boost)
   {
-    if (!field.stored()) {
-      log.trace("Ignoring unstored binary field: " + field);
-      return null;
+    Geometry geo = ((JTSShapeIO)reader).getGeometryFrom(shape);
+    String wkt = field.stored() ? geo.toText() : null;
+    byte[] wkb = null;
+    if( field.indexed() ) {
+      WKBWriter writer = new WKBWriter();
+      wkb = writer.write( geo );
     }
 
-    try {
-      byte[] bytes = reader.toBytes( shape );
-      Field f = new Field(field.getName(), bytes, 0, bytes.length);
-      f.setBoost(boost);
-      return f;
-    }
-    catch( IOException ex ) {
-      throw new RuntimeException("bad shape", ex);
-    }
+    WellKnownGeoField f = new WellKnownGeoField(field.getName(), wkb, wkt );
+    f.setBoost(boost);
+    return f;
   }
 
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
-    GeometryOperationFilter filter = new GeometryOperationFilter( field.getName(), args, reader );
+    GeometryOperationFilter filter = new GeometryOperationFilter( field.getName(), args, ((JTSShapeIO)reader) );
     return new FilteredQuery( new MatchAllDocsQuery(), filter );
   }
 }
