@@ -1,5 +1,6 @@
 package org.apache.solr.spatial.demo.app;
 
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
@@ -75,6 +76,7 @@ public class SearchPage extends WebPage
 
   final IModel<Query> query = new Model<Query>( new Query() );
   final IModel<QueryResponse> queryResponse;
+  final IModel<String> error = new Model<String>( null );
   final WebMarkupContainer results;
 
   public SearchPage(final PageParameters parameters)
@@ -103,13 +105,23 @@ public class SearchPage extends WebPage
     queryResponse = new LoadableDetachableModel<QueryResponse>() {
       @Override
       protected QueryResponse load() {
+        error.setObject( null );
         try {
           return solr.query( query.getObject().toSolrQuery( 100 ) );
         }
-        catch (SolrServerException e) {
-          log.warn( "unable to execute query..."+e );
-          return null;
+        catch (SolrServerException ex) {
+          Throwable t = ex.getCause();
+          if( t == null ) {
+            t = ex;
+          }
+          log.warn( "unable to execute query", ex );
+          error.setObject( toTraceString(t) );
         }
+        catch (Throwable ex) {
+          log.warn( "unable to execute query", ex );
+          error.setObject( toTraceString(ex) );
+        }
+        return null;
       }
     };
 
@@ -204,6 +216,12 @@ public class SearchPage extends WebPage
         return url;
       }
     })));
+    results.add( new Label( "error", error ) {
+      @Override
+      public boolean isVisible() {
+        return error.getObject() != null;
+      }
+    });
 
     add( results );
 
@@ -223,6 +241,17 @@ public class SearchPage extends WebPage
         System.out.println( "done..." );
       }
     });
+  }
+
+  public static String toTraceString( Throwable ex )
+  {
+    StringWriter str = new StringWriter();
+    PrintWriter out = new PrintWriter( str );
+    out.println( ex.toString() );
+    ex.printStackTrace( out );
+    out.flush();
+    str.flush();
+    return str.toString();
   }
 
   public Kml getKML( String id )
