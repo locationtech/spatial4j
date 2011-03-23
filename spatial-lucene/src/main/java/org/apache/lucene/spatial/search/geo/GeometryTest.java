@@ -15,18 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search;
+package org.apache.lucene.spatial.search.geo;
 
-import junit.framework.TestCase;
+import com.vividsolutions.jts.geom.Geometry;
 
 
-
-/**
- */
-public class TestQuadTreeField extends TestCase
-{
-  public void testMatchInfo() throws Exception
-  {
-    // TODO
-  }
+public interface GeometryTest {
+  public boolean matches( Geometry geo );
 }

@@ -26,12 +26,12 @@ import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 
 public class SpatialArgs
 {
-  public final SpatialOperation op;
+  public SpatialOperation op;
   public Shape shape;
   public boolean cacheable = true;
   public boolean calculateScore = true;
 
-  protected SpatialArgs( SpatialOperation op ) {
+  public SpatialArgs( SpatialOperation op ) {
     this.op = op;
   }
 

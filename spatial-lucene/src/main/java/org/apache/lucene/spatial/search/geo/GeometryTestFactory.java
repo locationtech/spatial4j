@@ -17,26 +17,29 @@
 
 package org.apache.lucene.spatial.search.geo;
 
-import org.apache.lucene.spatial.base.SpatialArgs;
-import org.apache.lucene.spatial.base.jts.JTSShapeIO;
+import org.apache.lucene.spatial.base.SpatialOperation;
 
 import com.vividsolutions.jts.geom.Geometry;
 
 
 public class GeometryTestFactory
 {
-  public static GeometryTester get( SpatialArgs args, JTSShapeIO shapeio )
+  public static GeometryTest get( SpatialOperation op, Geometry geo )
   {
-    Geometry geo = shapeio.getGeometryFrom( args.shape );
-    switch( args.op ) {
+    switch( op ) {
     case BBoxIntersects: return new BBoxIntersectsTester(geo);
     case BBoxWithin: return new BBoxWithinTester(geo);
     case Contains: return new ContainsTester(geo);
+    case Intersects: return new IntersectsTester(geo);
+    case IsEqualTo: return new IsEqualToTester(geo);
+    case IsDisjointTo: return new IsDisjointToTester(geo);
+    case IsWithin: return new IsWithinTester(geo);
+    case Overlaps: return new OverlapsTester(geo);
     }
     return null;
   }
 
-  private abstract static class BaseTester implements GeometryTester {
+  private abstract static class BaseTester implements GeometryTest {
     protected Geometry queryGeo;
 
     public BaseTester( Geometry geo ) {
@@ -77,12 +80,58 @@ public class GeometryTestFactory
     }
   }
 
-//  ( true, false, false ),
-//  ( true, true, false ),
-//  Intersects( true, false, false ),
-//  IsEqualTo( false, false, false ),
-//  IsDisjointTo( false, false, false ),
-//  IsWithin( true, false, true ),
-//  Overlaps( true, false, true ),
+  public static class IntersectsTester extends BaseTester {
+    public IntersectsTester(Geometry geo) {
+      super(geo);
+    }
 
+    @Override
+    public boolean matches(Geometry geo) {
+      return geo.intersects( queryGeo );
+    }
+  }
+
+  public static class IsEqualToTester extends BaseTester {
+    public IsEqualToTester(Geometry geo) {
+      super(geo);
+    }
+
+    @Override
+    public boolean matches(Geometry geo) {
+      return geo.equals( queryGeo );
+    }
+  }
+
+  public static class IsDisjointToTester extends BaseTester {
+    public IsDisjointToTester(Geometry geo) {
+      super(geo);
+    }
+
+    @Override
+    public boolean matches(Geometry geo) {
+      return geo.disjoint( queryGeo );
+    }
+  }
+
+  public static class IsWithinTester extends BaseTester {
+    public IsWithinTester(Geometry geo) {
+      super(geo);
+    }
+
+    @Override
+    public boolean matches(Geometry geo) {
+      return geo.within( queryGeo );
+    }
+  }
+
+  public static class OverlapsTester extends BaseTester {
+    public OverlapsTester(Geometry geo) {
+      super(geo);
+    }
+
+    @Override
+    public boolean matches(Geometry geo) {
+      return geo.overlaps( queryGeo );
+    }
+  }
 }

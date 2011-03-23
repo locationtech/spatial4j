@@ -32,14 +32,14 @@ public class GeometryOperationFilter extends Filter
   final String fname;
   final SpatialArgs args;
   final GeometryFactory factory;
-  final GeometryTester tester;
+  final GeometryTest tester;
 
   public GeometryOperationFilter( String fname, SpatialArgs args, JTSShapeIO reader )
   {
     this.fname = fname;
     this.args = args;
     this.factory = reader.factory;
-    tester = GeometryTestFactory.get( args, reader );
+    tester = GeometryTestFactory.get( args.op, reader.getGeometryFrom(args.shape) );
   }
 
   @Override
