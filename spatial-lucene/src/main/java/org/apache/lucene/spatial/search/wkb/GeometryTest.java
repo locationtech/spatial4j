@@ -15,18 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.geo;
+package org.apache.lucene.spatial.search.wkb;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 
-/**
- * Fieldnames to store
- */
-public class GeoFieldInfo
-{
-  public final String fname;
-
-  public GeoFieldInfo( String name )
-  {
-    this.fname = name;
-  }
+public interface GeometryTest {
+  public boolean matches( Geometry geo );
 }

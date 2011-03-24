@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search.geo;
+package org.apache.lucene.spatial.search.wkb;
 
 import java.io.IOException;
 import java.util.BitSet;

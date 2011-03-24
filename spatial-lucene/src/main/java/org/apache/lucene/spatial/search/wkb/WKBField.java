@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search.geo;
+package org.apache.lucene.spatial.search.wkb;
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -35,12 +35,12 @@ import org.apache.lucene.util.StringHelper;
  * the data.
  *
  */
-public final class WellKnownGeoField extends AbstractField implements Fieldable
+public final class WKBField extends AbstractField implements Fieldable
 {
   private final String wkt;
   private final BytesRef bytes;
 
-  public WellKnownGeoField(String name, byte[] wkb, String wkt )
+  public WKBField(String name, byte[] wkb, String wkt )
   {
     if (name == null)
       throw new IllegalArgumentException("name cannot be null");
@@ -58,7 +58,6 @@ public final class WellKnownGeoField extends AbstractField implements Fieldable
       if( wkb.length > 32000 ) {
         throw new InvalidShapeException( "WKB must be less then 32K ["+wkb.length+"]" );
       }
-
       bytes = new BytesRef();
       bytes.bytes = wkb;
       bytes.length = wkb.length;

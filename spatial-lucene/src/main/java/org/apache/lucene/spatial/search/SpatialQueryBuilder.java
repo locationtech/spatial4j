@@ -11,7 +11,7 @@ import org.apache.lucene.spatial.base.SpatialArgs;
  */
 public interface SpatialQueryBuilder<T>
 {
-  public Fieldable[] createFields( T fields, Shape shape, boolean index, boolean store );
-  public ValueSource makeValueSource(SpatialArgs args, T context);
-  public Query makeQuery(SpatialArgs args, T context);
+  public Fieldable[] createFields( T field, Shape shape, boolean index, boolean store );
+  public ValueSource makeValueSource(SpatialArgs args, T field);
+  public Query makeQuery(SpatialArgs args, T field);
 }

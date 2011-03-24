@@ -19,19 +19,13 @@ package org.apache.solr.spatial.index;
 
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.FilteredQuery;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
-import org.apache.lucene.spatial.search.index.STRTreeIndexProvider;
-import org.apache.lucene.spatial.search.index.SpatialIndexFilter;
-import org.apache.lucene.spatial.search.index.SpatialIndexProvider;
+import org.apache.lucene.spatial.search.index.SpatialIndexQueryBuilder;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
@@ -43,43 +37,25 @@ import org.apache.solr.spatial.SpatialFieldType;
  */
 public class SpatialIndexFieldType extends SpatialFieldType
 {
-  final Map<String, SpatialIndexProvider> provider
-    = new ConcurrentHashMap<String, SpatialIndexProvider>();
+  SpatialIndexQueryBuilder builder;
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
     reader = new JTSShapeIO();
+    builder = new SpatialIndexQueryBuilder( reader );
   }
 
   @Override
   public Fieldable createField(SchemaField field, Shape shape, float boost)
   {
-    BBox bbox = shape.getBoundingBox();
-    if( bbox.getCrossesDateLine() ) {
-      throw new RuntimeException( this.getClass() + " does not support BBox crossing the date line" );
-    }
-    String v = reader.toString( bbox );
-    return createField(field.getName(), v, getFieldStore(field, v),
-            getFieldIndex(field, v), getFieldTermVec(field, v), field.omitNorms(),
-            field.omitTf(), boost);
+    return builder.createFields(field.getName(), shape,
+        field.indexed(), field.stored() )[0];
   }
 
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
-    if( args.shape.getBoundingBox().getCrossesDateLine() ) {
-      throw new UnsupportedOperationException( "Spatial Index does not (yet) support queries that cross the date line" );
-    }
-
-    SpatialIndexProvider p = provider.get( field.getName() );
-    if( p == null ) {
-      p = new STRTreeIndexProvider( 30, field.getName(), reader );
-      provider.put( field.getName(), p );
-    }
-
-    // just a filter wrapper for now...
-    SpatialIndexFilter filter = new SpatialIndexFilter( p, args );
-    return new FilteredQuery( new MatchAllDocsQuery(), filter );
+    return builder.makeQuery(args, field.getName() );
   }
 }

@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search.geo;
+package org.apache.lucene.spatial.search.wkb;
 
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.FilteredQuery;
@@ -18,35 +18,35 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
-public class GeoQueryBuilder implements SpatialQueryBuilder<GeoFieldInfo>
+public class WKBQueryBuilder implements SpatialQueryBuilder<String>
 {
-  private static Logger log = LoggerFactory.getLogger(GeoQueryBuilder.class);
+  private static Logger log = LoggerFactory.getLogger(WKBQueryBuilder.class);
 
   public final JTSShapeIO reader;
 
-  public GeoQueryBuilder( JTSShapeIO reader )
+  public WKBQueryBuilder( JTSShapeIO reader )
   {
     this.reader = reader;
   }
 
 
   @Override
-  public ValueSource makeValueSource(SpatialArgs args, GeoFieldInfo context) {
+  public ValueSource makeValueSource(SpatialArgs args, String fname) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Query makeQuery(SpatialArgs args, GeoFieldInfo context)
+  public Query makeQuery(SpatialArgs args, String fname)
   {
     Geometry geo = reader.getGeometryFrom(args.shape);
     GeometryTest tester = GeometryTestFactory.get( args.op, geo );
 
-    GeometryOperationFilter filter = new GeometryOperationFilter( context.fname, tester, reader.factory );
+    GeometryOperationFilter filter = new GeometryOperationFilter( fname, tester, reader.factory );
     return new FilteredQuery( new MatchAllDocsQuery(), filter );
   }
 
   @Override
-  public Fieldable[] createFields(GeoFieldInfo info, Shape shape,
+  public Fieldable[] createFields(String fname, Shape shape,
       boolean index, boolean store )
   {
     Geometry geo = reader.getGeometryFrom(shape);
@@ -78,7 +78,7 @@ public class GeoQueryBuilder implements SpatialQueryBuilder<GeoFieldInfo>
       }
     }
 
-    WellKnownGeoField f = new WellKnownGeoField(info.fname, wkb, wkt );
+    WKBField f = new WKBField(fname, wkb, wkt );
     return new Fieldable[] { f };
   }
 

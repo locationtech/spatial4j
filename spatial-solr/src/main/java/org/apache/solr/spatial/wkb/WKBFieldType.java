@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.geo;
+package org.apache.solr.spatial.wkb;
+
 /**
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -39,8 +40,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
-import org.apache.lucene.spatial.search.geo.GeoFieldInfo;
-import org.apache.lucene.spatial.search.geo.GeoQueryBuilder;
+import org.apache.lucene.spatial.search.wkb.WKBQueryBuilder;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
@@ -55,30 +55,28 @@ import org.slf4j.LoggerFactory;
  * Maximum bytes for WKB is 3200, this will simplify geometry till there are fewer then 32K bytes
  *
  */
-public class WellKnownGeoFieldType extends SpatialFieldType
+public class WKBFieldType extends SpatialFieldType
 {
-  static final Logger log = LoggerFactory.getLogger( WellKnownGeoFieldType.class );
-  GeoQueryBuilder builder;
+  static final Logger log = LoggerFactory.getLogger( WKBFieldType.class );
+  WKBQueryBuilder builder;
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-    builder = new GeoQueryBuilder( new JTSShapeIO() );
+    builder = new WKBQueryBuilder( new JTSShapeIO() );
     reader = builder.reader;
   }
 
   @Override
   public Fieldable createField(SchemaField field, Shape shape, float boost)
   {
-    GeoFieldInfo info = new GeoFieldInfo( field.getName() );
-    return builder.createFields(info, shape,
+    return builder.createFields(field.getName(), shape,
         field.indexed(), field.stored() )[0];
   }
 
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
-    GeoFieldInfo info = new GeoFieldInfo( field.getName() );
-    return builder.makeQuery(args, info);
+    return builder.makeQuery(args, field.getName() );
   }
 }
