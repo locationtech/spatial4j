@@ -38,7 +38,6 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
-import org.apache.lucene.spatial.base.grid.SpatialGrid;
 import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.grid.GridQueryBuilder;
@@ -59,13 +58,13 @@ import org.apache.solr.spatial.SpatialFieldType;
  */
 public class SpatialGridFieldType extends SpatialFieldType
 {
-  int maxLength = -1;
   GridQueryBuilder builder;
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
 
+    int maxLength = -1;
     String res = args.remove( "maxLength" );
     if( res != null ) {
       maxLength = Integer.parseInt( res );
@@ -76,25 +75,20 @@ public class SpatialGridFieldType extends SpatialFieldType
     JtsLinearSpatialGrid grid = new JtsLinearSpatialGrid( -180, 180, -90-180, 90, 16 );
     grid.resolution = 5; // how far past the best fit to go
 
-    this.init(grid, maxLength);
-  }
-
-  public void init( SpatialGrid grid, int maxLength )
-  {
-    this.maxLength = maxLength;
-    this.builder = new GridQueryBuilder( grid );
+    this.builder = new GridQueryBuilder( grid, maxLength );
   }
 
   @Override
   public Fieldable createField(SchemaField field, Shape shape, float boost)
   {
-    return builder.makeField(field.getName(), shape, maxLength, field.stored() );
+    return builder.createFields(field.getName(), shape,
+        field.indexed(), field.stored() )[0];
   }
 
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args )
   {
-    return builder.makeQuery(field.getName(), args);
+    return builder.makeQuery(args, field.getName() );
   }
 }
 

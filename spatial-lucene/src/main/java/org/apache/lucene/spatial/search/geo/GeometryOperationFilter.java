@@ -10,9 +10,7 @@ import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.Filter;
-import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.DocIdBitSet;
 import org.slf4j.Logger;
@@ -30,16 +28,14 @@ public class GeometryOperationFilter extends Filter
   static final Logger log = LoggerFactory.getLogger( GeometryOperationFilter.class );
 
   final String fname;
-  final SpatialArgs args;
   final GeometryFactory factory;
   final GeometryTest tester;
 
-  public GeometryOperationFilter( String fname, SpatialArgs args, JTSShapeIO reader )
+  public GeometryOperationFilter( String fname, GeometryTest tester, GeometryFactory factory )
   {
     this.fname = fname;
-    this.args = args;
-    this.factory = reader.factory;
-    tester = GeometryTestFactory.get( args.op, reader.getGeometryFrom(args.shape) );
+    this.factory = factory;
+    this.tester = tester;
   }
 
   @Override

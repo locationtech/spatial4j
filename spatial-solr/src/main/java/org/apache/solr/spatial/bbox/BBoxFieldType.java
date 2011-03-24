@@ -49,6 +49,8 @@ public class BBoxFieldType extends SpatialFieldType implements SchemaAware
   protected FieldType doubleType;
   protected FieldType booleanType;
 
+  BBoxQueryBuilder builder = new BBoxQueryBuilder();
+
   double queryPower = 1.0;
   double targetPower = 1.0f;
 
@@ -120,14 +122,11 @@ public class BBoxFieldType extends SpatialFieldType implements SchemaAware
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
-    BBoxQueryBuilder builder = new BBoxQueryBuilder();
     BBoxFieldInfo info = new BBoxFieldInfo();
     info.setFieldsPrefix( field.getName() );
-    // TODO make sure the parser and precision step are set!
-    // TODO make sure the parser and precision step are set!
-    info.parser = FieldCache.NUMERIC_UTILS_DOUBLE_PARSER;
-    info.precisionStep = Integer.MAX_VALUE; // set to zero
-    return builder.makeQuery(info, args);
+    info.parser = FieldCache.NUMERIC_UTILS_DOUBLE_PARSER; // TODO, read from solr!
+    info.precisionStep = Integer.MAX_VALUE;  // TODO, read from solr!
+    return builder.makeQuery(args, info);
   }
 
   @Override

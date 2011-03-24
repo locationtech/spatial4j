@@ -42,6 +42,7 @@ public class BBoxFieldInfo
   // crosses dateline
   public String xdl = "envelope.xdl";
 
+
   public void setFieldsPrefix( String prefix )
   {
     minX = prefix + SUFFIX_MINX;

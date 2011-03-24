@@ -18,20 +18,25 @@ import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.SpatialOperation;
 import org.apache.lucene.spatial.base.grid.SpatialGrid;
+import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
-public class GridQueryBuilder
+public class GridQueryBuilder implements SpatialQueryBuilder<String>
 {
   final SpatialGrid grid;
+  final int maxLength;
 
-  public GridQueryBuilder( SpatialGrid grid )
+  public GridQueryBuilder( SpatialGrid grid, int maxLength )
   {
     this.grid = grid;
+    this.maxLength = maxLength;
   }
 
-  public Fieldable makeField( String fname, Shape shape, int maxLength, boolean stored )
+  @Override
+  public Fieldable[] createFields(String fname, Shape shape,
+      boolean index, boolean store )
   {
     List<CharSequence> match = grid.readCells(shape);
-    BasicGridFieldable f = new BasicGridFieldable(fname, stored);
+    BasicGridFieldable f = new BasicGridFieldable(fname, store );
     if( maxLength > 0 ) {
       f.tokens = new RemoveDuplicatesTokenFilter(
           new TruncateFilter( new StringListTokenizer( match ), maxLength ) );
@@ -39,21 +44,21 @@ public class GridQueryBuilder
     else {
       f.tokens = new StringListTokenizer( match );
     }
-    if( stored ) {
+    if( store ) {
       f.value = match.toString(); //reader.toString( shape );
     }
-    return f;
+    return new Fieldable[] { f };
   }
 
   //-----------------------------------------------------
   //-----------------------------------------------------
 
-  public ValueSource makeValueSource(String fname, SpatialArgs args)
+  public ValueSource makeValueSource(SpatialArgs args, String fname)
   {
     throw new UnsupportedOperationException( "not implemented yet..." );
   }
 
-  public Query makeQuery(String fname, SpatialArgs args)
+  public Query makeQuery(SpatialArgs args, String fname)
   {
     if( args.op != SpatialOperation.Intersects &&
         args.op != SpatialOperation.IsWithin &&

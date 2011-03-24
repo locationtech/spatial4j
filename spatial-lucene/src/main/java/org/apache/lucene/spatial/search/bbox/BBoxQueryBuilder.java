@@ -17,6 +17,7 @@
 
 package org.apache.lucene.spatial.search.bbox;
 
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -26,7 +27,9 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
+import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
 /**
  *
@@ -34,19 +37,26 @@ import org.apache.lucene.spatial.base.SpatialArgs;
  *  http://geoportal.svn.sourceforge.net/svnroot/geoportal/Geoportal/trunk/src/com/esri/gpt/catalog/lucene/SpatialClauseAdapter.java
  *
  */
-public class BBoxQueryBuilder
+public class BBoxQueryBuilder implements SpatialQueryBuilder<BBoxFieldInfo>
 {
   public double queryPower = 1.0;
   public double targetPower = 1.0f;
 
 
-  public ValueSource makeValueSource(BBoxFieldInfo fields, SpatialArgs args)
-  {
-    return new BBoxSimilarityValueSource(
-        new AreaSimilarity( args.shape.getBoundingBox(), queryPower,targetPower ), fields );
+  @Override
+  public Fieldable[] createFields(BBoxFieldInfo fields, Shape shape, boolean index, boolean store ) {
+    throw new UnsupportedOperationException( "solr does this for now..." );
   }
 
-  public Query makeQuery(BBoxFieldInfo fields, SpatialArgs args)
+  @Override
+  public ValueSource makeValueSource(SpatialArgs args, BBoxFieldInfo fields)
+  {
+    return new BBoxSimilarityValueSource(
+        new AreaSimilarity( args.shape.getBoundingBox(), queryPower, targetPower ), fields );
+  }
+
+  @Override
+  public Query makeQuery(SpatialArgs args, BBoxFieldInfo fields)
   {
     BBox bbox = args.shape.getBoundingBox();
     BBoxQueryHelper helper = new BBoxQueryHelper(bbox,fields);
@@ -67,7 +77,7 @@ public class BBoxQueryBuilder
     }
 
     if( args.calculateScore ) {
-      Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( fields, args ) );
+      Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( args, fields ) );
       BooleanQuery bq = new BooleanQuery();
       bq.add(spatial,BooleanClause.Occur.MUST);
       bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
