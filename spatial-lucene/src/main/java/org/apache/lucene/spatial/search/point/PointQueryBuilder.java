@@ -17,6 +17,7 @@
 
 package org.apache.lucene.spatial.search.point;
 
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
@@ -25,19 +26,27 @@ import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.Point;
+import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.simple.Rectangle;
+import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class PointQueryBuilder
+public class PointQueryBuilder implements SpatialQueryBuilder<PointFieldInfo>
 {
   static final Logger log = LoggerFactory.getLogger( PointQueryBuilder.class );
 
-  public ValueSource makeValueSource(PointFieldInfo fields, SpatialArgs args)
+  @Override
+  public Fieldable[] createFields(PointFieldInfo field, Shape shape, boolean index, boolean store) {
+    throw new RuntimeException( "implemented by solr now..." );
+  }
+
+  @Override
+  public ValueSource makeValueSource(SpatialArgs args, PointFieldInfo fields)
   {
     DistanceCalculator calc = new EuclidianDistanceCalculator();
     if( args.shape instanceof Point ) {
@@ -48,7 +57,8 @@ public class PointQueryBuilder
     throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
   }
 
-  public Query makeQuery(PointFieldInfo fields, SpatialArgs args)
+  @Override
+  public Query makeQuery(SpatialArgs args, PointFieldInfo fields)
   {
     // For starters, just limit the bbox
     BBox bbox = args.shape.getBoundingBox();
@@ -72,7 +82,7 @@ public class PointQueryBuilder
       case Distance: {
         if( args.max == null ) {
           // no bbox to limit
-          return new ValueSourceQuery( makeValueSource( fields, args ) );
+          return new ValueSourceQuery( makeValueSource( args, fields ) );
         }
         if( args.shape instanceof Point ) {
           // first make a BBox Query
@@ -90,7 +100,7 @@ public class PointQueryBuilder
 
     if( args.calculateScore ) {
       try {
-        Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( fields, args ) );
+        Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( args, fields ) );
         BooleanQuery bq = new BooleanQuery();
         bq.add(spatial,BooleanClause.Occur.MUST);
         bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);

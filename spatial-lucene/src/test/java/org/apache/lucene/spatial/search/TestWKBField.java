@@ -32,7 +32,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  */
-public class TestGeoField extends TestCase
+public class TestWKBField extends TestCase
 {
   public void testGeometryOpertaions() throws Exception
   {
