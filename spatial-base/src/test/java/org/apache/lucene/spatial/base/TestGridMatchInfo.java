@@ -4,7 +4,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.spatial.base.grid.LinearSpatialGrid;
+import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.simple.Point2D;
 import org.apache.lucene.spatial.base.simple.Rectangle;
 
@@ -17,7 +17,7 @@ public class TestGridMatchInfo extends TestCase
   public void testMatchInfo() throws Exception
   {
     // Check Validatio
-    LinearSpatialGrid grid = new LinearSpatialGrid( 0, 10, 0, 10, 2 );
+    LinearPrefixGrid grid = new LinearPrefixGrid( 0, 10, 0, 10, 2 );
     grid.resolution = 1;
     grid.minResolution = 1;
 

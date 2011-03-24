@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.grid;
+package org.apache.lucene.spatial.base.prefix;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import org.apache.lucene.spatial.base.simple.Rectangle;
 
 
 
-public class LinearSpatialGrid implements SpatialGrid
+public class LinearPrefixGrid implements SpatialPrefixGrid
 {
   public final double xmin;
   public final double xmax;
@@ -50,7 +50,7 @@ public class LinearSpatialGrid implements SpatialGrid
   public int minResolution = 6; // Go at least this deep
   public int resolution = 4; // how far down past the 'bbox level'
 
-  public LinearSpatialGrid( double xmin, double xmax, double ymin, double ymax, int maxLevels )
+  public LinearPrefixGrid( double xmin, double xmax, double ymin, double ymax, int maxLevels )
   {
     this.xmin = xmin;
     this.xmax = xmax;
@@ -80,7 +80,7 @@ public class LinearSpatialGrid implements SpatialGrid
     }
   }
 
-  public LinearSpatialGrid()
+  public LinearPrefixGrid()
   {
     this( -180, 180, -90, 90, 12 );
   }
@@ -157,7 +157,7 @@ public class LinearSpatialGrid implements SpatialGrid
     IntersectCase v = geo.intersect( cell, this );
     if( IntersectCase.CONTAINS == v ) {
       str.append( c );
-      str.append( SpatialGrid.COVER );
+      str.append( SpatialPrefixGrid.COVER );
       matches.add( str.toString() );
     }
     else if( IntersectCase.OUTSIDE == v ) {
@@ -173,7 +173,7 @@ public class LinearSpatialGrid implements SpatialGrid
 
       int nextLevel = level+1;
       if( nextLevel >= maxLevel ) {
-        str.append( SpatialGrid.INTERSECTS );
+        str.append( SpatialPrefixGrid.INTERSECTS );
         matches.add( str.toString() );
       }
       else {

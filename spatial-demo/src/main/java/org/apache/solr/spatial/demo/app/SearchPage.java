@@ -10,8 +10,8 @@ import java.util.List;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.lucene.spatial.base.SpatialOperation;
-import org.apache.lucene.spatial.base.grid.LinearSpatialGrid;
-import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
+import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -60,7 +60,7 @@ public class SearchPage extends WebPage
   static Logger log = LoggerFactory.getLogger( SearchPage.class );
 
   // Dirty Dirty Dirty Hack...
-  static final JtsLinearSpatialGrid grid = new JtsLinearSpatialGrid( -180, 180, -90-180, 90, 16 );
+  static final JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid( -180, 180, -90-180, 90, 16 );
   static final SolrServer solr;
   static {
     SolrServer s = null;
@@ -273,7 +273,7 @@ public class SearchPage extends WebPage
         String wkt = (String)docs.get(0).get( "geo" );
         String cells = (String)docs.get(0).get( "grid" );
         String name = (String)docs.get(0).get( "name" );
-        List<String> tokens = LinearSpatialGrid.parseStrings( cells );
+        List<String> tokens = LinearPrefixGrid.parseStrings( cells );
         return KMLHelper.toKML(name, grid, tokens);
       }
     }

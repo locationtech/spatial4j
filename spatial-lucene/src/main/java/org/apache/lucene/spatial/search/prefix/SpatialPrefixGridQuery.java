@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search.grid;
+package org.apache.lucene.spatial.search.prefix;
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.AutomatonQuery;
-import org.apache.lucene.spatial.base.grid.SpatialGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.util.ToStringUtils;
 import org.apache.lucene.util.automaton.Automaton;
 import org.apache.lucene.util.automaton.BasicAutomata;
@@ -32,12 +32,12 @@ import org.apache.lucene.util.automaton.BasicOperations;
  *
  * @see AutomatonQuery, WildcardQuery
  */
-public class SpatialGridQuery extends AutomatonQuery
+public class SpatialPrefixGridQuery extends AutomatonQuery
 {
   /**
    * Constructs a query for terms matching <code>term</code>.
    */
-  public SpatialGridQuery(Term term) {
+  public SpatialPrefixGridQuery(Term term) {
     super(term, toAutomaton(term));
   }
 
@@ -53,11 +53,11 @@ public class SpatialGridQuery extends AutomatonQuery
       final int c = wildcardText.codePointAt(i);
       int length = Character.charCount(c);
       switch(c) {
-        case SpatialGrid.COVER:
+        case SpatialPrefixGrid.COVER:
           automata.add(BasicAutomata.makeAnyString());
           break;
 
-        case SpatialGrid.INTERSECTS:
+        case SpatialPrefixGrid.INTERSECTS:
           automata.add(BasicAutomata.makeAnyString()); // same as cover?
           break;
 

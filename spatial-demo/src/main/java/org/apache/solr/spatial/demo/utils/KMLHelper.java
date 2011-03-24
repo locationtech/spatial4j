@@ -7,10 +7,10 @@ import java.util.List;
 import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.ShapeIO;
-import org.apache.lucene.spatial.base.grid.SpatialGrid;
-import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 import org.apache.lucene.spatial.base.jts.JtsGeometry;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
@@ -79,7 +79,7 @@ public class KMLHelper
     throw new IllegalArgumentException( "for now only extent supported..." );
   }
 
-  private static Placemark create( String key, String style, SpatialGrid grid )
+  private static Placemark create( String key, String style, SpatialPrefixGrid grid )
   {
     Shape r = grid.getCellShape( key );
     List<Coordinate> coords = getCoords( r );
@@ -96,7 +96,7 @@ public class KMLHelper
     return p;
   }
 
-  public static Kml toKML(String name, SpatialGrid grid, List<? extends CharSequence> tokens )
+  public static Kml toKML(String name, SpatialPrefixGrid grid, List<? extends CharSequence> tokens )
   {
     final Kml kml = KmlFactory.createKml();
     Document document = kml.createAndSetDocument()
@@ -118,8 +118,8 @@ public class KMLHelper
 
   public static void main( String[] args ) throws Exception
   {
-    JtsLinearSpatialGrid grid = new JtsLinearSpatialGrid( 0, 10, 0, 10, 10 );
-    grid = new JtsLinearSpatialGrid( -180, 180, -90-180, 90, 16 ); // make it like WGS84
+    JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid( 0, 10, 0, 10, 10 );
+    grid = new JtsLinearPrefixGrid( -180, 180, -90-180, 90, 16 ); // make it like WGS84
 
 
 //    CRSCache cache = new CRSCache();

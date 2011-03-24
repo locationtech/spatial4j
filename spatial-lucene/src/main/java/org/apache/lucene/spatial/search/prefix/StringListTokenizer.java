@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.grid;
+package org.apache.lucene.spatial.search.prefix;
 
 import java.io.IOException;
 import java.io.Reader;

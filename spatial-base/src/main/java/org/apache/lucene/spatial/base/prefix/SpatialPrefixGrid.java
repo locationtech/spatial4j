@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.grid;
+package org.apache.lucene.spatial.base.prefix;
 
 import java.util.List;
 
 import org.apache.lucene.spatial.base.Shape;
 
-public interface SpatialGrid
+public interface SpatialPrefixGrid
 {
   public static final char COVER = '*';
   public static final char INTERSECTS = '+';

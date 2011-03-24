@@ -14,9 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.ShapeIO;
-import org.apache.lucene.spatial.base.grid.jts.JtsLinearSpatialGrid;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
 import org.apache.lucene.spatial.base.jts.JtsGeometry;
+import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 import org.apache.solr.spatial.demo.utils.KMLHelper;
 import org.apache.solr.spatial.demo.utils.countries.CountryInfo;
 import org.apache.solr.spatial.demo.utils.countries.CountryReader;
@@ -74,7 +74,7 @@ public class GridInfoServlet extends HttpServlet
     }
     int depth = getIntParam( req, "depth", 16 );
     ShapeIO reader = new JTSShapeIO();
-    JtsLinearSpatialGrid grid = new JtsLinearSpatialGrid( -180, 180, -90-180, 90, depth ); // make it like WGS84
+    JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid( -180, 180, -90-180, 90, depth ); // make it like WGS84
     grid.resolution = getIntParam( req, "resolution", 4 );
 
     // If they don't set a country, then use the input

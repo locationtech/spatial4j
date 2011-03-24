@@ -2,10 +2,10 @@ package org.apache.lucene.spatial.base;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.spatial.base.grid.LinearSpatialGrid;
-import org.apache.lucene.spatial.base.grid.SpatialGrid;
 import org.apache.lucene.spatial.base.jts.JtsEnvelope;
 import org.apache.lucene.spatial.base.jts.JtsPoint2D;
+import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -18,7 +18,7 @@ public class TestBasicIntersection extends TestCase
 {
   public void testIntersection() throws Exception
   {
-    SpatialGrid grid = new LinearSpatialGrid( 0, 10, 0, 10, 10 );
+    SpatialPrefixGrid grid = new LinearPrefixGrid( 0, 10, 0, 10, 10 );
 
     JtsEnvelope big = new JtsEnvelope(   0, 100,  0, 100 );
     JtsEnvelope rr0 = new JtsEnvelope(  25,  75, 25,  75 );

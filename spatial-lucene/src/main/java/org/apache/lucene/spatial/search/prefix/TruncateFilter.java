@@ -15,8 +15,33 @@
  * limitations under the License.
  */
 
-/**
- * geohash is a subset of quad idea
- */
-package org.apache.lucene.spatial.base.grid.geohash;
+package org.apache.lucene.spatial.search.prefix;
 
+
+import java.io.IOException;
+
+import org.apache.lucene.analysis.TokenFilter;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+
+class TruncateFilter extends TokenFilter {
+
+  private final int maxTokenLength;
+
+  private final CharTermAttribute termAttr = addAttribute(CharTermAttribute.class);
+
+  public TruncateFilter(TokenStream in, int maxTokenLength) {
+    super( in );
+    this.maxTokenLength = maxTokenLength;
+  }
+
+  @Override
+  public boolean incrementToken() throws IOException {
+    if (!input.incrementToken()) return false;
+
+    if( termAttr.length() > maxTokenLength ) {
+      termAttr.setLength( maxTokenLength );
+    }
+    return true;
+  }
+}

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.grid;
+package org.apache.lucene.spatial.search.prefix;
 /**
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -42,7 +42,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 /**
  *
  */
-public class GridCellsTokenizer extends Tokenizer
+class GridCellsTokenizer extends Tokenizer
 {
   public GridCellsTokenizer(Reader input) {
     super(input);
