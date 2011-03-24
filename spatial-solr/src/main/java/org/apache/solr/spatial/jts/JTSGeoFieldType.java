@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.wkb;
+package org.apache.solr.spatial.jts;
 
 /**
  * contributor license agreements.  See the NOTICE file distributed with
@@ -40,7 +40,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.jts.JTSShapeIO;
-import org.apache.lucene.spatial.search.wkb.WKBQueryBuilder;
+import org.apache.lucene.spatial.search.jts.JTSGeoQueryBuilder;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
@@ -52,18 +52,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Indexed field is WKB (store WKT)
  *
- * Maximum bytes for WKB is 3200, this will simplify geometry till there are fewer then 32K bytes
+ * Maximum bytes for WKB is 32000, this will simplify geometry till there are fewer then 32K bytes
  *
  */
-public class WKBFieldType extends SpatialFieldType
+public class JTSGeoFieldType extends SpatialFieldType
 {
-  static final Logger log = LoggerFactory.getLogger( WKBFieldType.class );
-  WKBQueryBuilder builder;
+  static final Logger log = LoggerFactory.getLogger( JTSGeoFieldType.class );
+  JTSGeoQueryBuilder builder;
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-    builder = new WKBQueryBuilder( new JTSShapeIO() );
+    builder = new JTSGeoQueryBuilder( new JTSShapeIO() );
     reader = builder.reader;
   }
 

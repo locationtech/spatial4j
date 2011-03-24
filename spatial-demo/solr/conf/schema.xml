@@ -55,8 +55,8 @@
 
 
     <!-- Geometry Fields -->
-    <fieldtype name="geo"   class="org.apache.solr.spatial.wkb.WKBFieldType" />
-    <fieldtype name="grid"  class="org.apache.solr.spatial.grid.SpatialGridFieldType" />
+    <fieldtype name="geo"   class="org.apache.solr.spatial.jts.JTSGeoFieldType" />
+    <fieldtype name="grid"  class="org.apache.solr.spatial.prefix.SpatialPrefixGridFieldType" />
     <fieldtype name="bbox"  class="org.apache.solr.spatial.bbox.BBoxFieldType" />
     <fieldtype name="rtree" class="org.apache.solr.spatial.index.SpatialIndexFieldType" />
     <fieldtype name="point" class="org.apache.solr.spatial.point.PointFieldType" />

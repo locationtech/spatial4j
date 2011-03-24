@@ -16,13 +16,7 @@
  */
 
 /**
- * The Spatial Prefix package supports spatial indexing by index-time tokens
- * where adding characters to a string gives greater resolution.
- *
- * Potential Implementations include:
- *  * http://en.wikipedia.org/wiki/Quadtree
- *  * http://en.wikipedia.org/wiki/Geohash
- *  * http://healpix.jpl.nasa.gov/
+ * Search using complex geometry
  */
-package org.apache.lucene.spatial.base.prefix;
+package org.apache.lucene.spatial.search.jts;
 

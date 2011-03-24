@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 import org.apache.lucene.spatial.base.SpatialArgs;
 import org.apache.lucene.spatial.base.SpatialOperation;
 import org.apache.lucene.spatial.base.jts.JtsGeometry;
-import org.apache.lucene.spatial.search.wkb.GeometryTestFactory;
+import org.apache.lucene.spatial.search.jts.GeometryTestFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;

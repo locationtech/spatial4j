@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search.wkb;
+package org.apache.lucene.spatial.search.jts;
 
 import org.apache.lucene.analysis.tokenattributes.TermToBytesRefAttribute;
 import org.apache.lucene.util.AttributeImpl;

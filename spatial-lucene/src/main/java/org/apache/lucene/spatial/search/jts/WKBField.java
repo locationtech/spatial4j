@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search.wkb;
+package org.apache.lucene.spatial.search.jts;
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -33,9 +33,8 @@ import org.apache.lucene.util.StringHelper;
  *
  * In the future, this should use Column Stride Fields rather then indexing
  * the data.
- *
  */
-public final class WKBField extends AbstractField implements Fieldable
+class WKBField extends AbstractField implements Fieldable
 {
   private final String wkt;
   private final BytesRef bytes;

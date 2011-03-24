@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.wkb;
+package org.apache.lucene.spatial.search.jts;
 
 import org.apache.lucene.spatial.base.SpatialOperation;
 

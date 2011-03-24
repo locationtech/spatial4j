@@ -41,7 +41,7 @@ import org.apache.solr.spatial.SpatialFieldType;
  * (2) Something for the field reader....
  *
  */
-public class SpatialGridFieldType extends SpatialFieldType
+public class SpatialPrefixGridFieldType extends SpatialFieldType
 {
   PrefixGridQueryBuilder builder;
 
