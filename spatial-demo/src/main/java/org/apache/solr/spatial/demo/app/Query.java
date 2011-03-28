@@ -11,14 +11,14 @@ public class Query implements Serializable
 {
   public String fq;
 
-  public String field = "geo";
+  public String field = "geohash";
   public SpatialOperation op = SpatialOperation.IsWithin;
   public String geo;
 
   public Boolean cache;
   public Boolean score;
-  public String min;
-  public String max;
+  public String distance;
+  public String radius;
   public String sort;
 
   public SolrParams toSolrQuery( int rows )
@@ -29,11 +29,11 @@ public class Query implements Serializable
     boolean hasGeo = (geo != null && geo.length() > 0);
     if( hasGeo ) {
       q = field + ":\""+op.name()+"("+geo+")";
-      if( min != null ) {
-        q += " min=" + min;
+      if( distance != null ) {
+        q += " distance=" + distance;
       }
-      if( max != null ) {
-        q += " max=" + max;
+      if( radius != null ) {
+        q += " radius=" + radius;
       }
       if( cache != null ) {
         q += " cache=" + cache;

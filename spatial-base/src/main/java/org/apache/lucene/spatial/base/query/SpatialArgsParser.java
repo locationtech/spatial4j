@@ -40,8 +40,8 @@ public class SpatialArgsParser
         Map<String,String> aa = parseMap(body);
         args.setCacheable( readBool(aa.remove("cache"), args.isCacheable() ));
         args.setCalculateScore( readBool(aa.remove("score"), args.isCalculateScore() ));
-        args.setMin( readDouble(aa.remove("min"), null) );
-        args.setMax( readDouble(aa.remove("max"), null) );
+        args.setDistance( readDouble(aa.remove("distance"), null) );
+        args.setRadius( readDouble(aa.remove("radius"), null) );
         if (!aa.isEmpty()) {
           throw new InvalidSpatialArgument("unused parameters: " + aa, null);
         }
@@ -55,11 +55,11 @@ public class SpatialArgsParser
   }
 
   protected static Double readDouble(String v, Double defaultValue) {
-      return v == null ? defaultValue : Double.valueOf(v);
+    return v == null ? defaultValue : Double.valueOf(v);
   }
 
   protected static boolean readBool(String v, boolean defaultValue) {
-      return v == null ? defaultValue : Boolean.parseBoolean(v);
+    return v == null ? defaultValue : Boolean.parseBoolean(v);
   }
 
   protected static Map<String,String> parseMap(String body) {

@@ -29,11 +29,11 @@ import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
-public class JTSGeoQueryBuilder implements SpatialQueryBuilder<SimpleSpatialFieldInfo> {
+public class JtsGeoQueryBuilder implements SpatialQueryBuilder<SimpleSpatialFieldInfo> {
 
   private final GeometryFactory factory;
 
-  public JTSGeoQueryBuilder(GeometryFactory factory) {
+  public JtsGeoQueryBuilder(GeometryFactory factory) {
     this.factory = factory;
   }
 

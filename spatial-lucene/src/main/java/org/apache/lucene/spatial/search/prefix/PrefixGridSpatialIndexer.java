@@ -7,12 +7,12 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.SingleFieldSpatialIndexer;
+import org.apache.lucene.spatial.search.SpatialIndexer;
 
 /**
  * @author Chris Male
  */
-public class PrefixGridSpatialIndexer extends SingleFieldSpatialIndexer<SimpleSpatialFieldInfo> {
+public class PrefixGridSpatialIndexer extends SpatialIndexer<SimpleSpatialFieldInfo> {
 
   private final SpatialPrefixGrid prefixGrid;
   private final int maxLength;

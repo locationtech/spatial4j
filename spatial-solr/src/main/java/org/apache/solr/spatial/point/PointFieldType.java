@@ -68,7 +68,7 @@ public class PointFieldType extends SpatialFieldType<PointFieldInfo,PointSpatial
           }
           return f;
         }
-        if( !ignoreIncompatibleGeometry ) {
+        if( false ) { //!ignoreIncompatibleGeometry ) {
           throw new IllegalArgumentException( "PointField does not support: "+shape );
         }
         return null;

@@ -43,12 +43,12 @@ public class PointQueryBuilder implements SpatialQueryBuilder<PointFieldInfo> {
     DistanceCalculator calc = new EuclidianDistanceCalculator();
     if (Point.class.isInstance(args.getShape())) {
       DistanceValueSource dvs = new DistanceValueSource(((Point)args.getShape()), calc, fieldInfo);
-      if (args.getMin() != null) {
-        dvs.min = args.getMin();
-      }
-      if (args.getMax() != null ) {
-        dvs.max = args.getMax();
-      }
+//      if (args.getMin() != null) {
+//        dvs.min = args.getMin();
+//      }
+//      if (args.getMax() != null ) {
+//        dvs.max = args.getMax();
+//      }
       return dvs;
     }
     throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
@@ -76,16 +76,13 @@ public class PointQueryBuilder implements SpatialQueryBuilder<PointFieldInfo> {
         spatial =  makeDisjoint(bbox, fieldInfo);
         break;
       case Distance: {
-        if (args.getMax() == null && args.getMin() == null) {
-          // no bbox to limit
-          return new ValueSourceQuery(makeValueSource(args, fieldInfo));
-        }
         if (Point.class.isInstance(args.getShape())) {
-          // first make a BBox Query
-          Point p = (Point) args.getShape();
-          double r = args.getMax();
-          spatial = makeWithin(new Rectangle(p.getX() - r, p.getX() + r, p.getY() - r, p.getY() + r), fieldInfo);
-          break;
+          return new ValueSourceQuery(makeValueSource(args, fieldInfo));
+//          // first make a BBox Query
+//          Point p = (Point) args.getShape();
+//          double r = args.getMax();
+//          spatial = makeWithin(new Rectangle(p.getX() - r, p.getX() + r, p.getY() - r, p.getY() + r), fieldInfo);
+//          break;
         }
         throw new IllegalArgumentException( "Distance only works with point (on point fields)" );
       }

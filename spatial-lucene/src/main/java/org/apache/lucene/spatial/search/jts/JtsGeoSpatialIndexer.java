@@ -5,7 +5,7 @@ import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.jts.JtsUtil;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.SingleFieldSpatialIndexer;
+import org.apache.lucene.spatial.search.SpatialIndexer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,13 +18,13 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 /**
  * @author Chris Male
  */
-public class JTSGeoSpatialIndexer extends SingleFieldSpatialIndexer<SimpleSpatialFieldInfo> {
+public class JtsGeoSpatialIndexer extends SpatialIndexer<SimpleSpatialFieldInfo> {
 
-  private static final Logger logger = LoggerFactory.getLogger(JTSGeoSpatialIndexer.class);
+  private static final Logger logger = LoggerFactory.getLogger(JtsGeoSpatialIndexer.class);
 
   private final GeometryFactory geometryFactory;
 
-  public JTSGeoSpatialIndexer(GeometryFactory geometryFactory) {
+  public JtsGeoSpatialIndexer(GeometryFactory geometryFactory) {
     this.geometryFactory = geometryFactory;
   }
 

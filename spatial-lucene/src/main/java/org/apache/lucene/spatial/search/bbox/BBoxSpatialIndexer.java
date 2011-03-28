@@ -4,7 +4,7 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.search.SpatialIndexer;
 
-public class BBoxSpatialIndexer implements SpatialIndexer<BBoxFieldInfo> {
+public class BBoxSpatialIndexer extends SpatialIndexer<BBoxFieldInfo> {
 
   @Override
   public Fieldable[] createFields(BBoxFieldInfo fieldInfo,

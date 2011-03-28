@@ -90,4 +90,14 @@ public class SimpleShapeIO implements ShapeIO {
   public byte[] toBytes(Shape shape) throws IOException {
     throw new UnsupportedOperationException("not implemented yet");
   }
+
+  @Override
+  public BBox makeBBox(double minX, double maxX, double minY, double maxY) {
+    return new Rectangle( minX, maxX, minY, maxY );
+  }
+
+  @Override
+  public Point makePoint(double x, double y) {
+    return new Point2D(x,y);
+  }
 }

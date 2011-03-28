@@ -44,4 +44,8 @@ public interface ShapeIO {
   public Shape readShape(byte[] bytes, int offset, int length) throws InvalidShapeException;
 
   public byte[] toBytes(Shape shape) throws IOException;
+  
+  public Point makePoint( double x, double y );
+
+  public BBox makeBBox( double minX, double maxX, double minY, double maxY );
 }

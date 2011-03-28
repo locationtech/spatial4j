@@ -88,7 +88,7 @@ public class SearchPage extends WebPage
     Form<Query> searchForm = new Form<Query>( "search", new CompoundPropertyModel<Query>(query) );
     searchForm.add( new TextField<String>( "fq" ) );
     searchForm.add( new DropDownChoice<String>("field",
-        Arrays.asList( "geo", "bbox", "grid", "rtree", "point" ) ));
+        Arrays.asList( "geohash", "geo", "bbox", "grid", "rtree", "point" ) ));
     searchForm.add( new DropDownChoice<SpatialOperation>("op",
         Arrays.asList( SpatialOperation.values() ) ));
 
@@ -102,8 +102,8 @@ public class SearchPage extends WebPage
 
     searchForm.add( new CheckBox( "score" ) );
     searchForm.add( new CheckBox( "cache" ) );
-    searchForm.add( new TextField<String>( "min" ) );
-    searchForm.add( new TextField<String>( "max" ) );
+    searchForm.add( new TextField<String>( "distance" ) );
+    searchForm.add( new TextField<String>( "radius" ) );
     searchForm.add( new TextField<String>( "sort" ) );
     add( searchForm );
 

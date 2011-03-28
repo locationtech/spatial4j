@@ -6,9 +6,9 @@ import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.SingleFieldSpatialIndexer;
+import org.apache.lucene.spatial.search.SpatialIndexer;
 
-public class IndexSpatialIndexer extends SingleFieldSpatialIndexer<SimpleSpatialFieldInfo> {
+public class IndexSpatialIndexer extends SpatialIndexer<SimpleSpatialFieldInfo> {
 
   private ShapeIO shapeIO;
 

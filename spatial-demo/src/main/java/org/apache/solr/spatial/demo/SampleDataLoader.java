@@ -17,13 +17,13 @@ public class SampleDataLoader
   {
     File file = null;
     file = new File( "../data/ikonos_2011/ikonos_2011.shp" );
-    if( file.exists() ) {
+    if( false && file.exists() ) {
       GeoeyeReader.indexItems( solr, file );
       solr.commit( true, true );
     }
 
     file = new File( "../data/countries/cntry06.shp" );
-    if( file.exists() ) {
+    if( false && file.exists() ) {
       CountryReader.indexCountries( solr, file );
       solr.commit( true, true );
     }
