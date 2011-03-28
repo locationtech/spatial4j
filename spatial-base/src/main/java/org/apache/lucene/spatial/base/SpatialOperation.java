@@ -14,37 +14,48 @@
  */
 package org.apache.lucene.spatial.base;
 
-
-
 /**
  * A clause that compares a stored geometry to a supplied geometry.
  */
-public enum SpatialOperation
-{
+public enum SpatialOperation {
+
   // Geometry Operations
-  BBoxIntersects( true, false, false ),
-  BBoxWithin( true, false, false ),
-  Contains( true, true, false ),
-  Intersects( true, false, false ),
-  IsEqualTo( false, false, false ),
-  IsDisjointTo( false, false, false ),
-  IsWithin( true, false, true ),
-  Overlaps( true, false, true ),
+  BBoxIntersects(true, false, false),
+  BBoxWithin(true, false, false),
+  Contains(true, true, false),
+  Intersects(true, false, false),
+  IsEqualTo(false, false, false),
+  IsDisjointTo(false, false, false),
+  IsWithin(true, false, true),
+  Overlaps(true, false, true),
 
   // Fuzzy Shape matching
-  SimilarTo( true, false, false ),
+  SimilarTo(true, false, false),
 
   // Distance Calculation
-  Distance( true, false, false ),
-  ;
+  Distance(true, false, false);
 
-  public final boolean scoreIsMeaningful;
-  public final boolean sourceNeedsArea;
-  public final boolean targetNeedsArea;
+  private final boolean scoreIsMeaningful;
+  private final boolean sourceNeedsArea;
+  private final boolean targetNeedsArea;
 
-  private SpatialOperation( boolean v, boolean sa, boolean ta ) {
-    scoreIsMeaningful = v;
-    sourceNeedsArea = sa;
-    targetNeedsArea = ta;
+  private SpatialOperation(boolean scoreIsMeaningful, boolean sourceNeedsArea, boolean targetNeedsArea) {
+    this.scoreIsMeaningful = scoreIsMeaningful;
+    this.sourceNeedsArea = sourceNeedsArea;
+    this.targetNeedsArea = targetNeedsArea;
+  }
+
+  // ================================================= Getters / Setters =============================================
+
+  public boolean isScoreIsMeaningful() {
+    return scoreIsMeaningful;
+  }
+
+  public boolean isSourceNeedsArea() {
+    return sourceNeedsArea;
+  }
+
+  public boolean isTargetNeedsArea() {
+    return targetNeedsArea;
   }
 }

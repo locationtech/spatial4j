@@ -36,8 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class PointQueryBuilder implements SpatialQueryBuilder<PointFieldInfo>
-{
+public class PointQueryBuilder implements SpatialQueryBuilder<PointFieldInfo> {
   static final Logger log = LoggerFactory.getLogger( PointQueryBuilder.class );
 
   @Override
@@ -49,27 +48,29 @@ public class PointQueryBuilder implements SpatialQueryBuilder<PointFieldInfo>
   public ValueSource makeValueSource(SpatialArgs args, PointFieldInfo fields)
   {
     DistanceCalculator calc = new EuclidianDistanceCalculator();
-    if( args.shape instanceof Point ) {
-      DistanceValueSource dvs = new DistanceValueSource( ((Point)args.shape), calc, fields );
-      if( args.min != null ) dvs.min = args.min.doubleValue();
-      if( args.max != null ) dvs.max = args.max.doubleValue();
+    if (Point.class.isInstance(args.getShape())) {
+      DistanceValueSource dvs = new DistanceValueSource(((Point)args.getShape()), calc, fields);
+      if (args.getMin() != null) {
+        dvs.min = args.getMin();
+      }
+      if (args.getMax() != null ) {
+        dvs.max = args.getMax();
+      }
     }
     throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
   }
 
   @Override
-  public Query makeQuery(SpatialArgs args, PointFieldInfo fields)
-  {
+  public Query makeQuery(SpatialArgs args, PointFieldInfo fields) {
     // For starters, just limit the bbox
-    BBox bbox = args.shape.getBoundingBox();
-    if( bbox.getCrossesDateLine() ) {
+    BBox bbox = args.getShape().getBoundingBox();
+    if (bbox.getCrossesDateLine()) {
       throw new UnsupportedOperationException( "Crossing dateline not yet supported" );
     }
 
     PointQueryHelper helper = new PointQueryHelper(bbox,fields);
     Query spatial = null;
-    switch( args.op )
-    {
+    switch (args.getOperation()) {
       case BBoxIntersects: spatial = helper.makeWithin(); break;
       case BBoxWithin: spatial =  helper.makeWithin(); break;
       case Contains: spatial =  helper.makeWithin(); break;
@@ -77,36 +78,33 @@ public class PointQueryBuilder implements SpatialQueryBuilder<PointFieldInfo>
       case IsWithin: spatial =  helper.makeWithin(); break;
       case Overlaps: spatial =  helper.makeWithin(); break;
       case IsDisjointTo: spatial =  helper.makeDisjoint(); break;
-
-
       case Distance: {
-        if( args.max == null ) {
+        if (args.getMax() == null) {
           // no bbox to limit
           return new ValueSourceQuery( makeValueSource( args, fields ) );
         }
-        if( args.shape instanceof Point ) {
+        if (Point.class.isInstance(args.getShape())) {
           // first make a BBox Query
-          Point p = (Point)args.shape;
-          double r = args.max.doubleValue();
-          helper.queryExtent = new Rectangle( p.getX()-r, p.getX()+r, p.getY()-r, p.getY()+r );
+          Point p = (Point) args.getShape();
+          double r = args.getMax();
+          helper.queryExtent = new Rectangle(p.getX() - r, p.getX() + r, p.getY() - r, p.getY() + r);
           spatial =  helper.makeWithin(); break;
         }
         throw new IllegalArgumentException( "Distance only works with point (on point fields)" );
       }
 
       default:
-        throw new UnsupportedOperationException( args.op.name() );
+        throw new UnsupportedOperationException(args.getOperation().name());
     }
 
-    if( args.calculateScore ) {
+    if (args.isCalculateScore()) {
       try {
         Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( args, fields ) );
         BooleanQuery bq = new BooleanQuery();
         bq.add(spatial,BooleanClause.Occur.MUST);
         bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
         return bq;
-      }
-      catch( Exception ex ) {
+      } catch(Exception ex) {
         log.warn( "error making score", ex );
       }
     }

@@ -21,29 +21,23 @@ import org.apache.lucene.spatial.base.BBox;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.Shape;
 
-
-
 /**
  * When minX > maxX, this will assume it is world coordinates that cross the
  * date line using degrees
  */
-public class Rectangle implements BBox
-{
+public class Rectangle implements BBox {
+
   private double minX;
   private double maxX;
   private double minY;
   private double maxY;
 
-  public Rectangle(double minX, double maxX, double minY, double maxY)
-  {
+  public Rectangle(double minX, double maxX, double minY, double maxY) {
     this.minX = minX;
     this.maxX = maxX;
     this.minY = minY;
     this.maxY = maxY;
   }
-
-  //----------------------------------------
-  //----------------------------------------
 
   @Override
   public boolean hasArea() {
@@ -51,8 +45,7 @@ public class Rectangle implements BBox
   }
 
   @Override
-  public double getArea()
-  {
+  public double getArea() {
     // CrossedDateline = true;
     if (minX > maxX) {
       return Math.abs(maxX + 360.0 - minX) * Math.abs(maxY - minY);
@@ -61,13 +54,9 @@ public class Rectangle implements BBox
   }
 
   @Override
-  public boolean getCrossesDateLine()
-  {
+  public boolean getCrossesDateLine() {
     return (minX > maxX);
   }
-
-  //----------------------------------------
-  //----------------------------------------
 
   @Override
   public double getHeight() {
@@ -104,47 +93,43 @@ public class Rectangle implements BBox
     return maxX > minX && maxY > minY;
   }
 
-  //----------------------------------------
-  //----------------------------------------
-
   @Override
   public BBox getBoundingBox() {
     return this;
   }
 
   @Override
-  public IntersectCase intersect(Shape shape, Object context)
-  {
-    if( !(shape instanceof BBox) ) {
+  public IntersectCase intersect(Shape shape, Object context) {
+    if(!BBox.class.isInstance(shape)) {
       throw new IllegalArgumentException( "Rectangle can only be compared with another Extent" );
     }
+
     BBox ext = shape.getBoundingBox();
     if (ext.getMinX() > maxX ||
         ext.getMaxX() < minX ||
         ext.getMinY() > maxY ||
-        ext.getMaxY() < minY ){
+        ext.getMaxY() < minY) {
       return IntersectCase.OUTSIDE;
     }
 
-    if( ext.getMinX() >= minX &&
+    if (ext.getMinX() >= minX &&
         ext.getMaxX() <= maxX &&
         ext.getMinY() >= minY &&
-        ext.getMaxY() <= maxY ){
+        ext.getMaxY() <= maxY) {
       return IntersectCase.CONTAINS;
     }
 
-    if( minX >= ext.getMinY() &&
+    if (minX >= ext.getMinY() &&
         maxX <= ext.getMaxX() &&
         minY >= ext.getMinY() &&
-        maxY <= ext.getMaxY() ){
+        maxY <= ext.getMaxY()) {
       return IntersectCase.WITHIN;
     }
     return IntersectCase.INTERSECTS;
   }
 
   @Override
-  public String toString()
-  {
-    return "["+minX+","+maxX+","+minY+","+maxY+"]";
+  public String toString() {
+    return "[" + minX + "," + maxX + "," + minY + "," + maxY + "]";
   }
 }

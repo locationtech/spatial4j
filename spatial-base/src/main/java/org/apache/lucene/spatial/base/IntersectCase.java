@@ -17,7 +17,6 @@
 
 package org.apache.lucene.spatial.base;
 
-
 public enum IntersectCase {
   WITHIN,
   CONTAINS,

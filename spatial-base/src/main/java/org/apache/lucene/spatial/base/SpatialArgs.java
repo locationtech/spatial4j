@@ -24,106 +24,125 @@ import java.util.StringTokenizer;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 
-public class SpatialArgs
-{
-  public SpatialOperation op;
-  public Shape shape;
-  public boolean cacheable = true;
-  public boolean calculateScore = true;
+public class SpatialArgs {
+
+  private SpatialOperation operation;
+  private Shape shape;
+  private boolean cacheable = true;
+  private boolean calculateScore = true;
 
   // Useful for 'distance' calculations
-  public Double min;
-  public Double max;
+  private Double min;
+  private Double max;
 
-  public SpatialArgs( SpatialOperation op ) {
-    this.op = op;
+  public SpatialArgs(SpatialOperation operation) {
+    this.operation = operation;
+  }
+
+  public SpatialArgs(SpatialOperation operation, Shape shape) {
+    this.operation = operation;
+    this.shape = shape;
   }
 
   /**
    * Check if the arguments make sense -- throw an exception if not
    */
-  public void validate() throws InvalidSpatialArgument
-  {
-    if( op.targetNeedsArea && !shape.hasArea() ) {
-      throw new InvalidSpatialArgument( op.name() + " only supports geometry with area" );
+  public void validate() throws InvalidSpatialArgument {
+    if (operation.isTargetNeedsArea() && !shape.hasArea()) {
+      throw new InvalidSpatialArgument(operation.name() + " only supports geometry with area");
     }
   }
 
 
-  public static SpatialArgs parse( String v, ShapeIO reader ) throws InvalidSpatialArgument, InvalidShapeException
-  {
-    int idx = v.indexOf( '(' );
-    int edx = v.lastIndexOf( ')' );
-    if( idx < 0 || idx > edx ) {
-      throw new InvalidSpatialArgument( "missing parens: "+v, null );
+  public static SpatialArgs parse(String v, ShapeIO reader) throws InvalidSpatialArgument, InvalidShapeException {
+    int idx = v.indexOf('(');
+    int edx = v.lastIndexOf(')');
+
+    if (idx < 0 || idx > edx) {
+      throw new InvalidSpatialArgument("missing parens: " + v, null);
     }
 
     SpatialOperation op = null;
     try {
-      op = SpatialOperation.valueOf( v.substring( 0, idx ).trim() );
+      op = SpatialOperation.valueOf(v.substring(0, idx).trim());
+    } catch(Exception ex) {
+      throw new InvalidSpatialArgument("Unknown Operation: " + v.substring(0, idx), ex);
     }
-    catch( Exception ex ) {
-      throw new InvalidSpatialArgument( "Unknown Operation: "+v.substring(0, idx), ex );
-    }
-    SpatialArgs args = new SpatialArgs( op );
-    String body = v.substring( idx+1, edx ).trim();
-    if( body.length() < 1 ) {
-      throw new InvalidSpatialArgument( "missing body : "+v, null );
-    }
-    args.shape = reader.readShape( body );
 
-    if( v.length() > (edx+1) ) {
+    SpatialArgs args = new SpatialArgs(op);
+    String body = v.substring(idx + 1, edx).trim();
+    if (body.length() < 1) {
+      throw new InvalidSpatialArgument("missing body : " + v, null);
+    }
+
+    args.shape = reader.readShape(body);
+
+    if (v.length() > (edx + 1)) {
       body = v.substring( edx+1 ).trim();
-      if( body.length() > 0 ) {
-        Map<String,String> aa = parseMap( body );
-        args.cacheable = readBool( aa.remove("cache"), args.cacheable );
-        args.calculateScore = readBool( aa.remove("score"), args.calculateScore );
-        args.min = readDouble( aa.remove("min"), null );
-        args.max = readDouble( aa.remove("max"), null );
-        if( !aa.isEmpty() ) {
-          throw new InvalidSpatialArgument( "unused parameters: "+aa, null );
+      if (body.length() > 0) {
+        Map<String,String> aa = parseMap(body);
+        args.cacheable = readBool(aa.remove("cache"), args.cacheable);
+        args.calculateScore = readBool(aa.remove("score"), args.calculateScore);
+        args.min = readDouble(aa.remove("min"), null);
+        args.max = readDouble(aa.remove("max"), null);
+        if (!aa.isEmpty()) {
+          throw new InvalidSpatialArgument("unused parameters: " + aa, null);
         }
       }
     }
     // Don't calculate a score if it is meaningless
-    if( !op.scoreIsMeaningful ) {
+    if (!op.isScoreIsMeaningful()) {
       args.calculateScore = false;
     }
     return args;
   }
 
-  protected static Double readDouble( String v, Double defaultValue )
-  {
-    if( v == null ) {
-      return defaultValue;
-    }
-    return Double.valueOf( v );
+  protected static Double readDouble(String v, Double defaultValue) {
+      return v == null ? defaultValue : Double.valueOf(v);
   }
 
-  protected static boolean readBool( String v, boolean defaultValue )
-  {
-    if( v == null ) {
-      return defaultValue;
-    }
-    return Boolean.parseBoolean( v );
+  protected static boolean readBool(String v, boolean defaultValue) {
+      return v == null ? defaultValue : Boolean.parseBoolean(v);
   }
 
-  protected static Map<String,String> parseMap( String body )
-  {
+  protected static Map<String,String> parseMap(String body) {
     Map<String,String> map = new HashMap<String,String>();
-    StringTokenizer st = new StringTokenizer( body, " \n\t" );
-    while( st.hasMoreTokens() ) {
+    StringTokenizer st = new StringTokenizer(body, " \n\t");
+    while (st.hasMoreTokens()) {
       String a = st.nextToken();
-      int idx = a.indexOf( '=' );
-      if( idx > 0 ) {
-        String k = a.substring(0,idx);
-        String v = a.substring(idx+1);
-        map.put( k, v );
-      }
-      else {
-        map.put( a, a );
+      int idx = a.indexOf('=');
+      if (idx > 0) {
+        String k = a.substring(0, idx);
+        String v = a.substring(idx + 1);
+        map.put(k, v);
+      } else {
+        map.put(a, a);
       }
     }
     return map;
+  }
+
+  public SpatialOperation getOperation() {
+    return operation;
+  }
+
+  public Shape getShape() {
+    return shape;
+  }
+
+  public boolean isCacheable() {
+    return cacheable;
+  }
+
+  public boolean isCalculateScore() {
+    return calculateScore;
+  }
+
+  public Double getMin() {
+    return min;
+  }
+
+  public Double getMax() {
+    return max;
   }
 }

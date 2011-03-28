@@ -75,32 +75,30 @@ public class PrefixGridQueryBuilder implements SpatialQueryBuilder<String>
     throw new UnsupportedOperationException( "not implemented yet..." );
   }
 
-  public Query makeQuery(SpatialArgs args, String fname)
-  {
-    if( args.op != SpatialOperation.Intersects &&
-        args.op != SpatialOperation.IsWithin &&
-        args.op != SpatialOperation.Overlaps &&
-        args.op != SpatialOperation.SimilarTo ) {
+  public Query makeQuery(SpatialArgs args, String fname) {
+    if( args.getOperation() != SpatialOperation.Intersects &&
+        args.getOperation() != SpatialOperation.IsWithin &&
+        args.getOperation() != SpatialOperation.Overlaps &&
+        args.getOperation() != SpatialOperation.SimilarTo ) {
       // TODO -- can translate these other query types
-      throw new UnsupportedOperationException( "Unsupported Operation: "+args.op );
+      throw new UnsupportedOperationException("Unsupported Operation: " + args.getOperation());
     }
 
     // TODO... resolution should help scoring...
-    int resolution = grid.getBestLevel( args.shape );
-    List<CharSequence> match = grid.readCells(args.shape);
+    int resolution = grid.getBestLevel(args.getShape());
+    List<CharSequence> match = grid.readCells(args.getShape());
 
     // TODO -- could this all happen in one pass?
     BooleanQuery query = new BooleanQuery( true );
 
 
-    if( args.op == SpatialOperation.IsWithin ) {
-      for( CharSequence token : match ) {
-        Term term = new Term( fname, token.toString() );
-        SpatialPrefixGridQuery q = new SpatialPrefixGridQuery( term );
-        query.add( new BooleanClause( q, BooleanClause.Occur.SHOULD  ) );
+    if (args.getOperation() == SpatialOperation.IsWithin) {
+      for (CharSequence token : match) {
+        Term term = new Term(fname, token.toString());
+        SpatialPrefixGridQuery q = new SpatialPrefixGridQuery(term);
+        query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }
-    }
-    else {
+    } else {
       // Need to add all the parent queries
       Set<String> terms = new HashSet<String>();
       Set<String> parents = new HashSet<String>();

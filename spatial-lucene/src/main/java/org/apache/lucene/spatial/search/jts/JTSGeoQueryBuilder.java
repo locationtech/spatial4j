@@ -53,10 +53,9 @@ public class JTSGeoQueryBuilder implements SpatialQueryBuilder<String>
   }
 
   @Override
-  public Query makeQuery(SpatialArgs args, String fname)
-  {
-    Geometry geo = reader.getGeometryFrom(args.shape);
-    GeometryTest tester = GeometryTestFactory.get( args.op, geo );
+  public Query makeQuery(SpatialArgs args, String fname) {
+    Geometry geo = reader.getGeometryFrom(args.getShape());
+    GeometryTest tester = GeometryTestFactory.get(args.getOperation(), geo);
 
     GeometryOperationFilter filter = new GeometryOperationFilter( fname, tester, reader.factory );
     return new FilteredQuery( new MatchAllDocsQuery(), filter );

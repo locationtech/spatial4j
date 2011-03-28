@@ -23,59 +23,59 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.Point;
 import org.apache.lucene.spatial.base.Shape;
 import org.apache.lucene.spatial.base.ShapeIO;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 
-public class SimpleShapeIO implements ShapeIO
-{
-  public Shape readShape( String value ) throws InvalidShapeException
-  {
-    return readSimpleShape( value );
+public class SimpleShapeIO implements ShapeIO {
+
+  public Shape readShape(String value) throws InvalidShapeException {
+    return readSimpleShape(value);
   }
 
-  public static Shape readSimpleShape( String str )
-  {
-    if( str.length() < 1 ) {
-      throw new InvalidShapeException( str );
+  public static Shape readSimpleShape(String str) {
+    if (str.length() < 1) {
+      throw new InvalidShapeException(str);
     }
-    StringTokenizer st = new StringTokenizer( str, " " );
-    double p0 = Double.parseDouble( st.nextToken() );
-    double p1 = Double.parseDouble( st.nextToken() );
-    if( st.hasMoreTokens() ) {
+
+    StringTokenizer st = new StringTokenizer(str, " ");
+    double p0 = Double.parseDouble(st.nextToken());
+    double p1 = Double.parseDouble(st.nextToken());
+
+    if (st.hasMoreTokens()) {
       double p2 = Double.parseDouble( st.nextToken() );
       double p3 = Double.parseDouble( st.nextToken() );
       return new Rectangle( p0, p2, p1, p3 );
     }
-    return new Point2D(p0, p1 );
+
+    return new Point2D(p0, p1);
   }
 
-  public String writeBBox(BBox bbox)
-  {
-    NumberFormat nf = NumberFormat.getInstance( Locale.US );
-    nf.setGroupingUsed( false );
-    nf.setMaximumFractionDigits( 6 );
-    nf.setMinimumFractionDigits( 6 );
+  public String writeBBox(BBox bbox) {
+    NumberFormat nf = NumberFormat.getInstance(Locale.US);
+    nf.setGroupingUsed(false);
+    nf.setMaximumFractionDigits(6);
+    nf.setMinimumFractionDigits(6);
+    
     return
-      nf.format( bbox.getMinX() ) + " " +
-      nf.format( bbox.getMinY() ) + " " +
-      nf.format( bbox.getMaxX() ) + " " +
-      nf.format( bbox.getMaxY() );
+      nf.format(bbox.getMinX()) + " " +
+      nf.format(bbox.getMinY()) + " " +
+      nf.format(bbox.getMaxX()) + " " +
+      nf.format(bbox.getMaxY());
   }
 
   @Override
-  public String toString(Shape shape)
-  {
-    if( shape instanceof org.apache.lucene.spatial.base.Point ) {
-      NumberFormat nf = NumberFormat.getInstance( Locale.US );
-      nf.setGroupingUsed( false );
-      nf.setMaximumFractionDigits( 6 );
-      nf.setMinimumFractionDigits( 6 );
-      org.apache.lucene.spatial.base.Point point = (org.apache.lucene.spatial.base.Point)shape;
-      return nf.format( point.getX() ) + " " + nf.format( point.getY() );
-    }
-    else if( shape instanceof BBox ) {
-      writeBBox( (BBox)shape );
+  public String toString(Shape shape) {
+    if (Point.class.isInstance(shape)) {
+      NumberFormat nf = NumberFormat.getInstance(Locale.US);
+      nf.setGroupingUsed(false);
+      nf.setMaximumFractionDigits(6);
+      nf.setMinimumFractionDigits(6);
+      Point point = (Point) shape;
+      return nf.format(point.getX()) + " " + nf.format(point.getY());
+    } else if (BBox.class.isInstance(shape)) {
+      writeBBox((BBox) shape);
     }
     return shape.toString();
   }

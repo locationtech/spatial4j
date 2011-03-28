@@ -41,7 +41,7 @@ public class SpatialIndexQueryBuilder implements SpatialQueryBuilder<String>
   @Override
   public Query makeQuery(SpatialArgs args, String name)
   {
-    if( args.shape.getBoundingBox().getCrossesDateLine() ) {
+    if(args.getShape().getBoundingBox().getCrossesDateLine()) {
       throw new UnsupportedOperationException( "Spatial Index does not (yet) support queries that cross the date line" );
     }
 

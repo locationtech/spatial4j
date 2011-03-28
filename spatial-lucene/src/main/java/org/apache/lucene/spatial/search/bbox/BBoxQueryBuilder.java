@@ -49,21 +49,19 @@ public class BBoxQueryBuilder implements SpatialQueryBuilder<BBoxFieldInfo>
   }
 
   @Override
-  public ValueSource makeValueSource(SpatialArgs args, BBoxFieldInfo fields)
-  {
+  public ValueSource makeValueSource(SpatialArgs args, BBoxFieldInfo fields) {
     return new BBoxSimilarityValueSource(
-        new AreaSimilarity( args.shape.getBoundingBox(), queryPower, targetPower ), fields );
+        new AreaSimilarity(args.getShape().getBoundingBox(), queryPower, targetPower), fields);
   }
 
   @Override
   public Query makeQuery(SpatialArgs args, BBoxFieldInfo fields)
   {
-    BBox bbox = args.shape.getBoundingBox();
+    BBox bbox = args.getShape().getBoundingBox();
     BBoxQueryHelper helper = new BBoxQueryHelper(bbox,fields);
 
     Query spatial = null;
-    switch( args.op )
-    {
+    switch (args.getOperation()) {
       case BBoxIntersects: spatial = helper.makeIntersects(); break;
       case BBoxWithin: spatial =  helper.makeWithin(); break;
       case Contains: spatial =  helper.makeContains(); break;
@@ -73,10 +71,10 @@ public class BBoxQueryBuilder implements SpatialQueryBuilder<BBoxFieldInfo>
       case IsWithin: spatial =  helper.makeWithin(); break;
       case Overlaps: spatial =  helper.makeIntersects(); break;
       default:
-        throw new UnsupportedOperationException( args.op.name() );
+        throw new UnsupportedOperationException(args.getOperation().name());
     }
 
-    if( args.calculateScore ) {
+    if (args.isCalculateScore()) {
       Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( args, fields ) );
       BooleanQuery bq = new BooleanQuery();
       bq.add(spatial,BooleanClause.Occur.MUST);

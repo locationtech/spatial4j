@@ -47,15 +47,15 @@ public class SpatialIndexFilter extends Filter
   public SpatialIndexFilter( SpatialIndexProvider sidx, SpatialArgs args )
   {
     this.provider = sidx;
-    this.op = args.op;
+    this.op = args.getOperation();
 
-    BBox bbox = args.shape.getBoundingBox();
-    if( bbox instanceof JtsEnvelope ) {
+    BBox bbox = args.getShape().getBoundingBox();
+    if (bbox instanceof JtsEnvelope) {
       this.bounds = ((JtsEnvelope)bbox).envelope;
     }
     else {
-      if( op != SpatialOperation.BBoxIntersects ) {
-        throw new UnsupportedOperationException( op.name() + " for shape: "+args.shape );
+      if (op != SpatialOperation.BBoxIntersects) {
+        throw new UnsupportedOperationException(op.name() + " for shape: " + args.getShape());
       }
       this.bounds = new Envelope(bbox.getMinX(), bbox.getMaxX(), bbox.getMinY(), bbox.getMaxY() );
     }

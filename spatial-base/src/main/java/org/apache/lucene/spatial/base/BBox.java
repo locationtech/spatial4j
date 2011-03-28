@@ -17,9 +17,8 @@
 
 package org.apache.lucene.spatial.base;
 
+public interface BBox extends Shape {
 
-public interface BBox extends Shape
-{
   public double getWidth();
   public double getHeight();
 

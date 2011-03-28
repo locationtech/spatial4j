@@ -51,8 +51,7 @@ public class TestWKBField extends TestCase
     Geometry gD = factory.toGeometry( new Envelope( -9, -8, 1, 2 ) );
 
 
-    SpatialArgs args = new SpatialArgs( SpatialOperation.Intersects );
-    args.shape = new JtsGeometry( gA );
+    SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, new JtsGeometry(gA));
 
     // A does not intersect B
     assertFalse( GeometryTestFactory.get( SpatialOperation.Intersects, gA ).matches( gB ) );

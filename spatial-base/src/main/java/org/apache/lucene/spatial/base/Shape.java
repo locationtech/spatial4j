@@ -17,9 +17,8 @@
 
 package org.apache.lucene.spatial.base;
 
+public interface Shape {
 
-public interface Shape
-{
   /**
    * Describe the relationship between the two objects.  For example
    *
@@ -30,7 +29,7 @@ public interface Shape
    *
    * The context object is optional -- it may include spatial reference
    */
-  IntersectCase intersect( Shape other, Object context );
+  IntersectCase intersect(Shape other, Object context);
 
   /**
    * Get the bounding box for this Shape
