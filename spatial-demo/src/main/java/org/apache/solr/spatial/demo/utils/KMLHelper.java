@@ -4,11 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.spatial.base.BBox;
-import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.ShapeIO;
-import org.apache.lucene.spatial.base.jts.JTSShapeIO;
-import org.apache.lucene.spatial.base.jts.JtsGeometry;
+import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 
@@ -66,7 +66,7 @@ public class KMLHelper
 
   private static List<Coordinate> getCoords( Shape s )
   {
-    if( s instanceof BBox ) {
+    if( s instanceof BBox) {
       BBox r = (BBox)s;
       List<Coordinate> coords = new ArrayList<Coordinate>(5);
       coords.add( new Coordinate( r.getMinX(),r.getMinY() ) );

@@ -1,7 +1,7 @@
 package org.apache.lucene.spatial.base.prefix.jts;
 
-import org.apache.lucene.spatial.base.BBox;
-import org.apache.lucene.spatial.base.jts.JtsEnvelope;
+import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.jts.JtsEnvelope;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 
 import com.vividsolutions.jts.geom.Envelope;

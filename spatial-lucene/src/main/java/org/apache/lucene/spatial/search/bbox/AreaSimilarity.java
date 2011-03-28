@@ -17,7 +17,7 @@
 
 package org.apache.lucene.spatial.search.bbox;
 
-import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.shape.BBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

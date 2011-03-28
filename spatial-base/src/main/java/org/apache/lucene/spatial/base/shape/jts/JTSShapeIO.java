@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.jts;
+package org.apache.lucene.spatial.base.shape.jts;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -23,10 +23,10 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import org.apache.lucene.spatial.base.BBox;
-import org.apache.lucene.spatial.base.Point;
-import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.ShapeIO;
+import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -156,12 +156,12 @@ public class JTSShapeIO implements ShapeIO {
 
   @Override
   public String toString(Shape shape) {
-    if (org.apache.lucene.spatial.base.Point.class.isInstance(shape)) {
+    if (Point.class.isInstance(shape)) {
       NumberFormat nf = NumberFormat.getInstance(Locale.US);
       nf.setGroupingUsed(false);
       nf.setMaximumFractionDigits(6);
       nf.setMinimumFractionDigits(6);
-      org.apache.lucene.spatial.base.Point point = (org.apache.lucene.spatial.base.Point) shape;
+      Point point = (Point) shape;
       return nf.format(point.getX()) + " " + nf.format(point.getY());
     } else if (BBox.class.isInstance(shape)) {
       BBox bbox = (BBox) shape;

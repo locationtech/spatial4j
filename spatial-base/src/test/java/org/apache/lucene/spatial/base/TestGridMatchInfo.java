@@ -5,8 +5,9 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
-import org.apache.lucene.spatial.base.simple.Point2D;
-import org.apache.lucene.spatial.base.simple.Rectangle;
+import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.simple.Point2D;
+import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 
 
 

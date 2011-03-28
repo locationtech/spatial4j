@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.IntersectCase;
-import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.simple.Rectangle;
+import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 
 public class LinearPrefixGrid implements SpatialPrefixGrid {
   

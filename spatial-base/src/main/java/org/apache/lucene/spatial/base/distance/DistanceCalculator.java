@@ -17,8 +17,8 @@
 
 package org.apache.lucene.spatial.base.distance;
 
-import org.apache.lucene.spatial.base.Point;
-import org.apache.lucene.spatial.base.Shape;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Shape;
 
 public interface DistanceCalculator {
 

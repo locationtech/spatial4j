@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base;
+package org.apache.lucene.spatial.base.shape;
+
+import org.apache.lucene.spatial.base.IntersectCase;
 
 public interface Shape {
 

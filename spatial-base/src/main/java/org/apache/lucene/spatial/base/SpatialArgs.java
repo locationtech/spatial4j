@@ -23,6 +23,8 @@ import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
+import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
 
 public class SpatialArgs {
 

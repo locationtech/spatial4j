@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.simple;
+package org.apache.lucene.spatial.base.shape.simple;
 
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import org.apache.lucene.spatial.base.BBox;
-import org.apache.lucene.spatial.base.Point;
-import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.ShapeIO;
+import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
+import org.apache.lucene.spatial.base.shape.Point;
 
 public class SimpleShapeIO implements ShapeIO {
 

@@ -2,8 +2,8 @@ package org.apache.lucene.spatial.base;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.spatial.base.jts.JtsEnvelope;
-import org.apache.lucene.spatial.base.jts.JtsPoint2D;
+import org.apache.lucene.spatial.base.shape.jts.JtsEnvelope;
+import org.apache.lucene.spatial.base.shape.jts.JtsPoint2D;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 

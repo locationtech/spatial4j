@@ -2,8 +2,11 @@ package org.apache.lucene.spatial.base;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.spatial.base.jts.JTSShapeIO;
-import org.apache.lucene.spatial.base.simple.SimpleShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
+import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
 
 
 
@@ -44,7 +47,7 @@ public class TestSpatialArgs extends TestCase
     arg = SpatialOperation.Distance+"(1 2) min=2.3 max=4.5";
     out = SpatialArgs.parse(arg, reader);
     assertEquals(SpatialOperation.Distance, out.getOperation());
-    assertTrue(out.getShape() instanceof Point );
+    assertTrue(out.getShape() instanceof Point);
     assertEquals(2.3, out.getMin(), 0D);
     assertEquals(4.5, out.getMax(), 0D);
   }

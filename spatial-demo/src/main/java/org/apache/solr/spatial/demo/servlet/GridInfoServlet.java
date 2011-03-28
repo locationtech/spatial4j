@@ -12,10 +12,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.ShapeIO;
-import org.apache.lucene.spatial.base.jts.JTSShapeIO;
-import org.apache.lucene.spatial.base.jts.JtsGeometry;
+import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
 import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 import org.apache.solr.spatial.demo.utils.KMLHelper;
 import org.apache.solr.spatial.demo.utils.countries.CountryInfo;

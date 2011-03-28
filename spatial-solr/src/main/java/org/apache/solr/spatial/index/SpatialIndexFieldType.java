@@ -22,9 +22,9 @@ import java.util.Map;
 
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.Shape;
+import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.SpatialArgs;
-import org.apache.lucene.spatial.base.jts.JTSShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.index.SpatialIndexQueryBuilder;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;

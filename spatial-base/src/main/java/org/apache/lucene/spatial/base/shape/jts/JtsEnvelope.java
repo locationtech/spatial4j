@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.jts;
+package org.apache.lucene.spatial.base.shape.jts;
 
-import org.apache.lucene.spatial.base.BBox;
+import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.IntersectCase;
-import org.apache.lucene.spatial.base.Shape;
+import org.apache.lucene.spatial.base.shape.Shape;
 
 import com.vividsolutions.jts.geom.Envelope;
 

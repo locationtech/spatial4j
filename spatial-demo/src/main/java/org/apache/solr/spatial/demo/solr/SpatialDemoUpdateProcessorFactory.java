@@ -2,9 +2,9 @@ package org.apache.solr.spatial.demo.solr;
 
 import java.io.IOException;
 
-import org.apache.lucene.spatial.base.Shape;
-import org.apache.lucene.spatial.base.ShapeIO;
-import org.apache.lucene.spatial.base.jts.JTSShapeIO;
+import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.request.SolrQueryRequest;
 import org.apache.solr.response.SolrQueryResponse;

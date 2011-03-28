@@ -27,7 +27,7 @@ import org.apache.lucene.search.cache.DoubleValuesCreator;
 import org.apache.lucene.search.cache.CachedArray.DoubleValues;
 import org.apache.lucene.search.function.DocValues;
 import org.apache.lucene.search.function.ValueSource;
-import org.apache.lucene.spatial.base.simple.Rectangle;
+import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 
 /**
  *

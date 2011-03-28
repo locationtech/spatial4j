@@ -17,7 +17,7 @@
 
 package org.apache.lucene.spatial.search.index;
 
-import org.apache.lucene.spatial.base.ShapeIO;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
 
 import com.vividsolutions.jts.index.SpatialIndex;
 import com.vividsolutions.jts.index.strtree.STRtree;

@@ -19,7 +19,7 @@ package org.apache.lucene.spatial.base.prefix;
 
 import java.util.List;
 
-import org.apache.lucene.spatial.base.Shape;
+import org.apache.lucene.spatial.base.shape.Shape;
 
 public interface SpatialPrefixGrid {
   
