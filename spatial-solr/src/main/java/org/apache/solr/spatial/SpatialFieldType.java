@@ -28,7 +28,6 @@ import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
-import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.SpatialFieldInfo;
 import org.apache.lucene.spatial.search.SpatialIndexer;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
@@ -54,15 +53,15 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo, I extends Spa
   protected final static int OMIT_TF_POSITIONS   = 0x00000020;
 
   static final Logger log = LoggerFactory.getLogger( SpatialFieldType.class );
-  
+
   protected ShapeIO reader;
   protected SpatialArgsParser argsParser;
   protected boolean ignoreIncompatibleGeometry = true;
-  
+
   protected I spatialIndexer;
   protected Q queryBuilder;
-  
-  
+
+
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
@@ -71,34 +70,43 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo, I extends Spa
     argsParser = new SpatialArgsParser();
     ignoreIncompatibleGeometry = true;
   }
-  
+
   protected abstract T getFieldInfo( SchemaField field );
 
+  //--------------------------------------------------------------
+  // Indexing
+  //--------------------------------------------------------------
+
   @Override
-  public Fieldable createField(SchemaField field, Object val, float boost)
+  public final Fieldable createField(SchemaField field, Object val, float boost)
   {
     Shape shape = (val instanceof Shape)?((Shape)val):reader.readShape( val.toString() );
     if( shape == null ) {
       log.warn( "null shape for input: "+val );
       return null;
     }
-    return createField(field, shape, boost);
+    return spatialIndexer.createField(getFieldInfo(field), shape, field.indexed(), field.stored());
   }
 
   @Override
-  public Fieldable[] createFields(SchemaField field, Object val, float boost)
+  public final Fieldable[] createFields(SchemaField field, Object val, float boost)
   {
     Shape shape = (val instanceof Shape)?((Shape)val):reader.readShape( val.toString() );
-    return createFields(field, shape, boost);
+    if( shape == null ) {
+      log.warn( "null shape for input: "+val );
+      return null;
+    }
+    return spatialIndexer.createFields(getFieldInfo(field), shape, field.indexed(), field.stored());
   }
 
-  public abstract Fieldable createField(SchemaField field, Shape value, float boost);
-
-  public Fieldable[] createFields(SchemaField field, Shape value, float boost) {
-    Fieldable f = createField( field, value, boost);
-    return f==null ? new Fieldable[]{} : new Fieldable[]{f};
+  @Override
+  public final boolean isPolyField() {
+    return spatialIndexer.isPolyField();
   }
 
+  //--------------------------------------------------------------
+  // Query Support
+  //--------------------------------------------------------------
 
   @Override
   public Query getRangeQuery(QParser parser, SchemaField field, String part1, String part2, boolean minInclusive, boolean maxInclusive) {

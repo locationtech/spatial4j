@@ -51,6 +51,29 @@ public class PointFieldType extends SpatialFieldType<PointFieldInfo,PointSpatial
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
+    
+    spatialIndexer = new PointSpatialIndexer() {
+      @Override
+      public Fieldable[] createFields(PointFieldInfo fieldInfo,
+          Shape shape, boolean index, boolean store) {
+        if( shape instanceof Point ) {
+          Point point = (Point)shape;
+          int p = fieldProps | STORED;  // useful for debugging
+
+          Fieldable[] f = new Fieldable[store?3:2];
+          f[0] = pointType.createField( new SchemaField( fieldInfo.getXFieldName(), pointType, p, null ), new Double( point.getX() ), 1.0f );
+          f[1] = pointType.createField( new SchemaField( fieldInfo.getYFieldName(), pointType, p, null ), new Double( point.getY() ), 1.0f );
+          if( store ) {
+            f[2] = new Field( fieldInfo.getFieldName(), reader.toString( shape ), Store.YES, Index.NO );
+          }
+          return f;
+        }
+        if( !ignoreIncompatibleGeometry ) {
+          throw new IllegalArgumentException( "PointField does not support: "+shape );
+        }
+        return null;
+      }
+    };
   }
 
   public void inform(IndexSchema schema)
@@ -72,37 +95,6 @@ public class PointFieldType extends SpatialFieldType<PointFieldInfo,PointSpatial
   @Override
   protected PointFieldInfo getFieldInfo(SchemaField field) {
     return new PointFieldInfo(field.getName(), Integer.MAX_VALUE, FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
-  }
-
-  @Override
-  public boolean isPolyField(){
-    return true;
-  }
-
-  @Override
-  public Fieldable[] createFields(SchemaField field, Shape shape, float boost)
-  {
-    if( shape instanceof Point ) {
-      Point point = (Point)shape;
-      int p = fieldProps | STORED;  // useful for debugging
-
-      Fieldable[] f = new Fieldable[field.stored()?3:2];
-      f[0] = pointType.createField( new SchemaField( field.getName()+PointFieldInfo.SUFFIX_X, pointType, p, null ), new Double( point.getX() ), boost);
-      f[1] = pointType.createField( new SchemaField( field.getName()+PointFieldInfo.SUFFIX_Y, pointType, p, null ), new Double( point.getY() ), boost);
-      if( field.stored() ) {
-        f[2] = new Field( field.getName(), reader.toString( shape ), Store.YES, Index.NO );
-      }
-      return f;
-    }
-    if( !ignoreIncompatibleGeometry ) {
-      throw new IllegalArgumentException( "PointField does not support: "+shape );
-    }
-    return null;
-  }
-
-  @Override
-  public Fieldable createField(SchemaField field, Shape value, float boost) {
-    throw new UnsupportedOperationException( "this is a poly field");
   }
 }
 

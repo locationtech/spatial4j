@@ -66,6 +66,25 @@ public class BBoxFieldType extends SpatialFieldType<BBoxFieldInfo,BBoxSpatialInd
     if( v != null ) {
       booleanFieldName = v;
     }
+    
+    queryBuilder = new BBoxQueryBuilder();
+    spatialIndexer = new BBoxSpatialIndexer() {
+      @Override
+      public Fieldable[] createFields(BBoxFieldInfo fieldInfo,
+          Shape shape, boolean index, boolean store) {
+        BBox bbox = shape.getBoundingBox();
+
+        int fp = fieldProps | STORED;  // useful for debugging
+
+        Fieldable[] fields = new Fieldable[5];
+        fields[0] = new SchemaField( fieldInfo.minX, doubleType, fp, null ).createField( new Double(bbox.getMinX()), 1.0f);
+        fields[1] = new SchemaField( fieldInfo.maxX, doubleType, fp, null ).createField( new Double(bbox.getMaxX()), 1.0f);
+        fields[2] = new SchemaField( fieldInfo.minY, doubleType, fp, null ).createField( new Double(bbox.getMinY()), 1.0f);
+        fields[3] = new SchemaField( fieldInfo.maxY, doubleType, fp, null ).createField( new Double(bbox.getMaxY()), 1.0f);
+        fields[4] = new SchemaField( fieldInfo.xdl, booleanType, fp, null ).createField( new Boolean(bbox.getCrossesDateLine()), 1.0f);
+        return fields;
+      }
+    };
   }
 
   public void inform(IndexSchema schema)
@@ -88,39 +107,7 @@ public class BBoxFieldType extends SpatialFieldType<BBoxFieldInfo,BBoxSpatialInd
     schema.registerDynamicField( new SchemaField( "*"+BBoxFieldInfo.SUFFIX_XDL, booleanType, fieldProps, null ) );
   }
 
-  @Override
-  public Fieldable createField(SchemaField field, Shape value, float boost) {
-    throw new UnsupportedOperationException( "this is a multivalued field" );
-  }
-
-  @Override
-  public Fieldable[] createFields(SchemaField field, Shape shape, float boost)
-  {
-    BBox bbox = shape.getBoundingBox();
-
-    String name = field.getName();
-
-    int fp = fieldProps | STORED;  // useful for debugging
-
-    Fieldable[] fields = new Fieldable[5];
-    fields[0] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MINX, doubleType, fp, null ).createField( new Double(bbox.getMinX()), 1.0f);
-    fields[1] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MAXX, doubleType, fp, null ).createField( new Double(bbox.getMaxX()), 1.0f);
-    fields[2] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MINY, doubleType, fp, null ).createField( new Double(bbox.getMinY()), 1.0f);
-    fields[3] = new SchemaField( name+BBoxFieldInfo.SUFFIX_MAXY, doubleType, fp, null ).createField( new Double(bbox.getMaxY()), 1.0f);
-    fields[4] = new SchemaField( name+BBoxFieldInfo.SUFFIX_XDL, booleanType, fp, null ).createField( new Boolean(bbox.getCrossesDateLine()), 1.0f);
-    return fields;
-  }
-
-  @Override
-  public Query getRangeQuery(QParser parser, SchemaField field, String part1, String part2, boolean minInclusive, boolean maxInclusive) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public boolean isPolyField() {
-    return true;
-  }
-
+  
   @Override
   protected BBoxFieldInfo getFieldInfo(SchemaField field) {
     BBoxFieldInfo info = new BBoxFieldInfo();

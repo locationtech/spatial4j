@@ -25,7 +25,7 @@ import org.apache.lucene.index.IndexReader;
 import com.vividsolutions.jts.index.SpatialIndex;
 
 public interface SpatialIndexProvider {
-  
+
   /**
    * This expects a SpatialIndex where the object is an 'int' pointing to the doc
    */

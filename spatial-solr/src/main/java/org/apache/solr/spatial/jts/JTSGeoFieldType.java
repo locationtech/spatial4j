@@ -73,10 +73,4 @@ public class JTSGeoFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,JTS
   protected SimpleSpatialFieldInfo getFieldInfo(SchemaField field) {
     return new SimpleSpatialFieldInfo(field.getName());
   }
-  
-  @Override
-  public Fieldable createField(SchemaField field, Shape shape, float boost) {
-    return spatialIndexer.createFields(new SimpleSpatialFieldInfo(field.getName()), shape,
-        field.indexed(), field.stored())[0];
-  }
 }

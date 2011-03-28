@@ -32,7 +32,7 @@ import org.apache.lucene.util.automaton.BasicOperations;
  * @see AutomatonQuery, WildcardQuery
  */
 public class SpatialPrefixGridQuery extends AutomatonQuery {
-  
+
   /**
    * Constructs a query for terms matching <code>term</code>.
    */

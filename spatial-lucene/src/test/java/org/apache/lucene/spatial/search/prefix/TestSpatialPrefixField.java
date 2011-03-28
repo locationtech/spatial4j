@@ -20,7 +20,6 @@ package org.apache.lucene.spatial.search.prefix;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.TestCase;
 import org.junit.Test;
 
 

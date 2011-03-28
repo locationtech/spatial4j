@@ -8,5 +8,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
  */
 public interface SpatialIndexer<T extends SpatialFieldInfo> {
 
+  boolean isPolyField();
+  Fieldable createField(T indexInfo, Shape shape, boolean index, boolean store);
   Fieldable[] createFields(T indexInfo, Shape shape, boolean index, boolean store);
 }

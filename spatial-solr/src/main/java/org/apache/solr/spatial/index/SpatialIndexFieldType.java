@@ -49,12 +49,6 @@ public class SpatialIndexFieldType extends SpatialFieldType<SimpleSpatialFieldIn
   }
 
   @Override
-  public Fieldable createField(SchemaField field, Shape shape, float boost) {
-    return spatialIndexer.createFields(new SimpleSpatialFieldInfo(field.getName()), shape,
-        field.indexed(), field.stored())[0];
-  }
-
-  @Override
   protected SimpleSpatialFieldInfo getFieldInfo(SchemaField field) {
     return new SimpleSpatialFieldInfo(field.getName());
   }

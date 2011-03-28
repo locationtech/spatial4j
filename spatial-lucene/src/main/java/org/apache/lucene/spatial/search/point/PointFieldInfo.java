@@ -32,13 +32,14 @@ import org.apache.lucene.util.NumericUtils;
  * Fieldnames to store
  */
 public class PointFieldInfo implements SpatialFieldInfo {
-  
+
   public static final String SUFFIX_X = "__x";
   public static final String SUFFIX_Y = "__y";
 
   private final int precisionStep;
   private final DoubleParser parser;
 
+  private final String fieldName;
   private final String xFieldName;
   private final String yFieldName;
 
@@ -55,6 +56,7 @@ public class PointFieldInfo implements SpatialFieldInfo {
   }
 
   public PointFieldInfo(String fieldNamePrefix, int precisionStep, DoubleParser parser) {
+    fieldName = fieldNamePrefix;
     xFieldName = fieldNamePrefix + SUFFIX_X;
     yFieldName = fieldNamePrefix + SUFFIX_Y;
     this.precisionStep = precisionStep;
@@ -69,6 +71,10 @@ public class PointFieldInfo implements SpatialFieldInfo {
   public DoubleValues getYValues(IndexReader reader) throws IOException {
     return FieldCache.DEFAULT.getDoubles(reader, yFieldName,
         new DoubleValuesCreator(yFieldName, parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));
+  }
+
+  public String getFieldName() {
+    return fieldName;
   }
 
   public String getXFieldName() {

@@ -6,7 +6,7 @@ import org.apache.lucene.util.BytesRef;
 
 
 class BytesRefTokenStream extends TokenStream {
-  
+
   private boolean exhausted = false;
 
   public BytesRefTokenStream(BytesRef b) {

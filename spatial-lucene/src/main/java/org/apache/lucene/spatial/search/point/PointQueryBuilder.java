@@ -23,11 +23,11 @@ import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
+import org.apache.lucene.spatial.base.distance.DistanceCalculator;
+import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.distance.DistanceCalculator;
-import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class PointQueryBuilder implements SpatialQueryBuilder<PointFieldInfo> {
-  
+
   static final Logger log = LoggerFactory.getLogger(PointQueryBuilder.class);
 
   @Override

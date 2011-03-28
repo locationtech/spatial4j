@@ -24,8 +24,8 @@ import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.cache.CachedArray.DoubleValues;
 import org.apache.lucene.search.function.DocValues;
 import org.apache.lucene.search.function.ValueSource;
-import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
+import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 
 /**
@@ -34,7 +34,7 @@ import org.apache.lucene.spatial.base.shape.simple.Point2D;
  *
  */
 public class DistanceValueSource extends ValueSource {
-  
+
   private final PointFieldInfo fields;
   private final DistanceCalculator calculator;
   private final Point from;

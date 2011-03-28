@@ -17,8 +17,6 @@
 
 package org.apache.lucene.spatial.search.jts;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
@@ -27,6 +25,9 @@ import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.jts.JtsUtil;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class JTSGeoQueryBuilder implements SpatialQueryBuilder<SimpleSpatialFieldInfo> {
 

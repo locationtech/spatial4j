@@ -36,7 +36,7 @@ import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
 public class PrefixGridQueryBuilder implements SpatialQueryBuilder<SimpleSpatialFieldInfo> {
-  
+
   private final SpatialPrefixGrid grid;
 
   public PrefixGridQueryBuilder(SpatialPrefixGrid grid) {

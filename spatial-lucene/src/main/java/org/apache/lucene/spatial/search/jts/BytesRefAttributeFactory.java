@@ -9,7 +9,7 @@ import org.apache.lucene.util.AttributeSource.AttributeFactory;
 
 
 class BytesRefAttributeFactory extends AttributeFactory {
-  
+
   private final AttributeFactory delegate;
   private final BytesRef bytes;
 

@@ -33,7 +33,7 @@ import org.apache.lucene.spatial.base.shape.simple.Rectangle;
  * An implementation of the Lucene ValueSource model to support spatial relevance ranking.
  */
 public class BBoxSimilarityValueSource extends ValueSource {
-  
+
   private final BBoxFieldInfo field;
   private final BBoxSimilarity similarity;
 
