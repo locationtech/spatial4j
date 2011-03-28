@@ -1,4 +1,4 @@
-package voyager.quads.solr;
+package org.apache.solr.spatial;
 
 import junit.framework.TestCase;
 
@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 
 /**
  */
-public class TestQuadTreeField extends TestCase
+public class TestSolrSpatialField extends TestCase
 {
   public void testMatchInfo() throws Exception
   {

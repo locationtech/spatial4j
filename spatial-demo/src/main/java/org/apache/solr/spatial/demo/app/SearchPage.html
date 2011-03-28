@@ -69,13 +69,13 @@
             line: new OpenLayers.Control.DrawFeature(featureLayer,
               OpenLayers.Handler.Path, {'featureAdded': addedWKT} ),
             bbox: new OpenLayers.Control.DrawFeature(featureLayer,
-                OpenLayers.Handler.Box, {'featureAdded': addedBBox} ),
+                OpenLayers.Handler.RegularPolygon, {'featureAdded': addedBBox} ),
 //            circle: new OpenLayers.Control.DrawFeature(featureLayer,
 //              OpenLayers.Handler.RegularPolygon, {'featureAdded': addedCircle} ),
             polygon: new OpenLayers.Control.DrawFeature(featureLayer,
               OpenLayers.Handler.Polygon, {'featureAdded': addedWKT} )
         };
-      //  drawControls['bbox'].handler.setOptions({sides: 4, irregular:true});
+        drawControls['bbox'].handler.setOptions({sides: 4, irregular:true});
       //  drawControls['circle'].handler.setOptions({sides: 40});
 
         for(var key in drawControls) {
