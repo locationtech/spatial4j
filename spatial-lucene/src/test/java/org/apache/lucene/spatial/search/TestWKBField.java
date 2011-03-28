@@ -17,54 +17,54 @@
 
 package org.apache.lucene.spatial.search;
 
-import junit.framework.TestCase;
-
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
 import org.apache.lucene.spatial.search.jts.GeometryTestFactory;
+import org.junit.Test;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
  */
-public class TestWKBField extends TestCase
-{
-  public void testGeometryOpertaions() throws Exception
-  {
+public class TestWKBField {
+
+  @Test
+  public void testGeometryOpertaions() {
     GeometryFactory factory = new GeometryFactory();
 
     // 3x3 square at X=-10
-    Geometry gA = factory.toGeometry( new Envelope( -10, -7, 0, 3 ) );
+    Geometry gA = factory.toGeometry(new Envelope(-10, -7, 0, 3));
 
     // 2x2 square at X=8
-    Geometry gB = factory.toGeometry( new Envelope( 8, 10, 0, 2 ) );
+    Geometry gB = factory.toGeometry(new Envelope(8, 10, 0, 2));
 
     // 4x4 square at X=-9
-    Geometry gC = factory.toGeometry( new Envelope( -9, -5, 0, 4 ) );
+    Geometry gC = factory.toGeometry(new Envelope(-9, -5, 0, 4));
 
     // 1x1 square at X=-9
-    Geometry gD = factory.toGeometry( new Envelope( -9, -8, 1, 2 ) );
+    Geometry gD = factory.toGeometry(new Envelope(-9, -8, 1, 2));
 
 
     SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, new JtsGeometry(gA));
 
     // A does not intersect B
-    assertFalse( GeometryTestFactory.get( SpatialOperation.Intersects, gA ).matches( gB ) );
+    assertFalse(GeometryTestFactory.get(SpatialOperation.Intersects, gA).matches(gB));
 
     // A disjoint to B
-    assertTrue( GeometryTestFactory.get( SpatialOperation.IsDisjointTo, gA ).matches( gB ) );
+    assertTrue(GeometryTestFactory.get(SpatialOperation.IsDisjointTo, gA).matches(gB));
 
     // A intersect C and vis-versa
-    assertTrue( GeometryTestFactory.get( SpatialOperation.Intersects, gA ).matches( gC ) );
-    assertTrue( GeometryTestFactory.get( SpatialOperation.Intersects, gC ).matches( gA ) );
+    assertTrue(GeometryTestFactory.get(SpatialOperation.Intersects, gA).matches(gC));
+    assertTrue(GeometryTestFactory.get(SpatialOperation.Intersects, gC).matches(gA));
 
     // D within A / A contains D
-    assertTrue( GeometryTestFactory.get( SpatialOperation.IsWithin, gA ).matches( gD ) );
-    assertTrue( GeometryTestFactory.get( SpatialOperation.Contains, gD ).matches( gA ) );
+    assertTrue(GeometryTestFactory.get(SpatialOperation.IsWithin, gA).matches(gD));
+    assertTrue(GeometryTestFactory.get(SpatialOperation.Contains, gD).matches(gA));
   }
 }

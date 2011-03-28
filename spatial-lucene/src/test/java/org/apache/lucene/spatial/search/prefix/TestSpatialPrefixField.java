@@ -21,49 +21,49 @@ import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
+import org.junit.Test;
 
 
 /**
  * This is just a quick idea for *simple* tests
  */
-public class TestSpatialPrefixField extends TestCase
-{
-  public void testRawTokens() throws Exception
-  {
+public class TestSpatialPrefixField {
+
+  @Test
+  public void testRawTokens() {
     // Ignoring geometry for now, and focus on what tokens need to match
-    
-    List<String> docA = Arrays.asList( 
+
+    List<String> docA = Arrays.asList(
         "AAAAAA*",
         "AAAAAB+"
-    ); 
+    );
 
-    List<String> docB = Arrays.asList( 
-      "A*",
-      "BB*"
-    ); 
-    
+    List<String> docB = Arrays.asList(
+        "A*",
+        "BB*"
+    );
+
     // Assumptions:
-    checkQuery( "AAAAA",  "docA", "docB" );
-    checkQuery( "AAAAA*", "docA", "docB" ); // for now * and + are essentially identical
-    checkQuery( "AAAAA+", "docA", "docB" ); // down the road, there may be a difference between 'covers' and an edge
-    
-    checkQuery( "AA*", "docB", "docA" ); // Bigger input query
+    checkQuery("AAAAA", "docA", "docB");
+    checkQuery("AAAAA*", "docA", "docB"); // for now * and + are essentially identical
+    checkQuery("AAAAA+", "docA", "docB"); // down the road, there may be a difference between 'covers' and an edge
 
-    checkQuery( "AAAAAAAAAAAA*", "docA", "docB" ); // small
+    checkQuery("AA*", "docB", "docA"); // Bigger input query
 
-    checkQuery( "BC" ); // nothing
-    checkQuery( "XX" ); // nothing
-    
+    checkQuery("AAAAAAAAAAAA*", "docA", "docB"); // small
+
+    checkQuery("BC"); // nothing
+    checkQuery("XX"); // nothing
+
     // match only B
-    checkQuery( "B", "docB" ); 
-    checkQuery( "BBBB", "docB" ); 
-    checkQuery( "B*", "docB" ); 
-    checkQuery( "BBBB*", "docB" ); 
+    checkQuery("B", "docB");
+    checkQuery("BBBB", "docB");
+    checkQuery("B*", "docB");
+    checkQuery("BBBB*", "docB");
   }
-  
-  void checkQuery( String query, String ... expect )
-  {
+
+  void checkQuery(String query, String... expect) {
     // TODO, check that the query returns the docs in order
   }
-  
+
 }

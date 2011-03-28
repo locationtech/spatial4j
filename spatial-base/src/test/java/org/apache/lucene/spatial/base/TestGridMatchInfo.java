@@ -8,15 +8,15 @@ import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
-
+import org.junit.Test;
 
 
 /**
  */
-public class TestGridMatchInfo extends TestCase
-{
-  public void testMatchInfo() throws Exception
-  {
+public class TestGridMatchInfo {
+
+  @Test
+  public void testMatchInfo() {
     // Check Validatio
     LinearPrefixGrid grid = new LinearPrefixGrid(0, 10, 0, 10, 2);
     grid.setMinResolution(1);
@@ -27,15 +27,15 @@ public class TestGridMatchInfo extends TestCase
 //    gsf.setSize( 9.5 );
 //    Shape shape = new JtsGeometry( gsf.createCircle() );
 
-    Shape shape = new Rectangle( 0, 6, 5, 10 );
+    Shape shape = new Rectangle(0, 6, 5, 10);
 
-    shape = new Point2D( 3, 3 );
+    shape = new Point2D(3, 3);
 
-    List<CharSequence> m = grid.readCells( shape );
-    System.out.println( m );
+    List<CharSequence> m = grid.readCells(shape);
+    System.out.println(m);
 
-    for( CharSequence s : m ) {
-      System.out.println( s );
+    for (CharSequence s : m) {
+      System.out.println(s);
     }
 
 
