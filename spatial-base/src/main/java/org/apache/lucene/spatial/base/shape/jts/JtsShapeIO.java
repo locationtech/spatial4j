@@ -192,7 +192,17 @@ public class JtsShapeIO implements ShapeIO {
     if (JtsEnvelope.class.isInstance(shape)) {
       return factory.toGeometry(((JtsEnvelope)shape).envelope);
     }
-
     throw new InvalidShapeException("can't make Geometry from: " + shape);
+  }
+  
+
+  @Override
+  public BBox makeBBox(double minX, double maxX, double minY, double maxY) {
+    return new JtsEnvelope(new Envelope(minX,maxX,minY,maxY));
+  }
+
+  @Override
+  public Point makePoint(double x, double y) {
+    return new JtsPoint2D(factory.createPoint(new Coordinate(x, y)));
   }
 }
