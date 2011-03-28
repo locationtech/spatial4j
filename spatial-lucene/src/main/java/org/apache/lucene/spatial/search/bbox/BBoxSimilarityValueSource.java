@@ -30,39 +30,39 @@ import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 
 /**
- *
  * An implementation of the Lucene ValueSource model to support spatial relevance ranking.
- *
  */
-public class BBoxSimilarityValueSource extends ValueSource
-{
+public class BBoxSimilarityValueSource extends ValueSource {
+  
   private final BBoxFieldInfo field;
   private final BBoxSimilarity similarity;
 
   /**
    * Constructor.
+   *
    * @param queryEnvelope the query envelope
    * @param queryPower the query power (scoring algorithm)
    * @param targetPower the target power (scoring algorithm)
    */
-  public BBoxSimilarityValueSource(BBoxSimilarity similarity, BBoxFieldInfo field)
-  {
+  public BBoxSimilarityValueSource(BBoxSimilarity similarity, BBoxFieldInfo field) {
     this.similarity = similarity;
     this.field = field;
   }
 
   /**
    * Returns the ValueSource description.
+   *
    * @return the description
    */
   @Override
   public String description() {
-    return "SpatialRankingValueSource("+similarity+")";
+    return "SpatialRankingValueSource(" + similarity + ")";
   }
 
 
   /**
    * Returns the DocValues used by the function query.
+   *
    * @param reader the index reader
    * @return the values
    */
@@ -70,45 +70,48 @@ public class BBoxSimilarityValueSource extends ValueSource
   public DocValues getValues(AtomicReaderContext context) throws IOException {
     IndexReader reader = context.reader;
     int flags = CachedArrayCreator.CACHE_VALUES_AND_BITS;
-    final DoubleValues minX = FieldCache.DEFAULT.getDoubles( reader, field.minX, new DoubleValuesCreator( field.minX, field.parser, flags ) );
-    final DoubleValues minY = FieldCache.DEFAULT.getDoubles( reader, field.minY, new DoubleValuesCreator( field.minY, field.parser, flags ) );
-    final DoubleValues maxX = FieldCache.DEFAULT.getDoubles( reader, field.maxX, new DoubleValuesCreator( field.maxX, field.parser, flags ) );
-    final DoubleValues maxY = FieldCache.DEFAULT.getDoubles( reader, field.maxY, new DoubleValuesCreator( field.maxY, field.parser, flags ) );
+    final DoubleValues minX = FieldCache.DEFAULT.getDoubles(reader, field.minX, new DoubleValuesCreator(field.minX, field.parser, flags));
+    final DoubleValues minY = FieldCache.DEFAULT.getDoubles(reader, field.minY, new DoubleValuesCreator(field.minY, field.parser, flags));
+    final DoubleValues maxX = FieldCache.DEFAULT.getDoubles(reader, field.maxX, new DoubleValuesCreator(field.maxX, field.parser, flags));
+    final DoubleValues maxY = FieldCache.DEFAULT.getDoubles(reader, field.maxY, new DoubleValuesCreator(field.maxY, field.parser, flags));
     return new DocValues() {
       @Override
       public float floatVal(int doc) {
         // make sure it has minX and area
-        if( minX.valid.get( doc ) && maxX.valid.get( doc ) ) {
+        if (minX.valid.get(doc) && maxX.valid.get(doc)) {
           Rectangle rect = new Rectangle(
-              minX.values[doc],maxX.values[doc],
-              minY.values[doc],maxY.values[doc]);
-          return (float) similarity.score( rect );
+              minX.values[doc], maxX.values[doc],
+              minY.values[doc], maxY.values[doc]);
+          return (float) similarity.score(rect);
         }
         return 0;
       }
+
       @Override
       public String toString(int doc) {
-        return description()+"="+floatVal(doc);
+        return description() + "=" + floatVal(doc);
       }
     };
   }
 
   /**
    * Determines if this ValueSource is equal to another.
+   *
    * @param o the ValueSource to compare
    * @return <code>true</code> if the two objects are based upon the same query envelope
    */
   @Override
   public boolean equals(Object o) {
-    if (o.getClass() !=  BBoxSimilarityValueSource.class)
+    if (o.getClass() != BBoxSimilarityValueSource.class) {
       return false;
+    }
 
-    BBoxSimilarityValueSource other = (BBoxSimilarityValueSource)o;
-    return similarity.equals( other.similarity );
+    BBoxSimilarityValueSource other = (BBoxSimilarityValueSource) o;
+    return similarity.equals(other.similarity);
   }
 
   @Override
   public int hashCode() {
-    return BBoxSimilarityValueSource.class.hashCode()+similarity.hashCode();
+    return BBoxSimilarityValueSource.class.hashCode() + similarity.hashCode();
   }
 }

@@ -29,11 +29,10 @@ import org.apache.lucene.util.automaton.BasicAutomata;
 import org.apache.lucene.util.automaton.BasicOperations;
 
 /**
- *
  * @see AutomatonQuery, WildcardQuery
  */
-public class SpatialPrefixGridQuery extends AutomatonQuery
-{
+public class SpatialPrefixGridQuery extends AutomatonQuery {
+  
   /**
    * Constructs a query for terms matching <code>term</code>.
    */
@@ -52,7 +51,7 @@ public class SpatialPrefixGridQuery extends AutomatonQuery
     for (int i = 0; i < wildcardText.length();) {
       final int c = wildcardText.codePointAt(i);
       int length = Character.charCount(c);
-      switch(c) {
+      switch (c) {
         case SpatialPrefixGrid.COVER:
           automata.add(BasicAutomata.makeAnyString());
           break;
@@ -77,7 +76,9 @@ public class SpatialPrefixGridQuery extends AutomatonQuery
     return term;
   }
 
-  /** Prints a user-readable version of this query. */
+  /**
+   * Prints a user-readable version of this query.
+   */
   @Override
   public String toString(String field) {
     StringBuilder buffer = new StringBuilder();

@@ -22,27 +22,34 @@ import org.apache.lucene.spatial.base.query.SpatialOperation;
 import com.vividsolutions.jts.geom.Geometry;
 
 
-public class GeometryTestFactory
-{
-  public static GeometryTest get( SpatialOperation op, Geometry geo )
-  {
-    switch( op ) {
-    case BBoxIntersects: return new BBoxIntersectsTester(geo);
-    case BBoxWithin: return new BBoxWithinTester(geo);
-    case Contains: return new ContainsTester(geo);
-    case Intersects: return new IntersectsTester(geo);
-    case IsEqualTo: return new IsEqualToTester(geo);
-    case IsDisjointTo: return new IsDisjointToTester(geo);
-    case IsWithin: return new IsWithinTester(geo);
-    case Overlaps: return new OverlapsTester(geo);
+public class GeometryTestFactory {
+
+  public static GeometryTest get(SpatialOperation op, Geometry geo) {
+    switch (op) {
+      case BBoxIntersects:
+        return new BBoxIntersectsTester(geo);
+      case BBoxWithin:
+        return new BBoxWithinTester(geo);
+      case Contains:
+        return new ContainsTester(geo);
+      case Intersects:
+        return new IntersectsTester(geo);
+      case IsEqualTo:
+        return new IsEqualToTester(geo);
+      case IsDisjointTo:
+        return new IsDisjointToTester(geo);
+      case IsWithin:
+        return new IsWithinTester(geo);
+      case Overlaps:
+        return new OverlapsTester(geo);
     }
-    throw new UnsupportedOperationException( op.name() );
+    throw new UnsupportedOperationException(op.name());
   }
 
   private abstract static class BaseTester implements GeometryTest {
     protected Geometry queryGeo;
 
-    public BaseTester( Geometry geo ) {
+    public BaseTester(Geometry geo) {
       this.queryGeo = geo;
     }
   }
@@ -54,7 +61,7 @@ public class GeometryTestFactory
 
     @Override
     public boolean matches(Geometry geo) {
-      return geo.getEnvelope().intersects( queryGeo );
+      return geo.getEnvelope().intersects(queryGeo);
     }
   }
 
@@ -65,7 +72,7 @@ public class GeometryTestFactory
 
     @Override
     public boolean matches(Geometry geo) {
-      return geo.getEnvelope().within( queryGeo );
+      return geo.getEnvelope().within(queryGeo);
     }
   }
 
@@ -76,7 +83,7 @@ public class GeometryTestFactory
 
     @Override
     public boolean matches(Geometry geo) {
-      return geo.contains( queryGeo );
+      return geo.contains(queryGeo);
     }
   }
 
@@ -87,7 +94,7 @@ public class GeometryTestFactory
 
     @Override
     public boolean matches(Geometry geo) {
-      return geo.intersects( queryGeo );
+      return geo.intersects(queryGeo);
     }
   }
 
@@ -98,7 +105,7 @@ public class GeometryTestFactory
 
     @Override
     public boolean matches(Geometry geo) {
-      return geo.equals( queryGeo );
+      return geo.equals(queryGeo);
     }
   }
 
@@ -109,7 +116,7 @@ public class GeometryTestFactory
 
     @Override
     public boolean matches(Geometry geo) {
-      return geo.disjoint( queryGeo );
+      return geo.disjoint(queryGeo);
     }
   }
 
@@ -120,7 +127,7 @@ public class GeometryTestFactory
 
     @Override
     public boolean matches(Geometry geo) {
-      return geo.within( queryGeo );
+      return geo.within(queryGeo);
     }
   }
 
@@ -131,7 +138,7 @@ public class GeometryTestFactory
 
     @Override
     public boolean matches(Geometry geo) {
-      return geo.overlaps( queryGeo );
+      return geo.overlaps(queryGeo);
     }
   }
 }

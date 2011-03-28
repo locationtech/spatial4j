@@ -9,6 +9,7 @@ import org.apache.lucene.util.AttributeSource.AttributeFactory;
 
 
 class BytesRefAttributeFactory extends AttributeFactory {
+  
   private final AttributeFactory delegate;
   private final BytesRef bytes;
 
@@ -19,10 +20,12 @@ class BytesRefAttributeFactory extends AttributeFactory {
 
   @Override
   public AttributeImpl createAttributeInstance(Class<? extends Attribute> attClass) {
-    if (attClass == TermToBytesRefAttribute.class)
+    if (attClass == TermToBytesRefAttribute.class) {
       return new BytesRefTermAttributeImpl(bytes);
-    if (CharTermAttribute.class.isAssignableFrom(attClass))
+    }
+    if (CharTermAttribute.class.isAssignableFrom(attClass)) {
       throw new IllegalArgumentException("no");
+    }
     return delegate.createAttributeInstance(attClass);
   }
 }

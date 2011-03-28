@@ -31,16 +31,18 @@ class TruncateFilter extends TokenFilter {
   private final CharTermAttribute termAttr = addAttribute(CharTermAttribute.class);
 
   public TruncateFilter(TokenStream in, int maxTokenLength) {
-    super( in );
+    super(in);
     this.maxTokenLength = maxTokenLength;
   }
 
   @Override
   public boolean incrementToken() throws IOException {
-    if (!input.incrementToken()) return false;
+    if (!input.incrementToken()) {
+      return false;
+    }
 
-    if( termAttr.length() > maxTokenLength ) {
-      termAttr.setLength( maxTokenLength );
+    if (termAttr.length() > maxTokenLength) {
+      termAttr.setLength(maxTokenLength);
     }
     return true;
   }

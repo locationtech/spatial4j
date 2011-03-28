@@ -27,8 +27,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 /**
  *
  */
-class GridCellsTokenizer extends Tokenizer
-{
+class GridCellsTokenizer extends Tokenizer {
   public GridCellsTokenizer(Reader input) {
     super(input);
   }
@@ -41,16 +40,34 @@ class GridCellsTokenizer extends Tokenizer
     int length = 0;
     char[] buffer = termAtt.buffer();
     while (true) {
-      char c = (char)input.read();
-      if( c < 0 ) break;
-      if( c == 'a' || c == 'A' ) { buffer[length++] = 'A'; continue; }
-      if( c == 'b' || c == 'B' ) { buffer[length++] = 'B'; continue; }
-      if( c == 'c' || c == 'C' ) { buffer[length++] = 'C'; continue; }
-      if( c == 'd' || c == 'D' ) { buffer[length++] = 'D'; continue; }
-      if( c == '*' )             { buffer[length++] = '*'; continue; }
-      if( c == '+' )             { buffer[length++] = '+'; continue; }
+      char c = (char) input.read();
+      if (c < 0) break;
+      if (c == 'a' || c == 'A') {
+        buffer[length++] = 'A';
+        continue;
+      }
+      if (c == 'b' || c == 'B') {
+        buffer[length++] = 'B';
+        continue;
+      }
+      if (c == 'c' || c == 'C') {
+        buffer[length++] = 'C';
+        continue;
+      }
+      if (c == 'd' || c == 'D') {
+        buffer[length++] = 'D';
+        continue;
+      }
+      if (c == '*') {
+        buffer[length++] = '*';
+        continue;
+      }
+      if (c == '+') {
+        buffer[length++] = '+';
+        continue;
+      }
 
-      if( length > 0 ) {
+      if (length > 0) {
         // Skip any other character
         break;
       }

@@ -33,8 +33,8 @@ import org.apache.lucene.spatial.base.shape.simple.Point2D;
  * An implementation of the Lucene ValueSource model to support spatial relevance ranking.
  *
  */
-public class DistanceValueSource extends ValueSource
-{
+public class DistanceValueSource extends ValueSource {
+  
   private final PointFieldInfo fields;
   private final DistanceCalculator calculator;
   private final Point from;
@@ -49,8 +49,7 @@ public class DistanceValueSource extends ValueSource
    * @param queryPower the query power (scoring algorithm)
    * @param targetPower the target power (scoring algorithm)
    */
-  public DistanceValueSource(Point from, DistanceCalculator calc, PointFieldInfo fields)
-  {
+  public DistanceValueSource(Point from, DistanceCalculator calc, PointFieldInfo fields) {
     this.from = from;
     this.fields = fields;
     this.calculator = calc;
@@ -77,23 +76,24 @@ public class DistanceValueSource extends ValueSource
     IndexReader reader = context.reader;
     // How do we make sure to get the right entry creator?
     // Can we get it from solr?
-    final DoubleValues ptX = fields.getXValues( reader );
-    final DoubleValues ptY = fields.getYValues( reader );
+    final DoubleValues ptX = fields.getXValues(reader);
+    final DoubleValues ptY = fields.getYValues(reader);
 
     return new DocValues() {
       @Override
       public float floatVal(int doc) {
-        return (float)doubleVal(doc);
+        return (float) doubleVal(doc);
       }
 
       @Override
       public double doubleVal(int doc) {
         // make sure it has minX and area
-        if( ptX.valid.get( doc ) && ptY.valid.get( doc ) ) {
+        if (ptX.valid.get(doc) && ptY.valid.get(doc)) {
           Point2D pt = new Point2D( ptX.values[doc],  ptY.values[doc] );
           double v = calculator.calculate(from, pt);
-          if( v > max || v < min )
+          if (v > max || v < min) {
             return 0;
+          }
 
           return v;
         }
@@ -102,7 +102,7 @@ public class DistanceValueSource extends ValueSource
 
       @Override
       public String toString(int doc) {
-        return description()+"="+floatVal(doc);
+        return description() + "=" + floatVal(doc);
       }
     };
   }
@@ -117,12 +117,12 @@ public class DistanceValueSource extends ValueSource
     if (o.getClass() !=  DistanceValueSource.class)
       return false;
 
-    DistanceValueSource other = (DistanceValueSource)o;
-    return calculator.equals( other.calculator );
+    DistanceValueSource other = (DistanceValueSource) o;
+    return calculator.equals(other.calculator);
   }
 
   @Override
   public int hashCode() {
-    return DistanceValueSource.class.hashCode()+calculator.hashCode();
+    return DistanceValueSource.class.hashCode() + calculator.hashCode();
   }
 }

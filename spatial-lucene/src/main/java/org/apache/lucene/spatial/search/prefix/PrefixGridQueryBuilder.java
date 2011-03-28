@@ -23,63 +23,35 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
-import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
-import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
+import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
-public class PrefixGridQueryBuilder implements SpatialQueryBuilder<String>
-{
-  final SpatialPrefixGrid grid;
-  final int maxLength;
+public class PrefixGridQueryBuilder implements SpatialQueryBuilder<SimpleSpatialFieldInfo> {
+  
+  private final SpatialPrefixGrid grid;
 
-  public PrefixGridQueryBuilder( SpatialPrefixGrid grid, int maxLength )
-  {
+  public PrefixGridQueryBuilder(SpatialPrefixGrid grid) {
     this.grid = grid;
-    this.maxLength = maxLength;
   }
 
-  @Override
-  public Fieldable[] createFields(String fname, Shape shape,
-      boolean index, boolean store )
-  {
-    List<CharSequence> match = grid.readCells(shape);
-    BasicGridFieldable f = new BasicGridFieldable(fname, store );
-    if( maxLength > 0 ) {
-      f.tokens = new RemoveDuplicatesTokenFilter(
-          new TruncateFilter( new StringListTokenizer( match ), maxLength ) );
-    }
-    else {
-      f.tokens = new StringListTokenizer( match );
-    }
-    if( store ) {
-      f.value = match.toString(); //reader.toString( shape );
-    }
-    return new Fieldable[] { f };
-  }
-
-  //-----------------------------------------------------
-  //-----------------------------------------------------
-
-  public ValueSource makeValueSource(SpatialArgs args, String fname)
-  {
+  public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo info) {
     throw new UnsupportedOperationException( "not implemented yet..." );
   }
 
-  public Query makeQuery(SpatialArgs args, String fname) {
-    if( args.getOperation() != SpatialOperation.Intersects &&
+  public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo queryInfo) {
+    if (args.getOperation() != SpatialOperation.Intersects &&
         args.getOperation() != SpatialOperation.IsWithin &&
         args.getOperation() != SpatialOperation.Overlaps &&
-        args.getOperation() != SpatialOperation.SimilarTo ) {
+        args.getOperation() != SpatialOperation.SimilarTo) {
       // TODO -- can translate these other query types
       throw new UnsupportedOperationException("Unsupported Operation: " + args.getOperation());
     }
@@ -89,12 +61,11 @@ public class PrefixGridQueryBuilder implements SpatialQueryBuilder<String>
     List<CharSequence> match = grid.readCells(args.getShape());
 
     // TODO -- could this all happen in one pass?
-    BooleanQuery query = new BooleanQuery( true );
-
+    BooleanQuery query = new BooleanQuery(true);
 
     if (args.getOperation() == SpatialOperation.IsWithin) {
       for (CharSequence token : match) {
-        Term term = new Term(fname, token.toString());
+        Term term = new Term(queryInfo.getFieldName(), token.toString());
         SpatialPrefixGridQuery q = new SpatialPrefixGridQuery(term);
         query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }
@@ -102,25 +73,25 @@ public class PrefixGridQueryBuilder implements SpatialQueryBuilder<String>
       // Need to add all the parent queries
       Set<String> terms = new HashSet<String>();
       Set<String> parents = new HashSet<String>();
-      for( CharSequence token : match ) {
-        for( int i=1; i<token.length(); i++ ) {
-          parents.add( token.subSequence(0, i)+"*" );
+      for (CharSequence token : match) {
+        for (int i = 1; i < token.length(); i++) {
+          parents.add(token.subSequence(0, i) + "*");
         }
-        terms.add( token.toString().replace( '+', '*' ) );
+        terms.add(token.toString().replace('+', '*'));
 
-        Term term = new Term( fname, token.toString() );
-        SpatialPrefixGridQuery q = new SpatialPrefixGridQuery( term );
-        query.add( new BooleanClause( q, BooleanClause.Occur.SHOULD  ) );
+        Term term = new Term(queryInfo.getFieldName(), token.toString());
+        SpatialPrefixGridQuery q = new SpatialPrefixGridQuery(term);
+        query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }
 
       // These all include the '*'
-      List<String> sorted = new ArrayList<String>( parents );
-      Collections.sort( sorted );
-      for( String t : sorted ) {
-        if( !terms.contains( t ) ) {
-          Term term = new Term( fname, t );
-          PrefixQuery q = new PrefixQuery( term );
-          query.add( new BooleanClause( q, BooleanClause.Occur.SHOULD  ) );
+      List<String> sorted = new ArrayList<String>(parents);
+      Collections.sort(sorted);
+      for (String t : sorted) {
+        if (!terms.contains(t)) {
+          Term term = new Term(queryInfo.getFieldName(), t);
+          PrefixQuery q = new PrefixQuery(term);
+          query.add( new BooleanClause(q, BooleanClause.Occur.SHOULD));
         }
       }
     }

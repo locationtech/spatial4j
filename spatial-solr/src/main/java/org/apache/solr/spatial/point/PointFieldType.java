@@ -104,11 +104,7 @@ public class PointFieldType extends SpatialFieldType implements SchemaAware
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args )
   {
     PointQueryBuilder b = new PointQueryBuilder();
-    PointFieldInfo info = new PointFieldInfo();
-    info.setFieldsPrefix( field.getName() );
-    // TODO make sure the parser and precision step are set!
-    info.parser = FieldCache.NUMERIC_UTILS_DOUBLE_PARSER;
-    info.precisionStep = Integer.MAX_VALUE; // set to zero
+    PointFieldInfo info = new PointFieldInfo(field.getName(), Integer.MAX_VALUE, FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
     return b.makeQuery(args, info);
   }
 }

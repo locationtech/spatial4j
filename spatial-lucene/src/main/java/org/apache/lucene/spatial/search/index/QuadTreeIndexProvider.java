@@ -22,16 +22,14 @@ import org.apache.lucene.spatial.base.shape.ShapeIO;
 import com.vividsolutions.jts.index.SpatialIndex;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 
-public class QuadTreeIndexProvider extends CachedIndexProvider
-{
-  public QuadTreeIndexProvider( String shapeField, ShapeIO reader )
-  {
-    super( shapeField, reader );
+public class QuadTreeIndexProvider extends CachedIndexProvider {
+  
+  public QuadTreeIndexProvider(String shapeField, ShapeIO reader) {
+    super(shapeField, reader);
   }
 
   @Override
-  protected SpatialIndex createEmptyIndex()
-  {
+  protected SpatialIndex createEmptyIndex() {
     return new Quadtree();
   }
 }

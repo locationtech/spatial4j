@@ -5,8 +5,8 @@ import org.apache.lucene.analysis.tokenattributes.TermToBytesRefAttribute;
 import org.apache.lucene.util.BytesRef;
 
 
-class BytesRefTokenStream extends TokenStream
-{
+class BytesRefTokenStream extends TokenStream {
+  
   private boolean exhausted = false;
 
   public BytesRefTokenStream(BytesRef b) {
@@ -18,8 +18,7 @@ class BytesRefTokenStream extends TokenStream
   public boolean incrementToken() {
     if (exhausted) {
       return false;
-    }
-    else {
+    } else {
       clearAttributes();
       //singleToken.copyTo(tokenAtt);
       exhausted = true;

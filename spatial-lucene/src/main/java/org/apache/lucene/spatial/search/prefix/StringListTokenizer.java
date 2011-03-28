@@ -27,28 +27,27 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 /**
  * Put a list of strings directly into the token stream
  */
-class StringListTokenizer extends Tokenizer
-{
-  final Iterable<CharSequence> tokens;
-  Iterator<CharSequence> iter = null;
+class StringListTokenizer extends Tokenizer {
+
+  private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+
+  private final Iterable<CharSequence> tokens;
+  private Iterator<CharSequence> iter = null;
 
   public StringListTokenizer(Iterable<CharSequence> tokens) {
     this.tokens = tokens;
   }
 
-  private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
-
-
   @Override
   public final boolean incrementToken() throws IOException {
     clearAttributes();
-    if( iter == null ) {
+    if (iter == null) {
       iter = tokens.iterator();
     }
-    if( iter.hasNext() ) {
+    if (iter.hasNext()) {
       CharSequence t = iter.next();
       termAtt.setLength(0);
-      termAtt.append( t );
+      termAtt.append(t);
       return true;
     }
     return false;

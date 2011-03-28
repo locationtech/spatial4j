@@ -36,46 +36,40 @@ import com.vividsolutions.jts.index.ItemVisitor;
 import com.vividsolutions.jts.index.SpatialIndex;
 
 
-public class SpatialIndexFilter extends Filter
-{
-  static final Logger log = LoggerFactory.getLogger( SpatialIndexFilter.class );
+public class SpatialIndexFilter extends Filter {
 
-  final SpatialIndexProvider provider;
-  final Envelope bounds;
-  final SpatialOperation op;
+  private final SpatialIndexProvider provider;
+  private final Envelope bounds;
 
-  public SpatialIndexFilter( SpatialIndexProvider sidx, SpatialArgs args )
-  {
+  public SpatialIndexFilter(SpatialIndexProvider sidx, SpatialArgs args) {
     this.provider = sidx;
-    this.op = args.getOperation();
+    SpatialOperation op = args.getOperation();
 
     BBox bbox = args.getShape().getBoundingBox();
     if (bbox instanceof JtsEnvelope) {
-      this.bounds = ((JtsEnvelope)bbox).envelope;
-    }
-    else {
+      this.bounds = ((JtsEnvelope) bbox).envelope;
+    } else {
       if (op != SpatialOperation.BBoxIntersects) {
         throw new UnsupportedOperationException(op.name() + " for shape: " + args.getShape());
       }
-      this.bounds = new Envelope(bbox.getMinX(), bbox.getMaxX(), bbox.getMinY(), bbox.getMaxY() );
+      this.bounds = new Envelope(bbox.getMinX(), bbox.getMaxX(), bbox.getMinY(), bbox.getMaxY());
     }
 
-    if( !(op == SpatialOperation.Intersects || op == SpatialOperation.BBoxIntersects) ) {
-      throw new UnsupportedOperationException( op.name() );
+    if (!(op == SpatialOperation.Intersects || op == SpatialOperation.BBoxIntersects)) {
+      throw new UnsupportedOperationException(op.name());
     }
   }
 
   @Override
-  public DocIdSet getDocIdSet(AtomicReaderContext context) throws IOException
-  {
-    SpatialIndex sidx = provider.getSpatialIndex( context.reader );
+  public DocIdSet getDocIdSet(AtomicReaderContext context) throws IOException {
+    SpatialIndex sidx = provider.getSpatialIndex(context.reader);
     final BitSet bits = new BitSet();
-    sidx.query( bounds, new ItemVisitor() {
+    sidx.query(bounds, new ItemVisitor() {
       @Override
       public void visitItem(Object item) {
-        bits.set( (Integer)item );
+        bits.set((Integer) item);
       }
     });
-    return new DocIdBitSet( bits );
+    return new DocIdBitSet(bits);
   }
 }

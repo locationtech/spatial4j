@@ -18,13 +18,14 @@
 package org.apache.lucene.spatial.search.bbox;
 
 import org.apache.lucene.search.FieldCache.DoubleParser;
+import org.apache.lucene.spatial.search.SpatialFieldInfo;
 import org.apache.lucene.util.NumericUtils;
 
 /**
  * Fieldnames to store
  */
-public class BBoxFieldInfo
-{
+public class BBoxFieldInfo implements SpatialFieldInfo {
+
   public static final String SUFFIX_MINX = "__minX";
   public static final String SUFFIX_MAXX = "__maxX";
   public static final String SUFFIX_MINY = "__minY";
@@ -43,8 +44,7 @@ public class BBoxFieldInfo
   public String xdl = "envelope.xdl";
 
 
-  public void setFieldsPrefix( String prefix )
-  {
+  public void setFieldsPrefix(String prefix) {
     minX = prefix + SUFFIX_MINX;
     maxX = prefix + SUFFIX_MAXX;
     minY = prefix + SUFFIX_MINY;

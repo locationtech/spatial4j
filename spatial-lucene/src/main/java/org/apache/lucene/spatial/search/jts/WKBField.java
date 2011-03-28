@@ -27,46 +27,44 @@ import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.StringHelper;
 
-
 /**
  * This has an indexed WKB value.
- *
+ * <p/>
  * In the future, this should use Column Stride Fields rather then indexing
  * the data.
  */
-class WKBField extends AbstractField implements Fieldable
-{
+class WKBField extends AbstractField implements Fieldable {
   private final String wkt;
   private final BytesRef bytes;
 
-  public WKBField(String name, byte[] wkb, String wkt )
-  {
-    if (name == null)
+  public WKBField(String name, byte[] wkb, String wkt) {
+    if (name == null) {
       throw new IllegalArgumentException("name cannot be null");
-    if (wkb == null && wkt == null)
+    }
+    if (wkb == null && wkt == null) {
       throw new IllegalArgumentException("wkt or wkb must be valid");
+    }
 
-    this.name = StringHelper.intern(name);        // field names are interned
-    fieldsData = wkb;
+    this.name = StringHelper.intern(name);
+    this.fieldsData = wkb;
     this.wkt = wkt;
 
-    if( wkb == null ) {
-      bytes = null;
-    }
-    else {
-      if( wkb.length > 32000 ) {
-        throw new InvalidShapeException( "WKB must be less then 32K ["+wkb.length+"]" );
+    if (wkb == null) {
+      this.bytes = null;
+    } else {
+      if (wkb.length > 32000) {
+        throw new InvalidShapeException("WKB must be less then 32K [" + wkb.length + "]");
       }
-      bytes = new BytesRef();
-      bytes.bytes = wkb;
-      bytes.length = wkb.length;
+      this.bytes = new BytesRef();
+      this.bytes.bytes = wkb;
+      this.bytes.length = wkb.length;
     }
 
-    isStored  = wkt != null; //store;
-    isIndexed = wkb != null;
-    isTokenized = isIndexed; //false;
-    omitTermFreqAndPositions = false;
-    omitNorms = true;
+    this.isStored = wkt != null; //store;
+    this.isIndexed = wkb != null;
+    this.isTokenized = isIndexed; //false;
+    this.omitTermFreqAndPositions = false;
+    this.omitNorms = true;
 
     setStoreTermVector(TermVector.NO);
   }
@@ -83,6 +81,6 @@ class WKBField extends AbstractField implements Fieldable
 
   @Override
   public TokenStream tokenStreamValue() {
-    return new BytesRefTokenStream( bytes );
+    return new BytesRefTokenStream(bytes);
   }
 }

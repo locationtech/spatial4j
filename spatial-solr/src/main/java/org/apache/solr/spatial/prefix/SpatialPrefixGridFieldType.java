@@ -25,7 +25,9 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
 import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
+import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.prefix.PrefixGridQueryBuilder;
+import org.apache.lucene.spatial.search.prefix.PrefixGridSpatialIndexer;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
@@ -34,46 +36,46 @@ import org.apache.solr.spatial.SpatialFieldType;
 
 /**
  * Syntax for the field input:
- *
+ * <p/>
  * (1) QuadTokens: List of the fields it exists in:
- *    [ABA* CAA* AAAAAB-]
- *
+ * [ABA* CAA* AAAAAB-]
+ * <p/>
  * (2) Something for the field reader....
- *
  */
-public class SpatialPrefixGridFieldType extends SpatialFieldType
-{
+public class SpatialPrefixGridFieldType extends SpatialFieldType {
+
   PrefixGridQueryBuilder builder;
+  PrefixGridSpatialIndexer spatialIndexer;
+
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
 
     int maxLength = -1;
-    String res = args.remove( "maxLength" );
-    if( res != null ) {
-      maxLength = Integer.parseInt( res );
+    String res = args.remove("maxLength");
+    if (res != null) {
+      maxLength = Integer.parseInt(res);
     }
 
     // TODO, allow configuration
     reader = new JTSShapeIO();
-    JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid( -180, 180, -90-180, 90, 16);
+    JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid(-180, 180, -90 - 180, 90, 16);
     grid.setResolution(5);
 
-    this.builder = new PrefixGridQueryBuilder( grid, maxLength );
+    this.builder = new PrefixGridQueryBuilder(grid);
+    this.spatialIndexer = new PrefixGridSpatialIndexer(grid, maxLength);
   }
 
   @Override
-  public Fieldable createField(SchemaField field, Shape shape, float boost)
-  {
-    return builder.createFields(field.getName(), shape,
-        field.indexed(), field.stored() )[0];
+  public Fieldable createField(SchemaField field, Shape shape, float boost) {
+    return spatialIndexer.createFields(new SimpleSpatialFieldInfo(field.getName()), shape,
+        field.indexed(), field.stored())[0];
   }
 
   @Override
-  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args )
-  {
-    return builder.makeQuery(args, field.getName() );
+  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args) {
+    return builder.makeQuery(args, new SimpleSpatialFieldInfo(field.getName()));
   }
 }
 

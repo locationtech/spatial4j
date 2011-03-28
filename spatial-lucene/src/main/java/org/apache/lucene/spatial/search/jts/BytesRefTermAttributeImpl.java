@@ -8,8 +8,7 @@ class BytesRefTermAttributeImpl extends AttributeImpl implements TermToBytesRefA
 
   final BytesRef bytes;
 
-  public BytesRefTermAttributeImpl( BytesRef b )
-  {
+  public BytesRefTermAttributeImpl(BytesRef b) {
     bytes = b;
   }
 

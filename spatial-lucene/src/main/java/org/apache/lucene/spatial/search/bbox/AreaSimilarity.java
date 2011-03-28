@@ -22,43 +22,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * The algorithm is implemented as envelope on envelope overlays rather than
  * complex polygon on complex polygon overlays.
- *
+ * <p/>
  * <p/>
  * Spatial relevance scoring algorithm:
- *
+ * <p/>
  * <br/>  queryArea = the area of the input query envelope
  * <br/>  targetArea = the area of the target envelope (per Lucene document)
  * <br/>  intersectionArea = the area of the intersection for the query/target envelopes
  * <br/>  queryPower = the weighting power associated with the query envelope (default = 1.0)
  * <br/>  targetPower =  the weighting power associated with the target envelope (default = 1.0)
- *
+ * <p/>
  * <br/>  queryRatio  = intersectionArea / queryArea;
  * <br/>  targetRatio = intersectionArea / targetArea;
  * <br/>  queryFactor  = Math.pow(queryRatio,queryPower);
  * <br/>  targetFactor = Math.pow(targetRatio,targetPower);
  * <br/>  score = queryFactor * targetFactor;
- *
+ * <p/>
  * original:
- *  http://geoportal.svn.sourceforge.net/svnroot/geoportal/Geoportal/trunk/src/com/esri/gpt/catalog/lucene/SpatialRankingValueSource.java
- *
+ * http://geoportal.svn.sourceforge.net/svnroot/geoportal/Geoportal/trunk/src/com/esri/gpt/catalog/lucene/SpatialRankingValueSource.java
  */
-public class AreaSimilarity implements BBoxSimilarity
-{
-  /** The Logger. */
+public class AreaSimilarity implements BBoxSimilarity {
+  /**
+   * The Logger.
+   */
   private static Logger log = LoggerFactory.getLogger(AreaSimilarity.class);
 
-  /** Properties associated with the query envelope */
+  /**
+   * Properties associated with the query envelope
+   */
   private final BBox queryExtent;
   private final double queryArea;
 
   private final double targetPower;
   private final double queryPower;
 
-  public AreaSimilarity( BBox queryExtent, double queryPower, double targetPower )
-  {
+  public AreaSimilarity(BBox queryExtent, double queryPower, double targetPower) {
     this.queryExtent = queryExtent;
     this.queryArea = queryExtent.getArea();
 
@@ -73,14 +73,13 @@ public class AreaSimilarity implements BBoxSimilarity
 //  }
   }
 
-  public AreaSimilarity( BBox queryExtent )
-  {
-    this( queryExtent, 2.0, 0.5 );
+  public AreaSimilarity(BBox queryExtent) {
+    this(queryExtent, 2.0, 0.5);
   }
 
 
   public String getDelimiterQueryParameters() {
-    return queryExtent.toString()+";"+queryPower+";"+targetPower;
+    return queryExtent.toString() + ";" + queryPower + ";" + targetPower;
   }
 
   @Override
@@ -89,63 +88,57 @@ public class AreaSimilarity implements BBoxSimilarity
       return 0;
     }
     double targetArea = target.getArea();
-    if( targetArea <= 0 ) {
+    if (targetArea <= 0) {
       return 0;
     }
     double score = 0;
 
-    double top    = Math.min(queryExtent.getMaxY(),target.getMaxY());
-    double bottom = Math.max(queryExtent.getMinY(),target.getMinY());
+    double top = Math.min(queryExtent.getMaxY(), target.getMaxY());
+    double bottom = Math.max(queryExtent.getMinY(), target.getMinY());
     double height = top - bottom;
-    double width  = 0;
+    double width = 0;
 
     // queries that cross the date line
-    if( queryExtent.getCrossesDateLine() ) {
+    if (queryExtent.getCrossesDateLine()) {
       // documents that cross the date line
-      if( target.getCrossesDateLine() ) {
-        double left  = Math.max(queryExtent.getMinX(),target.getMinX());
-        double right = Math.min(queryExtent.getMaxX(),target.getMaxX());
+      if (target.getCrossesDateLine()) {
+        double left = Math.max(queryExtent.getMinX(), target.getMinX());
+        double right = Math.min(queryExtent.getMaxX(), target.getMaxX());
         width = right + 360.0 - left;
-      }
-      else {
-        double qryWestLeft  = Math.max(queryExtent.getMinX(), target.getMaxX());
-        double qryWestRight = Math.min(target.getMaxX(),180.0);
+      } else {
+        double qryWestLeft = Math.max(queryExtent.getMinX(), target.getMaxX());
+        double qryWestRight = Math.min(target.getMaxX(), 180.0);
         double qryWestWidth = qryWestRight - qryWestLeft;
         if (qryWestWidth > 0) {
           width = qryWestWidth;
-        }
-        else {
-          double qryEastLeft  = Math.max(target.getMaxX(),-180.0);
-          double qryEastRight = Math.min(queryExtent.getMaxX(),target.getMaxX());
+        } else {
+          double qryEastLeft = Math.max(target.getMaxX(), -180.0);
+          double qryEastRight = Math.min(queryExtent.getMaxX(), target.getMaxX());
           double qryEastWidth = qryEastRight - qryEastLeft;
           if (qryEastWidth > 0) {
             width = qryEastWidth;
           }
         }
       }
-    }
+    } else { // queries that do not cross the date line
 
-    // queries that do not cross the date line
-    else {
-
-      if( target.getCrossesDateLine() ) {
-        double tgtWestLeft  = Math.max(queryExtent.getMinX(), target.getMinX() );
-        double tgtWestRight = Math.min(queryExtent.getMaxX(),180.0);
+      if (target.getCrossesDateLine()) {
+        double tgtWestLeft = Math.max(queryExtent.getMinX(), target.getMinX());
+        double tgtWestRight = Math.min(queryExtent.getMaxX(), 180.0);
         double tgtWestWidth = tgtWestRight - tgtWestLeft;
         if (tgtWestWidth > 0) {
           width = tgtWestWidth;
         } else {
-          double tgtEastLeft  = Math.max(queryExtent.getMinX(),-180.0);
-          double tgtEastRight = Math.min(queryExtent.getMaxX(),target.getMaxX());
+          double tgtEastLeft = Math.max(queryExtent.getMinX(), -180.0);
+          double tgtEastRight = Math.min(queryExtent.getMaxX(), target.getMaxX());
           double tgtEastWidth = tgtEastRight - tgtEastLeft;
           if (tgtEastWidth > 0) {
             width = tgtEastWidth;
           }
         }
-      }
-      else {
-        double left  = Math.max(queryExtent.getMinX(),target.getMinX());
-        double right = Math.min(queryExtent.getMaxX(),target.getMaxX());
+      } else {
+        double left = Math.max(queryExtent.getMinX(), target.getMinX());
+        double right = Math.min(queryExtent.getMaxX(), target.getMaxX());
         width = right - left;
       }
     }
@@ -154,23 +147,23 @@ public class AreaSimilarity implements BBoxSimilarity
     // calculate the score
     if ((width > 0) && (height > 0)) {
       double intersectionArea = width * height;
-      double queryRatio  = intersectionArea / queryArea;
+      double queryRatio = intersectionArea / queryArea;
       double targetRatio = intersectionArea / targetArea;
-      double queryFactor  = Math.pow(queryRatio,queryPower);
-      double targetFactor = Math.pow(targetRatio,targetPower);
+      double queryFactor = Math.pow(queryRatio, queryPower);
+      double targetFactor = Math.pow(targetRatio, targetPower);
       score = queryFactor * targetFactor * 10000.0;
 
-      if ( log.isInfoEnabled() ) {
+      if (log.isInfoEnabled()) {
         StringBuffer sb = new StringBuffer();
-        sb.append("\nscore="+score);
-        sb.append("\n  query="+queryExtent.toString() );
-        sb.append("\n  target="+target.toString() );
-        sb.append("\n  intersectionArea="+intersectionArea);
-        sb.append(" queryArea="+queryArea+" targetArea="+targetArea);
-        sb.append("\n  queryRatio="+queryRatio+" targetRatio="+targetRatio);
-        sb.append("\n  queryFactor="+queryFactor+" targetFactor="+targetFactor);
-        sb.append(" (queryPower="+queryPower+" targetPower="+targetPower+")");
-        log.info( sb.toString() );
+        sb.append("\nscore=").append(score);
+        sb.append("\n  query=").append(queryExtent.toString());
+        sb.append("\n  target=").append(target.toString());
+        sb.append("\n  intersectionArea=").append(intersectionArea);
+        sb.append(" queryArea=").append(queryArea).append(" targetArea=").append(targetArea);
+        sb.append("\n  queryRatio=").append(queryRatio).append(" targetRatio=").append(targetRatio);
+        sb.append("\n  queryFactor=").append(queryFactor).append(" targetFactor=").append(targetFactor);
+        sb.append(" (queryPower=").append(queryPower).append(" targetPower=").append(targetPower).append(")");
+        log.info(sb.toString());
       }
     }
     return score;
@@ -179,20 +172,22 @@ public class AreaSimilarity implements BBoxSimilarity
 
   /**
    * Determines if this ValueSource is equal to another.
+   *
    * @param o the ValueSource to compare
    * @return <code>true</code> if the two objects are based upon the same query envelope
    */
   @Override
   public boolean equals(Object o) {
-    if (o.getClass() !=  AreaSimilarity.class)
+    if (o.getClass() != AreaSimilarity.class)
       return false;
 
-    AreaSimilarity other = (AreaSimilarity)o;
+    AreaSimilarity other = (AreaSimilarity) o;
     return getDelimiterQueryParameters().equals(other.getDelimiterQueryParameters());
   }
 
   /**
    * Returns the ValueSource hash code.
+   *
    * @return the hash code
    */
   @Override

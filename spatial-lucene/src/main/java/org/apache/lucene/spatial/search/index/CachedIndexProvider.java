@@ -41,16 +41,14 @@ import com.vividsolutions.jts.index.SpatialIndex;
 /**
  * This uses a WeakHashMap to hold an in-memory index
  */
-public abstract class CachedIndexProvider implements SpatialIndexProvider
-{
-  static final Logger log = LoggerFactory.getLogger( CachedIndexProvider.class );
+public abstract class CachedIndexProvider implements SpatialIndexProvider {
+  static final Logger log = LoggerFactory.getLogger(CachedIndexProvider.class);
   WeakHashMap<IndexReader, SpatialIndex> sidx = new WeakHashMap<IndexReader, SpatialIndex>();
 
   protected final String shapeField;
   protected final ShapeIO shapeReader;
 
-  public CachedIndexProvider( String shapeField, ShapeIO reader )
-  {
+  public CachedIndexProvider(String shapeField, ShapeIO reader) {
     this.shapeField = shapeField;
     this.shapeReader = reader;
   }
@@ -58,49 +56,62 @@ public abstract class CachedIndexProvider implements SpatialIndexProvider
   protected abstract SpatialIndex createEmptyIndex();
 
   @Override
-  public synchronized SpatialIndex getSpatialIndex(IndexReader reader) throws CorruptIndexException, IOException
-  {
-    SpatialIndex idx = sidx.get( reader );
-    if( idx == null ) {
-      long startTime = System.currentTimeMillis();
-      Long lastmodified = IndexReader.lastModified( reader.directory() );
-      log.info( "Building Index. "+lastmodified + " ["+reader.maxDoc()+"]" );
-      idx = createEmptyIndex();
+  public synchronized SpatialIndex getSpatialIndex(IndexReader reader) throws CorruptIndexException, IOException {
+    SpatialIndex idx = sidx.get(reader);
+    if (idx != null) {
+      return idx;
+    }
+    long startTime = System.currentTimeMillis();
+    Long lastmodified = IndexReader.lastModified(reader.directory());
 
-      int count = 0;
-      DocsEnum docs = null;
-      Terms terms = reader.terms(shapeField);
-      if( terms != null ) {
-        TermsEnum te = terms.iterator();
-        BytesRef term = te.next();
-        while( term != null ) {
-          String txt = term.utf8ToString();
-          Shape shape = shapeReader.readShape( txt );
-          BBox bbox = shape.getBoundingBox();
-          Envelope envelope = null;
-          if( bbox instanceof JtsEnvelope ) {
-            envelope = ((JtsEnvelope)bbox).envelope;
-          }
-          else {
-            envelope = new Envelope(bbox.getMinX(), bbox.getMaxX(), bbox.getMinY(), bbox.getMaxY() );
-          }
+    if (log.isInfoEnabled()) {
+      log.info("Building Index. " + lastmodified + " [" + reader.maxDoc() + "]");
+    }
+    idx = createEmptyIndex();
 
-          docs = te.docs(null, docs);
-          log.trace( "Add: "+txt + " ["+te.docFreq()+"] " );
-          Integer docid = new Integer( docs.nextDoc() );
-          while( docid != DocIdSetIterator.NO_MORE_DOCS ) {
-            idx.insert( envelope, docid );
-            log.trace( " "+docid );
-            docid = new Integer( docs.nextDoc() );
-            count++;
-          }
-          term = te.next();
+    int count = 0;
+    DocsEnum docs = null;
+    Terms terms = reader.terms(shapeField);
+    if (terms != null) {
+      TermsEnum te = terms.iterator();
+      BytesRef term = te.next();
+      while (term != null) {
+        String txt = term.utf8ToString();
+        Shape shape = shapeReader.readShape(txt);
+        BBox bbox = shape.getBoundingBox();
+        Envelope envelope;
+        if (JtsEnvelope.class.isInstance(bbox)) {
+          envelope = ((JtsEnvelope) bbox).envelope;
+        } else {
+          envelope = new Envelope(bbox.getMinX(), bbox.getMaxX(), bbox.getMinY(), bbox.getMaxY());
         }
+
+        docs = te.docs(null, docs);
+
+        if (log.isTraceEnabled()) {
+          log.trace("Add: " + txt + " [" + te.docFreq() + "] ");
+        }
+
+        Integer docid = docs.nextDoc();
+        while (docid != DocIdSetIterator.NO_MORE_DOCS) {
+          idx.insert(envelope, docid);
+
+          if (log.isTraceEnabled()) {
+            log.trace(" " + docid);
+          }
+
+          docid = docs.nextDoc();
+          count++;
+        }
+        term = te.next();
       }
-      long elapsed = System.currentTimeMillis() - startTime;
-      idx.query( new Envelope( -1, 1, -1, 1 ) ); // this will build the index
-      log.info( "Indexed: ["+count+" in "+elapsed+"ms] "+idx );
-      sidx.put( reader, idx );
+    }
+    long elapsed = System.currentTimeMillis() - startTime;
+    idx.query(new Envelope(-1, 1, -1, 1)); // this will build the index
+    sidx.put(reader, idx);
+
+    if (log.isInfoEnabled()) {
+      log.info("Indexed: [" + count + " in " + elapsed + "ms] " + idx);
     }
     return idx;
   }

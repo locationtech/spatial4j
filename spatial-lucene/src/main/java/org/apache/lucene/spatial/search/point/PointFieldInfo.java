@@ -25,37 +25,65 @@ import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.search.cache.CachedArrayCreator;
 import org.apache.lucene.search.cache.DoubleValuesCreator;
 import org.apache.lucene.search.cache.CachedArray.DoubleValues;
+import org.apache.lucene.spatial.search.SpatialFieldInfo;
 import org.apache.lucene.util.NumericUtils;
 
 /**
  * Fieldnames to store
  */
-public class PointFieldInfo
-{
+public class PointFieldInfo implements SpatialFieldInfo {
+  
   public static final String SUFFIX_X = "__x";
   public static final String SUFFIX_Y = "__y";
 
-  public int precisionStep = NumericUtils.PRECISION_STEP_DEFAULT;
-  public DoubleParser parser = null;
+  private final int precisionStep;
+  private final DoubleParser parser;
 
-  public String fieldX = "point__x";
-  public String fieldY = "point__y";
+  private final String xFieldName;
+  private final String yFieldName;
 
-  public void setFieldsPrefix( String prefix )
-  {
-    fieldX = prefix + SUFFIX_X;
-    fieldY = prefix + SUFFIX_Y;
+  public PointFieldInfo() {
+    this("point", NumericUtils.PRECISION_STEP_DEFAULT, null);
   }
 
-  public DoubleValues getXValues( IndexReader reader ) throws IOException
-  {
-    return FieldCache.DEFAULT.getDoubles( reader, fieldX,
-        new DoubleValuesCreator( fieldX, parser, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
+  public PointFieldInfo(String fieldNamePrefix) {
+    this(fieldNamePrefix, NumericUtils.PRECISION_STEP_DEFAULT, null);
   }
 
-  public DoubleValues getYValues( IndexReader reader ) throws IOException
-  {
-    return FieldCache.DEFAULT.getDoubles( reader, fieldY,
-        new DoubleValuesCreator( fieldY, parser, CachedArrayCreator.CACHE_VALUES_AND_BITS ) );
+  public PointFieldInfo(String fieldNamePrefix, int precisionStep) {
+    this(fieldNamePrefix, precisionStep, null);
+  }
+
+  public PointFieldInfo(String fieldNamePrefix, int precisionStep, DoubleParser parser) {
+    xFieldName = fieldNamePrefix + SUFFIX_X;
+    yFieldName = fieldNamePrefix + SUFFIX_Y;
+    this.precisionStep = precisionStep;
+    this.parser = parser;
+  }
+
+  public DoubleValues getXValues(IndexReader reader) throws IOException {
+    return FieldCache.DEFAULT.getDoubles(reader, xFieldName,
+        new DoubleValuesCreator(xFieldName, parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));
+  }
+
+  public DoubleValues getYValues(IndexReader reader) throws IOException {
+    return FieldCache.DEFAULT.getDoubles(reader, yFieldName,
+        new DoubleValuesCreator(yFieldName, parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));
+  }
+
+  public String getXFieldName() {
+    return xFieldName;
+  }
+
+  public String getYFieldName() {
+    return yFieldName;
+  }
+
+  public int getPrecisionStep() {
+    return precisionStep;
+  }
+
+  public DoubleParser getParser() {
+    return parser;
   }
 }

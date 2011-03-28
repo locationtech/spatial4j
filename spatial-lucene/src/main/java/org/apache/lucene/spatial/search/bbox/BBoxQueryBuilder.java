@@ -17,36 +17,21 @@
 
 package org.apache.lucene.spatial.search.bbox;
 
-import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.NumericRangeQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
 /**
- *
  * original:
- *  http://geoportal.svn.sourceforge.net/svnroot/geoportal/Geoportal/trunk/src/com/esri/gpt/catalog/lucene/SpatialClauseAdapter.java
- *
+ * http://geoportal.svn.sourceforge.net/svnroot/geoportal/Geoportal/trunk/src/com/esri/gpt/catalog/lucene/SpatialClauseAdapter.java
  */
-public class BBoxQueryBuilder implements SpatialQueryBuilder<BBoxFieldInfo>
-{
+public class BBoxQueryBuilder implements SpatialQueryBuilder<BBoxFieldInfo> {
   public double queryPower = 1.0;
   public double targetPower = 1.0f;
-
-
-  @Override
-  public Fieldable[] createFields(BBoxFieldInfo fields, Shape shape, boolean index, boolean store ) {
-    throw new UnsupportedOperationException( "solr does this for now..." );
-  }
 
   @Override
   public ValueSource makeValueSource(SpatialArgs args, BBoxFieldInfo fields) {
@@ -55,46 +40,47 @@ public class BBoxQueryBuilder implements SpatialQueryBuilder<BBoxFieldInfo>
   }
 
   @Override
-  public Query makeQuery(SpatialArgs args, BBoxFieldInfo fields)
-  {
+  public Query makeQuery(SpatialArgs args, BBoxFieldInfo fieldInfo) {
     BBox bbox = args.getShape().getBoundingBox();
-    BBoxQueryHelper helper = new BBoxQueryHelper(bbox,fields);
 
     Query spatial = null;
     switch (args.getOperation()) {
-      case BBoxIntersects: spatial = helper.makeIntersects(); break;
-      case BBoxWithin: spatial =  helper.makeWithin(); break;
-      case Contains: spatial =  helper.makeContains(); break;
-      case Intersects: spatial =  helper.makeIntersects(); break;
-      case IsEqualTo: spatial =  helper.makeEquals(); break;
-      case IsDisjointTo: spatial =  helper.makeDisjoint(); break;
-      case IsWithin: spatial =  helper.makeWithin(); break;
-      case Overlaps: spatial =  helper.makeIntersects(); break;
+      case BBoxIntersects:
+        spatial = makeIntersects(bbox, fieldInfo);
+        break;
+      case BBoxWithin:
+        spatial = makeWithin(bbox, fieldInfo);
+        break;
+      case Contains:
+        spatial = makeContains(bbox, fieldInfo);
+        break;
+      case Intersects:
+        spatial = makeIntersects(bbox, fieldInfo);
+        break;
+      case IsEqualTo:
+        spatial = makeEquals(bbox, fieldInfo);
+        break;
+      case IsDisjointTo:
+        spatial = makeDisjoint(bbox, fieldInfo);
+        break;
+      case IsWithin:
+        spatial = makeWithin(bbox, fieldInfo);
+        break;
+      case Overlaps:
+        spatial = makeIntersects(bbox, fieldInfo);
+        break;
       default:
         throw new UnsupportedOperationException(args.getOperation().name());
     }
 
     if (args.isCalculateScore()) {
-      Query spatialRankingQuery = new ValueSourceQuery( makeValueSource( args, fields ) );
+      Query spatialRankingQuery = new ValueSourceQuery(makeValueSource(args, fieldInfo));
       BooleanQuery bq = new BooleanQuery();
-      bq.add(spatial,BooleanClause.Occur.MUST);
-      bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
+      bq.add(spatial, BooleanClause.Occur.MUST);
+      bq.add(spatialRankingQuery, BooleanClause.Occur.MUST);
       return bq;
     }
     return spatial;
-  }
-}
-
-
-class BBoxQueryHelper
-{
-  final BBox queryExtent;
-  final BBoxFieldInfo fields;
-
-  public BBoxQueryHelper( BBox bbox, BBoxFieldInfo fields )
-  {
-    this.queryExtent = bbox;
-    this.fields = fields;
   }
 
   //-------------------------------------------------------------------------------
@@ -103,10 +89,10 @@ class BBoxQueryHelper
 
   /**
    * Constructs a query to retrieve documents that fully contain the input envelope.
+   *
    * @return the spatial query
    */
-  Query makeContains()
-  {
+  Query makeContains(BBox bbox, BBoxFieldInfo fieldInfo) {
     /*
     // the original contains query does not work for envelopes that cross the date line
     // docMinX <= queryExtent.getMinX(), docMinY <= queryExtent.getMinY(), docMaxX >= queryExtent.getMaxX(), docMaxY >= queryExtent.getMaxY()
@@ -127,37 +113,37 @@ class BBoxQueryHelper
 
     // Y conditions
     // docMinY <= queryExtent.getMinY() AND docMaxY >= queryExtent.getMaxY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,fields.precisionStep,null,queryExtent.getMinY(),false,true);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,fields.precisionStep,queryExtent.getMaxY(),null,true,false);
-    Query yConditions = this.makeQuery(new Query[]{qMinY,qMaxY},BooleanClause.Occur.MUST);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fieldInfo.minY, fieldInfo.precisionStep, null, bbox.getMinY(), false, true);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fieldInfo.maxY, fieldInfo.precisionStep, bbox.getMaxY(), null, true, false);
+    Query yConditions = this.makeQuery(new Query[]{qMinY, qMaxY}, BooleanClause.Occur.MUST);
 
     // X conditions
     Query xConditions = null;
 
     // queries that do not cross the date line
-    if (!queryExtent.getCrossesDateLine()) {
+    if (!bbox.getCrossesDateLine()) {
 
       // X Conditions for documents that do not cross the date line,
       // documents that contain the min X and max X of the query envelope,
       // docMinX <= queryExtent.getMinX() AND docMaxX >= queryExtent.getMaxX()
-      Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,null,queryExtent.getMinX(),false,true);
-      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,queryExtent.getMaxX(),null,true,false);
-      Query qMinMax = this.makeQuery(new Query[]{qMinX,qMaxX},BooleanClause.Occur.MUST);
-      Query qNonXDL = this.makeXDL(false,qMinMax);
+      Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, null, bbox.getMinX(), false, true);
+      Query qMaxX = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, bbox.getMaxX(), null, true, false);
+      Query qMinMax = this.makeQuery(new Query[]{qMinX, qMaxX}, BooleanClause.Occur.MUST);
+      Query qNonXDL = this.makeXDL(false, qMinMax, fieldInfo);
 
       // X Conditions for documents that cross the date line,
       // the left portion of the document contains the min X of the query
       // OR the right portion of the document contains the max X of the query,
       // docMinXLeft <= queryExtent.getMinX() OR docMaxXRight >= queryExtent.getMaxX()
-      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,null,queryExtent.getMinX(),false,true);
-      Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,queryExtent.getMaxX(),null,true,false);
-      Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft,qXDLRight},BooleanClause.Occur.SHOULD);
-      Query qXDL = this.makeXDL(true,qXDLLeftRight);
+      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, null, bbox.getMinX(), false, true);
+      Query qXDLRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, bbox.getMaxX(), null, true, false);
+      Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft, qXDLRight}, BooleanClause.Occur.SHOULD);
+      Query qXDL = this.makeXDL(true, qXDLLeftRight, fieldInfo);
 
       // apply the non-XDL and XDL conditions
-      xConditions = this.makeQuery(new Query[]{qNonXDL,qXDL},BooleanClause.Occur.SHOULD);
+      xConditions = this.makeQuery(new Query[]{qNonXDL, qXDL}, BooleanClause.Occur.SHOULD);
 
-    // queries that cross the date line
+      // queries that cross the date line
     } else {
 
       // No need to search for documents that do not cross the date line
@@ -166,24 +152,23 @@ class BBoxQueryHelper
       // the left portion of the document contains the min X of the query
       // AND the right portion of the document contains the max X of the query,
       // docMinXLeft <= queryExtent.getMinX() AND docMaxXRight >= queryExtent.getMaxX()
-      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,null,queryExtent.getMinX(),false,true);
-      Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,queryExtent.getMaxX(),null,true,false);
-      Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft,qXDLRight},BooleanClause.Occur.MUST);
-      Query qXDL = this.makeXDL(true,qXDLLeftRight);
+      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, null, bbox.getMinX(), false, true);
+      Query qXDLRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, bbox.getMaxX(), null, true, false);
+      Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft, qXDLRight}, BooleanClause.Occur.MUST);
 
-      xConditions = qXDL;
+      xConditions = this.makeXDL(true, qXDLLeftRight, fieldInfo);
     }
 
     // both X and Y conditions must occur
-    Query xyConditions = this.makeQuery(new Query[]{xConditions,yConditions},BooleanClause.Occur.MUST);
-    return xyConditions;
+    return this.makeQuery(new Query[]{xConditions, yConditions}, BooleanClause.Occur.MUST);
   }
 
   /**
    * Constructs a query to retrieve documents that are disjoint to the input envelope.
+   *
    * @return the spatial query
    */
-  Query makeDisjoint() {
+  Query makeDisjoint(BBox bbox, BBoxFieldInfo fieldInfo) {
 
     /*
     // the original disjoint query does not work for envelopes that cross the date line
@@ -204,22 +189,22 @@ class BBoxQueryHelper
 
     // Y conditions
     // docMinY > queryExtent.getMaxY() OR docMaxY < queryExtent.getMinY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,fields.precisionStep,queryExtent.getMaxY(),null,false,false);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,fields.precisionStep,null,queryExtent.getMinY(),false,false);
-    Query yConditions = this.makeQuery(new Query[]{qMinY,qMaxY},BooleanClause.Occur.SHOULD);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fieldInfo.minY, fieldInfo.precisionStep, bbox.getMaxY(), null, false, false);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fieldInfo.maxY, fieldInfo.precisionStep, null, bbox.getMinY(), false, false);
+    Query yConditions = this.makeQuery(new Query[]{qMinY, qMaxY}, BooleanClause.Occur.SHOULD);
 
     // X conditions
     Query xConditions = null;
 
     // queries that do not cross the date line
-    if (!queryExtent.getCrossesDateLine()) {
+    if (!bbox.getCrossesDateLine()) {
 
       // X Conditions for documents that do not cross the date line,
       // docMinX > queryExtent.getMaxX() OR docMaxX < queryExtent.getMinX()
-      Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMaxX(),null,false,false);
-      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,queryExtent.getMinX(),false,false);
-      Query qMinMax = this.makeQuery(new Query[]{qMinX,qMaxX},BooleanClause.Occur.SHOULD);
-      Query qNonXDL = this.makeXDL(false,qMinMax);
+      Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMaxX(), null, false, false);
+      Query qMaxX = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, bbox.getMinX(), false, false);
+      Query qMinMax = this.makeQuery(new Query[]{qMinX, qMaxX}, BooleanClause.Occur.SHOULD);
+      Query qNonXDL = this.makeXDL(false, qMinMax, fieldInfo);
 
       // X Conditions for documents that cross the date line,
       // both the left and right portions of the document must be disjoint to the query
@@ -228,64 +213,64 @@ class BBoxQueryHelper
       // where: docMaxXLeft = 180.0, docMinXRight = -180.0
       // (docMaxXLeft  < queryExtent.getMinX()) equates to (180.0  < queryExtent.getMinX()) and is ignored
       // (docMinXRight > queryExtent.getMaxX()) equates to (-180.0 > queryExtent.getMaxX()) and is ignored
-      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMaxX(),null,false,false);
-      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,queryExtent.getMinX(),false,false);
-      Query qLeftRight = this.makeQuery(new Query[]{qMinXLeft,qMaxXRight},BooleanClause.Occur.MUST);
-      Query qXDL = this.makeXDL(true,qLeftRight);
+      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMaxX(), null, false, false);
+      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, bbox.getMinX(), false, false);
+      Query qLeftRight = this.makeQuery(new Query[]{qMinXLeft, qMaxXRight}, BooleanClause.Occur.MUST);
+      Query qXDL = this.makeXDL(true, qLeftRight, fieldInfo);
 
       // apply the non-XDL and XDL conditions
-      xConditions = this.makeQuery(new Query[]{qNonXDL,qXDL},BooleanClause.Occur.SHOULD);
+      xConditions = this.makeQuery(new Query[]{qNonXDL, qXDL}, BooleanClause.Occur.SHOULD);
 
-    // queries that cross the date line
+      // queries that cross the date line
     } else {
 
       // X Conditions for documents that do not cross the date line,
       // the document must be disjoint to both the left and right query portions
       // (docMinX > queryExtent.getMaxX()Left OR docMaxX < queryExtent.getMinX()) AND (docMinX > queryExtent.getMaxX() OR docMaxX < queryExtent.getMinX()Left)
       // where: queryExtent.getMaxX()Left = 180.0, queryExtent.getMinX()Left = -180.0
-      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,180.0,null,false,false);
-      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,queryExtent.getMinX(),false,false);
-      Query qMinXRight = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMaxX(),null,false,false);
-      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,-180.0,false,false);
-      Query qLeft = this.makeQuery(new Query[]{qMinXLeft,qMaxXLeft},BooleanClause.Occur.SHOULD);
-      Query qRight = this.makeQuery(new Query[]{qMinXRight,qMaxXRight},BooleanClause.Occur.SHOULD);
-      Query qLeftRight = this.makeQuery(new Query[]{qLeft,qRight},BooleanClause.Occur.MUST);
-      Query qNonXDL = this.makeXDL(false,qLeftRight);
+      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, 180.0, null, false, false);
+      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, bbox.getMinX(), false, false);
+      Query qMinXRight = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMaxX(), null, false, false);
+      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, -180.0, false, false);
+      Query qLeft = this.makeQuery(new Query[]{qMinXLeft, qMaxXLeft}, BooleanClause.Occur.SHOULD);
+      Query qRight = this.makeQuery(new Query[]{qMinXRight, qMaxXRight}, BooleanClause.Occur.SHOULD);
+      Query qLeftRight = this.makeQuery(new Query[]{qLeft, qRight}, BooleanClause.Occur.MUST);
 
       // No need to search for documents that do not cross the date line
 
-      xConditions = qNonXDL;
+      xConditions = this.makeXDL(false, qLeftRight, fieldInfo);
     }
 
     // either X or Y conditions should occur
-    Query xyConditions = this.makeQuery(new Query[]{xConditions,yConditions},BooleanClause.Occur.SHOULD);
-    return xyConditions;
+    return this.makeQuery(new Query[]{xConditions, yConditions}, BooleanClause.Occur.SHOULD);
   }
 
   /**
    * Constructs a query to retrieve documents that equal the input envelope.
+   *
    * @return the spatial query
    */
-  Query makeEquals() {
+  Query makeEquals(BBox bbox, BBoxFieldInfo fieldInfo) {
 
     // docMinX = queryExtent.getMinX() AND docMinY = queryExtent.getMinY() AND docMaxX = queryExtent.getMaxX() AND docMaxY = queryExtent.getMaxY()
-    Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMinX(),queryExtent.getMinX(),true,true);
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,fields.precisionStep,queryExtent.getMinY(),queryExtent.getMinY(),true,true);
-    Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,queryExtent.getMaxX(),queryExtent.getMaxX(),true,true);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,fields.precisionStep,queryExtent.getMaxY(),queryExtent.getMaxY(),true,true);
+    Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMinX(), bbox.getMinX(), true, true);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fieldInfo.minY, fieldInfo.precisionStep, bbox.getMinY(), bbox.getMinY(), true, true);
+    Query qMaxX = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, bbox.getMaxX(), bbox.getMaxX(), true, true);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fieldInfo.maxY, fieldInfo.precisionStep, bbox.getMaxY(), bbox.getMaxY(), true, true);
     BooleanQuery bq = new BooleanQuery();
-    bq.add(qMinX,BooleanClause.Occur.MUST);
-    bq.add(qMinY,BooleanClause.Occur.MUST);
-    bq.add(qMaxX,BooleanClause.Occur.MUST);
-    bq.add(qMaxY,BooleanClause.Occur.MUST);
+    bq.add(qMinX, BooleanClause.Occur.MUST);
+    bq.add(qMinY, BooleanClause.Occur.MUST);
+    bq.add(qMaxX, BooleanClause.Occur.MUST);
+    bq.add(qMaxY, BooleanClause.Occur.MUST);
     return bq;
   }
 
   /**
    * Constructs a query to retrieve documents that intersect the input envelope.
+   *
    * @return the spatial query
    */
-  Query makeIntersects() {
+  Query makeIntersects(BBox bbox, BBoxFieldInfo fieldInfo) {
 
     // the original intersects query does not work for envelopes that cross the date line,
     // switch to a NOT Disjoint query
@@ -294,13 +279,13 @@ class BBoxQueryHelper
     // to get round it we add all documents as a SHOULD
 
     // there must be an envelope, it must not be disjoint
-    Query qDisjoint = makeDisjoint();
-    Query qIsNonXDL = this.makeXDL(false);
-    Query qIsXDL = this.makeXDL(true);
-    Query qHasEnv = this.makeQuery(new Query[]{qIsNonXDL,qIsXDL},BooleanClause.Occur.SHOULD);
+    Query qDisjoint = makeDisjoint(bbox, fieldInfo);
+    Query qIsNonXDL = this.makeXDL(false, fieldInfo);
+    Query qIsXDL = this.makeXDL(true, fieldInfo);
+    Query qHasEnv = this.makeQuery(new Query[]{qIsNonXDL, qIsXDL}, BooleanClause.Occur.SHOULD);
     BooleanQuery qNotDisjoint = new BooleanQuery();
-    qNotDisjoint.add(qHasEnv,BooleanClause.Occur.MUST);
-    qNotDisjoint.add(qDisjoint,BooleanClause.Occur.MUST_NOT);
+    qNotDisjoint.add(qHasEnv, BooleanClause.Occur.MUST);
+    qNotDisjoint.add(qDisjoint, BooleanClause.Occur.MUST_NOT);
 
     //Query qDisjoint = makeDisjoint();
     //BooleanQuery qNotDisjoint = new BooleanQuery();
@@ -311,23 +296,25 @@ class BBoxQueryHelper
 
   /**
    * Makes a boolean query based upon a collection of queries and a logical operator.
+   *
    * @param queries the query collection
    * @param occur the logical operator
    * @return the query
    */
   BooleanQuery makeQuery(Query[] queries, BooleanClause.Occur occur) {
     BooleanQuery bq = new BooleanQuery();
-    for (Query query: queries) {
-      bq.add(query,occur);
+    for (Query query : queries) {
+      bq.add(query, occur);
     }
     return bq;
   }
 
   /**
    * Constructs a query to retrieve documents are fully within the input envelope.
+   *
    * @return the spatial query
    */
-  Query makeWithin() {
+  Query makeWithin(BBox bbox, BBoxFieldInfo fieldInfo) {
 
     /*
     // the original within query does not work for envelopes that cross the date line
@@ -349,9 +336,9 @@ class BBoxQueryHelper
 
     // Y conditions
     // docMinY >= queryExtent.getMinY() AND docMaxY <= queryExtent.getMaxY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fields.minY,fields.precisionStep,queryExtent.getMinY(),null,true,false);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fields.maxY,fields.precisionStep,null,queryExtent.getMaxY(),false,true);
-    Query yConditions = this.makeQuery(new Query[]{qMinY,qMaxY},BooleanClause.Occur.MUST);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fieldInfo.minY, fieldInfo.precisionStep, bbox.getMinY(), null, true, false);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fieldInfo.maxY, fieldInfo.precisionStep, null, bbox.getMaxY(), false, true);
+    Query yConditions = this.makeQuery(new Query[]{qMinY, qMaxY}, BooleanClause.Occur.MUST);
 
     // X conditions
     Query xConditions = null;
@@ -361,80 +348,81 @@ class BBoxQueryHelper
     // AND the right portion of the document must be within the right portion of the query
     // docMinXLeft >= queryExtent.getMinX() AND docMaxXLeft <= 180.0
     // AND docMinXRight >= -180.0 AND docMaxXRight <= queryExtent.getMaxX()
-    Query qXDLLeft  = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMinX(),null,true,false);
-    Query qXDLRight = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,queryExtent.getMaxX(),false,true);
-    Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft,qXDLRight},BooleanClause.Occur.MUST);
-    Query qXDL  = this.makeXDL(true,qXDLLeftRight);
+    Query qXDLLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMinX(), null, true, false);
+    Query qXDLRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, bbox.getMaxX(), false, true);
+    Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft, qXDLRight}, BooleanClause.Occur.MUST);
+    Query qXDL = this.makeXDL(true, qXDLLeftRight, fieldInfo);
 
     // queries that do not cross the date line
-    if (!queryExtent.getCrossesDateLine()) {
+    if (!bbox.getCrossesDateLine()) {
 
       // X Conditions for documents that do not cross the date line,
       // docMinX >= queryExtent.getMinX() AND docMaxX <= queryExtent.getMaxX()
-      Query qMinX = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMinX(),null,true,false);
-      Query qMaxX = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,queryExtent.getMaxX(),false,true);
-      Query qMinMax = this.makeQuery(new Query[]{qMinX,qMaxX},BooleanClause.Occur.MUST);
-      Query qNonXDL = this.makeXDL(false,qMinMax);
+      Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMinX(), null, true, false);
+      Query qMaxX = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, bbox.getMaxX(), false, true);
+      Query qMinMax = this.makeQuery(new Query[]{qMinX, qMaxX}, BooleanClause.Occur.MUST);
+      Query qNonXDL = this.makeXDL(false, qMinMax, fieldInfo);
 
       // apply the non-XDL or XDL X conditions
-      if ((queryExtent.getMinX() <= -180.0) && queryExtent.getMaxX() >= 180.0) {
-        xConditions = this.makeQuery(new Query[]{qNonXDL,qXDL},BooleanClause.Occur.SHOULD);
+      if ((bbox.getMinX() <= -180.0) && bbox.getMaxX() >= 180.0) {
+        xConditions = this.makeQuery(new Query[]{qNonXDL, qXDL}, BooleanClause.Occur.SHOULD);
       } else {
         xConditions = qNonXDL;
       }
 
-    // queries that cross the date line
+      // queries that cross the date line
     } else {
 
       // X Conditions for documents that do not cross the date line
 
       // the document should be within the left portion of the query
       // docMinX >= queryExtent.getMinX() AND docMaxX <= 180.0
-      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,queryExtent.getMinX(),null,true,false);
-      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,180.0,false,true);
-      Query qLeft = this.makeQuery(new Query[]{qMinXLeft,qMaxXLeft},BooleanClause.Occur.MUST);
+      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMinX(), null, true, false);
+      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, 180.0, false, true);
+      Query qLeft = this.makeQuery(new Query[]{qMinXLeft, qMaxXLeft}, BooleanClause.Occur.MUST);
 
       // the document should be within the right portion of the query
       // docMinX >= -180.0 AND docMaxX <= queryExtent.getMaxX()
-      Query qMinXRight = NumericRangeQuery.newDoubleRange(fields.minX,fields.precisionStep,-180.0,null,true,false);
-      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fields.maxX,fields.precisionStep,null,queryExtent.getMaxX(),false,true);
-      Query qRight = this.makeQuery(new Query[]{qMinXRight,qMaxXRight},BooleanClause.Occur.MUST);
+      Query qMinXRight = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, -180.0, null, true, false);
+      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, bbox.getMaxX(), false, true);
+      Query qRight = this.makeQuery(new Query[]{qMinXRight, qMaxXRight}, BooleanClause.Occur.MUST);
 
       // either left or right conditions should occur,
       // apply the left and right conditions to documents that do not cross the date line
-      Query qLeftRight = this.makeQuery(new Query[]{qLeft,qRight},BooleanClause.Occur.SHOULD);
-      Query qNonXDL = this.makeXDL(false,qLeftRight);
+      Query qLeftRight = this.makeQuery(new Query[]{qLeft, qRight}, BooleanClause.Occur.SHOULD);
+      Query qNonXDL = this.makeXDL(false, qLeftRight, fieldInfo);
 
       // apply the non-XDL and XDL conditions
-      xConditions = this.makeQuery(new Query[]{qNonXDL,qXDL},BooleanClause.Occur.SHOULD);
+      xConditions = this.makeQuery(new Query[]{qNonXDL, qXDL}, BooleanClause.Occur.SHOULD);
     }
 
     // both X and Y conditions must occur
-    Query xyConditions = this.makeQuery(new Query[]{xConditions,yConditions},BooleanClause.Occur.MUST);
-    return xyConditions;
+    return this.makeQuery(new Query[]{xConditions, yConditions}, BooleanClause.Occur.MUST);
   }
 
   /**
    * Constructs a query to retrieve documents that do or do not cross the date line.
+   *
    * @param crossedDateLine <code>true</true> for documents that cross the date line
    * @return the query
    */
-  Query makeXDL(boolean crossedDateLine) {
+  Query makeXDL(boolean crossedDateLine, BBoxFieldInfo fieldInfo) {
     // The 'T' and 'F' values match solr fields
-    return new TermQuery(new Term(fields.xdl,crossedDateLine?"T":"F"));
+    return new TermQuery(new Term(fieldInfo.xdl, crossedDateLine ? "T" : "F"));
   }
 
   /**
    * Constructs a query to retrieve documents that do or do not cross the date line
    * and match the supplied spatial query.
+   *
    * @param crossedDateLine <code>true</true> for documents that cross the date line
    * @param query the spatial query
    * @return the query
    */
-  Query makeXDL(boolean crossedDateLine, Query query) {
+  Query makeXDL(boolean crossedDateLine, Query query, BBoxFieldInfo fieldInfo) {
     BooleanQuery bq = new BooleanQuery();
-    bq.add(this.makeXDL(crossedDateLine),BooleanClause.Occur.MUST);
-    bq.add(query,BooleanClause.Occur.MUST);
+    bq.add(this.makeXDL(crossedDateLine, fieldInfo), BooleanClause.Occur.MUST);
+    bq.add(query, BooleanClause.Occur.MUST);
     return bq;
   }
 }

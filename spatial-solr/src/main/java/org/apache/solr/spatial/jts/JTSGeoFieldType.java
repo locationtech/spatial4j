@@ -35,12 +35,15 @@ package org.apache.solr.spatial.jts;
 
 import java.util.Map;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
+import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.jts.JTSGeoQueryBuilder;
+import org.apache.lucene.spatial.search.jts.JTSGeoSpatialIndexer;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
@@ -51,32 +54,32 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Indexed field is WKB (store WKT)
- *
+ * <p/>
  * Maximum bytes for WKB is 32000, this will simplify geometry till there are fewer then 32K bytes
- *
  */
-public class JTSGeoFieldType extends SpatialFieldType
-{
-  static final Logger log = LoggerFactory.getLogger( JTSGeoFieldType.class );
+public class JTSGeoFieldType extends SpatialFieldType {
+  
+  static final Logger log = LoggerFactory.getLogger(JTSGeoFieldType.class);
   JTSGeoQueryBuilder builder;
+  JTSGeoSpatialIndexer spatialIndexer;
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-    builder = new JTSGeoQueryBuilder( new JTSShapeIO() );
-    reader = builder.reader;
+    GeometryFactory factory = new GeometryFactory();
+    builder = new JTSGeoQueryBuilder(factory);
+    reader = new JTSShapeIO(factory);
+    spatialIndexer = new JTSGeoSpatialIndexer(factory);
   }
 
   @Override
-  public Fieldable createField(SchemaField field, Shape shape, float boost)
-  {
-    return builder.createFields(field.getName(), shape,
-        field.indexed(), field.stored() )[0];
+  public Fieldable createField(SchemaField field, Shape shape, float boost) {
+    return spatialIndexer.createFields(new SimpleSpatialFieldInfo(field.getName()), shape,
+        field.indexed(), field.stored())[0];
   }
 
   @Override
-  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
-  {
-    return builder.makeQuery(args, field.getName() );
+  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args) {
+    return builder.makeQuery(args, new SimpleSpatialFieldInfo(field.getName()));
   }
 }
