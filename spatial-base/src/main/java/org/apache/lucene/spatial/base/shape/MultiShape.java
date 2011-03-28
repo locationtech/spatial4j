@@ -20,20 +20,16 @@ package org.apache.lucene.spatial.base.shape;
 import java.util.Collection;
 
 import org.apache.lucene.spatial.base.IntersectCase;
-import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 
 /**
- * A collection of Geometry2D objects.
+ * A collection of Shape objects.
  */
-public class MultiGeom implements Shape {
+public class MultiShape implements Shape {
   private final Collection<Shape> geoms;
+  private final BBox bbox;
 
-  public MultiGeom(Collection<Shape> geoms) {
+  public MultiShape(Collection<Shape> geoms, ShapeIO shapeIO) {
     this.geoms = geoms;
-  }
-
-  @Override
-  public BBox getBoundingBox() {
     double minX = Double.MAX_VALUE;
     double minY = Double.MAX_VALUE;
     double maxX = Double.MIN_VALUE;
@@ -45,7 +41,12 @@ public class MultiGeom implements Shape {
       maxX = Math.max(maxX,r.getMaxX());
       maxY = Math.max(maxY,r.getMaxY());
     }
-    return new Rectangle(minX,minY,maxX,maxY);
+    this.bbox = shapeIO.makeBBox(minX, maxX, minY, maxY);
+  }
+
+  @Override
+  public BBox getBoundingBox() {
+    return bbox;
   }
 
   @Override

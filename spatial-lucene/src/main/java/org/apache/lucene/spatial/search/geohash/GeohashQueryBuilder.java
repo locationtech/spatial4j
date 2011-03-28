@@ -22,12 +22,12 @@ import java.util.Arrays;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
-import org.apache.lucene.spatial.base.distance.MultiGeom;
-import org.apache.lucene.spatial.base.distance.PointDistanceGeom;
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
+import org.apache.lucene.spatial.base.shape.MultiShape;
 import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.PointDistanceGeom;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
@@ -69,7 +69,7 @@ public class GeohashQueryBuilder implements SpatialQueryBuilder<SimpleSpatialFie
         qshape = pDistGeo.getEnclosingBox1();
         Shape shape2 = pDistGeo.getEnclosingBox2();
         if (shape2 != null)
-          qshape = new MultiGeom(Arrays.asList(qshape,shape2));
+          qshape = new MultiShape(Arrays.asList(qshape,shape2),gridReferenceSystem.shapeIO);
       }
     }
     return new ConstantScoreQuery(new GeoHashPrefixFilter(
