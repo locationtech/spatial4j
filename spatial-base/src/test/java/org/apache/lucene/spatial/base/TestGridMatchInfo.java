@@ -17,9 +17,9 @@ public class TestGridMatchInfo extends TestCase
   public void testMatchInfo() throws Exception
   {
     // Check Validatio
-    LinearPrefixGrid grid = new LinearPrefixGrid( 0, 10, 0, 10, 2 );
-    grid.resolution = 1;
-    grid.minResolution = 1;
+    LinearPrefixGrid grid = new LinearPrefixGrid(0, 10, 0, 10, 2);
+    grid.setMinResolution(1);
+    grid.setResolution(1);
 
 //    GeometricShapeFactory gsf = new GeometricShapeFactory();
 //    gsf.setCentre( new com.vividsolutions.jts.geom.Coordinate( 5,5 ) );

@@ -23,40 +23,30 @@ import org.apache.lucene.spatial.base.Shape;
 
 import com.vividsolutions.jts.geom.Envelope;
 
-public class JtsEnvelope implements BBox
-{
+public class JtsEnvelope implements BBox {
+
   public final Envelope envelope;
 
-  public JtsEnvelope(Envelope envelope)
-  {
+  public JtsEnvelope(Envelope envelope) {
     this.envelope = envelope;
   }
 
-  public JtsEnvelope(double x1, double x2, double y1, double y2)
-  {
-    this.envelope = new Envelope( x1,x2,y1,y2 );
+  public JtsEnvelope(double x1, double x2, double y1, double y2) {
+    this.envelope = new Envelope(x1, x2, y1, y2);
   }
-
-  //----------------------------------------
-  //----------------------------------------
 
   @Override
   public boolean hasArea() {
     return getWidth() > 0 && getHeight() > 0;
   }
 
-  public double getArea()
-  {
+  public double getArea() {
     return getWidth() * getHeight();
   }
 
-  public boolean getCrossesDateLine()
-  {
+  public boolean getCrossesDateLine() {
     return false;
   }
-
-  //----------------------------------------
-  //----------------------------------------
 
   @Override
   public double getHeight() {
@@ -102,41 +92,38 @@ public class JtsEnvelope implements BBox
   }
 
   @Override
-  public IntersectCase intersect(Shape other, Object context)
-  {
-    if( other instanceof BBox ) {
+  public IntersectCase intersect(Shape other, Object context) {
+    if (BBox.class.isInstance(other)) {
       BBox ext = other.getBoundingBox();
       if (ext.getMinX() > envelope.getMaxX() ||
           ext.getMaxX() < envelope.getMinX() ||
           ext.getMinY() > envelope.getMaxY() ||
-          ext.getMaxY() < envelope.getMinY() ){
+          ext.getMaxY() < envelope.getMinY()) {
         return IntersectCase.OUTSIDE;
       }
 
-      if( ext.getMinX() >= envelope.getMinX() &&
+      if (ext.getMinX() >= envelope.getMinX() &&
           ext.getMaxX() <= envelope.getMaxX() &&
           ext.getMinY() >= envelope.getMinY() &&
-          ext.getMaxY() <= envelope.getMaxY() ){
+          ext.getMaxY() <= envelope.getMaxY()) {
         return IntersectCase.CONTAINS;
       }
 
-      if( envelope.getMinX() >= ext.getMinY() &&
+      if (envelope.getMinX() >= ext.getMinY() &&
           envelope.getMaxX() <= ext.getMaxX() &&
           envelope.getMinY() >= ext.getMinY() &&
-          envelope.getMaxY() <= ext.getMaxY() ){
+          envelope.getMaxY() <= ext.getMaxY()) {
         return IntersectCase.WITHIN;
       }
       return IntersectCase.INTERSECTS;
+    } else if (JtsGeometry.class.isInstance(other)) {
+      throw new IllegalArgumentException("TODO...");
     }
-    else if( other instanceof JtsGeometry ) {
-      throw new IllegalArgumentException( "TODO..." );
-    }
-    throw new IllegalArgumentException( "JtsEnvelope can be compared with Envelope or Geogmetry" );
+    throw new IllegalArgumentException("JtsEnvelope can be compared with Envelope or Geogmetry");
   }
 
   @Override
-  public String toString()
-  {
+  public String toString() {
     return envelope.toString();
   }
 }

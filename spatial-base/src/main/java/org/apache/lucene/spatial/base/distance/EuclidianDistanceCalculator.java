@@ -20,27 +20,24 @@ package org.apache.lucene.spatial.base.distance;
 import org.apache.lucene.spatial.base.Point;
 import org.apache.lucene.spatial.base.Shape;
 
+public class EuclidianDistanceCalculator implements DistanceCalculator {
 
-public class EuclidianDistanceCalculator implements DistanceCalculator
-{
-  public double calculate( Point from, Shape shape )
-  {
-    if( shape instanceof Point ) {
+  public double calculate(Point from, Shape shape) {
+    if (Point.class.isInstance(shape)) {
       return calculate(from, (Point)shape);
     }
     throw new UnsupportedOperationException( "Distance to shape is not yet supported" );
   }
 
-  public double calculate( Point from, Point point )
-  {
+  public double calculate(Point from, Point point) {
     double result = 0;
 
-    double v = from.getX()-point.getX();
-    result += (v*v);
+    double v = from.getX() - point.getX();
+    result += (v * v);
 
-    v = from.getY()-point.getY();
-    result += (v*v);
+    v = from.getY() - point.getY();
+    result += (v * v);
 
-    return Math.sqrt( result );
+    return Math.sqrt(result);
   }
 }

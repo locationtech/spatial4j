@@ -24,25 +24,17 @@ import org.apache.lucene.spatial.base.Shape;
 
 import com.vividsolutions.jts.geom.Point;
 
+public class JtsPoint2D implements org.apache.lucene.spatial.base.Point {
 
-public class JtsPoint2D implements org.apache.lucene.spatial.base.Point
-{
-  private Point p;
+  private Point point;
 
-  public JtsPoint2D( Point p )
-  {
-    this.p = p;
+  public JtsPoint2D(Point point) {
+    this.point = point;
   }
-
-  //----------------------------------------
-  //----------------------------------------
 
   public Point getPoint() {
-    return p;
+    return point;
   }
-
-  //----------------------------------------
-  //----------------------------------------
 
   @Override
   public boolean hasArea() {
@@ -51,24 +43,22 @@ public class JtsPoint2D implements org.apache.lucene.spatial.base.Point
 
   @Override
   public JtsEnvelope getBoundingBox() {
-    return new JtsEnvelope( p.getEnvelopeInternal() );
+    return new JtsEnvelope(point.getEnvelopeInternal());
   }
 
   @Override
-  public IntersectCase intersect(Shape other, Object context)
-  {
-    if( other instanceof BBox ) {
+  public IntersectCase intersect(Shape other, Object context) {
+    if(BBox.class.isInstance(other)) {
       BBox ext = other.getBoundingBox();
-      if( p.getX() >= ext.getMinX() &&
-          p.getX() <= ext.getMaxX() &&
-          p.getY() >= ext.getMinY() &&
-          p.getY() <= ext.getMaxY() ){
+      if (point.getX() >= ext.getMinX() &&
+          point.getX() <= ext.getMaxX() &&
+          point.getY() >= ext.getMinY() &&
+          point.getY() <= ext.getMaxY()) {
         return IntersectCase.WITHIN;
       }
       return IntersectCase.OUTSIDE;
-    }
-    else if( other instanceof JtsGeometry ) {
-      if( ((JtsGeometry)other).geo.contains( p ) ) {
+    } else if(JtsGeometry.class.isInstance(other)) {
+      if (((JtsGeometry)other).geo.contains(point)) {
         return IntersectCase.WITHIN;
       }
       return IntersectCase.OUTSIDE;
@@ -78,11 +68,11 @@ public class JtsPoint2D implements org.apache.lucene.spatial.base.Point
 
   @Override
   public double getX() {
-    return p.getX();
+    return point.getX();
   }
 
   @Override
   public double getY() {
-    return p.getY();
+    return point.getY();
   }
 }

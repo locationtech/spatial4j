@@ -130,7 +130,7 @@ public class KMLHelper
 //    Projection projection = new CylindricalEqualAreaProjection();
 //    grid = SpatialGridWithProjection.create( projection, 16 );
 //
-    grid.resolution = 4; // how far past the best fit to go
+    grid.setResolution(4); // how far past the best fit to go
 
     grid.printInfo();
 

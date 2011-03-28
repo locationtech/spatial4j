@@ -30,15 +30,13 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.Puntal;
 import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
 
-public class JtsGeometry implements Shape
-{
+public class JtsGeometry implements Shape {
   public final Geometry geo;
-  private final boolean _hasArea;
+  private final boolean hasArea;
 
-  public JtsGeometry(Geometry geo)
-  {
+  public JtsGeometry(Geometry geo) {
     this.geo = geo;
-    _hasArea = !((geo instanceof Lineal) || (geo instanceof Puntal));
+    this.hasArea = !((Lineal.class.isInstance(geo)) || (Puntal.class.isInstance(geo)));
   }
 
   //----------------------------------------
@@ -46,27 +44,26 @@ public class JtsGeometry implements Shape
 
   @Override
   public boolean hasArea() {
-    return _hasArea;
+    return hasArea;
   }
 
   @Override
   public JtsEnvelope getBoundingBox() {
-    return new JtsEnvelope( geo.getEnvelopeInternal() );
+    return new JtsEnvelope(geo.getEnvelopeInternal());
   }
 
-  private GeometryFactory getGeometryFactory( Object context ) {
-    if( context instanceof GeometryFactory ) {
-      return (GeometryFactory)context;
+  private GeometryFactory getGeometryFactory(Object context) {
+    if(GeometryFactory.class.isInstance(context)) {
+      return (GeometryFactory) context;
     }
     return new GeometryFactory();
   }
 
   @Override
-  public IntersectCase intersect(Shape other, Object context)
-  {
+  public IntersectCase intersect(Shape other, Object context) {
     BBox ext = other.getBoundingBox();
-    if( !ext.hasSize() ) {
-      throw new IllegalArgumentException( "the query shape must cover some area (not a point or line)" );
+    if (!ext.hasSize()) {
+      throw new IllegalArgumentException("the query shape must cover some area (not a point or line)");
     }
 
     // Quick test if this is outside
@@ -74,39 +71,39 @@ public class JtsGeometry implements Shape
     if (ext.getMinX() > gEnv.getMaxX() ||
         ext.getMaxX() < gEnv.getMinX() ||
         ext.getMinY() > gEnv.getMaxY() ||
-        ext.getMaxY() < gEnv.getMinY() ){
+        ext.getMaxY() < gEnv.getMinY()) {
       return IntersectCase.OUTSIDE;
     }
 
     Polygon qGeo = null;
-    if( other instanceof JtsEnvelope ) {
+    if (JtsEnvelope.class.isInstance(other)) {
       Envelope env = ((JtsEnvelope)other).envelope;
       qGeo = (Polygon) getGeometryFactory(context).toGeometry(env);
-    }
-    else if( other instanceof JtsGeometry ) {
+    } else if (JtsGeometry.class.isInstance(other)) {
       qGeo = (Polygon)((JtsGeometry)other).geo;
-    }
-    else if( other instanceof BBox ) {
+    } else if(BBox.class.isInstance(other)) {
       BBox e = (BBox)other;
-      Envelope env = new Envelope( e.getMinX(), e.getMaxX(), e.getMinY(), e.getMaxY() );
+      Envelope env = new Envelope(e.getMinX(), e.getMaxX(), e.getMinY(), e.getMaxY());
       qGeo = (Polygon) getGeometryFactory(context).toGeometry(env);
-    }
-    else {
-      throw new IllegalArgumentException( "this field only support intersectio with Extents or JTS Geometry" );
+    } else {
+      throw new IllegalArgumentException("this field only support intersectio with Extents or JTS Geometry");
     }
 
     //fast algorithm, short-circuit
-    if (!RectangleIntersects.intersects (qGeo, geo))
+    if (!RectangleIntersects.intersects(qGeo, geo)) {
       return IntersectCase.OUTSIDE;
+    }
 
     //slower algorithm
     IntersectionMatrix matrix = geo.relate(qGeo);
     assert ! matrix.isDisjoint();//since rectangle intersection was true, shouldn't be disjoint
-    if (matrix.isCovers())
+    if (matrix.isCovers()) {
       return IntersectCase.CONTAINS;
+    }
 
-    if (matrix.isCoveredBy())
+    if (matrix.isCoveredBy()) {
       return IntersectCase.WITHIN;
+    }
 
     assert matrix.isIntersects();
     return IntersectCase.INTERSECTS;

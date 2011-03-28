@@ -75,7 +75,7 @@ public class GridInfoServlet extends HttpServlet
     int depth = getIntParam( req, "depth", 16 );
     ShapeIO reader = new JTSShapeIO();
     JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid( -180, 180, -90-180, 90, depth ); // make it like WGS84
-    grid.resolution = getIntParam( req, "resolution", 4 );
+    grid.setResolution(getIntParam(req, "resolution", 4));
 
     // If they don't set a country, then use the input
     if( shape == null ) {

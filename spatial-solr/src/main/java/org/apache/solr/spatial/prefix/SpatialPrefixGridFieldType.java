@@ -57,8 +57,8 @@ public class SpatialPrefixGridFieldType extends SpatialFieldType
 
     // TODO, allow configuration
     reader = new JTSShapeIO();
-    JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid( -180, 180, -90-180, 90, 16 );
-    grid.resolution = 5; // how far past the best fit to go
+    JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid( -180, 180, -90-180, 90, 16);
+    grid.setResolution(5);
 
     this.builder = new PrefixGridQueryBuilder( grid, maxLength );
   }
