@@ -2,6 +2,8 @@ package org.apache.lucene.spatial.search;
 
 import junit.framework.TestCase;
 
+import org.apache.lucene.spatial.base.query.SpatialArgs;
+import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;

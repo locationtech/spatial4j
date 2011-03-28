@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.spatial.search;
+package org.apache.lucene.spatial.base.query;
 
 /**
  * A clause that compares a stored geometry to a supplied geometry.

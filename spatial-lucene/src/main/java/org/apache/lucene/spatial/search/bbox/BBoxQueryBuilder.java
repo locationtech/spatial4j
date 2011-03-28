@@ -26,9 +26,9 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
+import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.search.SpatialArgs;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
 /**

@@ -32,9 +32,9 @@ import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.search.SpatialArgs;
-import org.apache.lucene.spatial.search.SpatialOperation;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.query.SpatialArgs;
+import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
 public class PrefixGridQueryBuilder implements SpatialQueryBuilder<String>

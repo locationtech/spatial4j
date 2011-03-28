@@ -9,9 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
-import org.apache.lucene.spatial.search.SpatialOperation;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
+import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
