@@ -50,7 +50,6 @@ public class PointFieldType extends SpatialFieldType implements SchemaAware
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-    reader = new JTSShapeIO();
   }
 
   public void inform(IndexSchema schema)

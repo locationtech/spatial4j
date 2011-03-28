@@ -66,6 +66,7 @@ public class JTSGeoFieldType extends SpatialFieldType {
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
+    
     GeometryFactory factory = new GeometryFactory();
     builder = new JTSGeoQueryBuilder(factory);
     reader = new JTSShapeIO(factory);

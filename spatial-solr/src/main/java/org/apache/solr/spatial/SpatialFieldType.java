@@ -18,16 +18,20 @@
 package org.apache.solr.spatial;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
+import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.response.TextResponseWriter;
 import org.apache.solr.schema.FieldType;
+import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
 import org.slf4j.Logger;
@@ -47,8 +51,17 @@ public abstract class SpatialFieldType extends FieldType
 
   static final Logger log = LoggerFactory.getLogger( SpatialFieldType.class );
   protected ShapeIO reader;
+  protected SpatialArgsParser argsParser;
   protected boolean ignoreIncompatibleGeometry = true;
 
+  @Override
+  protected void init(IndexSchema schema, Map<String, String> args) {
+    super.init(schema, args);
+    // TODO, read configuration from Map
+    reader = new JTSShapeIO();  // some way to share this across different fields?
+    argsParser = new SpatialArgsParser();
+    ignoreIncompatibleGeometry = true;
+  }
 
   @Override
   public Fieldable createField(SchemaField field, Object val, float boost)
@@ -84,7 +97,7 @@ public abstract class SpatialFieldType extends FieldType
   @Override
   public final Query getFieldQuery(QParser parser, SchemaField field, String externalVal)
   {
-    return getFieldQuery( parser, field, SpatialArgs.parse( externalVal, reader ) );
+    return getFieldQuery( parser, field, argsParser.parse( externalVal, reader ) );
   }
 
   public abstract Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args );

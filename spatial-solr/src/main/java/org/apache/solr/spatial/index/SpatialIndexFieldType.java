@@ -45,10 +45,9 @@ public class SpatialIndexFieldType extends SpatialFieldType {
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-    reader = new JTSShapeIO();
+    
     builder = new SpatialIndexQueryBuilder(reader);
     spatialIndexer = new IndexSpatialIndexer(reader);
-
   }
 
   @Override

@@ -58,8 +58,6 @@ public class BBoxFieldType extends SpatialFieldType implements SchemaAware
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
 
-    reader = new JTSShapeIO();
-
     String v = args.remove( "doubleType" );
     if( v != null ) {
       doubleFieldName = v;
