@@ -1,11 +1,12 @@
 package org.apache.lucene.spatial.base.shape.jts;
 
+import static org.junit.Assert.assertEquals;
+
+import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -14,7 +15,7 @@ public class TestShapeIO {
 
   @Test
   public void testShapeIO() throws Exception {
-    JtsShapeIO reader = new JtsShapeIO();
+    JtsShapeIO reader = new JtsShapeIO( DistanceUnits.KILOMETERS );
 
     // Simple Point
     Shape s = reader.readShape("10 20");

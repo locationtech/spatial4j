@@ -1,0 +1,67 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.lucene.spatial.base.shape;
+
+import java.util.StringTokenizer;
+
+import org.apache.lucene.spatial.base.distance.DistanceUnits;
+import org.apache.lucene.spatial.base.exception.InvalidShapeException;
+
+public abstract class AbstractShapeIO implements ShapeIO {
+
+  protected DistanceUnits units;
+
+  public AbstractShapeIO( DistanceUnits units )
+  {
+    this.units = units;
+  }
+
+
+  public Shape readStandardShape(String str) {
+    if (str.length() < 1) {
+      throw new InvalidShapeException(str);
+    }
+
+    if( Character.isDigit( str.charAt(0) ) ) {
+      StringTokenizer st = new StringTokenizer(str, " ");
+      double p0 = Double.parseDouble(st.nextToken());
+      double p1 = Double.parseDouble(st.nextToken());
+
+      if (st.hasMoreTokens()) {
+        double p2 = Double.parseDouble(st.nextToken());
+        double p3 = Double.parseDouble(st.nextToken());
+        return makeBBox(p0, p2, p1, p3);
+      }
+      return makePoint(p0, p1);
+    }
+    if( str.startsWith( "DIST(" ) ) {
+      int idx = str.lastIndexOf( ')' );
+      if( idx > 0 ) {
+        String body = str.substring( "DIST(".length(), idx );
+        StringTokenizer st = new StringTokenizer(body, " ");
+        double x = Double.parseDouble(st.nextToken());
+        double y = Double.parseDouble(st.nextToken());
+        double d = Double.parseDouble(st.nextToken());
+
+        Point p = makePoint( x, y );
+        return new PointDistanceGeom( p, d, units.earthRadius(), this );
+      }
+    }
+    return null;
+  }
+}

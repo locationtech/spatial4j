@@ -58,7 +58,7 @@ public class DistanceUtils {
   }
 
 //  /**
-//   * 
+//   *
 //   * @param x1
 //   * @param y1
 //   * @param miles
@@ -67,12 +67,12 @@ public class DistanceUtils {
 //  public static Rectangle getBoundary (double x1, double y1, double miles) {
 //
 //    LLRect box = LLRect.createBox( new FloatLatLng( x1, y1 ), miles, miles );
-//    
+//
 //    //System.out.println("Box: "+maxX+" | "+ maxY+" | "+ minX + " | "+ minY);
 //    return box.toRectangle();
 //
 //  }
-  
+
   public static double getLLMDistance (double x1, double y1, double x2, double y2) {
 
     LatLng p1 = new FloatLatLng( x1, y1 );
@@ -217,7 +217,7 @@ public class DistanceUtils {
    * @param startLat The starting point latitude, in radians
    * @param startLon The starting point longitude, in radians
    * @param distance The distance to travel along the bearing.  The units are assumed to be the same as the sphereRadius units, both of which is up to the caller to know
-   * @param bearing The bearing, in radians.  North is a 0 deg. bearing, east is 90 deg, south is 180 deg, west is 270 deg. 
+   * @param bearing The bearing, in radians.  North is a 0 deg. bearing, east is 90 deg, south is 180 deg, west is 270 deg.
    * @param result A preallocated array to hold the results.  If null, a new one is constructed.
    * @param sphereRadius The radius of the sphere to use for the calculation.
    * @return The destination point, in radians.  First entry is latitude, second is longitude
@@ -225,7 +225,7 @@ public class DistanceUtils {
   public static double[] pointOnBearing(double startLat, double startLon, double distance, double bearing, double[] result, double sphereRadius) {
     /*
  	lat2 = asin(sin(lat1)*cos(d/R) + cos(lat1)*sin(d/R)*cos(θ))
-  	lon2 = lon1 + atan2(sin(θ)*sin(d/R)*cos(lat1), cos(d/R)−sin(lat1)*sin(lat2))    
+  	lon2 = lon1 + atan2(sin(θ)*sin(d/R)*cos(lat1), cos(d/R)−sin(lat1)*sin(lat2))
 
      */
     double cosAngDist = Math.cos(distance / sphereRadius);
@@ -233,7 +233,7 @@ public class DistanceUtils {
     double sinAngDist = Math.sin(distance / sphereRadius);
     double lat2 = Math.asin(Math.sin(startLat) * cosAngDist +
             cosStartLat * sinAngDist * Math.cos(bearing));
-    
+
     double lon2 = startLon + Math.atan2(Math.sin(bearing) * sinAngDist * cosStartLat,
             cosAngDist - Math.sin(startLat) * Math.sin(lat2));
 

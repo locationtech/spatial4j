@@ -1,9 +1,10 @@
 package org.apache.lucene.spatial.base.shape.jts;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.Shape;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * @author Chris Male

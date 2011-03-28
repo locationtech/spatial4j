@@ -19,35 +19,26 @@ package org.apache.solr.spatial.geohash;
 
 import java.util.Map;
 
-import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
-import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.geohash.GeohashQueryBuilder;
 import org.apache.lucene.spatial.search.geohash.GeohashSpatialIndexer;
 import org.apache.lucene.spatial.search.geohash.GridReferenceSystem;
-import org.apache.lucene.spatial.search.prefix.PrefixGridQueryBuilder;
-import org.apache.lucene.spatial.search.prefix.PrefixGridSpatialIndexer;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
 
 
 /**
- * 
+ *
  */
 public class GeohashFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,GeohashSpatialIndexer,GeohashQueryBuilder> {
 
   public static final int DEFAULT_LENGTH = GridReferenceSystem.getMaxPrecision();//~12
   private GridReferenceSystem gridReferenceSystem;
-  
+
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-    
-    // TODO, allow configuration
-    reader = new JtsShapeIO();
 
     String len = args.remove("length");
     int maxLen = len!=null?Integer.parseInt(len): DEFAULT_LENGTH;

@@ -29,7 +29,6 @@ import org.apache.lucene.spatial.base.shape.MultiShape;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.PointDistanceGeom;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 
@@ -37,11 +36,11 @@ import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 public class GeohashQueryBuilder implements SpatialQueryBuilder<SimpleSpatialFieldInfo> {
 
   private final GridReferenceSystem gridReferenceSystem;
-  
+
   public GeohashQueryBuilder( GridReferenceSystem gridReferenceSystem ) {
     this.gridReferenceSystem = gridReferenceSystem;
   }
-  
+
   @Override
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
     throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
@@ -63,7 +62,7 @@ public class GeohashQueryBuilder implements SpatialQueryBuilder<SimpleSpatialFie
       }
 
       Point p = (Point)args.getShape();
-      PointDistanceGeom pDistGeo = new PointDistanceGeom(p,dist,radius);
+      PointDistanceGeom pDistGeo = new PointDistanceGeom(p,dist,radius,gridReferenceSystem.shapeIO);
 
       if (args.getOperation() == SpatialOperation.BBoxWithin) {
         qshape = pDistGeo.getEnclosingBox1();

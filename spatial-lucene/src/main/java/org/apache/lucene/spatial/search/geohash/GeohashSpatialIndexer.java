@@ -15,11 +15,11 @@ import org.apache.lucene.spatial.search.SpatialIndexer;
 public class GeohashSpatialIndexer extends SpatialIndexer<SimpleSpatialFieldInfo> {
 
   private final GridReferenceSystem gridReferenceSystem;
-  
+
   public GeohashSpatialIndexer( GridReferenceSystem gridReferenceSystem ) {
     this.gridReferenceSystem = gridReferenceSystem;
   }
-  
+
   @Override
   public Fieldable createField(SimpleSpatialFieldInfo fieldInfo, Shape shape, boolean index, boolean store) {
     if( !(shape instanceof Point) ) {
@@ -28,7 +28,7 @@ public class GeohashSpatialIndexer extends SpatialIndexer<SimpleSpatialFieldInfo
       }
       throw new UnsupportedOperationException( "geohash only support point type (for now)" );
     }
-    
+
     Point p = (Point)shape;
     String hash = gridReferenceSystem.encodeXY(p.getX(), p.getY());
     if( index ) {

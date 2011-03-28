@@ -26,18 +26,18 @@ public class FloatLatLng extends LatLng {
   private double lat;
   private double lng;
   private boolean normalized;
-  
+
   public FloatLatLng(double lat, double lng) {
     if (lat>90.0 || lat<-90.0) throw new IllegalArgumentException("Illegal latitude value " + lat);
     this.lat=lat;
     this.lng=lng;
   }
-  
+
   public FloatLatLng(LatLng ll) {
     this.lat=ll.getLat();
     this.lng=ll.getLng();
   }
-  
+
   @Override
   public LatLng copy() {
     return new FloatLatLng(this);
@@ -77,10 +77,10 @@ public class FloatLatLng extends LatLng {
   public FloatLatLng toFloat() {
     return this;
   }
-  
+
   @Override
   public boolean isNormalized() {
-    return 
+    return
       normalized || (
           (lng>=-180) &&
           (lng<=180)
@@ -90,16 +90,16 @@ public class FloatLatLng extends LatLng {
   @Override
   public LatLng normalize() {
     if (isNormalized()) return this;
-    
+
     double delta=0;
     if (lng<0) delta=360;
     if (lng>=0) delta=-360;
-    
+
     double newLng=lng;
     while (newLng<=-180 || newLng>=180) {
       newLng+=delta;
     }
-    
+
     FloatLatLng ret=new FloatLatLng(lat, newLng);
     ret.normalized=true;
     return ret;

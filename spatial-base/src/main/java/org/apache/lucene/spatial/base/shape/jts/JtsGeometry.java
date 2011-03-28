@@ -17,8 +17,8 @@
 
 package org.apache.lucene.spatial.base.shape.jts;
 
-import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import com.vividsolutions.jts.geom.Envelope;

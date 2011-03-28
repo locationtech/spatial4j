@@ -20,36 +20,26 @@ package org.apache.lucene.spatial.base.shape.simple;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.StringTokenizer;
 
-import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
+import org.apache.lucene.spatial.base.shape.AbstractShapeIO;
+import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Shape;
 
-public class SimpleShapeIO implements ShapeIO {
+public class SimpleShapeIO extends AbstractShapeIO {
 
-  public Shape readShape(String value) throws InvalidShapeException {
-    return readSimpleShape(value);
+  public SimpleShapeIO(DistanceUnits units) {
+    super(units);
   }
 
-  public static Shape readSimpleShape(String str) {
-    if (str.length() < 1) {
-      throw new InvalidShapeException(str);
+  public Shape readShape(String value) throws InvalidShapeException {
+    Shape s = super.readStandardShape( value );
+    if( s == null ) {
+      throw new InvalidShapeException( "Unable to read: "+value );
     }
-
-    StringTokenizer st = new StringTokenizer(str, " ");
-    double p0 = Double.parseDouble(st.nextToken());
-    double p1 = Double.parseDouble(st.nextToken());
-
-    if (st.hasMoreTokens()) {
-      double p2 = Double.parseDouble(st.nextToken());
-      double p3 = Double.parseDouble(st.nextToken());
-      return new Rectangle(p0, p2, p1, p3);
-    }
-
-    return new Point2D(p0, p1);
+    return s;
   }
 
   public String writeBBox(BBox bbox) {
@@ -57,7 +47,7 @@ public class SimpleShapeIO implements ShapeIO {
     nf.setGroupingUsed(false);
     nf.setMaximumFractionDigits(6);
     nf.setMinimumFractionDigits(6);
-    
+
     return
       nf.format(bbox.getMinX()) + " " +
       nf.format(bbox.getMinY()) + " " +

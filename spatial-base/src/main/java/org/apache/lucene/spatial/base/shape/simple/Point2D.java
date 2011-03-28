@@ -17,8 +17,8 @@
 
 package org.apache.lucene.spatial.base.shape.simple;
 
-import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -52,7 +52,7 @@ public class Point2D implements Point {
     if(!BBox.class.isInstance(shape)) {
       throw new IllegalArgumentException("Point can only be compared to BBox: "+shape );
     }
-    
+
     BBox ext = shape.getBoundingBox();
     if(x >= ext.getMinX() &&
        x <= ext.getMaxX() &&

@@ -1,14 +1,15 @@
 package org.apache.lucene.spatial.base;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import static org.junit.Assert.assertEquals;
+
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.jts.JtsEnvelope;
 import org.apache.lucene.spatial.base.shape.jts.JtsPoint2D;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 
 /**

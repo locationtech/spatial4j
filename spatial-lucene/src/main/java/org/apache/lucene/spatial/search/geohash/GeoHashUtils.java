@@ -21,7 +21,6 @@ import java.util.Arrays;
 
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 
 /**
  * Utilities for encoding and decoding geohashes. Based on

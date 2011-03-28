@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -64,8 +65,16 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo, I extends Spa
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-    // TODO, read configuration from Map
-    reader = new JtsShapeIO();  // some way to share this across different fields?
+
+    DistanceUnits units = DistanceUnits.KILOMETERS;
+    String v = args.remove( "units" );
+    if( v != null ) {
+      units = DistanceUnits.findDistanceUnit(v);
+    }
+    // TODO, configure geometry factory...
+
+    // TODO pick JTS or simple?
+    reader = new JtsShapeIO(units);
     argsParser = new SpatialArgsParser();
   }
 

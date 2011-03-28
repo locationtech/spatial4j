@@ -25,20 +25,20 @@ package org.apache.lucene.spatial.base.distance;
 public class FixedLatLng extends LatLng {
   public static final double SCALE_FACTOR=1000000;
   public static final int SCALE_FACTOR_INT=1000000;
-  
+
   private int lat, lng;
   private boolean normalized;
-  
+
   public FixedLatLng(int lat, int lng) {
     setLat(lat);
     setLng(lng);
   }
-  
+
   public FixedLatLng(LatLng ll) {
     this.lat=ll.getFixedLat();
     this.lng=ll.getFixedLng();
   }
-  
+
   protected void setLat(int lat) {
     if (lat>90*SCALE_FACTOR || lat<-90*SCALE_FACTOR) {
       throw new IllegalArgumentException("Illegal lattitude");
@@ -49,15 +49,15 @@ public class FixedLatLng extends LatLng {
   protected void setLng(int lng) {
     this.lng=lng;
   }
-  
+
   public static double fixedToDouble(int fixed) {
     return (fixed)/SCALE_FACTOR;
   }
-  
+
   public static int doubleToFixed(double d) {
     return (int)(d*SCALE_FACTOR);
   }
-  
+
   @Override
   public LatLng copy() {
     return new FixedLatLng(this);
@@ -100,7 +100,7 @@ public class FixedLatLng extends LatLng {
 
   @Override
   public boolean isNormalized() {
-    return 
+    return
       normalized || (
           (lng>=-180*SCALE_FACTOR_INT) &&
           (lng<=180*SCALE_FACTOR_INT)
@@ -110,21 +110,21 @@ public class FixedLatLng extends LatLng {
   @Override
   public LatLng normalize() {
     if (isNormalized()) return this;
-    
+
     int delta=0;
     if (lng<0) delta=360*SCALE_FACTOR_INT;
     if (lng>=0) delta=-360*SCALE_FACTOR_INT;
-    
+
     int newLng=lng;
     while (newLng<=-180*SCALE_FACTOR_INT || newLng>=180*SCALE_FACTOR_INT) {
       newLng+=delta;
     }
-    
+
     FixedLatLng ret=new FixedLatLng(lat, newLng);
     ret.normalized=true;
     return ret;
   }
-  
+
   @Override
   public LatLng calculateMidpoint(LatLng other) {
     return new FixedLatLng(
@@ -156,5 +156,5 @@ public class FixedLatLng extends LatLng {
       return false;
     return true;
   }
-  
+
 }

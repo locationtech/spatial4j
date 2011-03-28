@@ -23,11 +23,12 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.apache.lucene.spatial.base.distance.DistanceUnits;
+import org.apache.lucene.spatial.base.exception.InvalidShapeException;
+import org.apache.lucene.spatial.base.shape.AbstractShapeIO;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -39,19 +40,20 @@ import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTReader;
 
-public class JtsShapeIO implements ShapeIO {
+public class JtsShapeIO extends AbstractShapeIO {
 
   private static final byte TYPE_POINT = 0;
   private static final byte TYPE_BBOX = 1;
   private static final byte TYPE_GEO = 2;
-  
+
   public GeometryFactory factory;
 
-  public JtsShapeIO() {
-    factory = new GeometryFactory();
+  public JtsShapeIO( DistanceUnits units ) {
+    this( new GeometryFactory(), units );
   }
 
-  public JtsShapeIO(GeometryFactory f) {
+  public JtsShapeIO(GeometryFactory f, DistanceUnits units) {
+    super( units );
     factory = f;
   }
 
@@ -194,7 +196,7 @@ public class JtsShapeIO implements ShapeIO {
     }
     throw new InvalidShapeException("can't make Geometry from: " + shape);
   }
-  
+
 
   @Override
   public BBox makeBBox(double minX, double maxX, double minY, double maxY) {

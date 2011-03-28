@@ -9,11 +9,11 @@ import org.apache.lucene.spatial.base.shape.Shape;
 public abstract class SpatialIndexer<T extends SpatialFieldInfo> {
 
   protected boolean ignoreIncompatibleGeometry = false;
-  
+
   public boolean isPolyField() {
     return false;
   }
-  
+
   public abstract Fieldable createField(T fieldInfo, Shape shape, boolean index, boolean store);
 
   public Fieldable[] createFields(T fieldInfo, Shape shape, boolean index, boolean store) {

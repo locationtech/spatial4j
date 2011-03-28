@@ -21,11 +21,8 @@ import java.util.Map;
 
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.search.bbox.BBoxFieldInfo;
 import org.apache.lucene.spatial.search.bbox.BBoxQueryBuilder;
 import org.apache.lucene.spatial.search.bbox.BBoxSpatialIndexer;
@@ -33,7 +30,6 @@ import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaAware;
 import org.apache.solr.schema.SchemaField;
-import org.apache.solr.search.QParser;
 import org.apache.solr.spatial.SpatialFieldType;
 
 
@@ -66,7 +62,7 @@ public class BBoxFieldType extends SpatialFieldType<BBoxFieldInfo,BBoxSpatialInd
     if( v != null ) {
       booleanFieldName = v;
     }
-    
+
     queryBuilder = new BBoxQueryBuilder();
     spatialIndexer = new BBoxSpatialIndexer() {
       @Override
@@ -107,7 +103,7 @@ public class BBoxFieldType extends SpatialFieldType<BBoxFieldInfo,BBoxSpatialInd
     schema.registerDynamicField( new SchemaField( "*"+BBoxFieldInfo.SUFFIX_XDL, booleanType, fieldProps, null ) );
   }
 
-  
+
   @Override
   protected BBoxFieldInfo getFieldInfo(SchemaField field) {
     BBoxFieldInfo info = new BBoxFieldInfo();

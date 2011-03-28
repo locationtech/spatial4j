@@ -21,7 +21,7 @@ package org.apache.lucene.spatial.base.distance;
 /**
  * Abstract base lat-lng class which can manipulate fixed point or floating
  * point based coordinates. Instances are immutable.
- * 
+ *
  * @see FloatLatLng
  *
  * <p><font color="red"><b>NOTE:</b> This API is still in
@@ -49,15 +49,15 @@ public abstract class LatLng {
   public abstract FixedLatLng toFixed();
 
   public abstract FloatLatLng toFloat();
-  
-  
+
+
   /**
    * Calculates the distance between two lat/lng's in miles.
    * Imported from mq java client.
-   * 
+   *
    * @param ll2
    *            Second lat,lng position to calculate distance to.
-   * 
+   *
    * @return Returns the distance in miles.
    */
   public double arcDistance(LatLng ll2) {
@@ -67,12 +67,12 @@ public abstract class LatLng {
   /**
    * Calculates the distance between two lat/lng's in miles or meters.
    * Imported from mq java client.  Variable references changed to match.
-   * 
+   *
    * @param ll2
    *            Second lat,lng position to calculate distance to.
    * @param lUnits
    *            Units to calculate distance, defaults to miles
-   * 
+   *
    * @return Returns the distance in meters or miles.
    */
   public double arcDistance(LatLng ll2, DistanceUnits lUnits) {
@@ -122,7 +122,7 @@ public abstract class LatLng {
    * @param other
    */
   public abstract LatLng calculateMidpoint(LatLng other);
-  
+
   @Override
   public abstract int hashCode();
 

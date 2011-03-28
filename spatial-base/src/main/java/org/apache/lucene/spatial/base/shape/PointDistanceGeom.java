@@ -19,7 +19,6 @@ package org.apache.lucene.spatial.base.shape;
 
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.distance.DistanceUtils;
-import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 
 /**
@@ -31,14 +30,14 @@ public final class PointDistanceGeom implements Shape {
   private final double radius;
   private transient BBox enclosingBox1, enclosingBox2;//calculated & cached (2nd is usually null)
 
-  public PointDistanceGeom(Point p, double dist, double radius) {
+  public PointDistanceGeom(Point p, double dist, double radius, ShapeIO shapeIO) {
     this.point = p;
     this.distance = dist;
     this.radius = radius;
-    calcEnclosingBoxes();
+    calcEnclosingBoxes(shapeIO);
   }
 
-  private void calcEnclosingBoxes() {
+  private void calcEnclosingBoxes(ShapeIO shapeIO) {
     //!! code copied from LatLonType.createSpatialQuery(); this should be consolidated
     final int LAT = 0;
     final int LONG = 1;
@@ -78,10 +77,10 @@ public final class PointDistanceGeom implements Shape {
 
     //(end of code from LatLonType.createSpatialQuery())
     if (ll_lon <= ur_lon) {
-      enclosingBox1 = new Rectangle(ll_lon,ll_lat,ur_lon,ur_lat);
+      enclosingBox1 = shapeIO.makeBBox(ll_lon,ur_lon,ll_lat,ur_lat);
     } else {
-      enclosingBox1 = new Rectangle(Math.max(ll_lon,ur_lon),ll_lat,180,ur_lat);
-      enclosingBox2 = new Rectangle(-180,ll_lat,Math.min(ll_lon,ur_lon),ur_lat);
+      enclosingBox1 = shapeIO.makeBBox(Math.max(ll_lon,ur_lon),180,ll_lat,ur_lat);
+      enclosingBox2 = shapeIO.makeBBox(-180,Math.min(ll_lon,ur_lon),ll_lat,ur_lat);
     }
   }
 
@@ -99,8 +98,9 @@ public final class PointDistanceGeom implements Shape {
   public BBox getBoundingBox() {
     if (enclosingBox2 == null)
       return enclosingBox1;
+
     //wrap longitude around the world (note: both boxes have same latitudes)
-    return new Rectangle(-180,enclosingBox1.getMinY(),180,enclosingBox1.getMaxY());
+    return new Rectangle(-180,180,enclosingBox1.getMinY(),enclosingBox1.getMaxY());
   }
 
   public BBox getEnclosingBox1() {
@@ -121,12 +121,12 @@ public final class PointDistanceGeom implements Shape {
 
     //do quick check to see if all corners are within this circle for CONTAINS
     BBox bbox = other.getBoundingBox();
-    if (contains(bbox.getMinX(),bbox.getMinY()) && 
-        contains(bbox.getMinX(),bbox.getMaxY()) && 
-        contains(bbox.getMaxX(),bbox.getMaxY()) && 
+    if (contains(bbox.getMinX(),bbox.getMinY()) &&
+        contains(bbox.getMinX(),bbox.getMaxY()) &&
+        contains(bbox.getMaxX(),bbox.getMaxY()) &&
         contains(bbox.getMaxX(),bbox.getMinY()))
       return IntersectCase.CONTAINS;
-    
+
     return IntersectCase.INTERSECTS;//needn't actually intersect; this is a good guess
   }
 

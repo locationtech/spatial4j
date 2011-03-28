@@ -20,18 +20,11 @@ package org.apache.solr.spatial.external;
 
 import java.util.Map;
 
-import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.query.SpatialArgs;
-import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 import org.apache.lucene.spatial.search.external.IndexSpatialIndexer;
 import org.apache.lucene.spatial.search.external.SpatialIndexQueryBuilder;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
-import org.apache.solr.search.QParser;
 import org.apache.solr.spatial.SpatialFieldType;
 
 
@@ -43,7 +36,7 @@ public class ExternalIndexFieldType extends SpatialFieldType<SimpleSpatialFieldI
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-    
+
     queryBuilder = new SpatialIndexQueryBuilder(reader);
     spatialIndexer = new IndexSpatialIndexer(reader);
   }

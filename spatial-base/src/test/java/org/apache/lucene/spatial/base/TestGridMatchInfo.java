@@ -2,8 +2,6 @@ package org.apache.lucene.spatial.base;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;

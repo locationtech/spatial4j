@@ -26,11 +26,8 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.search.point.PointFieldInfo;
 import org.apache.lucene.spatial.search.point.PointQueryBuilder;
 import org.apache.lucene.spatial.search.point.PointSpatialIndexer;
@@ -38,7 +35,6 @@ import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaAware;
 import org.apache.solr.schema.SchemaField;
-import org.apache.solr.search.QParser;
 import org.apache.solr.spatial.SpatialFieldType;
 
 
@@ -51,7 +47,7 @@ public class PointFieldType extends SpatialFieldType<PointFieldInfo,PointSpatial
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-    
+
     spatialIndexer = new PointSpatialIndexer() {
       @Override
       public Fieldable[] createFields(PointFieldInfo fieldInfo,
