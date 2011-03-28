@@ -23,3 +23,11 @@ my sample tests have been super fast!
 
 
 
+-------------------------
+
+To run the demo from eclipse:
+1. run mvn eclipse:eclipse
+
+2. From: spatial-demo project run:
+org.apache.solr.spatial.demo.StartDemo
+
