@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.apache.lucene.spatial.search.SpatialOperation;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.SolrParams;
 
 public class Query implements Serializable
@@ -18,7 +19,7 @@ public class Query implements Serializable
   public Boolean score;
   public String min;
   public String max;
-
+  public String sort;
 
   public SolrParams toSolrQuery( int rows )
   {
@@ -47,6 +48,11 @@ public class Query implements Serializable
     }
     if( fq != null ) {
       params.setFilterQueries( fq );
+    }
+    
+    // Set sort
+    if( sort != null ) {
+      params.set( CommonParams.SORT, sort );
     }
 
     params.setQuery( q );

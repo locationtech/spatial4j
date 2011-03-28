@@ -1,7 +1,7 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
   <head>  
     <title>Solr Spatial Playground</title>    
-
+    
     <link rel="stylesheet" href="/openlayers/theme/default/style.css" type="text/css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
     <script src="/openlayers/OpenLayers.js"></script>
@@ -9,7 +9,7 @@
 
     var map, drawControls, wkt, featureLayer;
     
-    addedPolygon = function(feature)
+    addedWKT = function(feature)
     {
       featureLayer.removeAllFeatures();
       featureLayer.addFeatures( [feature] );
@@ -53,7 +53,7 @@
 
     function init(){
         map = new OpenLayers.Map('map');
-
+        
         var wmsLayer = new OpenLayers.Layer.WMS( "OpenLayers WMS",
             "http://vmap0.tiles.osgeo.org/wms/vmap0?", {layers: 'basic'});
 
@@ -61,18 +61,21 @@
 
         map.addLayers([wmsLayer, featureLayer]);
         map.addControl(new OpenLayers.Control.MousePosition());
+        map.addControl(new OpenLayers.Control.LayerSwitcher());
 
         drawControls = {
             point: new OpenLayers.Control.DrawFeature(featureLayer, 
               OpenLayers.Handler.Point, {'featureAdded': addedPoint}),
+            line: new OpenLayers.Control.DrawFeature(featureLayer,
+              OpenLayers.Handler.Path, {'featureAdded': addedWKT} ),
             bbox: new OpenLayers.Control.DrawFeature(featureLayer,
-              OpenLayers.Handler.RegularPolygon, {'featureAdded': addedBBox} ),
+                OpenLayers.Handler.Box, {'featureAdded': addedBBox} ),
 //            circle: new OpenLayers.Control.DrawFeature(featureLayer,
 //              OpenLayers.Handler.RegularPolygon, {'featureAdded': addedCircle} ),
             polygon: new OpenLayers.Control.DrawFeature(featureLayer,
-              OpenLayers.Handler.Polygon, {'featureAdded': addedPolygon} )
+              OpenLayers.Handler.Polygon, {'featureAdded': addedWKT} )
         };
-        drawControls['bbox'].handler.setOptions({sides: 4, irregular:true});
+      //  drawControls['bbox'].handler.setOptions({sides: 4, irregular:true});
       //  drawControls['circle'].handler.setOptions({sides: 40});
 
         for(var key in drawControls) {
@@ -152,7 +155,7 @@
 
       <table>
       <tr valign="top">
-      <td><div id="map" style="width:512px; height:300px; border:1px solid #CCC;"></div></td>
+      <td><div id="map" style="width:512px; height:320px; border:1px solid #CCC;"></div></td>
       <td>
         <ul id="controlToggle" style="margin-left:5px; padding:0px;">
           <li>
@@ -163,6 +166,10 @@
           <li>
               <input type="radio" name="type" value="point" id="pointToggle" onclick="toggleControl(this);" />
               <label for="pointToggle">draw point</label>
+          </li>
+          <li>
+            <input type="radio" name="type" value="line" id="lineToggle" onclick="toggleControl(this);" />
+            <label for="lineToggle">draw line</label>
           </li>
           <li>
               <input type="radio" name="type" value="bbox" id="bboxToggle" onclick="toggleControl(this);" />
@@ -180,6 +187,16 @@
           </li>
         </ul>
         
+        <div>
+          <b>Min</b><br/>
+          <input wicket:id="min" type="text" />
+        </div>
+
+        <div>
+          <b>Max</b><br/>
+          <input wicket:id="max" type="text" />
+        </div>
+
         <br/>
         <div>
           <input wicket:id="score" type="checkbox" id="checkScore" />
@@ -189,7 +206,12 @@
           <input wicket:id="cache" type="checkbox" id="checkCache" />
           <label for="checkCache">Cache</label>
         </div>
-        
+        <br/>
+        <div>
+          <b>Sort</b><br/>
+          <input wicket:id="sort" type="text" />
+        </div>
+
       </td>
       </tr>
       </table>
