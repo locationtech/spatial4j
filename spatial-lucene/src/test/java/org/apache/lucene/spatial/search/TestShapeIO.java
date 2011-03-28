@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.base;
+package org.apache.lucene.spatial.search;
 
 import junit.framework.TestCase;
 
