@@ -49,6 +49,7 @@ public class PointQueryBuilder implements SpatialQueryBuilder<PointFieldInfo> {
       if (args.getMax() != null ) {
         dvs.max = args.getMax();
       }
+      return dvs;
     }
     throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
   }
@@ -75,7 +76,7 @@ public class PointQueryBuilder implements SpatialQueryBuilder<PointFieldInfo> {
         spatial =  makeDisjoint(bbox, fieldInfo);
         break;
       case Distance: {
-        if (args.getMax() == null) {
+        if (args.getMax() == null && args.getMin() == null) {
           // no bbox to limit
           return new ValueSourceQuery(makeValueSource(args, fieldInfo));
         }
