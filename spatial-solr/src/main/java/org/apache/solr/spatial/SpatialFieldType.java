@@ -27,7 +27,7 @@ import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.search.SpatialFieldInfo;
 import org.apache.lucene.spatial.search.SpatialIndexer;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
@@ -66,7 +66,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo, I extends Spa
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
     // TODO, read configuration from Map
-    reader = new JTSShapeIO();  // some way to share this across different fields?
+    reader = new JtsShapeIO();  // some way to share this across different fields?
     argsParser = new SpatialArgsParser();
     ignoreIncompatibleGeometry = true;
   }

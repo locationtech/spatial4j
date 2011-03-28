@@ -3,7 +3,7 @@ package org.apache.lucene.spatial.base.query;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
 import org.junit.Test;
 
@@ -63,7 +63,7 @@ public class TestSpatialArgs {
 
   @Test
   public void testJTSArgs() throws Exception {
-    ShapeIO reader = new JTSShapeIO();
+    ShapeIO reader = new JtsShapeIO();
     checkSimpleArgs(reader);
 
     // now check the complex stuff...

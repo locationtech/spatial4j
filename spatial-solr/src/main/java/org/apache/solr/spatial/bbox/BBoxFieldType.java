@@ -25,7 +25,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.search.bbox.BBoxFieldInfo;
 import org.apache.lucene.spatial.search.bbox.BBoxQueryBuilder;
 import org.apache.lucene.spatial.search.bbox.BBoxSpatialIndexer;

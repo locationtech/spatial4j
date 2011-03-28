@@ -14,7 +14,7 @@ public class TestShapeIO {
 
   @Test
   public void testShapeIO() throws Exception {
-    JTSShapeIO reader = new JTSShapeIO();
+    JtsShapeIO reader = new JtsShapeIO();
 
     // Simple Point
     Shape s = reader.readShape("10 20");

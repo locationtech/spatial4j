@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
 import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 import org.apache.solr.spatial.demo.utils.KMLHelper;
@@ -73,7 +73,7 @@ public class GridInfoServlet extends HttpServlet
       }
     }
     int depth = getIntParam( req, "depth", 16 );
-    ShapeIO reader = new JTSShapeIO();
+    ShapeIO reader = new JtsShapeIO();
     JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid( -180, 180, -90-180, 90, depth ); // make it like WGS84
     grid.setResolution(getIntParam(req, "resolution", 4));
 

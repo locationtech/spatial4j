@@ -39,7 +39,7 @@ import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTReader;
 
-public class JtsShapeIOxx implements ShapeIO {
+public class JtsShapeIO implements ShapeIO {
 
   private static final byte TYPE_POINT = 0;
   private static final byte TYPE_BBOX = 1;
@@ -47,11 +47,11 @@ public class JtsShapeIOxx implements ShapeIO {
   
   public GeometryFactory factory;
 
-  public JtsShapeIOxx() {
+  public JtsShapeIO() {
     factory = new GeometryFactory();
   }
 
-  public JtsShapeIOxx(GeometryFactory f) {
+  public JtsShapeIO(GeometryFactory f) {
     factory = f;
   }
 
