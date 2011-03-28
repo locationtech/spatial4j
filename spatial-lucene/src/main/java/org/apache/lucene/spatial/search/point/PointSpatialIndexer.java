@@ -4,7 +4,7 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.search.SpatialIndexer;
 
-public class PointSpatialIndexer implements SpatialIndexer<PointFieldInfo> {
+public class PointSpatialIndexer extends SpatialIndexer<PointFieldInfo> {
 
   @Override
   public Fieldable[] createFields(PointFieldInfo indexInfo,

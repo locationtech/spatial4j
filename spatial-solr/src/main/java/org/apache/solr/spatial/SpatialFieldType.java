@@ -56,7 +56,6 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo, I extends Spa
 
   protected ShapeIO reader;
   protected SpatialArgsParser argsParser;
-  protected boolean ignoreIncompatibleGeometry = true;
 
   protected I spatialIndexer;
   protected Q queryBuilder;
@@ -68,7 +67,6 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo, I extends Spa
     // TODO, read configuration from Map
     reader = new JtsShapeIO();  // some way to share this across different fields?
     argsParser = new SpatialArgsParser();
-    ignoreIncompatibleGeometry = true;
   }
 
   protected abstract T getFieldInfo( SchemaField field );
