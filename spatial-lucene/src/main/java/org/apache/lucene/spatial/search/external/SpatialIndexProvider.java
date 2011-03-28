@@ -15,21 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.index;
+package org.apache.lucene.spatial.search.external;
 
-import org.apache.lucene.spatial.base.shape.ShapeIO;
+import java.io.IOException;
+
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexReader;
 
 import com.vividsolutions.jts.index.SpatialIndex;
-import com.vividsolutions.jts.index.quadtree.Quadtree;
 
-public class QuadTreeIndexProvider extends CachedIndexProvider {
+public interface SpatialIndexProvider {
 
-  public QuadTreeIndexProvider(String shapeField, ShapeIO reader) {
-    super(shapeField, reader);
-  }
-
-  @Override
-  protected SpatialIndex createEmptyIndex() {
-    return new Quadtree();
-  }
+  /**
+   * This expects a SpatialIndex where the object is an 'int' pointing to the doc
+   */
+  public SpatialIndex getSpatialIndex(IndexReader reader) throws CorruptIndexException, IOException;
 }

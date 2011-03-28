@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.index;
+package org.apache.lucene.spatial.search.external;
 
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 

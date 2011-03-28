@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search.index;
+package org.apache.lucene.spatial.search.external;
 
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;

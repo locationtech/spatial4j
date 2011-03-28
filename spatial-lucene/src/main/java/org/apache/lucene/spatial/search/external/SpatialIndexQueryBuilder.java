@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search.index;
+package org.apache.lucene.spatial.search.external;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

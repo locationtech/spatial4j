@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.index;
+package org.apache.solr.spatial.external;
 
 
 import java.util.Map;
@@ -27,8 +27,8 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
-import org.apache.lucene.spatial.search.index.IndexSpatialIndexer;
-import org.apache.lucene.spatial.search.index.SpatialIndexQueryBuilder;
+import org.apache.lucene.spatial.search.external.IndexSpatialIndexer;
+import org.apache.lucene.spatial.search.external.SpatialIndexQueryBuilder;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
@@ -38,7 +38,7 @@ import org.apache.solr.spatial.SpatialFieldType;
 /**
  * Field loads an in memory SpatialIndex (RTree or QuadTree)
  */
-public class SpatialIndexFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,IndexSpatialIndexer,SpatialIndexQueryBuilder> {
+public class ExternalIndexFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,IndexSpatialIndexer,SpatialIndexQueryBuilder> {
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {

@@ -58,7 +58,7 @@
     <fieldtype name="geo"   class="org.apache.solr.spatial.jts.JTSGeoFieldType" />
     <fieldtype name="grid"  class="org.apache.solr.spatial.prefix.SpatialPrefixGridFieldType" />
     <fieldtype name="bbox"  class="org.apache.solr.spatial.bbox.BBoxFieldType" />
-    <fieldtype name="rtree" class="org.apache.solr.spatial.index.SpatialIndexFieldType" />
+    <fieldtype name="rtree" class="org.apache.solr.spatial.external.ExternalIndexFieldType" />
     <fieldtype name="point" class="org.apache.solr.spatial.point.PointFieldType" />
 
  </types>

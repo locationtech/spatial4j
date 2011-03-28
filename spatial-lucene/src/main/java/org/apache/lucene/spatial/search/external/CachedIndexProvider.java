@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.index;
+package org.apache.lucene.spatial.search.external;
 
 import java.io.IOException;
 import java.util.WeakHashMap;
