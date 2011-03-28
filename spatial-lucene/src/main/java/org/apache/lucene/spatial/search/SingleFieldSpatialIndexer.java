@@ -12,9 +12,9 @@ public abstract class SingleFieldSpatialIndexer<T extends SpatialFieldInfo> impl
     return false;
   }
 
-  public abstract Fieldable createField(T indexInfo, Shape shape, boolean index, boolean store);
+  public abstract Fieldable createField(T fieldInfo, Shape shape, boolean index, boolean store);
 
-  public Fieldable[] createFields(T indexInfo, Shape shape, boolean index, boolean store) {
-    return new Fieldable[] { createField(indexInfo, shape, index, store) };
+  public Fieldable[] createFields(T fieldInfo, Shape shape, boolean index, boolean store) {
+    return new Fieldable[] { createField(fieldInfo, shape, index, store) };
   }
 }
