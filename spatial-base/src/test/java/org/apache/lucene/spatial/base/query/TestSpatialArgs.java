@@ -14,7 +14,6 @@ import static org.junit.Assert.*;
  */
 public class TestSpatialArgs {
 
-  @Test
   public void checkSimpleArgs(ShapeIO reader) {
     SpatialArgsParser parser = new SpatialArgsParser();
     

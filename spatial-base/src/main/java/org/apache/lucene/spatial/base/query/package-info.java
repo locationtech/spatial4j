@@ -18,8 +18,9 @@
 
 /**
  * Lucene spatial Query options
- * 
- * - useful for client side requets
+ * <ul>
+ *  <li>useful for client side requets</li>
+ * </ul>
  */
 package org.apache.lucene.spatial.base.query;
 
