@@ -44,9 +44,9 @@ public class SimpleShapeIO implements ShapeIO {
     double p1 = Double.parseDouble(st.nextToken());
 
     if (st.hasMoreTokens()) {
-      double p2 = Double.parseDouble( st.nextToken() );
-      double p3 = Double.parseDouble( st.nextToken() );
-      return new Rectangle( p0, p2, p1, p3 );
+      double p2 = Double.parseDouble(st.nextToken());
+      double p3 = Double.parseDouble(st.nextToken());
+      return new Rectangle(p0, p2, p1, p3);
     }
 
     return new Point2D(p0, p1);
