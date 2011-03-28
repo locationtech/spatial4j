@@ -50,35 +50,6 @@ public abstract class LatLng {
 
   public abstract FloatLatLng toFloat();
   
-  /**
-   * Convert the lat/lng into the cartesian coordinate plane such that all
-   * world coordinates are represented in the first quadrant.
-   * The x dimension corresponds to latitude and y corresponds to longitude.
-   * The translation starts with the normalized latlng and adds 180 to the latitude and 
-   * 90 to the longitude (subject to fixed point scaling).
-   */
-  public CartesianPoint toCartesian() {
-    LatLng ll=normalize();
-    
-    int lat=ll.getFixedLat();
-    int lng=ll.getFixedLng();
-    
-    return new CartesianPoint(
-        lng+180*FixedLatLng.SCALE_FACTOR_INT,
-        lat+90*FixedLatLng.SCALE_FACTOR_INT
-    );
-  }
-  
-  /**
-   * The inverse of toCartesian().  Always returns a FixedLatLng.
-   * @param pt
-   */
-  public static LatLng fromCartesian(CartesianPoint pt) {
-    int lat=pt.getY() - 90 * FixedLatLng.SCALE_FACTOR_INT;
-    int lng=pt.getX() - 180 * FixedLatLng.SCALE_FACTOR_INT;
-    
-    return new FixedLatLng(lat, lng);
-  }
   
   /**
    * Calculates the distance between two lat/lng's in miles.
