@@ -18,13 +18,13 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 /**
  * @author Chris Male
  */
-public class JtsGeoSpatialIndexerXX extends SpatialIndexer<SimpleSpatialFieldInfo> {
+public class JtsGeoSpatialIndexer extends SpatialIndexer<SimpleSpatialFieldInfo> {
 
-  private static final Logger logger = LoggerFactory.getLogger(JtsGeoSpatialIndexerXX.class);
+  private static final Logger logger = LoggerFactory.getLogger(JtsGeoSpatialIndexer.class);
 
   private final GeometryFactory geometryFactory;
 
-  public JtsGeoSpatialIndexerXX(GeometryFactory geometryFactory) {
+  public JtsGeoSpatialIndexer(GeometryFactory geometryFactory) {
     this.geometryFactory = geometryFactory;
   }
 
