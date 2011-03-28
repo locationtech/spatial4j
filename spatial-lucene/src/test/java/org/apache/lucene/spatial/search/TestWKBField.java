@@ -19,8 +19,8 @@ package org.apache.lucene.spatial.search;
 
 import junit.framework.TestCase;
 
-import org.apache.lucene.spatial.base.SpatialArgs;
-import org.apache.lucene.spatial.base.SpatialOperation;
+import org.apache.lucene.spatial.search.SpatialArgs;
+import org.apache.lucene.spatial.search.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
 import org.apache.lucene.spatial.search.jts.GeometryTestFactory;
 

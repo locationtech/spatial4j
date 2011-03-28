@@ -21,5 +21,5 @@ public enum IntersectCase {
   WITHIN,
   CONTAINS,
   OUTSIDE,
-  INTERSECTS;
+  INTERSECTS
 }

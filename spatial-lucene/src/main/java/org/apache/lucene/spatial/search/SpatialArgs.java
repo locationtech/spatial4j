@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base;
+package org.apache.lucene.spatial.search;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -4,7 +4,7 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.SpatialArgs;
+import org.apache.lucene.spatial.search.SpatialArgs;
 
 /**
  * must be thread safe

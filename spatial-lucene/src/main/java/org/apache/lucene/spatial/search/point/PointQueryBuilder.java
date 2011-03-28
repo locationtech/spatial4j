@@ -27,7 +27,7 @@ import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.SpatialArgs;
+import org.apache.lucene.spatial.search.SpatialArgs;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;

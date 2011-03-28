@@ -2,7 +2,7 @@ package org.apache.solr.spatial.demo.app;
 
 import java.io.Serializable;
 
-import org.apache.lucene.spatial.base.SpatialOperation;
+import org.apache.lucene.spatial.search.SpatialOperation;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.params.SolrParams;
 

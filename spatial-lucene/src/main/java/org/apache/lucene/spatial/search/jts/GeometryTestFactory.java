@@ -17,7 +17,7 @@
 
 package org.apache.lucene.spatial.search.jts;
 
-import org.apache.lucene.spatial.base.SpatialOperation;
+import org.apache.lucene.spatial.search.SpatialOperation;
 
 import com.vividsolutions.jts.geom.Geometry;
 
