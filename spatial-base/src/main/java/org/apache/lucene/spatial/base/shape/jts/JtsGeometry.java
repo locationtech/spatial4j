@@ -56,6 +56,9 @@ public class JtsGeometry implements Shape {
     if(GeometryFactory.class.isInstance(context)) {
       return (GeometryFactory) context;
     }
+    if(JtsShapeIO.class.isInstance(context)) {
+      return ((JtsShapeIO) context).factory;
+    }
     return new GeometryFactory();
   }
 
