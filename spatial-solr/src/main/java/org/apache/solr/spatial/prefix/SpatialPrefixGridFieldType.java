@@ -20,17 +20,14 @@ package org.apache.solr.spatial.prefix;
 import java.util.Map;
 
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.Query;
+import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
-import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
-import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.prefix.PrefixGridQueryBuilder;
 import org.apache.lucene.spatial.search.prefix.PrefixGridSpatialIndexer;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
-import org.apache.solr.search.QParser;
 import org.apache.solr.spatial.SpatialFieldType;
 
 
@@ -42,11 +39,7 @@ import org.apache.solr.spatial.SpatialFieldType;
  * <p/>
  * (2) Something for the field reader....
  */
-public class SpatialPrefixGridFieldType extends SpatialFieldType {
-
-  PrefixGridQueryBuilder builder;
-  PrefixGridSpatialIndexer spatialIndexer;
-
+public class SpatialPrefixGridFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,PrefixGridSpatialIndexer,PrefixGridQueryBuilder> {
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
@@ -63,8 +56,8 @@ public class SpatialPrefixGridFieldType extends SpatialFieldType {
     JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid(-180, 180, -90 - 180, 90, 16);
     grid.setResolution(5);
 
-    this.builder = new PrefixGridQueryBuilder(grid);
-    this.spatialIndexer = new PrefixGridSpatialIndexer(grid, maxLength);
+    queryBuilder = new PrefixGridQueryBuilder(grid);
+    spatialIndexer = new PrefixGridSpatialIndexer(grid, maxLength);
   }
 
   @Override
@@ -74,8 +67,8 @@ public class SpatialPrefixGridFieldType extends SpatialFieldType {
   }
 
   @Override
-  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args) {
-    return builder.makeQuery(args, new SimpleSpatialFieldInfo(field.getName()));
+  protected SimpleSpatialFieldInfo getFieldInfo(SchemaField field) {
+    return new SimpleSpatialFieldInfo(field.getName());
   }
 }
 

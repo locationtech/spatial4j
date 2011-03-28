@@ -33,6 +33,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.point.PointFieldInfo;
 import org.apache.lucene.spatial.search.point.PointQueryBuilder;
+import org.apache.lucene.spatial.search.point.PointSpatialIndexer;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaAware;
@@ -41,7 +42,7 @@ import org.apache.solr.search.QParser;
 import org.apache.solr.spatial.SpatialFieldType;
 
 
-public class PointFieldType extends SpatialFieldType implements SchemaAware
+public class PointFieldType extends SpatialFieldType<PointFieldInfo,PointSpatialIndexer,PointQueryBuilder> implements SchemaAware
 {
   protected final int fieldProps = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
 
@@ -66,6 +67,11 @@ public class PointFieldType extends SpatialFieldType implements SchemaAware
         schema.getFields().put( name+PointFieldInfo.SUFFIX_Y, new SchemaField( name+PointFieldInfo.SUFFIX_Y, pointType, p, null ) );
       }
     }
+  }
+
+  @Override
+  protected PointFieldInfo getFieldInfo(SchemaField field) {
+    return new PointFieldInfo(field.getName(), Integer.MAX_VALUE, FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
   }
 
   @Override
@@ -97,14 +103,6 @@ public class PointFieldType extends SpatialFieldType implements SchemaAware
   @Override
   public Fieldable createField(SchemaField field, Shape value, float boost) {
     throw new UnsupportedOperationException( "this is a poly field");
-  }
-
-  @Override
-  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args )
-  {
-    PointQueryBuilder b = new PointQueryBuilder();
-    PointFieldInfo info = new PointFieldInfo(field.getName(), Integer.MAX_VALUE, FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
-    return b.makeQuery(args, info);
   }
 }
 

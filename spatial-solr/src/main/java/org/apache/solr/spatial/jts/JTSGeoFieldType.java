@@ -57,30 +57,26 @@ import org.slf4j.LoggerFactory;
  * <p/>
  * Maximum bytes for WKB is 32000, this will simplify geometry till there are fewer then 32K bytes
  */
-public class JTSGeoFieldType extends SpatialFieldType {
+public class JTSGeoFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,JTSGeoSpatialIndexer,JTSGeoQueryBuilder> {
   
-  static final Logger log = LoggerFactory.getLogger(JTSGeoFieldType.class);
-  JTSGeoQueryBuilder builder;
-  JTSGeoSpatialIndexer spatialIndexer;
-
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
     
     GeometryFactory factory = new GeometryFactory();
-    builder = new JTSGeoQueryBuilder(factory);
     reader = new JTSShapeIO(factory);
+    queryBuilder = new JTSGeoQueryBuilder(factory);
     spatialIndexer = new JTSGeoSpatialIndexer(factory);
   }
 
   @Override
+  protected SimpleSpatialFieldInfo getFieldInfo(SchemaField field) {
+    return new SimpleSpatialFieldInfo(field.getName());
+  }
+  
+  @Override
   public Fieldable createField(SchemaField field, Shape shape, float boost) {
     return spatialIndexer.createFields(new SimpleSpatialFieldInfo(field.getName()), shape,
         field.indexed(), field.stored())[0];
-  }
-
-  @Override
-  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args) {
-    return builder.makeQuery(args, new SimpleSpatialFieldInfo(field.getName()));
   }
 }

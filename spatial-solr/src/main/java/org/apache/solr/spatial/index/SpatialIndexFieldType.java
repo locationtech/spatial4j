@@ -26,6 +26,7 @@ import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
+import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 import org.apache.lucene.spatial.search.index.IndexSpatialIndexer;
 import org.apache.lucene.spatial.search.index.SpatialIndexQueryBuilder;
 import org.apache.solr.schema.IndexSchema;
@@ -37,16 +38,13 @@ import org.apache.solr.spatial.SpatialFieldType;
 /**
  * Field loads an in memory SpatialIndex (RTree or QuadTree)
  */
-public class SpatialIndexFieldType extends SpatialFieldType {
-
-  SpatialIndexQueryBuilder builder;
-  IndexSpatialIndexer spatialIndexer;
+public class SpatialIndexFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,IndexSpatialIndexer,SpatialIndexQueryBuilder> {
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
     
-    builder = new SpatialIndexQueryBuilder(reader);
+    queryBuilder = new SpatialIndexQueryBuilder(reader);
     spatialIndexer = new IndexSpatialIndexer(reader);
   }
 
@@ -57,7 +55,7 @@ public class SpatialIndexFieldType extends SpatialFieldType {
   }
 
   @Override
-  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args) {
-    return builder.makeQuery(args, new SimpleSpatialFieldInfo(field.getName()));
+  protected SimpleSpatialFieldInfo getFieldInfo(SchemaField field) {
+    return new SimpleSpatialFieldInfo(field.getName());
   }
 }

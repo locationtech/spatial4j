@@ -28,6 +28,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
 import org.apache.lucene.spatial.search.bbox.BBoxFieldInfo;
 import org.apache.lucene.spatial.search.bbox.BBoxQueryBuilder;
+import org.apache.lucene.spatial.search.bbox.BBoxSpatialIndexer;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaAware;
@@ -40,7 +41,7 @@ import org.apache.solr.spatial.SpatialFieldType;
  * Syntax for the field input:
  *
  */
-public class BBoxFieldType extends SpatialFieldType implements SchemaAware
+public class BBoxFieldType extends SpatialFieldType<BBoxFieldInfo,BBoxSpatialIndexer, BBoxQueryBuilder> implements SchemaAware
 {
   protected String doubleFieldName = "double";
   protected String booleanFieldName = "boolean";
@@ -48,8 +49,6 @@ public class BBoxFieldType extends SpatialFieldType implements SchemaAware
   protected final int fieldProps = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
   protected FieldType doubleType;
   protected FieldType booleanType;
-
-  BBoxQueryBuilder builder = new BBoxQueryBuilder();
 
   double queryPower = 1.0;
   double targetPower = 1.0f;
@@ -118,18 +117,17 @@ public class BBoxFieldType extends SpatialFieldType implements SchemaAware
   }
 
   @Override
-  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
-  {
+  public boolean isPolyField() {
+    return true;
+  }
+
+  @Override
+  protected BBoxFieldInfo getFieldInfo(SchemaField field) {
     BBoxFieldInfo info = new BBoxFieldInfo();
     info.setFieldsPrefix( field.getName() );
     info.parser = FieldCache.NUMERIC_UTILS_DOUBLE_PARSER; // TODO, read from solr!
     info.precisionStep = Integer.MAX_VALUE;  // TODO, read from solr!
-    return builder.makeQuery(args, info);
-  }
-
-  @Override
-  public boolean isPolyField() {
-    return true;
+    return info;
   }
 }
 

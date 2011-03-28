@@ -28,6 +28,10 @@ import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
+import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
+import org.apache.lucene.spatial.search.SpatialFieldInfo;
+import org.apache.lucene.spatial.search.SpatialIndexer;
+import org.apache.lucene.spatial.search.SpatialQueryBuilder;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.response.TextResponseWriter;
 import org.apache.solr.schema.FieldType;
@@ -39,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  */
-public abstract class SpatialFieldType extends FieldType
+public abstract class SpatialFieldType<T extends SpatialFieldInfo, I extends SpatialIndexer<T>, Q extends SpatialQueryBuilder<T>> extends FieldType
 {
   // This is copied from Field type since they are private
   protected final static int INDEXED             = 0x00000001;
@@ -50,10 +54,15 @@ public abstract class SpatialFieldType extends FieldType
   protected final static int OMIT_TF_POSITIONS   = 0x00000020;
 
   static final Logger log = LoggerFactory.getLogger( SpatialFieldType.class );
+  
   protected ShapeIO reader;
   protected SpatialArgsParser argsParser;
   protected boolean ignoreIncompatibleGeometry = true;
-
+  
+  protected I spatialIndexer;
+  protected Q queryBuilder;
+  
+  
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
@@ -62,6 +71,8 @@ public abstract class SpatialFieldType extends FieldType
     argsParser = new SpatialArgsParser();
     ignoreIncompatibleGeometry = true;
   }
+  
+  protected abstract T getFieldInfo( SchemaField field );
 
   @Override
   public Fieldable createField(SchemaField field, Object val, float boost)
@@ -100,7 +111,10 @@ public abstract class SpatialFieldType extends FieldType
     return getFieldQuery( parser, field, argsParser.parse( externalVal, reader ) );
   }
 
-  public abstract Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args );
+  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
+  {
+    return queryBuilder.makeQuery(args, getFieldInfo(field));
+  }
 
   @Override
   public void write(TextResponseWriter writer, String name, Fieldable f) throws IOException {
