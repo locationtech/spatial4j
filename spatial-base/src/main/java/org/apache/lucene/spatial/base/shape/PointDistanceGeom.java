@@ -15,12 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.distance;
+package org.apache.lucene.spatial.base.shape;
 
 import org.apache.lucene.spatial.base.IntersectCase;
-import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 

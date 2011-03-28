@@ -15,13 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.distance;
+package org.apache.lucene.spatial.base.shape;
 
 import java.util.Collection;
 
 import org.apache.lucene.spatial.base.IntersectCase;
-import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 
 /**
