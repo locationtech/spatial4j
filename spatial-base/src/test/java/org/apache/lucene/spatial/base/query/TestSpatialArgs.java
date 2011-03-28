@@ -1,13 +1,9 @@
-package org.apache.lucene.spatial.search;
+package org.apache.lucene.spatial.base.query;
 
-import junit.framework.TestCase;
-
-import org.apache.lucene.spatial.base.query.SpatialArgs;
-import org.apache.lucene.spatial.base.query.SpatialOperation;
-import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JTSShapeIO;
 import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
 import org.junit.Test;
 
