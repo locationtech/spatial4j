@@ -44,16 +44,6 @@ public class FloatLatLng extends LatLng {
   }
 
   @Override
-  public int getFixedLat() {
-    return FixedLatLng.doubleToFixed(this.lat);
-  }
-
-  @Override
-  public int getFixedLng() {
-    return FixedLatLng.doubleToFixed(this.lng);
-  }
-
-  @Override
   public double getLat() {
     return this.lat;
   }
@@ -61,21 +51,6 @@ public class FloatLatLng extends LatLng {
   @Override
   public double getLng() {
     return this.lng;
-  }
-
-  @Override
-  public boolean isFixedPoint() {
-    return false;
-  }
-
-  @Override
-  public FixedLatLng toFixed() {
-    return new FixedLatLng(this);
-  }
-
-  @Override
-  public FloatLatLng toFloat() {
-    return this;
   }
 
   @Override
@@ -103,13 +78,6 @@ public class FloatLatLng extends LatLng {
     FloatLatLng ret=new FloatLatLng(lat, newLng);
     ret.normalized=true;
     return ret;
-  }
-
-  @Override
-  public LatLng calculateMidpoint(LatLng other) {
-    return new FloatLatLng(
-        (lat+other.getLat())/2.0,
-        (lng+other.getLng())/2.0);
   }
 
   @Override

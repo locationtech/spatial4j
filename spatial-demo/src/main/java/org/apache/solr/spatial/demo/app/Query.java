@@ -17,8 +17,8 @@ public class Query implements Serializable
 
   public Boolean cache;
   public Boolean score;
-  public String distance;
-  public String radius;
+  public String min;
+  public String max;
   public String sort;
 
   public SolrParams toSolrQuery( int rows )
@@ -29,11 +29,11 @@ public class Query implements Serializable
     boolean hasGeo = (geo != null && geo.length() > 0);
     if( hasGeo ) {
       q = field + ":\""+op.name()+"("+geo+")";
-      if( distance != null ) {
-        q += " distance=" + distance;
+      if( min != null ) {
+        q += " min=" + min;
       }
-      if( radius != null ) {
-        q += " radius=" + radius;
+      if( max != null ) {
+        q += " max=" + max;
       }
       if( cache != null ) {
         q += " cache=" + cache;

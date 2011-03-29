@@ -40,7 +40,8 @@ public class DistanceUtils {
 
   public static final double KM_TO_MILES = 0.621371192;
   public static final double MILES_TO_KM = 1.609344;
-    /**
+    
+  /**
    * The International Union of Geodesy and Geophysics says the Earth's mean radius in KM is:
    *
    * [1] http://en.wikipedia.org/wiki/Earth_radius
@@ -56,22 +57,6 @@ public class DistanceUtils {
   public static double getDistanceMi(double x1, double y1, double x2, double y2) {
     return getLLMDistance(x1, y1, x2, y2);
   }
-
-//  /**
-//   *
-//   * @param x1
-//   * @param y1
-//   * @param miles
-//   * @return boundary rectangle where getY/getX is top left, getMinY/getMinX is bottom right
-//   */
-//  public static Rectangle getBoundary (double x1, double y1, double miles) {
-//
-//    LLRect box = LLRect.createBox( new FloatLatLng( x1, y1 ), miles, miles );
-//
-//    //System.out.println("Box: "+maxX+" | "+ maxY+" | "+ minX + " | "+ minY);
-//    return box.toRectangle();
-//
-//  }
 
   public static double getLLMDistance (double x1, double y1, double x2, double y2) {
 

@@ -32,13 +32,7 @@ public abstract class LatLng {
 
   public abstract boolean isNormalized();
 
-  public abstract boolean isFixedPoint();
-
   public abstract LatLng normalize();
-
-  public abstract int getFixedLat();
-
-  public abstract int getFixedLng();
 
   public abstract double getLat();
 
@@ -46,9 +40,6 @@ public abstract class LatLng {
 
   public abstract LatLng copy();
 
-  public abstract FixedLatLng toFixed();
-
-  public abstract FloatLatLng toFloat();
 
 
   /**
@@ -116,12 +107,6 @@ public abstract class LatLng {
   public String toString() {
     return "[" + getLat() + "," + getLng() + "]";
   }
-
-  /**
-   * Calculate the midpoint between this point an another.  Respects fixed vs floating point
-   * @param other
-   */
-  public abstract LatLng calculateMidpoint(LatLng other);
 
   @Override
   public abstract int hashCode();

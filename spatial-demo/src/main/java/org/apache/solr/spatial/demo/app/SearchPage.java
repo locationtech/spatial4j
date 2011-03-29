@@ -102,8 +102,8 @@ public class SearchPage extends WebPage
 
     searchForm.add( new CheckBox( "score" ) );
     searchForm.add( new CheckBox( "cache" ) );
-    searchForm.add( new TextField<String>( "distance" ) );
-    searchForm.add( new TextField<String>( "radius" ) );
+    searchForm.add( new TextField<String>( "min" ) );
+    searchForm.add( new TextField<String>( "max" ) );
     searchForm.add( new TextField<String>( "sort" ) );
     add( searchForm );
 
