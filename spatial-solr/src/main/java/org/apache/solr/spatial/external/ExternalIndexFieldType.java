@@ -22,7 +22,6 @@ import java.util.Map;
 
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.external.ExternalIndexStrategy;
-import org.apache.lucene.spatial.search.external.IndexSpatialIndexer;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;

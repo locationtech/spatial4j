@@ -39,7 +39,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.jts.JtsGeoStrategy;
-import org.apache.lucene.spatial.search.jts.JtsGeoSpatialIndexer;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;

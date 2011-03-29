@@ -30,7 +30,6 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.search.point.PointFieldInfo;
 import org.apache.lucene.spatial.search.point.PointStrategy;
-import org.apache.lucene.spatial.search.point.PointSpatialIndexer;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaAware;
