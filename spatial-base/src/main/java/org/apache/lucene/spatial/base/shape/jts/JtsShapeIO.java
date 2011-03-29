@@ -64,6 +64,8 @@ public class JtsShapeIO extends AbstractShapeIO {
         Geometry geo = reader.read(str);
         if (geo instanceof com.vividsolutions.jts.geom.Point) {
           return new JtsPoint2D((com.vividsolutions.jts.geom.Point)geo);
+        } else if (geo.isRectangle()) {
+          return new JtsEnvelope(geo.getEnvelopeInternal());
         }
         return new JtsGeometry(geo);
       } catch(com.vividsolutions.jts.io.ParseException ex) {
