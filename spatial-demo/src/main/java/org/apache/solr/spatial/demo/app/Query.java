@@ -49,7 +49,7 @@ public class Query implements Serializable
     if( fq != null ) {
       params.setFilterQueries( fq );
     }
-    
+
     // Set sort
     if( sort != null ) {
       params.set( CommonParams.SORT, sort );

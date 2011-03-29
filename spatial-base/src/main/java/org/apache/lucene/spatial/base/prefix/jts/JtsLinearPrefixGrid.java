@@ -1,13 +1,13 @@
 package org.apache.lucene.spatial.base.prefix.jts;
 
+import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.jts.JtsEnvelope;
-import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 
 import com.vividsolutions.jts.geom.Envelope;
 
 public class JtsLinearPrefixGrid extends LinearPrefixGrid {
-  
+
   public JtsLinearPrefixGrid(double xmin, double xmax, double ymin, double ymax, int maxLevels) {
     super(xmin, xmax, ymin, ymax, maxLevels);
   }

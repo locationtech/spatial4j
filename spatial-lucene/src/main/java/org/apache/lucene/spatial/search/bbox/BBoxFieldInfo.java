@@ -17,9 +17,7 @@
 
 package org.apache.lucene.spatial.search.bbox;
 
-import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.spatial.search.SpatialFieldInfo;
-import org.apache.lucene.util.NumericUtils;
 
 /**
  * Fieldnames to store
@@ -32,9 +30,6 @@ public class BBoxFieldInfo implements SpatialFieldInfo {
   public static final String SUFFIX_MAXY = "__maxY";
   public static final String SUFFIX_XDL  = "__xdl";
 
-  public int precisionStep = NumericUtils.PRECISION_STEP_DEFAULT;
-  public DoubleParser parser = null;
-
   public String minX = "envelope.minx";
   public String minY = "envelope.miny";
   public String maxX = "envelope.maxx";
@@ -42,7 +37,6 @@ public class BBoxFieldInfo implements SpatialFieldInfo {
 
   // crosses dateline
   public String xdl = "envelope.xdl";
-
 
   public void setFieldsPrefix(String prefix) {
     minX = prefix + SUFFIX_MINX;

@@ -23,11 +23,11 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -44,7 +44,7 @@ public class JtsShapeIO implements ShapeIO {
   private static final byte TYPE_POINT = 0;
   private static final byte TYPE_BBOX = 1;
   private static final byte TYPE_GEO = 2;
-  
+
   public GeometryFactory factory;
 
   public JtsShapeIO() {
@@ -194,7 +194,7 @@ public class JtsShapeIO implements ShapeIO {
     }
     throw new InvalidShapeException("can't make Geometry from: " + shape);
   }
-  
+
 
   @Override
   public BBox makeBBox(double minX, double maxX, double minY, double maxY) {

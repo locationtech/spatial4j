@@ -3,7 +3,7 @@ package org.apache.lucene.spatial.base.io.geonames;
 import java.sql.Date;
 
 public class Geoname {
-  
+
   public int id;
   public String name; // name of geographical point (utf8) varchar(200)
   public String nameASCII; // name of geographical point in plain ascii characters, varchar(200)

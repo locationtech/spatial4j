@@ -17,11 +17,15 @@
 
 package org.apache.lucene.spatial.search.point;
 
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.document.Field.Index;
+import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
@@ -30,8 +34,10 @@ import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 import org.apache.lucene.spatial.search.SpatialStrategy;
+import org.apache.solr.schema.TrieFieldHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,15 +46,39 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
 
   static final Logger log = LoggerFactory.getLogger(PointStrategy.class);
 
+  private final TrieFieldHelper.FieldInfo finfo;
+  private final DoubleParser parser;
+  private final ShapeIO reader;
+
+  public PointStrategy( ShapeIO reader, TrieFieldHelper.FieldInfo finfo, DoubleParser parser ) {
+    this.reader = reader;
+    this.finfo = finfo;
+    this.parser = parser;
+  }
+
   @Override
   public boolean isPolyField() {
     return true;
   }
 
   @Override
-  public Fieldable[] createFields(PointFieldInfo indexInfo,
+  public Fieldable[] createFields(PointFieldInfo fieldInfo,
       Shape shape, boolean index, boolean store) {
-    throw new UnsupportedOperationException("not implemented yet (in solr for now)");
+    if( shape instanceof Point ) {
+      Point point = (Point)shape;
+
+      Fieldable[] f = new Fieldable[store?3:2];
+      f[0] = TrieFieldHelper.createDoubleField(fieldInfo.getFieldNameX(), point.getX(), finfo, 1.0f );
+      f[1] = TrieFieldHelper.createDoubleField(fieldInfo.getFieldNameY(), point.getY(), finfo, 1.0f );
+      if( store ) {
+        f[2] = new Field( fieldInfo.getFieldName(), reader.toString( shape ), Store.YES, Index.NO );
+      }
+      return f;
+    }
+    if( !ignoreIncompatibleGeometry ) {
+      throw new IllegalArgumentException( "PointStrategy can not index: "+shape );
+    }
+    return null;
   }
 
   @Override
@@ -61,14 +91,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
   public ValueSource makeValueSource(SpatialArgs args, PointFieldInfo fieldInfo) {
     DistanceCalculator calc = new EuclidianDistanceCalculator();
     if (Point.class.isInstance(args.getShape())) {
-      DistanceValueSource dvs = new DistanceValueSource(((Point)args.getShape()), calc, fieldInfo);
-      if (args.getMin() != null) {
-        dvs.min = args.getMin();
-      }
-      if (args.getMax() != null ) {
-        dvs.max = args.getMax();
-      }
-      return dvs;
+      return new DistanceValueSource(((Point)args.getShape()), calc, fieldInfo, parser);
     }
     throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
   }
@@ -128,29 +151,29 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
   }
 
   /**
-     * Constructs a query to retrieve documents that fully contain the input envelope.
-     * @return the spatial query
-     */
+   * Constructs a query to retrieve documents that fully contain the input envelope.
+   * @return the spatial query
+   */
   private Query makeWithin(BBox bbox, PointFieldInfo fieldInfo) {
     Query qX = NumericRangeQuery.newDoubleRange(
-        fieldInfo.getXFieldName(),
-        fieldInfo.getPrecisionStep(),
-        bbox.getMinX(),
-        bbox.getMaxX(),
-        true,
-        true);
-      Query qY = NumericRangeQuery.newDoubleRange(
-          fieldInfo.getYFieldName(),
-          fieldInfo.getPrecisionStep(),
-          bbox.getMinY(),
-          bbox.getMaxY(),
-          true,
-          true);
+      fieldInfo.getFieldNameX(),
+      finfo.precisionStep,
+      bbox.getMinX(),
+      bbox.getMaxX(),
+      true,
+      true);
+    Query qY = NumericRangeQuery.newDoubleRange(
+      fieldInfo.getFieldNameY(),
+      finfo.precisionStep,
+      bbox.getMinY(),
+      bbox.getMaxY(),
+      true,
+      true);
 
-      BooleanQuery bq = new BooleanQuery();
-      bq.add(qX,BooleanClause.Occur.MUST);
-      bq.add(qY,BooleanClause.Occur.MUST);
-      return bq;
+    BooleanQuery bq = new BooleanQuery();
+    bq.add(qX,BooleanClause.Occur.MUST);
+    bq.add(qY,BooleanClause.Occur.MUST);
+    return bq;
   }
 
   /**
@@ -159,19 +182,19 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
    */
   Query makeDisjoint(BBox bbox, PointFieldInfo fieldInfo) {
     Query qX = NumericRangeQuery.newDoubleRange(
-        fieldInfo.getXFieldName(),
-        fieldInfo.getPrecisionStep(),
-        bbox.getMinX(),
-        bbox.getMaxX(),
-        true,
-        true);
+      fieldInfo.getFieldNameX(),
+      finfo.precisionStep,
+      bbox.getMinX(),
+      bbox.getMaxX(),
+      true,
+      true);
     Query qY = NumericRangeQuery.newDoubleRange(
-        fieldInfo.getYFieldName(),
-        fieldInfo.getPrecisionStep(),
-        bbox.getMinY(),
-        bbox.getMaxY(),
-        true,
-        true);
+      fieldInfo.getFieldNameY(),
+      finfo.precisionStep,
+      bbox.getMinY(),
+      bbox.getMaxY(),
+      true,
+      true);
 
     BooleanQuery bq = new BooleanQuery();
     bq.add(qX,BooleanClause.Occur.MUST_NOT);

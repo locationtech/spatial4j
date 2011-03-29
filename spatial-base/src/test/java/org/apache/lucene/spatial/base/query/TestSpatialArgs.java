@@ -1,13 +1,16 @@
 package org.apache.lucene.spatial.base.query;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 
 /**
@@ -16,7 +19,7 @@ public class TestSpatialArgs {
 
   public void checkSimpleArgs(ShapeIO reader) {
     SpatialArgsParser parser = new SpatialArgsParser();
-    
+
     String arg = SpatialOperation.IsWithin + "(-10 -20 10 20) cache=true score=false";
     SpatialArgs out = parser.parse(arg, reader);
     assertEquals(SpatialOperation.IsWithin, out.getOperation());

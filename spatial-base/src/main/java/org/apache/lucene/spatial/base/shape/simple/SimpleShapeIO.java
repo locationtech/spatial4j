@@ -22,11 +22,11 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-import org.apache.lucene.spatial.base.shape.Point;
 
 public class SimpleShapeIO implements ShapeIO {
 
@@ -57,7 +57,7 @@ public class SimpleShapeIO implements ShapeIO {
     nf.setGroupingUsed(false);
     nf.setMaximumFractionDigits(6);
     nf.setMinimumFractionDigits(6);
-    
+
     return
       nf.format(bbox.getMinX()) + " " +
       nf.format(bbox.getMinY()) + " " +

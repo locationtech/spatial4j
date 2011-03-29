@@ -1,11 +1,11 @@
 package org.apache.lucene.spatial.base.shape.jts;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**

@@ -20,6 +20,10 @@ package org.apache.lucene.spatial.search.jts;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
@@ -36,6 +40,10 @@ public class TestWKBField {
 
   @Test
   public void testGeometryOpertaions() {
+    DateFormat df = new SimpleDateFormat( "yyyy, mm dd" );
+    System.out.println( df.format(new Date( Long.MIN_VALUE+5 )) );
+    System.out.println( df.format(new Date( Long.MAX_VALUE-5 )) );
+
     GeometryFactory factory = new GeometryFactory();
 
     // 3x3 square at X=-10

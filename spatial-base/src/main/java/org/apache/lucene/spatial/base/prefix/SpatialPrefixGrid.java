@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 public interface SpatialPrefixGrid {
-  
+
   public static final char COVER = '*';
   public static final char INTERSECTS = '+';
 

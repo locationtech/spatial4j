@@ -9,7 +9,7 @@ import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 
-public class SpatialArgsParser 
+public class SpatialArgsParser
 {
   public SpatialArgs parse(String v, ShapeIO reader) throws InvalidSpatialArgument, InvalidShapeException {
     int idx = v.indexOf('(');
@@ -33,7 +33,7 @@ public class SpatialArgsParser
 
     Shape shape = reader.readShape(body);
     SpatialArgs args = new SpatialArgs(op,shape);
-    
+
     if (v.length() > (edx + 1)) {
       body = v.substring( edx+1 ).trim();
       if (body.length() > 0) {

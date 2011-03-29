@@ -17,8 +17,8 @@
 
 package org.apache.lucene.spatial.base.shape.jts;
 
-import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -126,7 +126,7 @@ public class JtsEnvelope implements BBox {
   public String toString() {
     return envelope.toString();
   }
-  
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

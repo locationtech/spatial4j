@@ -4,13 +4,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
-import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
+import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 

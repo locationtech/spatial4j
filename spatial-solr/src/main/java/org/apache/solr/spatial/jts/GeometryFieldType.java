@@ -19,7 +19,6 @@ package org.apache.solr.spatial.jts;
 
 import java.util.Map;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.jts.JtsGeoStrategy;
@@ -27,16 +26,18 @@ import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
+
 
 /**
  * Uses JTS to read/store geometry
  */
 public class GeometryFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
-  
+
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-    
+
     GeometryFactory factory = new GeometryFactory();
     reader = new JtsShapeIO(factory);
     spatialStrategy = new JtsGeoStrategy(factory);

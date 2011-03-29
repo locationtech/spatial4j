@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.FieldCache;
+import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.search.cache.CachedArrayCreator;
 import org.apache.lucene.search.cache.DoubleValuesCreator;
 import org.apache.lucene.search.cache.CachedArray.DoubleValues;
@@ -36,6 +37,7 @@ public class BBoxSimilarityValueSource extends ValueSource {
 
   private final BBoxFieldInfo field;
   private final BBoxSimilarity similarity;
+  private final DoubleParser parser;
 
   /**
    * Constructor.
@@ -44,9 +46,10 @@ public class BBoxSimilarityValueSource extends ValueSource {
    * @param queryPower the query power (scoring algorithm)
    * @param targetPower the target power (scoring algorithm)
    */
-  public BBoxSimilarityValueSource(BBoxSimilarity similarity, BBoxFieldInfo field) {
+  public BBoxSimilarityValueSource(BBoxSimilarity similarity, BBoxFieldInfo field, DoubleParser parser) {
     this.similarity = similarity;
     this.field = field;
+    this.parser = parser;
   }
 
   /**
@@ -70,10 +73,10 @@ public class BBoxSimilarityValueSource extends ValueSource {
   public DocValues getValues(AtomicReaderContext context) throws IOException {
     IndexReader reader = context.reader;
     int flags = CachedArrayCreator.CACHE_VALUES_AND_BITS;
-    final DoubleValues minX = FieldCache.DEFAULT.getDoubles(reader, field.minX, new DoubleValuesCreator(field.minX, field.parser, flags));
-    final DoubleValues minY = FieldCache.DEFAULT.getDoubles(reader, field.minY, new DoubleValuesCreator(field.minY, field.parser, flags));
-    final DoubleValues maxX = FieldCache.DEFAULT.getDoubles(reader, field.maxX, new DoubleValuesCreator(field.maxX, field.parser, flags));
-    final DoubleValues maxY = FieldCache.DEFAULT.getDoubles(reader, field.maxY, new DoubleValuesCreator(field.maxY, field.parser, flags));
+    final DoubleValues minX = FieldCache.DEFAULT.getDoubles(reader, field.minX, new DoubleValuesCreator(field.minX, parser, flags));
+    final DoubleValues minY = FieldCache.DEFAULT.getDoubles(reader, field.minY, new DoubleValuesCreator(field.minY, parser, flags));
+    final DoubleValues maxX = FieldCache.DEFAULT.getDoubles(reader, field.maxX, new DoubleValuesCreator(field.maxX, parser, flags));
+    final DoubleValues maxY = FieldCache.DEFAULT.getDoubles(reader, field.maxY, new DoubleValuesCreator(field.maxY, parser, flags));
     return new DocValues() {
       @Override
       public float floatVal(int doc) {

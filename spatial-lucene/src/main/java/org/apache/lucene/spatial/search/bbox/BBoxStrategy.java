@@ -17,19 +17,24 @@
 
 package org.apache.lucene.spatial.search.bbox;
 
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.document.Field.Index;
+import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.search.SpatialStrategy;
+import org.apache.solr.schema.TrieFieldHelper;
 
 /**
  * original:
@@ -39,10 +44,31 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
   public double queryPower = 1.0;
   public double targetPower = 1.0f;
 
+  public TrieFieldHelper.FieldInfo trieInfo = null;
+  public DoubleParser parser = null;
+
+  //---------------------------------
+  // Indexing
+  //---------------------------------
+
   @Override
   public Fieldable[] createFields(BBoxFieldInfo fieldInfo,
       Shape shape, boolean index, boolean store) {
-    throw new UnsupportedOperationException("not implemented yet (in solr for now)");
+
+    BBox bbox = shape.getBoundingBox();
+    Fieldable[] fields = new Fieldable[5];
+    fields[0] = TrieFieldHelper.createDoubleField(fieldInfo.minX, bbox.getMinX(), trieInfo, 1.0f);
+    fields[1] = TrieFieldHelper.createDoubleField(fieldInfo.maxX, bbox.getMaxX(), trieInfo, 1.0f);
+    fields[2] = TrieFieldHelper.createDoubleField(fieldInfo.minY, bbox.getMinY(), trieInfo, 1.0f);
+    fields[3] = TrieFieldHelper.createDoubleField(fieldInfo.maxY, bbox.getMaxY(), trieInfo, 1.0f);
+
+    Field xdl = new Field( fieldInfo.xdl, bbox.getCrossesDateLine()?"T":"F",
+      trieInfo.store ? Store.YES : Store.NO,
+      trieInfo.index ? Index.ANALYZED_NO_NORMS : Index.NO );
+    xdl.setOmitNorms(trieInfo.omitNorms);
+    xdl.setOmitTermFreqAndPositions(trieInfo.omitTF);
+    fields[4] = xdl;
+    return fields;
   }
 
   @Override
@@ -56,10 +82,14 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
     return true;
   }
 
+  //---------------------------------
+  // Query Builder
+  //---------------------------------
+
   @Override
   public ValueSource makeValueSource(SpatialArgs args, BBoxFieldInfo fields) {
     return new BBoxSimilarityValueSource(
-        new AreaSimilarity(args.getShape().getBoundingBox(), queryPower, targetPower), fields);
+        new AreaSimilarity(args.getShape().getBoundingBox(), queryPower, targetPower), fields, parser );
   }
 
   @Override
@@ -116,28 +146,14 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
    * @return the spatial query
    */
   Query makeContains(BBox bbox, BBoxFieldInfo fieldInfo) {
-    /*
-    // the original contains query does not work for envelopes that cross the date line
-    // docMinX <= queryExtent.getMinX(), docMinY <= queryExtent.getMinY(), docMaxX >= queryExtent.getMaxX(), docMaxY >= queryExtent.getMaxY()
-    Query qMinX = NumericRangeQuery.newDoubleRange(docMinX,null,queryExtent.getMinX(),false,true);
-    Query qMinY = NumericRangeQuery.newDoubleRange(docMinY,null,queryExtent.getMinY(),false,true);
-    Query qMaxX = NumericRangeQuery.newDoubleRange(docMaxX,queryExtent.getMaxX(),null,true,false);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(docMaxY,queryExtent.getMaxY(),null,true,false);
-    BooleanQuery bq = new BooleanQuery();
-    bq.add(qMinX,BooleanClause.Occur.MUST);
-    bq.add(qMinY,BooleanClause.Occur.MUST);
-    bq.add(qMaxX,BooleanClause.Occur.MUST);
-    bq.add(qMaxY,BooleanClause.Occur.MUST);
-    return bq;
-    */
 
     // general case
     // docMinX <= queryExtent.getMinX() AND docMinY <= queryExtent.getMinY() AND docMaxX >= queryExtent.getMaxX() AND docMaxY >= queryExtent.getMaxY()
 
     // Y conditions
     // docMinY <= queryExtent.getMinY() AND docMaxY >= queryExtent.getMaxY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fieldInfo.minY, fieldInfo.precisionStep, null, bbox.getMinY(), false, true);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fieldInfo.maxY, fieldInfo.precisionStep, bbox.getMaxY(), null, true, false);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fieldInfo.minY, trieInfo.precisionStep, null, bbox.getMinY(), false, true);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fieldInfo.maxY, trieInfo.precisionStep, bbox.getMaxY(), null, true, false);
     Query yConditions = this.makeQuery(new Query[]{qMinY, qMaxY}, BooleanClause.Occur.MUST);
 
     // X conditions
@@ -149,8 +165,8 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
       // X Conditions for documents that do not cross the date line,
       // documents that contain the min X and max X of the query envelope,
       // docMinX <= queryExtent.getMinX() AND docMaxX >= queryExtent.getMaxX()
-      Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, null, bbox.getMinX(), false, true);
-      Query qMaxX = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, bbox.getMaxX(), null, true, false);
+      Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, trieInfo.precisionStep, null, bbox.getMinX(), false, true);
+      Query qMaxX = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, trieInfo.precisionStep, bbox.getMaxX(), null, true, false);
       Query qMinMax = this.makeQuery(new Query[]{qMinX, qMaxX}, BooleanClause.Occur.MUST);
       Query qNonXDL = this.makeXDL(false, qMinMax, fieldInfo);
 
@@ -158,8 +174,8 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
       // the left portion of the document contains the min X of the query
       // OR the right portion of the document contains the max X of the query,
       // docMinXLeft <= queryExtent.getMinX() OR docMaxXRight >= queryExtent.getMaxX()
-      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, null, bbox.getMinX(), false, true);
-      Query qXDLRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, bbox.getMaxX(), null, true, false);
+      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, trieInfo.precisionStep, null, bbox.getMinX(), false, true);
+      Query qXDLRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, trieInfo.precisionStep, bbox.getMaxX(), null, true, false);
       Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft, qXDLRight}, BooleanClause.Occur.SHOULD);
       Query qXDL = this.makeXDL(true, qXDLLeftRight, fieldInfo);
 
@@ -175,8 +191,8 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
       // the left portion of the document contains the min X of the query
       // AND the right portion of the document contains the max X of the query,
       // docMinXLeft <= queryExtent.getMinX() AND docMaxXRight >= queryExtent.getMaxX()
-      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, null, bbox.getMinX(), false, true);
-      Query qXDLRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, bbox.getMaxX(), null, true, false);
+      Query qXDLLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, trieInfo.precisionStep, null, bbox.getMinX(), false, true);
+      Query qXDLRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, trieInfo.precisionStep, bbox.getMaxX(), null, true, false);
       Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft, qXDLRight}, BooleanClause.Occur.MUST);
 
       xConditions = this.makeXDL(true, qXDLLeftRight, fieldInfo);
@@ -193,27 +209,13 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
    */
   Query makeDisjoint(BBox bbox, BBoxFieldInfo fieldInfo) {
 
-    /*
-    // the original disjoint query does not work for envelopes that cross the date line
-    // docMinX > queryExtent.getMaxX() OR docMaxX < queryExtent.getMinX() OR docMinY > queryExtent.getMaxY() OR docMaxY < queryExtent.getMinY()
-    Query qMinX = NumericRangeQuery.newDoubleRange(docMinX,queryExtent.getMaxX(),null,false,false);
-    Query qMaxX = NumericRangeQuery.newDoubleRange(docMaxX,null,queryExtent.getMinX(),false,false);
-    Query qMinY = NumericRangeQuery.newDoubleRange(docMinY,queryExtent.getMaxY(),null,false,false);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(docMaxY,null,queryExtent.getMinY(),false,false);
-    BooleanQuery bq = new BooleanQuery();
-    bq.add(qMinX,BooleanClause.Occur.SHOULD);
-    bq.add(qMinY,BooleanClause.Occur.SHOULD);
-    bq.add(qMaxX,BooleanClause.Occur.SHOULD);
-    bq.add(qMaxY,BooleanClause.Occur.SHOULD);
-    */
-
     // general case
     // docMinX > queryExtent.getMaxX() OR docMaxX < queryExtent.getMinX() OR docMinY > queryExtent.getMaxY() OR docMaxY < queryExtent.getMinY()
 
     // Y conditions
     // docMinY > queryExtent.getMaxY() OR docMaxY < queryExtent.getMinY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fieldInfo.minY, fieldInfo.precisionStep, bbox.getMaxY(), null, false, false);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fieldInfo.maxY, fieldInfo.precisionStep, null, bbox.getMinY(), false, false);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fieldInfo.minY, trieInfo.precisionStep, bbox.getMaxY(), null, false, false);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fieldInfo.maxY, trieInfo.precisionStep, null, bbox.getMinY(), false, false);
     Query yConditions = this.makeQuery(new Query[]{qMinY, qMaxY}, BooleanClause.Occur.SHOULD);
 
     // X conditions
@@ -224,8 +226,8 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
 
       // X Conditions for documents that do not cross the date line,
       // docMinX > queryExtent.getMaxX() OR docMaxX < queryExtent.getMinX()
-      Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMaxX(), null, false, false);
-      Query qMaxX = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, bbox.getMinX(), false, false);
+      Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, trieInfo.precisionStep, bbox.getMaxX(), null, false, false);
+      Query qMaxX = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, trieInfo.precisionStep, null, bbox.getMinX(), false, false);
       Query qMinMax = this.makeQuery(new Query[]{qMinX, qMaxX}, BooleanClause.Occur.SHOULD);
       Query qNonXDL = this.makeXDL(false, qMinMax, fieldInfo);
 
@@ -236,8 +238,8 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
       // where: docMaxXLeft = 180.0, docMinXRight = -180.0
       // (docMaxXLeft  < queryExtent.getMinX()) equates to (180.0  < queryExtent.getMinX()) and is ignored
       // (docMinXRight > queryExtent.getMaxX()) equates to (-180.0 > queryExtent.getMaxX()) and is ignored
-      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMaxX(), null, false, false);
-      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, bbox.getMinX(), false, false);
+      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, trieInfo.precisionStep, bbox.getMaxX(), null, false, false);
+      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, trieInfo.precisionStep, null, bbox.getMinX(), false, false);
       Query qLeftRight = this.makeQuery(new Query[]{qMinXLeft, qMaxXRight}, BooleanClause.Occur.MUST);
       Query qXDL = this.makeXDL(true, qLeftRight, fieldInfo);
 
@@ -251,10 +253,10 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
       // the document must be disjoint to both the left and right query portions
       // (docMinX > queryExtent.getMaxX()Left OR docMaxX < queryExtent.getMinX()) AND (docMinX > queryExtent.getMaxX() OR docMaxX < queryExtent.getMinX()Left)
       // where: queryExtent.getMaxX()Left = 180.0, queryExtent.getMinX()Left = -180.0
-      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, 180.0, null, false, false);
-      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, bbox.getMinX(), false, false);
-      Query qMinXRight = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMaxX(), null, false, false);
-      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, -180.0, false, false);
+      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, trieInfo.precisionStep, 180.0, null, false, false);
+      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, trieInfo.precisionStep, null, bbox.getMinX(), false, false);
+      Query qMinXRight = NumericRangeQuery.newDoubleRange(fieldInfo.minX, trieInfo.precisionStep, bbox.getMaxX(), null, false, false);
+      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, trieInfo.precisionStep, null, -180.0, false, false);
       Query qLeft = this.makeQuery(new Query[]{qMinXLeft, qMaxXLeft}, BooleanClause.Occur.SHOULD);
       Query qRight = this.makeQuery(new Query[]{qMinXRight, qMaxXRight}, BooleanClause.Occur.SHOULD);
       Query qLeftRight = this.makeQuery(new Query[]{qLeft, qRight}, BooleanClause.Occur.MUST);
@@ -276,10 +278,10 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
   Query makeEquals(BBox bbox, BBoxFieldInfo fieldInfo) {
 
     // docMinX = queryExtent.getMinX() AND docMinY = queryExtent.getMinY() AND docMaxX = queryExtent.getMaxX() AND docMaxY = queryExtent.getMaxY()
-    Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMinX(), bbox.getMinX(), true, true);
-    Query qMinY = NumericRangeQuery.newDoubleRange(fieldInfo.minY, fieldInfo.precisionStep, bbox.getMinY(), bbox.getMinY(), true, true);
-    Query qMaxX = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, bbox.getMaxX(), bbox.getMaxX(), true, true);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fieldInfo.maxY, fieldInfo.precisionStep, bbox.getMaxY(), bbox.getMaxY(), true, true);
+    Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, trieInfo.precisionStep, bbox.getMinX(), bbox.getMinX(), true, true);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fieldInfo.minY, trieInfo.precisionStep, bbox.getMinY(), bbox.getMinY(), true, true);
+    Query qMaxX = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, trieInfo.precisionStep, bbox.getMaxX(), bbox.getMaxX(), true, true);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fieldInfo.maxY, trieInfo.precisionStep, bbox.getMaxY(), bbox.getMaxY(), true, true);
     BooleanQuery bq = new BooleanQuery();
     bq.add(qMinX, BooleanClause.Occur.MUST);
     bq.add(qMinY, BooleanClause.Occur.MUST);
@@ -339,28 +341,13 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
    */
   Query makeWithin(BBox bbox, BBoxFieldInfo fieldInfo) {
 
-    /*
-    // the original within query does not work for envelopes that cross the date line
-    // docMinX >= queryExtent.getMinX() AND docMinY >= queryExtent.getMinY() AND docMaxX <= queryExtent.getMaxX() AND docMaxY <= queryExtent.getMaxY()
-    Query qMinX = NumericRangeQuery.newDoubleRange(docMinX,queryExtent.getMinX(),null,true,false);
-    Query qMinY = NumericRangeQuery.newDoubleRange(docMinY,queryExtent.getMinY(),null,true,false);
-    Query qMaxX = NumericRangeQuery.newDoubleRange(docMaxX,null,queryExtent.getMaxX(),false,true);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(docMaxY,null,queryExtent.getMaxY(),false,true);
-    BooleanQuery bq = new BooleanQuery();
-    bq.add(qMinX,BooleanClause.Occur.MUST);
-    bq.add(qMinY,BooleanClause.Occur.MUST);
-    bq.add(qMaxX,BooleanClause.Occur.MUST);
-    bq.add(qMaxY,BooleanClause.Occur.MUST);
-    return bq;
-    */
-
     // general case
     // docMinX >= queryExtent.getMinX() AND docMinY >= queryExtent.getMinY() AND docMaxX <= queryExtent.getMaxX() AND docMaxY <= queryExtent.getMaxY()
 
     // Y conditions
     // docMinY >= queryExtent.getMinY() AND docMaxY <= queryExtent.getMaxY()
-    Query qMinY = NumericRangeQuery.newDoubleRange(fieldInfo.minY, fieldInfo.precisionStep, bbox.getMinY(), null, true, false);
-    Query qMaxY = NumericRangeQuery.newDoubleRange(fieldInfo.maxY, fieldInfo.precisionStep, null, bbox.getMaxY(), false, true);
+    Query qMinY = NumericRangeQuery.newDoubleRange(fieldInfo.minY, trieInfo.precisionStep, bbox.getMinY(), null, true, false);
+    Query qMaxY = NumericRangeQuery.newDoubleRange(fieldInfo.maxY, trieInfo.precisionStep, null, bbox.getMaxY(), false, true);
     Query yConditions = this.makeQuery(new Query[]{qMinY, qMaxY}, BooleanClause.Occur.MUST);
 
     // X conditions
@@ -371,8 +358,8 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
     // AND the right portion of the document must be within the right portion of the query
     // docMinXLeft >= queryExtent.getMinX() AND docMaxXLeft <= 180.0
     // AND docMinXRight >= -180.0 AND docMaxXRight <= queryExtent.getMaxX()
-    Query qXDLLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMinX(), null, true, false);
-    Query qXDLRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, bbox.getMaxX(), false, true);
+    Query qXDLLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, trieInfo.precisionStep, bbox.getMinX(), null, true, false);
+    Query qXDLRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, trieInfo.precisionStep, null, bbox.getMaxX(), false, true);
     Query qXDLLeftRight = this.makeQuery(new Query[]{qXDLLeft, qXDLRight}, BooleanClause.Occur.MUST);
     Query qXDL = this.makeXDL(true, qXDLLeftRight, fieldInfo);
 
@@ -381,8 +368,8 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
 
       // X Conditions for documents that do not cross the date line,
       // docMinX >= queryExtent.getMinX() AND docMaxX <= queryExtent.getMaxX()
-      Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMinX(), null, true, false);
-      Query qMaxX = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, bbox.getMaxX(), false, true);
+      Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, trieInfo.precisionStep, bbox.getMinX(), null, true, false);
+      Query qMaxX = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, trieInfo.precisionStep, null, bbox.getMaxX(), false, true);
       Query qMinMax = this.makeQuery(new Query[]{qMinX, qMaxX}, BooleanClause.Occur.MUST);
       Query qNonXDL = this.makeXDL(false, qMinMax, fieldInfo);
 
@@ -400,14 +387,14 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
 
       // the document should be within the left portion of the query
       // docMinX >= queryExtent.getMinX() AND docMaxX <= 180.0
-      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, bbox.getMinX(), null, true, false);
-      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, 180.0, false, true);
+      Query qMinXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.minX, trieInfo.precisionStep, bbox.getMinX(), null, true, false);
+      Query qMaxXLeft = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, trieInfo.precisionStep, null, 180.0, false, true);
       Query qLeft = this.makeQuery(new Query[]{qMinXLeft, qMaxXLeft}, BooleanClause.Occur.MUST);
 
       // the document should be within the right portion of the query
       // docMinX >= -180.0 AND docMaxX <= queryExtent.getMaxX()
-      Query qMinXRight = NumericRangeQuery.newDoubleRange(fieldInfo.minX, fieldInfo.precisionStep, -180.0, null, true, false);
-      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, fieldInfo.precisionStep, null, bbox.getMaxX(), false, true);
+      Query qMinXRight = NumericRangeQuery.newDoubleRange(fieldInfo.minX, trieInfo.precisionStep, -180.0, null, true, false);
+      Query qMaxXRight = NumericRangeQuery.newDoubleRange(fieldInfo.maxX, trieInfo.precisionStep, null, bbox.getMaxX(), false, true);
       Query qRight = this.makeQuery(new Query[]{qMinXRight, qMaxXRight}, BooleanClause.Occur.MUST);
 
       // either left or right conditions should occur,

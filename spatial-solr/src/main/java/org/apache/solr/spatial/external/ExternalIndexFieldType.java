@@ -35,7 +35,7 @@ public class ExternalIndexFieldType extends SpatialFieldType<SimpleSpatialFieldI
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-    
+
     spatialStrategy = new ExternalIndexStrategy(reader);
   }
 

@@ -17,9 +17,6 @@
 
 package org.apache.lucene.spatial.search.jts;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.io.WKBWriter;
-import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -31,17 +28,20 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.jts.JtsUtil;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.SpatialStrategy;
-
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.WKBWriter;
+import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 /**
  * Indexed field is WKB (store WKT)
  * <p/>
  * Maximum bytes for WKB is 32000, this will simplify geometry till there are fewer then 32K bytes
- * 
+ *
  * TODO -- this is a good candidate for the new docvalues stuff when that lands:
  * https://svn.apache.org/repos/asf/lucene/dev/branches/docvalues/
  */

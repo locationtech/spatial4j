@@ -65,10 +65,12 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
     return f;
   }
 
+  @Override
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo info) {
     throw new UnsupportedOperationException( "not implemented yet..." );
   }
 
+  @Override
   public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo queryInfo) {
     if (args.getOperation() != SpatialOperation.Intersects &&
         args.getOperation() != SpatialOperation.IsWithin &&

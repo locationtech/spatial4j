@@ -17,18 +17,21 @@ package org.apache.solr.spatial.bbox;
  * limitations under the License.
  */
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.search.bbox.BBoxFieldInfo;
 import org.apache.lucene.spatial.search.bbox.BBoxStrategy;
+import org.apache.solr.schema.BoolField;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaAware;
 import org.apache.solr.schema.SchemaField;
+import org.apache.solr.schema.TrieDoubleField;
+import org.apache.solr.schema.TrieField;
+import org.apache.solr.schema.TrieFieldHelper;
 import org.apache.solr.spatial.SpatialFieldType;
 
 
@@ -42,8 +45,6 @@ public class BBoxFieldType extends SpatialFieldType<BBoxFieldInfo> implements Sc
   protected String booleanFieldName = "boolean";
 
   protected final int fieldProps = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
-  protected FieldType doubleType;
-  protected FieldType booleanType;
 
   double queryPower = 1.0;
   double targetPower = 1.0f;
@@ -61,30 +62,14 @@ public class BBoxFieldType extends SpatialFieldType<BBoxFieldInfo> implements Sc
     if( v != null ) {
       booleanFieldName = v;
     }
-    
-    spatialStrategy = new BBoxStrategy() {
-      @Override
-      public Fieldable[] createFields(BBoxFieldInfo fieldInfo,
-          Shape shape, boolean index, boolean store) {
-        BBox bbox = shape.getBoundingBox();
 
-        int fp = fieldProps | STORED;  // useful for debugging
-
-        Fieldable[] fields = new Fieldable[5];
-        fields[0] = new SchemaField( fieldInfo.minX, doubleType, fp, null ).createField( new Double(bbox.getMinX()), 1.0f);
-        fields[1] = new SchemaField( fieldInfo.maxX, doubleType, fp, null ).createField( new Double(bbox.getMaxX()), 1.0f);
-        fields[2] = new SchemaField( fieldInfo.minY, doubleType, fp, null ).createField( new Double(bbox.getMinY()), 1.0f);
-        fields[3] = new SchemaField( fieldInfo.maxY, doubleType, fp, null ).createField( new Double(bbox.getMaxY()), 1.0f);
-        fields[4] = new SchemaField( fieldInfo.xdl, booleanType, fp, null ).createField( new Boolean(bbox.getCrossesDateLine()), 1.0f);
-        return fields;
-      }
-    };
+    spatialStrategy = new BBoxStrategy();
   }
 
   public void inform(IndexSchema schema)
   {
-    doubleType = schema.getFieldTypeByName( doubleFieldName );
-    booleanType = schema.getFieldTypeByName( booleanFieldName );
+    FieldType doubleType = schema.getFieldTypeByName( doubleFieldName );
+    FieldType booleanType = schema.getFieldTypeByName( booleanFieldName );
 
     if( doubleType == null ) {
       throw new RuntimeException( "Can not find double: "+doubleFieldName );
@@ -92,22 +77,44 @@ public class BBoxFieldType extends SpatialFieldType<BBoxFieldInfo> implements Sc
     if( booleanType == null ) {
       throw new RuntimeException( "Can not find boolean: "+booleanFieldName );
     }
+    if( !(booleanType instanceof BoolField) ) {
+      throw new RuntimeException( "must be a booleanField: "+booleanType );
+    }
+    if( !(doubleType instanceof TrieDoubleField) ) {
+      throw new RuntimeException( "double must be TrieDoubleField: "+doubleType );
+    }
 
-    //Just set these, delegate everything else to the field type
-    schema.registerDynamicField( new SchemaField( "*"+BBoxFieldInfo.SUFFIX_MINX, doubleType, fieldProps, null ) );
-    schema.registerDynamicField( new SchemaField( "*"+BBoxFieldInfo.SUFFIX_MINY, doubleType, fieldProps, null ) );
-    schema.registerDynamicField( new SchemaField( "*"+BBoxFieldInfo.SUFFIX_MAXX, doubleType, fieldProps, null ) );
-    schema.registerDynamicField( new SchemaField( "*"+BBoxFieldInfo.SUFFIX_MAXY, doubleType, fieldProps, null ) );
-    schema.registerDynamicField( new SchemaField( "*"+BBoxFieldInfo.SUFFIX_XDL, booleanType, fieldProps, null ) );
+    BBoxStrategy strategy = (BBoxStrategy)spatialStrategy;
+    TrieField df = (TrieField)doubleType;
+    strategy.parser = FieldCache.NUMERIC_UTILS_DOUBLE_PARSER;
+    strategy.trieInfo.precisionStep = df.getPrecisionStep();
+    strategy.trieInfo = new TrieFieldHelper.FieldInfo();
+    strategy.trieInfo.store = true; // TODO properties &...
+    strategy.trieInfo.index = true; // TODO properties &...
+
+    List<SchemaField> fields = new ArrayList<SchemaField>( schema.getFields().values() );
+    for( SchemaField sf : fields ) {
+      if( sf.getType() == this ) {
+        BBoxFieldInfo info = getFieldInfo(sf);
+        register( schema, new SchemaField( info.minX, doubleType, fieldProps, null ) );
+        register( schema, new SchemaField( info.maxX, doubleType, fieldProps, null ) );
+        register( schema, new SchemaField( info.minY, doubleType, fieldProps, null ) );
+        register( schema, new SchemaField( info.maxY, doubleType, fieldProps, null ) );
+        register( schema, new SchemaField( info.xdl, booleanType, fieldProps, null ) );
+      }
+    }
   }
 
-  
+  private void register( IndexSchema s, SchemaField sf )
+  {
+    s.getFields().put( sf.getName(), sf );
+  }
+
+
   @Override
   protected BBoxFieldInfo getFieldInfo(SchemaField field) {
     BBoxFieldInfo info = new BBoxFieldInfo();
     info.setFieldsPrefix( field.getName() );
-    info.parser = FieldCache.NUMERIC_UTILS_DOUBLE_PARSER; // TODO, read from solr!
-    info.precisionStep = Integer.MAX_VALUE;  // TODO, read from solr!
     return info;
   }
 }

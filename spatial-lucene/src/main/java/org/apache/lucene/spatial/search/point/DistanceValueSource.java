@@ -21,6 +21,10 @@ import java.io.IOException;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
+import org.apache.lucene.search.FieldCache;
+import org.apache.lucene.search.FieldCache.DoubleParser;
+import org.apache.lucene.search.cache.CachedArrayCreator;
+import org.apache.lucene.search.cache.DoubleValuesCreator;
 import org.apache.lucene.search.cache.CachedArray.DoubleValues;
 import org.apache.lucene.search.function.DocValues;
 import org.apache.lucene.search.function.ValueSource;
@@ -38,10 +42,7 @@ public class DistanceValueSource extends ValueSource {
   private final PointFieldInfo fields;
   private final DistanceCalculator calculator;
   private final Point from;
-
-  public double min = Double.MIN_VALUE;
-  public double max = Double.MAX_VALUE;
-
+  private final DoubleParser parser;
 
   /**
    * Constructor.
@@ -49,10 +50,11 @@ public class DistanceValueSource extends ValueSource {
    * @param queryPower the query power (scoring algorithm)
    * @param targetPower the target power (scoring algorithm)
    */
-  public DistanceValueSource(Point from, DistanceCalculator calc, PointFieldInfo fields) {
+  public DistanceValueSource(Point from, DistanceCalculator calc, PointFieldInfo fields, DoubleParser parser) {
     this.from = from;
     this.fields = fields;
     this.calculator = calc;
+    this.parser = parser;
   }
 
   /**
@@ -74,10 +76,11 @@ public class DistanceValueSource extends ValueSource {
   @Override
   public DocValues getValues(AtomicReaderContext context) throws IOException {
     IndexReader reader = context.reader;
-    // How do we make sure to get the right entry creator?
-    // Can we get it from solr?
-    final DoubleValues ptX = fields.getXValues(reader);
-    final DoubleValues ptY = fields.getYValues(reader);
+
+    final DoubleValues ptX = FieldCache.DEFAULT.getDoubles(reader, fields.getFieldNameX(),
+          new DoubleValuesCreator(fields.getFieldNameX(), parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));
+    final DoubleValues ptY = FieldCache.DEFAULT.getDoubles(reader, fields.getFieldNameY(),
+        new DoubleValuesCreator(fields.getFieldNameY(), parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));
 
     return new DocValues() {
       @Override
@@ -90,12 +93,7 @@ public class DistanceValueSource extends ValueSource {
         // make sure it has minX and area
         if (ptX.valid.get(doc) && ptY.valid.get(doc)) {
           Point2D pt = new Point2D( ptX.values[doc],  ptY.values[doc] );
-          double v = calculator.calculate(from, pt);
-          if (v > max || v < min) {
-            return 0;
-          }
-
-          return v;
+          return calculator.calculate(from, pt);
         }
         return 0;
       }

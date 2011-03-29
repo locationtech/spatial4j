@@ -17,79 +17,32 @@
 
 package org.apache.lucene.spatial.search.point;
 
-import java.io.IOException;
-
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.search.FieldCache.DoubleParser;
-import org.apache.lucene.search.cache.CachedArrayCreator;
-import org.apache.lucene.search.cache.DoubleValuesCreator;
-import org.apache.lucene.search.cache.CachedArray.DoubleValues;
 import org.apache.lucene.spatial.search.SpatialFieldInfo;
-import org.apache.lucene.util.NumericUtils;
 
-/**
- * Fieldnames to store
- */
 public class PointFieldInfo implements SpatialFieldInfo {
 
   public static final String SUFFIX_X = "__x";
   public static final String SUFFIX_Y = "__y";
 
-  private final int precisionStep;
-  private final DoubleParser parser;
-
   private final String fieldName;
-  private final String xFieldName;
-  private final String yFieldName;
-
-  public PointFieldInfo() {
-    this("point", NumericUtils.PRECISION_STEP_DEFAULT, null);
-  }
+  private final String fieldNameX;
+  private final String fieldNameY;
 
   public PointFieldInfo(String fieldNamePrefix) {
-    this(fieldNamePrefix, NumericUtils.PRECISION_STEP_DEFAULT, null);
-  }
-
-  public PointFieldInfo(String fieldNamePrefix, int precisionStep) {
-    this(fieldNamePrefix, precisionStep, null);
-  }
-
-  public PointFieldInfo(String fieldNamePrefix, int precisionStep, DoubleParser parser) {
     fieldName = fieldNamePrefix;
-    xFieldName = fieldNamePrefix + SUFFIX_X;
-    yFieldName = fieldNamePrefix + SUFFIX_Y;
-    this.precisionStep = precisionStep;
-    this.parser = parser;
-  }
-
-  public DoubleValues getXValues(IndexReader reader) throws IOException {
-    return FieldCache.DEFAULT.getDoubles(reader, xFieldName,
-        new DoubleValuesCreator(xFieldName, parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));
-  }
-
-  public DoubleValues getYValues(IndexReader reader) throws IOException {
-    return FieldCache.DEFAULT.getDoubles(reader, yFieldName,
-        new DoubleValuesCreator(yFieldName, parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));
+    fieldNameX = fieldNamePrefix + SUFFIX_X;
+    fieldNameY = fieldNamePrefix + SUFFIX_Y;
   }
 
   public String getFieldName() {
     return fieldName;
   }
 
-  public String getXFieldName() {
-    return xFieldName;
+  public String getFieldNameX() {
+    return fieldNameX;
   }
 
-  public String getYFieldName() {
-    return yFieldName;
-  }
-
-  public int getPrecisionStep() {
-    return precisionStep;
-  }
-
-  public DoubleParser getParser() {
-    return parser;
+  public String getFieldNameY() {
+    return fieldNameY;
   }
 }
