@@ -17,24 +17,72 @@
 
 package org.apache.lucene.spatial.search.jts;
 
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.io.WKBWriter;
+import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
+import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
+import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.jts.JtsUtil;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.SpatialQueryBuilder;
+import org.apache.lucene.spatial.search.SpatialStrategy;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class JtsGeoQueryBuilder implements SpatialQueryBuilder<SimpleSpatialFieldInfo> {
+public class JtsGeoStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
+
+  private static final Logger logger = LoggerFactory.getLogger(JtsGeoStrategy.class);
 
   private final GeometryFactory factory;
 
-  public JtsGeoQueryBuilder(GeometryFactory factory) {
+  public JtsGeoStrategy(GeometryFactory factory) {
     this.factory = factory;
+  }
+
+  @Override
+  public Fieldable createField(SimpleSpatialFieldInfo indexInfo, Shape shape, boolean index, boolean store) {
+    Geometry geo = JtsUtil.getGeometryFrom(shape, factory);
+    String wkt = (store) ? geo.toText() : null;
+
+    if (!index) {
+      return new WKBField(indexInfo.getFieldName(), null, wkt);
+    }
+
+    WKBWriter writer = new WKBWriter();
+    byte[] wkb = writer.write(geo);
+
+    if (wkb.length > 32000) {
+      long last = wkb.length;
+      Envelope env = geo.getEnvelopeInternal();
+      double mins = Math.min(env.getWidth(), env.getHeight());
+      double div = 1000;
+      while (true) {
+        double tolerance = mins / div;
+        if (logger.isInfoEnabled()) {
+          logger.info("Simplifying long geometry: WKB.length=" + wkb.length + " tolerance=" + tolerance);
+        }
+        Geometry simple = TopologyPreservingSimplifier.simplify(geo, tolerance);
+        wkb = writer.write(simple);
+        if (wkb.length < 32000) {
+          break;
+        }
+        if (wkb.length == last) {
+          throw new InvalidShapeException("Can not simplify geometry smaller then max. " + last);
+        }
+        last = wkb.length;
+        div *= .70;
+      }
+    }
+
+    return new WKBField(indexInfo.getFieldName(), wkb, wkt);
   }
 
   @Override

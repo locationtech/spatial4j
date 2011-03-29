@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -32,15 +34,35 @@ import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
+import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.SpatialQueryBuilder;
+import org.apache.lucene.spatial.search.SpatialStrategy;
 
-public class PrefixGridQueryBuilder implements SpatialQueryBuilder<SimpleSpatialFieldInfo> {
+public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   private final SpatialPrefixGrid grid;
+  private final int maxLength;
 
-  public PrefixGridQueryBuilder(SpatialPrefixGrid grid) {
+  public PrefixGridStrategy(SpatialPrefixGrid grid, int maxLength) {
     this.grid = grid;
+    this.maxLength = maxLength;
+  }
+
+  @Override
+  public Fieldable createField(SimpleSpatialFieldInfo indexInfo, Shape shape, boolean index, boolean store) {
+    List<CharSequence> match = grid.readCells(shape);
+    BasicGridFieldable f = new BasicGridFieldable(indexInfo.getFieldName(), store);
+    if (maxLength > 0) {
+      f.tokens = new RemoveDuplicatesTokenFilter(
+          new TruncateFilter(new StringListTokenizer(match), maxLength));
+    } else {
+      f.tokens = new StringListTokenizer(match);
+    }
+
+    if (store) {
+      f.value = match.toString(); //reader.toString( shape );
+    }
+    return f;
   }
 
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo info) {

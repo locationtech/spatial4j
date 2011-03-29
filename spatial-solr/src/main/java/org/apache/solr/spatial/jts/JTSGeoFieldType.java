@@ -36,20 +36,13 @@ package org.apache.solr.spatial.jts;
 import java.util.Map;
 
 import com.vividsolutions.jts.geom.GeometryFactory;
-import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.query.SpatialArgs;
-import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.jts.JtsGeoQueryBuilder;
+import org.apache.lucene.spatial.search.jts.JtsGeoStrategy;
 import org.apache.lucene.spatial.search.jts.JtsGeoSpatialIndexer;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
-import org.apache.solr.search.QParser;
 import org.apache.solr.spatial.SpatialFieldType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -57,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * <p/>
  * Maximum bytes for WKB is 32000, this will simplify geometry till there are fewer then 32K bytes
  */
-public class JTSGeoFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,JtsGeoSpatialIndexer,JtsGeoQueryBuilder> {
+public class JTSGeoFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
   
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
@@ -65,8 +58,7 @@ public class JTSGeoFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,Jts
     
     GeometryFactory factory = new GeometryFactory();
     reader = new JtsShapeIO(factory);
-    queryBuilder = new JtsGeoQueryBuilder(factory);
-    spatialIndexer = new JtsGeoSpatialIndexer(factory);
+    spatialStrategy = new JtsGeoStrategy(factory);
   }
 
   @Override

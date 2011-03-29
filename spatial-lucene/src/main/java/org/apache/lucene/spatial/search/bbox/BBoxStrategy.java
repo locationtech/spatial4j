@@ -17,6 +17,7 @@
 
 package org.apache.lucene.spatial.search.bbox;
 
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -27,15 +28,33 @@ import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.search.SpatialQueryBuilder;
+import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.search.SpatialStrategy;
 
 /**
  * original:
  * http://geoportal.svn.sourceforge.net/svnroot/geoportal/Geoportal/trunk/src/com/esri/gpt/catalog/lucene/SpatialClauseAdapter.java
  */
-public class BBoxQueryBuilder implements SpatialQueryBuilder<BBoxFieldInfo> {
+public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
   public double queryPower = 1.0;
   public double targetPower = 1.0f;
+
+  @Override
+  public Fieldable[] createFields(BBoxFieldInfo fieldInfo,
+      Shape shape, boolean index, boolean store) {
+    throw new UnsupportedOperationException("not implemented yet (in solr for now)");
+  }
+
+  @Override
+  public Fieldable createField(BBoxFieldInfo fieldInfo, Shape shape,
+      boolean index, boolean store) {
+    throw new UnsupportedOperationException("BBOX is poly field");
+  }
+
+  @Override
+  public boolean isPolyField() {
+    return true;
+  }
 
   @Override
   public ValueSource makeValueSource(SpatialArgs args, BBoxFieldInfo fields) {

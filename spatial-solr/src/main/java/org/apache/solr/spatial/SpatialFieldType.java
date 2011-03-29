@@ -29,8 +29,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.search.SpatialFieldInfo;
-import org.apache.lucene.spatial.search.SpatialIndexer;
-import org.apache.lucene.spatial.search.SpatialQueryBuilder;
+import org.apache.lucene.spatial.search.SpatialStrategy;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.response.TextResponseWriter;
 import org.apache.solr.schema.FieldType;
@@ -42,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  */
-public abstract class SpatialFieldType<T extends SpatialFieldInfo, I extends SpatialIndexer<T>, Q extends SpatialQueryBuilder<T>> extends FieldType
+public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends FieldType
 {
   // This is copied from Field type since they are private
   protected final static int INDEXED             = 0x00000001;
@@ -57,8 +56,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo, I extends Spa
   protected ShapeIO reader;
   protected SpatialArgsParser argsParser;
 
-  protected I spatialIndexer;
-  protected Q queryBuilder;
+  protected SpatialStrategy<T> spatialStrategy;
 
 
   @Override
@@ -83,7 +81,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo, I extends Spa
       log.warn( "null shape for input: "+val );
       return null;
     }
-    return spatialIndexer.createField(getFieldInfo(field), shape, field.indexed(), field.stored());
+    return spatialStrategy.createField(getFieldInfo(field), shape, field.indexed(), field.stored());
   }
 
   @Override
@@ -94,12 +92,12 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo, I extends Spa
       log.warn( "null shape for input: "+val );
       return null;
     }
-    return spatialIndexer.createFields(getFieldInfo(field), shape, field.indexed(), field.stored());
+    return spatialStrategy.createFields(getFieldInfo(field), shape, field.indexed(), field.stored());
   }
 
   @Override
   public final boolean isPolyField() {
-    return spatialIndexer.isPolyField();
+    return spatialStrategy.isPolyField();
   }
 
   //--------------------------------------------------------------
@@ -119,7 +117,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo, I extends Spa
 
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
   {
-    return queryBuilder.makeQuery(args, getFieldInfo(field));
+    return spatialStrategy.makeQuery(args, getFieldInfo(field));
   }
 
   @Override
