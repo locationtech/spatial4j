@@ -37,7 +37,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 import org.apache.lucene.spatial.search.SpatialStrategy;
-import org.apache.solr.schema.TrieFieldHelper;
+import org.apache.lucene.spatial.search.util.TrieFieldHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

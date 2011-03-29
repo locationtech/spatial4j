@@ -24,13 +24,13 @@ import java.util.Map;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.spatial.search.point.PointFieldInfo;
 import org.apache.lucene.spatial.search.point.PointStrategy;
+import org.apache.lucene.spatial.search.util.TrieFieldHelper;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaAware;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.schema.TrieDoubleField;
 import org.apache.solr.schema.TrieField;
-import org.apache.solr.schema.TrieFieldHelper;
 import org.apache.solr.spatial.SpatialFieldType;
 
 

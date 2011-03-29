@@ -11,9 +11,10 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-public class CountryReader
+public class CountryReader extends BasicReader<CountryInfo>
 {
-  public static CountryInfo read( SimpleFeature f )
+  @Override
+  public CountryInfo read( SimpleFeature f )
   {
     CountryInfo c = new CountryInfo();
     c.geometry = (Geometry)f.getAttribute(0);
@@ -23,8 +24,11 @@ public class CountryReader
     c.status = (String)f.getAttribute( 12 );
     c.sqKM = (Double)f.getAttribute( 14 );
     c.sqMI = (Double)f.getAttribute( 15 );
-    c.population2005 = (Long)f.getAttribute( 13 );
 
+    Long v = (Long)f.getAttribute( 13 );
+    if( v != null ) {
+      c.population2005 = v.intValue();
+    }
 
     //0] the_geom :: class com.vividsolutions.jts.geom.MultiPolygon
     //1] FIPS_CNTRY :: class java.lang.String
@@ -47,7 +51,8 @@ public class CountryReader
     return c;
   }
 
-  public static void indexCountries( SolrServer solr, File shp ) throws Exception
+  @Override
+  public void index( SolrServer solr, File shp ) throws Exception
   {
     ShapeReader reader = new ShapeReader( shp );
     int total = reader.getCount();
@@ -65,25 +70,5 @@ public class CountryReader
       solr.add( doc );
       System.out.println( (++count)+"/"+total + " :: " +c.name );
     }
-  }
-
-  public static final void main( String[] args )
-  {
-//
-//    ShapeReader reader = new ShapeReader( file );
-//    int cnt = reader.getCount();
-//    reader.describe( System.out );
-//    System.out.println( "Count:"+cnt );
-//    FeatureReader<SimpleFeatureType, SimpleFeature> iter = reader.getFeatures();
-//    ArrayList<CountryInfo> countries = new ArrayList<CountryInfo>(300);
-//    while( iter.hasNext() ) {
-//      SimpleFeature f = iter.next();
-//      countries.add( CountryReader.read( f ) );
-//    }
-//    Collections.sort( countries, CountryInfo.POPULATION_ORDER );
-//    for( CountryInfo info : countries ) {
-//      System.out.println( "<option value=\""+info.fips+"\">"+info.name+"</option>" );
-//    }
-//    System.out.println( "done." );
   }
 }

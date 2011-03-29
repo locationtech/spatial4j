@@ -34,7 +34,7 @@ import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.search.SpatialStrategy;
-import org.apache.solr.schema.TrieFieldHelper;
+import org.apache.lucene.spatial.search.util.TrieFieldHelper;
 
 /**
  * original:
