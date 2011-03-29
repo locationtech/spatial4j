@@ -20,8 +20,7 @@ package org.apache.solr.spatial.geohash;
 import java.util.Map;
 
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.geohash.GeohashQueryBuilder;
-import org.apache.lucene.spatial.search.geohash.GeohashSpatialIndexer;
+import org.apache.lucene.spatial.search.geohash.GeohashStrategy;
 import org.apache.lucene.spatial.search.geohash.GridReferenceSystem;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
@@ -31,7 +30,7 @@ import org.apache.solr.spatial.SpatialFieldType;
 /**
  *
  */
-public class GeohashFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,GeohashSpatialIndexer,GeohashQueryBuilder> {
+public class GeohashFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
 
   public static final int DEFAULT_LENGTH = GridReferenceSystem.getMaxPrecision();//~12
   private GridReferenceSystem gridReferenceSystem;
@@ -43,10 +42,7 @@ public class GeohashFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,Ge
     String len = args.remove("length");
     int maxLen = len!=null?Integer.parseInt(len): DEFAULT_LENGTH;
     gridReferenceSystem = new GridReferenceSystem( reader, maxLen );
-
-    queryBuilder = new GeohashQueryBuilder( gridReferenceSystem );
-    spatialIndexer = new GeohashSpatialIndexer( gridReferenceSystem );
-    spatialIndexer.setIgnoreIncompatibleGeometry( true );
+    spatialStrategy = new GeohashStrategy( gridReferenceSystem );
   }
 
   @Override

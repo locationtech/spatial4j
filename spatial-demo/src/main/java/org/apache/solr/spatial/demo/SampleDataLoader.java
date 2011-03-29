@@ -2,13 +2,13 @@ package org.apache.solr.spatial.demo;
 
 import java.io.File;
 
+import org.apache.lucene.spatial.base.io.geonames.Geoname;
+import org.apache.lucene.spatial.base.io.geonames.GeonamesReader;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.spatial.demo.utils.countries.CountryReader;
 import org.apache.solr.spatial.demo.utils.geoeye.GeoeyeReader;
-import org.apache.solr.spatial.demo.utils.geonames.Geoname;
-import org.apache.solr.spatial.demo.utils.geonames.GeonamesReader;
 
 
 public class SampleDataLoader

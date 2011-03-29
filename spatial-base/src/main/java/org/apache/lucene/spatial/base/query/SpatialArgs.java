@@ -28,8 +28,8 @@ public class SpatialArgs {
   private boolean calculateScore = true;
 
   // Useful for 'distance' calculations
-  private Double distance;
-  private Double radius;
+  private Double min;
+  private Double max;
 
   public SpatialArgs(SpatialOperation operation) {
     this.operation = operation;
@@ -85,19 +85,19 @@ public class SpatialArgs {
     this.calculateScore = calculateScore;
   }
 
-  public Double getDistance() {
-    return distance;
+  public Double getMin() {
+    return min;
   }
 
-  public void setDistance(Double distance) {
-    this.distance = distance;
+  public void setMin(Double min) {
+    this.min = min;
   }
 
-  public Double getRadius() {
-    return radius;
+  public Double getMax() {
+    return max;
   }
 
-  public void setRadius(Double radius) {
-    this.radius = radius;
+  public void setMax(Double max) {
+    this.max = max;
   }
 }

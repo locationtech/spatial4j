@@ -21,8 +21,7 @@ import java.util.Map;
 
 import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.prefix.PrefixGridQueryBuilder;
-import org.apache.lucene.spatial.search.prefix.PrefixGridSpatialIndexer;
+import org.apache.lucene.spatial.search.prefix.PrefixGridStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
@@ -36,7 +35,7 @@ import org.apache.solr.spatial.SpatialFieldType;
  * <p/>
  * (2) Something for the field reader....
  */
-public class SpatialPrefixGridFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,PrefixGridSpatialIndexer,PrefixGridQueryBuilder> {
+public class SpatialPrefixGridFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
@@ -51,8 +50,7 @@ public class SpatialPrefixGridFieldType extends SpatialFieldType<SimpleSpatialFi
     JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid(-180, 180, -90 - 180, 90, 16);
     grid.setResolution(5);
 
-    queryBuilder = new PrefixGridQueryBuilder(grid);
-    spatialIndexer = new PrefixGridSpatialIndexer(grid, maxLength);
+    spatialStrategy = new PrefixGridStrategy(grid, maxLength);
   }
 
   @Override

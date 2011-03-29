@@ -33,8 +33,8 @@ public interface ShapeIO {
    *   1.23 4.56 7.87 4.56
    *
    * (3) PointDistance
-   *   GeoCircle( x y distance=z )  
-   *   GeoCircle( x y d=z )  
+   *   GeoCircle( x y distance=z )
+   *   GeoCircle( x y d=z )
    *
    * (3) WKT
    *   POLYGON( ... )

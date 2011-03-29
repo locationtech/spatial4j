@@ -22,7 +22,7 @@ import org.apache.lucene.spatial.base.shape.ShapeIO;
 import com.vividsolutions.jts.index.SpatialIndex;
 import com.vividsolutions.jts.index.strtree.STRtree;
 
-public class STRTreeIndexProvider extends CachedIndexProvider {
+public class STRTreeIndexProvider extends CachedExternalIndexProvider {
 
   protected int nodeCapacity;
 

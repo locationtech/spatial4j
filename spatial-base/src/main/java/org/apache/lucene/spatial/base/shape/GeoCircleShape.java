@@ -28,7 +28,7 @@ public final class GeoCircleShape implements Shape {
   private final Point point;
   private final double distance;
   private final double radius;
-  
+
   private transient BBox enclosingBox1, enclosingBox2;//calculated & cached (2nd is usually null)
 
   public GeoCircleShape(Point p, double dist, double radius, ShapeIO shapeIO) {
@@ -37,7 +37,7 @@ public final class GeoCircleShape implements Shape {
     this.radius = radius;
     calcEnclosingBoxes(shapeIO);
   }
-  
+
   public Point getPoint() {
     return point;
   }

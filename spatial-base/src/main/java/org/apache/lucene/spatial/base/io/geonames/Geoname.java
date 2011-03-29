@@ -1,9 +1,9 @@
-package org.apache.solr.spatial.demo.utils.geonames;
+package org.apache.lucene.spatial.base.io.geonames;
 
 import java.sql.Date;
 
-public class Geoname
-{
+public class Geoname {
+
   public int id;
   public String name; // name of geographical point (utf8) varchar(200)
   public String nameASCII; // name of geographical point in plain ascii characters, varchar(200)
@@ -24,37 +24,34 @@ public class Geoname
   public String timezone;
   public Date modified;  // date of last modification in yyyy-MM-dd format
 
-  public static Geoname parse( String line )
-  {
-    String[] vals = line.split( "\t" );
-    Geoname g = new Geoname();
-    g.id = Integer.parseInt( vals[0] );
-    g.name = vals[1];
-    g.nameASCII = vals[2];
-    g.alternateNames = vals[3].split( "," );
-    g.latitude = Double.parseDouble( vals[4] );
-    g.longitude = Double.parseDouble( vals[5] );
-    g.featureClass = vals[6].length() > 0 ? vals[6].charAt(0) : 'S';
-    g.featureCode = vals[7];
-    g.countryCode = vals[8];
-    g.countryCode2 = vals[9].split( "," );
-    g.adminCode1 = vals[10];
-    g.adminCode2 = vals[11];
-    g.adminCode3 = vals[12];
-    g.adminCode4 = vals[13];
-    if( vals[14].length() > 0 ) {
-      g.population = Long.decode( vals[14] );
+  public Geoname(String line) {
+    String[] vals = line.split("\t");
+    id = Integer.parseInt(vals[0]);
+    name = vals[1];
+    nameASCII = vals[2];
+    alternateNames = vals[3].split(",");
+    latitude = Double.parseDouble(vals[4]);
+    longitude = Double.parseDouble(vals[5]);
+    featureClass = vals[6].length() > 0 ? vals[6].charAt(0) : 'S';
+    featureCode = vals[7];
+    countryCode = vals[8];
+    countryCode2 = vals[9].split(",");
+    adminCode1 = vals[10];
+    adminCode2 = vals[11];
+    adminCode3 = vals[12];
+    adminCode4 = vals[13];
+    if (vals[14].length() > 0) {
+      population = Long.decode(vals[14]);
     }
-    if( vals[15].length() > 0 ) {
-      g.elevation = Integer.decode( vals[15] );
+    if (vals[15].length() > 0) {
+      elevation = Integer.decode(vals[15]);
     }
-    if( vals[16].length() > 0 ) {
-      g.gtopo30 = Integer.decode( vals[16] );
+    if (vals[16].length() > 0) {
+      gtopo30 = Integer.decode(vals[16]);
     }
-    g.timezone = vals[17];
-    if( vals[18].length() > 0 ) {
-      g.modified = Date.valueOf( vals[18] );
+    timezone = vals[17];
+    if (vals[18].length() > 0) {
+      modified = Date.valueOf(vals[18]);
     }
-    return g;
   }
 }

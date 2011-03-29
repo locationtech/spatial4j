@@ -41,14 +41,14 @@ import com.vividsolutions.jts.index.SpatialIndex;
 /**
  * This uses a WeakHashMap to hold an in-memory index
  */
-public abstract class CachedIndexProvider implements SpatialIndexProvider {
-  static final Logger log = LoggerFactory.getLogger(CachedIndexProvider.class);
+public abstract class CachedExternalIndexProvider implements ExternalSpatialIndexProvider {
+  static final Logger log = LoggerFactory.getLogger(CachedExternalIndexProvider.class);
   WeakHashMap<IndexReader, SpatialIndex> sidx = new WeakHashMap<IndexReader, SpatialIndex>();
 
   protected final String shapeField;
   protected final ShapeIO shapeReader;
 
-  public CachedIndexProvider(String shapeField, ShapeIO reader) {
+  public CachedExternalIndexProvider(String shapeField, ShapeIO reader) {
     this.shapeField = shapeField;
     this.shapeReader = reader;
   }

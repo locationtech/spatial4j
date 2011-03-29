@@ -51,12 +51,12 @@ public class TestSpatialArgs {
     }
 
     // Check distance
-    arg = SpatialOperation.Distance + "(1 2) distance=2.3 radius=4.5";
+    arg = SpatialOperation.Distance + "(1 2) min=2.3 max=4.5";
     out = parser.parse(arg, reader);
     assertEquals(SpatialOperation.Distance, out.getOperation());
     assertTrue(out.getShape() instanceof Point);
-    assertEquals(2.3, out.getDistance(), 0D);
-    assertEquals(4.5, out.getRadius(), 0D);
+    assertEquals(2.3, out.getMin(), 0D);
+    assertEquals(4.5, out.getMax(), 0D);
   }
 
   @Test

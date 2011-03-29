@@ -21,8 +21,7 @@ package org.apache.solr.spatial.external;
 import java.util.Map;
 
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.external.IndexSpatialIndexer;
-import org.apache.lucene.spatial.search.external.SpatialIndexQueryBuilder;
+import org.apache.lucene.spatial.search.external.ExternalIndexStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
@@ -31,14 +30,13 @@ import org.apache.solr.spatial.SpatialFieldType;
 /**
  * Field loads an in memory SpatialIndex (RTree or QuadTree)
  */
-public class ExternalIndexFieldType extends SpatialFieldType<SimpleSpatialFieldInfo,IndexSpatialIndexer,SpatialIndexQueryBuilder> {
+public class ExternalIndexFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
 
-    queryBuilder = new SpatialIndexQueryBuilder(reader);
-    spatialIndexer = new IndexSpatialIndexer(reader);
+    spatialStrategy = new ExternalIndexStrategy(reader);
   }
 
   @Override

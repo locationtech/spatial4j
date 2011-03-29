@@ -35,7 +35,7 @@ public abstract class AbstractShapeIO implements ShapeIO {
     if (str.length() < 1) {
       throw new InvalidShapeException(str);
     }
-    
+
     if(Character.isLetter(str.charAt(0))) {
       if( str.startsWith( "GeoCircle(" ) ) {
         int idx = str.lastIndexOf( ')' );
@@ -45,7 +45,7 @@ public abstract class AbstractShapeIO implements ShapeIO {
           double x = Double.parseDouble(st.nextToken());
           double y = Double.parseDouble(st.nextToken());
           Double d = null;
-          
+
           String arg = st.nextToken();
           idx = arg.indexOf( '=' );
           if( idx > 0 ) {
@@ -62,7 +62,7 @@ public abstract class AbstractShapeIO implements ShapeIO {
           }
           if( st.hasMoreTokens() ) {
             throw new InvalidShapeException( "Extra arguments: "+st.nextToken()+" :: " +str );
-          }          
+          }
           if( d == null ) {
             throw new InvalidShapeException( "Missing Distance: "+str );
           }
