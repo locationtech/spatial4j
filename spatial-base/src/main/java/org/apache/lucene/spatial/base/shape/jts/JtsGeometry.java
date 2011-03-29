@@ -111,4 +111,19 @@ public class JtsGeometry implements Shape {
     assert matrix.isIntersects();
     return IntersectCase.INTERSECTS;
   }
+  
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    JtsGeometry that = (JtsGeometry) o;
+    return geo.equalsExact(that.geo);//fast equality for normalized geometries
+  }
+
+  @Override
+  public int hashCode() {
+    //FYI if geometry.equalsExact(that.geometry), then their envelopes are the same.
+    return geo.getEnvelopeInternal().hashCode();
+  }
 }
