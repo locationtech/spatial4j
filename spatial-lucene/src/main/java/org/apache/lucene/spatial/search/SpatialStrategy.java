@@ -14,7 +14,7 @@ public abstract class SpatialStrategy<T extends SpatialFieldInfo> {
   protected boolean ignoreIncompatibleGeometry = false;
 
   public boolean isPolyField() {
-    return false;
+    return false; 
   }
 
   public abstract Fieldable createField(T fieldInfo, Shape shape, boolean index, boolean store);
