@@ -34,12 +34,12 @@ import com.vividsolutions.jts.index.ItemVisitor;
 import com.vividsolutions.jts.index.SpatialIndex;
 
 
-public class SpatialIndexFilter extends Filter {
+public class ExternalSpatialIndexFilter extends Filter {
 
-  private final SpatialIndexProvider provider;
+  private final ExternalSpatialIndexProvider provider;
   private final Envelope bounds;
 
-  public SpatialIndexFilter(SpatialIndexProvider sidx, SpatialArgs args) {
+  public ExternalSpatialIndexFilter(ExternalSpatialIndexProvider sidx, SpatialArgs args) {
     this.provider = sidx;
     SpatialOperation op = args.getOperation();
 

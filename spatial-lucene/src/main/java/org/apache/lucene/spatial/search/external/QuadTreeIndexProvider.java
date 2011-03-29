@@ -22,7 +22,7 @@ import org.apache.lucene.spatial.base.shape.ShapeIO;
 import com.vividsolutions.jts.index.SpatialIndex;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 
-public class QuadTreeIndexProvider extends CachedIndexProvider {
+public class QuadTreeIndexProvider extends CachedExternalIndexProvider {
 
   public QuadTreeIndexProvider(String shapeField, ShapeIO reader) {
     super(shapeField, reader);

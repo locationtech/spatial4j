@@ -18,7 +18,7 @@ import org.apache.lucene.spatial.search.SpatialStrategy;
 
 public class ExternalIndexStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
-  private final Map<String, SpatialIndexProvider> provider = new ConcurrentHashMap<String, SpatialIndexProvider>();
+  private final Map<String, ExternalSpatialIndexProvider> provider = new ConcurrentHashMap<String, ExternalSpatialIndexProvider>();
   private final ShapeIO reader;
 
   public ExternalIndexStrategy(ShapeIO reader) {
@@ -48,14 +48,14 @@ public class ExternalIndexStrategy extends SpatialStrategy<SimpleSpatialFieldInf
     }
 
     String name = fieldInfo.getFieldName();
-    SpatialIndexProvider p = provider.get(name);
+    ExternalSpatialIndexProvider p = provider.get(name);
     if (p == null) {
       p = new STRTreeIndexProvider(30, name, reader);
       provider.put(name, p);
     }
 
     // just a filter wrapper for now...
-    SpatialIndexFilter filter = new SpatialIndexFilter(p, args);
+    ExternalSpatialIndexFilter filter = new ExternalSpatialIndexFilter(p, args);
     return new FilteredQuery(new MatchAllDocsQuery(), filter);
   }
 }
