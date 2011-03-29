@@ -32,6 +32,10 @@ public interface ShapeIO {
    * (2) BOX: XMin YMin XMax YMax
    *   1.23 4.56 7.87 4.56
    *
+   * (3) PointDistance
+   *   GeoCircle( x y distance=z )  
+   *   GeoCircle( x y d=z )  
+   *
    * (3) WKT
    *   POLYGON( ... )
    *   http://en.wikipedia.org/wiki/Well-known_text

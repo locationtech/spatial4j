@@ -25,9 +25,9 @@ import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
-import org.apache.lucene.spatial.base.shape.MultiShape;
+import org.apache.lucene.spatial.base.shape.Shapes;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.PointDistanceGeom;
+import org.apache.lucene.spatial.base.shape.GeoCircleShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.search.SpatialQueryBuilder;
@@ -54,21 +54,14 @@ public class GeohashQueryBuilder implements SpatialQueryBuilder<SimpleSpatialFie
     }
 
     Shape qshape = args.getShape();
-    if (Point.class.isInstance(args.getShape())) {
-      Double dist = args.getDistance();
-      Double radius = args.getRadius();
-      if( dist == null || radius == null ) {
-        throw new InvalidSpatialArgument( "geohash point query needs distance & radius arguments" );
-      }
-
-      Point p = (Point)args.getShape();
-      PointDistanceGeom pDistGeo = new PointDistanceGeom(p,dist,radius,gridReferenceSystem.shapeIO);
+    if (GeoCircleShape.class.isInstance(args.getShape())) {
+      GeoCircleShape pDistGeo = (GeoCircleShape)qshape;
 
       if (args.getOperation() == SpatialOperation.BBoxWithin) {
         qshape = pDistGeo.getEnclosingBox1();
         Shape shape2 = pDistGeo.getEnclosingBox2();
         if (shape2 != null)
-          qshape = new MultiShape(Arrays.asList(qshape,shape2),gridReferenceSystem.shapeIO);
+          qshape = new Shapes(Arrays.asList(qshape,shape2),gridReferenceSystem.shapeIO);
       }
     }
     return new ConstantScoreQuery(new GeoHashPrefixFilter(

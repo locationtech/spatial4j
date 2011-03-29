@@ -24,11 +24,11 @@ import org.apache.lucene.spatial.base.IntersectCase;
 /**
  * A collection of Shape objects.
  */
-public class MultiShape implements Shape {
+public class Shapes implements Shape {
   private final Collection<Shape> geoms;
   private final BBox bbox;
 
-  public MultiShape(Collection<Shape> geoms, ShapeIO shapeIO) {
+  public Shapes(Collection<Shape> geoms, ShapeIO shapeIO) {
     this.geoms = geoms;
     double minX = Double.MAX_VALUE;
     double minY = Double.MAX_VALUE;

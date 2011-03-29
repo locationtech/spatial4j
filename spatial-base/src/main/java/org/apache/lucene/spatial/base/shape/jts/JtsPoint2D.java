@@ -20,6 +20,7 @@ package org.apache.lucene.spatial.base.shape.jts;
 
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.GeoCircleShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import com.vividsolutions.jts.geom.Point;
@@ -59,6 +60,12 @@ public class JtsPoint2D implements org.apache.lucene.spatial.base.shape.Point {
       return IntersectCase.OUTSIDE;
     } else if(JtsGeometry.class.isInstance(other)) {
       if (((JtsGeometry)other).geo.contains(point)) {
+        return IntersectCase.WITHIN;
+      }
+      return IntersectCase.OUTSIDE;
+    }
+    else if(GeoCircleShape.class.isInstance(other)) {
+      if (((GeoCircleShape)other).contains(point.getX(),point.getY())) {
         return IntersectCase.WITHIN;
       }
       return IntersectCase.OUTSIDE;

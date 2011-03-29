@@ -31,37 +31,57 @@ public abstract class AbstractShapeIO implements ShapeIO {
     this.units = units;
   }
 
-
   public Shape readStandardShape(String str) {
     if (str.length() < 1) {
       throw new InvalidShapeException(str);
     }
-
-    if( Character.isDigit( str.charAt(0) ) ) {
-      StringTokenizer st = new StringTokenizer(str, " ");
-      double p0 = Double.parseDouble(st.nextToken());
-      double p1 = Double.parseDouble(st.nextToken());
-
-      if (st.hasMoreTokens()) {
-        double p2 = Double.parseDouble(st.nextToken());
-        double p3 = Double.parseDouble(st.nextToken());
-        return makeBBox(p0, p2, p1, p3);
+    
+    if(Character.isLetter(str.charAt(0))) {
+      if( str.startsWith( "GeoCircle(" ) ) {
+        int idx = str.lastIndexOf( ')' );
+        if( idx > 0 ) {
+          String body = str.substring( "GeoCircle(".length(), idx );
+          StringTokenizer st = new StringTokenizer(body, " ");
+          double x = Double.parseDouble(st.nextToken());
+          double y = Double.parseDouble(st.nextToken());
+          Double d = null;
+          
+          String arg = st.nextToken();
+          idx = arg.indexOf( '=' );
+          if( idx > 0 ) {
+            String k = arg.substring( 0,idx );
+            if( k.equals( "d" ) || k.equals( "distance" ) ) {
+              d = Double.parseDouble( arg.substring(idx+1));
+            }
+            else {
+              throw new InvalidShapeException( "unknown arg: "+k+" :: " +str );
+            }
+          }
+          else {
+            d = Double.parseDouble(arg);
+          }
+          if( st.hasMoreTokens() ) {
+            throw new InvalidShapeException( "Extra arguments: "+st.nextToken()+" :: " +str );
+          }          
+          if( d == null ) {
+            throw new InvalidShapeException( "Missing Distance: "+str );
+          }
+          Point p = makePoint( x, y );
+          return new GeoCircleShape( p, d, units.earthRadius(), this );
+        }
       }
-      return makePoint(p0, p1);
+      return null;
     }
-    if( str.startsWith( "DIST(" ) ) {
-      int idx = str.lastIndexOf( ')' );
-      if( idx > 0 ) {
-        String body = str.substring( "DIST(".length(), idx );
-        StringTokenizer st = new StringTokenizer(body, " ");
-        double x = Double.parseDouble(st.nextToken());
-        double y = Double.parseDouble(st.nextToken());
-        double d = Double.parseDouble(st.nextToken());
 
-        Point p = makePoint( x, y );
-        return new PointDistanceGeom( p, d, units.earthRadius(), this );
-      }
+    StringTokenizer st = new StringTokenizer(str, " ");
+    double p0 = Double.parseDouble(st.nextToken());
+    double p1 = Double.parseDouble(st.nextToken());
+
+    if (st.hasMoreTokens()) {
+      double p2 = Double.parseDouble(st.nextToken());
+      double p3 = Double.parseDouble(st.nextToken());
+      return makeBBox(p0, p2, p1, p3);
     }
-    return null;
+    return makePoint(p0, p1);
   }
 }

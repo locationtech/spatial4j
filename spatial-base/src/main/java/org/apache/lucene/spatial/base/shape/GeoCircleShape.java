@@ -24,17 +24,30 @@ import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 /**
  * An ellipse-like geometry based on the haversine formula with a supplied earth radius.
  */
-public final class PointDistanceGeom implements Shape {
+public final class GeoCircleShape implements Shape {
   private final Point point;
   private final double distance;
   private final double radius;
+  
   private transient BBox enclosingBox1, enclosingBox2;//calculated & cached (2nd is usually null)
 
-  public PointDistanceGeom(Point p, double dist, double radius, ShapeIO shapeIO) {
+  public GeoCircleShape(Point p, double dist, double radius, ShapeIO shapeIO) {
     this.point = p;
     this.distance = dist;
     this.radius = radius;
     calcEnclosingBoxes(shapeIO);
+  }
+  
+  public Point getPoint() {
+    return point;
+  }
+
+  public double getDistance() {
+    return distance;
+  }
+
+  public double getRadius() {
+    return radius;
   }
 
   private void calcEnclosingBoxes(ShapeIO shapeIO) {
@@ -99,6 +112,7 @@ public final class PointDistanceGeom implements Shape {
     if (enclosingBox2 == null)
       return enclosingBox1;
 
+    //??? should never get here right?
     //wrap longitude around the world (note: both boxes have same latitudes)
     return new Rectangle(-180,180,enclosingBox1.getMinY(),enclosingBox1.getMaxY());
   }
@@ -132,7 +146,7 @@ public final class PointDistanceGeom implements Shape {
 
   @Override
   public String toString() {
-    return "PointDistanceShape{" + point + ", distance=" + distance + '}';
+    return "GeoCircleShape{" + point + ", distance=" + distance + '}';
   }
 
   @Override
@@ -140,7 +154,7 @@ public final class PointDistanceGeom implements Shape {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    PointDistanceGeom that = (PointDistanceGeom) o;
+    GeoCircleShape that = (GeoCircleShape) o;
 
     if (Double.compare(that.distance, distance) != 0) return false;
     if (Double.compare(that.radius, radius) != 0) return false;

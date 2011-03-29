@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
@@ -58,32 +57,20 @@ public class JtsShapeIO extends AbstractShapeIO {
   }
 
   public Shape readShape(String str) throws InvalidShapeException {
-    if (str.length() < 1) {
-      throw new InvalidShapeException(str);
-    }
-
-    if (!Character.isLetter(str.charAt(0))) {
-      StringTokenizer st = new StringTokenizer(str, " ");
-      double p0 = Double.parseDouble(st.nextToken());
-      double p1 = Double.parseDouble(st.nextToken());
-      if (st.hasMoreTokens()) {
-        double p2 = Double.parseDouble(st.nextToken());
-        double p3 = Double.parseDouble(st.nextToken());
-        return new JtsEnvelope(new Envelope(p0, p2, p1, p3));
+    Shape shape = super.readStandardShape(str);
+    if( shape == null ) {
+      try {
+        WKTReader reader = new WKTReader(factory);
+        Geometry geo = reader.read(str);
+        if (geo instanceof com.vividsolutions.jts.geom.Point) {
+          return new JtsPoint2D((com.vividsolutions.jts.geom.Point)geo);
+        }
+        return new JtsGeometry(geo);
+      } catch(com.vividsolutions.jts.io.ParseException ex) {
+        throw new InvalidShapeException("error reading WKT", ex);
       }
-      return new JtsPoint2D(factory.createPoint(new Coordinate(p0, p1)));
     }
-
-    WKTReader reader = new WKTReader(factory);
-    try {
-      Geometry geo = reader.read(str);
-      if (geo instanceof com.vividsolutions.jts.geom.Point) {
-        return new JtsPoint2D((com.vividsolutions.jts.geom.Point)geo);
-      }
-      return new JtsGeometry(geo);
-    } catch(com.vividsolutions.jts.io.ParseException ex) {
-      throw new InvalidShapeException("error reading WKT", ex);
-    }
+    return shape;
   }
 
   @Override
