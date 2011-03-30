@@ -18,97 +18,96 @@
 package org.apache.lucene.spatial.strategy;
 
 
+import junit.framework.Assert;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Index;
+import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.spatial.base.io.sample.SampleData;
+import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
+import org.apache.lucene.spatial.base.query.SpatialArgsParser;
+import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.spatial.base.io.sample.SampleData;
-import org.apache.lucene.spatial.base.query.SpatialArgs;
-import org.apache.lucene.spatial.base.query.SpatialArgsParser;
-import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.junit.Before;
-
 
 public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends SpatialTestCase {
 
   protected final SpatialArgsParser argsParser = new SpatialArgsParser();
-  protected ShapeIO shapeIO;
-  protected SpatialStrategy<T> strategy;
-  protected T fieldInfo;
 
-  /**
-   * This needs to initialize the shapeIO,strategy and fieldInfo
-   */
-  protected abstract void initStrategy();
-
-  protected abstract Iterator<SampleData> getTestData() throws IOException;
-
-
-  @Override
-  @Before
-  public void setUp() throws Exception {
-    initStrategy();
-    super.setUp();
+  protected void executeQueries(
+      String testDataFile,
+      String testQueryFile,
+      ShapeIO shapeIO,
+      SpatialStrategy<T> strategy,
+      T fieldInfo) throws IOException {
+    List<Document> testDocuments = getDocuments(testDataFile, shapeIO, strategy, fieldInfo);
+    addDocuments(testDocuments);
+    verifyDocumentsIndexed(testDocuments.size());
+    Iterator<SpatialTestQuery> testQueryIterator = getTestQueries(testQueryFile, shapeIO);
+    runTestQueries(testQueryIterator, shapeIO, strategy, fieldInfo);
   }
 
-  @Override
-  protected List<Document> getDocuments() throws IOException {
-    ArrayList<Document> docs = new ArrayList<Document>();
-    Iterator<SampleData> iter = getTestData();
-    while( iter.hasNext() ) {
-      SampleData data = iter.next();
-      Document doc = new Document();
-      doc.add( new Field( "id", data.id, Store.YES, Index.ANALYZED ) );
-      doc.add( new Field( "name", data.name, Store.YES, Index.ANALYZED ) );
-      Shape shape = shapeIO.readShape( data.shape );
-      for( Fieldable f : strategy.createFields(fieldInfo, shape, true, true) ) {
-        if( f != null ) {
-          doc.add( f );
-        }
+  protected List<Document> getDocuments(String testDataFile, ShapeIO shapeIO, SpatialStrategy<T> strategy, T fieldInfo) throws IOException {
+    Iterator<SampleData> sampleData = getSampleData(testDataFile);
+    List<Document> documents = new ArrayList<Document>();
+    while (sampleData.hasNext()) {
+      SampleData data = sampleData.next();
+      Document document = new Document();
+      document.add(new Field("id", data.id, Store.YES, Index.ANALYZED));
+      document.add(new Field("name", data.name, Store.YES, Index.ANALYZED));
+      Shape shape = shapeIO.readShape(data.shape);
+      for (Fieldable f : strategy.createFields(fieldInfo, shape, true, true)) {
+        // if (f != null) { (REVIEW) (cmale) No Strategy should return null 
+          document.add(f);
+        //}
       }
-      docs.add( doc );
+      documents.add(document);
     }
-    return docs;
+    return documents;
   }
 
-  protected SearchResults execute( SpatialArgs args, int numDocs ) {
-    return executeQuery(strategy.makeQuery(args, fieldInfo ), numDocs );
+  protected Iterator<SampleData> getSampleData(String testDataFile) throws IOException {
+    return new SampleDataReader(new File(getClass().getClassLoader().getResource(testDataFile).getFile()));
   }
 
-  public void runTestQueries( Iterator<SpatialTestQuery> queries ) {
-    while( queries.hasNext() ) {
+  protected Iterator<SpatialTestQuery> getTestQueries(String testQueryFile, ShapeIO shapeIO) throws IOException {
+    return SpatialTestQuery.getTestQueries(
+        argsParser,
+        shapeIO,
+        new File(getClass().getClassLoader().getResource(testQueryFile).getFile()));
+  }
+
+  public void runTestQueries(Iterator<SpatialTestQuery> queries, ShapeIO shapeIO, SpatialStrategy<T> strategy, T fieldInfo) {
+    while (queries.hasNext()) {
       SpatialTestQuery q = queries.next();
 
-      String msg = "Query: "+q.args.toString(shapeIO);
-      SearchResults got = execute(q.args, 100 );
-      if( q.orderIsImportant ) {
+      String msg = "Query: " + q.args.toString(shapeIO);
+      SearchResults got = executeQuery(strategy.makeQuery(q.args, fieldInfo), 100);
+      if (q.orderIsImportant) {
         Iterator<String> ids = q.ids.iterator();
-        for( SearchResult r : got.results ) {
-          String id = r.document.get( "id" );
-          Assert.assertEquals(msg, ids.next(), id );
+        for (SearchResult r : got.results) {
+          String id = r.document.get("id");
+          Assert.assertEquals(msg, ids.next(), id);
         }
-        if( ids.hasNext() ) {
-          Assert.fail( msg + " :: expect more results then we got: "+ids.next() );
+        if (ids.hasNext()) {
+          Assert.fail(msg + " :: expect more results then we got: " + ids.next());
         }
-      }
-      else {
-        Collections.sort( q.ids );
+      } else {
+        Collections.sort(q.ids);
         List<String> found = new ArrayList<String>();
-        for( SearchResult r : got.results ) {
-          found.add( r.document.get( "id" ) );
+        for (SearchResult r : got.results) {
+          found.add(r.document.get("id"));
         }
-        Collections.sort( found );
-        Assert.assertEquals(msg, q.ids.toString(), found.toString() );
+        Collections.sort(found);
+        Assert.assertEquals(msg, q.ids.toString(), found.toString());
       }
     }
   }

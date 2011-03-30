@@ -8,6 +8,9 @@ import com.vividsolutions.jts.geom.Envelope;
 
 public class JtsLinearPrefixGrid extends LinearPrefixGrid {
 
+  public JtsLinearPrefixGrid() {
+  }
+
   public JtsLinearPrefixGrid(double xmin, double xmax, double ymin, double ymax, int maxLevels) {
     super(xmin, xmax, ymin, ymax, maxLevels);
   }

@@ -26,19 +26,20 @@ public class SpatialTestQuery {
    */
   public static Iterator<SpatialTestQuery> getTestQueries(
       final SpatialArgsParser parser,
-      final ShapeIO reader, File file ) throws IOException {
-    return new LineReader<SpatialTestQuery>( file ) {
+      final ShapeIO reader,
+      File file) throws IOException {
+    return new LineReader<SpatialTestQuery>(file) {
 
       @Override
       public SpatialTestQuery parseLine(String line) {
         SpatialTestQuery test = new SpatialTestQuery();
         test.testId = getLineNumber();
-        int idx = line.indexOf( '@' );
-        StringTokenizer st = new StringTokenizer( line.substring(0,idx) );
-        while( st.hasMoreTokens() ) {
-          test.ids.add( st.nextToken().trim() );
+        int idx = line.indexOf('@');
+        StringTokenizer st = new StringTokenizer(line.substring(0, idx));
+        while (st.hasMoreTokens()) {
+          test.ids.add(st.nextToken().trim());
         }
-        test.args = parser.parse(line.substring(idx+1).trim(), reader);
+        test.args = parser.parse(line.substring(idx + 1).trim(), reader);
         return test;
       }
     };

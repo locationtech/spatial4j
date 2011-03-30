@@ -24,6 +24,7 @@ import org.junit.Before;
 public abstract class SpatialTestCase extends LuceneTestCase {
 
   private IndexReader indexReader;
+  private IndexWriter indexWriter;
   private Directory directory;
   private IndexSearcher indexSearcher;
 
@@ -35,16 +36,7 @@ public abstract class SpatialTestCase extends LuceneTestCase {
     directory = newDirectory(random);
 
     IndexWriterConfig writerConfig = newIndexWriterConfig(random, TEST_VERSION_CURRENT, new WhitespaceAnalyzer(TEST_VERSION_CURRENT));
-    IndexWriter indexWriter = new IndexWriter(directory, writerConfig);
-
-    for (Document document : getDocuments()) {
-      indexWriter.addDocument(document);
-    }
-    indexWriter.commit();
-    indexWriter.close();
-
-    indexReader = IndexReader.open(directory);
-    indexSearcher = newSearcher(indexReader);
+    indexWriter = new IndexWriter(directory, writerConfig);
   }
 
   @Override
@@ -64,7 +56,22 @@ public abstract class SpatialTestCase extends LuceneTestCase {
 
   // ================================================= Helper Methods ================================================
 
-  protected abstract List<Document> getDocuments() throws IOException;
+  protected void addDocuments(List<Document> documents) throws IOException {
+    for (Document document : documents) {
+      indexWriter.addDocument(document);
+    }
+    indexWriter.commit();
+    if (indexReader == null) {
+      indexReader = IndexReader.open(directory);
+    } else {
+      indexReader = indexReader.reopen();
+    }
+    indexSearcher = newSearcher(indexReader);
+  }
+
+  protected void verifyDocumentsIndexed(int numDocs) {
+    assertEquals(numDocs, indexReader.numDocs());
+  }
 
   protected SearchResults executeQuery(Query query, int numDocs) {
     try {
