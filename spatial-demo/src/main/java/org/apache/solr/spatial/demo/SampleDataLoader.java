@@ -115,7 +115,7 @@ public class SampleDataLoader
 
     // Geonames
     file = new File( "../data/geonames/US.txt" );
-    if( false && file.exists() ) {
+    if( file.exists() ) {
       GeonamesReader reader = new GeonamesReader( file );
       while( reader.hasNext() ) {
         Geoname name = reader.next();
