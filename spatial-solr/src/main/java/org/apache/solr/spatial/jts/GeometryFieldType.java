@@ -19,6 +19,7 @@ package org.apache.solr.spatial.jts;
 
 import java.util.Map;
 
+import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.jts.JtsGeoStrategy;
@@ -39,7 +40,7 @@ public class GeometryFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> 
     super.init(schema, args);
 
     GeometryFactory factory = new GeometryFactory();
-    reader = new JtsShapeIO(factory);
+    reader = new JtsShapeIO(factory,DistanceUnits.KILOMETERS);
     spatialStrategy = new JtsGeoStrategy(factory);
     spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
