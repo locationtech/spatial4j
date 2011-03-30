@@ -56,7 +56,7 @@ public abstract class SpatialTestCase extends LuceneTestCase {
 
   // ================================================= Helper Methods ================================================
 
-  protected abstract List<Document> getDocuments();
+  protected abstract List<Document> getDocuments() throws IOException;
 
   protected SearchResults executeQuery(Query query, int numDocs) {
     try {
