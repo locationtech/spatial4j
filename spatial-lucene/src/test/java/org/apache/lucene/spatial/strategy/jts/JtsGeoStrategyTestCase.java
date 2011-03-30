@@ -18,9 +18,11 @@
 package org.apache.lucene.spatial.strategy.jts;
 
 
+import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
+import org.apache.lucene.spatial.strategy.external.ExternalIndexStrategy;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -30,12 +32,11 @@ public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldI
 
   @Test
   public void testSpatialSearch() throws IOException {
-    JtsShapeIO jtsShapeIO = new JtsShapeIO();
-    executeQueries(
-        "us-states.txt",
-        "test-us-IsWithin-BBox.txt",
-        jtsShapeIO,
-        new JtsGeoStrategy(jtsShapeIO.factory),
-        new SimpleSpatialFieldInfo( "geo" ));
+    JtsShapeIO shapeIO = new JtsShapeIO();
+    executeQueries( 
+        new JtsGeoStrategy(shapeIO.factory),
+        shapeIO, new SimpleSpatialFieldInfo( "geo" ),
+        DATA_US_STATES,
+        QTEST_US_Intersects_BBox );
   }
 }

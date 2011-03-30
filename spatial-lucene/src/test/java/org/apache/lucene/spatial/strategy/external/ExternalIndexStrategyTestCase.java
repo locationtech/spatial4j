@@ -22,6 +22,7 @@ import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
+import org.apache.lucene.spatial.strategy.bbox.BBoxFieldInfo;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -31,12 +32,19 @@ public class ExternalIndexStrategyTestCase extends StrategyTestCase<SimpleSpatia
 
   @Test
   public void testSpatialSearch() throws IOException {
+//    ShapeIO shapeIO = new JtsShapeIO();
+//    executeQueries(
+//        "us-states.txt",
+//        "test-us-Intersects-BBox.txt",
+//        shapeIO,
+//        ,
+//        new ( "geo" ));
+    
     ShapeIO shapeIO = new JtsShapeIO();
-    executeQueries(
-        "us-states.txt",
-        "test-us-Intersects-BBox.txt",
-        shapeIO,
+    executeQueries( 
         new ExternalIndexStrategy(shapeIO),
-        new SimpleSpatialFieldInfo( "geo" ));
+        shapeIO, new SimpleSpatialFieldInfo( "geo" ),
+        DATA_US_STATES,
+        QTEST_US_Intersects_BBox );
   }
 }

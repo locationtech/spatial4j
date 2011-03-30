@@ -40,19 +40,28 @@ import java.util.List;
 
 public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends SpatialTestCase {
 
+  public static final String DATA_US_STATES = "us-states.txt"; // needs JTS
+  
+  public static final String QTEST_US_IsWithin_BBox   = "test-us-IsWithin-BBox.txt";
+  public static final String QTEST_US_Intersects_BBox = "test-us-Intersects-BBox.txt";
+  
+  
   protected final SpatialArgsParser argsParser = new SpatialArgsParser();
 
   protected void executeQueries(
-      String testDataFile,
-      String testQueryFile,
-      ShapeIO shapeIO,
       SpatialStrategy<T> strategy,
-      T fieldInfo) throws IOException {
+      ShapeIO shapeIO,
+      T fieldInfo,
+      String testDataFile,
+      String ... testQueryFile ) throws IOException {
     List<Document> testDocuments = getDocuments(testDataFile, shapeIO, strategy, fieldInfo);
     addDocuments(testDocuments);
     verifyDocumentsIndexed(testDocuments.size());
-    Iterator<SpatialTestQuery> testQueryIterator = getTestQueries(testQueryFile, shapeIO);
-    runTestQueries(testQueryIterator, shapeIO, strategy, fieldInfo);
+    
+    for( String path : testQueryFile ) {
+      Iterator<SpatialTestQuery> testQueryIterator = getTestQueries(path, shapeIO);
+      runTestQueries(testQueryIterator, shapeIO, strategy, fieldInfo);
+    }
   }
 
   protected List<Document> getDocuments(String testDataFile, ShapeIO shapeIO, SpatialStrategy<T> strategy, T fieldInfo) throws IOException {
@@ -73,14 +82,18 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
   }
 
   protected Iterator<SampleData> getSampleData(String testDataFile) throws IOException {
-    return new SampleDataReader(new File(getClass().getClassLoader().getResource(testDataFile).getFile()));
+    //File file = new File(getClass().getClassLoader().getResource(testDataFile).getFile());
+    // ugg maven class loading still not working for me (ryan)
+    File file = new File( "../spatial-data/src/main/resources/"+testDataFile );
+    return new SampleDataReader(file);
   }
 
   protected Iterator<SpatialTestQuery> getTestQueries(String testQueryFile, ShapeIO shapeIO) throws IOException {
+    // ugg maven class loading still not working for me (ryan)
+//    new File(getClass().getClassLoader().getResource(testQueryFile).getFile()
+    File file = new File( "src/test/resources/"+testQueryFile );
     return SpatialTestQuery.getTestQueries(
-        argsParser,
-        shapeIO,
-        new File(getClass().getClassLoader().getResource(testQueryFile).getFile()));
+        argsParser, shapeIO, file);
   }
 
   public void runTestQueries(Iterator<SpatialTestQuery> queries, ShapeIO shapeIO, SpatialStrategy<T> strategy, T fieldInfo) {

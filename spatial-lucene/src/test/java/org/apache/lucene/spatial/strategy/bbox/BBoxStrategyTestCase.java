@@ -16,6 +16,9 @@ public class BBoxStrategyTestCase extends StrategyTestCase<BBoxFieldInfo> {
     s.trieInfo = new TrieFieldHelper.FieldInfo();
     s.parser = FieldCache.NUMERIC_UTILS_DOUBLE_PARSER;
     
-    executeQueries("us-states.txt", "test-us-IsWithin-BBox.txt", new JtsShapeIO(), s, new BBoxFieldInfo( "bbox" ));
+    executeQueries( s, new JtsShapeIO(), new BBoxFieldInfo( "bbox" ),
+        DATA_US_STATES,
+        QTEST_US_IsWithin_BBox,
+        QTEST_US_Intersects_BBox );
   }
 }
