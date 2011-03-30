@@ -11,7 +11,7 @@ public class Query implements Serializable
 {
   public String fq;
 
-  public String field = "geohash";
+  public String field = "geo";
   public SpatialOperation op = SpatialOperation.IsWithin;
   public String geo;
 

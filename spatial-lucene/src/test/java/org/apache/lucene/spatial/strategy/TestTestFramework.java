@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.BBox;
@@ -46,7 +45,7 @@ public class TestTestFramework {
     File file =  new File( "src/test/resources/"+name );
 
     Iterator<SpatialTestQuery> iter = SpatialTestQuery.getTestQueries(
-        new SpatialArgsParser(), new JtsShapeIO(DistanceUnits.KILOMETERS), file );
+        new SpatialArgsParser(), new JtsShapeIO(), file );
     List<SpatialTestQuery> tests = new ArrayList<SpatialTestQuery>();
     while( iter.hasNext() ) {
       tests.add( iter.next() );

@@ -50,7 +50,7 @@ public class Point2D implements Point {
   @Override
   public IntersectCase intersect(Shape shape, Object context) {
     if(!BBox.class.isInstance(shape)) {
-      throw new IllegalArgumentException("Point can only be compared to BBox: "+shape );
+      throw new IllegalArgumentException("Point can only be compared with another Extent");
     }
 
     BBox ext = shape.getBoundingBox();

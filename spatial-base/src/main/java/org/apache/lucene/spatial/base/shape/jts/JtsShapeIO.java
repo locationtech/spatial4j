@@ -28,6 +28,7 @@ import org.apache.lucene.spatial.base.shape.AbstractShapeIO;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -49,7 +50,7 @@ public class JtsShapeIO extends AbstractShapeIO {
   public JtsShapeIO() {
     this( new GeometryFactory(), DistanceUnits.KILOMETERS );
   }
-  
+
   public JtsShapeIO( DistanceUnits units ) {
     this( new GeometryFactory(), units );
   }
@@ -78,7 +79,6 @@ public class JtsShapeIO extends AbstractShapeIO {
     return shape;
   }
 
-  @Override
   public byte[] toBytes(Shape shape) throws IOException {
     if (Point.class.isInstance(shape)) {
       ByteBuffer bytes = ByteBuffer.wrap(new byte[1 + (2 * 8)]);
@@ -112,7 +112,6 @@ public class JtsShapeIO extends AbstractShapeIO {
     throw new IllegalArgumentException("unsuported shape:" + shape);
   }
 
-  @Override
   public Shape readShape(final byte[] array, final int offset, final int length) throws InvalidShapeException {
     ByteBuffer bytes = ByteBuffer.wrap(array, offset, length);
     byte type = bytes.get();
@@ -174,7 +173,6 @@ public class JtsShapeIO extends AbstractShapeIO {
     }
     return shape.toString();
   }
-
 
   public Geometry getGeometryFrom(Shape shape) {
     if (JtsGeometry.class.isInstance(shape)) {

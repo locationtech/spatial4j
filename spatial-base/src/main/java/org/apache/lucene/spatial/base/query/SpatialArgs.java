@@ -17,7 +17,6 @@
 
 package org.apache.lucene.spatial.base.query;
 
-import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
@@ -76,7 +75,7 @@ public class SpatialArgs {
   @Override
   public String toString()
   {
-    return toString( new SimpleShapeIO(DistanceUnits.KILOMETERS) );
+    return toString( new SimpleShapeIO() );
   }
 
   //------------------------------------------------

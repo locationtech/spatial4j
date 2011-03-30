@@ -17,25 +17,22 @@
 
 package org.apache.lucene.spatial.base.shape.simple;
 
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
+import org.apache.lucene.spatial.base.shape.AbstractShapeIO;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.AbstractShapeIO;
-
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class SimpleShapeIO extends AbstractShapeIO {
 
   public SimpleShapeIO(DistanceUnits units) {
     super(units);
   }
-  
+
   public SimpleShapeIO() {
     super( DistanceUnits.KILOMETERS );
   }
@@ -48,19 +45,6 @@ public class SimpleShapeIO extends AbstractShapeIO {
     return s;
   }
 
-  public String writeBBox(BBox bbox) {
-    NumberFormat nf = NumberFormat.getInstance(Locale.US);
-    nf.setGroupingUsed(false);
-    nf.setMaximumFractionDigits(6);
-    nf.setMinimumFractionDigits(6);
-
-    return
-      nf.format(bbox.getMinX()) + " " +
-      nf.format(bbox.getMinY()) + " " +
-      nf.format(bbox.getMaxX()) + " " +
-      nf.format(bbox.getMaxY());
-  }
-
   @Override
   public String toString(Shape shape) {
     if (Point.class.isInstance(shape)) {
@@ -71,20 +55,9 @@ public class SimpleShapeIO extends AbstractShapeIO {
       Point point = (Point) shape;
       return nf.format(point.getX()) + " " + nf.format(point.getY());
     } else if (BBox.class.isInstance(shape)) {
-      writeBBox((BBox) shape);
+      return writeBBox((BBox) shape);
     }
     return shape.toString();
-  }
-
-  @Override
-  public Shape readShape(byte[] bytes, int offset, int length)
-      throws InvalidShapeException {
-    throw new UnsupportedOperationException("not implemented yet");
-  }
-
-  @Override
-  public byte[] toBytes(Shape shape) throws IOException {
-    throw new UnsupportedOperationException("not implemented yet");
   }
 
   @Override

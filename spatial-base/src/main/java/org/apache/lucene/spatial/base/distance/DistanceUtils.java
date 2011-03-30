@@ -40,7 +40,7 @@ public class DistanceUtils {
 
   public static final double KM_TO_MILES = 0.621371192;
   public static final double MILES_TO_KM = 1.609344;
-    
+
   /**
    * The International Union of Geodesy and Geophysics says the Earth's mean radius in KM is:
    *

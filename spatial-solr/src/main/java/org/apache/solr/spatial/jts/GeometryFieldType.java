@@ -40,7 +40,7 @@ public class GeometryFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> 
     super.init(schema, args);
 
     GeometryFactory factory = new GeometryFactory();
-    reader = new JtsShapeIO(factory, DistanceUnits.KILOMETERS);
+    reader = new JtsShapeIO(factory,DistanceUnits.KILOMETERS);
     spatialStrategy = new JtsGeoStrategy(factory);
     spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }

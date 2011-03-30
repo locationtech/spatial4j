@@ -23,12 +23,12 @@ import java.util.Map;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.ShapeIOProvider;
+import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.solr.common.SolrException;
@@ -64,19 +64,12 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
-
-    DistanceUnits units = DistanceUnits.KILOMETERS;
-    String v = args.remove( "units" );
-    if( v != null ) {
-      units = DistanceUnits.findDistanceUnit(v);
-    }
-    // TODO, configure geometry factory...
-
-    reader = ShapeIOProvider.getShapeIO();
-    v = args.remove( "ignoreIncompatibleGeometry" );
+    String v = args.remove( "ignoreIncompatibleGeometry" );
     if( v != null ) {
       ignoreIncompatibleGeometry = Boolean.valueOf( v );
     }
+
+    reader = ShapeIOProvider.getShapeIO();
     argsParser = new SpatialArgsParser();
   }
 
@@ -135,14 +128,13 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   @Override
   public void write(TextResponseWriter writer, String name, Fieldable f) throws IOException {
-    if( f.isBinary() ) {
+    if( f.isBinary() &&  reader instanceof JtsShapeIO ) {
+      JtsShapeIO jts = (JtsShapeIO)reader;
       byte[] bytes = f.getBinaryValue();
-      Shape s = reader.readShape( bytes, 0, bytes.length );
-      writer.writeStr(name, reader.toString(s), true);
+      Shape s = jts.readShape( bytes, 0, bytes.length );
+      writer.writeStr(name, jts.toString(s), true);
     }
-    else {
-      writer.writeStr(name, f.stringValue(), true);
-    }
+    writer.writeStr(name, f.stringValue(), true);
   }
 
   @Override

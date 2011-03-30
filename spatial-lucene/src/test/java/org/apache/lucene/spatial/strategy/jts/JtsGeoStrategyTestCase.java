@@ -21,7 +21,6 @@ package org.apache.lucene.spatial.strategy.jts;
 import java.io.IOException;
 
 import org.apache.lucene.index.codecs.CodecProvider;
-import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
@@ -39,7 +38,7 @@ public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldI
 
   @Test
   public void testJtsGeoStrategy() throws IOException {
-    JtsShapeIO shapeIO = new JtsShapeIO(DistanceUnits.KILOMETERS);
+    JtsShapeIO shapeIO = new JtsShapeIO();
     JtsGeoStrategy strategy = new JtsGeoStrategy(shapeIO.factory);
     SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo( "geo" );
 

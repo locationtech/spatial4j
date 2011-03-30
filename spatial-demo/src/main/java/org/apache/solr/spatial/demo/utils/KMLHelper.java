@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.BBox;
@@ -149,7 +148,7 @@ public class KMLHelper
 //    shape = new JTSIndexible( "POINT(6 8)" ); // very small display!
 //    shape = new JTSIndexible( "POINT(3.5 5.6)" );
 
-    ShapeIO reader = new JtsShapeIO( DistanceUnits.KILOMETERS );
+    ShapeIO reader = new JtsShapeIO();
     GeometricShapeFactory gsf = new GeometricShapeFactory();
     gsf.setCentre( new com.vividsolutions.jts.geom.Coordinate( 4,2 ) );
     gsf.setSize( 4 );

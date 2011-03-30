@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
-import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.ShapeIOProvider;
@@ -50,7 +49,7 @@ public class SampleDataWriter {
   }
 
   public SampleDataWriter(File f, int maxLength ) throws IOException {
-    this( f, new JtsShapeIO(DistanceUnits.KILOMETERS), false, maxLength );
+    this( f, new JtsShapeIO(), false, maxLength );
   }
 
 
