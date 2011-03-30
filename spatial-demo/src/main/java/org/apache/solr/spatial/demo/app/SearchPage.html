@@ -43,12 +43,13 @@
       featureLayer.addFeatures( [feature] );
       
       var box = feature.geometry.bounds;
-      var www = box.getWidth();
-      var sss = box.getSize();
+      
       var ccc = box.getCenterLonLat();
+      var ppp = new OpenLayers.Geometry.Point( ccc.lon, ccc.lat );
+      var dist = ppp.distanceTo( feature.geometry );
       
       //do something with polygon
-      $('#geo').val( "RADIUS("+ccc.lon+" "+ccc.lat+" "+(www/2.0)+")" );
+      $('#geo').val( "GeoCircle("+ccc.lon+" "+ccc.lat+" d="+dist+")" );
     };
 
     function init(){
@@ -70,13 +71,13 @@
               OpenLayers.Handler.Path, {'featureAdded': addedWKT} ),
             bbox: new OpenLayers.Control.DrawFeature(featureLayer,
                 OpenLayers.Handler.RegularPolygon, {'featureAdded': addedBBox} ),
-//            circle: new OpenLayers.Control.DrawFeature(featureLayer,
-//              OpenLayers.Handler.RegularPolygon, {'featureAdded': addedCircle} ),
+            circle: new OpenLayers.Control.DrawFeature(featureLayer,
+              OpenLayers.Handler.RegularPolygon, {'featureAdded': addedCircle} ),
             polygon: new OpenLayers.Control.DrawFeature(featureLayer,
               OpenLayers.Handler.Polygon, {'featureAdded': addedWKT} )
         };
         drawControls['bbox'].handler.setOptions({sides: 4, irregular:true});
-      //  drawControls['circle'].handler.setOptions({sides: 40});
+        drawControls['circle'].handler.setOptions({sides: 40});
 
         for(var key in drawControls) {
             map.addControl(drawControls[key]);
@@ -145,7 +146,7 @@
             <option value="audi">...</option>
           </select>
         </td>
-        <td><input id="geo" type="text" style="width:330px;" wicket:id="geo"/></td>
+        <td><input id="geo" type="text" style="width:350px;" wicket:id="geo"/></td>
         
         <td><input wicket:id="submit" type="submit" value="search"/></td>
       </tr>
@@ -155,7 +156,7 @@
 
       <table>
       <tr valign="top">
-      <td><div id="map" style="width:512px; height:320px; border:1px solid #CCC;"></div></td>
+      <td><div id="map" style="width:512px; height:350px; border:1px solid #CCC;"></div></td>
       <td>
         <ul id="controlToggle" style="margin-left:5px; padding:0px;">
           <li>
@@ -175,12 +176,10 @@
               <input type="radio" name="type" value="bbox" id="bboxToggle" onclick="toggleControl(this);" />
               <label for="bboxToggle">draw bbox</label>
           </li>
-          <!--
           <li>
               <input type="radio" name="type" value="circle" id="circleToggle" onclick="toggleControl(this);" />
               <label for="circleToggle">draw circle</label>
           </li>
-          -->
           <li>
               <input type="radio" name="type" value="polygon" id="polygonToggle" onclick="toggleControl(this);" />
               <label for="polygonToggle">draw polygon</label>

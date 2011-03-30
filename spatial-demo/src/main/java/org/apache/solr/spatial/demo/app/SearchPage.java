@@ -87,7 +87,7 @@ public class SearchPage extends WebPage
     Form<Query> searchForm = new Form<Query>( "search", new CompoundPropertyModel<Query>(query) );
     searchForm.add( new TextField<String>( "fq" ) );
     searchForm.add( new DropDownChoice<String>("field",
-        Arrays.asList( "geo", "bbox", "grid", "rtree", "point" ) ));
+        Arrays.asList( "geo", "bbox", "grid", "rtree", "point", "geohash" ) ));
     searchForm.add( new DropDownChoice<SpatialOperation>("op",
         Arrays.asList( SpatialOperation.values() ) ));
 
