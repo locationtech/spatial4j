@@ -22,24 +22,24 @@ package org.apache.lucene.spatial.base.distance;
  * flux and might change in incompatible ways in the next
  * release.</font>
  */
-public class FloatLatLng {
+public class LatLng {
   private double lat;
   private double lng;
   private boolean normalized;
 
-  public FloatLatLng(double lat, double lng) {
+  public LatLng(double lat, double lng) {
     if (lat>90.0 || lat<-90.0) throw new IllegalArgumentException("Illegal latitude value " + lat);
     this.lat=lat;
     this.lng=lng;
   }
 
-  public FloatLatLng(FloatLatLng ll) {
+  public LatLng(LatLng ll) {
     this.lat=ll.getLat();
     this.lng=ll.getLng();
   }
 
-  public FloatLatLng copy() {
-    return new FloatLatLng(this);
+  public LatLng copy() {
+    return new LatLng(this);
   }
 
   public double getLat() {
@@ -58,7 +58,7 @@ public class FloatLatLng {
           );
   }
 
-  public FloatLatLng normalize() {
+  public LatLng normalize() {
     if (isNormalized()) return this;
 
     double delta=0;
@@ -70,7 +70,7 @@ public class FloatLatLng {
       newLng+=delta;
     }
 
-    FloatLatLng ret=new FloatLatLng(lat, newLng);
+    LatLng ret=new LatLng(lat, newLng);
     ret.normalized=true;
     return ret;
   }
@@ -86,7 +86,7 @@ public class FloatLatLng {
    *
    * @return Returns the distance in miles.
    */
-  public double arcDistance(FloatLatLng ll2) {
+  public double arcDistance(LatLng ll2) {
     return arcDistance(ll2, DistanceUnits.MILES);
   }
 
@@ -101,8 +101,8 @@ public class FloatLatLng {
    *
    * @return Returns the distance in meters or miles.
    */
-  public double arcDistance(FloatLatLng ll2, DistanceUnits lUnits) {
-    FloatLatLng ll1 = normalize();
+  public double arcDistance(LatLng ll2, DistanceUnits lUnits) {
+    LatLng ll1 = normalize();
     ll2 = ll2.normalize();
 
     double lat1 = ll1.getLat(), lng1 = ll1.getLng();
@@ -162,7 +162,7 @@ public class FloatLatLng {
       return true;
     if (getClass() != obj.getClass())
       return false;
-    FloatLatLng other = (FloatLatLng) obj;
+    LatLng other = (LatLng) obj;
     if (Double.doubleToLongBits(lat) != Double.doubleToLongBits(other.lat))
       return false;
     if (Double.doubleToLongBits(lng) != Double.doubleToLongBits(other.lng))

@@ -60,8 +60,8 @@ public class DistanceUtils {
 
   public static double getLLMDistance (double x1, double y1, double x2, double y2) {
 
-    FloatLatLng p1 = new FloatLatLng( x1, y1 );
-    FloatLatLng p2 = new FloatLatLng( x2, y2 );
+    LatLng p1 = new LatLng( x1, y1 );
+    LatLng p2 = new LatLng( x2, y2 );
     return p1.arcDistance( p2, DistanceUnits.MILES );
   }
 
