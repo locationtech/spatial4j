@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.jts;
+package org.apache.lucene.spatial.strategy.jts;
 
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 

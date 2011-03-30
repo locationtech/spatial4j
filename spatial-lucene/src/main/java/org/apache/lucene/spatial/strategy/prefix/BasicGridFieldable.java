@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.prefix;
+package org.apache.lucene.spatial.strategy.prefix;
 
 
 import java.io.Reader;

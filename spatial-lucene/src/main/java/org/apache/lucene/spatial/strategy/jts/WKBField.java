@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search.jts;
+package org.apache.lucene.spatial.strategy.jts;
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more

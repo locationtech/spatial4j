@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search;
+package org.apache.lucene.spatial.strategy;
 
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Query;

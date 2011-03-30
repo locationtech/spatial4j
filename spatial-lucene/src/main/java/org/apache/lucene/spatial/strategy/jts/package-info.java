@@ -18,5 +18,5 @@
 /**
  * Search using complex geometry
  */
-package org.apache.lucene.spatial.search.jts;
+package org.apache.lucene.spatial.strategy.jts;
 

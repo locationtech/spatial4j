@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.point;
+package org.apache.lucene.spatial.strategy.point;
 
-import org.apache.lucene.spatial.search.SpatialFieldInfo;
+import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 
 public class PointFieldInfo implements SpatialFieldInfo {
 

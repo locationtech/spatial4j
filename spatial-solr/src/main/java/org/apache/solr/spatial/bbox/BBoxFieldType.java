@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.spatial.search.bbox.BBoxFieldInfo;
-import org.apache.lucene.spatial.search.bbox.BBoxStrategy;
-import org.apache.lucene.spatial.search.util.TrieFieldHelper;
+import org.apache.lucene.spatial.strategy.bbox.BBoxFieldInfo;
+import org.apache.lucene.spatial.strategy.bbox.BBoxStrategy;
+import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
 import org.apache.solr.schema.BoolField;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;

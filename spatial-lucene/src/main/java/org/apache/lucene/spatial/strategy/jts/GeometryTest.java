@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.jts;
+package org.apache.lucene.spatial.strategy.jts;
 
 import com.vividsolutions.jts.geom.Geometry;
 

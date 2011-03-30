@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.jts;
+package org.apache.lucene.spatial.strategy.jts;
 
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.FilteredQuery;
@@ -26,8 +26,8 @@ import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.jts.JtsUtil;
-import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.SpatialStrategy;
+import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
+import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

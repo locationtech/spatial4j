@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search;
+package org.apache.lucene.spatial.strategy;
 
 
 import java.io.File;

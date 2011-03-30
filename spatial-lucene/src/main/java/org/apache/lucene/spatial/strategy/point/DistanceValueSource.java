@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.point;
+package org.apache.lucene.spatial.strategy.point;
 
 import java.io.IOException;
 

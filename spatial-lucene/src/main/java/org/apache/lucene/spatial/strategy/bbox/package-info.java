@@ -18,5 +18,5 @@
 /**
  * Bounding Box
  */
-package org.apache.lucene.spatial.search.bbox;
+package org.apache.lucene.spatial.strategy.bbox;
 

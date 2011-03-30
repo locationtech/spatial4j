@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search;
+package org.apache.lucene.spatial.strategy;
 
 /**
  * @author Chris Male

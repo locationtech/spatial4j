@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.prefix;
+package org.apache.lucene.spatial.strategy.prefix;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,8 +35,8 @@ import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.SpatialStrategy;
+import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
+import org.apache.lucene.spatial.strategy.SpatialStrategy;
 
 public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 

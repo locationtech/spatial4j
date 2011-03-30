@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.bbox;
+package org.apache.lucene.spatial.strategy.bbox;
 
-import org.apache.lucene.spatial.search.SpatialFieldInfo;
+import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 
 /**
  * Fieldnames to store

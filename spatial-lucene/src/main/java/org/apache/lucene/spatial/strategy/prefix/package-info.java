@@ -1,5 +1,5 @@
 /**
  * Prefix Grid
  */
-package org.apache.lucene.spatial.search.prefix;
+package org.apache.lucene.spatial.strategy.prefix;
 

@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search.util;
+package org.apache.lucene.spatial.strategy.util;
 
 import java.util.Date;
 

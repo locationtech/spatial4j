@@ -22,5 +22,5 @@
  * Check:
  * http://blog.notdot.net/2009/11/Damn-Cool-Algorithms-Spatial-indexing-with-Quadtrees-and-Hilbert-Curves
  */
-package org.apache.lucene.spatial.search;
+package org.apache.lucene.spatial.strategy;
 

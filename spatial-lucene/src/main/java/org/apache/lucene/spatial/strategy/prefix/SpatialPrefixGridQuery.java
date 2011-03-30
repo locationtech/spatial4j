@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.search.prefix;
+package org.apache.lucene.spatial.strategy.prefix;
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more

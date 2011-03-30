@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.spatial.search.point.PointFieldInfo;
-import org.apache.lucene.spatial.search.point.PointStrategy;
-import org.apache.lucene.spatial.search.util.TrieFieldHelper;
+import org.apache.lucene.spatial.strategy.point.PointFieldInfo;
+import org.apache.lucene.spatial.strategy.point.PointStrategy;
+import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaAware;

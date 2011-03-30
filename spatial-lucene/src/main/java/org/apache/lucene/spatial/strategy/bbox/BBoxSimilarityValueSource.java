@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.search.bbox;
+package org.apache.lucene.spatial.strategy.bbox;
 
 import java.io.IOException;
 
