@@ -19,9 +19,9 @@ package org.apache.solr.spatial.geohash;
 
 import java.util.Map;
 
-import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.geohash.GeohashStrategy;
-import org.apache.lucene.spatial.search.geohash.GridReferenceSystem;
+import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
+import org.apache.lucene.spatial.strategy.geohash.GeohashStrategy;
+import org.apache.lucene.spatial.strategy.geohash.GridReferenceSystem;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
