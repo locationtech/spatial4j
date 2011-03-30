@@ -18,6 +18,7 @@
 package org.apache.lucene.spatial.strategy.jts;
 
 
+import org.apache.lucene.index.codecs.CodecProvider;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
@@ -30,6 +31,13 @@ import java.io.IOException;
 
 public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
 
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    assumeFalse("preflex format only supports UTF-8 encoded bytes",
+        "PreFlex".equals(CodecProvider.getDefault().getDefaultFieldCodec()) );
+  }
+  
   @Test
   public void testSpatialSearch() throws IOException {
     JtsShapeIO shapeIO = new JtsShapeIO();
