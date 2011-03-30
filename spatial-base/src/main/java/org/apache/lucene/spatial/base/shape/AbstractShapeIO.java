@@ -17,6 +17,8 @@
 
 package org.apache.lucene.spatial.base.shape;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
@@ -83,5 +85,19 @@ public abstract class AbstractShapeIO implements ShapeIO {
       return makeBBox(p0, p2, p1, p3);
     }
     return makePoint(p0, p1);
+  }
+  
+
+  public String writeBBox(BBox bbox) {
+    NumberFormat nf = NumberFormat.getInstance(Locale.US);
+    nf.setGroupingUsed(false);
+    nf.setMaximumFractionDigits(6);
+    nf.setMinimumFractionDigits(6);
+
+    return
+      nf.format(bbox.getMinX()) + " " +
+      nf.format(bbox.getMinY()) + " " +
+      nf.format(bbox.getMaxX()) + " " +
+      nf.format(bbox.getMaxY());
   }
 }
