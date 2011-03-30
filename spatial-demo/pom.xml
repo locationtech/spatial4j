@@ -25,6 +25,11 @@
 	    <artifactId>spatial-solr</artifactId>
 	    <version>0.1-SNAPSHOT</version>
 	  </dependency>
+    <dependency>
+      <groupId>org.apache.lucene.spatial</groupId>
+      <artifactId>spatial-data</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>de.micromata.jak</groupId>

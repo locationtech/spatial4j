@@ -60,7 +60,7 @@ public class GridInfoServlet extends HttpServlet
       FeatureReader<SimpleFeatureType, SimpleFeature> iter = reader.getFeatures();
       while( iter.hasNext() ) {
         CountryInfo info = new CountryReader().read( iter.next() );
-        if( country.equalsIgnoreCase( info.fips ) ) {
+        if( country.equalsIgnoreCase( info.id ) ) {
           name = info.name;
           shape = new JtsGeometry( info.geometry );
           break;

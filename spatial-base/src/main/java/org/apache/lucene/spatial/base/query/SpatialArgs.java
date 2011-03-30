@@ -19,6 +19,8 @@ package org.apache.lucene.spatial.base.query;
 
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
 
 public class SpatialArgs {
 
@@ -47,6 +49,32 @@ public class SpatialArgs {
     if (operation.isTargetNeedsArea() && !shape.hasArea()) {
       throw new InvalidSpatialArgument(operation.name() + " only supports geometry with area");
     }
+  }
+
+  public String toString( ShapeIO io )
+  {
+    StringBuilder str = new StringBuilder();
+    str.append( operation.name() ).append( '(' );
+    str.append( io.toString( shape ) );
+    str.append( ')' );
+    if( !cacheable ) {
+      str.append( " cache=false" );
+    }
+    if( !calculateScore ) {
+      str.append( " score=false" );
+    }
+    if( min != null ) {
+      str.append( " min="+min );
+    }
+    if( max != null ) {
+      str.append( " max="+max );
+    }
+    return str.toString(); 
+  }
+  
+  public String toString()
+  {
+    return toString( new SimpleShapeIO() );
   }
 
   //------------------------------------------------

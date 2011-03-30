@@ -7,12 +7,16 @@ import java.io.PrintWriter;
 
 import org.apache.lucene.spatial.base.io.geonames.Geoname;
 import org.apache.lucene.spatial.base.io.geonames.GeonamesReader;
+import org.apache.lucene.spatial.base.io.sample.SampleData;
+import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
+import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.spatial.demo.utils.countries.BasicInfo;
 import org.apache.solr.spatial.demo.utils.countries.BasicReader;
 import org.apache.solr.spatial.demo.utils.countries.CountryReader;
+import org.apache.solr.spatial.demo.utils.countries.StateReader;
 import org.apache.solr.spatial.demo.utils.geoeye.GeoeyeReader;
 import org.apache.solr.spatial.demo.utils.shapefile.ShapeReader;
 import org.geotools.data.FeatureReader;
@@ -32,13 +36,11 @@ public class SampleDataLoader
     PrintWriter out = new PrintWriter( new OutputStreamWriter(
         new FileOutputStream(fout), "UTF8") );
 
-    out.print( "#name" );
+    out.print( "#id" );
     out.print( '\t' );
-    out.print( "fips" );
+    out.print( "name" );
     out.print( '\t' );
-    out.print( "population2005" );
-    out.print( '\t' );
-    out.print( "geo" );
+    out.print( "shape" );
     out.print( '\t' );
     out.println();
     out.flush();
@@ -79,11 +81,9 @@ public class SampleDataLoader
         }
       }
 
+      out.print( c.id );
+      out.print( '\t' );
       out.print( c.name );
-      out.print( '\t' );
-      out.print( c.fips );
-      out.print( '\t' );
-      out.print( c.population2005 );
       out.print( '\t' );
       out.print( geo );
       out.print( '\t' );
@@ -97,20 +97,37 @@ public class SampleDataLoader
     out.close();
   }
 
+  private static void indexSampleData( SolrServer solr, File f ) throws Exception {
+    System.out.println( "indexing: "+f.getAbsolutePath() );
+    SampleDataReader reader = new SampleDataReader( f );
+    while( reader.hasNext() ) {
+      SampleData data = reader.next();
+      SolrInputDocument doc = new SolrInputDocument();
+      doc.setField( "id", data.id );
+      doc.setField( "name", data.name );
+      doc.setField( "geo", data.shape );
+      doc.setField( "source", f.getName() );
+      solr.add( doc );
+    }
+    solr.commit( true, true );
+  }
+  
 
   public static void load( SolrServer solr ) throws Exception
   {
     File file = null;
-    file = new File( "../data/ikonos_2011/ikonos_2011.shp" );
-    if( false && file.exists() ) {
-      GeoeyeReader.indexItems( solr, file );
-      solr.commit( true, true );
+    
+    //file = new File(SampleDataLoader.class.getClassLoader().getResource("us-states.txt").getFile());
+    
+    File basedir = new File( "../spatial-data/src/main/resources" );
+    file = new File( basedir, "us-states.txt" );
+    if( file.exists() ) {
+      indexSampleData( solr, file );
     }
 
-    file = new File( "../data/countries/cntry06.shp" );
+    file = new File( basedir, "countries.txt" );
     if( file.exists() ) {
-      new CountryReader().index( solr, file );
-      solr.commit( true, true );
+      indexSampleData( solr, file );
     }
 
     // Geonames
@@ -136,10 +153,23 @@ public class SampleDataLoader
 
   public static void main( String[] args ) throws Exception
   {
-    File file = new File( "../data/countries/cntry06.shp" ); //cntry06.shp" );
+//    File basedir = new File( "../spatial-data/src/main/resources" );
+//    File file = new File( basedir, "us-states.txt" );
+//    if( true ) {
+//      SampleDataReader reader = new SampleDataReader( file );
+//      while( reader.hasNext() ) {
+//        SampleData data = reader.next();
+//        System.out.println( data.id );
+//      }
+//      System.out.println( reader.getCount() );
+//      return;
+//    }
+    
+    
+    File file = new File( "../spatial-data/src/main/resources/countries/states.shp" ); //cntry06.shp" );
     if( true ) {
-      File fout = new File( "c:/temp/country.txt" );
-      writeCountriesToCSV(file, new CountryReader(), fout );
+      File fout = new File( "c:/temp/us-states.txt" );
+      writeCountriesToCSV(file, new StateReader(), fout );
       System.out.println( "done." );
       return;
     }

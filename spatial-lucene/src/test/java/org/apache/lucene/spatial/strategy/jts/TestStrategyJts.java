@@ -67,7 +67,6 @@ public class TestStrategyJts extends SpatialTestCase {
       SampleData data = reader.next();
       Document doc = new Document();
       doc.add( new Field( "name", data.name, Store.YES, Index.ANALYZED ) );
-      doc.add( new Field( "id", "state-"+data.fips, Store.YES, Index.ANALYZED ) );
       
       Shape shape = shapeIO.readShape( data.shape );
       SimpleSpatialFieldInfo info = new SimpleSpatialFieldInfo( "shape" );

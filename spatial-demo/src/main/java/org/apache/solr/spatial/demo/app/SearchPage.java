@@ -146,7 +146,7 @@ public class SearchPage extends WebPage
           for( SolrDocument doc : rsp.getResults() ) {
             final String id = (String)doc.getFieldValue( "id" );
             WebMarkupContainer row = new WebMarkupContainer( rv.newChildId() );
-            row.add( new Label( "name", (String)doc.getFieldValue( "name" ) ) );
+            row.add( new Label( "name", doc.getFieldValue( "id" ) + " - " + doc.getFieldValue( "name" ) ) );
             row.add( new Label( "source", (String)doc.getFieldValue( "source" ) ));
             row.add( new Label( "score", doc.getFieldValue( "score" )+"" ));
             row.add( new ExternalLink( "link", "/solr/select?q=id:"+ClientUtils.escapeQueryChars(id) ));
@@ -200,13 +200,20 @@ public class SearchPage extends WebPage
         return v;
       }
     }));
-    results.add( new WebMarkupContainer( "solr" ).add( new AttributeModifier( "href", true, new AbstractReadOnlyModel<CharSequence>() {
+    results.add( new Label( "solr", new AbstractReadOnlyModel<String>() {
+
+      @Override
+      public String getObject() {
+        SolrParams params = query.getObject().toSolrQuery( 10 );
+        return params.get( "q" );
+      }
+      
+    }).add( new AttributeModifier( "href", true, new AbstractReadOnlyModel<CharSequence>() {
       @Override
       public CharSequence getObject() {
         StringBuilder url = new StringBuilder();
         url.append( "http://localhost:8080/solr/select?debugQuery=true" );
         SolrParams params = query.getObject().toSolrQuery( 10 );
-
         for(Iterator<String> it=params.getParameterNamesIterator(); it.hasNext(); ) {
           final String name = it.next();
           try {

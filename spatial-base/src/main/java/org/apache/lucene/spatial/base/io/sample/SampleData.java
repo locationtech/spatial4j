@@ -1,20 +1,24 @@
 package org.apache.lucene.spatial.base.io.sample;
 
+import java.util.Comparator;
+
 
 public class SampleData {
-
-  public String shape;
+  public String id;
   public String name;
-  public String fips;
-  public Integer population2005;
+  public String shape;
 
   public SampleData(String line) {
     String[] vals = line.split("\t");
-    name = vals[0];
-    fips = vals[1];
-    if (vals[2].length() > 0) {
-      population2005 = Integer.valueOf( vals[2] );
-    }
-    shape = vals[3];
+    id = vals[0];
+    name = vals[1];
+    shape = vals[2];
   }
+  
+  public static Comparator<SampleData> NAME_ORDER = new Comparator<SampleData>() {
+    @Override
+    public int compare(SampleData o1, SampleData o2) {
+      return o1.name.compareTo( o2.name );
+    }
+  };
 }
