@@ -40,7 +40,10 @@ import java.util.List;
 
 public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends SpatialTestCase {
 
-  public static final String DATA_US_STATES = "us-states.txt"; // needs JTS
+  public static final String DATA_STATES_POLY = "states-poly.txt"; 
+  public static final String DATA_STATES_BBOX = "states-bbox.txt"; 
+  public static final String DATA_COUNTRIES_POLY = "countries-poly.txt"; 
+  public static final String DATA_COUNTRIES_BBOX = "countries-bbox.txt"; 
   
   public static final String QTEST_US_IsWithin_BBox   = "test-us-IsWithin-BBox.txt";
   public static final String QTEST_US_Intersects_BBox = "test-us-Intersects-BBox.txt";

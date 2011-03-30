@@ -195,7 +195,6 @@ public class JtsShapeIO implements ShapeIO {
     throw new InvalidShapeException("can't make Geometry from: " + shape);
   }
 
-
   @Override
   public BBox makeBBox(double minX, double maxX, double minY, double maxY) {
     return new JtsEnvelope(new Envelope(minX,maxX,minY,maxY));

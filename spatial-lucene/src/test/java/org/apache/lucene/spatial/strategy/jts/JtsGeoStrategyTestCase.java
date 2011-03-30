@@ -44,7 +44,7 @@ public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldI
     executeQueries( 
         new JtsGeoStrategy(shapeIO.factory),
         shapeIO, new SimpleSpatialFieldInfo( "geo" ),
-        DATA_US_STATES,
+        DATA_COUNTRIES_POLY,
         QTEST_US_Intersects_BBox );
   }
 }

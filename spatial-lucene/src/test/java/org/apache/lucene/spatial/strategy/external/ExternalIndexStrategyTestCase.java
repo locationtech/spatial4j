@@ -32,19 +32,11 @@ public class ExternalIndexStrategyTestCase extends StrategyTestCase<SimpleSpatia
 
   @Test
   public void testSpatialSearch() throws IOException {
-//    ShapeIO shapeIO = new JtsShapeIO();
-//    executeQueries(
-//        "us-states.txt",
-//        "test-us-Intersects-BBox.txt",
-//        shapeIO,
-//        ,
-//        new ( "geo" ));
-    
     ShapeIO shapeIO = new JtsShapeIO();
     executeQueries( 
         new ExternalIndexStrategy(shapeIO),
         shapeIO, new SimpleSpatialFieldInfo( "geo" ),
-        DATA_US_STATES,
+        DATA_COUNTRIES_POLY,
         QTEST_US_Intersects_BBox );
   }
 }

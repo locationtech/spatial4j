@@ -19,7 +19,7 @@ public class StateReader extends BasicReader<BasicInfo>
     BasicInfo c = new BasicInfo();
     c.geometry = (Geometry)f.getAttribute(0);
     c.name = (String)f.getAttribute( 1 );
-    c.id = "US_"+(String)f.getAttribute( 4 );
+    c.id = (String)f.getAttribute( 4 );
 
 
 //    0] the_geom :: class com.vividsolutions.jts.geom.MultiPolygon
