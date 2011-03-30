@@ -28,6 +28,7 @@ import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.ShapeIOProvider;
+import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.solr.common.SolrException;
@@ -127,14 +128,13 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   @Override
   public void write(TextResponseWriter writer, String name, Fieldable f) throws IOException {
-    if( f.isBinary() ) {
+    if( f.isBinary() &&  reader instanceof JtsShapeIO ) {
+      JtsShapeIO jts = (JtsShapeIO)reader;
       byte[] bytes = f.getBinaryValue();
-      Shape s = reader.readShape( bytes, 0, bytes.length );
-      writer.writeStr(name, reader.toString(s), true);
+      Shape s = jts.readShape( bytes, 0, bytes.length );
+      writer.writeStr(name, jts.toString(s), true);
     }
-    else {
-      writer.writeStr(name, f.stringValue(), true);
-    }
+    writer.writeStr(name, f.stringValue(), true);
   }
 
   @Override

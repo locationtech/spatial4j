@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  */
 public class TestShapeIO {
-  
+
 
   @Test
   public void testShapesImplementEquals() {
@@ -39,7 +39,7 @@ public class TestShapeIO {
   static interface WriteReader {
     Shape writeThenRead( Shape s ) throws IOException;
   };
-  
+
 
   public void checkBasicShapeIO( AbstractShapeIO reader, WriteReader help ) throws Exception {
 
@@ -106,7 +106,7 @@ public class TestShapeIO {
         return io.readShape( buff );
       }
     });
-    
+
     // Binary read/write
     checkBasicShapeIO( io, new WriteReader() {
       @Override

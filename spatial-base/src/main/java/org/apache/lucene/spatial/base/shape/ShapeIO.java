@@ -17,8 +17,6 @@
 
 package org.apache.lucene.spatial.base.shape;
 
-import java.io.IOException;
-
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 
 public interface ShapeIO {

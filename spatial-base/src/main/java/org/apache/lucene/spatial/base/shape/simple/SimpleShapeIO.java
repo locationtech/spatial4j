@@ -17,7 +17,6 @@
 
 package org.apache.lucene.spatial.base.shape.simple;
 
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 

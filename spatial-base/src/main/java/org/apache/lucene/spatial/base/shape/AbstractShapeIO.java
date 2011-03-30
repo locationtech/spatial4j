@@ -86,7 +86,7 @@ public abstract class AbstractShapeIO implements ShapeIO {
     }
     return makePoint(p0, p1);
   }
-  
+
 
   public String writeBBox(BBox bbox) {
     NumberFormat nf = NumberFormat.getInstance(Locale.US);
