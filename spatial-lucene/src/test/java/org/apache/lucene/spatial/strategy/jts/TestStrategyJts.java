@@ -49,16 +49,16 @@ public class TestStrategyJts extends SpatialTestCase {
 
   @Before
   public void setUp() throws Exception {
-    super.setUp();
-    
     shapeIO = new JtsShapeIO( new GeometryFactory() );
     strategy = new JtsGeoStrategy( shapeIO.factory );
+    
+    super.setUp();
   }
   
   @Override
   protected List<Document> getDocuments() throws IOException {
 
-    File file = new File( "../data/us-states.txt" );
+    File file = new File(getClass().getClassLoader().getResource("us-states.txt").getFile());
     System.out.println( file.getAbsolutePath() );
     
     ArrayList<Document> docs = new ArrayList<Document>();
