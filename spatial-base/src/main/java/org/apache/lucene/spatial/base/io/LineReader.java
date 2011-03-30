@@ -14,13 +14,13 @@ public abstract class LineReader<T> implements Iterator<T> {
   private BufferedReader reader;
   private String nextLine;
   private boolean closeWhenDone = false;
-  
+
   public abstract T parseLine( String line );
-  
+
   protected void readComment( String line ) {
-    
+
   }
-  
+
   public LineReader(Reader r) throws IOException {
     if (r instanceof BufferedReader) {
       reader = (BufferedReader) r;

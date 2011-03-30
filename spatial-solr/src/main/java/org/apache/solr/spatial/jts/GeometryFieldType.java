@@ -41,6 +41,7 @@ public class GeometryFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> 
     GeometryFactory factory = new GeometryFactory();
     reader = new JtsShapeIO(factory);
     spatialStrategy = new JtsGeoStrategy(factory);
+    spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 
   @Override

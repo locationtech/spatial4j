@@ -54,6 +54,7 @@ public class SpatialPrefixGridFieldType extends SpatialFieldType<SimpleSpatialFi
     grid.setResolution(5);
 
     spatialStrategy = new PrefixGridStrategy(grid, maxLength);
+    spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 
   @Override

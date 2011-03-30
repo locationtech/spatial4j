@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.Reader;
 
 import org.apache.lucene.spatial.base.io.LineReader;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
 
 public class SampleDataReader extends LineReader<SampleData> {
 

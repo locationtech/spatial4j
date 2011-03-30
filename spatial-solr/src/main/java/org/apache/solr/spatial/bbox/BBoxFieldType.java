@@ -64,6 +64,7 @@ public class BBoxFieldType extends SpatialFieldType<BBoxFieldInfo> implements Sc
     }
 
     spatialStrategy = new BBoxStrategy();
+    spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 
   public void inform(IndexSchema schema)
@@ -87,10 +88,11 @@ public class BBoxFieldType extends SpatialFieldType<BBoxFieldInfo> implements Sc
     BBoxStrategy strategy = (BBoxStrategy)spatialStrategy;
     TrieField df = (TrieField)doubleType;
     strategy.parser = FieldCache.NUMERIC_UTILS_DOUBLE_PARSER;
-    strategy.trieInfo.precisionStep = df.getPrecisionStep();
     strategy.trieInfo = new TrieFieldHelper.FieldInfo();
+    strategy.trieInfo.setPrecisionStep( df.getPrecisionStep() );
     strategy.trieInfo.store = true; // TODO properties &...
     strategy.trieInfo.index = true; // TODO properties &...
+
 
     List<SchemaField> fields = new ArrayList<SchemaField>( schema.getFields().values() );
     for( SchemaField sf : fields ) {

@@ -56,12 +56,18 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   protected ShapeIO reader;
   protected SpatialArgsParser argsParser;
 
+  protected boolean ignoreIncompatibleGeometry = false;
   protected SpatialStrategy<T> spatialStrategy;
 
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
+    String v = args.remove( "ignoreIncompatibleGeometry" );
+    if( v != null ) {
+      ignoreIncompatibleGeometry = Boolean.valueOf( v );
+    }
+
     // TODO, read configuration from Map
     reader = new JtsShapeIO();  // some way to share this across different fields?
     argsParser = new SpatialArgsParser();

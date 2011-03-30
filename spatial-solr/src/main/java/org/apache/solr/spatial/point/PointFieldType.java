@@ -73,10 +73,11 @@ public class PointFieldType extends SpatialFieldType<PointFieldInfo> implements 
 
     TrieField df = (TrieField)doubleType;
     TrieFieldHelper.FieldInfo info = new TrieFieldHelper.FieldInfo();
-    info.precisionStep = df.getPrecisionStep();
+    info.setPrecisionStep( df.getPrecisionStep() );
     info.store = true; // TODO properties &...
 
     spatialStrategy = new PointStrategy(reader,info,FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
+    spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 
   @Override

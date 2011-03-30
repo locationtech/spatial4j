@@ -42,21 +42,21 @@ public class TestIndexSampleData {
   public void testSampleData() throws IOException {
     // This data is only supported by JTS
     JtsShapeIO io = new JtsShapeIO();
-    
+
     File file = new File( "../data/countries.txt" );
     System.out.println( file.getAbsolutePath() );
-    
+
     SampleDataReader reader = new SampleDataReader(file);
     while( reader.hasNext() ) {
       SampleData data = reader.next();
       Shape shape = io.readShape( data.shape );
     }
     Assert.assertEquals( 248, reader.getCount() );
-    
-    
+
+
     file = new File( "../data/us-states.txt" );
     System.out.println( file.getAbsolutePath() );
-    
+
     reader = new SampleDataReader(file);
     while( reader.hasNext() ) {
       SampleData data = reader.next();
@@ -64,16 +64,16 @@ public class TestIndexSampleData {
     }
     Assert.assertEquals( 51, reader.getCount() ); // 50 + DC
   }
-  
+
 
   @Test
   public void testIndexGeonames() throws IOException {
     // This could use JTS or Simple
     JtsShapeIO io = new JtsShapeIO();
-    
+
     File file = new File( "../data/geonames-IE.txt" );
     System.out.println( file.getAbsolutePath() );
-    
+
     GeonamesReader reader = new GeonamesReader(file);
     while( reader.hasNext() ) {
       Geoname geoname = reader.next();
@@ -82,5 +82,5 @@ public class TestIndexSampleData {
     }
     Assert.assertEquals( 22929, reader.getCount() );
   }
-  
+
 }

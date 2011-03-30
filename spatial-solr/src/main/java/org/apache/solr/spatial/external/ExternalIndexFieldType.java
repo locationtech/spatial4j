@@ -37,6 +37,7 @@ public class ExternalIndexFieldType extends SpatialFieldType<SimpleSpatialFieldI
     super.init(schema, args);
 
     spatialStrategy = new ExternalIndexStrategy(reader);
+    spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 
   @Override

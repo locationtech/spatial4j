@@ -22,6 +22,12 @@ public class TrieFieldHelper {
     public boolean index = true;
     public boolean omitNorms = true;
     public boolean omitTF = true;
+
+    public void setPrecisionStep( int p ) {
+      precisionStep = p;
+      if (precisionStep<=0 || precisionStep>=64)
+        precisionStep=Integer.MAX_VALUE;
+    }
   }
 
   //----------------------------------------------
