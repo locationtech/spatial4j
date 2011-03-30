@@ -56,9 +56,6 @@ public class JtsGeometry implements Shape {
     if(GeometryFactory.class.isInstance(context)) {
       return (GeometryFactory) context;
     }
-    if(JtsShapeIO.class.isInstance(context)) {
-      return ((JtsShapeIO) context).factory;
-    }
     return new GeometryFactory();
   }
 
@@ -111,7 +108,7 @@ public class JtsGeometry implements Shape {
     assert matrix.isIntersects();
     return IntersectCase.INTERSECTS;
   }
-  
+
 
   @Override
   public boolean equals(Object o) {

@@ -126,7 +126,7 @@ public class JtsEnvelope implements BBox {
   public String toString() {
     return envelope.toString();
   }
-  
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

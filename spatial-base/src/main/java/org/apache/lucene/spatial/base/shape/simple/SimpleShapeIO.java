@@ -23,10 +23,10 @@ import java.util.Locale;
 
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-import org.apache.lucene.spatial.base.shape.AbstractShapeIO;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.AbstractShapeIO;
 
 public class SimpleShapeIO extends AbstractShapeIO {
 

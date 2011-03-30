@@ -61,12 +61,12 @@ public class TestSpatialArgs {
 
   @Test
   public void testSimpleArgs() throws Exception {
-    checkSimpleArgs(new SimpleShapeIO( DistanceUnits.KILOMETERS ));
+    checkSimpleArgs(new SimpleShapeIO(DistanceUnits.KILOMETERS));
   }
 
   @Test
   public void testJTSArgs() throws Exception {
-    ShapeIO reader = new JtsShapeIO( DistanceUnits.KILOMETERS );
+    ShapeIO reader = new JtsShapeIO(DistanceUnits.KILOMETERS);
     checkSimpleArgs(reader);
 
     // now check the complex stuff...
