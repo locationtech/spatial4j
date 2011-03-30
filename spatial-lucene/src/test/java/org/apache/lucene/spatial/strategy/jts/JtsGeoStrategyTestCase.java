@@ -18,15 +18,13 @@
 package org.apache.lucene.spatial.strategy.jts;
 
 
+import java.io.IOException;
+
 import org.apache.lucene.index.codecs.CodecProvider;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
-import org.apache.lucene.spatial.strategy.external.ExternalIndexStrategy;
 import org.junit.Test;
-
-import java.io.IOException;
 
 
 public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
@@ -37,14 +35,25 @@ public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldI
     assumeFalse("preflex format only supports UTF-8 encoded bytes",
         "PreFlex".equals(CodecProvider.getDefault().getDefaultFieldCodec()) );
   }
-  
+
   @Test
-  public void testSpatialSearch() throws IOException {
+  public void testJtsGeoStrategy() throws IOException {
     JtsShapeIO shapeIO = new JtsShapeIO();
-    executeQueries( 
-        new JtsGeoStrategy(shapeIO.factory),
-        shapeIO, new SimpleSpatialFieldInfo( "geo" ),
-        DATA_COUNTRIES_POLY,
-        QTEST_US_Intersects_BBox );
+    JtsGeoStrategy strategy = new JtsGeoStrategy(shapeIO.factory);
+    SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo( "geo" );
+
+    if( true ) {
+    executeQueries( strategy, shapeIO, finfo,
+        DATA_STATES_POLY,
+        QTEST_States_Intersects_BBox,
+        QTEST_States_IsWithin_BBox );
+    }
+
+    // Can not close, there are still open files
+    if( false ) {
+    executeQueries( strategy, shapeIO, finfo,
+        DATA_WORLD_CITIES_POINTS,
+        QTEST_Cities_IsWithin_BBox );
+    }
   }
 }

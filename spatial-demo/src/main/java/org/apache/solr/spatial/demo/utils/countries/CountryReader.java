@@ -28,7 +28,7 @@ public class CountryReader extends BasicReader<CountryInfo>
     if( v != null ) {
       c.population2005 = v.intValue();
     }
-    
+
     System.out.println( c.id + " :: " + c.name );
 
     //0] the_geom :: class com.vividsolutions.jts.geom.MultiPolygon

@@ -16,7 +16,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 public class SampleDataWriter {
-  
+
   protected final PrintWriter out;
   protected final ShapeIO shapeIO;
   protected final boolean bbox;
@@ -26,7 +26,7 @@ public class SampleDataWriter {
     this.shapeIO=shapeIO;
     this.bbox = bbox;
     this.maxLength= maxLength;
-    
+
     out = new PrintWriter( new OutputStreamWriter(
         new FileOutputStream(f), "UTF8") );
 
@@ -51,13 +51,13 @@ public class SampleDataWriter {
   public SampleDataWriter(File f, int maxLength ) throws IOException {
     this( f, new JtsShapeIO(), false, maxLength );
   }
-  
-  
+
+
   protected String toString( String name, Shape shape ) {
     String v = shapeIO.toString( shape );
     if( maxLength > 0 && v.length() > maxLength ) {
       Geometry g = ((JtsShapeIO)shapeIO).getGeometryFrom(shape);
-      
+
       long last = v.length();
       Envelope env = g.getEnvelopeInternal();
       double mins = Math.min(env.getWidth(), env.getHeight());
@@ -94,7 +94,7 @@ public class SampleDataWriter {
     out.println();
     out.flush();
   }
-  
+
   public void close() {
     out.close();
   }

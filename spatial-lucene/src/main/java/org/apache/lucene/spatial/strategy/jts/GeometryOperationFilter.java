@@ -72,7 +72,7 @@ public class GeometryOperationFilter extends Filter {
 
             @Override
             public void read(byte[] buf) throws IOException {
-              if (off + buf.length > ref.length) {
+              if ( buf.length > ref.length+off ) {
                 throw new InvalidShapeException("Asking for too many bytes");
               }
               for (int i = 0; i < buf.length; i++) {

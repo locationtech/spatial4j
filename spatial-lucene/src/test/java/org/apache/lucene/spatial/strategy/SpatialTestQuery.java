@@ -16,7 +16,9 @@ import org.apache.lucene.spatial.base.shape.ShapeIO;
  * Helper class to execute queries
  */
 public class SpatialTestQuery {
-  public int testId = -1;
+  public String testname;
+  public String line;
+  public int lineNumber = -1;
   public SpatialArgs args;
   public List<String> ids = new ArrayList<String>();
   public boolean orderIsImportant = false;
@@ -33,14 +35,29 @@ public class SpatialTestQuery {
       @Override
       public SpatialTestQuery parseLine(String line) {
         SpatialTestQuery test = new SpatialTestQuery();
-        test.testId = getLineNumber();
-        int idx = line.indexOf('@');
-        StringTokenizer st = new StringTokenizer(line.substring(0, idx));
-        while (st.hasMoreTokens()) {
-          test.ids.add(st.nextToken().trim());
+        test.line = line;
+        test.lineNumber = getLineNumber();
+
+        try {
+          // skip a comment
+          if( line.startsWith( "[" ) ) {
+            int idx = line.indexOf( ']' );
+            if( idx > 0 ) {
+              line = line.substring( idx+1 );
+            }
+          }
+
+          int idx = line.indexOf('@');
+          StringTokenizer st = new StringTokenizer(line.substring(0, idx));
+          while (st.hasMoreTokens()) {
+            test.ids.add(st.nextToken().trim());
+          }
+          test.args = parser.parse(line.substring(idx + 1).trim(), reader);
+          return test;
         }
-        test.args = parser.parse(line.substring(idx + 1).trim(), reader);
-        return test;
+        catch( Exception ex ) {
+          throw new RuntimeException( "invalid query line: "+test.line, ex );
+        }
       }
     };
   }

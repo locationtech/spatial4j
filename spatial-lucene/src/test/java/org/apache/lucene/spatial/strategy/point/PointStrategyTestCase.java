@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.strategy.bbox;
+package org.apache.lucene.spatial.strategy.point;
 
 import java.io.IOException;
 
@@ -9,15 +9,15 @@ import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
 import org.junit.Test;
 
-public class BBoxStrategyTestCase extends StrategyTestCase<BBoxFieldInfo> {
+public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
 
   @Test
   public void testBBoxStrategy() throws IOException {
-    BBoxStrategy s = new BBoxStrategy();
-    s.trieInfo = new TrieFieldHelper.FieldInfo();
-    s.parser = FieldCache.NUMERIC_UTILS_DOUBLE_PARSER;
-    BBoxFieldInfo finfo = new BBoxFieldInfo( "bbox" );
+    TrieFieldHelper.FieldInfo tinfo = new TrieFieldHelper.FieldInfo();
+    PointFieldInfo finfo = new PointFieldInfo( "point" );
 
+    PointStrategy s = new PointStrategy( new SimpleShapeIO(),
+        tinfo, FieldCache.NUMERIC_UTILS_DOUBLE_PARSER );
 
     if( false ) {
     // With JTS

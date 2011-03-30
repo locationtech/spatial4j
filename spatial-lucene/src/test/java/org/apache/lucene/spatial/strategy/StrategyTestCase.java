@@ -18,18 +18,6 @@
 package org.apache.lucene.spatial.strategy;
 
 
-import junit.framework.Assert;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.spatial.base.io.sample.SampleData;
-import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
-import org.apache.lucene.spatial.base.query.SpatialArgsParser;
-import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,18 +25,34 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import junit.framework.Assert;
+
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.document.Field.Index;
+import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.spatial.base.io.sample.SampleData;
+import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
+import org.apache.lucene.spatial.base.query.SpatialArgsParser;
+import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
+
 
 public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends SpatialTestCase {
 
-  public static final String DATA_STATES_POLY = "states-poly.txt"; 
-  public static final String DATA_STATES_BBOX = "states-bbox.txt"; 
-  public static final String DATA_COUNTRIES_POLY = "countries-poly.txt"; 
-  public static final String DATA_COUNTRIES_BBOX = "countries-bbox.txt"; 
-  
-  public static final String QTEST_US_IsWithin_BBox   = "test-us-IsWithin-BBox.txt";
-  public static final String QTEST_US_Intersects_BBox = "test-us-Intersects-BBox.txt";
-  
-  
+  public static final String DATA_STATES_POLY = "states-poly.txt";
+  public static final String DATA_STATES_BBOX = "states-bbox.txt";
+  public static final String DATA_COUNTRIES_POLY = "countries-poly.txt";
+  public static final String DATA_COUNTRIES_BBOX = "countries-bbox.txt";
+  public static final String DATA_WORLD_CITIES_POINTS = "world-cities-points.txt";
+
+  public static final String QTEST_States_IsWithin_BBox   = "states-IsWithin-BBox.txt";
+  public static final String QTEST_States_Intersects_BBox = "states-Intersects-BBox.txt";
+
+  public static final String QTEST_Cities_IsWithin_BBox = "cities-IsWithin-BBox.txt";
+
+
   protected final SpatialArgsParser argsParser = new SpatialArgsParser();
 
   protected void executeQueries(
@@ -60,7 +64,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
     List<Document> testDocuments = getDocuments(testDataFile, shapeIO, strategy, fieldInfo);
     addDocuments(testDocuments);
     verifyDocumentsIndexed(testDocuments.size());
-    
+
     for( String path : testQueryFile ) {
       Iterator<SpatialTestQuery> testQueryIterator = getTestQueries(path, shapeIO);
       runTestQueries(testQueryIterator, shapeIO, strategy, fieldInfo);

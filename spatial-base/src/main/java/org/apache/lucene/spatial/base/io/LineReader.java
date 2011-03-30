@@ -52,7 +52,7 @@ public abstract class LineReader<T> implements Iterator<T> {
 
     if (reader != null) {
       try {
-        while( true ) {
+        while( reader != null ) {
           nextLine = reader.readLine();
           lineNumber++;
           if (nextLine == null ) {
@@ -63,9 +63,13 @@ public abstract class LineReader<T> implements Iterator<T> {
           }
           else if( nextLine.startsWith( "#" ) ) {
             readComment( nextLine );
-            continue;
           }
-          break;
+          else {
+            nextLine = nextLine.trim();
+            if( nextLine.length() > 0 ) {
+              break;
+            }
+          }
         }
       } catch (IOException ioe) {
         throw new RuntimeException("IOException thrown while reading/closing reader", ioe);
@@ -82,7 +86,7 @@ public abstract class LineReader<T> implements Iterator<T> {
   public int getLineNumber() {
     return lineNumber;
   }
-  
+
   public int getCount() {
     return count;
   }

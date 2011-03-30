@@ -64,7 +64,7 @@ public class SampleDataLoader
         if( geo.length() > maxlen ) {
           Geometry ggg = c.geometry;
           System.out.println( "TODO, simplify: "+c.name );
-  
+
           long last = geo.length();
           Envelope env = ggg.getEnvelopeInternal();
           double mins = Math.min(env.getWidth(), env.getHeight());
@@ -126,9 +126,18 @@ public class SampleDataLoader
     //file = new File(SampleDataLoader.class.getClassLoader().getResource("us-states.txt").getFile());
 
     File basedir = new File( "../spatial-data/src/main/resources" );
-    file = new File( basedir, "us-states.txt" );
-    if( file.exists() ) {
-      indexSampleData( solr, file );
+    File[] data = new File[] {
+        new File(basedir, "world-cities-points.txt" ),
+        new File(basedir, "countries-poly.txt" ),
+        new File(basedir, "countries-bbox.txt" ),
+        new File(basedir, "states-poly.txt" ),
+        new File(basedir, "states-bbox.txt" ),
+    };
+
+    for( File f : data ) {
+      if( f.exists() ) {
+        indexSampleData( solr, f );
+      }
     }
 
     file = new File( basedir, "countries.txt" );
@@ -146,7 +155,7 @@ public class SampleDataLoader
         doc.setField( "id", name.id+"" );
         doc.setField( "name", name.name+"" );
         doc.setField( "geo", name.longitude + " " + name.latitude );
-        doc.setField( "source", "geonames_US" );
+        doc.setField( "source", "geonames-"+file.getName() );
         solr.add( doc );
 
         if( (reader.getCount() % 1000) == 0 ) {
@@ -170,7 +179,7 @@ public class SampleDataLoader
 //      System.out.println( reader.getCount() );
 //      return;
 //    }
-    
+
 
     File file = new File( "../spatial-data/src/main/resources/geonames/cities15000.txt" ); //states.shp" ); //cntry06.shp" );
     if( true ) {
@@ -179,10 +188,16 @@ public class SampleDataLoader
       GeonamesReader reader = new GeonamesReader( file );
       while( reader.hasNext() ) {
         Geoname place = reader.next();
-        out.write( "G"+place.id , place.name, place.longitude, place.latitude );
+        if( place.population > 50000 ) {
+          System.out.println( "INCLUDE: " + place.population + "  : " + place.name );
+          out.write( "G"+place.id , place.name, place.longitude, place.latitude );
+        }
+        else {
+          System.out.println( "SKIP: " + place.population + "  : " + place.name );
+        }
       }
       out.close();
-      
+
       System.out.println( "done." );
       return;
     }

@@ -18,25 +18,24 @@
 package org.apache.lucene.spatial.strategy.external;
 
 
+import java.io.IOException;
+
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
-import org.apache.lucene.spatial.strategy.bbox.BBoxFieldInfo;
 import org.junit.Test;
-
-import java.io.IOException;
 
 
 public class ExternalIndexStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
 
   @Test
-  public void testSpatialSearch() throws IOException {
+  public void testExternalIndexStrategy() throws IOException {
     ShapeIO shapeIO = new JtsShapeIO();
-    executeQueries( 
+    executeQueries(
         new ExternalIndexStrategy(shapeIO),
         shapeIO, new SimpleSpatialFieldInfo( "geo" ),
         DATA_COUNTRIES_POLY,
-        QTEST_US_Intersects_BBox );
+        QTEST_States_Intersects_BBox );
   }
 }

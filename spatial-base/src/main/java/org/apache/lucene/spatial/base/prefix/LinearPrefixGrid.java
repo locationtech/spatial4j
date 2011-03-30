@@ -27,7 +27,6 @@ import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.ShapeIOProvider;
-import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 
 public class LinearPrefixGrid implements SpatialPrefixGrid {
 
@@ -49,12 +48,12 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
 
   private int minResolution = 6; // Go at least this deep
   private int resolution = 4; // how far down past the 'bbox level'
-  
+
   private final ShapeIO shapeIO;
 
   public LinearPrefixGrid(
-      double xmin, double xmax, 
-      double ymin, double ymax, 
+      double xmin, double xmax,
+      double ymin, double ymax,
       int maxLevels, ShapeIO shapeIO ) {
     this.xmin = xmin;
     this.xmax = xmax;
@@ -86,8 +85,8 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
   }
 
   public LinearPrefixGrid(
-      double xmin, double xmax, 
-      double ymin, double ymax, 
+      double xmin, double xmax,
+      double ymin, double ymax,
       int maxLevels ) {
     this( xmin, xmax, ymin, ymax, maxLevels, ShapeIOProvider.getShapeIO() );
   }
