@@ -15,15 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.solr.spatial.demo.utils.KMLHelper;
-import org.apache.solr.spatial.demo.utils.countries.CountryInfo;
-import org.apache.solr.spatial.demo.utils.countries.CountryReader;
-import org.apache.solr.spatial.demo.utils.shapefile.ShapeReader;
-import org.geotools.data.FeatureReader;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 
@@ -56,16 +49,18 @@ public class GridInfoServlet extends HttpServlet
       File file = new File( "../data/countries/cntry06.shp" );
       System.out.println( "reading: "+file.getAbsolutePath() );
 
-      ShapeReader reader = new ShapeReader( file );
-      FeatureReader<SimpleFeatureType, SimpleFeature> iter = reader.getFeatures();
-      while( iter.hasNext() ) {
-        CountryInfo info = new CountryReader().read( iter.next() );
-        if( country.equalsIgnoreCase( info.id ) ) {
-          name = info.name;
-          shape = new JtsGeometry( info.geometry );
-          break;
-        }
-      }
+      // TODO, read sample data...
+
+//      ShapeReader reader = new ShapeReader( file );
+//      FeatureReader<SimpleFeatureType, SimpleFeature> iter = reader.getFeatures();
+//      while( iter.hasNext() ) {
+//        CountryInfo info = new CountryReader().read( iter.next() );
+//        if( country.equalsIgnoreCase( info.id ) ) {
+//          name = info.name;
+//          shape = new JtsGeometry( info.geometry );
+//          break;
+//        }
+//      }
 
       if( shape == null ) {
         res.sendError(HttpServletResponse.SC_BAD_REQUEST, "unable to find: "+country );
