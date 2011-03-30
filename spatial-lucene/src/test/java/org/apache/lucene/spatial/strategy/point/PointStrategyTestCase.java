@@ -12,7 +12,7 @@ import org.junit.Test;
 public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
 
   @Test
-  public void testBBoxStrategy() throws IOException {
+  public void testPointStrategy() throws IOException {
     TrieFieldHelper.FieldInfo tinfo = new TrieFieldHelper.FieldInfo();
     PointFieldInfo finfo = new PointFieldInfo( "point" );
 
@@ -31,7 +31,6 @@ public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
         DATA_STATES_BBOX,
         QTEST_States_IsWithin_BBox,
         QTEST_States_Intersects_BBox );
-
     }
 
     executeQueries( s, new SimpleShapeIO(), finfo,

@@ -107,7 +107,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
     while (queries.hasNext()) {
       SpatialTestQuery q = queries.next();
 
-      String msg = "Query: " + q.args.toString(shapeIO);
+      String msg = q.line; //"Query: " + q.args.toString(shapeIO);
       SearchResults got = executeQuery(strategy.makeQuery(q.args, fieldInfo), 100);
       if (q.orderIsImportant) {
         Iterator<String> ids = q.ids.iterator();

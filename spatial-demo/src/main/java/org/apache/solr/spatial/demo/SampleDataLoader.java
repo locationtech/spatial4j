@@ -183,14 +183,16 @@ public class SampleDataLoader
 
     File file = new File( "../spatial-data/src/main/resources/geonames/cities15000.txt" ); //states.shp" ); //cntry06.shp" );
     if( true ) {
-      File fout = new File( "c:/temp/cities-points.txt" );
+      int cnt = 0;
+      File fout = new File( "c:/temp/worldcities-points.txt" );
       SampleDataWriter out = new SampleDataWriter( fout );
       GeonamesReader reader = new GeonamesReader( file );
       while( reader.hasNext() ) {
         Geoname place = reader.next();
-        if( place.population > 50000 ) {
+        if( place.population > 150000 ) {
           System.out.println( "INCLUDE: " + place.population + "  : " + place.name );
           out.write( "G"+place.id , place.name, place.longitude, place.latitude );
+          cnt++;
         }
         else {
           System.out.println( "SKIP: " + place.population + "  : " + place.name );
@@ -198,7 +200,7 @@ public class SampleDataLoader
       }
       out.close();
 
-      System.out.println( "done." );
+      System.out.println( "done: "+cnt );
       return;
     }
 

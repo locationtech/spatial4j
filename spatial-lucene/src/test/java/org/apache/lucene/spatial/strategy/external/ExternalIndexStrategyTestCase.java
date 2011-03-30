@@ -35,7 +35,7 @@ public class ExternalIndexStrategyTestCase extends StrategyTestCase<SimpleSpatia
     executeQueries(
         new ExternalIndexStrategy(shapeIO),
         shapeIO, new SimpleSpatialFieldInfo( "geo" ),
-        DATA_COUNTRIES_POLY,
+        DATA_STATES_POLY,
         QTEST_States_Intersects_BBox );
   }
 }

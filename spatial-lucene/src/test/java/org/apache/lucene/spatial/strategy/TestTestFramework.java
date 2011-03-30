@@ -54,9 +54,8 @@ public class TestTestFramework {
 
     SpatialTestQuery sf = tests.get(0);
    // assert
-    Assert.assertEquals( 2, sf.ids.size() );
-    Assert.assertTrue( sf.ids.get(0).equals( "G5341430" ) );
-    Assert.assertTrue( sf.ids.get(1).equals( "G5391959" ) );
+    Assert.assertEquals( 1, sf.ids.size() );
+    Assert.assertTrue( sf.ids.get(0).equals( "G5391959" ) );
     Assert.assertTrue( sf.args.getShape() instanceof BBox );
     Assert.assertEquals( SpatialOperation.IsWithin, sf.args.getOperation() );
   }

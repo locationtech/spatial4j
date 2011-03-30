@@ -34,4 +34,9 @@ public interface BBox extends Shape {
    * Width and height have a meaningful value
    */
   public boolean hasSize();
+
+  /**
+   * @return The point in the middle
+   */
+  public Point getCentroid();
 }
