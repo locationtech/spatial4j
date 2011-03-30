@@ -9,6 +9,7 @@ import org.apache.lucene.spatial.base.io.geonames.Geoname;
 import org.apache.lucene.spatial.base.io.geonames.GeonamesReader;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
+import org.apache.lucene.spatial.base.io.sample.SampleDataWriter;
 import org.apache.lucene.spatial.base.shape.jts.JtsEnvelope;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.solr.client.solrj.SolrServer;
@@ -17,7 +18,6 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.spatial.demo.utils.countries.BasicInfo;
 import org.apache.solr.spatial.demo.utils.countries.BasicReader;
 import org.apache.solr.spatial.demo.utils.countries.CountryReader;
-import org.apache.solr.spatial.demo.utils.countries.StateReader;
 import org.apache.solr.spatial.demo.utils.shapefile.ShapeReader;
 import org.geotools.data.FeatureReader;
 import org.opengis.feature.simple.SimpleFeature;
@@ -170,9 +170,25 @@ public class SampleDataLoader
 //      System.out.println( reader.getCount() );
 //      return;
 //    }
+    
+
+    File file = new File( "../spatial-data/src/main/resources/geonames/cities15000.txt" ); //states.shp" ); //cntry06.shp" );
+    if( true ) {
+      File fout = new File( "c:/temp/cities-points.txt" );
+      SampleDataWriter out = new SampleDataWriter( fout );
+      GeonamesReader reader = new GeonamesReader( file );
+      while( reader.hasNext() ) {
+        Geoname place = reader.next();
+        out.write( "G"+place.id , place.name, place.longitude, place.latitude );
+      }
+      out.close();
+      
+      System.out.println( "done." );
+      return;
+    }
 
 
-    File file = new File( "../spatial-data/src/main/resources/countries/cntry06.shp" ); //states.shp" ); //cntry06.shp" );
+    file = new File( "../spatial-data/src/main/resources/countries/cntry06.shp" ); //states.shp" ); //cntry06.shp" );
     if( true ) {
       System.out.println( "bbox:" );
       File fout = new File( "c:/temp/country-bbox.txt" );
