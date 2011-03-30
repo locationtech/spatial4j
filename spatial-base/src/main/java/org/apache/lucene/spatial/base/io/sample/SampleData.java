@@ -14,7 +14,7 @@ public class SampleData {
     name = vals[1];
     shape = vals[2];
   }
-  
+
   public static Comparator<SampleData> NAME_ORDER = new Comparator<SampleData>() {
     @Override
     public int compare(SampleData o1, SampleData o2) {

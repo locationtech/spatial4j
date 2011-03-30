@@ -207,7 +207,7 @@ public class SearchPage extends WebPage
         SolrParams params = query.getObject().toSolrQuery( 10 );
         return params.get( "q" );
       }
-      
+
     }).add( new AttributeModifier( "href", true, new AbstractReadOnlyModel<CharSequence>() {
       @Override
       public CharSequence getObject() {

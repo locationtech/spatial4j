@@ -1,5 +1,9 @@
 package org.apache.lucene.spatial.strategy;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
@@ -14,10 +18,6 @@ import org.apache.lucene.util.LuceneTestCase;
 import org.junit.After;
 import org.junit.Before;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Chris Male
  */
@@ -27,12 +27,13 @@ public abstract class SpatialTestCase extends LuceneTestCase {
   private Directory directory;
   private IndexSearcher indexSearcher;
 
+  @Override
   @Before
   public void setUp() throws Exception {
     super.setUp();
 
     directory = newDirectory(random);
-    
+
     IndexWriterConfig writerConfig = newIndexWriterConfig(random, TEST_VERSION_CURRENT, new WhitespaceAnalyzer(TEST_VERSION_CURRENT));
     IndexWriter indexWriter = new IndexWriter(directory, writerConfig);
 
@@ -46,6 +47,7 @@ public abstract class SpatialTestCase extends LuceneTestCase {
     indexSearcher = newSearcher(indexReader);
   }
 
+  @Override
   @After
   public void tearDown() throws Exception {
     super.tearDown();

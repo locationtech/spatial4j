@@ -9,15 +9,12 @@ import org.apache.lucene.spatial.base.io.geonames.Geoname;
 import org.apache.lucene.spatial.base.io.geonames.GeonamesReader;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.spatial.demo.utils.countries.BasicInfo;
 import org.apache.solr.spatial.demo.utils.countries.BasicReader;
-import org.apache.solr.spatial.demo.utils.countries.CountryReader;
 import org.apache.solr.spatial.demo.utils.countries.StateReader;
-import org.apache.solr.spatial.demo.utils.geoeye.GeoeyeReader;
 import org.apache.solr.spatial.demo.utils.shapefile.ShapeReader;
 import org.geotools.data.FeatureReader;
 import org.opengis.feature.simple.SimpleFeature;
@@ -111,14 +108,14 @@ public class SampleDataLoader
     }
     solr.commit( true, true );
   }
-  
+
 
   public static void load( SolrServer solr ) throws Exception
   {
     File file = null;
-    
+
     //file = new File(SampleDataLoader.class.getClassLoader().getResource("us-states.txt").getFile());
-    
+
     File basedir = new File( "../spatial-data/src/main/resources" );
     file = new File( basedir, "us-states.txt" );
     if( file.exists() ) {
@@ -164,8 +161,8 @@ public class SampleDataLoader
 //      System.out.println( reader.getCount() );
 //      return;
 //    }
-    
-    
+
+
     File file = new File( "../spatial-data/src/main/resources/countries/states.shp" ); //cntry06.shp" );
     if( true ) {
       File fout = new File( "c:/temp/us-states.txt" );

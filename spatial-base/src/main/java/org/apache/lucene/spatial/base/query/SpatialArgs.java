@@ -69,9 +69,10 @@ public class SpatialArgs {
     if( max != null ) {
       str.append( " max="+max );
     }
-    return str.toString(); 
+    return str.toString();
   }
-  
+
+  @Override
   public String toString()
   {
     return toString( new SimpleShapeIO() );

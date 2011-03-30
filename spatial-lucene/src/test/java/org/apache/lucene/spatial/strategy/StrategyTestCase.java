@@ -31,33 +31,36 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
-import org.apache.lucene.spatial.base.query.SpatialOperation;
+import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.junit.Before;
-import org.junit.Test;
 
 
 public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends SpatialTestCase {
 
-  ShapeIO shapeIO;
-  SpatialStrategy<T> strategy;
-  T fieldInfo;
+  protected final SpatialArgsParser argsParser = new SpatialArgsParser();
+  protected ShapeIO shapeIO;
+  protected SpatialStrategy<T> strategy;
+  protected T fieldInfo;
 
+  /**
+   * This needs to initialize the shapeIO,strategy and fieldInfo
+   */
   protected abstract void initStrategy();
-  
-  protected abstract Iterator<SampleData> getTestData();
-  
-  
+
+  protected abstract Iterator<SampleData> getTestData() throws IOException;
+
+
+  @Override
   @Before
   public void setUp() throws Exception {
-    super.setUp();
     initStrategy();
+    super.setUp();
   }
-  
+
   @Override
   protected List<Document> getDocuments() throws IOException {
     ArrayList<Document> docs = new ArrayList<Document>();
@@ -65,25 +68,27 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
     while( iter.hasNext() ) {
       SampleData data = iter.next();
       Document doc = new Document();
+      doc.add( new Field( "id", data.id, Store.YES, Index.ANALYZED ) );
       doc.add( new Field( "name", data.name, Store.YES, Index.ANALYZED ) );
-      doc.add( new Field( "id", "state-"+data.id, Store.YES, Index.ANALYZED ) );
-      
       Shape shape = shapeIO.readShape( data.shape );
-      
       for( Fieldable f : strategy.createFields(fieldInfo, shape, true, true) ) {
-        doc.add( f );
+        if( f != null ) {
+          doc.add( f );
+        }
       }
       docs.add( doc );
     }
     return docs;
   }
-  
+
   protected SearchResults execute( SpatialArgs args, int numDocs ) {
     return executeQuery(strategy.makeQuery(args, fieldInfo ), numDocs );
   }
 
-  public void runTestQueries( Iterable<SpatialTestQuery> queries ) {
-    for( SpatialTestQuery q : queries ) {
+  public void runTestQueries( Iterator<SpatialTestQuery> queries ) {
+    while( queries.hasNext() ) {
+      SpatialTestQuery q = queries.next();
+
       String msg = "Query: "+q.args.toString(shapeIO);
       SearchResults got = execute(q.args, 100 );
       if( q.orderIsImportant ) {
@@ -106,20 +111,5 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
         Assert.assertEquals(msg, q.ids.toString(), found.toString() );
       }
     }
-  }
-  
-  
-  
-  @Test
-  public void testSearch() throws IOException {
-    System.out.println( "running simple query..." );
-    
-    SearchResults got = executeQuery(new MatchAllDocsQuery(), 5 );
-    
-    SpatialArgs args = new SpatialArgs( SpatialOperation.Contains );
-    args.setShape( shapeIO.readShape( "-106.853027 37.836914 -103.952637 40.012207" ) );
-    
-    System.out.println( "got: "+got.numFound );
-    
   }
 }

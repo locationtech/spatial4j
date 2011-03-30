@@ -11,6 +11,7 @@ import java.util.Iterator;
 public abstract class LineReader<T> implements Iterator<T> {
 
   private int count = 0;
+  private int lineNumber = 0;
   private BufferedReader reader;
   private String nextLine;
   private boolean closeWhenDone = false;
@@ -53,6 +54,7 @@ public abstract class LineReader<T> implements Iterator<T> {
       try {
         while( true ) {
           nextLine = reader.readLine();
+          lineNumber++;
           if (nextLine == null ) {
             if( closeWhenDone ) {
               reader.close();
@@ -77,6 +79,10 @@ public abstract class LineReader<T> implements Iterator<T> {
     throw new UnsupportedOperationException();
   }
 
+  public int getLineNumber() {
+    return lineNumber;
+  }
+  
   public int getCount() {
     return count;
   }

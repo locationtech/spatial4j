@@ -38,6 +38,14 @@ public class BBoxFieldInfo implements SpatialFieldInfo {
   // crosses dateline
   public String xdl = "envelope.xdl";
 
+  public BBoxFieldInfo() {
+
+  }
+
+  public BBoxFieldInfo( String p ) {
+    this.setFieldsPrefix( p );
+  }
+
   public void setFieldsPrefix(String prefix) {
     minX = prefix + SUFFIX_MINX;
     maxX = prefix + SUFFIX_MAXX;
