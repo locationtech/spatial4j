@@ -22,7 +22,7 @@ package org.apache.lucene.spatial.base.distance;
  * flux and might change in incompatible ways in the next
  * release.</font>
  */
-public class FloatLatLng extends LatLng {
+public class FloatLatLng {
   private double lat;
   private double lng;
   private boolean normalized;
@@ -33,27 +33,23 @@ public class FloatLatLng extends LatLng {
     this.lng=lng;
   }
 
-  public FloatLatLng(LatLng ll) {
+  public FloatLatLng(FloatLatLng ll) {
     this.lat=ll.getLat();
     this.lng=ll.getLng();
   }
 
-  @Override
-  public LatLng copy() {
+  public FloatLatLng copy() {
     return new FloatLatLng(this);
   }
 
-  @Override
   public double getLat() {
     return this.lat;
   }
 
-  @Override
   public double getLng() {
     return this.lng;
   }
 
-  @Override
   public boolean isNormalized() {
     return
       normalized || (
@@ -62,8 +58,7 @@ public class FloatLatLng extends LatLng {
           );
   }
 
-  @Override
-  public LatLng normalize() {
+  public FloatLatLng normalize() {
     if (isNormalized()) return this;
 
     double delta=0;
@@ -80,6 +75,75 @@ public class FloatLatLng extends LatLng {
     return ret;
   }
 
+
+
+  /**
+   * Calculates the distance between two lat/lng's in miles.
+   * Imported from mq java client.
+   *
+   * @param ll2
+   *            Second lat,lng position to calculate distance to.
+   *
+   * @return Returns the distance in miles.
+   */
+  public double arcDistance(FloatLatLng ll2) {
+    return arcDistance(ll2, DistanceUnits.MILES);
+  }
+
+  /**
+   * Calculates the distance between two lat/lng's in miles or meters.
+   * Imported from mq java client.  Variable references changed to match.
+   *
+   * @param ll2
+   *            Second lat,lng position to calculate distance to.
+   * @param lUnits
+   *            Units to calculate distance, defaults to miles
+   *
+   * @return Returns the distance in meters or miles.
+   */
+  public double arcDistance(FloatLatLng ll2, DistanceUnits lUnits) {
+    FloatLatLng ll1 = normalize();
+    ll2 = ll2.normalize();
+
+    double lat1 = ll1.getLat(), lng1 = ll1.getLng();
+    double lat2 = ll2.getLat(), lng2 = ll2.getLng();
+
+    // Check for same position
+    if (lat1 == lat2 && lng1 == lng2)
+      return 0.0;
+
+    // Get the m_dLongitude difference. Don't need to worry about
+    // crossing 180 since cos(x) = cos(-x)
+    double dLon = lng2 - lng1;
+
+    double a = radians(90.0 - lat1);
+    double c = radians(90.0 - lat2);
+    double cosB = (Math.cos(a) * Math.cos(c))
+        + (Math.sin(a) * Math.sin(c) * Math.cos(radians(dLon)));
+
+    double radius = (lUnits == DistanceUnits.MILES) ? 3963.205/* MILERADIUSOFEARTH */
+    : 6378.160187/* KMRADIUSOFEARTH */;
+
+    // Find angle subtended (with some bounds checking) in radians and
+    // multiply by earth radius to find the arc distance
+    if (cosB < -1.0)
+      return 3.14159265358979323846/* PI */* radius;
+    else if (cosB >= 1.0)
+      return 0;
+    else
+      return Math.acos(cosB) * radius;
+  }
+
+  private double radians(double a) {
+    return a * 0.01745329251994;
+  }
+
+  @Override
+  public String toString() {
+    return "[" + getLat() + "," + getLng() + "]";
+  }
+  
+  
   @Override
   public int hashCode() {
     final int prime = 31;
