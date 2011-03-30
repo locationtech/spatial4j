@@ -43,7 +43,7 @@ public class TestIndexSampleData {
     // This data is only supported by JTS
     JtsShapeIO io = new JtsShapeIO();
 
-    File file = new File( "../data/countries.txt" );
+    File file = new File(getClass().getClassLoader().getResource("countries.txt").getFile());
     System.out.println( file.getAbsolutePath() );
 
     SampleDataReader reader = new SampleDataReader(file);
@@ -54,7 +54,7 @@ public class TestIndexSampleData {
     Assert.assertEquals( 248, reader.getCount() );
 
 
-    file = new File( "../data/us-states.txt" );
+    file = new File(getClass().getClassLoader().getResource("us-states.txt").getFile());
     System.out.println( file.getAbsolutePath() );
 
     reader = new SampleDataReader(file);
@@ -71,7 +71,7 @@ public class TestIndexSampleData {
     // This could use JTS or Simple
     JtsShapeIO io = new JtsShapeIO();
 
-    File file = new File( "../data/geonames-IE.txt" );
+    File file = new File(getClass().getClassLoader().getResource("geonames-IE.txt").getFile());
     System.out.println( file.getAbsolutePath() );
 
     GeonamesReader reader = new GeonamesReader(file);

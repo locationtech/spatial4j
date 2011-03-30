@@ -40,8 +40,8 @@ import org.apache.lucene.spatial.strategy.SpatialStrategy;
 
 public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
-  private final SpatialPrefixGrid grid;
-  private final int maxLength;
+  protected final SpatialPrefixGrid grid;
+  protected final int maxLength;
 
   public PrefixGridStrategy(SpatialPrefixGrid grid, int maxLength) {
     this.grid = grid;
