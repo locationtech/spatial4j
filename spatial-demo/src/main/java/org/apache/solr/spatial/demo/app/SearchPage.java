@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
-import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -60,7 +59,7 @@ public class SearchPage extends WebPage
   static Logger log = LoggerFactory.getLogger( SearchPage.class );
 
   // Dirty Dirty Dirty Hack...
-  static final JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid( -180, 180, -90-180, 90, 16 );
+  static final LinearPrefixGrid grid = new LinearPrefixGrid( -180, 180, -90-180, 90, 16 );
   static final SolrServer solr;
   static {
     SolrServer s = null;

@@ -19,7 +19,7 @@ package org.apache.solr.spatial.prefix;
 
 import java.util.Map;
 
-import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
@@ -47,10 +47,8 @@ public class SpatialPrefixGridFieldType extends SpatialFieldType<SimpleSpatialFi
     if (res != null) {
       maxLength = Integer.parseInt(res);
     }
-
-    // TODO, allow configuration
-    reader = new JtsShapeIO();
-    JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid(-180, 180, -90 - 180, 90, 16);
+    
+    LinearPrefixGrid grid = new LinearPrefixGrid(-180, 180, -90 - 180, 90, 16,reader);
     grid.setResolution(5);
 
     spatialStrategy = new PrefixGridStrategy(grid, maxLength);

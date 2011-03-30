@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
-import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
@@ -118,8 +118,8 @@ public class KMLHelper
 
   public static void main( String[] args ) throws Exception
   {
-    JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid( 0, 10, 0, 10, 10 );
-    grid = new JtsLinearPrefixGrid( -180, 180, -90-180, 90, 16 ); // make it like WGS84
+    LinearPrefixGrid grid = new LinearPrefixGrid( 0, 10, 0, 10, 10 );
+    grid = new LinearPrefixGrid( -180, 180, -90-180, 90, 16 ); // make it like WGS84
 
 
 //    CRSCache cache = new CRSCache();

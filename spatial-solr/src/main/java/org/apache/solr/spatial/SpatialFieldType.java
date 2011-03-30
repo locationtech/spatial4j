@@ -27,6 +27,7 @@ import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.shape.ShapeIOProvider;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
@@ -68,8 +69,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
       ignoreIncompatibleGeometry = Boolean.valueOf( v );
     }
 
-    // TODO, read configuration from Map
-    reader = new JtsShapeIO();  // some way to share this across different fields?
+    reader = ShapeIOProvider.getShapeIO();
     argsParser = new SpatialArgsParser();
   }
 
