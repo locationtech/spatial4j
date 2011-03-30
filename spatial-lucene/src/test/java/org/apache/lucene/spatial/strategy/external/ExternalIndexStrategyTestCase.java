@@ -15,28 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.shape;
+package org.apache.lucene.spatial.strategy.external;
 
-public interface BBox extends Shape {
 
-  public double getWidth();
-  public double getHeight();
+import java.io.IOException;
 
-  public double getMinX();
-  public double getMinY();
-  public double getMaxX();
-  public double getMaxY();
+import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
+import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
+import org.apache.lucene.spatial.strategy.StrategyTestCase;
+import org.junit.Test;
 
-  public double getArea(); // optional
-  public boolean getCrossesDateLine();
 
-  /**
-   * Width and height have a meaningful value
-   */
-  public boolean hasSize();
+public class ExternalIndexStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
 
-  /**
-   * @return The point in the middle
-   */
-  public Point getCentroid();
+  @Test
+  public void testExternalIndexStrategy() throws IOException {
+    ShapeIO shapeIO = new JtsShapeIO();
+    executeQueries(
+        new ExternalIndexStrategy(shapeIO),
+        shapeIO, new SimpleSpatialFieldInfo( "geo" ),
+        DATA_STATES_POLY,
+        QTEST_States_Intersects_BBox );
+  }
 }

@@ -28,7 +28,7 @@ import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
+import org.apache.lucene.spatial.base.shape.ShapeIOProvider;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.solr.common.SolrException;
@@ -72,8 +72,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
     }
     // TODO, configure geometry factory...
 
-    // TODO pick JTS or simple?
-    reader = new JtsShapeIO(units);
+    reader = ShapeIOProvider.getShapeIO();
     v = args.remove( "ignoreIncompatibleGeometry" );
     if( v != null ) {
       ignoreIncompatibleGeometry = Boolean.valueOf( v );

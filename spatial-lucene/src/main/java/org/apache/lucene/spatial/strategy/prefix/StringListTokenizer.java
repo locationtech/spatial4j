@@ -27,7 +27,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 /**
  * Put a list of strings directly into the token stream
  */
-class StringListTokenizer extends Tokenizer {
+public class StringListTokenizer extends Tokenizer {
 
   private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 

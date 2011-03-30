@@ -28,7 +28,7 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.Field.TermVector;
 
 
-class BasicGridFieldable extends AbstractField {
+public class BasicGridFieldable extends AbstractField {
   public String value;
   public TokenStream tokens;
 

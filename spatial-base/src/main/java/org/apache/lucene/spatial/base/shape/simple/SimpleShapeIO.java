@@ -28,10 +28,16 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.AbstractShapeIO;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
+
 public class SimpleShapeIO extends AbstractShapeIO {
 
   public SimpleShapeIO(DistanceUnits units) {
     super(units);
+  }
+  
+  public SimpleShapeIO() {
+    super( DistanceUnits.KILOMETERS );
   }
 
   public Shape readShape(String value) throws InvalidShapeException {

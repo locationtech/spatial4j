@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
-import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -60,7 +59,7 @@ public class SearchPage extends WebPage
   static Logger log = LoggerFactory.getLogger( SearchPage.class );
 
   // Dirty Dirty Dirty Hack...
-  static final JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid( -180, 180, -90-180, 90, 16 );
+  static final LinearPrefixGrid grid = new LinearPrefixGrid( -180, 180, -90-180, 90, 16 );
   static final SolrServer solr;
   static {
     SolrServer s = null;
@@ -146,7 +145,7 @@ public class SearchPage extends WebPage
           for( SolrDocument doc : rsp.getResults() ) {
             final String id = (String)doc.getFieldValue( "id" );
             WebMarkupContainer row = new WebMarkupContainer( rv.newChildId() );
-            row.add( new Label( "name", (String)doc.getFieldValue( "name" ) ) );
+            row.add( new Label( "name", doc.getFieldValue( "id" ) + " - " + doc.getFieldValue( "name" ) ) );
             row.add( new Label( "source", (String)doc.getFieldValue( "source" ) ));
             row.add( new Label( "score", doc.getFieldValue( "score" )+"" ));
             row.add( new ExternalLink( "link", "/solr/select?q=id:"+ClientUtils.escapeQueryChars(id) ));
@@ -200,13 +199,20 @@ public class SearchPage extends WebPage
         return v;
       }
     }));
-    results.add( new WebMarkupContainer( "solr" ).add( new AttributeModifier( "href", true, new AbstractReadOnlyModel<CharSequence>() {
+    results.add( new Label( "solr", new AbstractReadOnlyModel<String>() {
+
+      @Override
+      public String getObject() {
+        SolrParams params = query.getObject().toSolrQuery( 10 );
+        return params.get( "q" );
+      }
+
+    }).add( new AttributeModifier( "href", true, new AbstractReadOnlyModel<CharSequence>() {
       @Override
       public CharSequence getObject() {
         StringBuilder url = new StringBuilder();
         url.append( "http://localhost:8080/solr/select?debugQuery=true" );
         SolrParams params = query.getObject().toSolrQuery( 10 );
-
         for(Iterator<String> it=params.getParameterNamesIterator(); it.hasNext(); ) {
           final String name = it.next();
           try {

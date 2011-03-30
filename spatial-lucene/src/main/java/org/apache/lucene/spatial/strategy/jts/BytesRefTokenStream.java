@@ -15,7 +15,7 @@ class BytesRefTokenStream extends TokenStream {
   }
 
   @Override
-  public boolean incrementToken() {
+  public final boolean incrementToken() {
     if (exhausted) {
       return false;
     } else {

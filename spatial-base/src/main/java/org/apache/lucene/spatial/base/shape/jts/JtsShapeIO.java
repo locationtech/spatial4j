@@ -46,6 +46,10 @@ public class JtsShapeIO extends AbstractShapeIO {
 
   public GeometryFactory factory;
 
+  public JtsShapeIO() {
+    this( new GeometryFactory(), DistanceUnits.KILOMETERS );
+  }
+  
   public JtsShapeIO( DistanceUnits units ) {
     this( new GeometryFactory(), units );
   }
@@ -184,7 +188,6 @@ public class JtsShapeIO extends AbstractShapeIO {
     }
     throw new InvalidShapeException("can't make Geometry from: " + shape);
   }
-
 
   @Override
   public BBox makeBBox(double minX, double maxX, double minY, double maxY) {

@@ -19,6 +19,7 @@ package org.apache.lucene.spatial.base.shape.simple;
 
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 /**
@@ -131,5 +132,12 @@ public class Rectangle implements BBox {
   @Override
   public String toString() {
     return "[" + minX + "," + maxX + "," + minY + "," + maxY + "]";
+  }
+
+  @Override
+  public Point getCentroid() {
+    return new Point2D(
+        (getMinX() + getMaxX()) / 2.0,
+        (getMinY() + getMaxY()) / 2.0);
   }
 }

@@ -22,6 +22,7 @@ import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class JtsEnvelope implements BBox {
 
@@ -138,5 +139,10 @@ public class JtsEnvelope implements BBox {
   @Override
   public int hashCode() {
     return envelope.hashCode();
+  }
+
+  @Override
+  public JtsPoint2D getCentroid() {
+    return new JtsPoint2D(new GeometryFactory().createPoint(envelope.centre()));
   }
 }

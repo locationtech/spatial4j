@@ -19,8 +19,7 @@ public class StateReader extends BasicReader<BasicInfo>
     BasicInfo c = new BasicInfo();
     c.geometry = (Geometry)f.getAttribute(0);
     c.name = (String)f.getAttribute( 1 );
-    c.fips = (String)f.getAttribute( 2 );
-    c.population2005 = (Integer)f.getAttribute( 6 );
+    c.id = (String)f.getAttribute( 4 );
 
 
 //    0] the_geom :: class com.vividsolutions.jts.geom.MultiPolygon
@@ -86,10 +85,9 @@ public class StateReader extends BasicReader<BasicInfo>
     while( iter.hasNext() ) {
       BasicInfo c = read( iter.next() );
       SolrInputDocument doc = new SolrInputDocument();
-      doc.setField( "id", c.fips );
+      doc.setField( "id", c.id );
       doc.setField( "name", c.name );
       doc.setField( "geo", c.geometry.toText() );
-      doc.setField( "pop2005", c.population2005 );
       doc.setField( "source", "state" );
       solr.add( doc );
       System.out.println( (++count)+"/"+total + " :: " +c.name );

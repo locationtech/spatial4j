@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
-import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
@@ -61,7 +61,7 @@ public class GridInfoServlet extends HttpServlet
       FeatureReader<SimpleFeatureType, SimpleFeature> iter = reader.getFeatures();
       while( iter.hasNext() ) {
         CountryInfo info = new CountryReader().read( iter.next() );
-        if( country.equalsIgnoreCase( info.fips ) ) {
+        if( country.equalsIgnoreCase( info.id ) ) {
           name = info.name;
           shape = new JtsGeometry( info.geometry );
           break;
@@ -75,7 +75,7 @@ public class GridInfoServlet extends HttpServlet
     }
     int depth = getIntParam( req, "depth", 16 );
     ShapeIO reader = new JtsShapeIO( DistanceUnits.KILOMETERS );
-    JtsLinearPrefixGrid grid = new JtsLinearPrefixGrid( -180, 180, -90-180, 90, depth ); // make it like WGS84
+    LinearPrefixGrid grid = new LinearPrefixGrid( -180, 180, -90-180, 90, depth ); // make it like WGS84
     grid.setResolution(getIntParam(req, "resolution", 4));
 
     // If they don't set a country, then use the input

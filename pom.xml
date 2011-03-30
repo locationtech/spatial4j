@@ -34,33 +34,6 @@
   
   <build>
     <finalName>${project.artifactId}-${project.version}-r${buildNumber}</finalName>
-
-    <resources>
-      <resource>
-        <filtering>false</filtering>
-        <directory>src/main/java</directory>
-        <includes>
-          <include>**</include>
-        </includes>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
-      </resource>
-    </resources>
-    
-    <testResources>
-      <testResource>
-        <filtering>false</filtering>
-        <directory>src/test/java</directory>
-        <includes>
-          <include>**</include>
-        </includes>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
-      </testResource>
-    </testResources>
-  
   
     <plugins>
       <plugin>
@@ -267,6 +240,7 @@
     <module>spatial-lucene</module>
     <module>spatial-solr</module>
     <module>spatial-demo</module>
+      <module>spatial-data</module>
   </modules>
   
 </project>

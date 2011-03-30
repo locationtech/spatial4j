@@ -93,6 +93,11 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
     if (Point.class.isInstance(args.getShape())) {
       return new DistanceValueSource(((Point)args.getShape()), calc, fieldInfo, parser);
     }
+    // Score based on distance to the center
+    if (BBox.class.isInstance(args.getShape())) {
+      Point p = ((BBox)args.getShape()).getCentroid();
+      return new DistanceValueSource(p, calc, fieldInfo, parser);
+    }
     throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
   }
 

@@ -18,9 +18,8 @@ public class CountryReader extends BasicReader<CountryInfo>
   {
     CountryInfo c = new CountryInfo();
     c.geometry = (Geometry)f.getAttribute(0);
+    c.id = (String)f.getAttribute( 2 ); // GMI_CNTRY
     c.name = (String)f.getAttribute( 6 );
-    c.longName = (String)f.getAttribute( 6 );
-    c.fips = (String)f.getAttribute( 1 );
     c.status = (String)f.getAttribute( 12 );
     c.sqKM = (Double)f.getAttribute( 14 );
     c.sqMI = (Double)f.getAttribute( 15 );
@@ -29,6 +28,8 @@ public class CountryReader extends BasicReader<CountryInfo>
     if( v != null ) {
       c.population2005 = v.intValue();
     }
+
+    System.out.println( c.id + " :: " + c.name );
 
     //0] the_geom :: class com.vividsolutions.jts.geom.MultiPolygon
     //1] FIPS_CNTRY :: class java.lang.String
@@ -62,7 +63,7 @@ public class CountryReader extends BasicReader<CountryInfo>
     while( iter.hasNext() ) {
       CountryInfo c = read( iter.next() );
       SolrInputDocument doc = new SolrInputDocument();
-      doc.setField( "id", c.fips );
+      doc.setField( "id", c.id );
       doc.setField( "name", c.name );
       doc.setField( "geo", c.geometry.toText() );
       doc.setField( "pop2005", c.population2005 );

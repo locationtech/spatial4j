@@ -24,7 +24,7 @@ import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
-class TruncateFilter extends TokenFilter {
+public class TruncateFilter extends TokenFilter {
 
   private final int maxTokenLength;
 
@@ -36,7 +36,7 @@ class TruncateFilter extends TokenFilter {
   }
 
   @Override
-  public boolean incrementToken() throws IOException {
+  public final boolean incrementToken() throws IOException {
     if (!input.incrementToken()) {
       return false;
     }

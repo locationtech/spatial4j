@@ -25,7 +25,8 @@ import java.util.StringTokenizer;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.simple.Rectangle;
+import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.shape.ShapeIOProvider;
 
 public class LinearPrefixGrid implements SpatialPrefixGrid {
 
@@ -48,12 +49,18 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
   private int minResolution = 6; // Go at least this deep
   private int resolution = 4; // how far down past the 'bbox level'
 
-  public LinearPrefixGrid(double xmin, double xmax, double ymin, double ymax, int maxLevels) {
+  private final ShapeIO shapeIO;
+
+  public LinearPrefixGrid(
+      double xmin, double xmax,
+      double ymin, double ymax,
+      int maxLevels, ShapeIO shapeIO ) {
     this.xmin = xmin;
     this.xmax = xmax;
     this.ymin = ymin;
     this.ymax = ymax;
     this.maxLevels = maxLevels;
+    this.shapeIO = shapeIO;
 
     levelW = new double[maxLevels];
     levelH = new double[maxLevels];
@@ -78,6 +85,13 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
   }
 
   public LinearPrefixGrid(
+      double xmin, double xmax,
+      double ymin, double ymax,
+      int maxLevels ) {
+    this( xmin, xmax, ymin, ymax, maxLevels, ShapeIOProvider.getShapeIO() );
+  }
+
+  public LinearPrefixGrid(
       double xmin,
       double xmax,
       double ymin,
@@ -85,13 +99,13 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
       int maxLevels,
       int minResolution,
       int resolution) {
-    this(xmin, xmax, ymin, ymax, maxLevels);
+    this(xmin, xmax, ymin, ymax, maxLevels, ShapeIOProvider.getShapeIO() );
     this.minResolution = minResolution;
     this.resolution = resolution;
   }
 
   public LinearPrefixGrid() {
-    this(-180, 180, -90, 90, 12);
+    this(-180, 180, -90, 90, 12, ShapeIOProvider.getShapeIO());
   }
 
   public void printInfo() {
@@ -169,7 +183,7 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
     double h = levelH[level] / 2;
 
     int strlen = str.length();
-    BBox cell = makeExtent(cx - w, cx + w, cy - h, cy + h);
+    BBox cell = shapeIO.makeBBox(cx - w, cx + w, cy - h, cy + h);
     IntersectCase v = geo.intersect(cell, this);
     if (IntersectCase.CONTAINS == v) {
       str.append(c);
@@ -218,7 +232,7 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
       }
     }
     int len = seq.length() - 1;
-    return makeExtent(xmin, xmin + levelW[len], ymin, ymin + levelH[len]);
+    return shapeIO.makeBBox(xmin, xmin + levelW[len], ymin, ymin + levelH[len]);
   }
 
   public static List<String> parseStrings(String cells) {
@@ -228,11 +242,6 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
       tokens.add(st.nextToken());
     }
     return tokens;
-  }
-
-  // Subclasses could pick something explicit
-  protected BBox makeExtent( double xmin, double xmax, double ymin, double ymax ) {
-    return new Rectangle( xmin, xmax, ymin, ymax );
   }
 
   public void setMinResolution(int minResolution) {
