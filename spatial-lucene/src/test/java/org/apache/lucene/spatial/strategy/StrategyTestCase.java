@@ -65,9 +65,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
       document.add(new Field("name", data.name, Store.YES, Index.ANALYZED));
       Shape shape = shapeIO.readShape(data.shape);
       for (Fieldable f : strategy.createFields(fieldInfo, shape, true, true)) {
-        // if (f != null) { (REVIEW) (cmale) No Strategy should return null 
-          document.add(f);
-        //}
+        document.add(f);
       }
       documents.add(document);
     }
