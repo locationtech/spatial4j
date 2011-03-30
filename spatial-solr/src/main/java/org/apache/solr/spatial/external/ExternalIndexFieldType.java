@@ -20,8 +20,8 @@ package org.apache.solr.spatial.external;
 
 import java.util.Map;
 
-import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.external.ExternalIndexStrategy;
+import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
+import org.apache.lucene.spatial.strategy.external.ExternalIndexStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
@@ -37,6 +37,7 @@ public class ExternalIndexFieldType extends SpatialFieldType<SimpleSpatialFieldI
     super.init(schema, args);
 
     spatialStrategy = new ExternalIndexStrategy(reader);
+    spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 
   @Override

@@ -21,19 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.search.point.PointFieldInfo;
-import org.apache.lucene.spatial.search.point.PointStrategy;
+import org.apache.lucene.spatial.strategy.point.PointFieldInfo;
+import org.apache.lucene.spatial.strategy.point.PointStrategy;
+import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaAware;
 import org.apache.solr.schema.SchemaField;
+import org.apache.solr.schema.TrieDoubleField;
+import org.apache.solr.schema.TrieField;
 import org.apache.solr.spatial.SpatialFieldType;
 
 
@@ -41,39 +38,27 @@ public class PointFieldType extends SpatialFieldType<PointFieldInfo> implements 
 {
   protected final int fieldProps = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
 
-  FieldType pointType;
+  protected String doubleFieldName = "double";
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
 
-    spatialStrategy = new PointStrategy() {
-      @Override
-      public Fieldable[] createFields(PointFieldInfo fieldInfo,
-          Shape shape, boolean index, boolean store) {
-        if( shape instanceof Point ) {
-          Point point = (Point)shape;
-          int p = fieldProps | STORED;  // useful for debugging
-
-          Fieldable[] f = new Fieldable[store?3:2];
-          f[0] = pointType.createField( new SchemaField( fieldInfo.getXFieldName(), pointType, p, null ), new Double( point.getX() ), 1.0f );
-          f[1] = pointType.createField( new SchemaField( fieldInfo.getYFieldName(), pointType, p, null ), new Double( point.getY() ), 1.0f );
-          if( store ) {
-            f[2] = new Field( fieldInfo.getFieldName(), reader.toString( shape ), Store.YES, Index.NO );
-          }
-          return f;
-        }
-        if( false ) { //!ignoreIncompatibleGeometry ) {
-          throw new IllegalArgumentException( "PointField does not support: "+shape );
-        }
-        return null;
-      }
-    };
+    String v = args.remove( "doubleType" );
+    if( v != null ) {
+      doubleFieldName = v;
+    }
   }
 
   public void inform(IndexSchema schema)
   {
-    pointType = schema.getFieldTypeByName( "double" );
+    FieldType doubleType = schema.getFieldTypeByName( doubleFieldName );
+    if( doubleType == null ) {
+      throw new RuntimeException( "Can not find double: "+doubleFieldName );
+    }
+    if( !(doubleType instanceof TrieDoubleField) ) {
+      throw new RuntimeException( "double must be TrieDoubleField: "+doubleType );
+    }
 
     //Just set these, delegate everything else to the field type
     int p = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
@@ -81,15 +66,23 @@ public class PointFieldType extends SpatialFieldType<PointFieldInfo> implements 
     for( SchemaField sf : fields ) {
       if( sf.getType() == this ) {
         String name = sf.getName();
-        schema.getFields().put( name+PointFieldInfo.SUFFIX_X, new SchemaField( name+PointFieldInfo.SUFFIX_X, pointType, p, null ) );
-        schema.getFields().put( name+PointFieldInfo.SUFFIX_Y, new SchemaField( name+PointFieldInfo.SUFFIX_Y, pointType, p, null ) );
+        schema.getFields().put( name+PointFieldInfo.SUFFIX_X, new SchemaField( name+PointFieldInfo.SUFFIX_X, doubleType, p, null ) );
+        schema.getFields().put( name+PointFieldInfo.SUFFIX_Y, new SchemaField( name+PointFieldInfo.SUFFIX_Y, doubleType, p, null ) );
       }
     }
+
+    TrieField df = (TrieField)doubleType;
+    TrieFieldHelper.FieldInfo info = new TrieFieldHelper.FieldInfo();
+    info.setPrecisionStep( df.getPrecisionStep() );
+    info.store = true; // TODO properties &...
+
+    spatialStrategy = new PointStrategy(reader,info,FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
+    spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 
   @Override
   protected PointFieldInfo getFieldInfo(SchemaField field) {
-    return new PointFieldInfo(field.getName(), Integer.MAX_VALUE, FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
+    return new PointFieldInfo(field.getName());
   }
 }
 

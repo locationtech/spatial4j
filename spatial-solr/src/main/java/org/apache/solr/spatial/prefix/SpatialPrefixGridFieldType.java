@@ -20,8 +20,8 @@ package org.apache.solr.spatial.prefix;
 import java.util.Map;
 
 import org.apache.lucene.spatial.base.prefix.jts.JtsLinearPrefixGrid;
-import org.apache.lucene.spatial.search.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.search.prefix.PrefixGridStrategy;
+import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
+import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
@@ -51,6 +51,7 @@ public class SpatialPrefixGridFieldType extends SpatialFieldType<SimpleSpatialFi
     grid.setResolution(5);
 
     spatialStrategy = new PrefixGridStrategy(grid, maxLength);
+    spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 
   @Override

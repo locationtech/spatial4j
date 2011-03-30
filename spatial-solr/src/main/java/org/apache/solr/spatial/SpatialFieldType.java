@@ -29,8 +29,8 @@ import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
-import org.apache.lucene.spatial.search.SpatialFieldInfo;
-import org.apache.lucene.spatial.search.SpatialStrategy;
+import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
+import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.response.TextResponseWriter;
 import org.apache.solr.schema.FieldType;
@@ -57,6 +57,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   protected ShapeIO reader;
   protected SpatialArgsParser argsParser;
 
+  protected boolean ignoreIncompatibleGeometry = false;
   protected SpatialStrategy<T> spatialStrategy;
 
 
@@ -73,6 +74,10 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
     // TODO pick JTS or simple?
     reader = new JtsShapeIO(units);
+    v = args.remove( "ignoreIncompatibleGeometry" );
+    if( v != null ) {
+      ignoreIncompatibleGeometry = Boolean.valueOf( v );
+    }
     argsParser = new SpatialArgsParser();
   }
 
