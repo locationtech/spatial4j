@@ -42,7 +42,9 @@ public abstract class SpatialTestCase extends LuceneTestCase {
   @Override
   @After
   public void tearDown() throws Exception {
-    super.tearDown();
+    if (indexWriter != null) {
+      indexWriter.close();
+    }
     if (indexSearcher != null) {
       indexSearcher.close();
     }
@@ -52,6 +54,7 @@ public abstract class SpatialTestCase extends LuceneTestCase {
     if (directory != null) {
       directory.close();
     }
+    super.tearDown();
   }
 
   // ================================================= Helper Methods ================================================
