@@ -42,7 +42,7 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
     }
 
     fieldable.tokens = new PayloadAwareEdgeNGramTokenFilter(
-        new LengthPayloadTokenFilter(tokenStream),
+        new GridPayloadTokenFilter(tokenStream),
         PayloadAwareEdgeNGramTokenFilter.Side.FRONT, 1, 20);
     if (store) {
       fieldable.value = cells.toString();

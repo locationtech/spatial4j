@@ -12,12 +12,12 @@ import java.io.IOException;
 /**
  * @author Chris Male
  */
-public final class LengthPayloadTokenFilter extends TokenFilter {
+public final class GridPayloadTokenFilter extends TokenFilter {
 
   private final PayloadAttribute payloadAttribute = addAttribute(PayloadAttribute.class);
   private final CharTermAttribute termAttribute = addAttribute(CharTermAttribute.class);
 
-  public LengthPayloadTokenFilter(TokenStream input) {
+  public GridPayloadTokenFilter(TokenStream input) {
     super(input);
   }
 
@@ -26,7 +26,8 @@ public final class LengthPayloadTokenFilter extends TokenFilter {
       return false;
     }
 
-    payloadAttribute.setPayload(new Payload(PayloadHelper.encodeInt(termAttribute.toString().length())));
+
+    payloadAttribute.setPayload(new Payload(termAttribute.toString().getBytes()));
     return true;
   }
 
