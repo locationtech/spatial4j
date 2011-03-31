@@ -20,21 +20,14 @@ package org.apache.lucene.spatial.base.distance;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-public class EuclidianDistanceCalculator implements DistanceCalculator {
+public class HaversineDistanceCalculator implements DistanceCalculator {
+
+  final double radius;
   
-  private final boolean squared;
+  public HaversineDistanceCalculator( double radius ) {
+    this.radius = radius;
+  }
   
-  public EuclidianDistanceCalculator() {
-    this.squared = false;
-  }
-
-  public EuclidianDistanceCalculator( boolean squared ) {
-    this.squared = squared;
-  }
-
-  //--------------------------------------------------------
-  //--------------------------------------------------------
-
   @Override
   public double calculate(Point from, Shape shape) {
     if (Point.class.isInstance(shape)) {
@@ -44,18 +37,7 @@ public class EuclidianDistanceCalculator implements DistanceCalculator {
   }
 
   @Override
-  public double calculate(Point from, Point point) {
-    double result = 0;
-
-    double v = from.getX() - point.getX();
-    result += (v * v);
-
-    v = from.getY() - point.getY();
-    result += (v * v);
-
-    if( squared ) 
-      return result;
-    
-    return Math.sqrt(result);
+  public double calculate(Point p1, Point p2) {
+    return DistanceUtils.haversine( p1.getX(), p1.getY(), p2.getX(), p2.getY(), radius );
   }
 }

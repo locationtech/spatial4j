@@ -17,12 +17,19 @@
 
 package org.apache.lucene.spatial.base.context;
 
+import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-public interface SpatialContext {
+/**
+ * The spatial context.  This holds things like:
+ *  - spatial reference
+ *  - units
+ *  - ect
+ */
+public abstract class SpatialContext {
 
   /**
    * Read a shape from a given string (ie, X Y, XMin XMax... WKT)
@@ -38,11 +45,20 @@ public interface SpatialContext {
    *   http://en.wikipedia.org/wiki/Well-known_text
    *
    */
-  public Shape readShape(String value) throws InvalidShapeException;
+  public abstract Shape readShape(String value) throws InvalidShapeException;
 
-  public String toString(Shape shape);
+  public abstract String toString(Shape shape);
 
-  public Point makePoint( double x, double y );
+  public abstract Point makePoint( double x, double y );
 
-  public BBox makeBBox( double minX, double maxX, double minY, double maxY );
+  public abstract BBox makeBBox( double minX, double maxX, double minY, double maxY );
+
+  /**
+   * Get a calculator that will work in this context
+   */
+  public DistanceCalculator getDistanceCalculator() {
+    return getDistanceCalculator( null );
+  }
+  
+  public abstract DistanceCalculator getDistanceCalculator( Class<? extends DistanceCalculator> clazz );
 }

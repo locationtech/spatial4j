@@ -21,14 +21,16 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
+import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-public abstract class AbstractSpatialContext implements SpatialContext {
+public abstract class AbstractSpatialContext extends SpatialContext {
 
   protected DistanceUnits units;
 
@@ -105,5 +107,13 @@ public abstract class AbstractSpatialContext implements SpatialContext {
       nf.format(bbox.getMinY()) + " " +
       nf.format(bbox.getMaxX()) + " " +
       nf.format(bbox.getMaxY());
+  }
+
+  public DistanceCalculator getDistanceCalculator( Class<? extends DistanceCalculator> clazz )
+  {
+    if( clazz == null ) {
+      return new EuclidianDistanceCalculator();
+    }
+    return null;
   }
 }
