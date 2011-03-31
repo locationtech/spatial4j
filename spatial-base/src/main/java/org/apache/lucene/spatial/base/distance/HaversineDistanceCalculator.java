@@ -23,11 +23,11 @@ import org.apache.lucene.spatial.base.shape.Shape;
 public class HaversineDistanceCalculator implements DistanceCalculator {
 
   final double radius;
-  
+
   public HaversineDistanceCalculator( double radius ) {
     this.radius = radius;
   }
-  
+
   @Override
   public double calculate(Point from, Shape shape) {
     if (Point.class.isInstance(shape)) {

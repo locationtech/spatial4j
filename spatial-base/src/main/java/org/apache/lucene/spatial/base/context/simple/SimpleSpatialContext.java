@@ -39,6 +39,7 @@ public class SimpleSpatialContext extends AbstractSpatialContext {
     super( DistanceUnits.KILOMETERS );
   }
 
+  @Override
   public Shape readShape(String value) throws InvalidShapeException {
     Shape s = super.readStandardShape( value );
     if( s == null ) {

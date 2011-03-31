@@ -109,6 +109,7 @@ public abstract class AbstractSpatialContext extends SpatialContext {
       nf.format(bbox.getMaxY());
   }
 
+  @Override
   public DistanceCalculator getDistanceCalculator( Class<? extends DistanceCalculator> clazz )
   {
     if( clazz == null ) {

@@ -25,6 +25,8 @@ import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
 
+import com.voyagergis.community.lucene.spatial.strategy.external.ExternalIndexStrategy;
+
 
 /**
  * Field loads an in memory SpatialIndex (RTree or QuadTree)

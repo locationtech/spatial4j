@@ -65,6 +65,7 @@ public class JtsSpatialContext extends AbstractSpatialContext {
     factory = f;
   }
 
+  @Override
   public Shape readShape(String str) throws InvalidShapeException {
     Shape shape = super.readStandardShape(str);
     if( shape == null ) {

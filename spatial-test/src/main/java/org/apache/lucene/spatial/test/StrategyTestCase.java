@@ -39,8 +39,6 @@ import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
-import org.apache.lucene.spatial.test.SpatialTestCase.SearchResult;
-import org.apache.lucene.spatial.test.SpatialTestCase.SearchResults;
 
 
 public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends SpatialTestCase {

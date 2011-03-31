@@ -21,9 +21,9 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 public class EuclidianDistanceCalculator implements DistanceCalculator {
-  
+
   private final boolean squared;
-  
+
   public EuclidianDistanceCalculator() {
     this.squared = false;
   }
@@ -53,9 +53,9 @@ public class EuclidianDistanceCalculator implements DistanceCalculator {
     v = from.getY() - point.getY();
     result += (v * v);
 
-    if( squared ) 
+    if( squared )
       return result;
-    
+
     return Math.sqrt(result);
   }
 }

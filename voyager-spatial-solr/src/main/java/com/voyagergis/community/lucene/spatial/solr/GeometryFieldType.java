@@ -27,6 +27,7 @@ import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
 
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.voyagergis.community.lucene.spatial.strategy.jts.JtsGeoStrategy;
 
 
 /**
@@ -40,7 +41,7 @@ public class GeometryFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> 
 
     GeometryFactory factory = new GeometryFactory();
     reader = new JtsSpatialContext(factory,DistanceUnits.KILOMETERS);
-    spatialStrategy = new JtsGeoStrateg((JtsSpatialContext)reader);
+    spatialStrategy = new JtsGeoStrategy((JtsSpatialContext)reader);
     spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 

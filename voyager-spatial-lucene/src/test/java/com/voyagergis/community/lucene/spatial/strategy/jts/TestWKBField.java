@@ -32,7 +32,6 @@ import org.junit.Test;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.voyagergis.community.lucene.spatial.strategy.jts.GeometryTestFactory;
 
 
 /**

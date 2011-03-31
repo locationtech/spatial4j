@@ -59,6 +59,6 @@ public abstract class SpatialContext {
   public DistanceCalculator getDistanceCalculator() {
     return getDistanceCalculator( null );
   }
-  
+
   public abstract DistanceCalculator getDistanceCalculator( Class<? extends DistanceCalculator> clazz );
 }

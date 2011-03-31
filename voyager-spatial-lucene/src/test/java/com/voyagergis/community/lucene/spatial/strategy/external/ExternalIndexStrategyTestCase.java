@@ -27,8 +27,6 @@ import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
 
-import com.voyagergis.community.lucene.spatial.strategy.external.ExternalIndexStrategy;
-
 
 public class ExternalIndexStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
 
