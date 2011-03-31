@@ -238,6 +238,7 @@
   <modules>
     <module>spatial-base</module>
     <module>spatial-lucene</module>
+    <module>spatial-test</module>
     <module>spatial-solr</module>
     <module>spatial-data</module>
     <module>voyager-spatial-lucene</module>

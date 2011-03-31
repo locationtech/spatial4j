@@ -6,8 +6,8 @@ import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
-import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
+import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
 
 public class BBoxStrategyTestCase extends StrategyTestCase<BBoxFieldInfo> {

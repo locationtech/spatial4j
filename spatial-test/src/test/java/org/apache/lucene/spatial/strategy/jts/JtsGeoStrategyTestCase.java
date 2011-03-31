@@ -23,7 +23,7 @@ import java.io.IOException;
 import org.apache.lucene.index.codecs.CodecProvider;
 import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.StrategyTestCase;
+import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
 
 
