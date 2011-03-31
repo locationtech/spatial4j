@@ -14,10 +14,6 @@ import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.prefix.BasicGridFieldable;
-import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
-import org.apache.lucene.spatial.strategy.prefix.StringListTokenizer;
-import org.apache.lucene.spatial.strategy.prefix.TruncateFilter;
 
 import java.util.List;
 
