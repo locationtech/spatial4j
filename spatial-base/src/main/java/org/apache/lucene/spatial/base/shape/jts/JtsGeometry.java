@@ -18,6 +18,8 @@
 package org.apache.lucene.spatial.base.shape.jts;
 
 import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -52,15 +54,15 @@ public class JtsGeometry implements Shape {
     return new JtsEnvelope(geo.getEnvelopeInternal());
   }
 
-  private GeometryFactory getGeometryFactory(Object context) {
-    if(GeometryFactory.class.isInstance(context)) {
-      return (GeometryFactory) context;
+  private GeometryFactory getGeometryFactory(SpatialContext context) {
+    if(JtsSpatialContext.class.isInstance(context)) {
+      return ((JtsSpatialContext) context).factory;
     }
     return new GeometryFactory();
   }
 
   @Override
-  public IntersectCase intersect(Shape other, Object context) {
+  public IntersectCase intersect(Shape other, SpatialContext context) {
     BBox ext = other.getBoundingBox();
     if (!ext.hasSize()) {
       throw new IllegalArgumentException("the query shape must cover some area (not a point or line)");

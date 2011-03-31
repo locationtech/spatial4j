@@ -5,10 +5,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
-import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
 import org.junit.Test;
 
 
@@ -16,7 +16,7 @@ import org.junit.Test;
  */
 public class TestSpatialArgs {
 
-  public void checkSimpleArgs(ShapeIO reader) {
+  public void checkSimpleArgs(SpatialContext reader) {
     SpatialArgsParser parser = new SpatialArgsParser();
 
     String arg = SpatialOperation.IsWithin + "(-10 -20 10 20) cache=true score=false";
@@ -51,12 +51,12 @@ public class TestSpatialArgs {
 
   @Test
   public void testSimpleArgs() throws Exception {
-    checkSimpleArgs(new SimpleShapeIO());
+    checkSimpleArgs(new SimpleSpatialContext());
   }
 
   @Test
   public void testJTSArgs() throws Exception {
-    ShapeIO reader = new JtsShapeIO();
+    SpatialContext reader = new JtsSpatialContext();
     checkSimpleArgs(reader);
 
     // now check the complex stuff...

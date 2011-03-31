@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class TestTestFramework {
 
     InputStream in = getClass().getClassLoader().getResourceAsStream(name);
     Iterator<SpatialTestQuery> iter = SpatialTestQuery.getTestQueries(
-        new SpatialArgsParser(), new JtsShapeIO(), name, in );
+        new SpatialArgsParser(), new JtsSpatialContext(), name, in );
     List<SpatialTestQuery> tests = new ArrayList<SpatialTestQuery>();
     while( iter.hasNext() ) {
       tests.add( iter.next() );

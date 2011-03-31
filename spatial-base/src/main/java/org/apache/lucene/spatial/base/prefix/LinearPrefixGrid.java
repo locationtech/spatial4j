@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.SpatialContextProvider;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.ShapeIOProvider;
 
 public class LinearPrefixGrid implements SpatialPrefixGrid {
 
@@ -49,12 +49,12 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
   private int minResolution = 6; // Go at least this deep
   private int resolution = 4; // how far down past the 'bbox level'
 
-  private final ShapeIO shapeIO;
+  private final SpatialContext shapeIO;
 
   public LinearPrefixGrid(
       double xmin, double xmax,
       double ymin, double ymax,
-      int maxLevels, ShapeIO shapeIO ) {
+      int maxLevels, SpatialContext shapeIO ) {
     this.xmin = xmin;
     this.xmax = xmax;
     this.ymin = ymin;
@@ -88,7 +88,7 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
       double xmin, double xmax,
       double ymin, double ymax,
       int maxLevels ) {
-    this( xmin, xmax, ymin, ymax, maxLevels, ShapeIOProvider.getShapeIO() );
+    this( xmin, xmax, ymin, ymax, maxLevels, SpatialContextProvider.getShapeIO() );
   }
 
   public LinearPrefixGrid(
@@ -99,13 +99,13 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
       int maxLevels,
       int minResolution,
       int resolution) {
-    this(xmin, xmax, ymin, ymax, maxLevels, ShapeIOProvider.getShapeIO() );
+    this(xmin, xmax, ymin, ymax, maxLevels, SpatialContextProvider.getShapeIO() );
     this.minResolution = minResolution;
     this.resolution = resolution;
   }
 
   public LinearPrefixGrid() {
-    this(-180, 180, -90, 90, 12, ShapeIOProvider.getShapeIO());
+    this(-180, 180, -90, 90, 12, SpatialContextProvider.getShapeIO());
   }
 
   public void printInfo() {
@@ -184,7 +184,7 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
 
     int strlen = str.length();
     BBox cell = shapeIO.makeBBox(cx - w, cx + w, cy - h, cy + h);
-    IntersectCase v = geo.intersect(cell, this);
+    IntersectCase v = geo.intersect(cell, shapeIO);
     if (IntersectCase.CONTAINS == v) {
       str.append(c);
       str.append(SpatialPrefixGrid.COVER);

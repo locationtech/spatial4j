@@ -15,11 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.shape;
+package org.apache.lucene.spatial.base.context;
 
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
+import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Shape;
 
-public interface ShapeIO {
+public interface SpatialContext {
 
   /**
    * Read a shape from a given string (ie, X Y, XMin XMax... WKT)

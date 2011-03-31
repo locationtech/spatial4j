@@ -4,13 +4,14 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
+import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.shape.jts.JtsEnvelope;
 import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
 import org.apache.lucene.spatial.base.shape.jts.JtsPoint2D;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
-import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -50,7 +51,7 @@ public class TestShapeIO {
   };
 
 
-  public void checkBasicShapeIO( AbstractShapeIO reader, WriteReader help ) throws Exception {
+  public void checkBasicShapeIO( AbstractSpatialContext reader, WriteReader help ) throws Exception {
 
     // Simple Point
     Shape s = reader.readShape("10 20");
@@ -82,7 +83,7 @@ public class TestShapeIO {
     assertEquals(1.23, circle.getPoint().getX(), 0D);
     assertEquals(4.56, circle.getPoint().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
-    assertEquals(reader.units.earthRadius(), circle.getRadius(), 0D);
+    assertEquals(reader.getUnits().earthRadius(), circle.getRadius(), 0D);
     Assert.assertTrue( s.hasArea() );
 
     s = reader.readShape("PointDistance( 1.23  4.56 d=7.89 )");
@@ -90,13 +91,13 @@ public class TestShapeIO {
     assertEquals(1.23, circle.getPoint().getX(), 0D);
     assertEquals(4.56, circle.getPoint().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
-    assertEquals(reader.units.earthRadius(), circle.getRadius(), 0D);
+    assertEquals(reader.getUnits().earthRadius(), circle.getRadius(), 0D);
   }
 
 
   @Test
   public void testSimpleShapeIO() throws Exception {
-    final SimpleShapeIO io = new SimpleShapeIO();
+    final SimpleSpatialContext io = new SimpleSpatialContext();
     checkBasicShapeIO( io, new WriteReader() {
       @Override
       public Shape writeThenRead(Shape s) {
@@ -108,7 +109,7 @@ public class TestShapeIO {
 
   @Test
   public void testJtsShapeIO() throws Exception {
-    final JtsShapeIO io = new JtsShapeIO();
+    final JtsSpatialContext io = new JtsSpatialContext();
 
     // String read/write
     checkBasicShapeIO( io, new WriteReader() {

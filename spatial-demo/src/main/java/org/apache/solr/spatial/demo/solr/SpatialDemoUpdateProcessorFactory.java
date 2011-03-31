@@ -2,9 +2,9 @@ package org.apache.solr.spatial.demo.solr;
 
 import java.io.IOException;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.request.SolrQueryRequest;
 import org.apache.solr.response.SolrQueryResponse;
@@ -15,7 +15,7 @@ import org.apache.solr.update.processor.UpdateRequestProcessorFactory;
 
 public class SpatialDemoUpdateProcessorFactory extends UpdateRequestProcessorFactory
 {
-  final ShapeIO reader = new JtsShapeIO();
+  final SpatialContext reader = new JtsSpatialContext();
 
   @Override
   public DemoUpdateProcessor getInstance(SolrQueryRequest req, SolrQueryResponse rsp, UpdateRequestProcessor next)

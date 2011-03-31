@@ -20,6 +20,7 @@ package org.apache.lucene.spatial.base.shape;
 import java.util.Collection;
 
 import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 
 /**
  * A collection of Shape objects.
@@ -28,7 +29,7 @@ public class Shapes implements Shape {
   private final Collection<Shape> geoms;
   private final BBox bbox;
 
-  public Shapes(Collection<Shape> geoms, ShapeIO shapeIO) {
+  public Shapes(Collection<Shape> geoms, SpatialContext shapeIO) {
     this.geoms = geoms;
     double minX = Double.MAX_VALUE;
     double minY = Double.MAX_VALUE;
@@ -60,7 +61,7 @@ public class Shapes implements Shape {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, Object context) {
+  public IntersectCase intersect(Shape other, SpatialContext context) {
     boolean allOutside = true;
     boolean allContains = true;
     for (Shape geom : geoms) {

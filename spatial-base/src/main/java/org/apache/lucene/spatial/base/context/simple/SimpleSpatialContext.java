@@ -15,25 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.shape.simple;
+package org.apache.lucene.spatial.base.context.simple;
 
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-import org.apache.lucene.spatial.base.shape.AbstractShapeIO;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.simple.Point2D;
+import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 
-public class SimpleShapeIO extends AbstractShapeIO {
+public class SimpleSpatialContext extends AbstractSpatialContext {
 
-  public SimpleShapeIO(DistanceUnits units) {
+  public SimpleSpatialContext(DistanceUnits units) {
     super(units);
   }
 
-  public SimpleShapeIO() {
+  public SimpleSpatialContext() {
     super( DistanceUnits.KILOMETERS );
   }
 

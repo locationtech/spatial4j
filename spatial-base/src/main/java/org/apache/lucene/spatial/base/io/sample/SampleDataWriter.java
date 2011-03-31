@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.SpatialContextProvider;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.ShapeIOProvider;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -18,11 +18,11 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 public class SampleDataWriter {
 
   protected final PrintWriter out;
-  protected final ShapeIO shapeIO;
+  protected final SpatialContext shapeIO;
   protected final boolean bbox;
   protected final int maxLength;
 
-  public SampleDataWriter(File f, ShapeIO shapeIO, boolean bbox, int maxLength) throws IOException {
+  public SampleDataWriter(File f, SpatialContext shapeIO, boolean bbox, int maxLength) throws IOException {
     this.shapeIO=shapeIO;
     this.bbox = bbox;
     this.maxLength= maxLength;
@@ -41,22 +41,22 @@ public class SampleDataWriter {
   }
 
   public SampleDataWriter(File f ) throws IOException {
-    this( f, ShapeIOProvider.getShapeIO(), false, -1 );
+    this( f, SpatialContextProvider.getShapeIO(), false, -1 );
   }
 
   public SampleDataWriter(File f, boolean bbox ) throws IOException {
-    this( f, ShapeIOProvider.getShapeIO(), bbox, -1 );
+    this( f, SpatialContextProvider.getShapeIO(), bbox, -1 );
   }
 
   public SampleDataWriter(File f, int maxLength ) throws IOException {
-    this( f, new JtsShapeIO(), false, maxLength );
+    this( f, new JtsSpatialContext(), false, maxLength );
   }
 
 
   protected String toString( String name, Shape shape ) {
     String v = shapeIO.toString( shape );
     if( maxLength > 0 && v.length() > maxLength ) {
-      Geometry g = ((JtsShapeIO)shapeIO).getGeometryFrom(shape);
+      Geometry g = ((JtsSpatialContext)shapeIO).getGeometryFrom(shape);
 
       long last = v.length();
       Envelope env = g.getEnvelopeInternal();

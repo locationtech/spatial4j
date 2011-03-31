@@ -18,6 +18,7 @@
 package org.apache.lucene.spatial.base.shape.jts;
 
 import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -93,7 +94,7 @@ public class JtsEnvelope implements BBox {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, Object context) {
+  public IntersectCase intersect(Shape other, SpatialContext context) {
     if (BBox.class.isInstance(other)) {
       BBox ext = other.getBoundingBox();
       if (ext.getMinX() > envelope.getMaxX() ||

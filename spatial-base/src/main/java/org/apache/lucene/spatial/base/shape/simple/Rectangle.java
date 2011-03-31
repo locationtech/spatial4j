@@ -20,6 +20,7 @@ package org.apache.lucene.spatial.base.shape.simple;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -102,7 +103,7 @@ public class Rectangle implements BBox {
   }
 
   @Override
-  public IntersectCase intersect(Shape shape, Object context) {
+  public IntersectCase intersect(Shape shape, SpatialContext context) {
     if(!BBox.class.isInstance(shape)) {
       throw new IllegalArgumentException( "Rectangle can only be compared with another Extent" );
     }

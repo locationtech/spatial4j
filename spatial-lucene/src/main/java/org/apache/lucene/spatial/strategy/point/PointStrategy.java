@@ -31,6 +31,7 @@ import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
@@ -38,7 +39,6 @@ import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.lucene.spatial.strategy.util.CachingDoubleValueSource;
 import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
@@ -53,9 +53,9 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
 
   private final TrieFieldHelper.FieldInfo finfo;
   private final DoubleParser parser;
-  private final ShapeIO reader;
+  private final SpatialContext reader;
 
-  public PointStrategy( ShapeIO reader, TrieFieldHelper.FieldInfo finfo, DoubleParser parser ) {
+  public PointStrategy( SpatialContext reader, TrieFieldHelper.FieldInfo finfo, DoubleParser parser ) {
     this.reader = reader;
     this.finfo = finfo;
     this.parser = parser;
@@ -163,8 +163,11 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
 
     if (args.isCalculateScore()) {
       try {
-        if( valueSource == null ) {
+        if( valueSource != null ) {
           valueSource = new CachingDoubleValueSource(valueSource);
+        }
+        else {
+          valueSource = makeValueSource(args, fieldInfo, calc);
         }
         Query spatialRankingQuery = new ValueSourceQuery(valueSource);
         BooleanQuery bq = new BooleanQuery();

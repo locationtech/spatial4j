@@ -20,6 +20,7 @@ package org.apache.lucene.spatial.base.shape;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 
@@ -33,7 +34,7 @@ public final class PointDistanceShape implements Shape {
 
   private transient BBox enclosingBox1, enclosingBox2;//calculated & cached (2nd is usually null)
 
-  public PointDistanceShape(Point p, double dist, double radius, ShapeIO shapeIO) {
+  public PointDistanceShape(Point p, double dist, double radius, SpatialContext shapeIO) {
     this.point = p;
     this.distance = dist;
     this.radius = radius;
@@ -52,7 +53,7 @@ public final class PointDistanceShape implements Shape {
     return radius;
   }
 
-  private void calcEnclosingBoxes(ShapeIO shapeIO) {
+  private void calcEnclosingBoxes(SpatialContext shapeIO) {
     //!! code copied from LatLonType.createSpatialQuery(); this should be consolidated
     final int LAT = 0;
     final int LONG = 1;
@@ -128,7 +129,7 @@ public final class PointDistanceShape implements Shape {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, Object context) {
+  public IntersectCase intersect(Shape other, SpatialContext context) {
     //do quick check against bounding box for OUTSIDE
     if (enclosingBox1.intersect(other,context) == IntersectCase.OUTSIDE) {
       if (enclosingBox2 == null || enclosingBox2.intersect(other,context) == IntersectCase.OUTSIDE)

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.shape;
+package org.apache.lucene.spatial.base.context;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -23,12 +23,16 @@ import java.util.StringTokenizer;
 
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
+import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.PointDistanceShape;
+import org.apache.lucene.spatial.base.shape.Shape;
 
-public abstract class AbstractShapeIO implements ShapeIO {
+public abstract class AbstractSpatialContext implements SpatialContext {
 
   protected DistanceUnits units;
 
-  public AbstractShapeIO( DistanceUnits units )
+  public AbstractSpatialContext( DistanceUnits units )
   {
     this.units = units;
   }
@@ -86,6 +90,9 @@ public abstract class AbstractShapeIO implements ShapeIO {
     return makePoint(p0, p1);
   }
 
+  public DistanceUnits getUnits() {
+    return units;
+  }
 
   public String writeBBox(BBox bbox) {
     NumberFormat nf = NumberFormat.getInstance(Locale.US);

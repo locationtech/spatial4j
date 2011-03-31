@@ -20,9 +20,9 @@ package org.apache.lucene.spatial.strategy.external;
 
 import java.io.IOException;
 
-import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
-import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class ExternalIndexStrategyTestCase extends StrategyTestCase<SimpleSpatia
 
   @Test
   public void testExternalPolyJts() throws IOException {
-    ShapeIO shapeIO = new JtsShapeIO();
+    SpatialContext shapeIO = new JtsSpatialContext();
     executeQueries(
         new ExternalIndexStrategy(shapeIO),
         shapeIO, new SimpleSpatialFieldInfo( "geo" ),
@@ -42,7 +42,7 @@ public class ExternalIndexStrategyTestCase extends StrategyTestCase<SimpleSpatia
 
   @Test
   public void testExternalBBoxJts() throws IOException {
-    ShapeIO shapeIO = new JtsShapeIO();
+    SpatialContext shapeIO = new JtsSpatialContext();
     executeQueries(
         new ExternalIndexStrategy(shapeIO),
         shapeIO, new SimpleSpatialFieldInfo( "geo" ),
@@ -52,7 +52,7 @@ public class ExternalIndexStrategyTestCase extends StrategyTestCase<SimpleSpatia
 
   @Test
   public void testExternalBBoxSimple() throws IOException {
-    ShapeIO shapeIO = new SimpleShapeIO();
+    SpatialContext shapeIO = new SimpleSpatialContext();
     executeQueries(
         new ExternalIndexStrategy(shapeIO),
         shapeIO, new SimpleSpatialFieldInfo( "geo" ),

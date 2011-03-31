@@ -3,8 +3,8 @@ package org.apache.lucene.spatial.strategy.point;
 import java.io.IOException;
 
 import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
-import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
 import org.junit.Test;
@@ -12,28 +12,25 @@ import org.junit.Test;
 public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
 
   @Test
-  public void testPointStrategy() throws IOException {
+  public void testPointStrategyWithJts() throws IOException {
     TrieFieldHelper.FieldInfo tinfo = new TrieFieldHelper.FieldInfo();
     PointFieldInfo finfo = new PointFieldInfo( "point" );
-
-    PointStrategy s = new PointStrategy( new SimpleShapeIO(),
+    PointStrategy s = new PointStrategy( new SimpleSpatialContext(),
         tinfo, FieldCache.NUMERIC_UTILS_DOUBLE_PARSER );
 
-    if( false ) {
-    // With JTS
-    executeQueries( s, new JtsShapeIO(), finfo,
-        DATA_STATES_POLY,
-        QTEST_States_IsWithin_BBox,
-        QTEST_States_Intersects_BBox );
+    executeQueries( s, new SimpleSpatialContext(), finfo,
+        DATA_WORLD_CITIES_POINTS,
+        QTEST_Cities_IsWithin_BBox );
+  }
 
-    // With SimpleIO
-    executeQueries( s, new SimpleShapeIO(), finfo,
-        DATA_STATES_BBOX,
-        QTEST_States_IsWithin_BBox,
-        QTEST_States_Intersects_BBox );
-    }
+  @Test
+  public void testPointStrategyWithSimple() throws IOException {
+    TrieFieldHelper.FieldInfo tinfo = new TrieFieldHelper.FieldInfo();
+    PointFieldInfo finfo = new PointFieldInfo( "point" );
+    PointStrategy s = new PointStrategy( new SimpleSpatialContext(),
+        tinfo, FieldCache.NUMERIC_UTILS_DOUBLE_PARSER );
 
-    executeQueries( s, new SimpleShapeIO(), finfo,
+    executeQueries( s, new JtsSpatialContext(), finfo,
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }

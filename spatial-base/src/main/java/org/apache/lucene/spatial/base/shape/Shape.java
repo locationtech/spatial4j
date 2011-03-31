@@ -18,6 +18,7 @@
 package org.apache.lucene.spatial.base.shape;
 
 import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 
 public interface Shape {
 
@@ -31,7 +32,7 @@ public interface Shape {
    *
    * The context object is optional -- it may include spatial reference
    */
-  IntersectCase intersect(Shape other, Object context);
+  IntersectCase intersect(Shape other, SpatialContext context);
 
   /**
    * Get the bounding box for this Shape

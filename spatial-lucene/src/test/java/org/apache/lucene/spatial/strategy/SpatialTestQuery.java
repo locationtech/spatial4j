@@ -8,10 +8,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.io.LineReader;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
 
 /**
  * Helper class to execute queries
@@ -29,7 +29,7 @@ public class SpatialTestQuery {
    */
   public static Iterator<SpatialTestQuery> getTestQueries(
       final SpatialArgsParser parser,
-      final ShapeIO shapeIO,
+      final SpatialContext shapeIO,
       final String name,
       final InputStream in ) throws IOException {
     return new LineReader<SpatialTestQuery>(new InputStreamReader(in,"UTF-8")) {

@@ -21,7 +21,7 @@ package org.apache.lucene.spatial.strategy.jts;
 import java.io.IOException;
 
 import org.apache.lucene.index.codecs.CodecProvider;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldI
 
   @Test
   public void testJtsPolygon() throws IOException {
-    JtsShapeIO shapeIO = new JtsShapeIO();
+    JtsSpatialContext shapeIO = new JtsSpatialContext();
     JtsGeoStrategy strategy = new JtsGeoStrategy(shapeIO);
     SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo( "geo" );
 
@@ -50,7 +50,7 @@ public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldI
 
   @Test
   public void testJtsPoints() throws IOException {
-    JtsShapeIO shapeIO = new JtsShapeIO();
+    JtsSpatialContext shapeIO = new JtsSpatialContext();
     JtsGeoStrategy strategy = new JtsGeoStrategy(shapeIO);
     SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo( "geo" );
 

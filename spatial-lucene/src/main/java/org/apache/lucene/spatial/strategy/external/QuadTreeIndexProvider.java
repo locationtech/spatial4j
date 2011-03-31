@@ -17,14 +17,14 @@
 
 package org.apache.lucene.spatial.strategy.external;
 
-import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 
 import com.vividsolutions.jts.index.SpatialIndex;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 
 public class QuadTreeIndexProvider extends CachedExternalIndexProvider {
 
-  public QuadTreeIndexProvider(String shapeField, ShapeIO reader) {
+  public QuadTreeIndexProvider(String shapeField, SpatialContext reader) {
     super(shapeField, reader);
   }
 

@@ -2,8 +2,8 @@ package org.apache.lucene.spatial.strategy.geohash;
 
 import java.io.IOException;
 
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
-import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.junit.Test;
@@ -17,7 +17,7 @@ public class GeohashStrategyTestCase extends StrategyTestCase<SimpleSpatialField
 
     int maxLength = GridReferenceSystem.getMaxPrecision();
     GridReferenceSystem grs = new GridReferenceSystem(
-        new SimpleShapeIO(), maxLength );
+        new SimpleSpatialContext(), maxLength );
     GeohashStrategy s = new GeohashStrategy( grs );
 
     // SimpleIO
@@ -28,7 +28,7 @@ public class GeohashStrategyTestCase extends StrategyTestCase<SimpleSpatialField
 
     if( false ) {
       grs = new GridReferenceSystem(
-          new JtsShapeIO(), maxLength );
+          new JtsSpatialContext(), maxLength );
       s = new GeohashStrategy( grs );
 
     // With JTS

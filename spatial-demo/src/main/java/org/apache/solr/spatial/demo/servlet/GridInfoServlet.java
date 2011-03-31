@@ -12,12 +12,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.solr.spatial.demo.KMLHelper;
 
 import de.micromata.opengis.kml.v_2_2_0.Kml;
@@ -25,7 +25,7 @@ import de.micromata.opengis.kml.v_2_2_0.Kml;
 
 public class GridInfoServlet extends HttpServlet
 {
-  JtsShapeIO shapeIO = new JtsShapeIO();
+  JtsSpatialContext shapeIO = new JtsSpatialContext();
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -67,7 +67,7 @@ public class GridInfoServlet extends HttpServlet
       }
     }
     int depth = getIntParam( req, "depth", 16 );
-    ShapeIO reader = new JtsShapeIO();
+    SpatialContext reader = new JtsSpatialContext();
     LinearPrefixGrid grid = new LinearPrefixGrid( -180, 180, -90-180, 90, depth ); // make it like WGS84
     grid.setResolution(getIntParam(req, "resolution", 4));
 

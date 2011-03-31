@@ -17,10 +17,10 @@
 
 package org.apache.lucene.spatial.base.query;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
 
 public class SpatialArgs {
 
@@ -51,7 +51,7 @@ public class SpatialArgs {
     }
   }
 
-  public String toString( ShapeIO io )
+  public String toString( SpatialContext io )
   {
     StringBuilder str = new StringBuilder();
     str.append( operation.name() ).append( '(' );
@@ -75,7 +75,7 @@ public class SpatialArgs {
   @Override
   public String toString()
   {
-    return toString( new SimpleShapeIO() );
+    return toString( new SimpleSpatialContext() );
   }
 
   //------------------------------------------------

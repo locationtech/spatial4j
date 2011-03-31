@@ -6,9 +6,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.util.BytesRef;
 
 /**
@@ -20,10 +20,10 @@ public class GridReferenceSystem {
 
   //TODO consider alternate more efficient implementation instead of GeoHash.
 
-  final ShapeIO shapeIO;
+  final SpatialContext shapeIO;
   final int maxLen;
 
-  public GridReferenceSystem(ShapeIO shapeIO, int maxLen) {
+  public GridReferenceSystem(SpatialContext shapeIO, int maxLen) {
     int MAXP = getMaxPrecision();
     if (maxLen <= 0 || maxLen > MAXP)
       throw new IllegalArgumentException("maxLen must be (0-"+MAXP+"] but got "+maxLen);

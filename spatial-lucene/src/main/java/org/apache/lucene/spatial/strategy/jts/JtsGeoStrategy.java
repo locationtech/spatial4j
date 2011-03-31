@@ -22,10 +22,10 @@ import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.slf4j.Logger;
@@ -48,9 +48,9 @@ public class JtsGeoStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   private static final Logger logger = LoggerFactory.getLogger(JtsGeoStrategy.class);
 
-  private final JtsShapeIO shapeIO;
+  private final JtsSpatialContext shapeIO;
 
-  public JtsGeoStrategy(JtsShapeIO shapeIO) {
+  public JtsGeoStrategy(JtsSpatialContext shapeIO) {
     this.shapeIO = shapeIO;
   }
 

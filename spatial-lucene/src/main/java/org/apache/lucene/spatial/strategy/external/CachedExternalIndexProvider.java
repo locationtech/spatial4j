@@ -26,9 +26,9 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.DocIdSetIterator;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsEnvelope;
 import org.apache.lucene.util.BytesRef;
 import org.slf4j.Logger;
@@ -46,9 +46,9 @@ public abstract class CachedExternalIndexProvider implements ExternalSpatialInde
   WeakHashMap<IndexReader, SpatialIndex> sidx = new WeakHashMap<IndexReader, SpatialIndex>();
 
   protected final String shapeField;
-  protected final ShapeIO shapeReader;
+  protected final SpatialContext shapeReader;
 
-  public CachedExternalIndexProvider(String shapeField, ShapeIO reader) {
+  public CachedExternalIndexProvider(String shapeField, SpatialContext reader) {
     this.shapeField = shapeField;
     this.shapeReader = reader;
   }

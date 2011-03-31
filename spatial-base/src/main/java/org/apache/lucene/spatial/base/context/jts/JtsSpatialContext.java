@@ -15,20 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.shape.jts;
+package org.apache.lucene.spatial.base.context.jts;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-import org.apache.lucene.spatial.base.shape.AbstractShapeIO;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.jts.JtsEnvelope;
+import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
+import org.apache.lucene.spatial.base.shape.jts.JtsPoint2D;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -41,7 +44,7 @@ import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
-public class JtsShapeIO extends AbstractShapeIO {
+public class JtsSpatialContext extends AbstractSpatialContext {
 
   private static final byte TYPE_POINT = 0;
   private static final byte TYPE_BBOX = 1;
@@ -49,15 +52,15 @@ public class JtsShapeIO extends AbstractShapeIO {
 
   public GeometryFactory factory;
 
-  public JtsShapeIO() {
+  public JtsSpatialContext() {
     this( new GeometryFactory(), DistanceUnits.KILOMETERS );
   }
 
-  public JtsShapeIO( DistanceUnits units ) {
+  public JtsSpatialContext( DistanceUnits units ) {
     this( new GeometryFactory(), units );
   }
 
-  public JtsShapeIO(GeometryFactory f, DistanceUnits units) {
+  public JtsSpatialContext(GeometryFactory f, DistanceUnits units) {
     super( units );
     factory = f;
   }

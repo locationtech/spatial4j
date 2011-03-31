@@ -17,9 +17,9 @@
 
 package org.apache.lucene.spatial.strategy.geohash;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
 import org.apache.lucene.util.LuceneTestCase;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ import org.junit.Test;
  * Tests for {@link GeoHashUtils}
  */
 public class TestGeoHashUtils extends LuceneTestCase {
-  ShapeIO shapeIO = new SimpleShapeIO( DistanceUnits.KILOMETERS );
+  SpatialContext shapeIO = new SimpleSpatialContext( DistanceUnits.KILOMETERS );
 
   /**
    * Pass condition: lat=42.6, lng=-5.6 should be encoded as "ezs42e44yx96",

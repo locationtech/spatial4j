@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
 
 public class SpatialArgsParser
 {
-  public SpatialArgs parse(String v, ShapeIO reader) throws InvalidSpatialArgument, InvalidShapeException {
+  public SpatialArgs parse(String v, SpatialContext reader) throws InvalidSpatialArgument, InvalidShapeException {
     int idx = v.indexOf('(');
     int edx = v.lastIndexOf(')');
 

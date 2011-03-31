@@ -32,11 +32,11 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
 
 
 public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends SpatialTestCase {
@@ -57,7 +57,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
 
   protected void executeQueries(
       SpatialStrategy<T> strategy,
-      ShapeIO shapeIO,
+      SpatialContext shapeIO,
       T fieldInfo,
       String testDataFile,
       String ... testQueryFile ) throws IOException {
@@ -71,7 +71,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
     }
   }
 
-  protected List<Document> getDocuments(String testDataFile, ShapeIO shapeIO, SpatialStrategy<T> strategy, T fieldInfo) throws IOException {
+  protected List<Document> getDocuments(String testDataFile, SpatialContext shapeIO, SpatialStrategy<T> strategy, T fieldInfo) throws IOException {
     Iterator<SampleData> sampleData = getSampleData(testDataFile);
     List<Document> documents = new ArrayList<Document>();
     while (sampleData.hasNext()) {
@@ -95,13 +95,13 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
         getClass().getClassLoader().getResourceAsStream(testDataFile) );
   }
 
-  protected Iterator<SpatialTestQuery> getTestQueries(String testQueryFile, ShapeIO shapeIO) throws IOException {
+  protected Iterator<SpatialTestQuery> getTestQueries(String testQueryFile, SpatialContext shapeIO) throws IOException {
     InputStream in = getClass().getClassLoader().getResourceAsStream(testQueryFile);
     return SpatialTestQuery.getTestQueries(
         argsParser, shapeIO, testQueryFile, in );
   }
 
-  public void runTestQueries(Iterator<SpatialTestQuery> queries, ShapeIO shapeIO, SpatialStrategy<T> strategy, T fieldInfo) {
+  public void runTestQueries(Iterator<SpatialTestQuery> queries, SpatialContext shapeIO, SpatialStrategy<T> strategy, T fieldInfo) {
     while (queries.hasNext()) {
       SpatialTestQuery q = queries.next();
 

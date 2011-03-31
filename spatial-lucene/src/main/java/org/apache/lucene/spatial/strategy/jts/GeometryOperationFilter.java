@@ -27,8 +27,8 @@ import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.Filter;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.DocIdBitSet;
 import org.slf4j.Logger;
@@ -45,10 +45,10 @@ public class GeometryOperationFilter extends Filter {
   static final Logger log = LoggerFactory.getLogger(GeometryOperationFilter.class);
 
   final String fieldName;
-  final JtsShapeIO shapeIO;
+  final JtsSpatialContext shapeIO;
   final GeometryTest tester;
 
-  public GeometryOperationFilter(String fieldName, GeometryTest tester, JtsShapeIO shapeIO) {
+  public GeometryOperationFilter(String fieldName, GeometryTest tester, JtsSpatialContext shapeIO) {
     this.fieldName = fieldName;
     this.shapeIO = shapeIO;
     this.tester = tester;

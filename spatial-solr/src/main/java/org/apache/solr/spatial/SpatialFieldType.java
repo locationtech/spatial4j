@@ -23,12 +23,12 @@ import java.util.Map;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.SpatialContextProvider;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.ShapeIOProvider;
-import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.solr.common.SolrException;
@@ -54,7 +54,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   static final Logger log = LoggerFactory.getLogger( SpatialFieldType.class );
 
-  protected ShapeIO reader;
+  protected SpatialContext reader;
   protected SpatialArgsParser argsParser;
 
   protected boolean ignoreIncompatibleGeometry = false;
@@ -69,7 +69,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
       ignoreIncompatibleGeometry = Boolean.valueOf( v );
     }
 
-    reader = ShapeIOProvider.getShapeIO();
+    reader = SpatialContextProvider.getShapeIO();
     argsParser = new SpatialArgsParser();
   }
 
@@ -128,8 +128,8 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   @Override
   public void write(TextResponseWriter writer, String name, Fieldable f) throws IOException {
-    if( f.isBinary() &&  reader instanceof JtsShapeIO ) {
-      JtsShapeIO jts = (JtsShapeIO)reader;
+    if( f.isBinary() &&  reader instanceof JtsSpatialContext ) {
+      JtsSpatialContext jts = (JtsSpatialContext)reader;
       byte[] bytes = f.getBinaryValue();
       Shape s = jts.readShape( bytes, 0, bytes.length );
       writer.writeStr(name, jts.toString(s), true);

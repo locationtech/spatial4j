@@ -17,7 +17,7 @@
 
 package org.apache.lucene.spatial.strategy.external;
 
-import org.apache.lucene.spatial.base.shape.ShapeIO;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 
 import com.vividsolutions.jts.index.SpatialIndex;
 import com.vividsolutions.jts.index.strtree.STRtree;
@@ -26,7 +26,7 @@ public class STRTreeIndexProvider extends CachedExternalIndexProvider {
 
   protected int nodeCapacity;
 
-  public STRTreeIndexProvider(int nodeCapacity, String shapeField, ShapeIO reader) {
+  public STRTreeIndexProvider(int nodeCapacity, String shapeField, SpatialContext reader) {
     super(shapeField, reader);
     this.nodeCapacity = nodeCapacity;
   }
