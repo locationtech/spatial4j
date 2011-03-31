@@ -47,9 +47,6 @@ public class ExternalSpatialIndexFilter extends Filter {
     if (bbox instanceof JtsEnvelope) {
       this.bounds = ((JtsEnvelope) bbox).envelope;
     } else {
-      if (op != SpatialOperation.BBoxIntersects) {
-        throw new UnsupportedOperationException(op.name() + " for shape: " + args.getShape());
-      }
       this.bounds = new Envelope(bbox.getMinX(), bbox.getMaxX(), bbox.getMinY(), bbox.getMaxY());
     }
 

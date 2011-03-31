@@ -20,6 +20,8 @@ package org.apache.lucene.spatial.strategy;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -89,8 +91,8 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
   }
 
   protected Iterator<SampleData> getSampleData(String testDataFile) throws IOException {
-    File file = new File(getClass().getClassLoader().getResource(testDataFile).getFile());
-    return new SampleDataReader(file);
+    InputStream in = getClass().getClassLoader().getResourceAsStream(testDataFile);
+    return new SampleDataReader(new InputStreamReader( in, "UTF-8" ));
   }
 
   protected Iterator<SpatialTestQuery> getTestQueries(String testQueryFile, ShapeIO shapeIO) throws IOException {

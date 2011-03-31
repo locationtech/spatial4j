@@ -14,7 +14,6 @@ public abstract class LineReader<T> implements Iterator<T> {
   private int lineNumber = 0;
   private BufferedReader reader;
   private String nextLine;
-  private boolean closeWhenDone = false;
 
   public abstract T parseLine( String line );
 
@@ -33,7 +32,6 @@ public abstract class LineReader<T> implements Iterator<T> {
 
   public LineReader(File f) throws IOException {
     reader = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
-    closeWhenDone = true;
     next();
   }
 
@@ -56,10 +54,8 @@ public abstract class LineReader<T> implements Iterator<T> {
           nextLine = reader.readLine();
           lineNumber++;
           if (nextLine == null ) {
-            if( closeWhenDone ) {
-              reader.close();
-              reader = null;
-            }
+            reader.close();
+            reader = null;
           }
           else if( nextLine.startsWith( "#" ) ) {
             readComment( nextLine );
