@@ -21,15 +21,21 @@
 
   <dependencies>
   
-    <!-- Lucene Spatial -->
+    <!-- LUCENE -->
     <dependency>
       <groupId>org.apache.lucene.spatial</groupId>
       <artifactId>spatial-lucene</artifactId>
       <version>${project.version}</version>
     </dependency>
     
-    <!-- TESTING -->
+    <!-- JTS -->
+	  <dependency>
+	    <groupId>com.vividsolutions</groupId>
+	    <artifactId>jts</artifactId>
+	    <version>1.11</version>
+	  </dependency>
     
+    <!-- TESTING -->
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-test-framework</artifactId>
