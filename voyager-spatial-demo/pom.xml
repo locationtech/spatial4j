@@ -9,8 +9,8 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   
-	<groupId>org.apache.lucene.spatial</groupId>
-  <artifactId>spatial-demo</artifactId>
+	<groupId>com.voyagergis.community.lucene.spatial</groupId>
+  <artifactId>voyager-spatial-demo</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
   <name>Spatial - Demo</name>
@@ -20,17 +20,28 @@
   <packaging>war</packaging>  
 
   <dependencies>
+    <!-- LUCENE -->
 	  <dependency>
 		  <groupId>org.apache.lucene.spatial</groupId>
 	    <artifactId>spatial-solr</artifactId>
-	    <version>0.1-SNAPSHOT</version>
+      <version>${project.version}</version>
 	  </dependency>
+	  
     <dependency>
       <groupId>org.apache.lucene.spatial</groupId>
       <artifactId>spatial-data</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    
+    <!-- VOYAGER -->
+	  <dependency>
+			<groupId>com.voyagergis.community.lucene.spatial</groupId>
+		  <artifactId>voyager-spatial-solr</artifactId>
+      <version>${project.version}</version>
+	  </dependency>
+	  
+	  
+    <!-- OTHER STUFF -->
     <dependency>
       <groupId>de.micromata.jak</groupId>
       <artifactId>JavaAPIforKml</artifactId>
