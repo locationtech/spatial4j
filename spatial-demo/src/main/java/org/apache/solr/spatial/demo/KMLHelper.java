@@ -1,4 +1,4 @@
-package org.apache.solr.spatial.demo.utils;
+package org.apache.solr.spatial.demo;
 
 import java.io.File;
 import java.util.ArrayList;

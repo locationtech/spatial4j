@@ -43,6 +43,7 @@ public class GeohashFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
     int maxLen = len!=null?Integer.parseInt(len): DEFAULT_LENGTH;
     gridReferenceSystem = new GridReferenceSystem( reader, maxLen );
     spatialStrategy = new GeohashStrategy( gridReferenceSystem );
+    spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 
   @Override

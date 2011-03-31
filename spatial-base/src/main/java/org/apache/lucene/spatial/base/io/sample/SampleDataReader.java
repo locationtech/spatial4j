@@ -2,12 +2,17 @@ package org.apache.lucene.spatial.base.io.sample;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 
 import org.apache.lucene.spatial.base.io.LineReader;
 
 public class SampleDataReader extends LineReader<SampleData> {
 
+  public SampleDataReader(InputStream r) throws IOException {
+    super( r );
+  }
+  
   public SampleDataReader(Reader r) throws IOException {
     super( r );
   }

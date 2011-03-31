@@ -7,6 +7,9 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
@@ -21,12 +24,14 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.SolrParams;
+import org.apache.solr.spatial.demo.KMLHelper;
 import org.apache.solr.spatial.demo.SampleDataLoader;
-import org.apache.solr.spatial.demo.utils.KMLHelper;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -48,6 +53,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.StringResourceStream;
+import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +64,10 @@ public class SearchPage extends WebPage
 {
   static Logger log = LoggerFactory.getLogger( SearchPage.class );
 
+  static SampleDataLoader loader = new SampleDataLoader(); 
+  public static final ExecutorService pool = Executors.newCachedThreadPool();
+
+  
   // Dirty Dirty Dirty Hack...
   static final LinearPrefixGrid grid = new LinearPrefixGrid( -180, 180, -90-180, 90, 16 );
   static final SolrServer solr;
@@ -243,23 +253,71 @@ public class SearchPage extends WebPage
     });
 
     add( results );
-
-    add( new IndicatingAjaxLink<Void>("load") {
+    
+    final WebMarkupContainer load = new WebMarkupContainer( "load" );
+    load.setOutputMarkupId( true );
+    load.add( new IndicatingAjaxLink<Void>( "link" ) {
       @Override
       public void onClick(AjaxRequestTarget target) {
-        System.out.println( "loading..." );
+        pool.execute( new Runnable() {
+          @Override
+          public void run() {
+            try {
+              SolrServer sss = new StreamingUpdateSolrServer(
+                  "http://localhost:8080/solr", 50, 3 );
+              loader.loadSampleData( sss );
+            }
+            catch (Exception e) {
+              e.printStackTrace();
+            }
+          }
+        });
+        
+        load.add( new AbstractAjaxTimerBehavior( Duration.seconds(1) ) {
+          @Override
+          protected void onTimer(AjaxRequestTarget target) {
+            System.out.println( "running: "+loader.status );
+            if( !loader.running ) {
+              this.stop();
+              setResponsePage( getPage() );
+            }
+            target.addComponent( load );
+          }
+        });
+        
         try {
-          SolrServer sss = new StreamingUpdateSolrServer(
-              "http://localhost:8080/solr", 50, 3 );
-
-          SampleDataLoader.load( sss );
-        }
-        catch (Exception e) {
-          e.printStackTrace();
-        }
-        System.out.println( "done..." );
+          Thread.sleep( 100 );
+        } catch (InterruptedException e) {}
+        target.addComponent( load );
+      }
+      
+      public boolean isVisible() {
+        return !loader.running;
       }
     });
+    WebMarkupContainer status = new WebMarkupContainer( "status" ) {
+      public boolean isVisible() {
+        return loader.running;
+      }
+    };
+    load.add( status );
+    status.add( new Label( "history", new AbstractReadOnlyModel<CharSequence>() {
+      @Override
+      public CharSequence getObject() {
+        StringBuilder str = new StringBuilder();
+        for( String line : loader.history ) {
+          str.append( line ).append( "\n" );
+        }
+        return str;
+      }
+    }));
+    status.add( new Label( "status", new AbstractReadOnlyModel<CharSequence>() {
+      @Override
+      public CharSequence getObject() {
+        return "Loading: "+loader.name+" ("+loader.count + ") " + loader.status;
+      }
+    }));
+    add( load );
   }
 
   public static String toTraceString( Throwable ex )

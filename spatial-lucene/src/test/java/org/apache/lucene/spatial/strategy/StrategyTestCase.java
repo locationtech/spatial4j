@@ -83,7 +83,9 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
       document.add(new Field("name", data.name, Store.YES, Index.ANALYZED));
       Shape shape = shapeIO.readShape(data.shape);
       for (Fieldable f : strategy.createFields(fieldInfo, shape, true, true)) {
-        document.add(f);
+        if( f != null ) { // null if incompatibleGeometry && ignore
+          document.add(f);
+        }
       }
       documents.add(document);
     }
@@ -91,14 +93,14 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
   }
 
   protected Iterator<SampleData> getSampleData(String testDataFile) throws IOException {
-    InputStream in = getClass().getClassLoader().getResourceAsStream(testDataFile);
-    return new SampleDataReader(new InputStreamReader( in, "UTF-8" ));
+    return new SampleDataReader(
+        getClass().getClassLoader().getResourceAsStream(testDataFile) );
   }
 
   protected Iterator<SpatialTestQuery> getTestQueries(String testQueryFile, ShapeIO shapeIO) throws IOException {
-    File file = new File( getClass().getClassLoader().getResource(testQueryFile).getFile() );
+    InputStream in = getClass().getClassLoader().getResourceAsStream(testQueryFile);
     return SpatialTestQuery.getTestQueries(
-        argsParser, shapeIO, file);
+        argsParser, shapeIO, testQueryFile, in );
   }
 
   public void runTestQueries(Iterator<SpatialTestQuery> queries, ShapeIO shapeIO, SpatialStrategy<T> strategy, T fieldInfo) {

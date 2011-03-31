@@ -17,8 +17,8 @@
 
 package org.apache.lucene.spatial.strategy;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,10 +39,10 @@ public class TestTestFramework {
   @Test
   public void testQueries() throws IOException {
     String name = StrategyTestCase.QTEST_Cities_IsWithin_BBox;
-    File file = new File(getClass().getClassLoader().getResource(name).getFile());
     
+    InputStream in = getClass().getClassLoader().getResourceAsStream(name);
     Iterator<SpatialTestQuery> iter = SpatialTestQuery.getTestQueries(
-        new SpatialArgsParser(), new JtsShapeIO(), file );
+        new SpatialArgsParser(), new JtsShapeIO(), name, in );
     List<SpatialTestQuery> tests = new ArrayList<SpatialTestQuery>();
     while( iter.hasNext() ) {
       tests.add( iter.next() );

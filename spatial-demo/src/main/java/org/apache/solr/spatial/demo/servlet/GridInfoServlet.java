@@ -2,6 +2,8 @@ package org.apache.solr.spatial.demo.servlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;
@@ -12,17 +14,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.lucene.spatial.base.io.sample.SampleData;
+import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
-import org.apache.solr.spatial.demo.utils.KMLHelper;
+import org.apache.solr.spatial.demo.KMLHelper;
 
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 
 
 public class GridInfoServlet extends HttpServlet
 {
+  JtsShapeIO shapeIO = new JtsShapeIO();
+  
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
@@ -45,22 +51,17 @@ public class GridInfoServlet extends HttpServlet
     Shape shape = null;
     String country = req.getParameter( "country" );
     if( country != null && country.length() == 2 ) {
-
-      File file = new File( "../data/countries/cntry06.shp" );
-      System.out.println( "reading: "+file.getAbsolutePath() );
-
-      // TODO, read sample data...
-
-//      ShapeReader reader = new ShapeReader( file );
-//      FeatureReader<SimpleFeatureType, SimpleFeature> iter = reader.getFeatures();
-//      while( iter.hasNext() ) {
-//        CountryInfo info = new CountryReader().read( iter.next() );
-//        if( country.equalsIgnoreCase( info.id ) ) {
-//          name = info.name;
-//          shape = new JtsGeometry( info.geometry );
-//          break;
-//        }
-//      }
+      InputStream in = getClass().getClassLoader().getResourceAsStream("countries-poly.txt");
+      
+      SampleDataReader reader = new SampleDataReader( in );
+      while( reader.hasNext() ) {
+        SampleData data = reader.next();
+        if( country.equalsIgnoreCase( data.id ) ) {
+          name = data.name;
+          shape = shapeIO.readShape( data.shape );
+          break;
+        }
+      }
 
       if( shape == null ) {
         res.sendError(HttpServletResponse.SC_BAD_REQUEST, "unable to find: "+country );

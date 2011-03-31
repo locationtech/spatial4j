@@ -17,6 +17,11 @@ public abstract class SpatialStrategy<T extends SpatialFieldInfo> {
     return false;
   }
 
+  /**
+   * This may return a null field if it does not want to make anything.
+   * This is reasonable behavior if 'ignoreIncompatibleGeometry=true' and the
+   * geometry is incompatible
+   */
   public abstract Fieldable createField(T fieldInfo, Shape shape, boolean index, boolean store);
 
   public Fieldable[] createFields(T fieldInfo, Shape shape, boolean index, boolean store) {

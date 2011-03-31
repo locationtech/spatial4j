@@ -1,6 +1,9 @@
 package org.apache.solr.spatial.demo;
 
 import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.lucene.spatial.base.io.geonames.Geoname;
 import org.apache.lucene.spatial.base.io.geonames.GeonamesReader;
@@ -14,114 +17,72 @@ import org.apache.solr.common.SolrInputDocument;
 
 public class SampleDataLoader
 {
+  public boolean running = false;
+  public List<String> history = new ArrayList<String>();
+  public String name = null;
+  public String status = null;
+  public int count = 0;
 
-
-  private static void indexSampleData( SolrServer solr, File f ) throws Exception {
-    System.out.println( "indexing: "+f.getAbsolutePath() );
-    SampleDataReader reader = new SampleDataReader( f );
+  public void index( SolrServer solr, String name, String sfix, SampleDataReader reader ) throws Exception {
+    this.name = name;
+    count = 0;
     while( reader.hasNext() ) {
       SampleData data = reader.next();
       SolrInputDocument doc = new SolrInputDocument();
-      doc.setField( "id", data.id );
+      doc.setField( "id", data.id+sfix );
       doc.setField( "name", data.name );
       doc.setField( "geo", data.shape );
-      doc.setField( "source", f.getName() );
+      doc.setField( "source", name );
       solr.add( doc );
+      count++;
+      this.status = data.name;
     }
+    this.status = "commit...";
     solr.commit( true, true );
+    history.add( "Loaded: "+name+ " ["+count+"]" );
+    this.status = "done.";
   }
 
-
-  public static void load( SolrServer solr ) throws Exception
+  public void loadSampleData( SolrServer solr ) throws Exception
   {
-    File file = null;
-
-    //file = new File(SampleDataLoader.class.getClassLoader().getResource("us-states.txt").getFile());
-
-    File basedir = new File( "../spatial-data/src/main/resources" );
-    File[] data = new File[] {
-        new File(basedir, "world-cities-points.txt" ),
-        new File(basedir, "countries-poly.txt" ),
-        new File(basedir, "countries-bbox.txt" ),
-        new File(basedir, "states-poly.txt" ),
-        new File(basedir, "states-bbox.txt" ),
+    status = "initalizing....";
+    running = true;
+    String[][] names = new String[][] {
+      new String[] { "world-cities-points.txt", "" }, 
+      new String[] { "countries-poly.txt", "_poly" }, 
+      new String[] { "countries-bbox.txt", "_bbox" }, 
+      new String[] { "states-poly.txt", "_poly" }, 
+      new String[] { "states-bbox.txt", "_bbox" }, 
     };
-
-    for( File f : data ) {
-      if( f.exists() ) {
-        indexSampleData( solr, f );
-      }
+    
+    for( String[] d : names ) {
+      InputStream in = 
+        getClass().getClassLoader().getResourceAsStream(d[0]);
+      index(solr, d[0], d[1], new SampleDataReader( in ) );
     }
+    
 
-    file = new File( basedir, "countries.txt" );
-    if( file.exists() ) {
-      indexSampleData( solr, file );
-    }
-
-    // Geonames
-    file = new File( "../data/geonames/US.txt" );
-    if( false && file.exists() ) {
-      GeonamesReader reader = new GeonamesReader( file );
-      while( reader.hasNext() ) {
-        Geoname name = reader.next();
-        SolrInputDocument doc = new SolrInputDocument();
-        doc.setField( "id", name.id+"" );
-        doc.setField( "name", name.name+"" );
-        doc.setField( "geo", name.longitude + " " + name.latitude );
-        doc.setField( "source", "geonames-"+file.getName() );
-        solr.add( doc );
-
-        if( (reader.getCount() % 1000) == 0 ) {
-          System.out.println( "geonames: "+reader.getCount() + " :: " + name.name );
-        }
-      }
-      solr.commit( true, true );
-    }
-  }
-
-  public static void main( String[] args ) throws Exception
-  {
-//    File basedir = new File( "../spatial-data/src/main/resources" );
-//    File file = new File( basedir, "us-states.txt" );
-//    if( true ) {
-//      SampleDataReader reader = new SampleDataReader( file );
+    status = "done.";
+    running = false;
+//
+//    // Geonames
+//    file = new File( "../data/geonames/US.txt" );
+//    if( false && file.exists() ) {
+//      GeonamesReader reader = new GeonamesReader( file );
 //      while( reader.hasNext() ) {
-//        SampleData data = reader.next();
-//        System.out.println( data.id );
+//        Geoname name = reader.next();
+//        SolrInputDocument doc = new SolrInputDocument();
+//        doc.setField( "id", name.id+"" );
+//        doc.setField( "name", name.name+"" );
+//        doc.setField( "geo", name.longitude + " " + name.latitude );
+//        doc.setField( "source", "geonames-"+file.getName() );
+//        solr.add( doc );
+//
+//        if( (reader.getCount() % 1000) == 0 ) {
+//          System.out.println( "geonames: "+reader.getCount() + " :: " + name.name );
+//        }
 //      }
-//      System.out.println( reader.getCount() );
-//      return;
+//      solr.commit( true, true );
 //    }
-
-
-    File file = new File( "../spatial-data/src/main/resources/geonames/cities15000.txt" ); //states.shp" ); //cntry06.shp" );
-    if( true ) {
-      int cnt = 0;
-      File fout = new File( "c:/temp/worldcities-points.txt" );
-      SampleDataWriter out = new SampleDataWriter( fout );
-      GeonamesReader reader = new GeonamesReader( file );
-      while( reader.hasNext() ) {
-        Geoname place = reader.next();
-        if( place.population > 150000 ) {
-          System.out.println( "INCLUDE: " + place.population + "  : " + place.name );
-          out.write( "G"+place.id , place.name, place.longitude, place.latitude );
-          cnt++;
-        }
-        else {
-          System.out.println( "SKIP: " + place.population + "  : " + place.name );
-        }
-      }
-      out.close();
-
-      System.out.println( "done: "+cnt );
-      return;
-    }
-
-
-    SolrServer solr = new StreamingUpdateSolrServer( "http://localhost:8080/solr", 50, 3 );
-  //  SolrServer solr = new CommonsHttpSolrServer( "http://localhost:8080/solr" );
-
-    load( solr );
-    System.out.println( "done." );
   }
 }

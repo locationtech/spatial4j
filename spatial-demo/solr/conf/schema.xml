@@ -60,7 +60,7 @@
     <fieldtype name="bbox"  class="org.apache.solr.spatial.bbox.BBoxFieldType"                 ignoreIncompatibleGeometry="true" />
     <fieldtype name="rtree" class="org.apache.solr.spatial.external.ExternalIndexFieldType"    ignoreIncompatibleGeometry="true" />
     <fieldtype name="point" class="org.apache.solr.spatial.point.PointFieldType"               ignoreIncompatibleGeometry="true" />
-    <fieldtype name="geohash" class="org.apache.solr.spatial.geohash.GeohashFieldType"    ignoreIncompatibleGeometry="true" />
+    <fieldtype name="geohash" class="org.apache.solr.spatial.geohash.GeohashFieldType"         ignoreIncompatibleGeometry="true" />
 
  </types>
 

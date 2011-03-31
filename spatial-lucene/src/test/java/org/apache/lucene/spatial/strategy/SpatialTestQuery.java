@@ -1,7 +1,10 @@
 package org.apache.lucene.spatial.strategy;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -24,13 +27,14 @@ public class SpatialTestQuery {
   public boolean orderIsImportant = false;
 
   /**
-   * Read queries from a file
+   * Get Test Queries
    */
   public static Iterator<SpatialTestQuery> getTestQueries(
-      final SpatialArgsParser parser,
-      final ShapeIO reader,
-      File file) throws IOException {
-    return new LineReader<SpatialTestQuery>(file) {
+      final SpatialArgsParser parser, 
+      final ShapeIO shapeIO, 
+      final String name,
+      final InputStream in ) throws IOException {
+    return new LineReader<SpatialTestQuery>(new InputStreamReader(in,"UTF-8")) {
 
       @Override
       public SpatialTestQuery parseLine(String line) {
@@ -52,7 +56,7 @@ public class SpatialTestQuery {
           while (st.hasMoreTokens()) {
             test.ids.add(st.nextToken().trim());
           }
-          test.args = parser.parse(line.substring(idx + 1).trim(), reader);
+          test.args = parser.parse(line.substring(idx + 1).trim(), shapeIO);
           return test;
         }
         catch( Exception ex ) {
