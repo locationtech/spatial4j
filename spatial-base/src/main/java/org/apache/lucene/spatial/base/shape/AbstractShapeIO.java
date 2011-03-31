@@ -39,10 +39,10 @@ public abstract class AbstractShapeIO implements ShapeIO {
     }
 
     if(Character.isLetter(str.charAt(0))) {
-      if( str.startsWith( "GeoCircle(" ) ) {
+      if( str.startsWith( "PointDistance(" ) ) {
         int idx = str.lastIndexOf( ')' );
         if( idx > 0 ) {
-          String body = str.substring( "GeoCircle(".length(), idx );
+          String body = str.substring( "PointDistance(".length(), idx );
           StringTokenizer st = new StringTokenizer(body, " ");
           double x = Double.parseDouble(st.nextToken());
           double y = Double.parseDouble(st.nextToken());
@@ -78,7 +78,6 @@ public abstract class AbstractShapeIO implements ShapeIO {
     StringTokenizer st = new StringTokenizer(str, " ");
     double p0 = Double.parseDouble(st.nextToken());
     double p1 = Double.parseDouble(st.nextToken());
-
     if (st.hasMoreTokens()) {
       double p2 = Double.parseDouble(st.nextToken());
       double p3 = Double.parseDouble(st.nextToken());

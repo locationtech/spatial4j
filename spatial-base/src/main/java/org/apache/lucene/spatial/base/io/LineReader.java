@@ -23,11 +23,11 @@ public abstract class LineReader<T> implements Iterator<T> {
   }
 
   public LineReader(InputStream in) throws IOException {
-    reader = new BufferedReader( 
+    reader = new BufferedReader(
         new InputStreamReader( in, "UTF-8" ) );
     next();
   }
-  
+
   public LineReader(Reader r) throws IOException {
     if (r instanceof BufferedReader) {
       reader = (BufferedReader) r;

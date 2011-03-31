@@ -1,7 +1,5 @@
 package org.apache.lucene.spatial.strategy;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,8 +28,8 @@ public class SpatialTestQuery {
    * Get Test Queries
    */
   public static Iterator<SpatialTestQuery> getTestQueries(
-      final SpatialArgsParser parser, 
-      final ShapeIO shapeIO, 
+      final SpatialArgsParser parser,
+      final ShapeIO shapeIO,
       final String name,
       final InputStream in ) throws IOException {
     return new LineReader<SpatialTestQuery>(new InputStreamReader(in,"UTF-8")) {

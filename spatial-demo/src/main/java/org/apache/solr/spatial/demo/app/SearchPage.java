@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
@@ -31,7 +30,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -64,10 +62,10 @@ public class SearchPage extends WebPage
 {
   static Logger log = LoggerFactory.getLogger( SearchPage.class );
 
-  static SampleDataLoader loader = new SampleDataLoader(); 
+  static SampleDataLoader loader = new SampleDataLoader();
   public static final ExecutorService pool = Executors.newCachedThreadPool();
 
-  
+
   // Dirty Dirty Dirty Hack...
   static final LinearPrefixGrid grid = new LinearPrefixGrid( -180, 180, -90-180, 90, 16 );
   static final SolrServer solr;
@@ -95,6 +93,8 @@ public class SearchPage extends WebPage
     add( new BookmarkablePageLink<Void>( "playground", PlaygroundPage.class ) );
 
     Form<Query> searchForm = new Form<Query>( "search", new CompoundPropertyModel<Query>(query) );
+    searchForm.add( new DropDownChoice<String>("source",
+        Arrays.asList( "(all)","world-cities-points.txt", "countries-poly.txt", "countries-bbox.txt", "states-poly.txt", "states-bbox.txt" ) ));
     searchForm.add( new TextField<String>( "fq" ) );
     searchForm.add( new DropDownChoice<String>("field",
         Arrays.asList( "geo", "bbox", "grid", "rtree", "point", "geohash" ) ));
@@ -253,7 +253,7 @@ public class SearchPage extends WebPage
     });
 
     add( results );
-    
+
     final WebMarkupContainer load = new WebMarkupContainer( "load" );
     load.setOutputMarkupId( true );
     load.add( new IndicatingAjaxLink<Void>( "link" ) {
@@ -272,7 +272,7 @@ public class SearchPage extends WebPage
             }
           }
         });
-        
+
         load.add( new AbstractAjaxTimerBehavior( Duration.seconds(1) ) {
           @Override
           protected void onTimer(AjaxRequestTarget target) {
@@ -284,18 +284,20 @@ public class SearchPage extends WebPage
             target.addComponent( load );
           }
         });
-        
+
         try {
           Thread.sleep( 100 );
         } catch (InterruptedException e) {}
         target.addComponent( load );
       }
-      
+
+      @Override
       public boolean isVisible() {
         return !loader.running;
       }
     });
     WebMarkupContainer status = new WebMarkupContainer( "status" ) {
+      @Override
       public boolean isVisible() {
         return loader.running;
       }

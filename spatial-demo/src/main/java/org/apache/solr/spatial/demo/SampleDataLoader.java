@@ -1,17 +1,12 @@
 package org.apache.solr.spatial.demo;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.spatial.base.io.geonames.Geoname;
-import org.apache.lucene.spatial.base.io.geonames.GeonamesReader;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
-import org.apache.lucene.spatial.base.io.sample.SampleDataWriter;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
 
@@ -48,19 +43,19 @@ public class SampleDataLoader
     status = "initalizing....";
     running = true;
     String[][] names = new String[][] {
-      new String[] { "world-cities-points.txt", "" }, 
-      new String[] { "countries-poly.txt", "_poly" }, 
-      new String[] { "countries-bbox.txt", "_bbox" }, 
-      new String[] { "states-poly.txt", "_poly" }, 
-      new String[] { "states-bbox.txt", "_bbox" }, 
+      new String[] { "world-cities-points.txt", "" },
+      new String[] { "countries-poly.txt", "_poly" },
+      new String[] { "countries-bbox.txt", "_bbox" },
+      new String[] { "states-poly.txt", "_poly" },
+      new String[] { "states-bbox.txt", "_bbox" },
     };
-    
+
     for( String[] d : names ) {
-      InputStream in = 
+      InputStream in =
         getClass().getClassLoader().getResourceAsStream(d[0]);
       index(solr, d[0], d[1], new SampleDataReader( in ) );
     }
-    
+
 
     status = "done.";
     running = false;

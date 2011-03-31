@@ -19,7 +19,7 @@ public class BBoxStrategyTestCase extends StrategyTestCase<BBoxFieldInfo> {
     BBoxFieldInfo finfo = new BBoxFieldInfo( "bbox" );
     executeQueries( s, io, finfo, data, tests );
   }
-  
+
   @Test
   public void testBBoxPolyWithJts() throws IOException {
     executeQueries( new JtsShapeIO(),

@@ -118,11 +118,22 @@
       
       <table>
        <tr>
+        <td>Source</td>
         <td>Filter</td>
        </tr>
        <tr>
+         <td>
+         <select wicket:id="source">
+             <option value="volvo">Geometry</option>
+             <option value="saab">RTree</option>
+             <option value="mercedes">BBox</option>
+             <option value="audi">Point</option>
+           </select>
+         </td>
          <td colspan="3"><input wicket:id="fq" type="text"/></td>
         </tr>
+      </table>
+      <table>
       <tr>
         <td>Field</td>
         <td>Operation</td>

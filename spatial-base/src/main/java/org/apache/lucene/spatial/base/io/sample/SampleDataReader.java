@@ -12,7 +12,7 @@ public class SampleDataReader extends LineReader<SampleData> {
   public SampleDataReader(InputStream r) throws IOException {
     super( r );
   }
-  
+
   public SampleDataReader(Reader r) throws IOException {
     super( r );
   }

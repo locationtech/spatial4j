@@ -10,6 +10,7 @@ import org.apache.solr.common.params.SolrParams;
 public class Query implements Serializable
 {
   public String fq;
+  public String source ="(all)";
 
   public String field = "geo";
   public SpatialOperation op = SpatialOperation.IsWithin;
@@ -46,8 +47,11 @@ public class Query implements Serializable
     else {
       q = "*:*";
     }
+    if( source != null && !(source.startsWith( "(" )) ) {
+      params.addFilterQuery( "source:"+source );
+    }
     if( fq != null ) {
-      params.setFilterQueries( fq );
+      params.addFilterQuery( fq );
     }
 
     // Set sort

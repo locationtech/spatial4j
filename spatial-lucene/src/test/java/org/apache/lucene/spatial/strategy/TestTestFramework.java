@@ -39,7 +39,7 @@ public class TestTestFramework {
   @Test
   public void testQueries() throws IOException {
     String name = StrategyTestCase.QTEST_Cities_IsWithin_BBox;
-    
+
     InputStream in = getClass().getClassLoader().getResourceAsStream(name);
     Iterator<SpatialTestQuery> iter = SpatialTestQuery.getTestQueries(
         new SpatialArgsParser(), new JtsShapeIO(), name, in );

@@ -1,9 +1,7 @@
 package org.apache.solr.spatial.demo.servlet;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +26,7 @@ import de.micromata.opengis.kml.v_2_2_0.Kml;
 public class GridInfoServlet extends HttpServlet
 {
   JtsShapeIO shapeIO = new JtsShapeIO();
-  
+
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
@@ -52,7 +50,7 @@ public class GridInfoServlet extends HttpServlet
     String country = req.getParameter( "country" );
     if( country != null && country.length() == 2 ) {
       InputStream in = getClass().getClassLoader().getResourceAsStream("countries-poly.txt");
-      
+
       SampleDataReader reader = new SampleDataReader( in );
       while( reader.hasNext() ) {
         SampleData data = reader.next();

@@ -47,7 +47,7 @@ public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldI
         QTEST_States_Intersects_BBox,
         QTEST_States_IsWithin_BBox );
   }
-  
+
   @Test
   public void testJtsPoints() throws IOException {
     JtsShapeIO shapeIO = new JtsShapeIO();
