@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
+import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.junit.Test;
@@ -30,12 +31,32 @@ import org.junit.Test;
 public class ExternalIndexStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
 
   @Test
-  public void testExternalIndexStrategy() throws IOException {
+  public void testExternalPolyJts() throws IOException {
     ShapeIO shapeIO = new JtsShapeIO();
     executeQueries(
         new ExternalIndexStrategy(shapeIO),
         shapeIO, new SimpleSpatialFieldInfo( "geo" ),
         DATA_STATES_POLY,
+        QTEST_States_Intersects_BBox );
+  }
+
+  @Test
+  public void testExternalBBoxJts() throws IOException {
+    ShapeIO shapeIO = new JtsShapeIO();
+    executeQueries(
+        new ExternalIndexStrategy(shapeIO),
+        shapeIO, new SimpleSpatialFieldInfo( "geo" ),
+        DATA_STATES_BBOX,
+        QTEST_States_Intersects_BBox );
+  }
+
+  @Test
+  public void testExternalBBoxSimple() throws IOException {
+    ShapeIO shapeIO = new SimpleShapeIO();
+    executeQueries(
+        new ExternalIndexStrategy(shapeIO),
+        shapeIO, new SimpleSpatialFieldInfo( "geo" ),
+        DATA_STATES_BBOX,
         QTEST_States_Intersects_BBox );
   }
 }
