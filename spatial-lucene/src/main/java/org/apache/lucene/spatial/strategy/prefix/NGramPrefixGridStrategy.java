@@ -2,6 +2,7 @@ package org.apache.lucene.spatial.strategy.prefix;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
+import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
@@ -37,9 +38,7 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
       tokenStream = new StringListTokenizer(cells);
     }
 
-    fieldable.tokens = new PayloadAwareEdgeNGramTokenFilter(
-        new GridPayloadTokenFilter(tokenStream),
-        PayloadAwareEdgeNGramTokenFilter.Side.FRONT, 1, 20);
+    fieldable.tokens = new EdgeNGramTokenFilter(tokenStream, EdgeNGramTokenFilter.Side.FRONT, 1, 20);
     if (store) {
       fieldable.value = cells.toString();
     }
@@ -70,7 +69,5 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
     }
     return booleanQuery;
   }
-
-  // ================================================= Helper Methods ================================================
 
 }

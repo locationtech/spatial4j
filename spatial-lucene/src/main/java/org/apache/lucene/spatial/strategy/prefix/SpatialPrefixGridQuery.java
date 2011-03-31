@@ -17,12 +17,14 @@ package org.apache.lucene.spatial.strategy.prefix;
  * limitations under the License.
  */
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.AutomatonQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.util.PerReaderTermState;
 import org.apache.lucene.util.ToStringUtils;
 import org.apache.lucene.util.automaton.Automaton;
 import org.apache.lucene.util.automaton.BasicAutomata;
@@ -31,63 +33,51 @@ import org.apache.lucene.util.automaton.BasicOperations;
 /**
  * @see AutomatonQuery, WildcardQuery
  */
-public class SpatialPrefixGridQuery extends AutomatonQuery {
+public class SpatialPrefixGridQuery extends WildcardQuery {
 
   /**
    * Constructs a query for terms matching <code>term</code>.
    */
-  public SpatialPrefixGridQuery(Term term) {
-    super(term, toAutomaton(term));
+  public SpatialPrefixGridQuery(Term term, int bestResolution, PrefixGridSimilarity gridSimilarity) {
+    super(term);
+    setRewriteMethod(new PrefixGridTermQueryRewrite(bestResolution, gridSimilarity));
   }
 
-  /**
-   * Convert Grid syntax into an automaton.
-   */
-  public static Automaton toAutomaton(Term wildcardquery) {
-    List<Automaton> automata = new ArrayList<Automaton>();
+  // ================================================= Inner Classes =================================================
 
-    String wildcardText = wildcardquery.text();
+  private class PrefixGridTermQueryRewrite extends ScoringRewrite<BooleanQuery> {
 
-    for (int i = 0; i < wildcardText.length();) {
-      final int c = wildcardText.codePointAt(i);
-      int length = Character.charCount(c);
-      switch (c) {
-        case SpatialPrefixGrid.COVER:
-          automata.add(BasicAutomata.makeAnyString());
-          break;
+    private int bestResolution;
+    private PrefixGridSimilarity gridSimilarity;
 
-        case SpatialPrefixGrid.INTERSECTS:
-          automata.add(BasicAutomata.makeAnyString()); // same as cover?
-          break;
+    private PrefixGridTermQueryRewrite(int bestResolution, PrefixGridSimilarity gridSimilarity) {
+      this.bestResolution = bestResolution;
+      this.gridSimilarity = gridSimilarity;
+    }
 
-        default:
-          automata.add(BasicAutomata.makeChar(c));
+    @Override
+    protected void checkMaxClauseCount(int count) throws IOException {
+      if (count > BooleanQuery.getMaxClauseCount()) {
+        throw new BooleanQuery.TooManyClauses();
       }
-      i += length;
     }
 
-    return BasicOperations.concatenate(automata);
-  }
-
-  /**
-   * Returns the pattern term.
-   */
-  public Term getTerm() {
-    return term;
-  }
-
-  /**
-   * Prints a user-readable version of this query.
-   */
-  @Override
-  public String toString(String field) {
-    StringBuilder buffer = new StringBuilder();
-    if (!getField().equals(field)) {
-      buffer.append(getField());
-      buffer.append(":");
+    @Override
+    protected BooleanQuery getTopLevelQuery() throws IOException {
+      return new BooleanQuery(true);
     }
-    buffer.append(term.text());
-    buffer.append(ToStringUtils.boost(getBoost()));
-    return buffer.toString();
+
+    @Override
+    protected void addClause(
+        BooleanQuery booleanQuery,
+        Term term,
+        int docCount,
+        float boost,
+        PerReaderTermState perReaderTermState) throws IOException {
+      TermQuery termQuery = new TermQuery(term, perReaderTermState);
+      termQuery.setBoost(boost);
+      PrefixGridTermQuery gridTermQuery = new PrefixGridTermQuery(termQuery, bestResolution, gridSimilarity);
+      booleanQuery.add(gridTermQuery, BooleanClause.Occur.SHOULD);
+    }
   }
 }
