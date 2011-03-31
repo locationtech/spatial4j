@@ -30,7 +30,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
-import org.apache.lucene.spatial.base.shape.GeoCircleShape;
+import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.Shapes;
@@ -83,8 +83,8 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
     }
 
     Shape qshape = args.getShape();
-    if (GeoCircleShape.class.isInstance(args.getShape())) {
-      GeoCircleShape pDistGeo = (GeoCircleShape)qshape;
+    if (PointDistanceShape.class.isInstance(args.getShape())) {
+      PointDistanceShape pDistGeo = (PointDistanceShape)qshape;
 
       if (args.getOperation() == SpatialOperation.BBoxWithin) {
         qshape = pDistGeo.getEnclosingBox1();

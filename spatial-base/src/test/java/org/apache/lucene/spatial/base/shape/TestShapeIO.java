@@ -60,6 +60,7 @@ public class TestShapeIO {
     p = (Point) help.writeThenRead(s);
     assertEquals(10.0, p.getX(), 0D);
     assertEquals(20.0, p.getY(), 0D);
+    Assert.assertFalse( s.hasArea() );
 
     // BBOX
     s = reader.readShape("-10 -20 10 20");
@@ -73,17 +74,19 @@ public class TestShapeIO {
     assertEquals(-20.0, b.getMinY(), 0D);
     assertEquals(10.0, b.getMaxX(), 0D);
     assertEquals(20.0, b.getMaxY(), 0D);
+    Assert.assertTrue( s.hasArea() );
 
     // Point/Distance
-    s = reader.readShape("GeoCircle( 1.23 4.56 distance=7.89)");
-    GeoCircleShape circle = (GeoCircleShape)s;
+    s = reader.readShape("PointDistance( 1.23 4.56 distance=7.89)");
+    PointDistanceShape circle = (PointDistanceShape)s;
     assertEquals(1.23, circle.getPoint().getX(), 0D);
     assertEquals(4.56, circle.getPoint().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
     assertEquals(reader.units.earthRadius(), circle.getRadius(), 0D);
+    Assert.assertTrue( s.hasArea() );
 
-    s = reader.readShape("GeoCircle( 1.23  4.56 d=7.89 )");
-    circle = (GeoCircleShape)s;
+    s = reader.readShape("PointDistance( 1.23  4.56 d=7.89 )");
+    circle = (PointDistanceShape)s;
     assertEquals(1.23, circle.getPoint().getX(), 0D);
     assertEquals(4.56, circle.getPoint().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
@@ -124,7 +127,10 @@ public class TestShapeIO {
         return io.readShape(buff, 0, buff.length);
       }
     });
-
-    // TODO -- Check WKT...
+    
+    // Line does not have area
+    String wkt = "LINESTRING(-120.1484375 26.98046875,-119.62109375 39.4609375,-107.140625 50.0078125,-92.0234375 54.75390625)";
+    Shape shape = io.readShape( wkt );
+    Assert.assertFalse( shape.hasArea() );
   }
 }

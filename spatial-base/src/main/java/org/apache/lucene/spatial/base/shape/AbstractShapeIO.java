@@ -69,7 +69,7 @@ public abstract class AbstractShapeIO implements ShapeIO {
             throw new InvalidShapeException( "Missing Distance: "+str );
           }
           Point p = makePoint( x, y );
-          return new GeoCircleShape( p, d, units.earthRadius(), this );
+          return new PointDistanceShape( p, d, units.earthRadius(), this );
         }
       }
       return null;

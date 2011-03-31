@@ -24,14 +24,14 @@ import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 /**
  * An ellipse-like geometry based on the haversine formula with a supplied earth radius.
  */
-public final class GeoCircleShape implements Shape {
+public final class PointDistanceShape implements Shape {
   private final Point point;
   private final double distance;
   private final double radius;
 
   private transient BBox enclosingBox1, enclosingBox2;//calculated & cached (2nd is usually null)
 
-  public GeoCircleShape(Point p, double dist, double radius, ShapeIO shapeIO) {
+  public PointDistanceShape(Point p, double dist, double radius, ShapeIO shapeIO) {
     this.point = p;
     this.distance = dist;
     this.radius = radius;
@@ -104,7 +104,7 @@ public final class GeoCircleShape implements Shape {
 
   @Override
   public boolean hasArea() {
-    return enclosingBox2.hasArea();
+    return distance > 0;
   }
 
   @Override
@@ -154,7 +154,7 @@ public final class GeoCircleShape implements Shape {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    GeoCircleShape that = (GeoCircleShape) o;
+    PointDistanceShape that = (PointDistanceShape) o;
 
     if (Double.compare(that.distance, distance) != 0) return false;
     if (Double.compare(that.radius, radius) != 0) return false;
