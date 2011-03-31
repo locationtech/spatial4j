@@ -1,0 +1,42 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <artifactId>lucene-spatial-parent</artifactId>
+		<groupId>org.apache.lucene.spatial</groupId>
+		<version>0.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  
+	<groupId>com.voyagergis.community.lucene.spatial</groupId>
+  <artifactId>voyager-spatial-solr</artifactId>
+	<version>0.1-SNAPSHOT</version>
+	
+  <name>Voyager - Spatial Solr Support</name>
+  <description>
+    solr stuff
+  </description>
+  <packaging>jar</packaging>
+
+  <dependencies>
+  
+    <!-- Lucene Spatial -->
+    <dependency>
+      <groupId>org.apache.lucene.spatial</groupId>
+      <artifactId>spatial-solr</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <!-- TESTING -->
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.1</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+  
+</project>
