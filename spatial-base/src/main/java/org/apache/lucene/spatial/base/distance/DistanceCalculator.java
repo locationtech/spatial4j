@@ -21,13 +21,6 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 public interface DistanceCalculator {
-  /**
-   *
-   * @param from
-   * @param shape
-   * @param key -- a unique key, used for caching or -1 to disable caching
-   * @return the distance
-   */
-  public double calculate(Point from, Shape shape, int key);
-  public double calculate(Point from, Point point, int key);
+  public double calculate(Point from, Shape shape);
+  public double calculate(Point from, Point point);
 }

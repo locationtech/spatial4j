@@ -31,7 +31,6 @@ import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
-import org.apache.lucene.spatial.base.distance.CachingDistanceCalculator;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
@@ -41,6 +40,7 @@ import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
+import org.apache.lucene.spatial.strategy.util.CachingDoubleValueSource;
 import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
 import org.apache.lucene.spatial.strategy.util.ValueSourceFilter;
 import org.slf4j.Logger;
@@ -141,10 +141,6 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
         if( args.getShape() instanceof PointDistanceShape ) {
           PointDistanceShape pd = (PointDistanceShape)args.getShape();
 
-          // Check if we should cache the score
-          if( args.isCalculateScore() ) {
-            calc = new CachingDistanceCalculator( calc );
-          }
           // Make the ValueSource
           valueSource = makeValueSource(args, fieldInfo, calc);
 
@@ -168,7 +164,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
     if (args.isCalculateScore()) {
       try {
         if( valueSource == null ) {
-          valueSource = makeValueSource(args, fieldInfo, calc);
+          valueSource = new CachingDoubleValueSource(valueSource);
         }
         Query spatialRankingQuery = new ValueSourceQuery(valueSource);
         BooleanQuery bq = new BooleanQuery();

@@ -81,7 +81,6 @@ public class DistanceValueSource extends ValueSource {
     final DoubleValues ptY = FieldCache.DEFAULT.getDoubles(reader, fields.getFieldNameY(),
         new DoubleValuesCreator(fields.getFieldNameY(), parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));
 
-    final int baseID = context.docBase;
     return new DocValues() {
       @Override
       public float floatVal(int doc) {
@@ -93,7 +92,7 @@ public class DistanceValueSource extends ValueSource {
         // make sure it has minX and area
         if (ptX.valid.get(doc) && ptY.valid.get(doc)) {
           Point2D pt = new Point2D( ptX.values[doc],  ptY.values[doc] );
-          return calculator.calculate(from, pt,baseID+doc);
+          return calculator.calculate(from, pt);
         }
         return 0;
       }

@@ -1,9 +1,14 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.*;
-
 import java.io.IOException;
+
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.search.Explanation;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Scorer;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.Weight;
 
 /**
  * @author Chris Male

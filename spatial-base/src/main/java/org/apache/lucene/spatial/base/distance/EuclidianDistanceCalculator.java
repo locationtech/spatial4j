@@ -23,15 +23,15 @@ import org.apache.lucene.spatial.base.shape.Shape;
 public class EuclidianDistanceCalculator implements DistanceCalculator {
 
   @Override
-  public double calculate(Point from, Shape shape, int key) {
+  public double calculate(Point from, Shape shape) {
     if (Point.class.isInstance(shape)) {
-      return calculate(from, (Point)shape, key);
+      return calculate(from, (Point)shape);
     }
     throw new UnsupportedOperationException( "Distance to shape is not yet supported" );
   }
 
   @Override
-  public double calculate(Point from, Point point, int key) {
+  public double calculate(Point from, Point point) {
     double result = 0;
 
     double v = from.getX() - point.getX();

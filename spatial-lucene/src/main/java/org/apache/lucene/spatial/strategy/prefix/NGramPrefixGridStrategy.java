@@ -1,5 +1,7 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
+import java.util.List;
+
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter;
@@ -15,8 +17,6 @@ import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-
-import java.util.List;
 
 /**
  * @author Chris Male

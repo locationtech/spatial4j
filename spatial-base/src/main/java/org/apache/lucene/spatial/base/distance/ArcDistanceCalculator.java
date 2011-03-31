@@ -29,15 +29,15 @@ public class ArcDistanceCalculator implements DistanceCalculator {
   }
 
   @Override
-  public double calculate(Point from, Shape shape, int key) {
+  public double calculate(Point from, Shape shape) {
     if (Point.class.isInstance(shape)) {
-      return calculate(from, (Point)shape, key);
+      return calculate(from, (Point)shape);
     }
     throw new UnsupportedOperationException( "Distance to shape is not yet supported" );
   }
 
   @Override
-  public double calculate(Point from, Point point, int key) {
+  public double calculate(Point from, Point point) {
     LatLng p1 = new LatLng( from.getY(), from.getX() );
     LatLng p2 = new LatLng( point.getY(), point.getX() );
     return p1.arcDistance( p2, units );
