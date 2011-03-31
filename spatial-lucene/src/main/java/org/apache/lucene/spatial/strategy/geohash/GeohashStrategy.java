@@ -77,8 +77,9 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   @Override
   public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
-    if(!( args.getOperation() == SpatialOperation.IsWithin ) ||
-        ( args.getOperation() == SpatialOperation.BBoxWithin )){
+    if(!(( args.getOperation() == SpatialOperation.IsWithin ) ||
+         ( args.getOperation() == SpatialOperation.Intersects ) ||
+         ( args.getOperation() == SpatialOperation.BBoxWithin )) ){
       throw new UnsupportedOperationException(args.getOperation().name());
     }
 

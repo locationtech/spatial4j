@@ -12,6 +12,7 @@ public class SpatialContextProvider {
 
   private static SpatialContext instance = null;
 
+  // TODO -- we really want to pass initalization info to this guy...
   @SuppressWarnings("unchecked")
   public static synchronized SpatialContext getContext() {
     if( instance == null ) {
@@ -21,21 +22,21 @@ public class SpatialContextProvider {
         try {
           clazz = (Class<? extends SpatialContext>) Class.forName( cname );
           instance = clazz.newInstance();
-        } 
+        }
         catch (Exception e) {
           log.warn( "Using default SpatialContext", e );
         }
       }
 //      if( clazz == null ) {
 //        try {
-//          clazz = (Class<? extends SpatialContext>) 
+//          clazz = (Class<? extends SpatialContext>)
 //            Class.forName( "com.voyagergis.community.lucene.spatial.JtsSpatialContext" );
-//        } 
+//        }
 //        catch (ClassNotFoundException e) {
 //          log.warn( "Using default SpatialContext", e );
 //        }
 //      }
-      
+
       // TODO... get the best one
       instance = new SimpleSpatialContext();
     }

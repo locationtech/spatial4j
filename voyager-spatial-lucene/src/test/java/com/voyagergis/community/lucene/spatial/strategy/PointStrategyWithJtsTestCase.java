@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
 
-public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
+public class PointStrategyWithJtsTestCase extends StrategyTestCase<PointFieldInfo> {
 
   @Test
   public void testPointStrategyWithJts() throws IOException {

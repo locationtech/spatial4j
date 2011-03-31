@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.voyagergis.community.lucene.spatial.strategy.external;
+package com.voyagergis.community.lucene.spatial.strategy;
 
 
 import java.io.IOException;
@@ -27,6 +27,7 @@ import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
 
 import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
+import com.voyagergis.community.lucene.spatial.strategy.external.ExternalIndexStrategy;
 
 
 public class ExternalIndexStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {

@@ -1,4 +1,4 @@
-package com.voyagergis.community.lucene.spatial.strategy.geohash;
+package com.voyagergis.community.lucene.spatial.strategy;
 
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
 
-public class GeohashStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
+public class GeohashStrategyWithJtsTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
 
   @Test
   public void testGeohashStrategy() throws IOException {

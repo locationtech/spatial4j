@@ -1,4 +1,4 @@
-package com.voyagergis.community.lucene.spatial.strategy.bbox;
+package com.voyagergis.community.lucene.spatial.strategy;
 
 import java.io.IOException;
 
@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
 
-public class BBoxStrategyTestCase extends StrategyTestCase<BBoxFieldInfo> {
+public class BBoxStrategyWithJtsTestCase extends StrategyTestCase<BBoxFieldInfo> {
 
   public void executeQueries( SpatialContext io, String data, String ... tests ) throws IOException {
     BBoxStrategy s = new BBoxStrategy();
