@@ -89,16 +89,12 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
   }
 
   protected Iterator<SampleData> getSampleData(String testDataFile) throws IOException {
-    //File file = new File(getClass().getClassLoader().getResource(testDataFile).getFile());
-    // ugg maven class loading still not working for me (ryan)
-    File file = new File( "../spatial-data/src/main/resources/"+testDataFile );
+    File file = new File(getClass().getClassLoader().getResource(testDataFile).getFile());
     return new SampleDataReader(file);
   }
 
   protected Iterator<SpatialTestQuery> getTestQueries(String testQueryFile, ShapeIO shapeIO) throws IOException {
-    // ugg maven class loading still not working for me (ryan)
-//    new File(getClass().getClassLoader().getResource(testQueryFile).getFile()
-    File file = new File( "src/test/resources/"+testQueryFile );
+    File file = new File( getClass().getClassLoader().getResource(testQueryFile).getFile() );
     return SpatialTestQuery.getTestQueries(
         argsParser, shapeIO, file);
   }

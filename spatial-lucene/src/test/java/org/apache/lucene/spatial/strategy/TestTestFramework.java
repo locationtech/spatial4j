@@ -36,14 +36,11 @@ import org.junit.Test;
  */
 public class TestTestFramework {
 
-
   @Test
   public void testQueries() throws IOException {
     String name = StrategyTestCase.QTEST_Cities_IsWithin_BBox;
-  //File file = new File(getClass().getClassLoader().getResource(testDataFile).getFile());
-    // ugg maven class loading still not working for me (ryan)
-    File file =  new File( "src/test/resources/"+name );
-
+    File file = new File(getClass().getClassLoader().getResource(name).getFile());
+    
     Iterator<SpatialTestQuery> iter = SpatialTestQuery.getTestQueries(
         new SpatialArgsParser(), new JtsShapeIO(), file );
     List<SpatialTestQuery> tests = new ArrayList<SpatialTestQuery>();

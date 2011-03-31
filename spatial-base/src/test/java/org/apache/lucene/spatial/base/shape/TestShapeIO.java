@@ -4,7 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
+import org.apache.lucene.spatial.base.shape.jts.JtsEnvelope;
+import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
+import org.apache.lucene.spatial.base.shape.jts.JtsPoint2D;
 import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
+import org.apache.lucene.spatial.base.shape.simple.Point2D;
+import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 import org.apache.lucene.spatial.base.shape.simple.SimpleShapeIO;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,19 +24,23 @@ public class TestShapeIO {
   public void testShapesImplementEquals() {
 
     Class<Shape>[] classes = new Class[] {
-     //   Point2D.class
+      JtsEnvelope.class,  
+      JtsGeometry.class,  
+      JtsPoint2D.class,  
+//      Point2D.class,  
+//      Rectangle.class,  
     };
 
     for( Class<Shape> clazz : classes ) {
       try {
         clazz.getDeclaredMethod( "equals", Object.class );
       } catch (Exception e) {
-        Assert.fail( "Shapes need to define 'equals'" );
+        Assert.fail( "Shapes need to define 'equals' : " + clazz.getName() );
       }
       try {
         clazz.getDeclaredMethod( "hashCode" );
       } catch (Exception e) {
-        Assert.fail( "Shapes need to define 'hashCode'" );
+        Assert.fail( "Shapes need to define 'hashCode' : " + clazz.getName() );
       }
     }
   }
