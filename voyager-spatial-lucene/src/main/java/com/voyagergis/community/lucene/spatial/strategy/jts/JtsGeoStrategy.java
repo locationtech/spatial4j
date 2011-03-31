@@ -34,7 +34,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
-import com.voyagergis.community.lucene.spatial.base.JtsSpatialContext;
+import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
 
 /**
  * Indexed field is WKB (store WKT)

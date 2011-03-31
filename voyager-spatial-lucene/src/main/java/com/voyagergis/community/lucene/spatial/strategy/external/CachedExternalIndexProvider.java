@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.SpatialIndex;
-import com.voyagergis.community.lucene.spatial.base.shape.JtsEnvelope;
+import com.voyagergis.community.lucene.spatial.shape.JtsEnvelope;
 
 
 /**

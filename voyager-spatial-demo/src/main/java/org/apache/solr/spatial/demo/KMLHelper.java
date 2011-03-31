@@ -11,8 +11,8 @@ import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import com.vividsolutions.jts.util.GeometricShapeFactory;
-import com.voyagergis.community.lucene.spatial.base.JtsSpatialContext;
-import com.voyagergis.community.lucene.spatial.base.shape.JtsGeometry;
+import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
+import com.voyagergis.community.lucene.spatial.shape.JtsGeometry;
 
 import de.micromata.opengis.kml.v_2_2_0.ColorMode;
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;

@@ -88,7 +88,7 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
       double xmin, double xmax,
       double ymin, double ymax,
       int maxLevels ) {
-    this( xmin, xmax, ymin, ymax, maxLevels, SpatialContextProvider.getShapeIO() );
+    this( xmin, xmax, ymin, ymax, maxLevels, SpatialContextProvider.getContext() );
   }
 
   public LinearPrefixGrid(
@@ -99,13 +99,13 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
       int maxLevels,
       int minResolution,
       int resolution) {
-    this(xmin, xmax, ymin, ymax, maxLevels, SpatialContextProvider.getShapeIO() );
+    this(xmin, xmax, ymin, ymax, maxLevels, SpatialContextProvider.getContext() );
     this.minResolution = minResolution;
     this.resolution = resolution;
   }
 
   public LinearPrefixGrid() {
-    this(-180, 180, -90, 90, 12, SpatialContextProvider.getShapeIO());
+    this(-180, 180, -90, 90, 12, SpatialContextProvider.getContext());
   }
 
   public void printInfo() {

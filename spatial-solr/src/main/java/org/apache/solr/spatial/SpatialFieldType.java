@@ -68,7 +68,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
       ignoreIncompatibleGeometry = Boolean.valueOf( v );
     }
 
-    reader = SpatialContextProvider.getShapeIO();
+    reader = SpatialContextProvider.getContext();
     argsParser = new SpatialArgsParser();
   }
 

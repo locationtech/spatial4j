@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.voyagergis.community.lucene.spatial.base.shape;
+package com.voyagergis.community.lucene.spatial.shape;
 
 
 import org.apache.lucene.spatial.base.IntersectCase;

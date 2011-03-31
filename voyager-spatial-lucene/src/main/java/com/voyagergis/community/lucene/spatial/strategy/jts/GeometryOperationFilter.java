@@ -37,7 +37,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.InStream;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
-import com.voyagergis.community.lucene.spatial.base.JtsSpatialContext;
+import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
 
 
 public class GeometryOperationFilter extends Filter {

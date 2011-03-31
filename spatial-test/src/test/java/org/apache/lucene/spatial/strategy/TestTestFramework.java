@@ -44,7 +44,7 @@ public class TestTestFramework {
 
     InputStream in = getClass().getClassLoader().getResourceAsStream(name);
     Iterator<SpatialTestQuery> iter = SpatialTestQuery.getTestQueries(
-        new SpatialArgsParser(), SpatialContextProvider.getShapeIO(), name, in );
+        new SpatialArgsParser(), SpatialContextProvider.getContext(), name, in );
     List<SpatialTestQuery> tests = new ArrayList<SpatialTestQuery>();
     while( iter.hasNext() ) {
       tests.add( iter.next() );

@@ -25,7 +25,7 @@ import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
 
-import com.voyagergis.community.lucene.spatial.base.JtsSpatialContext;
+import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
 
 
 public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {

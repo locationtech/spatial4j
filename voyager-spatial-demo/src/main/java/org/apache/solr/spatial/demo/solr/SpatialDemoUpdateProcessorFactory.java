@@ -11,7 +11,7 @@ import org.apache.solr.update.AddUpdateCommand;
 import org.apache.solr.update.processor.UpdateRequestProcessor;
 import org.apache.solr.update.processor.UpdateRequestProcessorFactory;
 
-import com.voyagergis.community.lucene.spatial.base.JtsSpatialContext;
+import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
 
 
 public class SpatialDemoUpdateProcessorFactory extends UpdateRequestProcessorFactory

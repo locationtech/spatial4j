@@ -26,7 +26,7 @@ import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
 
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.voyagergis.community.lucene.spatial.base.JtsSpatialContext;
+import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
 import com.voyagergis.community.lucene.spatial.strategy.jts.JtsGeoStrategy;
 
 

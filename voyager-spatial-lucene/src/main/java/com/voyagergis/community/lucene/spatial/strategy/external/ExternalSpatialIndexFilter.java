@@ -31,7 +31,7 @@ import org.apache.lucene.util.DocIdBitSet;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.ItemVisitor;
 import com.vividsolutions.jts.index.SpatialIndex;
-import com.voyagergis.community.lucene.spatial.base.shape.JtsEnvelope;
+import com.voyagergis.community.lucene.spatial.shape.JtsEnvelope;
 
 
 public class ExternalSpatialIndexFilter extends Filter {

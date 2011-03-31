@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.voyagergis.community.lucene.spatial.base;
+package com.voyagergis.community.lucene.spatial;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -40,9 +40,9 @@ import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
-import com.voyagergis.community.lucene.spatial.base.shape.JtsEnvelope;
-import com.voyagergis.community.lucene.spatial.base.shape.JtsGeometry;
-import com.voyagergis.community.lucene.spatial.base.shape.JtsPoint2D;
+import com.voyagergis.community.lucene.spatial.shape.JtsEnvelope;
+import com.voyagergis.community.lucene.spatial.shape.JtsGeometry;
+import com.voyagergis.community.lucene.spatial.shape.JtsPoint2D;
 
 public class JtsSpatialContext extends AbstractSpatialContext {
 

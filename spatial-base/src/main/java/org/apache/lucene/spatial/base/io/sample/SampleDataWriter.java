@@ -34,15 +34,15 @@ public class SampleDataWriter {
   }
 
   public SampleDataWriter(File f ) throws IOException {
-    this( f, SpatialContextProvider.getShapeIO(), false );
+    this( f, SpatialContextProvider.getContext(), false );
   }
 
   public SampleDataWriter(File f, boolean bbox ) throws IOException {
-    this( f, SpatialContextProvider.getShapeIO(), bbox );
+    this( f, SpatialContextProvider.getContext(), bbox );
   }
 
   public SampleDataWriter(File f, int maxLength ) throws IOException {
-    this( f, SpatialContextProvider.getShapeIO(), false );
+    this( f, SpatialContextProvider.getContext(), false );
   }
 
 

@@ -19,7 +19,7 @@ import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.solr.spatial.demo.KMLHelper;
 
-import com.voyagergis.community.lucene.spatial.base.JtsSpatialContext;
+import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
 
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 
