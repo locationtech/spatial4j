@@ -146,7 +146,7 @@ public final class PointDistanceShape implements Shape {
 
   @Override
   public String toString() {
-    return "GeoCircleShape{" + point + ", distance=" + distance + '}';
+    return "PointDistanceShape{" + point + ", distance=" + distance + '}';
   }
 
   @Override

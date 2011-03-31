@@ -25,7 +25,7 @@ import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.jts.JtsUtil;
+import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.slf4j.Logger;
@@ -49,15 +49,15 @@ public class JtsGeoStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   private static final Logger logger = LoggerFactory.getLogger(JtsGeoStrategy.class);
 
-  private final GeometryFactory factory;
+  private final JtsShapeIO shapeIO;
 
-  public JtsGeoStrategy(GeometryFactory factory) {
-    this.factory = factory;
+  public JtsGeoStrategy(JtsShapeIO shapeIO) {
+    this.shapeIO = shapeIO;
   }
 
   @Override
   public Fieldable createField(SimpleSpatialFieldInfo indexInfo, Shape shape, boolean index, boolean store) {
-    Geometry geo = JtsUtil.getGeometryFrom(shape, factory);
+    Geometry geo = shapeIO.getGeometryFrom(shape);
     String wkt = (store) ? geo.toText() : null;
 
     if (!index) {
@@ -100,10 +100,10 @@ public class JtsGeoStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   @Override
   public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
-    Geometry geo = JtsUtil.getGeometryFrom(args.getShape(), factory);
+    Geometry geo = shapeIO.getGeometryFrom(args.getShape());
     GeometryTest tester = GeometryTestFactory.get(args.getOperation(), geo);
 
-    GeometryOperationFilter filter = new GeometryOperationFilter(fieldInfo.getFieldName(), tester, factory);
+    GeometryOperationFilter filter = new GeometryOperationFilter(fieldInfo.getFieldName(), tester, shapeIO);
     return new FilteredQuery(new MatchAllDocsQuery(), filter);
   }
 

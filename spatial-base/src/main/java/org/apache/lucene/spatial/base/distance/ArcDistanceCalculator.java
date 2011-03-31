@@ -20,7 +20,13 @@ package org.apache.lucene.spatial.base.distance;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-public class EuclidianDistanceCalculator implements DistanceCalculator {
+
+public class ArcDistanceCalculator implements DistanceCalculator {
+  final DistanceUnits units;
+  
+  public ArcDistanceCalculator( DistanceUnits units ) {
+    this.units = units;
+  }
 
   @Override
   public double calculate(Point from, Shape shape, int key) {
@@ -32,14 +38,8 @@ public class EuclidianDistanceCalculator implements DistanceCalculator {
 
   @Override
   public double calculate(Point from, Point point, int key) {
-    double result = 0;
-
-    double v = from.getX() - point.getX();
-    result += (v * v);
-
-    v = from.getY() - point.getY();
-    result += (v * v);
-
-    return Math.sqrt(result);
+    LatLng p1 = new LatLng( from.getY(), from.getX() );
+    LatLng p2 = new LatLng( point.getY(), point.getX() );
+    return p1.arcDistance( p2, units );
   }
 }

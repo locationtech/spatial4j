@@ -23,21 +23,26 @@ import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.FilteredQuery;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
+import org.apache.lucene.spatial.base.distance.CachingDistanceCalculator;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.ShapeIO;
-import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
+import org.apache.lucene.spatial.strategy.util.ValueSourceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,8 +95,19 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
   @Override
   public ValueSource makeValueSource(SpatialArgs args, PointFieldInfo fieldInfo) {
     DistanceCalculator calc = new EuclidianDistanceCalculator();
+    return makeValueSource(args, fieldInfo,calc);
+  }
+  
+  public ValueSource makeValueSource(SpatialArgs args, PointFieldInfo fieldInfo, DistanceCalculator calc) {
     if (Point.class.isInstance(args.getShape())) {
-      return new DistanceValueSource(((Point)args.getShape()), calc, fieldInfo, parser);
+      return new DistanceValueSource(
+          ((Point)args.getShape()), 
+          calc, fieldInfo, parser);
+    }
+    if (PointDistanceShape.class.isInstance(args.getShape())) {
+      return new DistanceValueSource(
+          ((PointDistanceShape)args.getShape()).getPoint(), 
+          calc, fieldInfo, parser);
     }
     // Score based on distance to the center
     if (BBox.class.isInstance(args.getShape())) {
@@ -108,42 +124,53 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
     if (bbox.getCrossesDateLine()) {
       throw new UnsupportedOperationException( "Crossing dateline not yet supported" );
     }
-
+    
+    ValueSource valueSource = null;
+    DistanceCalculator calc = new EuclidianDistanceCalculator();
+    
     Query spatial = null;
     switch (args.getOperation()) {
       case BBoxIntersects:
       case BBoxWithin:
-      case Contains:
+        spatial = makeWithin(bbox, fieldInfo);
+        break;
+
       case Intersects:
       case IsWithin:
-      case Overlaps:
-        spatial =  makeWithin(bbox, fieldInfo);
+        spatial = makeWithin(bbox, fieldInfo);
+        if( args.getShape() instanceof PointDistanceShape ) {
+          PointDistanceShape pd = (PointDistanceShape)args.getShape();
+          
+          // Check if we should cache the score
+          if( args.isCalculateScore() ) {
+            calc = new CachingDistanceCalculator( calc );
+          }
+          // Make the ValueSource
+          valueSource = makeValueSource(args, fieldInfo, calc);
+          
+          ValueSourceFilter vsf = new ValueSourceFilter(
+              new QueryWrapperFilter( spatial ), valueSource, 0, pd.getDistance() );
+
+          spatial = new FilteredQuery( new MatchAllDocsQuery(), vsf );
+        }
         break;
+        
       case IsDisjointTo:
         spatial =  makeDisjoint(bbox, fieldInfo);
         break;
-      case Distance: {
-        if (args.getMax() == null && args.getMin() == null) {
-          // no bbox to limit
-          return new ValueSourceQuery(makeValueSource(args, fieldInfo));
-        }
-        if (Point.class.isInstance(args.getShape())) {
-          // first make a BBox Query
-          Point p = (Point) args.getShape();
-          double r = args.getMax();
-          spatial = makeWithin(new Rectangle(p.getX() - r, p.getX() + r, p.getY() - r, p.getY() + r), fieldInfo);
-          break;
-        }
-        throw new IllegalArgumentException( "Distance only works with point (on point fields)" );
-      }
-
+        
+      case Overlaps:
+      case Contains:
       default:
         throw new UnsupportedOperationException(args.getOperation().name());
     }
 
     if (args.isCalculateScore()) {
       try {
-        Query spatialRankingQuery = new ValueSourceQuery(makeValueSource(args, fieldInfo));
+        if( valueSource == null ) {
+          valueSource = makeValueSource(args, fieldInfo, calc);
+        }
+        Query spatialRankingQuery = new ValueSourceQuery(valueSource);
         BooleanQuery bq = new BooleanQuery();
         bq.add(spatial,BooleanClause.Occur.MUST);
         bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);

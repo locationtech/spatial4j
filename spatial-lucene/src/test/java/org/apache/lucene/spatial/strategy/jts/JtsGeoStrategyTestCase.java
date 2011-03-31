@@ -39,7 +39,7 @@ public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldI
   @Test
   public void testJtsPolygon() throws IOException {
     JtsShapeIO shapeIO = new JtsShapeIO();
-    JtsGeoStrategy strategy = new JtsGeoStrategy(shapeIO.factory);
+    JtsGeoStrategy strategy = new JtsGeoStrategy(shapeIO);
     SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo( "geo" );
 
     executeQueries( strategy, shapeIO, finfo,
@@ -51,7 +51,7 @@ public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldI
   @Test
   public void testJtsPoints() throws IOException {
     JtsShapeIO shapeIO = new JtsShapeIO();
-    JtsGeoStrategy strategy = new JtsGeoStrategy(shapeIO.factory);
+    JtsGeoStrategy strategy = new JtsGeoStrategy(shapeIO);
     SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo( "geo" );
 
     executeQueries( strategy, shapeIO, finfo,

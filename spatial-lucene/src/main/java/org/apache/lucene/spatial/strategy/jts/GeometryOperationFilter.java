@@ -28,6 +28,7 @@ import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
+import org.apache.lucene.spatial.base.shape.jts.JtsShapeIO;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.DocIdBitSet;
 import org.slf4j.Logger;
@@ -45,12 +46,12 @@ public class GeometryOperationFilter extends Filter {
   static final Logger log = LoggerFactory.getLogger(GeometryOperationFilter.class);
 
   final String fieldName;
-  final GeometryFactory factory;
+  final JtsShapeIO shapeIO;
   final GeometryTest tester;
 
-  public GeometryOperationFilter(String fieldName, GeometryTest tester, GeometryFactory factory) {
+  public GeometryOperationFilter(String fieldName, GeometryTest tester, JtsShapeIO shapeIO) {
     this.fieldName = fieldName;
-    this.factory = factory;
+    this.shapeIO = shapeIO;
     this.tester = tester;
   }
 
@@ -64,7 +65,7 @@ public class GeometryOperationFilter extends Filter {
       TermsEnum te = terms.iterator();
       BytesRef term = te.next();
       while (term != null) {
-        WKBReader reader = new WKBReader(factory);
+        WKBReader reader = new WKBReader(shapeIO.factory);
         try {
           final BytesRef ref = term;
           Geometry geo = reader.read(new InStream() {

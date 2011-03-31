@@ -27,6 +27,7 @@ import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.AbstractShapeIO;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -38,6 +39,7 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 public class JtsShapeIO extends AbstractShapeIO {
 
@@ -183,6 +185,19 @@ public class JtsShapeIO extends AbstractShapeIO {
     }
     if (JtsEnvelope.class.isInstance(shape)) {
       return factory.toGeometry(((JtsEnvelope)shape).envelope);
+    }
+    if (PointDistanceShape.class.isInstance(shape)) {
+      // TODO, this should maybe pick a bunch of points
+      // and make a circle like:
+      //  http://docs.codehaus.org/display/GEOTDOC/01+How+to+Create+a+Geometry#01HowtoCreateaGeometry-CreatingaCircle
+      // If this crosses the dateline, it could make two parts
+      // is there an existing utility that does this?
+      PointDistanceShape pd = (PointDistanceShape)shape;
+      GeometricShapeFactory gsf = new GeometricShapeFactory(factory);
+      gsf.setSize(pd.getEnclosingBox1().getWidth()/2.0f);
+      gsf.setNumPoints(100);
+      gsf.setBase(new Coordinate(pd.getPoint().getX(),pd.getPoint().getY()));
+      return gsf.createCircle();
     }
     throw new InvalidShapeException("can't make Geometry from: " + shape);
   }

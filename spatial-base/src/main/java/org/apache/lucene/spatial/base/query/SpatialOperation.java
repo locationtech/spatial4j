@@ -30,10 +30,8 @@ public enum SpatialOperation {
   Overlaps(true, false, true),
 
   // Fuzzy Shape matching
-  SimilarTo(true, false, false),
-
-  // Distance Calculation
-  Distance(true, false, false);
+  SimilarTo(true, false, false)
+  ;
 
   private final boolean scoreIsMeaningful;
   private final boolean sourceNeedsArea;
