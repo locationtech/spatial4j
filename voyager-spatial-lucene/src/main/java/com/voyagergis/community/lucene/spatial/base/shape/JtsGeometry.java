@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.shape.jts;
+package com.voyagergis.community.lucene.spatial.base.shape;
 
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -31,6 +30,7 @@ import com.vividsolutions.jts.geom.Lineal;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.Puntal;
 import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
+import com.voyagergis.community.lucene.spatial.base.JtsSpatialContext;
 
 public class JtsGeometry implements Shape {
   public final Geometry geo;

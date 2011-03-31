@@ -25,7 +25,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -128,12 +127,6 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   @Override
   public void write(TextResponseWriter writer, String name, Fieldable f) throws IOException {
-    if( f.isBinary() &&  reader instanceof JtsSpatialContext ) {
-      JtsSpatialContext jts = (JtsSpatialContext)reader;
-      byte[] bytes = f.getBinaryValue();
-      Shape s = jts.readShape( bytes, 0, bytes.length );
-      writer.writeStr(name, jts.toString(s), true);
-    }
     writer.writeStr(name, f.stringValue(), true);
   }
 

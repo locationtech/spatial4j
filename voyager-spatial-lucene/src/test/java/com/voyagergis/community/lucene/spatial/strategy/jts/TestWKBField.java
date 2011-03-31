@@ -26,12 +26,12 @@ import java.util.Date;
 
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
-import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
 import org.junit.Test;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.voyagergis.community.lucene.spatial.base.shape.JtsGeometry;
 
 
 /**

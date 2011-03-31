@@ -19,7 +19,6 @@ package com.voyagergis.community.lucene.spatial.solr;
 
 import java.util.Map;
 
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.solr.schema.IndexSchema;
@@ -27,6 +26,7 @@ import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
 
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.voyagergis.community.lucene.spatial.base.JtsSpatialContext;
 import com.voyagergis.community.lucene.spatial.strategy.jts.JtsGeoStrategy;
 
 

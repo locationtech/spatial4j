@@ -21,11 +21,12 @@ package com.voyagergis.community.lucene.spatial.strategy.external;
 import java.io.IOException;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
+
+import com.voyagergis.community.lucene.spatial.base.JtsSpatialContext;
 
 
 public class ExternalIndexStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {

@@ -21,10 +21,11 @@ package com.voyagergis.community.lucene.spatial.strategy.jts;
 import java.io.IOException;
 
 import org.apache.lucene.index.codecs.CodecProvider;
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
+
+import com.voyagergis.community.lucene.spatial.base.JtsSpatialContext;
 
 
 public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {

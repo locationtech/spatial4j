@@ -26,12 +26,12 @@ import org.apache.lucene.search.Filter;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.base.shape.jts.JtsEnvelope;
 import org.apache.lucene.util.DocIdBitSet;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.ItemVisitor;
 import com.vividsolutions.jts.index.SpatialIndex;
+import com.voyagergis.community.lucene.spatial.base.shape.JtsEnvelope;
 
 
 public class ExternalSpatialIndexFilter extends Filter {

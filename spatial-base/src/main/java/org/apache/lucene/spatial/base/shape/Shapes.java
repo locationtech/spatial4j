@@ -19,6 +19,8 @@ package org.apache.lucene.spatial.base.shape;
 
 import java.util.Collection;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 
@@ -78,5 +80,25 @@ public class Shapes implements Shape {
     if (allContains)
       return IntersectCase.CONTAINS;
     return IntersectCase.INTERSECTS;
+  }
+
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) { return false; }
+    if (obj == this) { return true; }
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+    Shapes rhs = (Shapes) obj;
+    return new EqualsBuilder()
+                  .append(geoms, rhs.geoms)
+                  .isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(83, 29).append(geoms.hashCode()).
+      toHashCode();
   }
 }

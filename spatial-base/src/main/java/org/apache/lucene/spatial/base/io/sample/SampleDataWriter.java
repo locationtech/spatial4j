@@ -8,24 +8,17 @@ import java.io.PrintWriter;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.shape.Shape;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 public class SampleDataWriter {
 
   protected final PrintWriter out;
   protected final SpatialContext shapeIO;
   protected final boolean bbox;
-  protected final int maxLength;
 
-  public SampleDataWriter(File f, SpatialContext shapeIO, boolean bbox, int maxLength) throws IOException {
+  public SampleDataWriter(File f, SpatialContext shapeIO, boolean bbox) throws IOException {
     this.shapeIO=shapeIO;
     this.bbox = bbox;
-    this.maxLength= maxLength;
 
     out = new PrintWriter( new OutputStreamWriter(
         new FileOutputStream(f), "UTF8") );
@@ -41,41 +34,20 @@ public class SampleDataWriter {
   }
 
   public SampleDataWriter(File f ) throws IOException {
-    this( f, SpatialContextProvider.getShapeIO(), false, -1 );
+    this( f, SpatialContextProvider.getShapeIO(), false );
   }
 
   public SampleDataWriter(File f, boolean bbox ) throws IOException {
-    this( f, SpatialContextProvider.getShapeIO(), bbox, -1 );
+    this( f, SpatialContextProvider.getShapeIO(), bbox );
   }
 
   public SampleDataWriter(File f, int maxLength ) throws IOException {
-    this( f, new JtsSpatialContext(), false, maxLength );
+    this( f, SpatialContextProvider.getShapeIO(), false );
   }
 
 
   protected String toString( String name, Shape shape ) {
-    String v = shapeIO.toString( shape );
-    if( maxLength > 0 && v.length() > maxLength ) {
-      Geometry g = ((JtsSpatialContext)shapeIO).getGeometryFrom(shape);
-
-      long last = v.length();
-      Envelope env = g.getEnvelopeInternal();
-      double mins = Math.min(env.getWidth(), env.getHeight());
-      double div = 1000;
-      while (v.length() > maxLength) {
-        double tolerance = mins / div;
-        System.out.println( name + " :: Simplifying long geometry: WKT.length=" + v.length() + " tolerance=" + tolerance);
-        Geometry simple = TopologyPreservingSimplifier.simplify(g, tolerance);
-        v = simple.toText();
-        if (v.length() == last) {
-          System.out.println( name + " :: Can not simplify geometry smaller then max. " + last);
-          break;
-        }
-        last = v.length();
-        div *= .70;
-      }
-    }
-    return v;
+    return shapeIO.toString( shape );
   }
 
   public void write(String id, String name, double x, double y)  throws IOException {

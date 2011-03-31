@@ -1,6 +1,6 @@
 package org.apache.lucene.spatial.base.context;
 
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 
 public class SpatialContextProvider {
 
@@ -11,7 +11,8 @@ public class SpatialContextProvider {
 
   public static synchronized SpatialContext getShapeIO() {
     if( instance == null ) {
-      instance = new JtsSpatialContext();
+      // TODO... get the best one
+      instance = new SimpleSpatialContext();
     }
     return instance;
   }
