@@ -17,6 +17,8 @@
 
 package org.apache.lucene.spatial.base.shape.simple;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
@@ -66,5 +68,28 @@ public class Point2D implements Point {
   @Override
   public boolean hasArea() {
     return false;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) { return false; }
+    if (obj == this) { return true; }
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+    Point2D rhs = (Point2D) obj;
+    return new EqualsBuilder()
+                  .appendSuper(super.equals(obj))
+                  .append(x, rhs.x)
+                  .append(y, rhs.y)
+                  .isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(5, 89).
+      append(x).
+      append(y).
+      toHashCode();
   }
 }

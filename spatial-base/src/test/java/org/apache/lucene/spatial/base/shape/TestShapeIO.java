@@ -24,11 +24,11 @@ public class TestShapeIO {
   public void testShapesImplementEquals() {
 
     Class<Shape>[] classes = new Class[] {
-      JtsEnvelope.class,  
-      JtsGeometry.class,  
-      JtsPoint2D.class,  
-//      Point2D.class,  
-//      Rectangle.class,  
+      JtsEnvelope.class,
+      JtsGeometry.class,
+      JtsPoint2D.class,
+      Point2D.class,
+      Rectangle.class,
     };
 
     for( Class<Shape> clazz : classes ) {
@@ -127,7 +127,7 @@ public class TestShapeIO {
         return io.readShape(buff, 0, buff.length);
       }
     });
-    
+
     // Line does not have area
     String wkt = "LINESTRING(-120.1484375 26.98046875,-119.62109375 39.4609375,-107.140625 50.0078125,-92.0234375 54.75390625)";
     Shape shape = io.readShape( wkt );

@@ -13,7 +13,7 @@ public class CachingDistanceCalculator implements DistanceCalculator {
   public CachingDistanceCalculator( DistanceCalculator calculator ) {
     this.calculator = calculator;
   }
-  
+
   @Override
   public double calculate(Point from, Shape shape, int key) {
     if( key < 0 ) {

@@ -41,7 +41,7 @@ public class GeometryFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> 
 
     GeometryFactory factory = new GeometryFactory();
     reader = new JtsShapeIO(factory,DistanceUnits.KILOMETERS);
-    spatialStrategy = new JtsGeoStrategy(factory);
+    spatialStrategy = new JtsGeoStrategy((JtsShapeIO)reader);
     spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 

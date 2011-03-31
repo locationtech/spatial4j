@@ -22,7 +22,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 
 public interface DistanceCalculator {
   /**
-   * 
+   *
    * @param from
    * @param shape
    * @param key -- a unique key, used for caching or -1 to disable caching

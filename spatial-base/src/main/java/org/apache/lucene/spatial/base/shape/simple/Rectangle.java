@@ -17,6 +17,8 @@
 
 package org.apache.lucene.spatial.base.shape.simple;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
@@ -139,5 +141,30 @@ public class Rectangle implements BBox {
     return new Point2D(
         (getMinX() + getMaxX()) / 2.0,
         (getMinY() + getMaxY()) / 2.0);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) { return false; }
+    if (obj == this) { return true; }
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+    Rectangle rhs = (Rectangle) obj;
+    return new EqualsBuilder()
+                  .appendSuper(super.equals(obj))
+                  .append(minX, rhs.minX)
+                  .append(minY, rhs.minY)
+                  .append(maxX, rhs.maxX)
+                  .append(maxY, rhs.maxY)
+                  .isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(41, 37).
+    append(minX).append(minY).
+    append(maxX).append(maxY).
+      toHashCode();
   }
 }

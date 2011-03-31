@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 

@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.DocIdSet;
-import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.FilteredDocIdSet;
 import org.apache.lucene.search.function.DocValues;
@@ -16,7 +15,7 @@ public class ValueSourceFilter extends Filter {
   final ValueSource source;
   final double min;
   final double max;
-  
+
   public ValueSourceFilter( Filter startingFilter, ValueSource source, double min, double max )
   {
     if (startingFilter == null) {
@@ -27,7 +26,7 @@ public class ValueSourceFilter extends Filter {
     this.min = min;
     this.max = max;
   }
-  
+
   @Override
   public DocIdSet getDocIdSet(AtomicReaderContext context) throws IOException {
     final DocValues values = source.getValues( context );

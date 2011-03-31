@@ -17,6 +17,8 @@
 
 package org.apache.lucene.spatial.base.shape;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
@@ -149,29 +151,29 @@ public final class PointDistanceShape implements Shape {
     return "PointDistanceShape{" + point + ", distance=" + distance + '}';
   }
 
+
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    PointDistanceShape that = (PointDistanceShape) o;
-
-    if (Double.compare(that.distance, distance) != 0) return false;
-    if (Double.compare(that.radius, radius) != 0) return false;
-    if (point != null ? !point.equals(that.point) : that.point != null) return false;
-
-    return true;
+  public boolean equals(Object obj) {
+    if (obj == null) { return false; }
+    if (obj == this) { return true; }
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+    PointDistanceShape rhs = (PointDistanceShape) obj;
+    return new EqualsBuilder()
+                  .appendSuper(super.equals(obj))
+                  .append(point, rhs.point)
+                  .append(distance, rhs.distance)
+                  .append(radius, rhs.radius)
+                  .isEquals();
   }
 
   @Override
   public int hashCode() {
-    int result;
-    long temp;
-    result = point != null ? point.hashCode() : 0;
-    temp = distance != +0.0d ? Double.doubleToLongBits(distance) : 0L;
-    result = 31 * result + (int) (temp ^ (temp >>> 32));
-    temp = radius != +0.0d ? Double.doubleToLongBits(radius) : 0L;
-    result = 31 * result + (int) (temp ^ (temp >>> 32));
-    return result;
+    return new HashCodeBuilder(11, 97).
+      append(point).
+      append(distance).
+      append(radius).
+      toHashCode();
   }
 }

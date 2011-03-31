@@ -66,7 +66,7 @@ public class DistanceValueSource extends ValueSource {
     return "DistanceValueSource("+calculator+")";
   }
 
-  
+
   /**
    * Returns the DocValues used by the function query.
    * @param reader the index reader

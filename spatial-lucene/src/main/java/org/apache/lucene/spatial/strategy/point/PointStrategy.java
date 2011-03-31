@@ -97,16 +97,16 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
     DistanceCalculator calc = new EuclidianDistanceCalculator();
     return makeValueSource(args, fieldInfo,calc);
   }
-  
+
   public ValueSource makeValueSource(SpatialArgs args, PointFieldInfo fieldInfo, DistanceCalculator calc) {
     if (Point.class.isInstance(args.getShape())) {
       return new DistanceValueSource(
-          ((Point)args.getShape()), 
+          ((Point)args.getShape()),
           calc, fieldInfo, parser);
     }
     if (PointDistanceShape.class.isInstance(args.getShape())) {
       return new DistanceValueSource(
-          ((PointDistanceShape)args.getShape()).getPoint(), 
+          ((PointDistanceShape)args.getShape()).getPoint(),
           calc, fieldInfo, parser);
     }
     // Score based on distance to the center
@@ -124,10 +124,10 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
     if (bbox.getCrossesDateLine()) {
       throw new UnsupportedOperationException( "Crossing dateline not yet supported" );
     }
-    
+
     ValueSource valueSource = null;
     DistanceCalculator calc = new EuclidianDistanceCalculator();
-    
+
     Query spatial = null;
     switch (args.getOperation()) {
       case BBoxIntersects:
@@ -140,25 +140,25 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
         spatial = makeWithin(bbox, fieldInfo);
         if( args.getShape() instanceof PointDistanceShape ) {
           PointDistanceShape pd = (PointDistanceShape)args.getShape();
-          
+
           // Check if we should cache the score
           if( args.isCalculateScore() ) {
             calc = new CachingDistanceCalculator( calc );
           }
           // Make the ValueSource
           valueSource = makeValueSource(args, fieldInfo, calc);
-          
+
           ValueSourceFilter vsf = new ValueSourceFilter(
               new QueryWrapperFilter( spatial ), valueSource, 0, pd.getDistance() );
 
           spatial = new FilteredQuery( new MatchAllDocsQuery(), vsf );
         }
         break;
-        
+
       case IsDisjointTo:
         spatial =  makeDisjoint(bbox, fieldInfo);
         break;
-        
+
       case Overlaps:
       case Contains:
       default:

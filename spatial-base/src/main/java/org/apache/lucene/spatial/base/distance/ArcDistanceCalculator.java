@@ -23,7 +23,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 
 public class ArcDistanceCalculator implements DistanceCalculator {
   final DistanceUnits units;
-  
+
   public ArcDistanceCalculator( DistanceUnits units ) {
     this.units = units;
   }
