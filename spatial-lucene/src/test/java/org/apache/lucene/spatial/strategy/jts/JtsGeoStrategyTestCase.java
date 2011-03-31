@@ -42,18 +42,13 @@ public class JtsGeoStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldI
     JtsGeoStrategy strategy = new JtsGeoStrategy(shapeIO.factory);
     SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo( "geo" );
 
-    if( true ) {
     executeQueries( strategy, shapeIO, finfo,
         DATA_STATES_POLY,
         QTEST_States_Intersects_BBox,
         QTEST_States_IsWithin_BBox );
-    }
-
-    // Can not close, there are still open files
-    if( false ) {
+    
     executeQueries( strategy, shapeIO, finfo,
-        DATA_WORLD_CITIES_POINTS,
-        QTEST_Cities_IsWithin_BBox );
-    }
+          DATA_WORLD_CITIES_POINTS,
+          QTEST_Cities_IsWithin_BBox );
   }
 }
