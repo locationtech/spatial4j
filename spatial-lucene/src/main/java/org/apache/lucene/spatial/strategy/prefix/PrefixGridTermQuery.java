@@ -3,6 +3,7 @@ package org.apache.lucene.spatial.strategy.prefix;
 import java.io.IOException;
 
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 
 /**
@@ -42,6 +43,10 @@ public class PrefixGridTermQuery extends Query {
   @Override
   public Weight createWeight(IndexSearcher searcher) throws IOException {
     return new PrefixGridTermWeight(termQuery.createWeight(searcher));
+  }
+
+  public Term getTerm() {
+    return termQuery.getTerm();
   }
 
   private class PrefixGridTermWeight extends Weight {

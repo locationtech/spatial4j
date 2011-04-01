@@ -88,7 +88,7 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
       }
     } else {
       // Need to add all the parent queries
-      Set<String> parents = new HashSet<String>();
+      Set<String> parents = new TreeSet<String>();
       for (String token : match) {
         for (int i = 1; i < token.length(); i++) {
           parents.add(token.substring(0, i));
