@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.prefix.NGramPrefixGridStrategy;
 import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;

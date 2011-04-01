@@ -1,9 +1,9 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
+import java.util.List;
+
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
-
-import java.util.List;
 
 /**
  * @author Chris Male

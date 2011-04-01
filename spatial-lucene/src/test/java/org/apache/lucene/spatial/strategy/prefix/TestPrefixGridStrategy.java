@@ -1,5 +1,10 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
@@ -7,11 +12,6 @@ import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Chris Male

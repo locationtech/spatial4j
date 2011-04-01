@@ -1,6 +1,8 @@
 package com.voyagergis.community.lucene.spatial.strategy;
 
-import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
+import java.io.IOException;
+import java.util.Arrays;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.Query;
@@ -14,8 +16,7 @@ import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
 import org.apache.lucene.spatial.test.SpatialTestCase;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.Arrays;
+import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
 
 /**
  * @author Chris Male

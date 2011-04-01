@@ -1,10 +1,7 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
 import java.util.List;
-import java.util.Locale;
 
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
@@ -33,7 +30,7 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
     List<String> cells = simplifyGridCells(grid.readCells(shape));
     BasicGridFieldable fieldable = new BasicGridFieldable(fieldInfo.getFieldName(), store);
     fieldable.tokens = new EdgeNGramTokenFilter(buildBasicTokenStream(cells), EdgeNGramTokenFilter.Side.FRONT, 1, 20);
-    
+
     if (store) {
       fieldable.value = cells.toString();
     }
