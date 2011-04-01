@@ -22,8 +22,10 @@ public class SpatialContextProvider {
         try {
           clazz = (Class<? extends SpatialContext>) Class.forName( cname );
           instance = clazz.newInstance();
+          return instance;
         }
         catch (Exception e) {
+          System.out.println("ERROR:" + e);
           log.warn( "Using default SpatialContext", e );
         }
       }

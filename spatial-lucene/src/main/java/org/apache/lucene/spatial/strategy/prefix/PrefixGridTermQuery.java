@@ -79,7 +79,8 @@ public class PrefixGridTermQuery extends Query {
 
     @Override
     public Scorer scorer(IndexReader.AtomicReaderContext atomicReaderContext, ScorerContext scorerContext) throws IOException {
-      return new PrefixGridTermScorer(this, weight.scorer(atomicReaderContext, scorerContext));
+      Scorer wrappedScorer = weight.scorer(atomicReaderContext, scorerContext);
+      return (wrappedScorer != null) ? new PrefixGridTermScorer(this, wrappedScorer) : null;
     }
 
     @Override
@@ -114,8 +115,8 @@ public class PrefixGridTermQuery extends Query {
     }
 
     @Override
-    public int advance(int i) throws IOException {
-      return scorer.advance(i);
+    public int advance(int docId) throws IOException {
+      return scorer.advance(docId);
     }
   }
 }

@@ -88,7 +88,7 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
 
     if (args.getOperation() == SpatialOperation.IsWithin) {
       for (CharSequence token : match) {
-        Term term = new Term(queryInfo.getFieldName(), token.toString() + "*");
+        Term term = new Term(queryInfo.getFieldName(), token.toString().replace('+', '*'));
         SpatialPrefixGridQuery q = new SpatialPrefixGridQuery(term, resolution, prefixGridSimilarity);
         query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }
@@ -100,7 +100,7 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
           parents.add(token.subSequence(0, i).toString());
         }
 
-        Term term = new Term(queryInfo.getFieldName(), token.toString() + "*");
+        Term term = new Term(queryInfo.getFieldName(), token.toString().replace('+', '*'));
         SpatialPrefixGridQuery q = new SpatialPrefixGridQuery(term, resolution, prefixGridSimilarity);
         query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }
