@@ -33,11 +33,6 @@
       <artifactId>spatial-lucene</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>spatial-data</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <!-- LUCENE -->
     

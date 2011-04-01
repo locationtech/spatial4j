@@ -29,7 +29,7 @@
 	  
     <dependency>
       <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>spatial-data</artifactId>
+      <artifactId>spatial-test</artifactId><!-- this includes the data -->
       <version>${project.version}</version>
     </dependency>
     

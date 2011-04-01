@@ -240,7 +240,6 @@
     <module>spatial-lucene</module>
     <module>spatial-test</module>
     <module>spatial-solr</module>
-    <module>spatial-data</module>
     <module>voyager-spatial-lucene</module>
     <module>voyager-spatial-solr</module>
     <module>voyager-spatial-demo</module>
