@@ -211,7 +211,7 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
   }
 
   @Override
-  public BBox getCellShape(CharSequence seq) {
+  public BBox getCellShape(String seq) {
     double xmin = this.xmin;
     double ymin = this.ymin;
 

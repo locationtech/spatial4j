@@ -39,5 +39,5 @@ public interface SpatialPrefixGrid {
   /**
    * Get the shape for a given cell description
    */
-  public Shape getCellShape(CharSequence seq);
+  public Shape getCellShape(String seq);
 }
