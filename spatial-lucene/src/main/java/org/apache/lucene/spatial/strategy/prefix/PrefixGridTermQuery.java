@@ -101,7 +101,7 @@ public class PrefixGridTermQuery extends Query {
     @Override
     public float score() throws IOException {
       String matchedTerm = termQuery.getTerm().text();
-      return scorer.score() * gridSimilarity.scoreGridSearch(bestResolution, matchedTerm.length());
+      return gridSimilarity.scoreGridSearch(bestResolution, matchedTerm.length());
     }
 
     @Override
