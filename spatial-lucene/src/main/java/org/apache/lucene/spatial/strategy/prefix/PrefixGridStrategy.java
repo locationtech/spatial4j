@@ -17,11 +17,9 @@
 
 package org.apache.lucene.spatial.strategy.prefix;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
@@ -50,14 +48,9 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
 
   @Override
   public Fieldable createField(SimpleSpatialFieldInfo indexInfo, Shape shape, boolean index, boolean store) {
-    List<String> match = grid.readCells(shape);
+    List<String> match = simplifyGridCells(grid.readCells(shape));
     BasicGridFieldable f = new BasicGridFieldable(indexInfo.getFieldName(), store);
-    if (maxLength > 0) {
-      f.tokens = new RemoveDuplicatesTokenFilter(
-          new TruncateFilter(new StringListTokenizer(match), maxLength));
-    } else {
-      f.tokens = new StringListTokenizer(match);
-    }
+    f.tokens = buildBasicTokenStream(match);
 
     if (store) {
       f.value = match.toString(); //reader.toString( shape );
@@ -82,14 +75,14 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
 
     // TODO... resolution should help scoring...
     int resolution = grid.getBestLevel(args.getShape());
-    List<String> match = grid.readCells(args.getShape());
+    List<String> match = simplifyGridCells(grid.readCells(args.getShape()));
 
     // TODO -- could this all happen in one pass?
     BooleanQuery query = new BooleanQuery(true);
 
     if (args.getOperation() == SpatialOperation.IsWithin) {
       for (String token : match) {
-        Term term = new Term(queryInfo.getFieldName(), token.replace('+', '*').toUpperCase(Locale.ENGLISH));
+        Term term = new Term(queryInfo.getFieldName(), token + "*");
         SpatialPrefixGridQuery q = new SpatialPrefixGridQuery(term, resolution, prefixGridSimilarity);
         query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }
@@ -101,7 +94,7 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
           parents.add(token.substring(0, i).toUpperCase(Locale.ENGLISH));
         }
 
-        Term term = new Term(queryInfo.getFieldName(), token.replace('+', '*').toUpperCase(Locale.ENGLISH));
+        Term term = new Term(queryInfo.getFieldName(), token + "*");
         SpatialPrefixGridQuery q = new SpatialPrefixGridQuery(term, resolution, prefixGridSimilarity);
         query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }
@@ -113,5 +106,24 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
       }
     }
     return query;
+  }
+
+  // ================================================= Helper Methods ================================================
+
+  protected List<String> simplifyGridCells(List<String> gridCells) {
+    List<String> newGridCells = new ArrayList<String>();
+    for (String gridCell : gridCells) {
+      newGridCells.add(gridCell.toLowerCase(Locale.ENGLISH).substring(0, gridCell.length() - 1));
+    }
+    return newGridCells;
+  }
+
+  protected TokenStream buildBasicTokenStream(List<String> gridCells) {
+    if (maxLength > 0) {
+      return new RemoveDuplicatesTokenFilter(
+          new TruncateFilter(new StringListTokenizer(gridCells), maxLength));
+    } else {
+      return new StringListTokenizer(gridCells);
+    }
   }
 }

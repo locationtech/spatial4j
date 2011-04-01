@@ -30,16 +30,10 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
 
   @Override
   public Fieldable createField(SimpleSpatialFieldInfo fieldInfo, Shape shape, boolean index, boolean store) {
-    List<String> cells = grid.readCells(shape);
+    List<String> cells = simplifyGridCells(grid.readCells(shape));
     BasicGridFieldable fieldable = new BasicGridFieldable(fieldInfo.getFieldName(), store);
-    TokenStream tokenStream;
-    if (maxLength > 0) {
-      tokenStream = new RemoveDuplicatesTokenFilter(new TruncateFilter(new StringListTokenizer(cells), maxLength));
-    } else {
-      tokenStream = new StringListTokenizer(cells);
-    }
-
-    fieldable.tokens = new EdgeNGramTokenFilter(tokenStream, EdgeNGramTokenFilter.Side.FRONT, 1, 20);
+    fieldable.tokens = new EdgeNGramTokenFilter(buildBasicTokenStream(cells), EdgeNGramTokenFilter.Side.FRONT, 1, 20);
+    
     if (store) {
       fieldable.value = cells.toString();
     }
@@ -62,11 +56,11 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
       throw new UnsupportedOperationException("Unsupported Operation: " + args.getOperation());
     }
 
-    List<String> cells = grid.readCells(args.getShape());
+    List<String> cells = simplifyGridCells(grid.readCells(args.getShape()));
 
     BooleanQuery booleanQuery = new BooleanQuery();
     for (String cell : cells) {
-      booleanQuery.add(new TermQuery(new Term(field.getFieldName(), cell.toUpperCase(Locale.ENGLISH))), BooleanClause.Occur.SHOULD);
+      booleanQuery.add(new TermQuery(new Term(field.getFieldName(), cell)), BooleanClause.Occur.SHOULD);
     }
     return booleanQuery;
   }

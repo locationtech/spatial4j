@@ -10,6 +10,7 @@ import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
+import org.apache.lucene.spatial.strategy.prefix.NGramPrefixGridStrategy;
 import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
 import org.apache.lucene.spatial.test.SpatialTestCase;
 import org.junit.Test;
@@ -20,12 +21,12 @@ import java.util.Arrays;
 /**
  * @author Chris Male
  */
-public class TestPrefixGridStrategy extends SpatialTestCase {
+public class TestNGramPrefixGridStrategy extends SpatialTestCase {
 
   @Test
-  public void testPrefixGridLosAngeles() throws IOException {
+  public void testNGramPrefixGridLosAngeles() throws IOException {
     SimpleSpatialFieldInfo fieldInfo = new SimpleSpatialFieldInfo("geo");
-    PrefixGridStrategy prefixGridStrategy = new PrefixGridStrategy(new LinearPrefixGrid(), 0);
+    NGramPrefixGridStrategy prefixGridStrategy = new NGramPrefixGridStrategy(new LinearPrefixGrid(), 0);
 
     Shape point = new Point2D(-118.243680, 34.052230);
 
@@ -44,5 +45,4 @@ public class TestPrefixGridStrategy extends SpatialTestCase {
     SearchResults searchResults = executeQuery(query, 1);
     assertEquals(1, searchResults.numFound);
   }
-
 }
