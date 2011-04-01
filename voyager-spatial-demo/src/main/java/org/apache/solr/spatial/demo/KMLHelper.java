@@ -171,7 +171,7 @@ public class KMLHelper
 
   //  shape = new Rectangle( -170,-85, 170, 85 );
 
-    List<CharSequence> vals = grid.readCells( shape ); //new GeometryShape( shape ) ); //new EnvelopeShape( shape.getEnvelopeInternal() ) );
+    List<String> vals = grid.readCells( shape ); //new GeometryShape( shape ) ); //new EnvelopeShape( shape.getEnvelopeInternal() ) );
     System.out.println( vals );
 
 //    StringBuilder str = new StringBuilder();

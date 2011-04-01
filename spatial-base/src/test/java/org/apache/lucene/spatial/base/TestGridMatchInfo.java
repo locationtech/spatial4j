@@ -29,7 +29,7 @@ public class TestGridMatchInfo {
 
     shape = new Point2D(3, 3);
 
-    List<CharSequence> m = grid.readCells(shape);
+    List<String> m = grid.readCells(shape);
     System.out.println(m);
 
     for (CharSequence s : m) {

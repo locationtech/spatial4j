@@ -1,6 +1,7 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
@@ -29,7 +30,7 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
 
   @Override
   public Fieldable createField(SimpleSpatialFieldInfo fieldInfo, Shape shape, boolean index, boolean store) {
-    List<CharSequence> cells = grid.readCells(shape);
+    List<String> cells = grid.readCells(shape);
     BasicGridFieldable fieldable = new BasicGridFieldable(fieldInfo.getFieldName(), store);
     TokenStream tokenStream;
     if (maxLength > 0) {
@@ -61,11 +62,11 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
       throw new UnsupportedOperationException("Unsupported Operation: " + args.getOperation());
     }
 
-    List<CharSequence> cells = grid.readCells(args.getShape());
+    List<String> cells = grid.readCells(args.getShape());
 
     BooleanQuery booleanQuery = new BooleanQuery();
-    for (CharSequence cell : cells) {
-      booleanQuery.add(new TermQuery(new Term(field.getFieldName(), cell.toString())), BooleanClause.Occur.SHOULD);
+    for (String cell : cells) {
+      booleanQuery.add(new TermQuery(new Term(field.getFieldName(), cell.toUpperCase(Locale.ENGLISH))), BooleanClause.Occur.SHOULD);
     }
     return booleanQuery;
   }

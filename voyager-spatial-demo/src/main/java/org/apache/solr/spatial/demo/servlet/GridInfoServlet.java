@@ -88,7 +88,7 @@ public class GridInfoServlet extends HttpServlet
       }
     }
 
-    List<CharSequence> info = grid.readCells( shape );
+    List<String> info = grid.readCells( shape );
     String format = req.getParameter( "format" );
     if( "kml".equals( format ) ) {
       if( name == null || name.length() < 2 ) {

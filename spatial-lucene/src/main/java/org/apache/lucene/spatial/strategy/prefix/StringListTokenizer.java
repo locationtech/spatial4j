@@ -31,10 +31,10 @@ class StringListTokenizer extends Tokenizer {
 
   private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 
-  private final Iterable<CharSequence> tokens;
-  private Iterator<CharSequence> iter = null;
+  private final Iterable<String> tokens;
+  private Iterator<String> iter = null;
 
-  public StringListTokenizer(Iterable<CharSequence> tokens) {
+  public StringListTokenizer(Iterable<String> tokens) {
     this.tokens = tokens;
   }
 
@@ -45,7 +45,7 @@ class StringListTokenizer extends Tokenizer {
       iter = tokens.iterator();
     }
     if (iter.hasNext()) {
-      CharSequence t = iter.next();
+      String t = iter.next();
       termAtt.setLength(0);
       termAtt.append(t);
       return true;

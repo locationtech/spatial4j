@@ -29,7 +29,7 @@ public interface SpatialPrefixGrid {
   /**
    * Get a list of tokens that describe the shape within the grid
    */
-  public List<CharSequence> readCells(Shape geo);
+  public List<String> readCells(Shape geo);
 
   /**
    * Find a reasonable level of detail for a given shape

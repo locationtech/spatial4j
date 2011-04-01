@@ -19,6 +19,7 @@ package org.apache.lucene.spatial.strategy.prefix;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
@@ -49,7 +50,7 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
 
   @Override
   public Fieldable createField(SimpleSpatialFieldInfo indexInfo, Shape shape, boolean index, boolean store) {
-    List<CharSequence> match = grid.readCells(shape);
+    List<String> match = grid.readCells(shape);
     BasicGridFieldable f = new BasicGridFieldable(indexInfo.getFieldName(), store);
     if (maxLength > 0) {
       f.tokens = new RemoveDuplicatesTokenFilter(
@@ -81,26 +82,26 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
 
     // TODO... resolution should help scoring...
     int resolution = grid.getBestLevel(args.getShape());
-    List<CharSequence> match = grid.readCells(args.getShape());
+    List<String> match = grid.readCells(args.getShape());
 
     // TODO -- could this all happen in one pass?
     BooleanQuery query = new BooleanQuery(true);
 
     if (args.getOperation() == SpatialOperation.IsWithin) {
-      for (CharSequence token : match) {
-        Term term = new Term(queryInfo.getFieldName(), token.toString().replace('+', '*'));
+      for (String token : match) {
+        Term term = new Term(queryInfo.getFieldName(), token.replace('+', '*').toUpperCase(Locale.ENGLISH));
         SpatialPrefixGridQuery q = new SpatialPrefixGridQuery(term, resolution, prefixGridSimilarity);
         query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }
     } else {
       // Need to add all the parent queries
       Set<String> parents = new HashSet<String>();
-      for (CharSequence token : match) {
+      for (String token : match) {
         for (int i = 1; i < token.length(); i++) {
-          parents.add(token.subSequence(0, i).toString());
+          parents.add(token.substring(0, i).toUpperCase(Locale.ENGLISH));
         }
 
-        Term term = new Term(queryInfo.getFieldName(), token.toString().replace('+', '*'));
+        Term term = new Term(queryInfo.getFieldName(), token.replace('+', '*').toUpperCase(Locale.ENGLISH));
         SpatialPrefixGridQuery q = new SpatialPrefixGridQuery(term, resolution, prefixGridSimilarity);
         query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }

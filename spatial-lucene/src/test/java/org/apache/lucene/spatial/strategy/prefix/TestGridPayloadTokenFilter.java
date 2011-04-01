@@ -22,7 +22,7 @@ public class TestGridPayloadTokenFilter {
 
   @Test
   public void testGridLengthPayloadTokenFilter() throws IOException {
-    List<CharSequence> grids = new ArrayList<CharSequence>();
+    List<String> grids = new ArrayList<String>();
     grids.add("ABCDADAA");
     grids.add("ADD");
 

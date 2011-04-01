@@ -134,8 +134,8 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
     return maxLevels;
   }
 
-  public List<CharSequence> readCells(Shape geo) {
-    ArrayList<CharSequence> vals = new ArrayList<CharSequence>();
+  public List<String> readCells(Shape geo) {
+    List<String> vals = new ArrayList<String>();
     int bboxLevel = getBestLevel(geo);
     int maxLevel = Math.min(maxLevels, bboxLevel + resolution);
     if (maxLevel < minResolution) {
@@ -150,7 +150,7 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
       double x,
       double y,
       int level,
-      List<CharSequence> matches,
+      List<String> matches,
       StringBuilder str,
       Shape geo,
       int maxLevel) {
@@ -175,7 +175,7 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
       double cx,
       double cy,
       int level,
-      List<CharSequence> matches,
+      List<String> matches,
       StringBuilder str,
       Shape geo,
       int maxLevel) {
