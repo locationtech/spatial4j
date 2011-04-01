@@ -7,7 +7,7 @@ import org.apache.lucene.util.BytesRef;
 
 public class GeoHashFieldCacheProvider extends ShapeFieldCacheProvider<Point> {
 
-  final SpatialContext context;
+  final SpatialContext context; //
 
   public GeoHashFieldCacheProvider( SpatialContext ctx, String shapeField, int defaultSize ) {
     super( shapeField, defaultSize );
@@ -16,7 +16,8 @@ public class GeoHashFieldCacheProvider extends ShapeFieldCacheProvider<Point> {
 
   @Override
   protected Point readShape(BytesRef term) {
-    // TODO Actually fill in the point...
-    return context.makePoint( 0, 0 );
+    // TODO skip ngrams?
+    double[] p = GeoHashUtils.decode(term.utf8ToString(), context);
+    return context.makePoint( p[0], p[1] );
   }
 }
