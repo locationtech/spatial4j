@@ -51,7 +51,7 @@ public class SpatialPrefixGridFieldType extends SpatialFieldType<SimpleSpatialFi
     LinearPrefixGrid grid = new LinearPrefixGrid(-180, 180, -90 - 180, 90, 16,reader);
     grid.setResolution(5);
 
-    spatialStrategy = new NGramPrefixGridStrategy(grid, maxLength);
+    spatialStrategy = new PrefixGridStrategy(grid, maxLength);
     spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 
