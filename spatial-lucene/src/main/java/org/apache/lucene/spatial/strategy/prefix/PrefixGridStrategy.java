@@ -29,7 +29,9 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
@@ -68,7 +70,12 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
   }
 
   @Override
-  public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo queryInfo) {
+  public Filter makeFilter(SpatialArgs args, SimpleSpatialFieldInfo field) {
+    return new QueryWrapperFilter( makeQuery(args, field) );
+  }
+
+  @Override
+  public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo field) {
     if (args.getOperation() != SpatialOperation.Intersects &&
         args.getOperation() != SpatialOperation.IsWithin &&
         args.getOperation() != SpatialOperation.Overlaps &&
@@ -86,7 +93,7 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
 
     if (args.getOperation() == SpatialOperation.IsWithin) {
       for (String token : match) {
-        Term term = new Term(queryInfo.getFieldName(), token + "*");
+        Term term = new Term(field.getFieldName(), token + "*");
         SpatialPrefixGridQuery q = new SpatialPrefixGridQuery(term, resolution, prefixGridSimilarity);
         query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }
@@ -98,13 +105,13 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
           parents.add(token.substring(0, i));
         }
 
-        Term term = new Term(queryInfo.getFieldName(), token + "*");
+        Term term = new Term(field.getFieldName(), token + "*");
         SpatialPrefixGridQuery q = new SpatialPrefixGridQuery(term, resolution, prefixGridSimilarity);
         query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }
 
       for (String t : parents) {
-        Term term = new Term(queryInfo.getFieldName(), t);
+        Term term = new Term(field.getFieldName(), t);
         Query q = new PrefixGridTermQuery(new TermQuery(term), resolution, prefixGridSimilarity);
         query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }

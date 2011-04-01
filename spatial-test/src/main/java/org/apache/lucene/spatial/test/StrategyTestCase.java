@@ -94,7 +94,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
 
   protected Iterator<SampleData> getSampleData(String testDataFile) throws IOException {
     return new SampleDataReader(
-        getClass().getClassLoader().getResourceAsStream(testDataFile) );
+        getClass().getClassLoader().getResourceAsStream("data/"+testDataFile) );
   }
 
   protected Iterator<SpatialTestQuery> getTestQueries(String testQueryFile, SpatialContext shapeIO) throws IOException {

@@ -5,8 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.FilteredQuery;
-import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.ConstantScoreQuery;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.context.SpatialContext;
@@ -42,12 +42,19 @@ public class ExternalIndexStrategy extends SpatialStrategy<SimpleSpatialFieldInf
   }
 
   @Override
-  public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
+  public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo field) {
+    Filter f = makeFilter(args, field);
+    // TODO... could add in scoring here..
+    return new ConstantScoreQuery( f );
+  }
+
+  @Override
+  public Filter makeFilter(SpatialArgs args, SimpleSpatialFieldInfo field) {
     if (args.getShape().getBoundingBox().getCrossesDateLine()) {
       throw new UnsupportedOperationException("Spatial Index does not (yet) support queries that cross the date line");
     }
 
-    String name = fieldInfo.getFieldName();
+    String name = field.getFieldName();
     ExternalSpatialIndexProvider p = provider.get(name);
     if (p == null) {
       p = new STRTreeIndexProvider(30, name, reader);
@@ -55,7 +62,6 @@ public class ExternalIndexStrategy extends SpatialStrategy<SimpleSpatialFieldInf
     }
 
     // just a filter wrapper for now...
-    ExternalSpatialIndexFilter filter = new ExternalSpatialIndexFilter(p, args);
-    return new FilteredQuery(new MatchAllDocsQuery(), filter);
+    return new ExternalSpatialIndexFilter(p, args);
   }
 }

@@ -23,6 +23,7 @@ import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.NumericRangeQuery;
@@ -117,6 +118,27 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
     throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
   }
 
+
+  @Override
+  public Filter makeFilter(SpatialArgs args, PointFieldInfo fieldInfo) {
+    switch (args.getOperation()) {
+      case Intersects:
+      case IsWithin:
+        if( args.getShape() instanceof PointDistanceShape ) {
+          DistanceCalculator calc = reader.getDistanceCalculator();
+          PointDistanceShape pd = (PointDistanceShape)args.getShape();
+          Query bbox = makeWithin(pd.getBoundingBox(), fieldInfo);
+
+          // Make the ValueSource
+          ValueSource valueSource = makeValueSource(args, fieldInfo, calc);
+
+          return new ValueSourceFilter(
+              new QueryWrapperFilter( bbox ), valueSource, 0, pd.getDistance() );
+        }
+    }
+    return new QueryWrapperFilter( makeQuery(args, fieldInfo) );
+  }
+
   @Override
   public Query makeQuery(SpatialArgs args, PointFieldInfo fieldInfo) {
     // For starters, just limit the bbox
@@ -126,7 +148,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
     }
 
     ValueSource valueSource = null;
-    DistanceCalculator calc = new EuclidianDistanceCalculator();
+    DistanceCalculator calc = reader.getDistanceCalculator();
 
     Query spatial = null;
     switch (args.getOperation()) {

@@ -10,7 +10,7 @@ public class ShapeFieldCache<T extends Shape> {
   public int defaultLength;
 
   public ShapeFieldCache( int length, int defaultLength ) {
-    cache = (List<T>[]) new Object[length];
+    cache = (List<T>[]) new List[length];
     this.defaultLength= defaultLength;
   }
 

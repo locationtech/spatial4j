@@ -1,6 +1,7 @@
 package org.apache.lucene.spatial.strategy;
 
 import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
@@ -29,7 +30,16 @@ public abstract class SpatialStrategy<T extends SpatialFieldInfo> {
   }
 
   public abstract ValueSource makeValueSource(SpatialArgs args, T field);
+
+  /**
+   * Make a query
+   */
   public abstract Query makeQuery(SpatialArgs args, T field);
+
+  /**
+   * Make a Filter
+   */
+  public abstract Filter makeFilter(SpatialArgs args, T field);
 
   public boolean isIgnoreIncompatibleGeometry() {
     return ignoreIncompatibleGeometry;

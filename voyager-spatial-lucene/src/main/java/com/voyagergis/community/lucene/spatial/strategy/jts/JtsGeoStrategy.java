@@ -18,8 +18,8 @@
 package com.voyagergis.community.lucene.spatial.strategy.jts;
 
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.FilteredQuery;
-import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.ConstantScoreQuery;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
@@ -98,12 +98,16 @@ public class JtsGeoStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
   }
 
   @Override
-  public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
-    Geometry geo = shapeIO.getGeometryFrom(args.getShape());
-    GeometryTest tester = GeometryTestFactory.get(args.getOperation(), geo);
-
-    GeometryOperationFilter filter = new GeometryOperationFilter(fieldInfo.getFieldName(), tester, shapeIO);
-    return new FilteredQuery(new MatchAllDocsQuery(), filter);
+  public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo field) {
+    Filter f = makeFilter(args, field);
+    // TODO... could add in scoring here..
+    return new ConstantScoreQuery( f );
   }
 
+  @Override
+  public Filter makeFilter(SpatialArgs args, SimpleSpatialFieldInfo field) {
+    Geometry geo = shapeIO.getGeometryFrom(args.getShape());
+    GeometryTest tester = GeometryTestFactory.get(args.getOperation(), geo);
+    return new GeometryOperationFilter(field.getFieldName(), tester, shapeIO);
+  }
 }

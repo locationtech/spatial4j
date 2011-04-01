@@ -24,8 +24,10 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.search.function.ValueSource;
@@ -92,10 +94,29 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
         new AreaSimilarity(args.getShape().getBoundingBox(), queryPower, targetPower), fields, parser );
   }
 
+
+  @Override
+  public Filter makeFilter(SpatialArgs args, BBoxFieldInfo fieldInfo) {
+    Query spatial = makeSpatialQuery(args, fieldInfo);
+    return new QueryWrapperFilter( spatial );
+  }
+
   @Override
   public Query makeQuery(SpatialArgs args, BBoxFieldInfo fieldInfo) {
-    BBox bbox = args.getShape().getBoundingBox();
+    Query spatial = makeSpatialQuery(args, fieldInfo);
+    if (args.isCalculateScore()) {
+      Query spatialRankingQuery = new ValueSourceQuery(makeValueSource(args, fieldInfo));
+      BooleanQuery bq = new BooleanQuery();
+      bq.add(spatial, BooleanClause.Occur.MUST);
+      bq.add(spatialRankingQuery, BooleanClause.Occur.MUST);
+      return bq;
+    }
+    return spatial;
+  }
 
+
+  private Query makeSpatialQuery(SpatialArgs args, BBoxFieldInfo fieldInfo) {
+    BBox bbox = args.getShape().getBoundingBox();
     Query spatial = null;
     switch (args.getOperation()) {
       case BBoxIntersects:
@@ -125,16 +146,9 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
       default:
         throw new UnsupportedOperationException(args.getOperation().name());
     }
-
-    if (args.isCalculateScore()) {
-      Query spatialRankingQuery = new ValueSourceQuery(makeValueSource(args, fieldInfo));
-      BooleanQuery bq = new BooleanQuery();
-      bq.add(spatial, BooleanClause.Occur.MUST);
-      bq.add(spatialRankingQuery, BooleanClause.Occur.MUST);
-      return bq;
-    }
     return spatial;
   }
+
 
   //-------------------------------------------------------------------------------
   //

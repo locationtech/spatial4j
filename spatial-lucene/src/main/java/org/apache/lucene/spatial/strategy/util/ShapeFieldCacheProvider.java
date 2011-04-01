@@ -31,7 +31,7 @@ public abstract class ShapeFieldCacheProvider<T extends Shape> {
 
   protected abstract T readShape( BytesRef term );
 
-  public synchronized ShapeFieldCache<T> getSpatialIndex(IndexReader reader) throws CorruptIndexException, IOException {
+  public synchronized ShapeFieldCache<T> getCache(IndexReader reader) throws CorruptIndexException, IOException {
     ShapeFieldCache<T> idx = sidx.get(reader);
     if (idx != null) {
       return idx;

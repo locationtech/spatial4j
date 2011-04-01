@@ -19,6 +19,8 @@ package org.apache.lucene.spatial.strategy.geohash;
 
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenizer;
 import org.apache.lucene.document.Field;
@@ -26,10 +28,16 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.search.ConstantScoreQuery;
+import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.function.ValueSource;
+import org.apache.lucene.search.function.ValueSourceQuery;
+import org.apache.lucene.spatial.base.distance.DistanceCalculator;
+import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
+import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -40,10 +48,18 @@ import org.apache.lucene.spatial.strategy.SpatialStrategy;
 
 public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
+  private final Map<String, GeoHashFieldCacheProvider> provider = new ConcurrentHashMap<String, GeoHashFieldCacheProvider>();
+
   private final GridReferenceSystem gridReferenceSystem;
+  private final int expectedFieldsPerDocument;
 
   public GeohashStrategy( GridReferenceSystem gridReferenceSystem ) {
+    this( gridReferenceSystem, 2 ); // array gets initalized with 2 slots
+  }
+
+  public GeohashStrategy( GridReferenceSystem gridReferenceSystem, int expectedFieldsPerDocument ) {
     this.gridReferenceSystem = gridReferenceSystem;
+    this.expectedFieldsPerDocument = expectedFieldsPerDocument;
   }
 
   @Override
@@ -70,13 +86,48 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
   }
 
 
+  public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo, DistanceCalculator calc) {
+    GeoHashFieldCacheProvider p = provider.get( fieldInfo.getFieldName() );
+    if( p == null ) {
+      p = new GeoHashFieldCacheProvider( gridReferenceSystem.shapeIO, fieldInfo.getFieldName(), expectedFieldsPerDocument );
+    }
+    if (Point.class.isInstance(args.getShape())) {
+      return new CachedDistanceValueSource(
+          ((Point)args.getShape()),
+          calc, p );
+    }
+    if (PointDistanceShape.class.isInstance(args.getShape())) {
+      return new CachedDistanceValueSource(
+          ((PointDistanceShape)args.getShape()).getPoint(),
+          calc,  p);
+    }
+    // Score based on distance to the center
+    if (BBox.class.isInstance(args.getShape())) {
+      Point point = ((BBox)args.getShape()).getCentroid();
+      return new CachedDistanceValueSource(point, calc, p);
+    }
+    throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
+  }
+
+
   @Override
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
-    throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
+    DistanceCalculator calc = new EuclidianDistanceCalculator();
+    return makeValueSource(args, fieldInfo,calc);
   }
 
   @Override
   public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
+    Filter f = makeFilter(args, fieldInfo);
+    if (args.isCalculateScore()) {
+      ValueSource vs = makeValueSource(args, fieldInfo);
+      return new FilteredQuery( new ValueSourceQuery( vs), f );
+    }
+    return new ConstantScoreQuery( f );
+  }
+
+  @Override
+  public Filter makeFilter(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
     if(!(( args.getOperation() == SpatialOperation.IsWithin ) ||
          ( args.getOperation() == SpatialOperation.Intersects ) ||
          ( args.getOperation() == SpatialOperation.BBoxWithin )) ){
@@ -94,8 +145,9 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
           qshape = new Shapes(Arrays.asList(qshape,shape2),gridReferenceSystem.shapeIO);
       }
     }
-    return new ConstantScoreQuery(new GeoHashPrefixFilter(
-        fieldInfo.getFieldName(),gridReferenceSystem,qshape));
+
+    return new GeoHashPrefixFilter(
+        fieldInfo.getFieldName(),gridReferenceSystem,qshape);
   }
 }
 

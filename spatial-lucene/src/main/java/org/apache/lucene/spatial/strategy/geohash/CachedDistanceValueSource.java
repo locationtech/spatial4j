@@ -15,36 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.strategy.point;
+package org.apache.lucene.spatial.strategy.geohash;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
-import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.search.FieldCache.DoubleParser;
-import org.apache.lucene.search.cache.CachedArrayCreator;
-import org.apache.lucene.search.cache.DoubleValuesCreator;
-import org.apache.lucene.search.cache.CachedArray.DoubleValues;
 import org.apache.lucene.search.function.DocValues;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.simple.Point2D;
+import org.apache.lucene.spatial.strategy.util.ShapeFieldCache;
+import org.apache.lucene.spatial.strategy.util.ShapeFieldCacheProvider;
 
 /**
  *
  * An implementation of the Lucene ValueSource model to support spatial relevance ranking.
  *
  */
-public class DistanceValueSource extends ValueSource {
+public class CachedDistanceValueSource extends ValueSource {
 
-  private final PointFieldInfo fields;
+  private final ShapeFieldCacheProvider<Point> provider;
   private final DistanceCalculator calculator;
   private final Point from;
-  private final DoubleParser parser;
 
   /**
    * Constructor.
@@ -52,11 +47,10 @@ public class DistanceValueSource extends ValueSource {
    * @param queryPower the query power (scoring algorithm)
    * @param targetPower the target power (scoring algorithm)
    */
-  public DistanceValueSource(Point from, DistanceCalculator calc, PointFieldInfo fields, DoubleParser parser) {
+  public CachedDistanceValueSource(Point from, DistanceCalculator calc, ShapeFieldCacheProvider<Point> provider) {
     this.from = from;
-    this.fields = fields;
+    this.provider = provider;
     this.calculator = calc;
-    this.parser = parser;
   }
 
   /**
@@ -76,12 +70,8 @@ public class DistanceValueSource extends ValueSource {
    */
   @Override
   public DocValues getValues(AtomicReaderContext context) throws IOException {
-    IndexReader reader = context.reader;
-
-    final DoubleValues ptX = FieldCache.DEFAULT.getDoubles(reader, fields.getFieldNameX(),
-          new DoubleValuesCreator(fields.getFieldNameX(), parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));
-    final DoubleValues ptY = FieldCache.DEFAULT.getDoubles(reader, fields.getFieldNameY(),
-        new DoubleValuesCreator(fields.getFieldNameY(), parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));
+    final ShapeFieldCache<Point> cache =
+      provider.getCache(context.reader);
 
     return new DocValues() {
       @Override
@@ -91,12 +81,17 @@ public class DistanceValueSource extends ValueSource {
 
       @Override
       public double doubleVal(int doc) {
-        // make sure it has minX and area
-        if (ptX.valid.get(doc) && ptY.valid.get(doc)) {
-          Point2D pt = new Point2D( ptX.values[doc],  ptY.values[doc] );
-          return calculator.calculate(from, pt);
+        List<Point> vals = cache.getShapes( doc );
+        if( vals != null ) {
+          double v = calculator.calculate(from, vals.get(0));
+          if( vals.size() > 1 ) {
+            for( int i=1; i<vals.size(); i++ ) {
+              v = Math.min(v, calculator.calculate(from, vals.get(i)));
+            }
+          }
+          return v;
         }
-        return 0;
+        return Double.NaN; // ?? maybe max?
       }
 
       @Override
@@ -118,20 +113,18 @@ public class DistanceValueSource extends ValueSource {
     if (obj.getClass() != getClass()) {
       return false;
     }
-    DistanceValueSource rhs = (DistanceValueSource) obj;
+    CachedDistanceValueSource rhs = (CachedDistanceValueSource) obj;
     return new EqualsBuilder()
                   .append(calculator, rhs.calculator)
                   .append(from, rhs.from)
-                  .append(fields, rhs.fields)
                   .isEquals();
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(59, 7).
+    return new HashCodeBuilder(31, 97).
         append(calculator).
         append(from).
-        append(fields).
         toHashCode();
   }
 }
