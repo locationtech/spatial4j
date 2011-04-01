@@ -3,12 +3,7 @@ package org.apache.lucene.spatial.strategy.prefix;
 import java.io.IOException;
 
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.Explanation;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.Scorer;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.Weight;
+import org.apache.lucene.search.*;
 
 /**
  * @author Chris Male
@@ -59,7 +54,13 @@ public class PrefixGridTermQuery extends Query {
 
     @Override
     public Explanation explain(IndexReader.AtomicReaderContext atomicReaderContext, int doc) throws IOException {
-      return weight.explain(atomicReaderContext, doc);
+      String matchedTerm = termQuery.getTerm().text();
+      ComplexExplanation explanation = new ComplexExplanation();
+      explanation.setMatch(true);
+      explanation.setValue(gridSimilarity.scoreGridSearch(bestResolution, matchedTerm.length()));
+      explanation.addDetail(new Explanation(bestResolution, "Best Search Resolution"));
+      explanation.addDetail(new Explanation(matchedTerm.length(), "Matched Term Length"));
+      return explanation;
     }
 
     @Override
