@@ -57,6 +57,7 @@ public class PrefixGridTermQuery extends Query {
       String matchedTerm = termQuery.getTerm().text();
       ComplexExplanation explanation = new ComplexExplanation();
       explanation.setMatch(true);
+      explanation.setDescription(PrefixGridTermQuery.this + ", product of:");
       explanation.setValue(gridSimilarity.scoreGridSearch(bestResolution, matchedTerm.length()));
       explanation.addDetail(new Explanation(bestResolution, "Best Search Resolution"));
       explanation.addDetail(new Explanation(matchedTerm.length(), "Matched Term Length"));

@@ -13,7 +13,7 @@ public interface PrefixGridSimilarity {
 
     public float scoreGridSearch(int bestResolution, int matchLength) {
       int lengthDifference = Math.abs(bestResolution - matchLength);
-      return (lengthDifference != 0) ? 1 / lengthDifference : 1;
+      return (lengthDifference != 0) ? 1F / (float) lengthDifference : 1;
     }
   }
 }
