@@ -91,7 +91,7 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
       Set<String> parents = new HashSet<String>();
       for (String token : match) {
         for (int i = 1; i < token.length(); i++) {
-          parents.add(token.substring(0, i).toUpperCase(Locale.ENGLISH));
+          parents.add(token.substring(0, i));
         }
 
         Term term = new Term(queryInfo.getFieldName(), token + "*");
