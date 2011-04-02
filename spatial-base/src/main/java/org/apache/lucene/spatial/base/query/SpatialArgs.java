@@ -26,8 +26,6 @@ public class SpatialArgs {
 
   private SpatialOperation operation;
   private Shape shape;
-  private boolean cacheable = true;
-  private boolean calculateScore = true;
 
   // Useful for 'distance' calculations
   private Double min;
@@ -57,12 +55,6 @@ public class SpatialArgs {
     str.append( operation.name() ).append( '(' );
     str.append( io.toString( shape ) );
     str.append( ')' );
-    if( !cacheable ) {
-      str.append( " cache=false" );
-    }
-    if( !calculateScore ) {
-      str.append( " score=false" );
-    }
     if( min != null ) {
       str.append( " min="+min );
     }
@@ -96,22 +88,6 @@ public class SpatialArgs {
 
   public void setShape(Shape shape) {
     this.shape = shape;
-  }
-
-  public boolean isCacheable() {
-    return cacheable;
-  }
-
-  public void setCacheable(boolean cacheable) {
-    this.cacheable = cacheable;
-  }
-
-  public boolean isCalculateScore() {
-    return calculateScore;
-  }
-
-  public void setCalculateScore(boolean calculateScore) {
-    this.calculateScore = calculateScore;
   }
 
   public Double getMin() {

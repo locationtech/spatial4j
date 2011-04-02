@@ -38,18 +38,12 @@ public class SpatialArgsParser
       body = v.substring( edx+1 ).trim();
       if (body.length() > 0) {
         Map<String,String> aa = parseMap(body);
-        args.setCacheable( readBool(aa.remove("cache"), args.isCacheable() ));
-        args.setCalculateScore( readBool(aa.remove("score"), args.isCalculateScore() ));
         args.setMin( readDouble(aa.remove("min"), null) );
         args.setMax( readDouble(aa.remove("max"), null) );
         if (!aa.isEmpty()) {
           throw new InvalidSpatialArgument("unused parameters: " + aa, null);
         }
       }
-    }
-    // Don't calculate a score if it is meaningless
-    if (!op.isScoreIsMeaningful()) {
-      args.setCalculateScore( false );
     }
     return args;
   }

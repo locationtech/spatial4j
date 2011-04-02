@@ -27,20 +27,17 @@ public class ShapeTestHelper {
   public static void checkArgParser(SpatialContext reader) {
     SpatialArgsParser parser = new SpatialArgsParser();
 
-    String arg = SpatialOperation.IsWithin + "(-10 -20 10 20) cache=true score=false";
+    String arg = SpatialOperation.IsWithin + "(-10 -20 10 20)";
     SpatialArgs out = parser.parse(arg, reader);
     assertEquals(SpatialOperation.IsWithin, out.getOperation());
-    assertTrue(out.isCacheable());
-    assertFalse(out.isCalculateScore());
     BBox bounds = (BBox) out.getShape();
     assertEquals(-10.0, bounds.getMinX(), 0D);
     assertEquals(10.0, bounds.getMaxX(), 0D);
 
     // Disjoint should not be scored
-    arg = SpatialOperation.IsDisjointTo + " (-10 10 -20 20) score=true";
+    arg = SpatialOperation.IsDisjointTo + " (-10 10 -20 20)";
     out = parser.parse(arg, reader);
     assertEquals(SpatialOperation.IsDisjointTo, out.getOperation());
-    assertFalse(out.isCalculateScore());
 
     try {
       parser.parse(SpatialOperation.IsDisjointTo + "[ ]", reader);

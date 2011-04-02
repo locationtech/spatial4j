@@ -104,14 +104,12 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
   @Override
   public Query makeQuery(SpatialArgs args, BBoxFieldInfo fieldInfo) {
     Query spatial = makeSpatialQuery(args, fieldInfo);
-    if (args.isCalculateScore()) {
-      Query spatialRankingQuery = new ValueSourceQuery(makeValueSource(args, fieldInfo));
-      BooleanQuery bq = new BooleanQuery();
-      bq.add(spatial, BooleanClause.Occur.MUST);
-      bq.add(spatialRankingQuery, BooleanClause.Occur.MUST);
-      return bq;
-    }
-    return spatial;
+    
+    Query spatialRankingQuery = new ValueSourceQuery(makeValueSource(args, fieldInfo));
+    BooleanQuery bq = new BooleanQuery();
+    bq.add(spatial, BooleanClause.Occur.MUST);
+    bq.add(spatialRankingQuery, BooleanClause.Occur.MUST);
+    return bq;
   }
 
 

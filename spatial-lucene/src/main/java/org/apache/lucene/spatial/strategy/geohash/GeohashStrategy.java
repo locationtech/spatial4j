@@ -119,11 +119,9 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
   @Override
   public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
     Filter f = makeFilter(args, fieldInfo);
-    if (args.isCalculateScore()) {
-      ValueSource vs = makeValueSource(args, fieldInfo);
-      return new FilteredQuery( new ValueSourceQuery( vs), f );
-    }
-    return new ConstantScoreQuery( f );
+    
+    ValueSource vs = makeValueSource(args, fieldInfo);
+    return new FilteredQuery( new ValueSourceQuery( vs), f );
   }
 
   @Override

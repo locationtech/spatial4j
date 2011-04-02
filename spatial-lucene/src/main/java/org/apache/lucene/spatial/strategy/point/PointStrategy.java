@@ -183,22 +183,20 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
         throw new UnsupportedOperationException(args.getOperation().name());
     }
 
-    if (args.isCalculateScore()) {
-      try {
-        if( valueSource != null ) {
-          valueSource = new CachingDoubleValueSource(valueSource);
-        }
-        else {
-          valueSource = makeValueSource(args, fieldInfo, calc);
-        }
-        Query spatialRankingQuery = new ValueSourceQuery(valueSource);
-        BooleanQuery bq = new BooleanQuery();
-        bq.add(spatial,BooleanClause.Occur.MUST);
-        bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
-        return bq;
-      } catch(Exception ex) {
-        log.warn("error making score", ex);
+    try {
+      if( valueSource != null ) {
+        valueSource = new CachingDoubleValueSource(valueSource);
       }
+      else {
+        valueSource = makeValueSource(args, fieldInfo, calc);
+      }
+      Query spatialRankingQuery = new ValueSourceQuery(valueSource);
+      BooleanQuery bq = new BooleanQuery();
+      bq.add(spatial,BooleanClause.Occur.MUST);
+      bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);
+      return bq;
+    } catch(Exception ex) {
+      log.warn("error making score", ex);
     }
     return spatial;
   }
