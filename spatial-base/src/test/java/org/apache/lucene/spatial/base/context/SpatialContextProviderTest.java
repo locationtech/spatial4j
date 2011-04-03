@@ -34,14 +34,6 @@ public class SpatialContextProviderTest {
     assertEquals(SimpleSpatialContext.class, spatialContext.getClass());
   }
 
-  @Test
-  public void testGetContext_withArguments() {
-    System.setProperty("SpatialContextProvider", "org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext");
-    
-    SimpleSpatialContext simpleSpatialContext = (SimpleSpatialContext) SpatialContextProvider.getContext(DistanceUnits.MILES);
-    assertEquals(DistanceUnits.MILES, simpleSpatialContext.getUnits());
-  }
-
   @After
   public void tearDown() {
     System.getProperties().remove("SpatialContextProvider");

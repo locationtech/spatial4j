@@ -13,7 +13,7 @@ public class SpatialContextProvider {
   }
 
   @SuppressWarnings("unchecked")
-  public static synchronized SpatialContext getContext(Object... args) {
+  public static synchronized SpatialContext getContext() {
     if (instance != null) {
       return instance;
     }
@@ -22,15 +22,7 @@ public class SpatialContextProvider {
     if (cname != null) {
       try {
         Class<? extends SpatialContext> clazz = (Class<? extends SpatialContext>) Class.forName(cname);
-        if (args != null) {
-          Class[] argTypes = new Class[args.length];
-          for (int i = 0; i < args.length; i++) {
-            argTypes[i] = args[i].getClass();
-          }
-          instance = clazz.getConstructor(argTypes).newInstance(args);
-        } else {
-          instance = clazz.newInstance();
-        }
+        instance = clazz.newInstance();
         return instance;
       } catch (Exception e) {
         log.warn("Using default SpatialContext", e);
