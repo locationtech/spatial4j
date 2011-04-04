@@ -16,7 +16,6 @@ public class Query implements Serializable
   public SpatialOperation op = SpatialOperation.IsWithin;
   public String geo;
 
-  public Boolean cache;
   public Boolean score;
   public String min;
   public String max;
@@ -35,12 +34,6 @@ public class Query implements Serializable
       }
       if( max != null ) {
         q += " max=" + max;
-      }
-      if( cache != null ) {
-        q += " cache=" + cache;
-      }
-      if( score != null ) {
-        q += " score=" + score;
       }
       q += '"';
     }

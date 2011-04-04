@@ -89,6 +89,8 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
     List<String> match = simplifyGridCells(grid.readCells(args.getShape()));
 
     // TODO -- could this all happen in one pass?
+    // Make sure we don't make more then maxClauseCount?
+    // start with the top level?  or throw an exception
     BooleanQuery query = new BooleanQuery(true);
 
     if (args.getOperation() == SpatialOperation.IsWithin) {
@@ -116,6 +118,13 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
         query.add(new BooleanClause(q, BooleanClause.Occur.SHOULD));
       }
     }
+
+//    System.out.println( "Clauses: "+query.getClauses().length );
+//    if( query.getClauses().length > BooleanQuery.getMaxClauseCount() ) {
+//      System.out.println( "Too Many clauses: "+query.getClauses().length );
+//      System.out.println( "match: "+match.size() + " :: " + match ); 
+//    }
+    
     return query;
   }
 
