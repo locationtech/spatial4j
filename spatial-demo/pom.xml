@@ -9,8 +9,8 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   
-	<groupId>com.voyagergis.community.lucene.spatial</groupId>
-  <artifactId>voyager-spatial-demo</artifactId>
+	<groupId>org.apache.lucene.spatial</groupId>
+  <artifactId>spatial-demo</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
   <name>Spatial - Demo</name>
@@ -29,7 +29,7 @@
 	  
     <dependency>
       <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>spatial-test</artifactId><!-- this includes the data -->
+      <artifactId>spatial-data</artifactId>
       <version>${project.version}</version>
     </dependency>
     

@@ -1,8 +1,8 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 /**
  * @author Chris Male

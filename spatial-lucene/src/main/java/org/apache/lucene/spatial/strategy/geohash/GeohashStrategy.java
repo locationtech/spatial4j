@@ -27,7 +27,6 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.Query;
@@ -119,7 +118,7 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
   @Override
   public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
     Filter f = makeFilter(args, fieldInfo);
-    
+
     ValueSource vs = makeValueSource(args, fieldInfo);
     return new FilteredQuery( new ValueSourceQuery( vs), f );
   }

@@ -122,9 +122,9 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
 //    System.out.println( "Clauses: "+query.getClauses().length );
 //    if( query.getClauses().length > BooleanQuery.getMaxClauseCount() ) {
 //      System.out.println( "Too Many clauses: "+query.getClauses().length );
-//      System.out.println( "match: "+match.size() + " :: " + match ); 
+//      System.out.println( "match: "+match.size() + " :: " + match );
 //    }
-    
+
     return query;
   }
 

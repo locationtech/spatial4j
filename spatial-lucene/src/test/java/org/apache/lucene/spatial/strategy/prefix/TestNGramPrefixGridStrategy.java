@@ -14,7 +14,6 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialTestCase;
-import org.apache.lucene.spatial.strategy.prefix.NGramPrefixGridStrategy;
 import org.junit.Test;
 
 

@@ -10,7 +10,7 @@
   </parent>
   
 	<groupId>org.apache.lucene.spatial</groupId>
-  <artifactId>spatial-test</artifactId>
+  <artifactId>spatial-data</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
   <name>Spatial - tests</name>
@@ -21,35 +21,9 @@
 
   <dependencies>
   
-    <!-- Lucene Spatial -->
-    
-    <dependency>
-      <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>spatial-base</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>spatial-lucene</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <!-- LUCENE -->
-    
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-core</artifactId>
-      <version>4.0-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-test-framework</artifactId>
-      <version>4.0-SNAPSHOT</version>
-    </dependency>
-
+    <!-- No real dependencies... this is just to test data -->
+  
     <!-- TESTING -->
-    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

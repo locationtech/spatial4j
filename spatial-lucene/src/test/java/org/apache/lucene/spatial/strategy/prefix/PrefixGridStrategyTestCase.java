@@ -15,7 +15,6 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
-import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
 import org.junit.Test;
 
 public class PrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo>{
@@ -44,7 +43,7 @@ public class PrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFi
 //        DATA_WORLD_CITIES_POINTS,
 //        QTEST_Cities_IsWithin_BBox );
   }
-  
+
 
   @Test
   public void testPrefixGridLosAngeles() throws IOException {

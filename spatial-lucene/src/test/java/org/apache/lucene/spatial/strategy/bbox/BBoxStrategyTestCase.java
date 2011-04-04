@@ -34,7 +34,7 @@ public class BBoxStrategyTestCase extends StrategyTestCase<BBoxFieldInfo> {
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }
-  
+
   @Test
   public void testBBoxPolyWithJts() throws IOException {
     executeQueries( new JtsSpatialContext(),

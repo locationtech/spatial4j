@@ -27,7 +27,6 @@ import java.util.Date;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
-import org.apache.lucene.spatial.strategy.geometry.GeometryTestFactory;
 import org.junit.Test;
 
 import com.vividsolutions.jts.geom.Envelope;

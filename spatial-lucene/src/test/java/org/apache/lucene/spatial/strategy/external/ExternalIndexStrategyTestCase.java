@@ -25,7 +25,6 @@ import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
-import org.apache.lucene.spatial.strategy.external.ExternalIndexStrategy;
 import org.junit.Test;
 
 

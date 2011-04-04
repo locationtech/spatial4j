@@ -23,7 +23,7 @@ public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }
-  
+
 
   @Test
   public void testPointStrategyWithJts() throws IOException {

@@ -1,11 +1,10 @@
 package org.apache.lucene.spatial.base.context;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
-import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.junit.After;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Chris Male

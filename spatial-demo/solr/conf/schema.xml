@@ -55,8 +55,8 @@
 
 
     <!-- Geometry Fields -->
-    <fieldtype name="geo"   class="com.voyagergis.community.lucene.spatial.solr.GeometryFieldType" ignoreIncompatibleGeometry="true" />
-    <fieldtype name="rtree" class="com.voyagergis.community.lucene.spatial.solr.ExternalIndexFieldType"    ignoreIncompatibleGeometry="true" />
+    <fieldtype name="geo"   class="org.apache.solr.spatial.geometry.GeometryFieldType" ignoreIncompatibleGeometry="true" />
+    <fieldtype name="rtree" class="org.apache.solr.spatial.external.ExternalIndexFieldType"    ignoreIncompatibleGeometry="true" />
     
     <fieldtype name="grid"  class="org.apache.solr.spatial.prefix.SpatialPrefixGridFieldType"  ignoreIncompatibleGeometry="true" />
     <fieldtype name="bbox"  class="org.apache.solr.spatial.bbox.BBoxFieldType"                 ignoreIncompatibleGeometry="true" />

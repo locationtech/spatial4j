@@ -144,8 +144,8 @@ public class SpatialContextTestCase {
     assertEquals(IntersectCase.OUTSIDE, p1.intersect(big, context));
     assertEquals(IntersectCase.WITHIN, p2.intersect(big, context));
   }
-  
-  
+
+
   @Test
   public void testArgsParser() throws Exception {
     checkArgParser(new SimpleSpatialContext());
@@ -186,7 +186,7 @@ public class SpatialContextTestCase {
   public void testJtsIntersection() throws Exception {
     checkBBoxIntersection( new JtsSpatialContext() );
   }
-  
+
   @Test
   public void testJtsShapeIO() throws Exception {
     final JtsSpatialContext io = new JtsSpatialContext();

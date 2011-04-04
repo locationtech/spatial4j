@@ -26,7 +26,7 @@ public class GeohashStrategyTestCase extends StrategyTestCase<SimpleSpatialField
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }
-  
+
 
   @Test
   public void testGeohashStrategyWithJts() throws IOException {
