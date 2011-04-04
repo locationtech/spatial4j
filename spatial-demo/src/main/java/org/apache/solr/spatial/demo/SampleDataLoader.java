@@ -43,16 +43,16 @@ public class SampleDataLoader
     status = "initalizing....";
     running = true;
     String[][] names = new String[][] {
-      new String[] { "data/world-cities-points.txt", "" },
-      new String[] { "data/countries-poly.txt", "_poly" },
-      new String[] { "data/countries-bbox.txt", "_bbox" },
-      new String[] { "data/states-poly.txt", "_poly" },
-      new String[] { "data/states-bbox.txt", "_bbox" },
+      new String[] { "world-cities-points.txt", "" },
+      new String[] { "countries-poly.txt", "_poly" },
+      new String[] { "countries-bbox.txt", "_bbox" },
+      new String[] { "states-poly.txt", "_poly" },
+      new String[] { "states-bbox.txt", "_bbox" },
     };
 
     for( String[] d : names ) {
       InputStream in =
-        getClass().getClassLoader().getResourceAsStream(d[0]);
+        getClass().getClassLoader().getResourceAsStream("data/"+d[0]);
       index(solr, d[0], d[1], new SampleDataReader( in ) );
     }
 

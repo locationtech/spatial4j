@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
 
 import com.vividsolutions.jts.util.GeometricShapeFactory;
-import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
-import com.voyagergis.community.lucene.spatial.shape.JtsGeometry;
 
 import de.micromata.opengis.kml.v_2_2_0.ColorMode;
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;

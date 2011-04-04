@@ -88,7 +88,7 @@
   <updateHandler class="solr.DirectUpdateHandler2" />
   
   <query>
-    <maxBooleanClauses>4096</maxBooleanClauses>
+    <maxBooleanClauses>8192</maxBooleanClauses>
 
     <filterCache
       class="solr.FastLRUCache"

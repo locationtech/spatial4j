@@ -3,6 +3,7 @@ package org.apache.solr.spatial.demo.solr;
 import java.io.IOException;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.request.SolrQueryRequest;
@@ -10,8 +11,6 @@ import org.apache.solr.response.SolrQueryResponse;
 import org.apache.solr.update.AddUpdateCommand;
 import org.apache.solr.update.processor.UpdateRequestProcessor;
 import org.apache.solr.update.processor.UpdateRequestProcessorFactory;
-
-import com.voyagergis.community.lucene.spatial.JtsSpatialContext;
 
 
 public class SpatialDemoUpdateProcessorFactory extends UpdateRequestProcessorFactory

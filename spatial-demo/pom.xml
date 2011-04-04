@@ -33,13 +33,6 @@
       <version>${project.version}</version>
     </dependency>
     
-    <!-- VOYAGER -->
-	  <dependency>
-			<groupId>com.voyagergis.community.lucene.spatial</groupId>
-		  <artifactId>voyager-spatial-solr</artifactId>
-      <version>${project.version}</version>
-	  </dependency>
-	  
 	  
     <!-- OTHER STUFF -->
     <dependency>
