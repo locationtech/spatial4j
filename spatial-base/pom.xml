@@ -41,6 +41,13 @@
 	    <version>2.5</version>
     </dependency>
     
+	  <dependency>
+	    <groupId>com.vividsolutions</groupId>
+	    <artifactId>jts</artifactId>
+	    <version>1.11</version>
+	  </dependency>
+    
+    
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
