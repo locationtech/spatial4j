@@ -3,7 +3,6 @@ package org.apache.lucene.spatial.base.context;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
-import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.junit.After;
 import org.junit.Test;
 

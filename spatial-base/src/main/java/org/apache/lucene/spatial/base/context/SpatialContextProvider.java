@@ -32,7 +32,7 @@ public class SpatialContextProvider {
         log.warn("Using default SpatialContext", e);
       }
     }
-    
+
     try {
       // Try to make the JTS version
       instance = new JtsSpatialContext();
