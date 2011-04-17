@@ -1,5 +1,21 @@
 package org.apache.lucene.spatial.strategy;
 
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
+import org.junit.After;
+import org.junit.Before;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,3 +130,4 @@ public abstract class SpatialTestCase extends LuceneTestCase {
     }
   }
 }
+
