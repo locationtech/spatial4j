@@ -30,6 +30,7 @@ import org.apache.lucene.util.PerReaderTermState;
 /**
  * @see AutomatonQuery, WildcardQuery
  */
+@Deprecated
 public class SpatialPrefixGridQuery extends WildcardQuery {
 
   /**

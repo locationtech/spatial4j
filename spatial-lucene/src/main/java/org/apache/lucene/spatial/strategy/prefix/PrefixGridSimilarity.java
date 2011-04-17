@@ -3,6 +3,7 @@ package org.apache.lucene.spatial.strategy.prefix;
 /**
  * @author Chris Male
  */
+@Deprecated
 public interface PrefixGridSimilarity {
 
   float scoreGridSearch(int bestResolution, int matchLength);

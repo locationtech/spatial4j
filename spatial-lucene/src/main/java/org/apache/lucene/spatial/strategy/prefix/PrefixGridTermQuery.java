@@ -15,6 +15,7 @@ import org.apache.lucene.search.Weight;
 /**
  * @author Chris Male
  */
+@Deprecated
 public class PrefixGridTermQuery extends Query {
 
   private TermQuery termQuery;

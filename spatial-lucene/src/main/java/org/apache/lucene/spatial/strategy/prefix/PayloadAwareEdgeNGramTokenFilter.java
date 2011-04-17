@@ -12,6 +12,7 @@ import org.apache.lucene.index.Payload;
 /**
  * @author Chris Male
  */
+@Deprecated
 class PayloadAwareEdgeNGramTokenFilter extends TokenFilter {
 
   public static final Side DEFAULT_SIDE = Side.FRONT;

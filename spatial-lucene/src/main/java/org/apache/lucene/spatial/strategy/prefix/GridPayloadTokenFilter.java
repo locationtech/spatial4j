@@ -11,6 +11,7 @@ import org.apache.lucene.index.Payload;
 /**
  * @author Chris Male
  */
+@Deprecated
 public final class GridPayloadTokenFilter extends TokenFilter {
 
   private final PayloadAttribute payloadAttribute = addAttribute(PayloadAttribute.class);

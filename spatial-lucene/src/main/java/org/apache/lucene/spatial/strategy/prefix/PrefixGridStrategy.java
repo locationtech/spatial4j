@@ -41,6 +41,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 
+@Deprecated
 public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   protected final SpatialPrefixGrid grid;
