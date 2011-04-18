@@ -19,10 +19,10 @@ package org.apache.solr.spatial.geometry;
 
 import java.util.Map;
 
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+import com.googlecode.lucene.spatial.strategy.geometry.JtsGeoStrategy;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.geometry.JtsGeoStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;

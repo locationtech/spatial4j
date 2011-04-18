@@ -241,6 +241,8 @@
     <module>spatial-lucene</module>
     <module>spatial-solr</module>
     <module>spatial-demo</module>
+      <module>spatial-base-extras</module>
+      <module>spatial-lucene-extras</module>
   </modules>
   
 </project>

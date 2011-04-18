@@ -21,7 +21,7 @@
 
         <dependency>
             <groupId>org.apache.lucene.spatial</groupId>
-            <artifactId>spatial-lucene</artifactId>
+            <artifactId>spatial-lucene-extras</artifactId>
             <version>${project.version}</version>
         </dependency>
 

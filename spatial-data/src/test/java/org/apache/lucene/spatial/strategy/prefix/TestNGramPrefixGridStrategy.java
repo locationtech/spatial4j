@@ -3,10 +3,10 @@ package org.apache.lucene.spatial.strategy.prefix;
 import java.io.IOException;
 import java.util.Arrays;
 
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;

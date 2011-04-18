@@ -20,8 +20,8 @@ package org.apache.solr.spatial.external;
 
 import java.util.Map;
 
+import com.googlecode.lucene.spatial.strategy.external.ExternalIndexStrategy;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.external.ExternalIndexStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;

@@ -2,9 +2,9 @@ package org.apache.lucene.spatial.strategy.bbox;
 
 import java.io.IOException;
 
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;

@@ -2,7 +2,7 @@ package org.apache.lucene.spatial.strategy.geohash;
 
 import java.io.IOException;
 
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;

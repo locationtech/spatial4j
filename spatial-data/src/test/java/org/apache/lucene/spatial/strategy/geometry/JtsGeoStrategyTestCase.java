@@ -20,8 +20,9 @@ package org.apache.lucene.spatial.strategy.geometry;
 
 import java.io.IOException;
 
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+import com.googlecode.lucene.spatial.strategy.geometry.JtsGeoStrategy;
 import org.apache.lucene.index.codecs.CodecProvider;
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.junit.Test;

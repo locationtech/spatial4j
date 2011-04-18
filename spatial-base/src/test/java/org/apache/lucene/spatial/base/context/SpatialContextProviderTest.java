@@ -2,7 +2,7 @@ package org.apache.lucene.spatial.base.context;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.junit.After;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class SpatialContextProviderTest {
   @Test
   public void testGetContext_defaultBehavior() {
     SpatialContext spatialContext = SpatialContextProvider.getContext();
-    assertEquals(JtsSpatialContext.class, spatialContext.getClass());
+    assertEquals(SimpleSpatialContext.class, spatialContext.getClass());
   }
 
   @Test
@@ -30,7 +30,7 @@ public class SpatialContextProviderTest {
     System.setProperty("SpatialContextProvider", "org.apache.lucene.spatial.base.context.ContextDoesNotExist");
 
     SpatialContext spatialContext = SpatialContextProvider.getContext();
-    assertEquals(JtsSpatialContext.class, spatialContext.getClass());
+    assertEquals(SimpleSpatialContext.class, spatialContext.getClass());
   }
 
   @After
