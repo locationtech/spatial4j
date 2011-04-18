@@ -15,33 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.geometry;
+package com.googlecode.lucene.spatial.solr.external;
+
 
 import java.util.Map;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
-import com.googlecode.lucene.spatial.strategy.geometry.JtsGeoStrategy;
-import org.apache.lucene.spatial.base.distance.DistanceUnits;
+import com.googlecode.lucene.spatial.strategy.external.ExternalIndexStrategy;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 
 /**
- * Uses JTS to read/store geometry
+ * Field loads an in memory SpatialIndex (RTree or QuadTree)
  */
-public class GeometryFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
+public class ExternalIndexFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
 
-    GeometryFactory factory = new GeometryFactory();
-    reader = new JtsSpatialContext(factory,DistanceUnits.KILOMETERS);
-    spatialStrategy = new JtsGeoStrategy((JtsSpatialContext)reader);
+    spatialStrategy = new ExternalIndexStrategy(reader);
     spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 

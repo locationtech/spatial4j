@@ -26,12 +26,6 @@
 	    <version>${project.version}</version>
 	  </dependency>
 
-      <dependency>
-		  <groupId>org.apache.lucene.spatial</groupId>
-	    <artifactId>spatial-lucene-extras</artifactId>
-	    <version>${project.version}</version>
-	  </dependency>
-
 	  <dependency>
 		  <groupId>org.apache.solr</groupId>
 		  <artifactId>solr-core</artifactId>

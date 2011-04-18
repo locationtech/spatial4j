@@ -243,6 +243,7 @@
     <module>spatial-demo</module>
       <module>spatial-base-extras</module>
       <module>spatial-lucene-extras</module>
+      <module>spatial-solr-extras</module>
   </modules>
   
 </project>

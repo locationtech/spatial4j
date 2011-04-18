@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <artifactId>lucene-spatial-parent</artifactId>
+        <groupId>org.apache.lucene.spatial</groupId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.apache.lucene.spatial</groupId>
+    <artifactId>spatial-solr-extras</artifactId>
+    <name>Spatial - Solr extras</name>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.lucene.spatial</groupId>
+            <artifactId>spatial-solr</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.lucene.spatial</groupId>
+            <artifactId>spatial-lucene-extras</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+    </dependencies>
+
+
+</project>
