@@ -28,7 +28,7 @@ public class Query implements Serializable
 
     boolean hasGeo = (geo != null && geo.length() > 0);
     if( hasGeo ) {
-      q = field + ":\""+op.name()+"("+geo+")";
+      q = field + ":\""+op.toString()+"("+geo+")";
       if( min != null ) {
         q += " min=" + min;
       }

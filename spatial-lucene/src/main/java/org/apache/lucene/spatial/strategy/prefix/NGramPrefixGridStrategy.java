@@ -47,8 +47,7 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
   public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo field) {
     if (args.getOperation() != SpatialOperation.Intersects &&
         args.getOperation() != SpatialOperation.IsWithin &&
-        args.getOperation() != SpatialOperation.Overlaps &&
-        args.getOperation() != SpatialOperation.SimilarTo) {
+        args.getOperation() != SpatialOperation.Overlaps ){
       // TODO -- can translate these other query types
       throw new UnsupportedOperationException("Unsupported Operation: " + args.getOperation());
     }

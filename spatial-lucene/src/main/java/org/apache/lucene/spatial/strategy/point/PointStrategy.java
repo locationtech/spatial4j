@@ -35,7 +35,9 @@ import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
+import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
+import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.PointDistanceShape;
@@ -121,20 +123,20 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
 
   @Override
   public Filter makeFilter(SpatialArgs args, PointFieldInfo fieldInfo) {
-    switch (args.getOperation()) {
-      case Intersects:
-      case IsWithin:
-        if( args.getShape() instanceof PointDistanceShape ) {
-          DistanceCalculator calc = reader.getDistanceCalculator();
-          PointDistanceShape pd = (PointDistanceShape)args.getShape();
-          Query bbox = makeWithin(pd.getBoundingBox(), fieldInfo);
+    if( args.getShape() instanceof PointDistanceShape ) {
+      if( SpatialOperation.is( args.getOperation(),
+          SpatialOperation.Intersects,
+          SpatialOperation.IsWithin )) {
+        DistanceCalculator calc = reader.getDistanceCalculator();
+        PointDistanceShape pd = (PointDistanceShape)args.getShape();
+        Query bbox = makeWithin(pd.getBoundingBox(), fieldInfo);
 
-          // Make the ValueSource
-          ValueSource valueSource = makeValueSource(args, fieldInfo, calc);
+        // Make the ValueSource
+        ValueSource valueSource = makeValueSource(args, fieldInfo, calc);
 
-          return new ValueSourceFilter(
-              new QueryWrapperFilter( bbox ), valueSource, 0, pd.getDistance() );
-        }
+        return new ValueSourceFilter(
+            new QueryWrapperFilter( bbox ), valueSource, 0, pd.getDistance() );
+      }
     }
     return new QueryWrapperFilter( makeQuery(args, fieldInfo) );
   }
@@ -151,36 +153,35 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
     DistanceCalculator calc = reader.getDistanceCalculator();
 
     Query spatial = null;
-    switch (args.getOperation()) {
-      case BBoxIntersects:
-      case BBoxWithin:
+    SpatialOperation op = args.getOperation();
+
+    if( SpatialOperation.is( op,
+        SpatialOperation.BBoxWithin,
+        SpatialOperation.BBoxIntersects ) ) {
         spatial = makeWithin(bbox, fieldInfo);
-        break;
+    }
+    else if( SpatialOperation.is( op,
+      SpatialOperation.Intersects,
+      SpatialOperation.IsWithin ) ) {
+      spatial = makeWithin(bbox, fieldInfo);
+      if( args.getShape() instanceof PointDistanceShape ) {
+        PointDistanceShape pd = (PointDistanceShape)args.getShape();
 
-      case Intersects:
-      case IsWithin:
-        spatial = makeWithin(bbox, fieldInfo);
-        if( args.getShape() instanceof PointDistanceShape ) {
-          PointDistanceShape pd = (PointDistanceShape)args.getShape();
+        // Make the ValueSource
+        valueSource = makeValueSource(args, fieldInfo, calc);
 
-          // Make the ValueSource
-          valueSource = makeValueSource(args, fieldInfo, calc);
+        ValueSourceFilter vsf = new ValueSourceFilter(
+            new QueryWrapperFilter( spatial ), valueSource, 0, pd.getDistance() );
 
-          ValueSourceFilter vsf = new ValueSourceFilter(
-              new QueryWrapperFilter( spatial ), valueSource, 0, pd.getDistance() );
+        spatial = new FilteredQuery( new MatchAllDocsQuery(), vsf );
+      }
+    }
+    else if( op == SpatialOperation.IsDisjointTo ) {
+      spatial =  makeDisjoint(bbox, fieldInfo);
+    }
 
-          spatial = new FilteredQuery( new MatchAllDocsQuery(), vsf );
-        }
-        break;
-
-      case IsDisjointTo:
-        spatial =  makeDisjoint(bbox, fieldInfo);
-        break;
-
-      case Overlaps:
-      case Contains:
-      default:
-        throw new UnsupportedOperationException(args.getOperation().name());
+    if( spatial == null ) {
+      throw new UnsupportedSpatialOperation(args.getOperation());
     }
 
     try {

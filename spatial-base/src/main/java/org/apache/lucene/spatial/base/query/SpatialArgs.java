@@ -45,14 +45,14 @@ public class SpatialArgs {
    */
   public void validate() throws InvalidSpatialArgument {
     if (operation.isTargetNeedsArea() && !shape.hasArea()) {
-      throw new InvalidSpatialArgument(operation.name() + " only supports geometry with area");
+      throw new InvalidSpatialArgument(operation + " only supports geometry with area");
     }
   }
 
   public String toString( SpatialContext io )
   {
     StringBuilder str = new StringBuilder();
-    str.append( operation.name() ).append( '(' );
+    str.append( operation.getName() ).append( '(' );
     str.append( io.toString( shape ) );
     str.append( ')' );
     if( min != null ) {

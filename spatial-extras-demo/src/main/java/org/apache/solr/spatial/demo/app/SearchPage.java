@@ -99,7 +99,7 @@ public class SearchPage extends WebPage
     searchForm.add( new DropDownChoice<String>("field",
         Arrays.asList( "geo", "bbox", "grid", "rtree", "point", "geohash" ) ));
     searchForm.add( new DropDownChoice<SpatialOperation>("op",
-        Arrays.asList( SpatialOperation.values() ) ));
+        SpatialOperation.values() ));
 
     searchForm.add( new TextField<String>( "geo" ) );
     searchForm.add( new IndicatingAjaxButton( "submit" ) {
