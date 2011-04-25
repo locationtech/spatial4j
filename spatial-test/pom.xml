@@ -10,10 +10,10 @@
     </parent>
 
     <groupId>org.apache.lucene.spatial</groupId>
-    <artifactId>spatial-data</artifactId>
+    <artifactId>spatial-test</artifactId>
     <version>0.1-SNAPSHOT</version>
 
-    <name>Spatial - Data</name>
+    <name>Spatial - Test</name>
     <description>Data and Benchmarking</description>
     <packaging>jar</packaging>
 
@@ -21,7 +21,7 @@
 
         <dependency>
             <groupId>org.apache.lucene.spatial</groupId>
-            <artifactId>spatial-lucene-extras</artifactId>
+            <artifactId>spatial-lucene</artifactId>
             <version>${project.version}</version>
         </dependency>
 
