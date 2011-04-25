@@ -27,6 +27,8 @@ import org.apache.lucene.spatial.base.context.SpatialContextProvider;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.test.SpatialTestQuery;
+import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 

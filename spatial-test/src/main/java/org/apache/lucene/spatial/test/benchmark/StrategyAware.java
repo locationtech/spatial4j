@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.data.benchmark;
+package org.apache.lucene.spatial.test.benchmark;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;

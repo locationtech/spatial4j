@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.strategy;
+package org.apache.lucene.spatial.test;
 
 public class SpatialMatchConcerns {
   public final boolean orderIsImportant;

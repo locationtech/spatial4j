@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.strategy;
+package org.apache.lucene.spatial.test;
 
 import java.io.IOException;
 import java.io.InputStream;

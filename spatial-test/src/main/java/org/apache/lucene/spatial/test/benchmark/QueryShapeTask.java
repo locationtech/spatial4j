@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.data.benchmark;
+package org.apache.lucene.spatial.test.benchmark;
 
 import org.apache.lucene.benchmark.byTask.PerfRunData;
 import org.apache.lucene.benchmark.byTask.tasks.PerfTask;

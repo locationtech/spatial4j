@@ -12,7 +12,7 @@ import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.StrategyTestCase;
+import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
 
 public class PrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo>{
