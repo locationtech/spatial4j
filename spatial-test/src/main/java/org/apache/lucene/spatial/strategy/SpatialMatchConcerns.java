@@ -10,6 +10,6 @@ public class SpatialMatchConcerns {
   }
 
   public static final SpatialMatchConcerns EXACT = new SpatialMatchConcerns( true, false );
-  public static final SpatialMatchConcerns ORDER = new SpatialMatchConcerns( false, false );
+  public static final SpatialMatchConcerns FILTER = new SpatialMatchConcerns( false, false );
   public static final SpatialMatchConcerns SUPERSET = new SpatialMatchConcerns( false, true );
 }

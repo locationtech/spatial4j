@@ -119,7 +119,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
         Iterator<String> ids = q.ids.iterator();
         for (SearchResult r : got.results) {
           String id = r.document.get("id");
-          Assert.assertEquals(msg, ids.next(), id);
+          Assert.assertEquals( "out of order: " + msg, ids.next(), id);
         }
         if (ids.hasNext()) {
           Assert.fail(msg + " :: expect more results then we got: " + ids.next());

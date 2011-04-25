@@ -10,7 +10,10 @@ import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.apache.lucene.spatial.strategy.point.PointFieldInfo;
 import org.apache.lucene.spatial.strategy.point.PointStrategy;
 import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
+import org.junit.Ignore;
 import org.junit.Test;
+
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 
 
 public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
@@ -22,9 +25,9 @@ public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
     PointStrategy s = new PointStrategy( new SimpleSpatialContext(),
         tinfo, FieldCache.NUMERIC_UTILS_DOUBLE_PARSER );
 
-    SpatialContext ctx = new SimpleSpatialContext();
+    SpatialContext ctx = new JtsSpatialContext();
     executeQueries( s, ctx, finfo,
-        SpatialMatchConcerns.EXACT,
+        SpatialMatchConcerns.FILTER,
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }

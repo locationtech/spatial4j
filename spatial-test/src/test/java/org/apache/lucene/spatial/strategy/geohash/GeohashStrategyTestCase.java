@@ -6,6 +6,7 @@ import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialMatchConcerns;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -23,7 +24,7 @@ public class GeohashStrategyTestCase extends StrategyTestCase<SimpleSpatialField
 
     // SimpleIO
     executeQueries( s, grs.shapeIO, finfo,
-        SpatialMatchConcerns.EXACT,
+        SpatialMatchConcerns.FILTER,
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }

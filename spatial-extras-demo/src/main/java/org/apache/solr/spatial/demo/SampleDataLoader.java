@@ -26,7 +26,7 @@ public class SampleDataLoader
       SolrInputDocument doc = new SolrInputDocument();
       doc.setField( "id", data.id+sfix );
       doc.setField( "name", data.name );
-      doc.setField( "geo", data.shape );
+      doc.setField( "grid", data.shape );
       doc.setField( "source", name );
       solr.add( doc );
       count++;

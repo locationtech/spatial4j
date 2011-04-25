@@ -68,28 +68,9 @@
    <field name="source" type="string"  indexed="true" stored="true" />
    
    <!-- geometry -->
-   <field name="geo"     type="geo"     indexed="true" stored="true"  multiValued="false" />
    <field name="grid"    type="grid"    indexed="true" stored="true"  multiValued="false" />
-   <field name="bbox"    type="bbox"    indexed="true" stored="true"  multiValued="false" />
-   <field name="rtree"   type="rtree"   indexed="true" stored="true"  multiValued="false" />
    <field name="point"   type="point"   indexed="true" stored="true"  multiValued="false" />
    <field name="geohash" type="geohash" indexed="true" stored="true"  multiValued="true" />
-   
-   <!-- country fields -->
-   <field name="status"   type="string"  indexed="true" stored="true" />
-   <field name="sqMI"     type="float"   indexed="true" stored="true" />
-   <field name="sqKM"     type="float"   indexed="true" stored="true" />
-   <field name="pop2005"  type="long"    indexed="true" stored="true" />
-   
-   
-   <!-- geoeye -->
-   <field name="sourceC"      type="string"  indexed="true" stored="true" />
-   <field name="sensorMode"   type="string"  indexed="true" stored="true" />
-   <field name="stripID"      type="string"  indexed="true" stored="true" />
-   <field name="sceneID"      type="string"  indexed="true" stored="true" />
-   <field name="imageURL"     type="string"  indexed="true" stored="true" />
-   <field name="metadataURL"  type="string"  indexed="true" stored="true" />
-   <field name="collectionDate"  type="date"    indexed="true" stored="true" />
    
  </fields>
 
@@ -99,11 +80,8 @@
  <uniqueKey>id</uniqueKey>
 
  <!-- Various index strategies -->
- <copyField source="geo" dest="grid"/>
- <copyField source="geo" dest="bbox"/>
- <copyField source="geo" dest="rtree"/>
- <copyField source="geo" dest="point"/>
- <copyField source="geo" dest="geohash"/>
+ <copyField source="grid" dest="point"/>
+ <copyField source="grid" dest="geohash"/>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>name</defaultSearchField>

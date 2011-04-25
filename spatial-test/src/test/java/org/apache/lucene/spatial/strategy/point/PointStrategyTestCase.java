@@ -12,7 +12,7 @@ import org.junit.Test;
 
 
 public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
-  
+
   @Test
   public void testPointStrategyWithSimple() throws IOException {
     TrieFieldHelper.FieldInfo tinfo = new TrieFieldHelper.FieldInfo();
@@ -21,7 +21,7 @@ public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
         tinfo, FieldCache.NUMERIC_UTILS_DOUBLE_PARSER );
 
     executeQueries( s, new SimpleSpatialContext(), finfo,
-        SpatialMatchConcerns.EXACT,
+        SpatialMatchConcerns.FILTER,
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }
