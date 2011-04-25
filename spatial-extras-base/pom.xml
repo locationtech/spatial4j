@@ -13,7 +13,7 @@
 
     <groupId>org.apache.lucene.spatial</groupId>
     <artifactId>spatial-base-extras</artifactId>
-    <name>Spatial Base - Extras</name>
+    <name>Spatial Extras - Base</name>
 
     <dependencies>
 
