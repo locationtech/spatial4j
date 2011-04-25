@@ -10,7 +10,7 @@
   </parent>
   
 	<groupId>org.apache.lucene.spatial</groupId>
-  <artifactId>spatial-demo</artifactId>
+  <artifactId>spatial-extras-demo</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
   <name>Spatial Extras - Demo</name>

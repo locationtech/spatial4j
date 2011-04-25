@@ -3,32 +3,40 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <artifactId>lucene-spatial-parent</artifactId>
-        <groupId>org.apache.lucene.spatial</groupId>
-        <version>0.1-SNAPSHOT</version>
-    </parent>
-
+  <parent>
+    <artifactId>lucene-spatial-parent</artifactId>
     <groupId>org.apache.lucene.spatial</groupId>
-    <artifactId>spatial-base-extras</artifactId>
-    <name>Spatial Extras - Base</name>
+    <version>0.1-SNAPSHOT</version>
+  </parent>
 
-    <dependencies>
+  <groupId>org.apache.lucene.spatial</groupId>
+  <artifactId>spatial-extras-base</artifactId>
+  <name>Spatial Extras - Base</name>
 
-        <dependency>
-            <groupId>org.apache.lucene.spatial</groupId>
-            <artifactId>spatial-base</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+  <dependencies>
 
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
-            <version>1.11</version>
-        </dependency>
+    <dependency>
+      <groupId>org.apache.lucene.spatial</groupId>
+      <artifactId>spatial-base</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-    </dependencies>
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <version>1.11</version>
+    </dependency>
+    
+    <!-- TESTING -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.1</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
 
 </project>
