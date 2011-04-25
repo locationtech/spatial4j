@@ -1,38 +1,33 @@
-package org.apache.lucene.spatial.strategy.prefix;
+package org.googlecode.lucene.spatial.strategy.prefix;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.StrategyTestCase;
+import org.apache.lucene.spatial.strategy.SpatialTestCase;
+import org.apache.lucene.spatial.strategy.prefix.NGramPrefixGridStrategy;
 import org.junit.Test;
 
-public class PrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo>{
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 
-  public void executeQueries( SpatialContext io, String data, String ... tests ) throws IOException {
 
-    SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo("geo");
-    PrefixGridStrategy s
-      = new PrefixGridStrategy(
-          new LinearPrefixGrid(-180, 180, -90, 90, 12, io), 0);
-
-    executeQueries( s, io, finfo, data, tests );
-  }
-
+/**
+ * @author Chris Male
+ */
+public class TestNGramPrefixGridStrategy extends SpatialTestCase {
 
   @Test
-  public void testPrefixGridLosAngeles() throws IOException {
+  public void testNGramPrefixGridLosAngeles() throws IOException {
     SimpleSpatialFieldInfo fieldInfo = new SimpleSpatialFieldInfo("geo");
-    PrefixGridStrategy prefixGridStrategy = new PrefixGridStrategy(new LinearPrefixGrid(), 0);
+    NGramPrefixGridStrategy prefixGridStrategy = new NGramPrefixGridStrategy(new LinearPrefixGrid(), 0);
 
     Shape point = new Point2D(-118.243680, 34.052230);
 
@@ -42,17 +37,14 @@ public class PrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFi
 
     addDocuments(Arrays.asList(losAngeles));
 
-    // Polygon won't work with SimpleSpatialContext
-    SpatialContext ctx = new SimpleSpatialContext();
+    // This won't work with simple spatial context...
     SpatialArgsParser spatialArgsParser = new SpatialArgsParser();
     SpatialArgs spatialArgs = spatialArgsParser.parse(
         "IsWithin(POLYGON((-127.00390625 39.8125,-112.765625 39.98828125,-111.53515625 31.375,-125.94921875 30.14453125,-127.00390625 39.8125)))",
-        ctx );
+        new JtsSpatialContext());
 
-    // TODO -- use a non polygon query...
-
-//    Query query = prefixGridStrategy.makeQuery(spatialArgs, fieldInfo);
-//    SearchResults searchResults = executeQuery(query, 1);
-//    assertEquals(1, searchResults.numFound);
+    Query query = prefixGridStrategy.makeQuery(spatialArgs, fieldInfo);
+    SearchResults searchResults = executeQuery(query, 1);
+    assertEquals(1, searchResults.numFound);
   }
 }

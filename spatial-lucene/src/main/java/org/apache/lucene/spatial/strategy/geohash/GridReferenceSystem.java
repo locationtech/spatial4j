@@ -20,7 +20,7 @@ public class GridReferenceSystem {
 
   //TODO consider alternate more efficient implementation instead of GeoHash.
 
-  final SpatialContext shapeIO;
+  public final SpatialContext shapeIO;
   final int maxLen;
 
   public GridReferenceSystem(SpatialContext shapeIO, int maxLen) {
