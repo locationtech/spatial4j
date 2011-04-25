@@ -1,5 +1,7 @@
 package org.apache.lucene.spatial.data.benchmark;
 
+import java.util.UUID;
+
 import org.apache.lucene.benchmark.byTask.PerfRunData;
 import org.apache.lucene.benchmark.byTask.tasks.PerfTask;
 import org.apache.lucene.benchmark.byTask.utils.Config;
@@ -9,8 +11,6 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
-
-import java.util.UUID;
 
 /**
  * @author Chris Male
@@ -34,6 +34,7 @@ public abstract class IndexShapeTask<T extends SpatialFieldInfo> extends PerfTas
         numShapes = config.get("index.numshapes", 1);
     }
 
+    @Override
     public int doLogic() throws Exception {
         SpatialStrategy<T> spatialStrategy = createSpatialStrategy();
         T fieldInfo = createFieldInfo();

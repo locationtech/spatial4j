@@ -2,8 +2,8 @@ package org.apache.lucene.spatial.strategy.point;
 
 import java.io.IOException;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.search.FieldCache;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
@@ -32,7 +32,8 @@ public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
     PointStrategy s = new PointStrategy( new SimpleSpatialContext(),
         tinfo, FieldCache.NUMERIC_UTILS_DOUBLE_PARSER );
 
-    executeQueries( s, new JtsSpatialContext(), finfo,
+    SpatialContext ctx = new SimpleSpatialContext();
+    executeQueries( s, ctx, finfo,
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }

@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
 import org.apache.lucene.spatial.base.shape.Shape;
 
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;

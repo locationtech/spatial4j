@@ -24,7 +24,6 @@ import org.apache.lucene.spatial.base.shape.Shape;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
 
 public class JtsEnvelope implements BBox {
 

@@ -2,7 +2,6 @@ package org.apache.solr.spatial.demo.solr;
 
 import java.io.IOException;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.solr.common.SolrInputField;
@@ -11,6 +10,8 @@ import org.apache.solr.response.SolrQueryResponse;
 import org.apache.solr.update.AddUpdateCommand;
 import org.apache.solr.update.processor.UpdateRequestProcessor;
 import org.apache.solr.update.processor.UpdateRequestProcessorFactory;
+
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 
 
 public class SpatialDemoUpdateProcessorFactory extends UpdateRequestProcessorFactory

@@ -24,8 +24,6 @@ import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import com.vividsolutions.jts.geom.Point;
-import com.googlecode.lucene.spatial.base.shape.JtsEnvelope;
-import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
 
 public class JtsPoint2D implements org.apache.lucene.spatial.base.shape.Point {
 

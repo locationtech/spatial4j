@@ -17,6 +17,6 @@ public abstract class ShapeGenerator {
     public abstract Shape generate();
 
     protected Config getConfig() {
-        return config;   
+        return config;
     }
 }

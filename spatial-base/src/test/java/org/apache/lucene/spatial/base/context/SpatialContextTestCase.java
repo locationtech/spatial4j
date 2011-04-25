@@ -6,7 +6,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 
 import org.apache.lucene.spatial.base.IntersectCase;
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
@@ -16,9 +15,6 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.Shapes;
-import org.apache.lucene.spatial.base.shape.jts.JtsEnvelope;
-import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
-import org.apache.lucene.spatial.base.shape.jts.JtsPoint2D;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 import org.junit.Assert;
@@ -158,9 +154,6 @@ public class SpatialContextTestCase {
       PointDistanceShape.class,
       Rectangle.class,
       Shapes.class,
-      JtsEnvelope.class,
-      JtsPoint2D.class,
-      JtsGeometry.class
     });
   }
 
@@ -180,30 +173,5 @@ public class SpatialContextTestCase {
   public void testSimpleIntersection() throws Exception {
     final SimpleSpatialContext io = new SimpleSpatialContext();
     checkBBoxIntersection(io);
-  }
-
-  @Test
-  public void testJtsIntersection() throws Exception {
-    checkBBoxIntersection( new JtsSpatialContext() );
-  }
-
-  @Test
-  public void testJtsShapeIO() throws Exception {
-    final JtsSpatialContext io = new JtsSpatialContext();
-    checkBasicShapeIO( io, new WriteReader() {
-      @Override
-      public Shape writeThenRead(Shape s) {
-        String buff = io.toString( s );
-        return io.readShape( buff );
-      }
-    });
-
-    checkBasicShapeIO( io, new WriteReader() {
-      @Override
-      public Shape writeThenRead(Shape s) throws IOException {
-        byte[] buff = io.toBytes( s );
-        return io.readShape( buff, 0, buff.length );
-      }
-    });
   }
 }

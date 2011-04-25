@@ -27,6 +27,7 @@ public abstract class QueryShapeTask<T extends SpatialFieldInfo> extends PerfTas
         this.spatialArgs = new SpatialArgsParser().parse(rawQuery, getSpatialContext());
     }
 
+    @Override
     public int doLogic() throws Exception {
         Query query = createSpatialStrategy().makeQuery(spatialArgs, createFieldInfo());
         TopDocs topDocs = getRunData().getIndexSearcher().search(query, 10);

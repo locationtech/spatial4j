@@ -12,13 +12,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
 import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.solr.spatial.demo.KMLHelper;
+
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 

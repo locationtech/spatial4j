@@ -2,7 +2,7 @@ package org.apache.lucene.spatial.strategy.geohash;
 
 import java.io.IOException;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
@@ -33,7 +33,7 @@ public class GeohashStrategyTestCase extends StrategyTestCase<SimpleSpatialField
 
     SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo( "geohash" );
 
-    JtsSpatialContext ctx = new JtsSpatialContext();
+    SpatialContext ctx = new SimpleSpatialContext();
     int maxLength = GridReferenceSystem.getMaxPrecision();
     GridReferenceSystem grs = new GridReferenceSystem( ctx, maxLength );
     GeohashStrategy s = new GeohashStrategy( grs );
