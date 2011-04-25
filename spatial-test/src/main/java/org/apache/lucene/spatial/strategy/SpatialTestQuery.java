@@ -22,7 +22,6 @@ public class SpatialTestQuery {
   public int lineNumber = -1;
   public SpatialArgs args;
   public List<String> ids = new ArrayList<String>();
-  public boolean orderIsImportant = false;
 
   /**
    * Get Test Queries

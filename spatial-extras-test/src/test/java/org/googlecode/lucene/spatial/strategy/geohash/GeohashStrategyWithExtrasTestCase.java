@@ -3,6 +3,7 @@ package org.googlecode.lucene.spatial.strategy.geohash;
 import java.io.IOException;
 
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
+import org.apache.lucene.spatial.strategy.SpatialMatchConcerns;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.apache.lucene.spatial.strategy.geohash.GeohashStrategy;
 import org.apache.lucene.spatial.strategy.geohash.GridReferenceSystem;
@@ -28,6 +29,7 @@ public class GeohashStrategyWithExtrasTestCase extends StrategyTestCase<SimpleSp
 
     // SimpleIO
     executeQueries( s, grs.shapeIO, finfo,
+        SpatialMatchConcerns.EXACT,
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }

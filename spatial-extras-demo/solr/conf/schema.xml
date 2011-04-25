@@ -54,12 +54,8 @@
     </fieldType>
 
 
-    <!-- Geometry Fields -->
-    <fieldtype name="geo"   class="com.googlecode.lucene.spatial.solr.geometry.GeometryFieldType" ignoreIncompatibleGeometry="true" />
-    <fieldtype name="rtree" class="com.googlecode.lucene.spatial.solr.external.ExternalIndexFieldType"    ignoreIncompatibleGeometry="true" />
-    
+    <!-- Geometry Field Strategies -->
     <fieldtype name="grid"  class="org.apache.solr.spatial.prefix.SpatialPrefixGridFieldType"  ignoreIncompatibleGeometry="true" />
-    <fieldtype name="bbox"  class="org.apache.solr.spatial.bbox.BBoxFieldType"                 ignoreIncompatibleGeometry="true" />
     <fieldtype name="point" class="org.apache.solr.spatial.point.PointFieldType"               ignoreIncompatibleGeometry="true" />
     <fieldtype name="geohash" class="org.apache.solr.spatial.geohash.GeohashFieldType"         ignoreIncompatibleGeometry="true" />
 

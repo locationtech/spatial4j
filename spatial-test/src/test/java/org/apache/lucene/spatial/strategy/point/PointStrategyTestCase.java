@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
+import org.apache.lucene.spatial.strategy.SpatialMatchConcerns;
 import org.apache.lucene.spatial.strategy.StrategyTestCase;
 import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
 import org.junit.Test;
@@ -20,6 +21,7 @@ public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
         tinfo, FieldCache.NUMERIC_UTILS_DOUBLE_PARSER );
 
     executeQueries( s, new SimpleSpatialContext(), finfo,
+        SpatialMatchConcerns.EXACT,
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }
@@ -34,6 +36,7 @@ public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
 
     SpatialContext ctx = new SimpleSpatialContext();
     executeQueries( s, ctx, finfo,
+        SpatialMatchConcerns.EXACT,
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }

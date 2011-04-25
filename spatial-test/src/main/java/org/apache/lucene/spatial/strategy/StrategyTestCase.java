@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.Assert;
 
@@ -59,6 +61,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
       SpatialStrategy<T> strategy,
       SpatialContext shapeIO,
       T fieldInfo,
+      SpatialMatchConcerns concern,
       String testDataFile,
       String ... testQueryFile ) throws IOException {
     List<Document> testDocuments = getDocuments(testDataFile, shapeIO, strategy, fieldInfo);
@@ -67,7 +70,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
 
     for( String path : testQueryFile ) {
       Iterator<SpatialTestQuery> testQueryIterator = getTestQueries(path, shapeIO);
-      runTestQueries(testQueryIterator, shapeIO, strategy, fieldInfo);
+      runTestQueries(testQueryIterator, shapeIO, concern, strategy, fieldInfo);
     }
   }
 
@@ -101,13 +104,18 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
         argsParser, shapeIO, testQueryFile, in );
   }
 
-  public void runTestQueries(Iterator<SpatialTestQuery> queries, SpatialContext shapeIO, SpatialStrategy<T> strategy, T fieldInfo) {
+  public void runTestQueries(
+      Iterator<SpatialTestQuery> queries,
+      SpatialContext shapeIO,
+      SpatialMatchConcerns concern,
+      SpatialStrategy<T> strategy,
+      T fieldInfo) {
     while (queries.hasNext()) {
       SpatialTestQuery q = queries.next();
 
       String msg = q.line; //"Query: " + q.args.toString(shapeIO);
       SearchResults got = executeQuery(strategy.makeQuery(q.args, fieldInfo), 100);
-      if (q.orderIsImportant) {
+      if (concern.orderIsImportant) {
         Iterator<String> ids = q.ids.iterator();
         for (SearchResult r : got.results) {
           String id = r.document.get("id");
@@ -117,13 +125,29 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
           Assert.fail(msg + " :: expect more results then we got: " + ids.next());
         }
       } else {
-        Collections.sort(q.ids);
-        List<String> found = new ArrayList<String>();
-        for (SearchResult r : got.results) {
-          found.add(r.document.get("id"));
+        // We are looking at how the results overlap
+        if( concern.resultsAreSuperset ) {
+          Set<String> found = new HashSet<String>();
+          for (SearchResult r : got.results) {
+            found.add(r.document.get("id"));
+          }
+          for( String s : q.ids ) {
+            if( !found.contains( s ) ) {
+              Assert.fail( "Results are mising id: "+s + " :: " + found );
+            }
+          }
         }
-        Collections.sort(found);
-        Assert.assertEquals(msg, q.ids.toString(), found.toString());
+        else {
+          List<String> found = new ArrayList<String>();
+          for (SearchResult r : got.results) {
+            found.add(r.document.get("id"));
+          }
+
+          // sort both so that the order is not important
+          Collections.sort(q.ids);
+          Collections.sort(found);
+          Assert.assertEquals(msg, q.ids.toString(), found.toString());
+        }
       }
     }
   }
