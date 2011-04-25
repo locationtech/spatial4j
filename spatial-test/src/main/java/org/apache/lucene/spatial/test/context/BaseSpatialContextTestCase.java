@@ -1,6 +1,4 @@
-
-package com.googlecode.lucene.spatial.base.context;
-
+package org.apache.lucene.spatial.test.context;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -24,16 +22,12 @@ import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.googlecode.lucene.spatial.base.shape.JtsEnvelope;
-import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
-import com.googlecode.lucene.spatial.base.shape.JtsPoint2D;
-
 
 /**
- * Copied from SpatialContextTestCase
  */
-public class JtsSpatialContextTestCase {
+public abstract class BaseSpatialContextTestCase {
 
+  protected abstract AbstractSpatialContext getSpatialContext();
 
   public static void checkArgParser(SpatialContext reader) {
     SpatialArgsParser parser = new SpatialArgsParser();
@@ -150,10 +144,13 @@ public class JtsSpatialContextTestCase {
     assertEquals(IntersectCase.WITHIN, p2.intersect(big, context));
   }
 
+  //--------------------------------------------------------------
+  // Actual tests
+  //--------------------------------------------------------------
 
   @Test
   public void testArgsParser() throws Exception {
-    checkArgParser(new SimpleSpatialContext());
+    checkArgParser( getSpatialContext() );
   }
 
   @Test
@@ -163,15 +160,12 @@ public class JtsSpatialContextTestCase {
       PointDistanceShape.class,
       Rectangle.class,
       Shapes.class,
-      JtsEnvelope.class,
-      JtsPoint2D.class,
-      JtsGeometry.class
     });
   }
 
   @Test
   public void testSimpleShapeIO() throws Exception {
-    final SimpleSpatialContext io = new SimpleSpatialContext();
+    final AbstractSpatialContext io =  getSpatialContext();
     checkBasicShapeIO( io, new WriteReader() {
       @Override
       public Shape writeThenRead(Shape s) {
@@ -183,32 +177,6 @@ public class JtsSpatialContextTestCase {
 
   @Test
   public void testSimpleIntersection() throws Exception {
-    final SimpleSpatialContext io = new SimpleSpatialContext();
-    checkBBoxIntersection(io);
-  }
-
-  @Test
-  public void testJtsIntersection() throws Exception {
-    checkBBoxIntersection( new JtsSpatialContext() );
-  }
-
-  @Test
-  public void testJtsShapeIO() throws Exception {
-    final JtsSpatialContext io = new JtsSpatialContext();
-    checkBasicShapeIO( io, new WriteReader() {
-      @Override
-      public Shape writeThenRead(Shape s) {
-        String buff = io.toString( s );
-        return io.readShape( buff );
-      }
-    });
-
-    checkBasicShapeIO( io, new WriteReader() {
-      @Override
-      public Shape writeThenRead(Shape s) throws IOException {
-        byte[] buff = io.toBytes( s );
-        return io.readShape( buff, 0, buff.length );
-      }
-    });
+    checkBBoxIntersection(getSpatialContext());
   }
 }
