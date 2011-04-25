@@ -9,9 +9,9 @@ import org.apache.lucene.spatial.strategy.SpatialStrategy;
  */
 public interface StrategyAware<T extends SpatialFieldInfo> {
 
-    T createFieldInfo();
+  T createFieldInfo();
 
-    SpatialStrategy<T> createSpatialStrategy();
+  SpatialStrategy<T> createSpatialStrategy();
 
-    SpatialContext getSpatialContext();
+  SpatialContext getSpatialContext();
 }

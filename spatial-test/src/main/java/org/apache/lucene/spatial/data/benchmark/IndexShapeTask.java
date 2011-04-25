@@ -17,40 +17,40 @@ import org.apache.lucene.spatial.strategy.SpatialStrategy;
  */
 public abstract class IndexShapeTask<T extends SpatialFieldInfo> extends PerfTask implements StrategyAware<T> {
 
-    private ShapeGenerator shapeGenerator;
-    private int numShapes;
+  private ShapeGenerator shapeGenerator;
+  private int numShapes;
 
-    public IndexShapeTask(PerfRunData runData) {
-        super(runData);
-    }
+  public IndexShapeTask(PerfRunData runData) {
+    super(runData);
+  }
 
-    @Override
-    public void setup() throws Exception {
-        Config config = getRunData().getConfig();
-        String shapeGeneratorName = config.get("index.shapegenerator", ""); // TODO (cmale) - Setup default shape generator
-        shapeGenerator = (ShapeGenerator) Class.forName(shapeGeneratorName)
-                .getConstructor(Config.class)
-                .newInstance(config);
-        numShapes = config.get("index.numshapes", 1);
-    }
+  @Override
+  public void setup() throws Exception {
+    Config config = getRunData().getConfig();
+    String shapeGeneratorName = config.get("index.shapegenerator", ""); // TODO (cmale) - Setup default shape generator
+    shapeGenerator = (ShapeGenerator) Class.forName(shapeGeneratorName)
+            .getConstructor(Config.class)
+            .newInstance(config);
+    numShapes = config.get("index.numshapes", 1);
+  }
 
-    @Override
-    public int doLogic() throws Exception {
-        SpatialStrategy<T> spatialStrategy = createSpatialStrategy();
-        T fieldInfo = createFieldInfo();
-        for (int i = 0; i < numShapes; i++) {
-            Shape shape = shapeGenerator.generate();
-            Fieldable[] fields = spatialStrategy.createFields(fieldInfo, shape, true, true);
-            if (fields == null) {
-                continue;
-            }
-            Document document = new Document();
-            document.add(new Field("id", UUID.randomUUID().toString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
-            for (Fieldable field : fields) {
-                document.add(field);
-            }
-            getRunData().getIndexWriter().addDocument(document);
-        }
-        return 1;
+  @Override
+  public int doLogic() throws Exception {
+    SpatialStrategy<T> spatialStrategy = createSpatialStrategy();
+    T fieldInfo = createFieldInfo();
+    for (int i = 0; i < numShapes; i++) {
+      Shape shape = shapeGenerator.generate();
+      Fieldable[] fields = spatialStrategy.createFields(fieldInfo, shape, true, true);
+      if (fields == null) {
+        continue;
+      }
+      Document document = new Document();
+      document.add(new Field("id", UUID.randomUUID().toString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+      for (Fieldable field : fields) {
+        document.add(field);
+      }
+      getRunData().getIndexWriter().addDocument(document);
     }
+    return 1;
+  }
 }

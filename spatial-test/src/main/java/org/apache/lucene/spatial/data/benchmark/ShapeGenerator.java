@@ -8,15 +8,15 @@ import org.apache.lucene.spatial.base.shape.Shape;
  */
 public abstract class ShapeGenerator {
 
-    private Config config;
+  private Config config;
 
-    protected ShapeGenerator(Config config) {
-        this.config = config;
-    }
+  protected ShapeGenerator(Config config) {
+    this.config = config;
+  }
 
-    public abstract Shape generate();
+  public abstract Shape generate();
 
-    protected Config getConfig() {
-        return config;
-    }
+  protected Config getConfig() {
+    return config;
+  }
 }

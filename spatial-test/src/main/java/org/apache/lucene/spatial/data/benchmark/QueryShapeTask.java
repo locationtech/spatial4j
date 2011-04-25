@@ -14,24 +14,24 @@ import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
  */
 public abstract class QueryShapeTask<T extends SpatialFieldInfo> extends PerfTask implements StrategyAware<T> {
 
-    private SpatialArgs spatialArgs;
+  private SpatialArgs spatialArgs;
 
-    public QueryShapeTask(PerfRunData runData) {
-        super(runData);
-    }
+  public QueryShapeTask(PerfRunData runData) {
+    super(runData);
+  }
 
-    @Override
-    public void setup() {
-        Config config = getRunData().getConfig();
-        String rawQuery = config.get("query.shapequery", ""); // TODO (cmale) - Come up with default query
-        this.spatialArgs = new SpatialArgsParser().parse(rawQuery, getSpatialContext());
-    }
+  @Override
+  public void setup() {
+    Config config = getRunData().getConfig();
+    String rawQuery = config.get("query.shapequery", ""); // TODO (cmale) - Come up with default query
+    this.spatialArgs = new SpatialArgsParser().parse(rawQuery, getSpatialContext());
+  }
 
-    @Override
-    public int doLogic() throws Exception {
-        Query query = createSpatialStrategy().makeQuery(spatialArgs, createFieldInfo());
-        TopDocs topDocs = getRunData().getIndexSearcher().search(query, 10);
-        System.out.println("Numfound: " + topDocs.totalHits);
-        return 1;
-    }
+  @Override
+  public int doLogic() throws Exception {
+    Query query = createSpatialStrategy().makeQuery(spatialArgs, createFieldInfo());
+    TopDocs topDocs = getRunData().getIndexSearcher().search(query, 10);
+    System.out.println("Numfound: " + topDocs.totalHits);
+    return 1;
+  }
 }
