@@ -7,7 +7,7 @@ import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.strategy.point.PointFieldInfo;
 import org.apache.lucene.spatial.strategy.point.PointStrategy;
 import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
-import org.apache.lucene.spatial.test.SpatialMatchConcerns;
+import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public abstract class BasePointStrategyTestCase extends StrategyTestCase<PointFi
     PointStrategy s = getStrategy();
 
     executeQueries( s, getSpatialContext(), finfo,
-        SpatialMatchConcerns.FILTER,
+        SpatialMatchConcern.FILTER,
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }

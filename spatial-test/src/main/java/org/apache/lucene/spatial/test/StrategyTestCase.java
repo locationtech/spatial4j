@@ -63,7 +63,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
       SpatialStrategy<T> strategy,
       SpatialContext shapeIO,
       T fieldInfo,
-      SpatialMatchConcerns concern,
+      SpatialMatchConcern concern,
       String testDataFile,
       String ... testQueryFile ) throws IOException {
     List<Document> testDocuments = getDocuments(testDataFile, shapeIO, strategy, fieldInfo);
@@ -109,7 +109,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
   public void runTestQueries(
       Iterator<SpatialTestQuery> queries,
       SpatialContext shapeIO,
-      SpatialMatchConcerns concern,
+      SpatialMatchConcern concern,
       SpatialStrategy<T> strategy,
       T fieldInfo) {
     while (queries.hasNext()) {
