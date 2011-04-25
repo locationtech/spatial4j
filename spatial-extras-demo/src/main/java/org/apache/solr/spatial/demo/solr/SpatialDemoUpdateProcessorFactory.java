@@ -24,7 +24,6 @@ public class SpatialDemoUpdateProcessorFactory extends UpdateRequestProcessorFac
     return new DemoUpdateProcessor(next);
   }
 
-
   class DemoUpdateProcessor extends UpdateRequestProcessor
   {
     public DemoUpdateProcessor(UpdateRequestProcessor next) {
