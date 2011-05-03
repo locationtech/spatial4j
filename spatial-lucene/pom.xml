@@ -45,12 +45,6 @@
     
     
     <!-- TESTING -->
-    <dependency>
-      <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>spatial-data</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
     
     <dependency>
       <groupId>org.apache.lucene</groupId>
