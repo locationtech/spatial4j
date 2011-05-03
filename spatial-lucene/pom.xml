@@ -5,13 +5,13 @@
   <parent>
     <artifactId>lucene-spatial-parent</artifactId>
 		<groupId>org.apache.lucene.spatial</groupId>
-		<version>0.1-SNAPSHOT</version>
+		<version>0.01</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   
 	<groupId>org.apache.lucene.spatial</groupId>
   <artifactId>spatial-lucene</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.01</version>
 	
   <name>Spatial - lucene</name>
   <description>
@@ -44,14 +44,7 @@
     </dependency>
     
     
-    <!-- TESTING -->
-    <dependency>
-      <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>spatial-data</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    
+    <!-- TESTING -->    
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-test-framework</artifactId>

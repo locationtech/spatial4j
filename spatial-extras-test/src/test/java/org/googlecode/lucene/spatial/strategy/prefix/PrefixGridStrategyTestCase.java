@@ -14,7 +14,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
-import org.apache.lucene.spatial.test.SpatialMatchConcerns;
+import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 public class PrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo>{
 
   public void executeQueries( SpatialContext io,
-      SpatialMatchConcerns concern, String data, String ... tests ) throws IOException {
+      SpatialMatchConcern concern, String data, String ... tests ) throws IOException {
 
     SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo("geo");
     PrefixGridStrategy s
@@ -36,7 +36,7 @@ public class PrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFi
   @Test
   public void testPrefixGridPolyWithJts() throws IOException {
     executeQueries( new JtsSpatialContext(),
-        SpatialMatchConcerns.SUPERSET,
+        SpatialMatchConcern.SUPERSET,
         DATA_STATES_POLY,
         QTEST_States_IsWithin_BBox,
         QTEST_States_Intersects_BBox );
@@ -45,7 +45,7 @@ public class PrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFi
   @Test
   public void testPrefixGridPointsJts() throws IOException {
     executeQueries( new JtsSpatialContext(),
-        SpatialMatchConcerns.SUPERSET,
+        SpatialMatchConcern.SUPERSET,
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
   }
