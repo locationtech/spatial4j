@@ -237,13 +237,12 @@
   
   <modules>
     <module>spatial-base</module>
-    <module>spatial-data</module>
     <module>spatial-lucene</module>
+    <module>spatial-test</module>
     <module>spatial-solr</module>
-    <module>spatial-demo</module>
-      <module>spatial-base-extras</module>
-      <module>spatial-lucene-extras</module>
-      <module>spatial-solr-extras</module>
+    <module>spatial-extras-base</module>
+    <module>spatial-extras-test</module>
+    <module>spatial-extras-demo</module>
   </modules>
   
 </project>

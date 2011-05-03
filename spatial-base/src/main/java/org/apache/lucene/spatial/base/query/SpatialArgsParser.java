@@ -19,12 +19,7 @@ public class SpatialArgsParser
       throw new InvalidSpatialArgument("missing parens: " + v, null);
     }
 
-    SpatialOperation op = null;
-    try {
-      op = SpatialOperation.valueOf(v.substring(0, idx).trim());
-    } catch(Exception ex) {
-      throw new InvalidSpatialArgument("Unknown Operation: " + v.substring(0, idx), ex);
-    }
+    SpatialOperation op = SpatialOperation.get(v.substring(0, idx).trim());
 
     String body = v.substring(idx + 1, edx).trim();
     if (body.length() < 1) {

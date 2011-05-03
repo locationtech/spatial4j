@@ -10,6 +10,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.function.ValueSource;
+import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
@@ -47,10 +48,9 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
   public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo field) {
     if (args.getOperation() != SpatialOperation.Intersects &&
         args.getOperation() != SpatialOperation.IsWithin &&
-        args.getOperation() != SpatialOperation.Overlaps &&
-        args.getOperation() != SpatialOperation.SimilarTo) {
+        args.getOperation() != SpatialOperation.Overlaps ){
       // TODO -- can translate these other query types
-      throw new UnsupportedOperationException("Unsupported Operation: " + args.getOperation());
+      throw new UnsupportedSpatialOperation(args.getOperation());
     }
 
     List<String> cells = simplifyGridCells(grid.readCells(args.getShape()));

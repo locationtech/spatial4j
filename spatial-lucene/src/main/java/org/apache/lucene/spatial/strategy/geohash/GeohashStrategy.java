@@ -34,6 +34,7 @@ import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
+import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.BBox;
@@ -128,7 +129,7 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
     if(!(( args.getOperation() == SpatialOperation.IsWithin ) ||
          ( args.getOperation() == SpatialOperation.Intersects ) ||
          ( args.getOperation() == SpatialOperation.BBoxWithin )) ){
-      throw new UnsupportedOperationException(args.getOperation().name());
+      throw new UnsupportedSpatialOperation(args.getOperation());
     }
 
     Shape qshape = args.getShape();
