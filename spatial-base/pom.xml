@@ -38,16 +38,9 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-			<version>1.5.11</version>
+			<version>${slf4j.version}</version>
     </dependency> 
     
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-			<version>1.5.11</version>
-      <scope>runtime</scope>
-    </dependency>
-
     <!-- TESTING -->
     <dependency>
       <groupId>junit</groupId>
@@ -55,6 +48,14 @@
       <version>4.8.1</version>
       <scope>test</scope>
     </dependency>
+    
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+			<version>${slf4j.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
   </dependencies>
   
   
