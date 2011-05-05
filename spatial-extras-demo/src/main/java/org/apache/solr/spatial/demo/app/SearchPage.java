@@ -101,7 +101,7 @@ public class SearchPage extends WebPage
     searchForm.add( new DropDownChoice<SpatialOperation>("op",
         SpatialOperation.values() ));
 
-    searchForm.add( new TextField<String>( "point" ) );
+    searchForm.add( new TextField<String>( "geo" ) );
     searchForm.add( new IndicatingAjaxButton( "submit" ) {
       @Override
       protected void onSubmit(AjaxRequestTarget target, Form<?> form) {

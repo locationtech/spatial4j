@@ -52,12 +52,24 @@
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket</artifactId>
 			<version>${wicket.version}</version>
+      <exclusions>
+        <exclusion>
+				  <groupId>org.slf4j</groupId>
+				  <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
 		</dependency>
     
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-extensions</artifactId>
 			<version>${wicket.version}</version>
+      <exclusions>
+        <exclusion>
+				  <groupId>org.slf4j</groupId>
+				  <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
 		</dependency>
     
 
