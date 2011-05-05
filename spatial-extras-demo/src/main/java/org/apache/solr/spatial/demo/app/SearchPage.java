@@ -97,11 +97,11 @@ public class SearchPage extends WebPage
         Arrays.asList( "(all)","world-cities-points.txt", "countries-poly.txt", "countries-bbox.txt", "states-poly.txt", "states-bbox.txt" ) ));
     searchForm.add( new TextField<String>( "fq" ) );
     searchForm.add( new DropDownChoice<String>("field",
-        Arrays.asList( "geo", "bbox", "grid", "rtree", "point", "geohash" ) ));
+        Arrays.asList( "point", "geohash", "grid" ) ));
     searchForm.add( new DropDownChoice<SpatialOperation>("op",
         SpatialOperation.values() ));
 
-    searchForm.add( new TextField<String>( "geo" ) );
+    searchForm.add( new TextField<String>( "point" ) );
     searchForm.add( new IndicatingAjaxButton( "submit" ) {
       @Override
       protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
@@ -335,10 +335,9 @@ public class SearchPage extends WebPage
   public Kml getKML( String id )
   {
     try {
-      QueryResponse rsp = solr.query( new SolrQuery( "id:"+id ).setFields( "geo,grid,name" ) );
+      QueryResponse rsp = solr.query( new SolrQuery( "id:"+id ).setFields( "grid,name" ) );
       SolrDocumentList docs = rsp.getResults();
       if( docs.size() > 0 ) {
-        String wkt = (String)docs.get(0).get( "geo" );
         String cells = (String)docs.get(0).get( "grid" );
         String name = (String)docs.get(0).get( "name" );
         List<String> tokens = LinearPrefixGrid.parseStrings( cells );

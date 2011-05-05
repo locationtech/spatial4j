@@ -14,6 +14,7 @@
  */
 package org.apache.lucene.spatial.base.query;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,7 @@ import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 /**
  * A clause that compares a stored geometry to a supplied geometry.
  */
-public class SpatialOperation {
+public class SpatialOperation implements Serializable {
   // Private registry
   private static final Map<String, SpatialOperation> registry = new HashMap<String, SpatialOperation>();
   private static final List<SpatialOperation> list = new ArrayList<SpatialOperation>();
