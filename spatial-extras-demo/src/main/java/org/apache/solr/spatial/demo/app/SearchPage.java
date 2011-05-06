@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
-import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -67,7 +67,7 @@ public class SearchPage extends WebPage
 
 
   // Dirty Dirty Dirty Hack...
-  static final LinearPrefixGrid grid = new LinearPrefixGrid( -180, 180, -90-180, 90, 16 );
+  static final QuadPrefixGrid grid = new QuadPrefixGrid( -180, 180, -90-180, 90, 16 );
   static final SolrServer solr;
   static {
     SolrServer s = null;
@@ -340,7 +340,7 @@ public class SearchPage extends WebPage
       if( docs.size() > 0 ) {
         String cells = (String)docs.get(0).get( "grid" );
         String name = (String)docs.get(0).get( "name" );
-        List<String> tokens = LinearPrefixGrid.parseStrings( cells );
+        List<String> tokens = QuadPrefixGrid.parseStrings(cells);
         return KMLHelper.toKML(name, grid, tokens);
       }
     }

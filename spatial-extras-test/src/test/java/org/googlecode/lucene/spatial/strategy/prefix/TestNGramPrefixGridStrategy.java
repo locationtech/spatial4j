@@ -6,7 +6,7 @@ import java.util.Arrays;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -27,7 +27,7 @@ public class TestNGramPrefixGridStrategy extends SpatialTestCase {
   @Test
   public void testNGramPrefixGridLosAngeles() throws IOException {
     SimpleSpatialFieldInfo fieldInfo = new SimpleSpatialFieldInfo("geo");
-    NGramPrefixGridStrategy prefixGridStrategy = new NGramPrefixGridStrategy(new LinearPrefixGrid(), 0);
+    NGramPrefixGridStrategy prefixGridStrategy = new NGramPrefixGridStrategy(new QuadPrefixGrid(), 0);
 
     Shape point = new Point2D(-118.243680, 34.052230);
 

@@ -2,7 +2,7 @@ package org.apache.lucene.spatial.base;
 
 import java.util.List;
 
-import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
@@ -16,7 +16,7 @@ public class TestGridMatchInfo {
   @Test
   public void testMatchInfo() {
     // Check Validatio
-    LinearPrefixGrid grid = new LinearPrefixGrid(0, 10, 0, 10, 2);
+    QuadPrefixGrid grid = new QuadPrefixGrid(0, 10, 0, 10, 2);
     grid.setMinResolution(1);
     grid.setResolution(1);
 

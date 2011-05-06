@@ -17,18 +17,18 @@
 
 package org.apache.lucene.spatial.base.prefix;
 
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-public class LinearPrefixGrid implements SpatialPrefixGrid {
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
+public class QuadPrefixGrid implements SpatialPrefixGrid {
 
   private final double xmin;
   private final double xmax;
@@ -51,10 +51,10 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
 
   private final SpatialContext shapeIO;
 
-  public LinearPrefixGrid(
+  public QuadPrefixGrid(
       double xmin, double xmax,
       double ymin, double ymax,
-      int maxLevels, SpatialContext shapeIO ) {
+      int maxLevels, SpatialContext shapeIO) {
     this.xmin = xmin;
     this.xmax = xmax;
     this.ymin = ymin;
@@ -84,14 +84,14 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
     }
   }
 
-  public LinearPrefixGrid(
+  public QuadPrefixGrid(
       double xmin, double xmax,
       double ymin, double ymax,
-      int maxLevels ) {
+      int maxLevels) {
     this( xmin, xmax, ymin, ymax, maxLevels, SpatialContextProvider.getContext() );
   }
 
-  public LinearPrefixGrid(
+  public QuadPrefixGrid(
       double xmin,
       double xmax,
       double ymin,
@@ -104,7 +104,7 @@ public class LinearPrefixGrid implements SpatialPrefixGrid {
     this.resolution = resolution;
   }
 
-  public LinearPrefixGrid() {
+  public QuadPrefixGrid() {
     this(-180, 180, -90, 90, 12, SpatialContextProvider.getContext());
   }
 

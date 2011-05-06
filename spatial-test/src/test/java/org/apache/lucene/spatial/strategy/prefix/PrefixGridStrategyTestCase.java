@@ -7,7 +7,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
-import org.apache.lucene.spatial.base.prefix.LinearPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
@@ -20,7 +20,7 @@ public class PrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFi
   @Test
   public void testPrefixGridLosAngeles() throws IOException {
     SimpleSpatialFieldInfo fieldInfo = new SimpleSpatialFieldInfo("geo");
-    PrefixGridStrategy prefixGridStrategy = new PrefixGridStrategy(new LinearPrefixGrid(), 0);
+    PrefixGridStrategy prefixGridStrategy = new PrefixGridStrategy(new QuadPrefixGrid(), 0);
 
     Shape point = new Point2D(-118.243680, 34.052230);
 
