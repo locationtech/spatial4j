@@ -1,15 +1,13 @@
 package org.apache.lucene.spatial.strategy.geohash;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.util.BytesRef;
+
+import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * An abstraction for encoding details of a hierarchical grid reference system.
@@ -22,6 +20,7 @@ public class GridReferenceSystem {
 
   public final SpatialContext shapeIO;
   final int maxLen;
+  private static final Charset UTF8 = Charset.forName("UTF-8");
 
   public GridReferenceSystem(SpatialContext shapeIO, int maxLen) {
     int MAXP = getMaxPrecision();
@@ -61,13 +60,19 @@ public class GridReferenceSystem {
     for (String hash : hashes) {
       BytesRef byteRef = new BytesRef(hash);
       BBox rect = GeoHashUtils.decodeBoundary(hash,shapeIO);// min-max lat, min-max lon
-      nodes.add(new GridNode(this, byteRef, rect));
+      assert byteRef.offset == 0;
+      byte[] bytes = byteRef.bytes;
+      if (bytes.length != byteRef.length) {
+        bytes = Arrays.copyOf(bytes,byteRef.length);
+      }
+
+      nodes.add(new GridNode(this, bytes, rect));
     }
     return nodes;
   }
 
   public List<GridNode> getSubNodes(GridNode node) {
-    String baseHash = node == null ? "" : node.thisTerm.utf8ToString();
+    String baseHash = node == null ? "" : new String(node.getBytes(), UTF8);
     return getSubNodes(baseHash);
   }
 

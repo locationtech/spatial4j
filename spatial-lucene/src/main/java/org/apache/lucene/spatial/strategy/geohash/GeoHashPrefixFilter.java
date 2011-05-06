@@ -74,12 +74,13 @@ public class GeoHashPrefixFilter extends Filter {
     while(!nodes.isEmpty() && term != null) {
       final GridNode node = nodes.removeFirst();
       assert node.length() > 0;
-      if (!node.contains(term) && node.before(term))
+      final BytesRef nodeBytesRef = new BytesRef(node.getBytes());
+      if (!nodeBytesRef.startsWith(term) && nodeBytesRef.compareTo(term) < 0)
         continue;//short circuit, moving >= the next indexed term
       IntersectCase intersection = queryShape.intersect(node.getRectangle(),gridReferenceSystem.shapeIO);
       if (intersection == IntersectCase.OUTSIDE)
         continue;
-      TermsEnum.SeekStatus seekStat = termsEnum.seek(node.getBytesRef());
+      TermsEnum.SeekStatus seekStat = termsEnum.seek(nodeBytesRef);
       term = termsEnum.term();
       if (seekStat != TermsEnum.SeekStatus.FOUND)
         continue;
@@ -111,7 +112,7 @@ public class GeoHashPrefixFilter extends Filter {
 
         if (!manyPoints) {
           //traverse all leaf terms within this node to see if they are within the geoShape, one by one.
-          for(; term != null && node.contains(term); term = termsEnum.next()) {
+          for(; term != null && nodeBytesRef.startsWith(term); term = termsEnum.next()) {
             if (term.length < gridReferenceSystem.maxLen)//not a leaf
               continue;
 

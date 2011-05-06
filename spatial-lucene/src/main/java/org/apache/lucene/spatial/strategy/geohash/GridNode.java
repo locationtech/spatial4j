@@ -17,10 +17,10 @@
 
 package org.apache.lucene.spatial.strategy.geohash;
 
-import java.util.Collection;
-
 import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.util.BytesRef;
+
+import java.nio.charset.Charset;
+import java.util.Collection;
 
 /**
  * A node in a geospatial grid hierarchy as specified by a {@link GridReferenceSystem}.
@@ -28,27 +28,23 @@ import org.apache.lucene.util.BytesRef;
 public class GridNode {
 
   final GridReferenceSystem refSys;
-  final BytesRef thisTerm;
+  final byte[] bytes;
   final BBox rect;
 
-  GridNode(GridReferenceSystem refSys, BytesRef byteRef, BBox rect) {
+  GridNode(GridReferenceSystem refSys, byte[] bytes, BBox rect) {
     this.refSys = refSys;
     this.rect = rect;
-    this.thisTerm = byteRef;
-    assert thisTerm.length <= refSys.maxLen;
+    this.bytes = bytes;
+    assert bytes.length <= refSys.maxLen;
     //assert this.rect.getMinY() <= this.rect.getMaxY() && this.rect.getMinX() <= this.rect.getMaxX();
   }
 
-  public BytesRef getBytesRef() {
-    return thisTerm;
+  public byte[] getBytes() {
+    return bytes;
   }
 
   public int length() {
-    return thisTerm.length;
-  }
-
-  public boolean contains(BytesRef term) {
-    return term.startsWith(thisTerm);
+    return bytes.length;
   }
 
 //  public Point2D getCentroid() {
@@ -63,16 +59,11 @@ public class GridNode {
     return rect;
   }
 
-  /**
-   * Checks if the underlying term comes before the parameter (i.e. compareTo < 0).
-   */
-  public boolean before(BytesRef term) {
-    return thisTerm.compareTo(term) < 0;
-  }
-
   @Override
   public String toString() {
-    return thisTerm.toString()+" "+rect;
+    return new String(bytes,UTF8)+" "+rect;
   }
+
+  private static final Charset UTF8 = Charset.forName("UTF-8");
 
 }
