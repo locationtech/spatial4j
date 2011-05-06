@@ -17,10 +17,13 @@
 
 package org.apache.lucene.spatial.base.prefix;
 
-import java.util.List;
-
 import org.apache.lucene.spatial.base.shape.Shape;
 
+import java.util.List;
+
+/**
+ * Implementations should be immutable and threadsafe.
+ */
 public interface SpatialPrefixGrid {
 
   public static final char COVER = '*';
@@ -32,12 +35,9 @@ public interface SpatialPrefixGrid {
   public List<String> readCells(Shape geo);
 
   /**
-   * Find a reasonable level of detail for a given shape
-   */
-  public int getBestLevel(Shape geo);
-
-  /**
-   * Get the shape for a given cell description
+   * Get the shape for a given cell description -- probably a {@link org.apache.lucene.spatial.base.shape.BBox}.
+   * Used for diagnostic purposes.
    */
   public Shape getCellShape(String seq);
+
 }

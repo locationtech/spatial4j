@@ -120,8 +120,11 @@ public class QuadPrefixGrid implements SpatialPrefixGrid {
     }
   }
 
-  @Override
-  public int getBestLevel(Shape geo) {
+  /**
+   * Find a "reasonable" level of detail for a given shape.
+   * TODO This algorithm might be refactorable to be independent of this particular SpatialPrefixGrid.
+   */
+  private int getBestLevel(Shape geo) {
     BBox ext = geo.getBoundingBox();
     double w = ext.getWidth();
     double h = ext.getHeight();

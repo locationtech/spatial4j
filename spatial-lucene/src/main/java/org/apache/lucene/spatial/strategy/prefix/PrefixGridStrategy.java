@@ -17,22 +17,11 @@
 
 package org.apache.lucene.spatial.strategy.prefix;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.QueryWrapperFilter;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
@@ -41,6 +30,8 @@ import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
+
+import java.util.*;
 
 @Deprecated
 public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
@@ -86,8 +77,8 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
     }
 
     // TODO... resolution should help scoring...
-    int resolution = grid.getBestLevel(args.getShape());
     List<String> match = simplifyGridCells(grid.readCells(args.getShape()));
+    int resolution = match.get(0).length();
 
     // TODO -- could this all happen in one pass?
     // Make sure we don't make more then maxClauseCount?
