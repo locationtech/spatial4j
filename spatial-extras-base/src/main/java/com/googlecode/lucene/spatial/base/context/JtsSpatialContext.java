@@ -17,11 +17,15 @@
 
 package com.googlecode.lucene.spatial.base.context;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.text.NumberFormat;
-import java.util.Locale;
-
+import com.googlecode.lucene.spatial.base.shape.JtsEnvelope;
+import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
+import com.googlecode.lucene.spatial.base.shape.JtsPoint2D;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.*;
+import com.vividsolutions.jts.util.GeometricShapeFactory;
 import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
@@ -30,19 +34,10 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-import com.googlecode.lucene.spatial.base.shape.JtsEnvelope;
-import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
-import com.googlecode.lucene.spatial.base.shape.JtsPoint2D;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.InStream;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKBReader;
-import com.vividsolutions.jts.io.WKBWriter;
-import com.vividsolutions.jts.io.WKTReader;
-import com.vividsolutions.jts.util.GeometricShapeFactory;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class JtsSpatialContext extends AbstractSpatialContext {
 
@@ -185,7 +180,7 @@ public class JtsSpatialContext extends AbstractSpatialContext {
       return ((JtsGeometry)shape).geo;
     }
     if (JtsPoint2D.class.isInstance(shape)) {
-      return ((JtsPoint2D)shape).getPoint();
+      return ((JtsPoint2D) shape).getJtsPoint();
     }
     if (JtsEnvelope.class.isInstance(shape)) {
       return factory.toGeometry(((JtsEnvelope)shape).envelope);
@@ -200,7 +195,7 @@ public class JtsSpatialContext extends AbstractSpatialContext {
       GeometricShapeFactory gsf = new GeometricShapeFactory(factory);
       gsf.setSize(pd.getEnclosingBox1().getWidth()/2.0f);
       gsf.setNumPoints(100);
-      gsf.setBase(new Coordinate(pd.getPoint().getX(),pd.getPoint().getY()));
+      gsf.setBase(new Coordinate(pd.getCenter().getX(),pd.getCenter().getY()));
       return gsf.createCircle();
     }
     throw new InvalidShapeException("can't make Geometry from: " + shape);

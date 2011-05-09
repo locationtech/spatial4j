@@ -17,13 +17,14 @@
 
 package com.googlecode.lucene.spatial.base.shape;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import org.apache.lucene.spatial.base.shape.simple.Point2D;
 
 public class JtsEnvelope implements BBox {
 
@@ -89,7 +90,7 @@ public class JtsEnvelope implements BBox {
   //----------------------------------------
 
   @Override
-  public BBox getBoundingBox() {
+  public JtsEnvelope getBoundingBox() {
     return this;
   }
 
@@ -143,7 +144,9 @@ public class JtsEnvelope implements BBox {
   }
 
   @Override
-  public JtsPoint2D getCentroid() {
-    return new JtsPoint2D(new GeometryFactory().createPoint(envelope.centre()));
+  public Point getCenter() {
+    final Coordinate centre = envelope.centre();
+    return new Point2D(centre.x, centre.y);
+    //return new JtsPoint2D(new GeometryFactory().createPoint(envelope.centre()));
   }
 }

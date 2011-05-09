@@ -17,12 +17,12 @@
 
 package org.apache.lucene.spatial.base.shape;
 
-import java.util.Collection;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
+
+import java.util.Collection;
 
 /**
  * A collection of Shape objects.
@@ -50,6 +50,11 @@ public class Shapes implements Shape {
   @Override
   public BBox getBoundingBox() {
     return bbox;
+  }
+
+  @Override
+  public Point getCenter() {
+    return bbox.getCenter();
   }
 
   @Override

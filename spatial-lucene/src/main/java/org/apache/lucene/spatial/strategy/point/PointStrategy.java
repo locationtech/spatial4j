@@ -18,17 +18,10 @@
 package org.apache.lucene.spatial.strategy.point;
 
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.FilteredQuery;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.NumericRangeQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.QueryWrapperFilter;
+import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.search.*;
 import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
@@ -102,22 +95,8 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
   }
 
   public ValueSource makeValueSource(SpatialArgs args, PointFieldInfo fieldInfo, DistanceCalculator calc) {
-    if (Point.class.isInstance(args.getShape())) {
-      return new DistanceValueSource(
-          ((Point)args.getShape()),
-          calc, fieldInfo, parser);
-    }
-    if (PointDistanceShape.class.isInstance(args.getShape())) {
-      return new DistanceValueSource(
-          ((PointDistanceShape)args.getShape()).getPoint(),
-          calc, fieldInfo, parser);
-    }
-    // Score based on distance to the center
-    if (BBox.class.isInstance(args.getShape())) {
-      Point p = ((BBox)args.getShape()).getCentroid();
-      return new DistanceValueSource(p, calc, fieldInfo, parser);
-    }
-    throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
+    Point p = args.getShape().getCenter();
+    return new DistanceValueSource(p, calc, fieldInfo, parser);
   }
 
 

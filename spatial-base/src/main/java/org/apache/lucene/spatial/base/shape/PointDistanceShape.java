@@ -41,7 +41,7 @@ public final class PointDistanceShape implements Shape {
     calcEnclosingBoxes(shapeIO);
   }
 
-  public Point getPoint() {
+  public Point getCenter() {
     return point;
   }
 

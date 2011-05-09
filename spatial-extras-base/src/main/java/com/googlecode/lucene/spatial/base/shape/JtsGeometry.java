@@ -17,20 +17,13 @@
 
 package com.googlecode.lucene.spatial.base.shape;
 
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
-
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.IntersectionMatrix;
-import com.vividsolutions.jts.geom.Lineal;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.Puntal;
-import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
 
 public class JtsGeometry implements Shape {
   public final Geometry geo;
@@ -52,6 +45,11 @@ public class JtsGeometry implements Shape {
   @Override
   public JtsEnvelope getBoundingBox() {
     return new JtsEnvelope(geo.getEnvelopeInternal());
+  }
+
+  @Override
+  public JtsPoint2D getCenter() {
+    return new JtsPoint2D(geo.getCentroid());
   }
 
   private GeometryFactory getGeometryFactory(SpatialContext context) {

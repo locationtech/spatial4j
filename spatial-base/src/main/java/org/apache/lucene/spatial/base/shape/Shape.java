@@ -43,5 +43,7 @@ public interface Shape {
    * @return true if the shape has area.  This will be false for points and lines
    */
   boolean hasArea();
+
+  Point getCenter();
 }
 

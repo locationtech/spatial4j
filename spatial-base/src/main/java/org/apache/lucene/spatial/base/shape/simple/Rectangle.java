@@ -138,10 +138,17 @@ public class Rectangle implements BBox {
   }
 
   @Override
-  public Point getCentroid() {
-    return new Point2D(
-        (getMinX() + getMaxX()) / 2.0,
-        (getMinY() + getMaxY()) / 2.0);
+  public Point getCenter() {
+    final double y = (maxY - minY) / 2 + minY;
+    double x;
+    if (minX <= maxX)
+      x = (maxX - minX) / 2 + minX;
+    else {
+      x = (maxX + 360.0 - minX) + minX;
+      if (x >= 180)
+        x -= 360;
+    }
+    return new Point2D(x, y);
   }
 
   @Override

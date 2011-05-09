@@ -1,25 +1,21 @@
 package org.apache.lucene.spatial.test.context;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
-import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.PointDistanceShape;
-import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.Shapes;
+import org.apache.lucene.spatial.base.shape.*;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -108,16 +104,16 @@ public abstract class BaseSpatialContextTestCase {
     // Point/Distance
     s = reader.readShape("PointDistance( 1.23 4.56 distance=7.89)");
     PointDistanceShape circle = (PointDistanceShape)s;
-    assertEquals(1.23, circle.getPoint().getX(), 0D);
-    assertEquals(4.56, circle.getPoint().getY(), 0D);
+    assertEquals(1.23, circle.getCenter().getX(), 0D);
+    assertEquals(4.56, circle.getCenter().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
     assertEquals(reader.getUnits().earthRadius(), circle.getRadius(), 0D);
     Assert.assertTrue( s.hasArea() );
 
     s = reader.readShape("PointDistance( 1.23  4.56 d=7.89 )");
-    circle = (PointDistanceShape)s;
-    assertEquals(1.23, circle.getPoint().getX(), 0D);
-    assertEquals(4.56, circle.getPoint().getY(), 0D);
+    circle = (PointDistanceShape) s;
+    assertEquals(1.23, circle.getCenter().getX(), 0D);
+    assertEquals(4.56, circle.getCenter().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
     assertEquals(reader.getUnits().earthRadius(), circle.getRadius(), 0D);
   }

@@ -51,6 +51,11 @@ public class Point2D implements Point {
   }
 
   @Override
+  public Point2D getCenter() {
+    return this;
+  }
+
+  @Override
   public IntersectCase intersect(Shape shape, SpatialContext context) {
     if(!BBox.class.isInstance(shape)) {
       throw new IllegalArgumentException("Point can only be compared with another Extent");

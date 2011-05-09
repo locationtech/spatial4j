@@ -17,16 +17,11 @@
 
 package org.apache.lucene.spatial.strategy.geohash;
 
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenizer;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.Query;
@@ -37,13 +32,17 @@ import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
-import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.Shapes;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
+
+import java.io.StringReader;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
@@ -91,22 +90,8 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
     if( p == null ) {
       p = new GeoHashFieldCacheProvider( gridReferenceSystem.shapeIO, fieldInfo.getFieldName(), expectedFieldsPerDocument );
     }
-    if (Point.class.isInstance(args.getShape())) {
-      return new CachedDistanceValueSource(
-          ((Point)args.getShape()),
-          calc, p );
-    }
-    if (PointDistanceShape.class.isInstance(args.getShape())) {
-      return new CachedDistanceValueSource(
-          ((PointDistanceShape)args.getShape()).getPoint(),
-          calc,  p);
-    }
-    // Score based on distance to the center
-    if (BBox.class.isInstance(args.getShape())) {
-      Point point = ((BBox)args.getShape()).getCentroid();
-      return new CachedDistanceValueSource(point, calc, p);
-    }
-    throw new UnsupportedOperationException( "score only works with point or radius (for now)" );
+    Point point = args.getShape().getCenter();
+    return new CachedDistanceValueSource(point, calc, p);
   }
 
 
