@@ -4,7 +4,7 @@
 
   <artifactId>lucene-spatial-parent</artifactId>
 	<groupId>org.apache.lucene.spatial</groupId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.02</version>
 	
   <name>Lucene Spatial</name>
   <description>

@@ -5,13 +5,13 @@
     <parent>
         <artifactId>lucene-spatial-parent</artifactId>
         <groupId>org.apache.lucene.spatial</groupId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.02</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>org.apache.lucene.spatial</groupId>
     <artifactId>spatial-extras-test</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.02</version>
 
     <name>Spatial Extras - Test with Extras</name>
     <description>Data and Benchmarking</description>
