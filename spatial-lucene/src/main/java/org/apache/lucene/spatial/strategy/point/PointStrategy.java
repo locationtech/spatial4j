@@ -18,10 +18,17 @@
 package org.apache.lucene.spatial.strategy.point;
 
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.FilteredQuery;
+import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.search.function.ValueSourceQuery;
@@ -37,7 +44,7 @@ import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.lucene.spatial.strategy.util.CachingDoubleValueSource;
-import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
+import org.apache.lucene.spatial.strategy.util.TrieFieldInfo;
 import org.apache.lucene.spatial.strategy.util.ValueSourceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,11 +54,11 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
 
   static final Logger log = LoggerFactory.getLogger(PointStrategy.class);
 
-  private final TrieFieldHelper.FieldInfo finfo;
+  private final TrieFieldInfo finfo;
   private final DoubleParser parser;
   private final SpatialContext reader;
 
-  public PointStrategy( SpatialContext reader, TrieFieldHelper.FieldInfo finfo, DoubleParser parser ) {
+  public PointStrategy( SpatialContext reader, TrieFieldInfo finfo, DoubleParser parser ) {
     this.reader = reader;
     this.finfo = finfo;
     this.parser = parser;
@@ -69,8 +76,8 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
       Point point = (Point)shape;
 
       Fieldable[] f = new Fieldable[store?3:2];
-      f[0] = TrieFieldHelper.createDoubleField(fieldInfo.getFieldNameX(), point.getX(), finfo, 1.0f );
-      f[1] = TrieFieldHelper.createDoubleField(fieldInfo.getFieldNameY(), point.getY(), finfo, 1.0f );
+      f[0] = finfo.createDouble( fieldInfo.getFieldNameX(), point.getX() );
+      f[1] = finfo.createDouble( fieldInfo.getFieldNameY(), point.getY() );
       if( store ) {
         f[2] = new Field( fieldInfo.getFieldName(), reader.toString( shape ), Store.YES, Index.NO );
       }

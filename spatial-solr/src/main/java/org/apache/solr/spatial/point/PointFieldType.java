@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.spatial.strategy.point.PointFieldInfo;
 import org.apache.lucene.spatial.strategy.point.PointStrategy;
-import org.apache.lucene.spatial.strategy.util.TrieFieldHelper;
+import org.apache.lucene.spatial.strategy.util.TrieFieldInfo;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaAware;
@@ -72,7 +72,7 @@ public class PointFieldType extends SpatialFieldType<PointFieldInfo> implements 
     }
 
     TrieField df = (TrieField)doubleType;
-    TrieFieldHelper.FieldInfo info = new TrieFieldHelper.FieldInfo();
+    TrieFieldInfo info = new TrieFieldInfo();
     info.setPrecisionStep( df.getPrecisionStep() );
     info.store = true; // TODO properties &...
 
