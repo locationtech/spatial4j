@@ -151,7 +151,7 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
   }
 
   @Override
-  public Cell getCell(double x, double y, int level, Cell parentNode) {
+  public Cell getCell(double x, double y, int level) {
     List<Cell> cells = new ArrayList<Cell>(1);
     build(xmid, ymid, 0, cells, new StringBuilder(), new Point2D(x,y), level);
     assert cells.size()==1;

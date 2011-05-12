@@ -20,7 +20,7 @@ public class MockSpatialPrefixGrid extends SpatialPrefixGrid {
   }
 
   @Override
-  public Cell getCell(double x, double y, int level, Cell parentNode) {
+  public Cell getCell(double x, double y, int level) {
     throw new UnsupportedOperationException("TODO unimplemented");//TODO
   }
 

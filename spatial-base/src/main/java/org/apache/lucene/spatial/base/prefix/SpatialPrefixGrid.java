@@ -49,7 +49,7 @@ public abstract class SpatialPrefixGrid {
    */
   public abstract Collection<Cell> getCells(Shape shape);
 
-  public abstract Cell getCell(double x, double y, int level, Cell parentNode);
+  public abstract Cell getCell(double x, double y, int level);
   //TODO getCell x,y  with accuracy radius?
 
   public int getMaxLevels() {
