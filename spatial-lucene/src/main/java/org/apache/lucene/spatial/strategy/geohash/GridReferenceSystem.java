@@ -59,12 +59,12 @@ public class GridReferenceSystem {
     ArrayList<GridNode> nodes = new ArrayList<GridNode>(hashes.length);
     for (String hash : hashes) {
       BytesRef byteRef = new BytesRef(hash);
-      BBox rect = GeoHashUtils.decodeBoundary(hash,shapeIO);// min-max lat, min-max lon
       assert byteRef.offset == 0;
       byte[] bytes = byteRef.bytes;
       if (bytes.length != byteRef.length) {
         bytes = Arrays.copyOf(bytes,byteRef.length);
       }
+      BBox rect = GeoHashUtils.decodeBoundary(hash,shapeIO);// min-max lat, min-max lon
 
       nodes.add(new GridNode(this, bytes, rect));
     }

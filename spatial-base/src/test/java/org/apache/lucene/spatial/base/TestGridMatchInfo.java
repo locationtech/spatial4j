@@ -1,12 +1,13 @@
 package org.apache.lucene.spatial.base;
 
-import java.util.List;
-
 import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 import org.junit.Test;
+
+import java.util.List;
 
 
 /**
@@ -29,7 +30,7 @@ public class TestGridMatchInfo {
 
     shape = new Point2D(3, 3);
 
-    List<String> m = grid.readCells(shape);
+    List<String> m = SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(shape));
     System.out.println(m);
 
     for (CharSequence s : m) {

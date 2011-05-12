@@ -1,7 +1,5 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
-import java.util.List;
-
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
@@ -17,6 +15,8 @@ import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 
+import java.util.List;
+
 /**
  * @author Chris Male
  */
@@ -28,7 +28,7 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
 
   @Override
   public Fieldable createField(SimpleSpatialFieldInfo fieldInfo, Shape shape, boolean index, boolean store) {
-    List<String> cells = simplifyGridCells(grid.readCells(shape));
+    List<String> cells = simplifyGridCells(SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(shape)));
     BasicGridFieldable fieldable = new BasicGridFieldable(fieldInfo.getFieldName(), store);
     fieldable.tokens = new EdgeNGramTokenFilter(buildBasicTokenStream(cells), EdgeNGramTokenFilter.Side.FRONT, 1, 20);
 
@@ -53,7 +53,7 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
       throw new UnsupportedSpatialOperation(args.getOperation());
     }
 
-    List<String> cells = simplifyGridCells(grid.readCells(args.getShape()));
+    List<String> cells = simplifyGridCells(SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(args.getShape())));
 
     BooleanQuery booleanQuery = new BooleanQuery();
     for (String cell : cells) {

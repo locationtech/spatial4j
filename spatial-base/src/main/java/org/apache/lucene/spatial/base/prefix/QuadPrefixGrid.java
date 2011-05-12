@@ -22,13 +22,15 @@ import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.simple.Point2D;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public class QuadPrefixGrid implements SpatialPrefixGrid {
+public class QuadPrefixGrid extends SpatialPrefixGrid {
 
   private final double xmin;
   private final double xmax;
@@ -36,7 +38,6 @@ public class QuadPrefixGrid implements SpatialPrefixGrid {
   private final double ymax;
   private final double xmid;
   private final double ymid;
-  private final int maxLevels;
 
   private final double gridW;
   public final double gridH;
@@ -55,11 +56,11 @@ public class QuadPrefixGrid implements SpatialPrefixGrid {
       double xmin, double xmax,
       double ymin, double ymax,
       int maxLevels, SpatialContext shapeIO) {
+    super(maxLevels);
     this.xmin = xmin;
     this.xmax = xmax;
     this.ymin = ymin;
     this.ymax = ymax;
-    this.maxLevels = maxLevels;
     this.shapeIO = shapeIO;
 
     levelW = new double[maxLevels];
@@ -122,7 +123,6 @@ public class QuadPrefixGrid implements SpatialPrefixGrid {
 
   /**
    * Find a "reasonable" level of detail for a given shape.
-   * TODO This algorithm might be refactorable to be independent of this particular SpatialPrefixGrid.
    */
   private int getBestLevel(Shape geo) {
     BBox ext = geo.getBoundingBox();
@@ -137,35 +137,49 @@ public class QuadPrefixGrid implements SpatialPrefixGrid {
     return maxLevels;
   }
 
-  public List<String> readCells(Shape geo) {
-    List<String> vals = new ArrayList<String>();
-    int bboxLevel = getBestLevel(geo);
+  @Override
+  public List<Cell> getCells(Shape shape) {
+    List<Cell> cells = new ArrayList<Cell>();
+    int bboxLevel = getBestLevel(shape);
     int maxLevel = Math.min(maxLevels, bboxLevel + resolution);
     if (maxLevel < minResolution) {
       maxLevel = minResolution;
     }
 
-    build(xmid, ymid, 0, vals, new StringBuilder(), geo, maxLevel);
-    return vals;
+    build(xmid, ymid, 0, cells, new StringBuilder(), shape, maxLevel);
+    return cells;
+  }
+
+  @Override
+  public Cell getCell(double x, double y, int level, Cell parentNode) {
+    List<Cell> cells = new ArrayList<Cell>(1);
+    build(xmid, ymid, 0, cells, new StringBuilder(), new Point2D(x,y), level);
+    assert cells.size()==1;
+    return cells.get(0);
+  }
+
+  @Override
+  public Cell getCell(String token) {
+    return new QuadCell(token);
   }
 
   private void build(
       double x,
       double y,
       int level,
-      List<String> matches,
+      List<Cell> matches,
       StringBuilder str,
-      Shape geo,
+      Shape shape,
       int maxLevel) {
     double w = levelW[level] / 2;
     double h = levelH[level] / 2;
 
     // Z-Order
     // http://en.wikipedia.org/wiki/Z-order_%28curve%29
-    checkBattenberg('A', x - w, y + h, level, matches, str, geo, maxLevel);
-    checkBattenberg('B', x + w, y + h, level, matches, str, geo, maxLevel);
-    checkBattenberg('C', x - w, y - h, level, matches, str, geo, maxLevel);
-    checkBattenberg('D', x + w, y - h, level, matches, str, geo, maxLevel);
+    checkBattenberg('A', x - w, y + h, level, matches, str, shape, maxLevel);
+    checkBattenberg('B', x + w, y + h, level, matches, str, shape, maxLevel);
+    checkBattenberg('C', x - w, y - h, level, matches, str, shape, maxLevel);
+    checkBattenberg('D', x + w, y - h, level, matches, str, shape, maxLevel);
 
     // possibly consider hilbert curve
     // http://en.wikipedia.org/wiki/Hilbert_curve
@@ -178,20 +192,20 @@ public class QuadPrefixGrid implements SpatialPrefixGrid {
       double cx,
       double cy,
       int level,
-      List<String> matches,
+      List<Cell> matches,
       StringBuilder str,
-      Shape geo,
+      Shape shape,
       int maxLevel) {
     double w = levelW[level] / 2;
     double h = levelH[level] / 2;
 
     int strlen = str.length();
-    BBox cell = shapeIO.makeBBox(cx - w, cx + w, cy - h, cy + h);
-    IntersectCase v = geo.intersect(cell, shapeIO);
+    BBox bBox = shapeIO.makeBBox(cx - w, cx + w, cy - h, cy + h);
+    IntersectCase v = shape.intersect(bBox, shapeIO);
     if (IntersectCase.CONTAINS == v) {
       str.append(c);
       str.append(SpatialPrefixGrid.COVER);
-      matches.add(str.toString());
+      matches.add(new QuadCell(str.toString()));
     } else if (IntersectCase.OUTSIDE == v) {
       // nothing
     } else { // IntersectCase.WITHIN, IntersectCase.INTERSECTS
@@ -205,37 +219,12 @@ public class QuadPrefixGrid implements SpatialPrefixGrid {
       int nextLevel = level+1;
       if (nextLevel >= maxLevel) {
         str.append(SpatialPrefixGrid.INTERSECTS);
-        matches.add(str.toString());
+        matches.add(new QuadCell(str.toString()));
       } else {
-        build(cx, cy, nextLevel, matches, str, geo, maxLevel);
+        build(cx, cy, nextLevel, matches, str, shape, maxLevel);
       }
     }
     str.setLength(strlen);
-  }
-
-  @Override
-  public BBox getCellShape(String seq) {
-    double xmin = this.xmin;
-    double ymin = this.ymin;
-
-    for (int i = 0; i < seq.length() && i < maxLevels; i++) {
-      char c = seq.charAt(i);
-      if ('A' == c || 'a' == c) {
-        ymin += levelH[i];
-      } else if ('B' == c || 'b' == c) {
-        xmin += levelW[i];
-        ymin += levelH[i];
-      } else if ('C' == c || 'c' == c) {
-        // nothing really
-      }
-      else if('D' == c || 'd' == c) {
-        xmin += levelW[i];
-      } else {
-        throw new RuntimeException("unexpected char: " + c);
-      }
-    }
-    int len = seq.length() - 1;
-    return shapeIO.makeBBox(xmin, xmin + levelW[len], ymin, ymin + levelH[len]);
   }
 
   public static List<String> parseStrings(String cells) {
@@ -262,4 +251,48 @@ public class QuadPrefixGrid implements SpatialPrefixGrid {
   public int getResolution() {
     return resolution;
   }
+
+  class QuadCell extends Cell {
+
+    public QuadCell(String token) {
+      super(token);
+    }
+
+    @Override
+    public Collection<Cell> getSubCells() {
+      if (getLevel() >= maxLevels)
+        return null;
+      ArrayList<Cell> cells = new ArrayList<Cell>(4);
+      cells.add(new QuadCell(getTokenString()+"A"));
+      cells.add(new QuadCell(getTokenString()+"B"));
+      cells.add(new QuadCell(getTokenString()+"C"));
+      cells.add(new QuadCell(getTokenString()+"D"));
+      return cells;
+    }
+
+    @Override
+    public Shape getShape() {
+      double xmin = QuadPrefixGrid.this.xmin;
+      double ymin = QuadPrefixGrid.this.ymin;
+
+      for (int i = 0; i < token.length() && i < maxLevels; i++) {
+        char c = token.charAt(i);
+        if ('A' == c || 'a' == c) {
+          ymin += levelH[i];
+        } else if ('B' == c || 'b' == c) {
+          xmin += levelW[i];
+          ymin += levelH[i];
+        } else if ('C' == c || 'c' == c) {
+          // nothing really
+        }
+        else if('D' == c || 'd' == c) {
+          xmin += levelW[i];
+        } else {
+          throw new RuntimeException("unexpected char: " + c);
+        }
+      }
+      int len = token.length() - 1;
+      return shapeIO.makeBBox(xmin, xmin + levelW[len], ymin, ymin + levelH[len]);
+    }
+  }//QuadCell
 }

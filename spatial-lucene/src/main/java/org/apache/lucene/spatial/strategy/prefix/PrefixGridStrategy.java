@@ -47,7 +47,7 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
 
   @Override
   public Fieldable createField(SimpleSpatialFieldInfo indexInfo, Shape shape, boolean index, boolean store) {
-    List<String> match = simplifyGridCells(grid.readCells(shape));
+    List<String> match = simplifyGridCells(SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(shape)));
     BasicGridFieldable f = new BasicGridFieldable(indexInfo.getFieldName(), store);
     f.tokens = buildBasicTokenStream(match);
 
@@ -77,7 +77,7 @@ public class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> 
     }
 
     // TODO... resolution should help scoring...
-    List<String> match = simplifyGridCells(grid.readCells(args.getShape()));
+    List<String> match = simplifyGridCells(SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(args.getShape())));
     int resolution = match.get(0).length();
 
     // TODO -- could this all happen in one pass?

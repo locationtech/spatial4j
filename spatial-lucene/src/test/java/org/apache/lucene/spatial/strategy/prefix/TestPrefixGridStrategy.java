@@ -1,10 +1,5 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
@@ -13,21 +8,25 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Chris Male
  */
 public class TestPrefixGridStrategy {
 
+  private final PrefixGridStrategy gridStrategy = new PrefixGridStrategy(new MockSpatialPrefixGrid() {
+    @Override
+    public List<Cell> getCells(Shape geo) {
+      return Arrays.asList(getCell("aaaDBCDA+"), getCell("aaaBDDA*"));
+    }
+  }, -1);
+
   @Test
   public void testMakeQuery_isWithin() {
-    final List<String> spatialGrids = Arrays.asList("aaaDBCDA+", "aaaBDDA*");
-    PrefixGridStrategy gridStrategy = new PrefixGridStrategy(new MockSpatialPrefixGrid() {
-      @Override
-      public List<String> readCells(Shape geo) {
-        return spatialGrids;
-      }
-    }, -1);
-
     BooleanQuery booleanQuery = (BooleanQuery) gridStrategy.makeQuery(
         new SpatialArgs(SpatialOperation.IsWithin),
         new SimpleSpatialFieldInfo("field"));
@@ -40,14 +39,6 @@ public class TestPrefixGridStrategy {
 
   @Test
   public void testMakeQuery_insersects() {
-    final List<String> spatialGrids = Arrays.asList("aaaDBCDA+", "aaaBDDA*");
-    PrefixGridStrategy gridStrategy = new PrefixGridStrategy(new MockSpatialPrefixGrid() {
-      @Override
-      public List<String> readCells(Shape geo) {
-        return spatialGrids;
-      }
-    }, -1);
-
     BooleanQuery booleanQuery = (BooleanQuery) gridStrategy.makeQuery(
         new SpatialArgs(SpatialOperation.Intersects),
         new SimpleSpatialFieldInfo("field"));
