@@ -1,11 +1,15 @@
 package org.apache.lucene.spatial.base.prefix;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
-
-import java.util.*;
 
 /**
  * A SpatialPrefixGrid based on Geohashes.  Uses {@link GeohashUtils} to do all the geohash work.
@@ -69,6 +73,7 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
       super(token);
     }
 
+    @Override
     public Collection<SpatialPrefixGrid.Cell> getSubCells() {
       if (getLevel() >= GeohashSpatialPrefixGrid.this.getMaxLevels())
         return null;

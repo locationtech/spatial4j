@@ -10,7 +10,6 @@ import org.apache.lucene.spatial.strategy.point.PointStrategy;
 import org.apache.lucene.spatial.strategy.util.TrieFieldInfo;
 import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;

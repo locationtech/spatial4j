@@ -17,13 +17,13 @@
 
 package org.apache.lucene.spatial.base.prefix;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for {@link GeohashUtils}

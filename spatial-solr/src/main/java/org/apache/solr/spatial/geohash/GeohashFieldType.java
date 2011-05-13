@@ -17,14 +17,14 @@
 
 package org.apache.solr.spatial.geohash;
 
+import java.util.Map;
+
 import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.prefix.DynamicPrefixStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
-
-import java.util.Map;
 
 
 /**

@@ -114,7 +114,7 @@ public class Rectangle implements BBox {
         return IntersectCase.OUTSIDE;
       return IntersectCase.INTERSECTS;
     }
-    
+
     if (shape instanceof PointDistanceShape) {
       IntersectCase rel = shape.intersect(this, context);
       switch(rel) {

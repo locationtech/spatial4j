@@ -1,5 +1,9 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter;
@@ -22,16 +26,12 @@ import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.lucene.spatial.strategy.util.StringListTokenizer;
 import org.apache.lucene.spatial.strategy.util.TruncateFilter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 
 public class NGramPrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   protected final SpatialPrefixGrid grid;
   protected final int maxLength;
-  
+
   public NGramPrefixGridStrategy(SpatialPrefixGrid grid, int maxLength) {
     this.grid = grid;
     this.maxLength = maxLength;
@@ -60,7 +60,7 @@ public class NGramPrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldI
   public Filter makeFilter(SpatialArgs args, SimpleSpatialFieldInfo field) {
     return new QueryWrapperFilter( makeQuery(args, field) );
   }
-  
+
   @Override
   public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo field) {
     if (args.getOperation() != SpatialOperation.Intersects &&

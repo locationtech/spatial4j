@@ -17,11 +17,11 @@
 
 package org.apache.lucene.spatial.base.prefix;
 
+import java.util.Arrays;
+
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
-
-import java.util.Arrays;
 
 /**
  * Utilities for encoding and decoding geohashes. Based on

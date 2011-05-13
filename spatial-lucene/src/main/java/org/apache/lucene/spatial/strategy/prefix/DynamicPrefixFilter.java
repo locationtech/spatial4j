@@ -17,11 +17,14 @@
 
 package org.apache.lucene.spatial.strategy.prefix;
 
+import java.io.IOException;
+import java.util.LinkedList;
+
 import org.apache.lucene.index.DocsEnum;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.spatial.base.IntersectCase;
@@ -31,9 +34,6 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.OpenBitSet;
-
-import java.io.IOException;
-import java.util.LinkedList;
 
 /**
  * Performs a dynamic length spatial filter against a field indexed using an NGram based {@link SpatialPrefixGrid}.

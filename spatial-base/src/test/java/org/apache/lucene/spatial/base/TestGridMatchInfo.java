@@ -1,13 +1,13 @@
 package org.apache.lucene.spatial.base;
 
+import java.util.List;
+
 import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.base.shape.simple.Rectangle;
 import org.junit.Test;
-
-import java.util.List;
 
 
 /**

@@ -1,14 +1,14 @@
 package org.apache.lucene.spatial.test.strategy;
 
+import java.io.IOException;
+
 import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.prefix.DynamicPrefixStrategy;
-import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
 import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
-
-import java.io.IOException;
 
 
 public abstract class BaseGeohashStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {

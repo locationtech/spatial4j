@@ -17,15 +17,11 @@
 
 package com.googlecode.lucene.spatial.base.context;
 
-import com.googlecode.lucene.spatial.base.shape.JtsEnvelope;
-import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
-import com.googlecode.lucene.spatial.base.shape.JtsPoint2D;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.*;
-import com.vividsolutions.jts.util.GeometricShapeFactory;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
@@ -34,10 +30,19 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.text.NumberFormat;
-import java.util.Locale;
+import com.googlecode.lucene.spatial.base.shape.JtsEnvelope;
+import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
+import com.googlecode.lucene.spatial.base.shape.JtsPoint2D;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.InStream;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBReader;
+import com.vividsolutions.jts.io.WKBWriter;
+import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 public class JtsSpatialContext extends AbstractSpatialContext {
 

@@ -1,10 +1,10 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
+import java.util.Collection;
+
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
-
-import java.util.Collection;
 
 
 public class MockSpatialPrefixGrid extends SpatialPrefixGrid {

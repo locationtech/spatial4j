@@ -1,7 +1,17 @@
 package org.apache.solr.spatial.demo.servlet;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
-import de.micromata.opengis.kml.v_2_2_0.Kml;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
@@ -10,16 +20,9 @@ import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.solr.spatial.demo.KMLHelper;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.Date;
-import java.util.List;
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+
+import de.micromata.opengis.kml.v_2_2_0.Kml;
 
 
 public class GridInfoServlet extends HttpServlet
