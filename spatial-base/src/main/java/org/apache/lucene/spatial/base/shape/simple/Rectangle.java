@@ -23,6 +23,7 @@ import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 /**
@@ -104,6 +105,25 @@ public class Rectangle implements BBox {
 
   @Override
   public IntersectCase intersect(Shape shape, SpatialContext context) {
+    if (shape instanceof Point) {
+      Point point = (Point) shape;
+      if (point.getY() > getMaxY() || point.getY() < getMinY() ||
+          (minX > maxX ?
+              (point.getX() < minX && point.getX() > maxX)
+              : (point.getX() < minX || point.getX() > maxX) ))
+        return IntersectCase.OUTSIDE;
+      return IntersectCase.INTERSECTS;
+    }
+    
+    if (shape instanceof PointDistanceShape) {
+      IntersectCase rel = shape.intersect(this, context);
+      switch(rel) {
+        case CONTAINS: return IntersectCase.WITHIN;
+        case WITHIN: return IntersectCase.CONTAINS;
+        default: return rel;
+      }
+    }
+
     if(!BBox.class.isInstance(shape)) {
       throw new IllegalArgumentException( "Rectangle can only be compared with another Extent" );
     }
