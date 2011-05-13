@@ -3,7 +3,7 @@ package org.googlecode.lucene.spatial.strategy.geohash;
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
-import org.apache.lucene.spatial.strategy.geohash.GeohashStrategy;
+import org.apache.lucene.spatial.strategy.prefix.DynamicPrefixStrategy;
 import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class GeohashStrategyWithExtrasTestCase extends StrategyTestCase<SimpleSp
     int maxLength = GeohashSpatialPrefixGrid.getMaxLevelsPossible();
     GeohashSpatialPrefixGrid grs = new GeohashSpatialPrefixGrid(
         new JtsSpatialContext(), maxLength );
-    GeohashStrategy s = new GeohashStrategy( grs );
+    DynamicPrefixStrategy s = new DynamicPrefixStrategy( grs );
 
     // SimpleIO
     executeQueries( s, grs.getShapeIO(), finfo,

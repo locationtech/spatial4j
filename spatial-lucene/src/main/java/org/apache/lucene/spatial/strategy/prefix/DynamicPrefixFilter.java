@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.strategy.geohash;
+package org.apache.lucene.spatial.strategy.prefix;
 
 import org.apache.lucene.index.DocsEnum;
 import org.apache.lucene.index.IndexReader;
@@ -36,19 +36,20 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 /**
- * Performs a spatial filter against a field indexed using Geohashes. Using the hierarchical grid nature of geohashes,
- * this filter recursively traverses each precision length and uses methods on {@link Shape} to efficiently know
- * that all points at a geohash fit in the shape or not to either short-circuit unnecessary traversals or to efficiently
+ * Performs a dynamic length spatial filter against a field indexed using an NGram based {@link SpatialPrefixGrid}.
+ * This filter recursively traverses each grid length and uses methods on {@link Shape} to efficiently know
+ * that all points at a prefix fit in the shape or not to either short-circuit unnecessary traversals or to efficiently
  * load all enclosed points.
+ *
  */
-public class GeoHashPrefixFilter extends Filter {
+public class DynamicPrefixFilter extends Filter {
 
   private final String fieldName;
   private final SpatialPrefixGrid grid;
   private final Shape queryShape;
   private final int prefixGridScanLevel;//at least one less than grid.getMaxLevels()
 
-  public GeoHashPrefixFilter(String fieldName, SpatialPrefixGrid grid, Shape queryShape, int prefixGridScanLevel) {
+  public DynamicPrefixFilter(String fieldName, SpatialPrefixGrid grid, Shape queryShape, int prefixGridScanLevel) {
     this.fieldName = fieldName;
     this.grid = grid;
     this.queryShape = queryShape;
@@ -168,7 +169,7 @@ public class GeoHashPrefixFilter extends Filter {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    GeoHashPrefixFilter that = (GeoHashPrefixFilter) o;
+    DynamicPrefixFilter that = (DynamicPrefixFilter) o;
 
     if (fieldName != null ? !fieldName.equals(that.fieldName) : that.fieldName != null) return false;
     if (queryShape != null ? !queryShape.equals(that.queryShape) : that.queryShape != null) return false;

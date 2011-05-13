@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.strategy.geohash;
+package org.apache.lucene.spatial.strategy.prefix;
 
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenizer;
 import org.apache.lucene.document.Field;
@@ -40,6 +40,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.Shapes;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
+import org.apache.lucene.spatial.strategy.util.CachedDistanceValueSource;
 
 import java.io.StringReader;
 import java.util.Arrays;
@@ -47,20 +48,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
+public class DynamicPrefixStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
-  private final Map<String, GeoHashFieldCacheProvider> provider = new ConcurrentHashMap<String, GeoHashFieldCacheProvider>();
+  private final Map<String, PrefixFieldCacheProvider> provider = new ConcurrentHashMap<String, PrefixFieldCacheProvider>();
 
   private final GeohashSpatialPrefixGrid gridReferenceSystem;
   private final int expectedFieldsPerDocument;
   private int prefixGridScanLevel;//TODO how is this customized?
 
-  public GeohashStrategy( GeohashSpatialPrefixGrid gridReferenceSystem ) {
+  public DynamicPrefixStrategy(GeohashSpatialPrefixGrid gridReferenceSystem) {
     this( gridReferenceSystem, 2 ); // array gets initalized with 2 slots
     prefixGridScanLevel = gridReferenceSystem.getMaxLevels() - 4;//TODO this default constant is dependent on the prefix grid size
   }
 
-  public GeohashStrategy( GeohashSpatialPrefixGrid gridReferenceSystem, int expectedFieldsPerDocument ) {
+  public DynamicPrefixStrategy(GeohashSpatialPrefixGrid gridReferenceSystem, int expectedFieldsPerDocument) {
     this.gridReferenceSystem = gridReferenceSystem;
     this.expectedFieldsPerDocument = expectedFieldsPerDocument;
   }
@@ -91,9 +92,9 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
 
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo, DistanceCalculator calc) {
-    GeoHashFieldCacheProvider p = provider.get( fieldInfo.getFieldName() );
+    PrefixFieldCacheProvider p = provider.get( fieldInfo.getFieldName() );
     if( p == null ) {
-      p = new GeoHashFieldCacheProvider( gridReferenceSystem, fieldInfo.getFieldName(), expectedFieldsPerDocument );
+      p = new PrefixFieldCacheProvider( gridReferenceSystem, fieldInfo.getFieldName(), expectedFieldsPerDocument );
     }
     Point point = args.getShape().getCenter();
     return new CachedDistanceValueSource(point, calc, p);
@@ -134,7 +135,7 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
       }
     }
 
-    return new GeoHashPrefixFilter(
+    return new DynamicPrefixFilter(
         fieldInfo.getFieldName(), gridReferenceSystem,qshape, prefixGridScanLevel);
   }
 }

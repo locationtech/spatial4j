@@ -15,19 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.strategy.prefix;
+package org.apache.lucene.spatial.strategy.util;
+
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Iterator;
 
-import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-
 /**
  * Put a list of strings directly into the token stream
  */
-class StringListTokenizer extends Tokenizer {
+public class StringListTokenizer extends Tokenizer {
 
   private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 

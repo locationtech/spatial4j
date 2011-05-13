@@ -30,6 +30,8 @@ import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
+import org.apache.lucene.spatial.strategy.util.StringListTokenizer;
+import org.apache.lucene.spatial.strategy.util.TruncateFilter;
 
 import java.util.*;
 

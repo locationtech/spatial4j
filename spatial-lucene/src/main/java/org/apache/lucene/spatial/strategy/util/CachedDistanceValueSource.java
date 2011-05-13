@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.strategy.geohash;
+package org.apache.lucene.spatial.strategy.util;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,8 +27,6 @@ import org.apache.lucene.search.function.DocValues;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.strategy.util.ShapeFieldCache;
-import org.apache.lucene.spatial.strategy.util.ShapeFieldCacheProvider;
 
 /**
  *

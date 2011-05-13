@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.strategy.prefix;
+package org.apache.lucene.spatial.strategy.util;
 
-
-import java.io.IOException;
 
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
-class TruncateFilter extends TokenFilter {
+import java.io.IOException;
+
+public class TruncateFilter extends TokenFilter {
 
   private final int maxTokenLength;
 

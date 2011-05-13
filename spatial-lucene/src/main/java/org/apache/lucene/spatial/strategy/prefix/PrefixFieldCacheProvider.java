@@ -1,15 +1,15 @@
-package org.apache.lucene.spatial.strategy.geohash;
+package org.apache.lucene.spatial.strategy.prefix;
 
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.strategy.util.ShapeFieldCacheProvider;
 import org.apache.lucene.util.BytesRef;
 
-public class GeoHashFieldCacheProvider extends ShapeFieldCacheProvider<Point> {
+public class PrefixFieldCacheProvider extends ShapeFieldCacheProvider<Point> {
 
   final SpatialPrefixGrid grid; //
 
-  public GeoHashFieldCacheProvider( SpatialPrefixGrid grid, String shapeField, int defaultSize ) {
+  public PrefixFieldCacheProvider(SpatialPrefixGrid grid, String shapeField, int defaultSize) {
     super( shapeField, defaultSize );
     this.grid = grid;
   }

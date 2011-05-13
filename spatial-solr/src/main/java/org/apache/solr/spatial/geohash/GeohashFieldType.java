@@ -19,7 +19,7 @@ package org.apache.solr.spatial.geohash;
 
 import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.geohash.GeohashStrategy;
+import org.apache.lucene.spatial.strategy.prefix.DynamicPrefixStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
@@ -42,7 +42,7 @@ public class GeohashFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
     String len = args.remove("length");
     int maxLen = len!=null?Integer.parseInt(len): DEFAULT_LENGTH;
     gridReferenceSystem = new GeohashSpatialPrefixGrid( reader, maxLen );
-    spatialStrategy = new GeohashStrategy( gridReferenceSystem );
+    spatialStrategy = new DynamicPrefixStrategy( gridReferenceSystem );
     spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 

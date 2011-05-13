@@ -13,6 +13,8 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.PayloadAttribute;
+import org.apache.lucene.spatial.strategy.util.StringListTokenizer;
+import org.apache.lucene.spatial.strategy.util.TruncateFilter;
 import org.junit.Test;
 
 /**
