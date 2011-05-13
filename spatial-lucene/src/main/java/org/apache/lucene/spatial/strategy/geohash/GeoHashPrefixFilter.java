@@ -17,41 +17,42 @@
 
 package org.apache.lucene.spatial.strategy.geohash;
 
-import java.io.IOException;
-import java.util.LinkedList;
-
 import org.apache.lucene.index.DocsEnum;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.OpenBitSet;
 
+import java.io.IOException;
+import java.util.LinkedList;
+
 /**
  * Performs a spatial filter against a field indexed using Geohashes. Using the hierarchical grid nature of geohashes,
- * this filter recursively traverses each precision length and uses methods on {@link Geometry2D} to efficiently know
+ * this filter recursively traverses each precision length and uses methods on {@link Shape} to efficiently know
  * that all points at a geohash fit in the shape or not to either short-circuit unnecessary traversals or to efficiently
  * load all enclosed points.
  */
 public class GeoHashPrefixFilter extends Filter {
 
-  private static final int GRIDLEN_SCAN_THRESHOLD = 4;//>= 1
-
   private final String fieldName;
-  private final GridReferenceSystem gridReferenceSystem;
+  private final SpatialPrefixGrid grid;
   private final Shape queryShape;
+  private final int prefixGridScanLevel;//at least one less than grid.getMaxLevels()
 
-  public GeoHashPrefixFilter(String fieldName, GridReferenceSystem gridReferenceSystem, Shape geoShape) {
+  public GeoHashPrefixFilter(String fieldName, SpatialPrefixGrid grid, Shape queryShape, int prefixGridScanLevel) {
     this.fieldName = fieldName;
-    this.gridReferenceSystem = gridReferenceSystem;
-    this.queryShape = geoShape;
+    this.grid = grid;
+    this.queryShape = queryShape;
+    this.prefixGridScanLevel = Math.min(prefixGridScanLevel,grid.getMaxLevels()-1);
   }
 
   @Override
@@ -68,21 +69,24 @@ public class GeoHashPrefixFilter extends Filter {
 
     //TODO Add a precision short-circuit so that we are not accurate on the edge but we're faster.
 
-    //TODO An array based nodes impl would be more efficient; or a stack of iterators.  LinkedList conveniently has bulk add to beginning.
-    LinkedList<GridNode> nodes = new LinkedList<GridNode>(gridReferenceSystem.getSubNodes(queryShape.getBoundingBox()));
+    //cells is treated like a stack. LinkedList conveniently has bulk add to beginning.
+    LinkedList<SpatialPrefixGrid.Cell> cells = new LinkedList<SpatialPrefixGrid.Cell>(grid.getCells(queryShape));
 
-    while(!nodes.isEmpty() && term != null) {
-      final GridNode node = nodes.removeFirst();
-      assert node.length() > 0;
-      final BytesRef nodeBytesRef = new BytesRef(node.getBytes());
-      if (!nodeBytesRef.startsWith(term) && nodeBytesRef.compareTo(term) < 0)
-        continue;//short circuit, moving >= the next indexed term
-      IntersectCase intersection = queryShape.intersect(node.getRectangle(),gridReferenceSystem.shapeIO);
+    while(!cells.isEmpty() && term != null) {
+      final SpatialPrefixGrid.Cell cell = cells.removeFirst();
+      assert cell.getLevel() > 0;
+      final BytesRef cellTerm = new BytesRef(cell.getBytes());
+      //if term is "ahead" of this cell (not within and comes after) then short-circuit; continue onto the next cell
+      if (!term.startsWith(cellTerm) && cellTerm.compareTo(term) < 0)
+        continue; //TODO DWS: !! double-check logic correction
+      IntersectCase intersection = queryShape.intersect(cell.getShape(), grid.getShapeIO());
       if (intersection == IntersectCase.OUTSIDE)
         continue;
-      TermsEnum.SeekStatus seekStat = termsEnum.seek(nodeBytesRef);
+      TermsEnum.SeekStatus seekStat = termsEnum.seek(cellTerm);
+      if (seekStat == TermsEnum.SeekStatus.END)
+        break;
       term = termsEnum.term();
-      if (seekStat != TermsEnum.SeekStatus.FOUND)
+      if (seekStat == TermsEnum.SeekStatus.NOT_FOUND)
         continue;
       if (intersection == IntersectCase.CONTAINS) {
         docsEnum = termsEnum.docs(delDocs, docsEnum);
@@ -90,10 +94,9 @@ public class GeoHashPrefixFilter extends Filter {
         term = termsEnum.next();//move to next term
       } else {//any other intersection
         //TODO is it worth it to optimize the shape (e.g. potentially simpler polygon)?
-        //GeoShape geoShape = this.geoShape.optimize(intersection);
 
-        //We either scan through the leaf node(s), or if there are many points then we divide & conquer.
-        boolean manyPoints = node.length() < gridReferenceSystem.maxLen - GRIDLEN_SCAN_THRESHOLD;
+        //We either scan through the leaf cell(s), or if there are many points then we divide & conquer.
+        boolean manyPoints = cell.getLevel() < prefixGridScanLevel;
 
         //TODO Try variable depth strategy:
         //IF configured to do so, we could use term.freq() as an estimate on the number of places at this depth.  OR, perhaps
@@ -102,23 +105,23 @@ public class GeoHashPrefixFilter extends Filter {
 //          //Make some estimations on how many points there are at this level and how few there would need to be to set
 //          // manyPoints to false.
 //
-//          long termsThreshold = (long) estimateNumberIndexedTerms(node.length(),geoShape.getDocFreqExpenseThreshold(node));
+//          long termsThreshold = (long) estimateNumberIndexedTerms(cell.length(),queryShape.getDocFreqExpenseThreshold(cell));
 //
 //          long thisOrd = termsEnum.ord();
 //          manyPoints = (termsEnum.seek(thisOrd+termsThreshold+1) != TermsEnum.SeekStatus.END
-//                  && node.contains(termsEnum.term()));
+//                  && cell.contains(termsEnum.term()));
 //          termsEnum.seek(thisOrd);//return to last position
 //        }
 
         if (!manyPoints) {
-          //traverse all leaf terms within this node to see if they are within the geoShape, one by one.
-          for(; term != null && nodeBytesRef.startsWith(term); term = termsEnum.next()) {
-            if (term.length < gridReferenceSystem.maxLen)//not a leaf
+          //traverse all leaf terms within this cell to see if they are within the queryShape, one by one.
+          for(; term != null && term.startsWith(cellTerm); term = termsEnum.next()) {
+            Point p = grid.getPoint(term.utf8ToString());
+            if (p == null)
               continue;
-
-            Point p = gridReferenceSystem.decodeXY(term);
-            IntersectCase relation = p.intersect(queryShape,gridReferenceSystem.shapeIO);
-            if(relation != IntersectCase.CONTAINS)
+            IntersectCase relation = queryShape.intersect(p, grid.getShapeIO());
+            //TODO !! refactor intersect implementations
+            if(relation == IntersectCase.OUTSIDE)
               continue;
 
             docsEnum = termsEnum.docs(delDocs, docsEnum);
@@ -126,19 +129,19 @@ public class GeoHashPrefixFilter extends Filter {
           }
         } else {
           //divide & conquer
-          nodes.addAll(0,node.getSubNodes());//add to beginning
+          cells.addAll(0, cell.getSubCells());//add to beginning
         }
       }
-    }//node loop
+    }//cell loop
 
     return bits;
   }
 
-//  double estimateNumberIndexedTerms(int nodeLen,double points) {
+//  double estimateNumberIndexedTerms(int cellLen,double points) {
 //    return 1000;
-//    double levelProb = probabilityNumNodes[points];// [1,32)
-//    if (nodeLen < geohashLength)
-//      return levelProb + levelProb * estimateNumberIndexedTerms(nodeLen+1,points/levelProb);
+//    double levelProb = probabilityNumCells[points];// [1,32)
+//    if (cellLen < geohashLength)
+//      return levelProb + levelProb * estimateNumberIndexedTerms(cellLen+1,points/levelProb);
 //    return levelProb;
 //  }
 

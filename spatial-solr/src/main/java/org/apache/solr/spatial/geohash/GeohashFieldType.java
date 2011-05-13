@@ -17,8 +17,6 @@
 
 package org.apache.solr.spatial.geohash;
 
-import java.util.Map;
-
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.geohash.GeohashStrategy;
 import org.apache.lucene.spatial.strategy.geohash.GridReferenceSystem;
@@ -26,13 +24,15 @@ import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
 
+import java.util.Map;
+
 
 /**
  *
  */
 public class GeohashFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
 
-  public static final int DEFAULT_LENGTH = GridReferenceSystem.getMaxPrecision();//~12
+  public static final int DEFAULT_LENGTH = GridReferenceSystem.getMaxLevelsPossible();//~12
   private GridReferenceSystem gridReferenceSystem;
 
   @Override

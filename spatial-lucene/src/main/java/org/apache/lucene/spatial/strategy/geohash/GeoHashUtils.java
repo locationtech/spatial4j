@@ -17,10 +17,11 @@
 
 package org.apache.lucene.spatial.strategy.geohash;
 
-import java.util.Arrays;
-
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Point;
+
+import java.util.Arrays;
 
 /**
  * Utilities for encoding and decoding geohashes. Based on
@@ -28,14 +29,13 @@ import org.apache.lucene.spatial.base.shape.BBox;
  */
 public class GeoHashUtils {
 
-  static final int BASE = 32;
   private static final char[] BASE_32 = {'0', '1', '2', '3', '4', '5', '6',
       '7', '8', '9', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', 'm', 'n',
       'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 
   private static final int[] BASE_32_IDX;//sparse array of indexes from '0' to 'z'
 
-  public static final int PRECISION = 12;
+  public static final int MAX_PRECISION = 24;//DWS: I forget what level results in needless more precision but it's about this
   private static final int[] BITS = {16, 8, 4, 2, 1};
 
   static {
@@ -58,7 +58,7 @@ public class GeoHashUtils {
    * @return Geohash encoding of the longitude and latitude
    */
   public static String encode(double latitude, double longitude) {
-    return encode(latitude,longitude,PRECISION);
+    return encode(latitude,longitude, 12);
   }
 
   public static String encode(double latitude, double longitude, int precision) {
@@ -111,11 +111,11 @@ public class GeoHashUtils {
    * @param geohash Geohash to deocde
    * @return Array with the latitude at index 0, and longitude at index 1
    */
-  public static double[] decode(String geohash, SpatialContext shapeIO) {
+  public static Point decode(String geohash, SpatialContext shapeIO) {
     BBox rect = decodeBoundary(geohash,shapeIO);
     double latitude = (rect.getMinY() + rect.getMaxY()) / 2D;
     double longitude = (rect.getMinX() + rect.getMaxX()) / 2D;
-    return new double[] {latitude, longitude};
+    return shapeIO.makePoint(longitude,latitude);
 	}
 
   /** Returns min-max lat, min-max lon. */
@@ -168,24 +168,24 @@ public class GeoHashUtils {
    */
   public static int lookupHashLenForWidthHeight(double width, double height) {
     //loop through hash length arrays from beginning till we find one.
-    for(int len = 1; len <= PRECISION; len++) {
+    for(int len = 1; len <= MAX_PRECISION; len++) {
       double latHeight = hashLenToLatHeight[len];
       double lonWidth = hashLenToLonWidth[len];
       if (latHeight < height || lonWidth < width)
         return len-1;//previous length is big enough to encompass specified width & height
     }
-    return PRECISION;
+    return MAX_PRECISION;
   }
 
   /** See the table at http://en.wikipedia.org/wiki/Geohash */
   private static final double[] hashLenToLatHeight, hashLenToLonWidth;
   static {
-    hashLenToLatHeight = new double[PRECISION+1];
-    hashLenToLonWidth = new double[PRECISION+1];
+    hashLenToLatHeight = new double[MAX_PRECISION +1];
+    hashLenToLonWidth = new double[MAX_PRECISION +1];
     hashLenToLatHeight[0] = 90*2;
     hashLenToLonWidth[0] = 180*2;
     boolean even = false;
-    for(int i = 1; i <= PRECISION; i++) {
+    for(int i = 1; i <= MAX_PRECISION; i++) {
       hashLenToLatHeight[i] = hashLenToLatHeight[i-1]/(even?8:4);
       hashLenToLonWidth[i] = hashLenToLonWidth[i-1]/(even?4:8);
       even = ! even;

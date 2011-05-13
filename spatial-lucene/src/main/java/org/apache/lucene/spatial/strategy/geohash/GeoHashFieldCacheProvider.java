@@ -1,23 +1,22 @@
 package org.apache.lucene.spatial.strategy.geohash;
 
-import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.strategy.util.ShapeFieldCacheProvider;
 import org.apache.lucene.util.BytesRef;
 
 public class GeoHashFieldCacheProvider extends ShapeFieldCacheProvider<Point> {
 
-  final SpatialContext context; //
+  final SpatialPrefixGrid grid; //
 
-  public GeoHashFieldCacheProvider( SpatialContext ctx, String shapeField, int defaultSize ) {
+  public GeoHashFieldCacheProvider( SpatialPrefixGrid grid, String shapeField, int defaultSize ) {
     super( shapeField, defaultSize );
-    this.context = ctx;
+    this.grid = grid;
   }
 
   @Override
   protected Point readShape(BytesRef term) {
-    // TODO skip ngrams?
-    double[] p = GeoHashUtils.decode(term.utf8ToString(), context);
-    return context.makePoint( p[0], p[1] );
+    final String token = term.utf8ToString();
+    return grid.getPoint(token);
   }
 }

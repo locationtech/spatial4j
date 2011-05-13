@@ -20,6 +20,7 @@ package org.apache.lucene.spatial.strategy.geohash;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
+import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.util.LuceneTestCase;
 import org.junit.Test;
 
@@ -50,10 +51,10 @@ public class TestGeoHashUtils extends LuceneTestCase {
   public void testDecodePreciseLongitudeLatitude() {
     String hash = GeoHashUtils.encode(52.3738007, 4.8909347);
 
-    double[] latitudeLongitude = GeoHashUtils.decode(hash,shapeIO);
+    Point point = GeoHashUtils.decode(hash,shapeIO);
 
-    assertEquals(52.3738007, latitudeLongitude[0], 0.00001D);
-    assertEquals(4.8909347, latitudeLongitude[1], 0.00001D);
+    assertEquals(52.3738007, point.getY(), 0.00001D);
+    assertEquals(4.8909347, point.getX(), 0.00001D);
   }
 
   /**
@@ -64,10 +65,10 @@ public class TestGeoHashUtils extends LuceneTestCase {
   public void testDecodeImpreciseLongitudeLatitude() {
     String hash = GeoHashUtils.encode(84.6, 10.5);
 
-    double[] latitudeLongitude = GeoHashUtils.decode(hash,shapeIO);
+    Point point = GeoHashUtils.decode(hash,shapeIO);
 
-    assertEquals(84.6, latitudeLongitude[0], 0.00001D);
-    assertEquals(10.5, latitudeLongitude[1], 0.00001D);
+    assertEquals(84.6, point.getY(), 0.00001D);
+    assertEquals(10.5, point.getX(), 0.00001D);
   }
 
   /*
@@ -77,17 +78,18 @@ public class TestGeoHashUtils extends LuceneTestCase {
   public void testDecodeEncode() {
     String geoHash = "u173zq37x014";
     assertEquals(geoHash, GeoHashUtils.encode(52.3738007, 4.8909347));
-    double[] decode = GeoHashUtils.decode(geoHash,shapeIO);
-    assertEquals(52.37380061d, decode[0], 0.000001d);
-    assertEquals(4.8909343d, decode[1], 0.000001d);
+    Point point = GeoHashUtils.decode(geoHash,shapeIO);
+    assertEquals(52.37380061d, point.getY(), 0.000001d);
+    assertEquals(4.8909343d, point.getX(), 0.000001d);
 
-    assertEquals(geoHash, GeoHashUtils.encode(decode[0], decode[1]));
+    assertEquals(geoHash, GeoHashUtils.encode(point.getY(), point.getX()));
 
     geoHash = "u173";
-    decode = GeoHashUtils.decode("u173",shapeIO);
-    geoHash = GeoHashUtils.encode(decode[0], decode[1]);
-    assertEquals(decode[0], GeoHashUtils.decode(geoHash,shapeIO)[0], 0.000001d);
-    assertEquals(decode[1], GeoHashUtils.decode(geoHash,shapeIO)[1], 0.000001d);
+    point = GeoHashUtils.decode("u173",shapeIO);
+    geoHash = GeoHashUtils.encode(point.getY(), point.getX());
+    final Point point2 = GeoHashUtils.decode(geoHash, shapeIO);
+    assertEquals(point.getY(), point2.getY(), 0.000001d);
+    assertEquals(point.getX(), point2.getX(), 0.000001d);
   }
 
   /** see the table at http://en.wikipedia.org/wiki/Geohash */

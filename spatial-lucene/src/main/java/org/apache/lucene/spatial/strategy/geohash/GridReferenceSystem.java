@@ -1,102 +1,100 @@
 package org.apache.lucene.spatial.strategy.geohash;
 
-import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.spatial.base.shape.Shape;
 
-import java.nio.charset.Charset;
 import java.util.*;
 
 /**
- * An abstraction for encoding details of a hierarchical grid reference system.
+ * A SpatialPrefixGrid based on Geohashes.  Uses {@link GeoHashUtils} to do all the geohash work.
+ *
+ * TODO at the moment it doesn't handle suffixes such as {@link SpatialPrefixGrid#INTERSECTS}. Only does full-resolution
+ * points.
  */
-public class GridReferenceSystem {
+public class GridReferenceSystem extends SpatialPrefixGrid {
 
-  //TODO incorporate a user specifiable Projection (maps lon-lat to x-y and back)
-
-  //TODO consider alternate more efficient implementation instead of GeoHash.
-
-  public final SpatialContext shapeIO;
-  final int maxLen;
-  private static final Charset UTF8 = Charset.forName("UTF-8");
-
-  public GridReferenceSystem(SpatialContext shapeIO, int maxLen) {
-    int MAXP = getMaxPrecision();
-    if (maxLen <= 0 || maxLen > MAXP)
-      throw new IllegalArgumentException("maxLen must be (0-"+MAXP+"] but got "+maxLen);
-    this.maxLen = maxLen;
-    this.shapeIO = shapeIO;
+  public GridReferenceSystem(SpatialContext shapeIO, int maxLevels) {
+    super(shapeIO, maxLevels);
+    int MAXP = getMaxLevelsPossible();
+    if (maxLevels <= 0 || maxLevels > MAXP)
+      throw new IllegalArgumentException("maxLen must be (0-"+MAXP+"] but got "+ maxLevels);
   }
 
-  public static int getMaxPrecision() { return GeoHashUtils.PRECISION; }
+  /** Any more than this and there's no point (double lat & lon are the same). */
+  public static int getMaxLevelsPossible() { return GeoHashUtils.MAX_PRECISION; }
 
-  public int getGridSize() { return GeoHashUtils.BASE; }
-
-  public List<GridNode> getSubNodes(BBox r) {
+  @Override
+  public Collection<Cell> getCells(Shape shape) {
+    BBox r = shape.getBoundingBox();
     double width = r.getMaxX() - r.getMinX();
     double height = r.getMaxY() - r.getMinY();
     int len = GeoHashUtils.lookupHashLenForWidthHeight(width,height);
-    len = Math.min(len,maxLen-1);
+    len = Math.min(len,maxLevels-1);
 
-    Set<String> cornerGeoHashes = new TreeSet<String>();
-    cornerGeoHashes.add(encodeXY(r.getMinX(),r.getMinY(), len));
-    cornerGeoHashes.add(encodeXY(r.getMinX(),r.getMaxY(), len));
-    cornerGeoHashes.add(encodeXY(r.getMaxX(),r.getMaxY(), len));
-    cornerGeoHashes.add(encodeXY(r.getMaxX(),r.getMinY(), len));
+    //TODO !! Bug: incomplete when at top level and covers more than 4 cells
+    Set<Cell> cornerCells = new TreeSet<Cell>();
+    cornerCells.add(getCell(r.getMinX(), r.getMinY(), len));
+    cornerCells.add(getCell(r.getMinX(), r.getMaxY(), len));
+    cornerCells.add(getCell(r.getMaxX(), r.getMaxY(), len));
+    cornerCells.add(getCell(r.getMaxX(), r.getMinY(), len));
 
-    List<GridNode> nodes = new ArrayList<GridNode>(getGridSize()*cornerGeoHashes.size());
-    for (String hash : cornerGeoHashes) {//happens in sorted order
-      nodes.addAll(getSubNodes(hash));
-    }
-    return nodes;//should be sorted
+    return cornerCells;
   }
 
-  /** Gets an ordered set of nodes directly contained by the given node.*/
-  private List<GridNode> getSubNodes(String baseHash) {
-    String[] hashes = GeoHashUtils.getSubGeoHashes(baseHash);
-    ArrayList<GridNode> nodes = new ArrayList<GridNode>(hashes.length);
-    for (String hash : hashes) {
-      BytesRef byteRef = new BytesRef(hash);
-      assert byteRef.offset == 0;
-      byte[] bytes = byteRef.bytes;
-      if (bytes.length != byteRef.length) {
-        bytes = Arrays.copyOf(bytes,byteRef.length);
+  @Override
+  public Cell getCell(double x, double y, int level) {
+    final String hash = GeoHashUtils.encode(y, x, level);
+    return new GridNode(hash);
+  }
+
+  @Override
+  public Cell getCell(String token) {
+    return new GridNode(token);
+  }
+
+  @Override
+  public Point getPoint(String token) {
+    if (token.length() < maxLevels)
+      return null;
+    return GeoHashUtils.decode(token,shapeIO);
+  }
+
+  /**
+   * A node in a geospatial grid hierarchy as specified by a {@link GridReferenceSystem}.
+   */
+  class GridNode extends SpatialPrefixGrid.Cell {
+    public GridNode(String token) {
+      super(token);
+    }
+
+    public Collection<Cell> getSubCells() {
+      if (getLevel() >= GridReferenceSystem.this.getMaxLevels())
+        return null;
+      String[] hashes = GeoHashUtils.getSubGeoHashes(getGeohash());
+      Arrays.sort(hashes);
+      ArrayList<Cell> cells = new ArrayList<Cell>(hashes.length);
+      for (String hash : hashes) {
+        cells.add(new GridNode(hash));
       }
-      BBox rect = GeoHashUtils.decodeBoundary(hash,shapeIO);// min-max lat, min-max lon
-
-      nodes.add(new GridNode(this, bytes, rect));
+      return cells;
     }
-    return nodes;
-  }
 
-  public List<GridNode> getSubNodes(GridNode node) {
-    String baseHash = node == null ? "" : new String(node.getBytes(), UTF8);
-    return getSubNodes(baseHash);
-  }
+    @Override
+    public BBox getShape() {
+      return GeoHashUtils.decodeBoundary(getGeohash(), shapeIO);// min-max lat, min-max lon
+    }
 
-  public String encodeXY(double x, double y, int len) {
-    return GeoHashUtils.encode(y, x, len);
-  }
+    private String getGeohash() {
+      return token;
+//      if (getLevel() >= getMaxLevels())
+//        return token.substring(0,token.length()-1);
+//      else
+//        return token;
+    }
 
-  public String encodeXY(double x, double y) {
-    return GeoHashUtils.encode(y, x, maxLen);
-  }
-
-  //TODO return Point2D ?
-  public double[] decodeXY(Fieldable f) {
-    double[] latLon = GeoHashUtils.decode(f.stringValue(),shapeIO);
-    //flip to XY
-    double y = latLon[0];
-    latLon[0] = latLon[1];
-    latLon[1] = y;
-    return latLon;
-  }
-
-  public Point decodeXY(BytesRef term) {
-    double[] latLon = GeoHashUtils.decode(term.utf8ToString(),shapeIO);
-    return shapeIO.makePoint(latLon[1],latLon[0]);
   }
 
 }

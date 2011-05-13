@@ -30,6 +30,7 @@ import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Point;
@@ -51,9 +52,11 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   private final GridReferenceSystem gridReferenceSystem;
   private final int expectedFieldsPerDocument;
+  private int prefixGridScanLevel;//TODO how is this customized?
 
   public GeohashStrategy( GridReferenceSystem gridReferenceSystem ) {
     this( gridReferenceSystem, 2 ); // array gets initalized with 2 slots
+    prefixGridScanLevel = gridReferenceSystem.getMaxLevels() - 4;//TODO this default constant is dependent on the prefix grid size
   }
 
   public GeohashStrategy( GridReferenceSystem gridReferenceSystem, int expectedFieldsPerDocument ) {
@@ -71,15 +74,16 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
     }
 
     Point p = (Point)shape;
-    String hash = gridReferenceSystem.encodeXY(p.getX(), p.getY());
+    SpatialPrefixGrid.Cell cell = gridReferenceSystem.getCell(p.getX(), p.getY(), gridReferenceSystem.getMaxLevels());
+    String token = cell.getTokenString();//includes trailing '+' by the way
     if( index ) {
-      Field f = new Field( fieldInfo.getFieldName(), hash, store?Store.YES:Store.NO, Index.ANALYZED_NO_NORMS );
+      Field f = new Field( fieldInfo.getFieldName(), token, store?Store.YES:Store.NO, Index.ANALYZED_NO_NORMS );
       f.setTokenStream(
-          new EdgeNGramTokenizer(new StringReader(hash), EdgeNGramTokenizer.Side.FRONT, 1, Integer.MAX_VALUE));
+          new EdgeNGramTokenizer(new StringReader(token), EdgeNGramTokenizer.Side.FRONT, 1, Integer.MAX_VALUE));
       return f;
     }
     if( store ) {
-      return new Field( fieldInfo.getFieldName(), hash, Store.YES, Index.NO );
+      return new Field( fieldInfo.getFieldName(), token, Store.YES, Index.NO );
     }
     throw new UnsupportedOperationException( "index or store must be true" );
   }
@@ -88,7 +92,7 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo, DistanceCalculator calc) {
     GeoHashFieldCacheProvider p = provider.get( fieldInfo.getFieldName() );
     if( p == null ) {
-      p = new GeoHashFieldCacheProvider( gridReferenceSystem.shapeIO, fieldInfo.getFieldName(), expectedFieldsPerDocument );
+      p = new GeoHashFieldCacheProvider( gridReferenceSystem, fieldInfo.getFieldName(), expectedFieldsPerDocument );
     }
     Point point = args.getShape().getCenter();
     return new CachedDistanceValueSource(point, calc, p);
@@ -125,12 +129,12 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
         qshape = pDistGeo.getEnclosingBox1();
         Shape shape2 = pDistGeo.getEnclosingBox2();
         if (shape2 != null)
-          qshape = new Shapes(Arrays.asList(qshape,shape2),gridReferenceSystem.shapeIO);
+          qshape = new Shapes(Arrays.asList(qshape,shape2),gridReferenceSystem.getShapeIO());
       }
     }
 
     return new GeoHashPrefixFilter(
-        fieldInfo.getFieldName(),gridReferenceSystem,qshape);
+        fieldInfo.getFieldName(), gridReferenceSystem,qshape, prefixGridScanLevel);
   }
 }
 

@@ -1,16 +1,14 @@
 package org.googlecode.lucene.spatial.strategy.geohash;
 
-import java.io.IOException;
-
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.geohash.GeohashStrategy;
 import org.apache.lucene.spatial.strategy.geohash.GridReferenceSystem;
 import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+import java.io.IOException;
 
 
 public class GeohashStrategyWithExtrasTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
@@ -23,13 +21,13 @@ public class GeohashStrategyWithExtrasTestCase extends StrategyTestCase<SimpleSp
 
     SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo( "geohash" );
 
-    int maxLength = GridReferenceSystem.getMaxPrecision();
+    int maxLength = GridReferenceSystem.getMaxLevelsPossible();
     GridReferenceSystem grs = new GridReferenceSystem(
         new JtsSpatialContext(), maxLength );
     GeohashStrategy s = new GeohashStrategy( grs );
 
     // SimpleIO
-    executeQueries( s, grs.shapeIO, finfo,
+    executeQueries( s, grs.getShapeIO(), finfo,
         SpatialMatchConcern.FILTER,
         DATA_WORLD_CITIES_POINTS,
         QTEST_Cities_IsWithin_BBox );
