@@ -30,6 +30,7 @@ import org.apache.lucene.search.function.ValueSourceQuery;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
+import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
@@ -50,16 +51,16 @@ public class GeohashStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   private final Map<String, GeoHashFieldCacheProvider> provider = new ConcurrentHashMap<String, GeoHashFieldCacheProvider>();
 
-  private final GridReferenceSystem gridReferenceSystem;
+  private final GeohashSpatialPrefixGrid gridReferenceSystem;
   private final int expectedFieldsPerDocument;
   private int prefixGridScanLevel;//TODO how is this customized?
 
-  public GeohashStrategy( GridReferenceSystem gridReferenceSystem ) {
+  public GeohashStrategy( GeohashSpatialPrefixGrid gridReferenceSystem ) {
     this( gridReferenceSystem, 2 ); // array gets initalized with 2 slots
     prefixGridScanLevel = gridReferenceSystem.getMaxLevels() - 4;//TODO this default constant is dependent on the prefix grid size
   }
 
-  public GeohashStrategy( GridReferenceSystem gridReferenceSystem, int expectedFieldsPerDocument ) {
+  public GeohashStrategy( GeohashSpatialPrefixGrid gridReferenceSystem, int expectedFieldsPerDocument ) {
     this.gridReferenceSystem = gridReferenceSystem;
     this.expectedFieldsPerDocument = expectedFieldsPerDocument;
   }

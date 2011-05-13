@@ -15,19 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.strategy.geohash;
+package org.apache.lucene.spatial.base.prefix;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.util.LuceneTestCase;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 /**
- * Tests for {@link GeoHashUtils}
+ * Tests for {@link GeohashUtils}
  */
-public class TestGeoHashUtils extends LuceneTestCase {
+public class TestGeohashUtils {
   SpatialContext shapeIO = new SimpleSpatialContext( DistanceUnits.KILOMETERS );
 
   /**
@@ -36,10 +37,10 @@ public class TestGeoHashUtils extends LuceneTestCase {
    */
   @Test
   public void testEncode() {
-    String hash = GeoHashUtils.encode(42.6, -5.6);
+    String hash = GeohashUtils.encode(42.6, -5.6);
     assertEquals("ezs42e44yx96", hash);
 
-    hash = GeoHashUtils.encode(57.64911, 10.40744);
+    hash = GeohashUtils.encode(57.64911, 10.40744);
     assertEquals("u4pruydqqvj8", hash);
   }
 
@@ -49,9 +50,9 @@ public class TestGeoHashUtils extends LuceneTestCase {
    */
   @Test
   public void testDecodePreciseLongitudeLatitude() {
-    String hash = GeoHashUtils.encode(52.3738007, 4.8909347);
+    String hash = GeohashUtils.encode(52.3738007, 4.8909347);
 
-    Point point = GeoHashUtils.decode(hash,shapeIO);
+    Point point = GeohashUtils.decode(hash,shapeIO);
 
     assertEquals(52.3738007, point.getY(), 0.00001D);
     assertEquals(4.8909347, point.getX(), 0.00001D);
@@ -63,9 +64,9 @@ public class TestGeoHashUtils extends LuceneTestCase {
    */
   @Test
   public void testDecodeImpreciseLongitudeLatitude() {
-    String hash = GeoHashUtils.encode(84.6, 10.5);
+    String hash = GeohashUtils.encode(84.6, 10.5);
 
-    Point point = GeoHashUtils.decode(hash,shapeIO);
+    Point point = GeohashUtils.decode(hash, shapeIO);
 
     assertEquals(84.6, point.getY(), 0.00001D);
     assertEquals(10.5, point.getX(), 0.00001D);
@@ -77,17 +78,17 @@ public class TestGeoHashUtils extends LuceneTestCase {
   @Test
   public void testDecodeEncode() {
     String geoHash = "u173zq37x014";
-    assertEquals(geoHash, GeoHashUtils.encode(52.3738007, 4.8909347));
-    Point point = GeoHashUtils.decode(geoHash,shapeIO);
+    assertEquals(geoHash, GeohashUtils.encode(52.3738007, 4.8909347));
+    Point point = GeohashUtils.decode(geoHash,shapeIO);
     assertEquals(52.37380061d, point.getY(), 0.000001d);
     assertEquals(4.8909343d, point.getX(), 0.000001d);
 
-    assertEquals(geoHash, GeoHashUtils.encode(point.getY(), point.getX()));
+    assertEquals(geoHash, GeohashUtils.encode(point.getY(), point.getX()));
 
     geoHash = "u173";
-    point = GeoHashUtils.decode("u173",shapeIO);
-    geoHash = GeoHashUtils.encode(point.getY(), point.getX());
-    final Point point2 = GeoHashUtils.decode(geoHash, shapeIO);
+    point = GeohashUtils.decode("u173",shapeIO);
+    geoHash = GeohashUtils.encode(point.getY(), point.getX());
+    final Point point2 = GeohashUtils.decode(geoHash, shapeIO);
     assertEquals(point.getY(), point2.getY(), 0.000001d);
     assertEquals(point.getX(), point2.getX(), 0.000001d);
   }
@@ -95,7 +96,7 @@ public class TestGeoHashUtils extends LuceneTestCase {
   /** see the table at http://en.wikipedia.org/wiki/Geohash */
   @Test
   public void testHashLenToWidth() {
-    double[] box = GeoHashUtils.lookupDegreesSizeForHashLen(3);
+    double[] box = GeohashUtils.lookupDegreesSizeForHashLen(3);
     assertEquals(1.40625,box[0],0.0001);
     assertEquals(1.40625,box[1],0.0001);
   }

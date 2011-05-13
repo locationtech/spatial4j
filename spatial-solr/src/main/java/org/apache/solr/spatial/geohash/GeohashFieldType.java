@@ -17,9 +17,9 @@
 
 package org.apache.solr.spatial.geohash;
 
+import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.geohash.GeohashStrategy;
-import org.apache.lucene.spatial.strategy.geohash.GridReferenceSystem;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
@@ -32,8 +32,8 @@ import java.util.Map;
  */
 public class GeohashFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
 
-  public static final int DEFAULT_LENGTH = GridReferenceSystem.getMaxLevelsPossible();//~12
-  private GridReferenceSystem gridReferenceSystem;
+  public static final int DEFAULT_LENGTH = GeohashSpatialPrefixGrid.getMaxLevelsPossible();//~12
+  private GeohashSpatialPrefixGrid gridReferenceSystem;
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
@@ -41,7 +41,7 @@ public class GeohashFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
 
     String len = args.remove("length");
     int maxLen = len!=null?Integer.parseInt(len): DEFAULT_LENGTH;
-    gridReferenceSystem = new GridReferenceSystem( reader, maxLen );
+    gridReferenceSystem = new GeohashSpatialPrefixGrid( reader, maxLen );
     spatialStrategy = new GeohashStrategy( gridReferenceSystem );
     spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }

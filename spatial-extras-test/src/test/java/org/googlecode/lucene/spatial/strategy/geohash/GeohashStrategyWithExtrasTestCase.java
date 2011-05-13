@@ -2,8 +2,8 @@ package org.googlecode.lucene.spatial.strategy.geohash;
 
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
+import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
 import org.apache.lucene.spatial.strategy.geohash.GeohashStrategy;
-import org.apache.lucene.spatial.strategy.geohash.GridReferenceSystem;
 import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
@@ -21,8 +21,8 @@ public class GeohashStrategyWithExtrasTestCase extends StrategyTestCase<SimpleSp
 
     SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo( "geohash" );
 
-    int maxLength = GridReferenceSystem.getMaxLevelsPossible();
-    GridReferenceSystem grs = new GridReferenceSystem(
+    int maxLength = GeohashSpatialPrefixGrid.getMaxLevelsPossible();
+    GeohashSpatialPrefixGrid grs = new GeohashSpatialPrefixGrid(
         new JtsSpatialContext(), maxLength );
     GeohashStrategy s = new GeohashStrategy( grs );
 

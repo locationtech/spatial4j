@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.strategy.geohash;
+package org.apache.lucene.spatial.base.prefix;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
@@ -27,7 +27,7 @@ import java.util.Arrays;
  * Utilities for encoding and decoding geohashes. Based on
  * <a href="http://en.wikipedia.org/wiki/Geohash">http://en.wikipedia.org/wiki/Geohash</a>.
  */
-public class GeoHashUtils {
+public class GeohashUtils {
 
   private static final char[] BASE_32 = {'0', '1', '2', '3', '4', '5', '6',
       '7', '8', '9', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', 'm', 'n',
@@ -47,7 +47,7 @@ public class GeoHashUtils {
     }
   }
 
-  private GeoHashUtils() {
+  private GeohashUtils() {
   }
 
   /**
