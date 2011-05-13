@@ -138,7 +138,6 @@ public abstract class SpatialPrefixGrid {
     public String toString() {
       return getTokenString();
     }
-
   }
 
   /** Transitional for legacy code. */

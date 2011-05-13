@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
+import org.apache.lucene.spatial.strategy.prefix.NGramPrefixGridStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
@@ -35,7 +35,7 @@ import org.apache.solr.spatial.SpatialFieldType;
  * <p/>
  * (2) Something for the field reader....
  */
-public class SpatialPrefixGridFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
+public class NGramSpatialPrefixGridFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
@@ -50,7 +50,7 @@ public class SpatialPrefixGridFieldType extends SpatialFieldType<SimpleSpatialFi
     QuadPrefixGrid grid = new QuadPrefixGrid(-180, 180, -90 - 180, 90, 16,reader);
     grid.setResolution(5);
 
-    spatialStrategy = new PrefixGridStrategy(grid, maxLength);
+    spatialStrategy = new NGramPrefixGridStrategy(grid, maxLength);
     spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 

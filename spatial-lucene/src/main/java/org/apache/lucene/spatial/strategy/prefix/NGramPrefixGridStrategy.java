@@ -1,11 +1,15 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.miscellaneous.RemoveDuplicatesTokenFilter;
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
@@ -14,16 +18,25 @@ import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
+import org.apache.lucene.spatial.strategy.SpatialStrategy;
+import org.apache.lucene.spatial.strategy.util.StringListTokenizer;
+import org.apache.lucene.spatial.strategy.util.TruncateFilter;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Chris Male
  */
-public class NGramPrefixGridStrategy extends PrefixGridStrategy {
+public class NGramPrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
+  protected final SpatialPrefixGrid grid;
+  protected final int maxLength;
+  
   public NGramPrefixGridStrategy(SpatialPrefixGrid grid, int maxLength) {
-    super(grid, maxLength);
+    this.grid = grid;
+    this.maxLength = maxLength;
   }
 
   @Override
@@ -44,6 +57,12 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
     return null;
   }
 
+
+  @Override
+  public Filter makeFilter(SpatialArgs args, SimpleSpatialFieldInfo field) {
+    return new QueryWrapperFilter( makeQuery(args, field) );
+  }
+  
   @Override
   public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo field) {
     if (args.getOperation() != SpatialOperation.Intersects &&
@@ -62,4 +81,22 @@ public class NGramPrefixGridStrategy extends PrefixGridStrategy {
     return booleanQuery;
   }
 
+  // ================================================= Helper Methods ================================================
+
+  protected List<String> simplifyGridCells(List<String> gridCells) {
+    List<String> newGridCells = new ArrayList<String>();
+    for (String gridCell : gridCells) {
+      newGridCells.add(gridCell.toLowerCase(Locale.ENGLISH).substring(0, gridCell.length() - 1));
+    }
+    return newGridCells;
+  }
+
+  protected TokenStream buildBasicTokenStream(List<String> gridCells) {
+    if (maxLength > 0) {
+      return new RemoveDuplicatesTokenFilter(
+          new TruncateFilter(new StringListTokenizer(gridCells), maxLength));
+    } else {
+      return new StringListTokenizer(gridCells);
+    }
+  }
 }

@@ -13,34 +13,34 @@ import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
+import org.apache.lucene.spatial.strategy.prefix.NGramPrefixGridStrategy;
 import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
 
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 
-public class PrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo>{
+public class NGramPrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo>{
 
   public void executeQueries( SpatialContext io,
       SpatialMatchConcern concern, String data, String ... tests ) throws IOException {
 
     SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo("geo");
-    PrefixGridStrategy s
-      = new PrefixGridStrategy(
+    NGramPrefixGridStrategy s
+      = new NGramPrefixGridStrategy(
           new QuadPrefixGrid(-180, 180, -90, 90, 12, io), 0);
 
     executeQueries( s, io, finfo, concern, data, tests );
   }
-
-  @Test
-  public void testPrefixGridPolyWithJts() throws IOException {
-    executeQueries( new JtsSpatialContext(),
-        SpatialMatchConcern.SUPERSET,
-        DATA_STATES_POLY,
-        QTEST_States_IsWithin_BBox,
-        QTEST_States_Intersects_BBox );
-  }
+//
+//  @Test
+//  public void testPrefixGridPolyWithJts() throws IOException {
+//    executeQueries( new JtsSpatialContext(),
+//        SpatialMatchConcern.SUPERSET,
+//        DATA_STATES_POLY,
+//        QTEST_States_IsWithin_BBox,
+//        QTEST_States_Intersects_BBox );
+//  }
 
   @Test
   public void testPrefixGridPointsJts() throws IOException {
@@ -54,7 +54,7 @@ public class PrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFi
   @Test
   public void testPrefixGridLosAngeles() throws IOException {
     SimpleSpatialFieldInfo fieldInfo = new SimpleSpatialFieldInfo("geo");
-    PrefixGridStrategy prefixGridStrategy = new PrefixGridStrategy(new QuadPrefixGrid(), 0);
+    NGramPrefixGridStrategy prefixGridStrategy = new NGramPrefixGridStrategy(new QuadPrefixGrid(), 0);
 
     Shape point = new Point2D(-118.243680, 34.052230);
 
