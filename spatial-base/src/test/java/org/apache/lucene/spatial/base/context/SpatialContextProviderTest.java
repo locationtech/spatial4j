@@ -6,9 +6,7 @@ import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.junit.After;
 import org.junit.Test;
 
-/**
- * @author Chris Male
- */
+
 public class SpatialContextProviderTest {
 
   @Test

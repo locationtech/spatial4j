@@ -6,9 +6,7 @@ import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-/**
- * @author Chris Male
- */
+
 public class MockSpatialContext extends SpatialContext {
 
   @Override

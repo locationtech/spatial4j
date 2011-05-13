@@ -14,9 +14,6 @@ import org.apache.lucene.spatial.test.SpatialTestCase;
 import org.junit.Test;
 
 
-/**
- * @author Chris Male
- */
 public class TestNGramPrefixGridStrategy extends SpatialTestCase {
 
   @Test

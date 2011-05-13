@@ -6,9 +6,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 
 import java.util.Collection;
 
-/**
- * @author Chris Male
- */
+
 public class MockSpatialPrefixGrid extends SpatialPrefixGrid {
 
   public MockSpatialPrefixGrid() {

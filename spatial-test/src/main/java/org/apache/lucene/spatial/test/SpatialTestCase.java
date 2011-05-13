@@ -18,9 +18,7 @@ import org.apache.lucene.util.LuceneTestCase;
 import org.junit.After;
 import org.junit.Before;
 
-/**
- * @author Chris Male
- */
+
 public abstract class SpatialTestCase extends LuceneTestCase {
 
   private IndexReader indexReader;

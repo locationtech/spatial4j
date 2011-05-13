@@ -9,9 +9,7 @@ import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 
-/**
- * @author Chris Male
- */
+
 public abstract class QueryShapeTask<T extends SpatialFieldInfo> extends PerfTask implements StrategyAware<T> {
 
   private SpatialArgs spatialArgs;

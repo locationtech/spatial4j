@@ -12,9 +12,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 
-/**
- * @author Chris Male
- */
+
 public abstract class IndexShapeTask<T extends SpatialFieldInfo> extends PerfTask implements StrategyAware<T> {
 
   private ShapeGenerator shapeGenerator;

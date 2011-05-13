@@ -26,9 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * @author Chris Male
- */
+
 public class NGramPrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   protected final SpatialPrefixGrid grid;
