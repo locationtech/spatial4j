@@ -21,14 +21,12 @@ import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
 import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class QuadPrefixGrid extends SpatialPrefixGrid {
 
@@ -50,18 +48,15 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
   private int minResolution = 6; // Go at least this deep
   private int resolution = 4; // how far down past the 'bbox level'
 
-  private final SpatialContext shapeIO;
-
   public QuadPrefixGrid(
       double xmin, double xmax,
       double ymin, double ymax,
       int maxLevels, SpatialContext shapeIO) {
-    super(maxLevels);
+    super(shapeIO, maxLevels);
     this.xmin = xmin;
     this.xmax = xmax;
     this.ymin = ymin;
     this.ymax = ymax;
-    this.shapeIO = shapeIO;
 
     levelW = new double[maxLevels];
     levelH = new double[maxLevels];
@@ -147,6 +142,7 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
     }
 
     build(xmid, ymid, 0, cells, new StringBuilder(), shape, maxLevel);
+    Collections.sort(cells);
     return cells;
   }
 
@@ -161,6 +157,11 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
   @Override
   public Cell getCell(String token) {
     return new QuadCell(token);
+  }
+
+  @Override
+  public Point getPoint(String token) {
+    throw new UnsupportedOperationException("TODO unimplemented");//TODO
   }
 
   private void build(
