@@ -141,7 +141,7 @@ public class DynamicPrefixFilter extends Filter {
 //  double estimateNumberIndexedTerms(int cellLen,double points) {
 //    return 1000;
 //    double levelProb = probabilityNumCells[points];// [1,32)
-//    if (cellLen < geohashLength)
+//    if (cellLen < termLength)
 //      return levelProb + levelProb * estimateNumberIndexedTerms(cellLen+1,points/levelProb);
 //    return levelProb;
 //  }

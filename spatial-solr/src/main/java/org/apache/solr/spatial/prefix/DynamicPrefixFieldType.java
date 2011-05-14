@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.geohash;
+package org.apache.solr.spatial.prefix;
 
 import java.util.Map;
 
@@ -30,7 +30,7 @@ import org.apache.solr.spatial.SpatialFieldType;
 /**
  *
  */
-public class GeohashFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
+public class DynamicPrefixFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
 
   public static final int DEFAULT_LENGTH = GeohashSpatialPrefixGrid.getMaxLevelsPossible();//~12
   private GeohashSpatialPrefixGrid gridReferenceSystem;

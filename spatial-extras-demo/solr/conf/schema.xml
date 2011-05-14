@@ -55,9 +55,9 @@
 
 
     <!-- Geometry Field Strategies -->
-    <fieldtype name="grid"  class="org.apache.solr.spatial.prefix.SpatialPrefixGridFieldType"  ignoreIncompatibleGeometry="true" />
+    <fieldtype name="grid"  class="org.apache.solr.spatial.prefix.NGramSpatialPrefixGridFieldType"  ignoreIncompatibleGeometry="true" />
     <fieldtype name="point" class="org.apache.solr.spatial.point.PointFieldType"               ignoreIncompatibleGeometry="true" />
-    <fieldtype name="geohash" class="org.apache.solr.spatial.geohash.GeohashFieldType"         ignoreIncompatibleGeometry="true" />
+    <fieldtype name="geohash" class="org.apache.solr.spatial.prefix.DynamicPrefixFieldType"         ignoreIncompatibleGeometry="true" />
 
  </types>
 
