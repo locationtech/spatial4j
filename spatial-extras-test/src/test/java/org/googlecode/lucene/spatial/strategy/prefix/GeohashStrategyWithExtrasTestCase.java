@@ -1,7 +1,6 @@
-package org.googlecode.lucene.spatial.strategy.geohash;
+package org.googlecode.lucene.spatial.strategy.prefix;
 
-import java.io.IOException;
-
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.prefix.DynamicPrefixStrategy;
@@ -9,7 +8,7 @@ import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+import java.io.IOException;
 
 
 public class GeohashStrategyWithExtrasTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {

@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.strategy.geohash;
+package org.apache.lucene.spatial.strategy.prefix;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
