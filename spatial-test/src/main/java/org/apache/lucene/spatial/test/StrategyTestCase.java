@@ -18,22 +18,12 @@
 package org.apache.lucene.spatial.test;
 
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import junit.framework.Assert;
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
@@ -41,6 +31,12 @@ import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 
 public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends SpatialTestCase {
@@ -59,6 +55,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
 
   protected final SpatialArgsParser argsParser = new SpatialArgsParser();
 
+  private final Logger log = LoggerFactory.getLogger(getClass());
   protected void executeQueries(
       SpatialStrategy<T> strategy,
       SpatialContext shapeIO,
@@ -66,6 +63,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
       SpatialMatchConcern concern,
       String testDataFile,
       String ... testQueryFile ) throws IOException {
+    log.info("testing strategy "+strategy);
     List<Document> testDocuments = getDocuments(testDataFile, shapeIO, strategy, fieldInfo);
     addDocuments(testDocuments);
     verifyDocumentsIndexed(testDocuments.size());

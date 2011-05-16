@@ -17,16 +17,11 @@
 
 package org.apache.lucene.spatial.strategy.prefix;
 
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenizer;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.Query;
@@ -47,23 +42,37 @@ import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.lucene.spatial.strategy.util.CachedDistanceValueSource;
 
+import java.io.StringReader;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 public class DynamicPrefixStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   private final Map<String, PrefixFieldCacheProvider> provider = new ConcurrentHashMap<String, PrefixFieldCacheProvider>();
 
-  private final GeohashSpatialPrefixGrid gridReferenceSystem;
+  private final GeohashSpatialPrefixGrid grid;
   private final int expectedFieldsPerDocument;
   private int prefixGridScanLevel;//TODO how is this customized?
 
-  public DynamicPrefixStrategy(GeohashSpatialPrefixGrid gridReferenceSystem) {
-    this( gridReferenceSystem, 2 ); // array gets initalized with 2 slots
-    prefixGridScanLevel = gridReferenceSystem.getMaxLevels() - 4;//TODO this default constant is dependent on the prefix grid size
+  public DynamicPrefixStrategy(GeohashSpatialPrefixGrid grid) {
+    this(grid, 2 ); // array gets initalized with 2 slots
+    prefixGridScanLevel = grid.getMaxLevels() - 4;//TODO this default constant is dependent on the prefix grid size
   }
 
-  public DynamicPrefixStrategy(GeohashSpatialPrefixGrid gridReferenceSystem, int expectedFieldsPerDocument) {
-    this.gridReferenceSystem = gridReferenceSystem;
+  public DynamicPrefixStrategy(GeohashSpatialPrefixGrid grid, int expectedFieldsPerDocument) {
+    this.grid = grid;
     this.expectedFieldsPerDocument = expectedFieldsPerDocument;
+  }
+
+  public void setPrefixGridScanLevel(int prefixGridScanLevel) {
+    this.prefixGridScanLevel = prefixGridScanLevel;
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName()+"(prefixGridScanLevel:"+prefixGridScanLevel+",SPG:("+ grid +"))";
   }
 
   @Override
@@ -76,7 +85,7 @@ public class DynamicPrefixStrategy extends SpatialStrategy<SimpleSpatialFieldInf
     }
 
     Point p = (Point)shape;
-    SpatialPrefixGrid.Cell cell = gridReferenceSystem.getCell(p.getX(), p.getY(), gridReferenceSystem.getMaxLevels());
+    SpatialPrefixGrid.Cell cell = grid.getCell(p.getX(), p.getY(), grid.getMaxLevels());
     String token = cell.getTokenString();//includes trailing '+' by the way
     if( index ) {
       Field f = new Field( fieldInfo.getFieldName(), token, store?Store.YES:Store.NO, Index.ANALYZED_NO_NORMS );
@@ -94,7 +103,7 @@ public class DynamicPrefixStrategy extends SpatialStrategy<SimpleSpatialFieldInf
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo, DistanceCalculator calc) {
     PrefixFieldCacheProvider p = provider.get( fieldInfo.getFieldName() );
     if( p == null ) {
-      p = new PrefixFieldCacheProvider( gridReferenceSystem, fieldInfo.getFieldName(), expectedFieldsPerDocument );
+      p = new PrefixFieldCacheProvider(grid, fieldInfo.getFieldName(), expectedFieldsPerDocument );
     }
     Point point = args.getShape().getCenter();
     return new CachedDistanceValueSource(point, calc, p);
@@ -131,12 +140,12 @@ public class DynamicPrefixStrategy extends SpatialStrategy<SimpleSpatialFieldInf
         qshape = pDistGeo.getEnclosingBox1();
         Shape shape2 = pDistGeo.getEnclosingBox2();
         if (shape2 != null)
-          qshape = new Shapes(Arrays.asList(qshape,shape2),gridReferenceSystem.getShapeIO());
+          qshape = new Shapes(Arrays.asList(qshape,shape2), grid.getShapeIO());
       }
     }
 
     return new DynamicPrefixFilter(
-        fieldInfo.getFieldName(), gridReferenceSystem,qshape, prefixGridScanLevel);
+        fieldInfo.getFieldName(), grid,qshape, prefixGridScanLevel);
   }
 }
 

@@ -17,14 +17,14 @@
 
 package org.apache.lucene.spatial.base.prefix;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Shape;
+
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.Shape;
 
 /**
  * Implementations should be threadsafe.
@@ -48,6 +48,11 @@ public abstract class SpatialPrefixGrid {
 
   public SpatialContext getShapeIO() {
     return shapeIO;
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName()+"(maxLevels:"+maxLevels+",shapeIO:"+shapeIO+")";
   }
 
   /**
