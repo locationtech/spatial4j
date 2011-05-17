@@ -13,12 +13,14 @@ import java.io.IOException;
 
 public abstract class BaseGeohashStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
 
+  private int maxLength;
+
   protected abstract SpatialContext getSpatialContext();
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    int maxLength = GeohashSpatialPrefixGrid.getMaxLevelsPossible();
+    maxLength = GeohashSpatialPrefixGrid.getMaxLevelsPossible();
     // SimpleIO
     this.shapeIO = getSpatialContext();
     this.strategy = new DynamicPrefixStrategy(new GeohashSpatialPrefixGrid(
@@ -29,6 +31,11 @@ public abstract class BaseGeohashStrategyTestCase extends StrategyTestCase<Simpl
   @Test
   public void testGeohashStrategy() throws IOException {
     getAddAndVerifyIndexedDocuments(DATA_WORLD_CITIES_POINTS);
-    executeQueries(SpatialMatchConcern.FILTER, QTEST_Cities_IsWithin_BBox);
+
+    //execute queries for each prefix grid scan level
+    for(int i = 0; i <= maxLength; i++) {
+      ((DynamicPrefixStrategy)strategy).setPrefixGridScanLevel(i);
+      executeQueries(SpatialMatchConcern.FILTER, QTEST_Cities_IsWithin_BBox);
+    }
   }
 }
