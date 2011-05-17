@@ -17,14 +17,11 @@
 
 package org.apache.lucene.spatial.strategy.prefix;
 
-import java.io.IOException;
-import java.util.LinkedList;
-
 import org.apache.lucene.index.DocsEnum;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.spatial.base.IntersectCase;
@@ -35,14 +32,40 @@ import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.OpenBitSet;
 
+import java.io.IOException;
+import java.util.LinkedList;
+
 /**
  * Performs a dynamic length spatial filter against a field indexed using an NGram based {@link SpatialPrefixGrid}.
  * This filter recursively traverses each grid length and uses methods on {@link Shape} to efficiently know
  * that all points at a prefix fit in the shape or not to either short-circuit unnecessary traversals or to efficiently
  * load all enclosed points.
- *
  */
 public class DynamicPrefixFilter extends Filter {
+
+  /* TODOs for future:
+
+Add a precision short-circuit so that we are not accurate on the edge but we're faster.
+
+Can a polygon query shape be optimized / made-simpler at recursive depths (e.g. intersection of shape + cell box)
+
+RE "manyPoints" threshold:
+
+IF configured to do so, we could use term.freq() as an estimate on the number of places at this depth.  OR, perhaps
+ //  make estimates based on the total known term count at this level?  Or don't worry about it--use fixed depth.
+  if (manyPoints) {
+    //Make some estimations on how many points there are at this level and how few there would need to be to set
+    // manyPoints to false.
+
+    long termsThreshold = (long) estimateNumberIndexedTerms(cell.length(),queryShape.getDocFreqExpenseThreshold(cell));
+
+    long thisOrd = termsEnum.ord();
+    manyPoints = (termsEnum.seek(thisOrd+termsThreshold+1) != TermsEnum.SeekStatus.END
+            && cell.contains(termsEnum.term()));
+    termsEnum.seek(thisOrd);//return to last position
+  }
+
+  */
 
   private final String fieldName;
   private final SpatialPrefixGrid grid;
@@ -56,6 +79,7 @@ public class DynamicPrefixFilter extends Filter {
     this.prefixGridScanLevel = Math.min(prefixGridScanLevel,grid.getMaxLevels()-1);
   }
 
+
   @Override
   public DocIdSet getDocIdSet(AtomicReaderContext ctx) throws IOException {
     IndexReader reader = ctx.reader;
@@ -68,18 +92,28 @@ public class DynamicPrefixFilter extends Filter {
     Bits delDocs = reader.getDeletedDocs();
     BytesRef term = termsEnum.next();//the most recent term examined via termsEnum.term()
 
-    //TODO Add a precision short-circuit so that we are not accurate on the edge but we're faster.
-
-    //cells is treated like a stack. LinkedList conveniently has bulk add to beginning.
+    //cells is treated like a stack. LinkedList conveniently has bulk add to beginning. It's in sorted order so that we
+    //  always advance forward through the termsEnum index.
     LinkedList<SpatialPrefixGrid.Cell> cells = new LinkedList<SpatialPrefixGrid.Cell>(grid.getCells(queryShape));
 
+    //This is a recursive algorithm that starts with one or more "big" cells, and then recursively dives down into the
+    // first such cell that intersects with the query shape.  It's a depth first traversal because we don't move onto
+    // the next big cell (breadth) until we're completely done considering all smaller cells beneath it. For a given
+    // cell, if the query shape *contains* the cell then we can conveniently short-circuit the depth traversal and
+    // grab all documents assigned to this cell/term.  For an intersection of the cell and query shape, we either
+    // recursively step down another grid level or we decide heuristically (via prefixGridScanLevel) that there aren't
+    // that many points, and so we scan through all terms within this cell (e.g. the term starts with the cell's term),
+    // seeing which ones are within the query shape.
     while(!cells.isEmpty() && term != null) {
       final SpatialPrefixGrid.Cell cell = cells.removeFirst();
       assert cell.getLevel() > 0;
       final BytesRef cellTerm = new BytesRef(cell.getBytes());
-      //if term is "ahead" of this cell (not within and comes after) then short-circuit; continue onto the next cell
+
+      //Optimization: If term is "ahead" of this cell (not within and comes after) then short-circuit. This avoids
+      // calling potentially expensive queryShape.intersect(cell.getShape()).
       if (!term.startsWith(cellTerm) && cellTerm.compareTo(term) < 0)
-        continue; //TODO DWS: !! double-check logic correction
+        continue;
+
       IntersectCase intersection = queryShape.intersect(cell.getShape(), grid.getShapeIO());
       if (intersection == IntersectCase.OUTSIDE)
         continue;
@@ -94,25 +128,9 @@ public class DynamicPrefixFilter extends Filter {
         addDocs(docsEnum,bits);
         term = termsEnum.next();//move to next term
       } else {//any other intersection
-        //TODO is it worth it to optimize the shape (e.g. potentially simpler polygon)?
 
-        //We either scan through the leaf cell(s), or if there are many points then we divide & conquer.
-        boolean manyPoints = cell.getLevel() < prefixGridScanLevel;
-
-        //TODO Try variable depth strategy:
-        //IF configured to do so, we could use term.freq() as an estimate on the number of places at this depth.  OR, perhaps
-        //  make estimates based on the total known term count at this level?  Or don't worry about it--use fixed depth.
-//        if (manyPoints) {
-//          //Make some estimations on how many points there are at this level and how few there would need to be to set
-//          // manyPoints to false.
-//
-//          long termsThreshold = (long) estimateNumberIndexedTerms(cell.length(),queryShape.getDocFreqExpenseThreshold(cell));
-//
-//          long thisOrd = termsEnum.ord();
-//          manyPoints = (termsEnum.seek(thisOrd+termsThreshold+1) != TermsEnum.SeekStatus.END
-//                  && cell.contains(termsEnum.term()));
-//          termsEnum.seek(thisOrd);//return to last position
-//        }
+        //We either scan through the leaf cell(s), or if there are "many points" then we divide & conquer.
+        boolean manyPoints = cell.getLevel() < prefixGridScanLevel;//simple heuristic
 
         if (!manyPoints) {
           //traverse all leaf terms within this cell to see if they are within the queryShape, one by one.
@@ -120,9 +138,7 @@ public class DynamicPrefixFilter extends Filter {
             Point p = grid.getPoint(term.utf8ToString());
             if (p == null)
               continue;
-            IntersectCase relation = queryShape.intersect(p, grid.getShapeIO());
-            //TODO !! refactor intersect implementations
-            if(relation == IntersectCase.OUTSIDE)
+            if(queryShape.intersect(p, grid.getShapeIO()) == IntersectCase.OUTSIDE)
               continue;
 
             docsEnum = termsEnum.docs(delDocs, docsEnum);
@@ -137,14 +153,6 @@ public class DynamicPrefixFilter extends Filter {
 
     return bits;
   }
-
-//  double estimateNumberIndexedTerms(int cellLen,double points) {
-//    return 1000;
-//    double levelProb = probabilityNumCells[points];// [1,32)
-//    if (cellLen < termLength)
-//      return levelProb + levelProb * estimateNumberIndexedTerms(cellLen+1,points/levelProb);
-//    return levelProb;
-//  }
 
   private void addDocs(DocsEnum docsEnum, OpenBitSet bits) throws IOException {
     DocsEnum.BulkReadResult bulk = docsEnum.getBulkResult();
@@ -173,6 +181,7 @@ public class DynamicPrefixFilter extends Filter {
 
     if (fieldName != null ? !fieldName.equals(that.fieldName) : that.fieldName != null) return false;
     if (queryShape != null ? !queryShape.equals(that.queryShape) : that.queryShape != null) return false;
+    if (prefixGridScanLevel != that.prefixGridScanLevel) return false;
 
     return true;
   }
