@@ -13,23 +13,23 @@ import java.io.IOException;
 
 public class GeohashStrategyWithExtrasTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
 
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    int maxLength = GeohashSpatialPrefixGrid.getMaxLevelsPossible();
+    this.shapeIO = new JtsSpatialContext();
+    GeohashSpatialPrefixGrid grs = new GeohashSpatialPrefixGrid(
+        shapeIO, maxLength );
+    this.strategy = new DynamicPrefixStrategy( grs );
+    this.fieldInfo = new SimpleSpatialFieldInfo( "geohash" );
+  }
+
   /**
    * For now, the only difference from the Simple version is that this uses JtsSpatialContext
    */
   @Test
   public void testGeohashStrategy() throws IOException {
-
-    SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo( "geohash" );
-
-    int maxLength = GeohashSpatialPrefixGrid.getMaxLevelsPossible();
-    GeohashSpatialPrefixGrid grs = new GeohashSpatialPrefixGrid(
-        new JtsSpatialContext(), maxLength );
-    DynamicPrefixStrategy s = new DynamicPrefixStrategy( grs );
-
-    // SimpleIO
-    executeQueries( s, grs.getShapeIO(), finfo,
-        SpatialMatchConcern.FILTER,
-        DATA_WORLD_CITIES_POINTS,
-        QTEST_Cities_IsWithin_BBox );
+    getAddAndVerifyIndexedDocuments(DATA_WORLD_CITIES_POINTS);
+    executeQueries(SpatialMatchConcern.FILTER, QTEST_Cities_IsWithin_BBox);
   }
 }

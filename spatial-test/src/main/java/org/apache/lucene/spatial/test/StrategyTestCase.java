@@ -52,29 +52,29 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
 
   public static final String QTEST_Cities_IsWithin_BBox = "cities-IsWithin-BBox.txt";
 
+  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   protected final SpatialArgsParser argsParser = new SpatialArgsParser();
 
-  private final Logger log = LoggerFactory.getLogger(getClass());
-  protected void executeQueries(
-      SpatialStrategy<T> strategy,
-      SpatialContext shapeIO,
-      T fieldInfo,
-      SpatialMatchConcern concern,
-      String testDataFile,
-      String ... testQueryFile ) throws IOException {
-    log.info("testing strategy "+strategy);
-    List<Document> testDocuments = getDocuments(testDataFile, shapeIO, strategy, fieldInfo);
-    addDocuments(testDocuments);
-    verifyDocumentsIndexed(testDocuments.size());
+  protected SpatialStrategy<T> strategy;
+  protected SpatialContext shapeIO;
+  protected T fieldInfo;
 
+  protected void executeQueries(SpatialMatchConcern concern, String... testQueryFile) throws IOException {
+    log.info("testing queried for strategy "+strategy);
     for( String path : testQueryFile ) {
       Iterator<SpatialTestQuery> testQueryIterator = getTestQueries(path, shapeIO);
-      runTestQueries(testQueryIterator, shapeIO, concern, strategy, fieldInfo);
+      runTestQueries(testQueryIterator, concern);
     }
   }
 
-  protected List<Document> getDocuments(String testDataFile, SpatialContext shapeIO, SpatialStrategy<T> strategy, T fieldInfo) throws IOException {
+  protected void getAddAndVerifyIndexedDocuments(String testDataFile) throws IOException {
+    List<Document> testDocuments = getDocuments(testDataFile);
+    addDocuments(testDocuments);
+    verifyDocumentsIndexed(testDocuments.size());
+  }
+
+  protected List<Document> getDocuments(String testDataFile) throws IOException {
     Iterator<SampleData> sampleData = getSampleData(testDataFile);
     List<Document> documents = new ArrayList<Document>();
     while (sampleData.hasNext()) {
@@ -106,10 +106,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
 
   public void runTestQueries(
       Iterator<SpatialTestQuery> queries,
-      SpatialContext shapeIO,
-      SpatialMatchConcern concern,
-      SpatialStrategy<T> strategy,
-      T fieldInfo) {
+      SpatialMatchConcern concern) {
     while (queries.hasNext()) {
       SpatialTestQuery q = queries.next();
 

@@ -1,8 +1,6 @@
 package org.googlecode.lucene.spatial.strategy.prefix;
 
-import java.io.IOException;
-import java.util.Arrays;
-
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.Query;
@@ -18,21 +16,22 @@ import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+import java.io.IOException;
+import java.util.Arrays;
 
 public class NGramPrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo>{
 
-  public void executeQueries( SpatialContext io,
-      SpatialMatchConcern concern, String data, String ... tests ) throws IOException {
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
 
-    SimpleSpatialFieldInfo finfo = new SimpleSpatialFieldInfo("geo");
-    NGramPrefixGridStrategy s
-      = new NGramPrefixGridStrategy(
-          new QuadPrefixGrid(-180, 180, -90, 90, 12, io), 0);
-
-    executeQueries( s, io, finfo, concern, data, tests );
+    this.shapeIO = new JtsSpatialContext();
+    this.strategy = new NGramPrefixGridStrategy(
+      new QuadPrefixGrid(-180, 180, -90, 90, 12, shapeIO), 0);
+    this.fieldInfo = new SimpleSpatialFieldInfo("geo");
   }
-//
+
+  //
 //  @Test
 //  public void testPrefixGridPolyWithJts() throws IOException {
 //    executeQueries( new JtsSpatialContext(),
@@ -44,10 +43,8 @@ public class NGramPrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpat
 
   @Test
   public void testPrefixGridPointsJts() throws IOException {
-    executeQueries( new JtsSpatialContext(),
-        SpatialMatchConcern.SUPERSET,
-        DATA_WORLD_CITIES_POINTS,
-        QTEST_Cities_IsWithin_BBox );
+    getAddAndVerifyIndexedDocuments(DATA_WORLD_CITIES_POINTS);
+    executeQueries(SpatialMatchConcern.SUPERSET, QTEST_Cities_IsWithin_BBox);
   }
 
 
