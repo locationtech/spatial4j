@@ -49,19 +49,16 @@ Add a precision short-circuit so that we are not accurate on the edge but we're 
 
 Can a polygon query shape be optimized / made-simpler at recursive depths (e.g. intersection of shape + cell box)
 
-RE "manyPoints" threshold:
-
-IF configured to do so, we could use term.freq() as an estimate on the number of places at this depth.  OR, perhaps
- //  make estimates based on the total known term count at this level?  Or don't worry about it--use fixed depth.
-  if (manyPoints) {
+RE "scan" threshold:
+  // IF configured to do so, we could use term.freq() as an estimate on the number of places at this depth.  OR, perhaps
+  //  make estimates based on the total known term count at this level?
+  if (!scan) {
     //Make some estimations on how many points there are at this level and how few there would need to be to set
-    // manyPoints to false.
-
+    // !scan to false.
     long termsThreshold = (long) estimateNumberIndexedTerms(cell.length(),queryShape.getDocFreqExpenseThreshold(cell));
-
     long thisOrd = termsEnum.ord();
-    manyPoints = (termsEnum.seek(thisOrd+termsThreshold+1) != TermsEnum.SeekStatus.END
-            && cell.contains(termsEnum.term()));
+    scan = (termsEnum.seek(thisOrd+termsThreshold+1) == TermsEnum.SeekStatus.END
+            || !cell.contains(termsEnum.term()));
     termsEnum.seek(thisOrd);//return to last position
   }
 
@@ -78,7 +75,6 @@ IF configured to do so, we could use term.freq() as an estimate on the number of
     this.queryShape = queryShape;
     this.prefixGridScanLevel = Math.min(prefixGridScanLevel,grid.getMaxLevels()-1);
   }
-
 
   @Override
   public DocIdSet getDocIdSet(AtomicReaderContext ctx) throws IOException {
@@ -109,6 +105,7 @@ IF configured to do so, we could use term.freq() as an estimate on the number of
       assert cell.getLevel() > 0;
       final BytesRef cellTerm = new BytesRef(cell.getBytes());
 
+      //TODO: benchmark this dubious optimization
       //Optimization: If term is "ahead" of this cell (not within and comes after) then short-circuit. This avoids
       // calling potentially expensive queryShape.intersect(cell.getShape()).
       if (!term.startsWith(cellTerm) && cellTerm.compareTo(term) < 0)
@@ -129,14 +126,18 @@ IF configured to do so, we could use term.freq() as an estimate on the number of
         term = termsEnum.next();//move to next term
       } else {//any other intersection
 
-        //We either scan through the leaf cell(s), or if there are "many points" then we divide & conquer.
-        boolean manyPoints = cell.getLevel() < prefixGridScanLevel;//simple heuristic
+        //Decide whether to continue to divide & conquer, or whether it's time to scan through terms beneath this cell.
+        boolean scan = cell.getLevel() >= prefixGridScanLevel;//simple heuristic
 
-        if (!manyPoints) {
-          //traverse all leaf terms within this cell to see if they are within the queryShape, one by one.
+        if (!scan) {
+          //Divide & conquer
+          cells.addAll(0, cell.getSubCells());//add to beginning
+        } else {
+          //Scan through all terms within this cell to see if they are within the queryShape.
           for(; term != null && term.startsWith(cellTerm); term = termsEnum.next()) {
+            // We use a simple & fast point instead of grid.getCell(term).getShape()  (a bbox)
             Point p = grid.getPoint(term.utf8ToString());
-            if (p == null)
+            if (p == null)//intermediate ngram
               continue;
             if(queryShape.intersect(p, grid.getShapeIO()) == IntersectCase.OUTSIDE)
               continue;
@@ -144,9 +145,6 @@ IF configured to do so, we could use term.freq() as an estimate on the number of
             docsEnum = termsEnum.docs(delDocs, docsEnum);
             addDocs(docsEnum,bits);
           }
-        } else {
-          //divide & conquer
-          cells.addAll(0, cell.getSubCells());//add to beginning
         }
       }
     }//cell loop
