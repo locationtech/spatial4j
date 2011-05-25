@@ -120,6 +120,12 @@ public class JtsEnvelope implements BBox {
         return IntersectCase.WITHIN;
       }
       return IntersectCase.INTERSECTS;
+    } else if (other instanceof Point) {
+      Point p = (Point)other;
+      if (envelope.contains(p.getX(),p.getY()))
+        return IntersectCase.CONTAINS;
+      else
+        return IntersectCase.OUTSIDE;
     } else if (JtsGeometry.class.isInstance(other)) {
       throw new IllegalArgumentException("TODO...");
     }
