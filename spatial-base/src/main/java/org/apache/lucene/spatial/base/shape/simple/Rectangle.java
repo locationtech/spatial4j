@@ -21,10 +21,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.PointDistanceShape;
-import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.*;
 
 /**
  * When minX > maxX, this will assume it is world coordinates that cross the
@@ -115,7 +112,7 @@ public class Rectangle implements BBox {
       return IntersectCase.INTERSECTS;
     }
 
-    if (shape instanceof PointDistanceShape) {
+    if (shape instanceof PointDistance) {
       IntersectCase rel = shape.intersect(this, context);
       switch(rel) {
         case CONTAINS: return IntersectCase.WITHIN;

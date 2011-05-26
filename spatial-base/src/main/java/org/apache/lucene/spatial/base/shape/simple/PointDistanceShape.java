@@ -15,36 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.shape;
+package org.apache.lucene.spatial.base.shape.simple;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUtils;
-import org.apache.lucene.spatial.base.shape.simple.Rectangle;
+import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.PointDistance;
+import org.apache.lucene.spatial.base.shape.Shape;
 
 /**
  * An ellipse-like geometry based on the haversine formula with a supplied earth radius.
  */
-public final class PointDistanceShape implements Shape {
+public final class PointDistanceShape implements PointDistance {
   private final Point point;
   private final double distance;
   private final double radius;
 
-  private transient BBox enclosingBox1, enclosingBox2;//calculated & cached (2nd is usually null)
+  private final BBox enclosingBox;//calculated & cached
 
   public PointDistanceShape(Point p, double dist, double radius, SpatialContext shapeIO) {
     this.point = p;
     this.distance = dist;
     this.radius = radius;
-    calcEnclosingBoxes(shapeIO);
+    this.enclosingBox = calcEnclosingBox(shapeIO);
   }
 
   public Point getCenter() {
     return point;
   }
 
+  @Override
   public double getDistance() {
     return distance;
   }
@@ -53,7 +57,7 @@ public final class PointDistanceShape implements Shape {
     return radius;
   }
 
-  private void calcEnclosingBoxes(SpatialContext shapeIO) {
+  private BBox calcEnclosingBox(SpatialContext shapeIO) {
     //!! code copied from LatLonType.createSpatialQuery(); this should be consolidated
     final int LAT = 0;
     final int LONG = 1;
@@ -92,12 +96,12 @@ public final class PointDistanceShape implements Shape {
     }
 
     //(end of code from LatLonType.createSpatialQuery())
-    if (ll_lon <= ur_lon) {
-      enclosingBox1 = shapeIO.makeBBox(ll_lon,ur_lon,ll_lat,ur_lat);
-    } else {
-      enclosingBox1 = shapeIO.makeBBox(Math.max(ll_lon,ur_lon),180,ll_lat,ur_lat);
-      enclosingBox2 = shapeIO.makeBBox(-180,Math.min(ll_lon,ur_lon),ll_lat,ur_lat);
-    }
+    //if (ll_lon <= ur_lon) {
+    return shapeIO.makeBBox(ll_lon,ur_lon,ll_lat,ur_lat);
+//    } else {
+//      enclosingBox1 = shapeIO.makeBBox(Math.max(ll_lon,ur_lon),180,ll_lat,ur_lat);
+//      enclosingBox2 = shapeIO.makeBBox(-180,Math.min(ll_lon,ur_lon),ll_lat,ur_lat);
+//    }
   }
 
   public boolean contains(double x, double y) {
@@ -112,28 +116,19 @@ public final class PointDistanceShape implements Shape {
 
   @Override
   public BBox getBoundingBox() {
-    if (enclosingBox2 == null)
-      return enclosingBox1;
-
-    //??? should never get here right?
-    //wrap longitude around the world (note: both boxes have same latitudes)
-    return new Rectangle(-180,180,enclosingBox1.getMinY(),enclosingBox1.getMaxY());
-  }
-
-  public BBox getEnclosingBox1() {
-    return enclosingBox1;
-  }
-
-  public BBox getEnclosingBox2() {
-    return enclosingBox2;
+    return enclosingBox;
+//    if (enclosingBox2 == null)
+//      return enclosingBox1;
+//    //wrap longitude around the world (note: both boxes have same latitudes)
+//    return new Rectangle(-180,180,enclosingBox1.getMinY(),enclosingBox1.getMaxY());
   }
 
   @Override
   public IntersectCase intersect(Shape other, SpatialContext context) {
     //do quick check against bounding box for OUTSIDE
-    if (enclosingBox1.intersect(other,context) == IntersectCase.OUTSIDE) {
-      if (enclosingBox2 == null || enclosingBox2.intersect(other,context) == IntersectCase.OUTSIDE)
-        return IntersectCase.OUTSIDE;
+    if (enclosingBox.intersect(other,context) == IntersectCase.OUTSIDE) {
+//      if (enclosingBox2 == null || enclosingBox2.intersect(other,context) == IntersectCase.OUTSIDE)
+      return IntersectCase.OUTSIDE;
     }
 
     //do quick check to see if all corners are within this circle for CONTAINS

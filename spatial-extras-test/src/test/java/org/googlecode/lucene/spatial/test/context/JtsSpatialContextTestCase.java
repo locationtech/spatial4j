@@ -4,7 +4,7 @@ package org.googlecode.lucene.spatial.test.context;
 
 import java.io.IOException;
 
-import org.apache.lucene.spatial.base.shape.PointDistanceShape;
+import org.apache.lucene.spatial.base.shape.simple.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.Shapes;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;

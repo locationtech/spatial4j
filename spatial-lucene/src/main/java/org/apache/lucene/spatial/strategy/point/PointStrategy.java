@@ -38,10 +38,7 @@ import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
-import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.PointDistanceShape;
-import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.*;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.lucene.spatial.strategy.util.CachingDoubleValueSource;
 import org.apache.lucene.spatial.strategy.util.TrieFieldInfo;
@@ -109,12 +106,12 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
 
   @Override
   public Filter makeFilter(SpatialArgs args, PointFieldInfo fieldInfo) {
-    if( args.getShape() instanceof PointDistanceShape ) {
+    if( args.getShape() instanceof PointDistance) {
       if( SpatialOperation.is( args.getOperation(),
           SpatialOperation.Intersects,
           SpatialOperation.IsWithin )) {
         DistanceCalculator calc = reader.getDistanceCalculator();
-        PointDistanceShape pd = (PointDistanceShape)args.getShape();
+        PointDistance pd = (PointDistance)args.getShape();
         Query bbox = makeWithin(pd.getBoundingBox(), fieldInfo);
 
         // Make the ValueSource
@@ -150,8 +147,8 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
       SpatialOperation.Intersects,
       SpatialOperation.IsWithin ) ) {
       spatial = makeWithin(bbox, fieldInfo);
-      if( args.getShape() instanceof PointDistanceShape ) {
-        PointDistanceShape pd = (PointDistanceShape)args.getShape();
+      if( args.getShape() instanceof PointDistance) {
+        PointDistance pd = (PointDistance)args.getShape();
 
         // Make the ValueSource
         valueSource = makeValueSource(args, fieldInfo, calc);

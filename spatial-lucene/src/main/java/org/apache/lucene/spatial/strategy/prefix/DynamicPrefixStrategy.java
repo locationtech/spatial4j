@@ -35,15 +35,12 @@ import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.Shapes;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.lucene.spatial.strategy.util.CachedDistanceValueSource;
 
 import java.io.StringReader;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -126,23 +123,15 @@ public class DynamicPrefixStrategy extends SpatialStrategy<SimpleSpatialFieldInf
 
   @Override
   public Filter makeFilter(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
-    if(!(( args.getOperation() == SpatialOperation.IsWithin ) ||
-         ( args.getOperation() == SpatialOperation.Intersects ) ||
-         ( args.getOperation() == SpatialOperation.BBoxWithin )) ){
-      throw new UnsupportedSpatialOperation(args.getOperation());
-    }
+    final SpatialOperation op = args.getOperation();
+    if (! SpatialOperation.is(op, SpatialOperation.IsWithin, SpatialOperation.Intersects, SpatialOperation.BBoxWithin))
+      throw new UnsupportedSpatialOperation(op);
 
     Shape qshape = args.getShape();
-    if (PointDistanceShape.class.isInstance(args.getShape())) {
-      PointDistanceShape pDistGeo = (PointDistanceShape)qshape;
-
-      if (args.getOperation() == SpatialOperation.BBoxWithin) {
-        qshape = pDistGeo.getEnclosingBox1();
-        Shape shape2 = pDistGeo.getEnclosingBox2();
-        if (shape2 != null)
-          qshape = new Shapes(Arrays.asList(qshape,shape2), grid.getShapeIO());
-      }
-    }
+    //TODO does this logic really belong here? Wouldn't it be common to all strategies, and thus perhaps a
+    // convenience method on SpatialArgs would get the appropriate query shape depending on other relevant arguments?
+    if (op == SpatialOperation.BBoxWithin)
+      qshape = qshape.getBoundingBox();
 
     return new DynamicPrefixFilter(
         fieldInfo.getFieldName(), grid,qshape, prefixGridScanLevel);

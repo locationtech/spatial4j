@@ -27,7 +27,7 @@ import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.PointDistanceShape;
+import org.apache.lucene.spatial.base.shape.simple.PointDistanceShape;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 public abstract class AbstractSpatialContext extends SpatialContext {
