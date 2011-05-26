@@ -131,6 +131,12 @@ public final class PointDistanceShape implements PointDistance {
       return IntersectCase.OUTSIDE;
     }
 
+    //TODO faster to do this first or here, after enclosingBox ?
+    if (other instanceof Point) {
+      Point point = (Point) other;
+      return contains(point.getX(),point.getY()) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
+    }
+
     //do quick check to see if all corners are within this circle for CONTAINS
     BBox bbox = other.getBoundingBox();
     if (contains(bbox.getMinX(),bbox.getMinY()) &&
