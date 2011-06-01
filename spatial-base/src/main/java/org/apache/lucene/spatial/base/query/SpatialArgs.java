@@ -83,7 +83,13 @@ public class SpatialArgs {
     this.operation = operation;
   }
 
+  /**
+   * Considers {@link SpatialOperation#BBoxWithin} in returning the shape.
+   * @return
+   */
   public Shape getShape() {
+    if (shape != null && operation == SpatialOperation.BBoxWithin)
+      return shape.getBoundingBox();
     return shape;
   }
 
