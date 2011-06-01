@@ -35,6 +35,7 @@ public class SpatialArgsParser
         Map<String,String> aa = parseMap(body);
         args.setMin(readDouble(aa.remove("min")) );
         args.setMax(readDouble(aa.remove("max")));
+        args.setDistPrecision(readDouble(aa.remove("distPrec")));
         if (!aa.isEmpty()) {
           throw new InvalidSpatialArgument("unused parameters: " + aa, null);
         }

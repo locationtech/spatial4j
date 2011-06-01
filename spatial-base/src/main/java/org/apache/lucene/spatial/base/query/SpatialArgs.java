@@ -26,6 +26,7 @@ public class SpatialArgs {
 
   private SpatialOperation operation;
   private Shape shape;
+  private double distPrecision = 0.025d;//default
 
   // Useful for 'distance' calculations
   private Double min;
@@ -49,18 +50,18 @@ public class SpatialArgs {
     }
   }
 
-  public String toString( SpatialContext io )
-  {
+  public String toString( SpatialContext io ) {
     StringBuilder str = new StringBuilder();
     str.append( operation.getName() ).append( '(' );
     str.append( io.toString( shape ) );
-    str.append( ')' );
     if( min != null ) {
-      str.append( " min="+min );
+      str.append(" min=").append(min);
     }
     if( max != null ) {
-      str.append( " max="+max );
+      str.append(" max=").append(max);
     }
+    str.append(" distPrec=").append(String.format("%.2f%%", distPrecision/100d));
+    str.append( ')' );
     return str.toString();
   }
 
@@ -88,6 +89,22 @@ public class SpatialArgs {
 
   public void setShape(Shape shape) {
     this.shape = shape;
+  }
+
+  /**
+   * The fraction of the distance from the center of the query shape to its nearest edge that is considered acceptable
+   * error. The algorithm for computing the distance to the nearest edge is actually a little different. It normalizes
+   * the shape to a square given it's bounding box area:
+   * <pre>sqrt(shape.bbox.area)/2</pre>
+   * And the error distance is beyond the shape such that the shape is a minimum shape.
+   */
+  public Double getDistPrecision() {
+    return distPrecision;
+  }
+
+  public void setDistPrecision(Double distPrecision) {
+    if (distPrecision != null)
+      this.distPrecision = distPrecision;
   }
 
   public Double getMin() {
