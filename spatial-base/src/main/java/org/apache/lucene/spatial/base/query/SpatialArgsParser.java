@@ -1,13 +1,13 @@
 package org.apache.lucene.spatial.base.query;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
-
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 import org.apache.lucene.spatial.base.shape.Shape;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 public class SpatialArgsParser
 {
@@ -33,8 +33,8 @@ public class SpatialArgsParser
       body = v.substring( edx+1 ).trim();
       if (body.length() > 0) {
         Map<String,String> aa = parseMap(body);
-        args.setMin( readDouble(aa.remove("min"), null) );
-        args.setMax( readDouble(aa.remove("max"), null) );
+        args.setMin(readDouble(aa.remove("min")) );
+        args.setMax(readDouble(aa.remove("max")));
         if (!aa.isEmpty()) {
           throw new InvalidSpatialArgument("unused parameters: " + aa, null);
         }
@@ -43,8 +43,8 @@ public class SpatialArgsParser
     return args;
   }
 
-  protected static Double readDouble(String v, Double defaultValue) {
-      return v == null ? defaultValue : Double.valueOf(v);
+  protected static Double readDouble(String v) {
+      return v == null ? null : Double.valueOf(v);
   }
 
   protected static boolean readBool(String v, boolean defaultValue) {
