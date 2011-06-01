@@ -27,7 +27,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Implementations should be threadsafe.
+ * TODO should implementations be threadsafe or not, and thus you might be expected to create one for each thread?
+ *  If it is immutable (a good idea, in my opinion) we can consider it threadsafe.
  */
 public abstract class SpatialPrefixGrid {
 
@@ -64,8 +65,16 @@ public abstract class SpatialPrefixGrid {
    */
   public abstract Collection<Cell> getCells(Shape shape);
 
+  /**
+   * Returns the cell that encompasses all spatial data.
+   * TODO rename to getTopCell?
+   */
+  public Cell getWorldCell() {
+    return getCell("");
+  }
+
+  //TODO getCell x,y with accuracy radius?
   public abstract Cell getCell(double x, double y, int level);
-  //TODO getCell x,y  with accuracy radius?
 
   public int getMaxLevels() {
     return maxLevels;
@@ -107,9 +116,7 @@ public abstract class SpatialPrefixGrid {
       return token.getBytes(UTF8);
     }
 
-    public int getLevel() {
-      return this.token.length()-1;//assume ends with '*' or '-'
-    }
+    public abstract int getLevel();
 
     /**
      * Gets the cells at the next level that cover this cell.
@@ -117,8 +124,6 @@ public abstract class SpatialPrefixGrid {
      * @return A set of cells (no dups), 2 or more in size, sorted. Null if hits a depth/precision constraint.
      */
     public abstract Collection<Cell> getSubCells();
-
-    //TODO should we ask that impls efficiently cache the shape?
 
     public abstract Shape getShape();
 

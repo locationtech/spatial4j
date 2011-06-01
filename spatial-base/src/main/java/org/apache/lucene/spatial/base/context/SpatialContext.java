@@ -61,4 +61,11 @@ public abstract class SpatialContext {
   }
 
   public abstract DistanceCalculator getDistanceCalculator( Class<? extends DistanceCalculator> clazz );
+
+  /**
+   * Returns the x,y bounds of the "world". By default this returns WGS84 -180,180,-90,90.
+   */
+  public BBox getWorldBounds() {
+    return makeBBox(-180,180,-90,90);
+  }
 }

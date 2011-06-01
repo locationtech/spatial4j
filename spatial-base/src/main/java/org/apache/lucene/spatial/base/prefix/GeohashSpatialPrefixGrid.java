@@ -1,15 +1,11 @@
 package org.apache.lucene.spatial.base.prefix;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
+
+import java.util.*;
 
 /**
  * A SpatialPrefixGrid based on Geohashes.  Uses {@link GeohashUtils} to do all the geohash work.
@@ -23,7 +19,7 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
     super(shapeIO, maxLevels);
     int MAXP = getMaxLevelsPossible();
     if (maxLevels <= 0 || maxLevels > MAXP)
-      throw new IllegalArgumentException("maxLen must be (0-"+MAXP+"] but got "+ maxLevels);
+      throw new IllegalArgumentException("maxLen must be [1-"+MAXP+"] but got "+ maxLevels);
   }
 
   /** Any more than this and there's no point (double lat & lon are the same). */
@@ -49,13 +45,12 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
 
   @Override
   public Cell getCell(double x, double y, int level) {
-    final String hash = GeohashUtils.encode(y, x, level);
-    return new GridNode(hash);
+    return new GhCell(GeohashUtils.encode(y, x, level));//args are lat,lon (y,x)
   }
 
   @Override
   public Cell getCell(String token) {
-    return new GridNode(token);
+    return new GhCell(token);
   }
 
   @Override
@@ -66,10 +61,10 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
   }
 
   /**
-   * A node in a geospatial grid hierarchy as specified by a {@link GeohashSpatialPrefixGrid}.
+   * A cell in a geospatial grid hierarchy as specified by a {@link GeohashSpatialPrefixGrid}.
    */
-  class GridNode extends SpatialPrefixGrid.Cell {
-    public GridNode(String token) {
+  class GhCell extends SpatialPrefixGrid.Cell {
+    public GhCell(String token) {
       super(token);
     }
 
@@ -81,9 +76,14 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
       Arrays.sort(hashes);
       ArrayList<SpatialPrefixGrid.Cell> cells = new ArrayList<SpatialPrefixGrid.Cell>(hashes.length);
       for (String hash : hashes) {
-        cells.add(new GridNode(hash));
+        cells.add(new GhCell(hash));
       }
       return cells;
+    }
+
+    @Override
+    public int getLevel() {
+      return this.token.length();
     }
 
     @Override

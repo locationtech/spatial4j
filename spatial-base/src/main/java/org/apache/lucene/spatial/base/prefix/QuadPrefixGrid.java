@@ -17,13 +17,6 @@
 
 package org.apache.lucene.spatial.base.prefix;
 
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.StringTokenizer;
-
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
@@ -31,6 +24,9 @@ import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.Point2D;
+
+import java.text.NumberFormat;
+import java.util.*;
 
 public class QuadPrefixGrid extends SpatialPrefixGrid {
 
@@ -273,6 +269,11 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
       cells.add(new QuadCell(getTokenString()+"C"));
       cells.add(new QuadCell(getTokenString()+"D"));
       return cells;
+    }
+
+    @Override
+    public int getLevel() {
+      return this.token.length()-1;//assume ends with '*' or '-'
     }
 
     @Override
