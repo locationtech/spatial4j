@@ -31,6 +31,8 @@ import org.apache.lucene.spatial.base.shape.Shape;
  */
 public abstract class SpatialContext {
 
+  private final BBox worldBoundsWGS84 = makeBBox(-180, 180, -90, 90);
+
   /**
    * Read a shape from a given string (ie, X Y, XMin XMax... WKT)
    *
@@ -66,6 +68,7 @@ public abstract class SpatialContext {
    * Returns the x,y bounds of the "world". By default this returns WGS84 -180,180,-90,90.
    */
   public BBox getWorldBounds() {
-    return makeBBox(-180,180,-90,90);
+    return worldBoundsWGS84;
   }
+
 }
