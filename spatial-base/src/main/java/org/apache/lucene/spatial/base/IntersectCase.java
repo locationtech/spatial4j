@@ -21,5 +21,13 @@ public enum IntersectCase {
   WITHIN,
   CONTAINS,
   OUTSIDE,
-  INTERSECTS
+  INTERSECTS;
+
+  public IntersectCase transpose() {
+    switch(this) {
+      case CONTAINS: return IntersectCase.WITHIN;
+      case WITHIN: return IntersectCase.CONTAINS;
+      default: return this;
+    }
+  }
 }
