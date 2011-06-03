@@ -81,6 +81,10 @@ public class JtsPoint2D implements org.apache.lucene.spatial.base.shape.Point {
   public double getY() {
     return point.getY();
   }
+  @Override
+  public String toString() {
+    return "Pt(x="+getX()+",y="+getY()+")";
+  }
 
   @Override
   public boolean equals(Object o) {

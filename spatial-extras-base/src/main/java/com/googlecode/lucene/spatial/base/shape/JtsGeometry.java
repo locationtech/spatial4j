@@ -116,6 +116,10 @@ public class JtsGeometry implements Shape {
     return IntersectCase.INTERSECTS;
   }
 
+  @Override
+  public String toString() {
+    return geo.toString();
+  }
 
   @Override
   public boolean equals(Object o) {

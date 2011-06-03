@@ -77,6 +77,11 @@ public class Point2D implements Point {
   }
 
   @Override
+  public String toString() {
+    return "Pt(x="+x+",y="+y+")";
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj == null) { return false; }
     if (obj == this) { return true; }

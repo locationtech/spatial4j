@@ -150,7 +150,7 @@ public final class PointDistanceShape implements PointDistance {
 
   @Override
   public String toString() {
-    return "PointDistanceShape{" + point + ", distance=" + distance + '}';
+    return "PointDistance(" + point + ",dist=" + distance + ')';
   }
 
 

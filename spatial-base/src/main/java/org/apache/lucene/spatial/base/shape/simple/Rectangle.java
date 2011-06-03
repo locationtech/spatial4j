@@ -113,12 +113,7 @@ public class Rectangle implements BBox {
     }
 
     if (shape instanceof PointDistance) {
-      IntersectCase rel = shape.intersect(this, context);
-      switch(rel) {
-        case CONTAINS: return IntersectCase.WITHIN;
-        case WITHIN: return IntersectCase.CONTAINS;
-        default: return rel;
-      }
+      return shape.intersect(this, context).transpose();
     }
 
     if(!BBox.class.isInstance(shape)) {
@@ -151,7 +146,7 @@ public class Rectangle implements BBox {
 
   @Override
   public String toString() {
-    return "[" + minX + "," + maxX + "," + minY + "," + maxY + "]";
+    return "Rect(minX=" + minX + ",maxX=" + maxX + ",minY=" + minY + ",maxY=" + maxY + ")";
   }
 
   @Override
