@@ -127,7 +127,7 @@ public class JtsEnvelope implements BBox {
       else
         return IntersectCase.OUTSIDE;
     } else if (JtsGeometry.class.isInstance(other)) {
-      throw new IllegalArgumentException("TODO...");
+      return other.intersect(this,context).transpose();
     }
     throw new IllegalArgumentException("JtsEnvelope can be compared with Envelope or Geogmetry");
   }
