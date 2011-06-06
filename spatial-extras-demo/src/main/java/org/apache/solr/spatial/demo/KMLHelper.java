@@ -1,30 +1,18 @@
 package org.apache.solr.spatial.demo;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
+import com.vividsolutions.jts.util.GeometricShapeFactory;
+import de.micromata.opengis.kml.v_2_2_0.*;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
-import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
-import com.vividsolutions.jts.util.GeometricShapeFactory;
-
-import de.micromata.opengis.kml.v_2_2_0.ColorMode;
-import de.micromata.opengis.kml.v_2_2_0.Coordinate;
-import de.micromata.opengis.kml.v_2_2_0.Document;
-import de.micromata.opengis.kml.v_2_2_0.Folder;
-import de.micromata.opengis.kml.v_2_2_0.Kml;
-import de.micromata.opengis.kml.v_2_2_0.KmlFactory;
-import de.micromata.opengis.kml.v_2_2_0.LineStyle;
-import de.micromata.opengis.kml.v_2_2_0.Placemark;
-import de.micromata.opengis.kml.v_2_2_0.PolyStyle;
-import de.micromata.opengis.kml.v_2_2_0.StyleMap;
-import de.micromata.opengis.kml.v_2_2_0.StyleState;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class KMLHelper
 {
@@ -81,11 +69,12 @@ public class KMLHelper
 
   private static Placemark create( String key, String style, SpatialPrefixGrid grid )
   {
-    Shape r = grid.getCell( key ).getShape();
+    final SpatialPrefixGrid.Cell cell = grid.getCell(key);
+    Shape r = cell.getShape();
     List<Coordinate> coords = getCoords( r );
 
     Placemark p = new Placemark().withName( key )
-      .withDescription( r.toString() )
+      .withDescription( cell.toString() )
       .withStyleUrl( style );
 
     p.createAndSetPolygon()
@@ -130,7 +119,6 @@ public class KMLHelper
 //    Projection projection = new CylindricalEqualAreaProjection();
 //    grid = SpatialGridWithProjection.create( projection, 16 );
 //
-    grid.setResolution(4); // how far past the best fit to go
 
     grid.printInfo();
 
@@ -171,7 +159,7 @@ public class KMLHelper
 
   //  shape = new Rectangle( -170,-85, 170, 85 );
 
-    List<String> vals = SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(shape)); //new GeometryShape( shape ) ); //new EnvelopeShape( shape.getEnvelopeInternal() ) );
+    List<String> vals = SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(shape,5,false)); //new GeometryShape( shape ) ); //new EnvelopeShape( shape.getEnvelopeInternal() ) );
     System.out.println( vals );
 
 //    StringBuilder str = new StringBuilder();

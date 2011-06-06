@@ -4,7 +4,6 @@ import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
@@ -27,7 +26,7 @@ public class NGramPrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpat
 
     this.shapeIO = new JtsSpatialContext();
     this.strategy = new NGramPrefixGridStrategy(
-      new QuadPrefixGrid(-180, 180, -90, 90, 12, shapeIO), 0);
+      new QuadPrefixGrid(shapeIO, 12));
     this.fieldInfo = new SimpleSpatialFieldInfo("geo");
   }
 
@@ -50,25 +49,22 @@ public class NGramPrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpat
 
   @Test
   public void testPrefixGridLosAngeles() throws IOException {
-    SimpleSpatialFieldInfo fieldInfo = new SimpleSpatialFieldInfo("geo");
-    NGramPrefixGridStrategy prefixGridStrategy = new NGramPrefixGridStrategy(new QuadPrefixGrid(), 0);
 
     Shape point = new Point2D(-118.243680, 34.052230);
 
     Document losAngeles = new Document();
     losAngeles.add(new Field("name", "Los Angeles", Field.Store.YES, Field.Index.NOT_ANALYZED));
-    losAngeles.add(prefixGridStrategy.createField(fieldInfo, point, true, true));
+    losAngeles.add(strategy.createField(fieldInfo, point, true, true));
 
     addDocuments(Arrays.asList(losAngeles));
 
     // Polygon won't work with SimpleSpatialContext
-    SpatialContext ctx = new JtsSpatialContext();
     SpatialArgsParser spatialArgsParser = new SpatialArgsParser();
     SpatialArgs spatialArgs = spatialArgsParser.parse(
         "IsWithin(POLYGON((-127.00390625 39.8125,-112.765625 39.98828125,-111.53515625 31.375,-125.94921875 30.14453125,-127.00390625 39.8125)))",
-        ctx );
+        shapeIO );
 
-    Query query = prefixGridStrategy.makeQuery(spatialArgs, fieldInfo);
+    Query query = strategy.makeQuery(spatialArgs, fieldInfo);
     SearchResults searchResults = executeQuery(query, 1);
     assertEquals(1, searchResults.numFound);
   }

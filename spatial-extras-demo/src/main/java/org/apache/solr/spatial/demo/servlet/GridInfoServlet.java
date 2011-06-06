@@ -1,17 +1,7 @@
 package org.apache.solr.spatial.demo.servlet;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.Date;
-import java.util.List;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
@@ -20,9 +10,16 @@ import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.solr.spatial.demo.KMLHelper;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
-
-import de.micromata.opengis.kml.v_2_2_0.Kml;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.Date;
+import java.util.List;
 
 
 public class GridInfoServlet extends HttpServlet
@@ -70,8 +67,8 @@ public class GridInfoServlet extends HttpServlet
     }
     int depth = getIntParam( req, "depth", 16 );
     SpatialContext reader = new JtsSpatialContext();
-    QuadPrefixGrid grid = new QuadPrefixGrid( -180, 180, -90-180, 90, depth ); // make it like WGS84
-    grid.setResolution(getIntParam(req, "resolution", 4));
+    QuadPrefixGrid grid = new QuadPrefixGrid( reader, depth );
+    int resolution = getIntParam(req, "resolution", 5);
 
     // If they don't set a country, then use the input
     if( shape == null ) {
@@ -89,7 +86,7 @@ public class GridInfoServlet extends HttpServlet
       }
     }
 
-    List<String> info = SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(shape));
+    List<String> info = SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(shape, resolution, false));
     String format = req.getParameter( "format" );
     if( "kml".equals( format ) ) {
       if( name == null || name.length() < 2 ) {
@@ -106,6 +103,5 @@ public class GridInfoServlet extends HttpServlet
     res.setContentType( "text/plain" );
     PrintStream out = new PrintStream( res.getOutputStream() );
     out.println( info.toString() );
-    return;
   }
 }
