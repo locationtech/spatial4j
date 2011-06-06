@@ -24,9 +24,11 @@ import org.apache.lucene.spatial.base.shape.Shape;
 
 public class SpatialArgs {
 
+  public static final double DEFAULT_DIST_PRECISION = 0.025d;
+
   private SpatialOperation operation;
   private Shape shape;
-  private double distPrecision = 0.025d;//default
+  private double distPrecision = DEFAULT_DIST_PRECISION;
 
   // Useful for 'distance' calculations
   private Double min;
