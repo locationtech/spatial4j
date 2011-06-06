@@ -17,38 +17,29 @@
 
 package org.apache.solr.spatial.prefix;
 
-import java.util.Map;
-
 import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
-import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.prefix.DynamicPrefixStrategy;
-import org.apache.solr.schema.IndexSchema;
-import org.apache.solr.schema.SchemaField;
-import org.apache.solr.spatial.SpatialFieldType;
+import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
 
 
 /**
  *
  */
-public class DynamicPrefixFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
-
-  public static final int DEFAULT_LENGTH = GeohashSpatialPrefixGrid.getMaxLevelsPossible();//~12
-  private GeohashSpatialPrefixGrid gridReferenceSystem;
+public class DynamicPrefixFieldType extends PrefixGridFieldType {
 
   @Override
-  protected void init(IndexSchema schema, Map<String, String> args) {
-    super.init(schema, args);
-
-    String len = args.remove("length");
-    int maxLen = len!=null?Integer.parseInt(len): DEFAULT_LENGTH;
-    gridReferenceSystem = new GeohashSpatialPrefixGrid( reader, maxLen );
-    spatialStrategy = new DynamicPrefixStrategy( gridReferenceSystem );
-    spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
+  protected PrefixGridStrategy initStrategy(Integer maxLevels, Double degrees) {
+    GeohashSpatialPrefixGrid grid;
+    if (maxLevels != null) {
+      grid = new GeohashSpatialPrefixGrid(reader,maxLevels);
+    } else {
+      grid = new GeohashSpatialPrefixGrid(reader,GeohashSpatialPrefixGrid.getMaxLevelsPossible());
+      int level = grid.getLevelForDistance(degrees) + 1;//returns 1 greater
+      if (level != grid.getMaxLevels())
+        grid = new GeohashSpatialPrefixGrid(reader,level);
+    }
+    return new DynamicPrefixStrategy(grid);
   }
 
-  @Override
-  protected SimpleSpatialFieldInfo getFieldInfo(SchemaField field) {
-    return new SimpleSpatialFieldInfo(field.getName());
-  }
 }
 

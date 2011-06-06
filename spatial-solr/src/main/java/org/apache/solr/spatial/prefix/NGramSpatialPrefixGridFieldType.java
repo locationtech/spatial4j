@@ -17,46 +17,24 @@
 
 package org.apache.solr.spatial.prefix;
 
-import java.util.Map;
-
 import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
-import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.prefix.NGramPrefixGridStrategy;
-import org.apache.solr.schema.IndexSchema;
-import org.apache.solr.schema.SchemaField;
-import org.apache.solr.spatial.SpatialFieldType;
 
-
-/**
- * Syntax for the field input:
- * <p/>
- * (1) QuadTokens: List of the fields it exists in:
- * [ABA* CAA* AAAAAB-]
- * <p/>
- * (2) Something for the field reader....
- */
-public class NGramSpatialPrefixGridFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
+public class NGramSpatialPrefixGridFieldType extends PrefixGridFieldType {
 
   @Override
-  protected void init(IndexSchema schema, Map<String, String> args) {
-    super.init(schema, args);
-
-    int maxLength = -1;
-    String res = args.remove("maxLength");
-    if (res != null) {
-      maxLength = Integer.parseInt(res);
+  protected NGramPrefixGridStrategy initStrategy(Integer maxLevels, Double degrees) {
+    QuadPrefixGrid grid;
+    if (maxLevels != null) {
+      grid = new QuadPrefixGrid(reader,maxLevels);
+    } else {
+      grid = new QuadPrefixGrid(reader,QuadPrefixGrid.MAX_LEVELS_POSSIBLE);
+      int level = grid.getLevelForDistance(degrees) + 1;//returns 1 greater
+      if (level != grid.getMaxLevels())
+        grid = new QuadPrefixGrid(reader,level);
     }
-
-    QuadPrefixGrid grid = new QuadPrefixGrid(-180, 180, -90 - 180, 90, 16,reader);
-    grid.setResolution(5);
-
-    spatialStrategy = new NGramPrefixGridStrategy(grid, maxLength);
-    spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
+    return new NGramPrefixGridStrategy(grid);
   }
 
-  @Override
-  protected SimpleSpatialFieldInfo getFieldInfo(SchemaField field) {
-    return new SimpleSpatialFieldInfo(field.getName());
-  }
 }
 

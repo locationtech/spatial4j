@@ -17,9 +17,6 @@
 
 package org.apache.solr.spatial;
 
-import java.io.IOException;
-import java.util.Map;
-
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
@@ -39,6 +36,9 @@ import org.apache.solr.search.QParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.Map;
+
 /**
  */
 public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends FieldType
@@ -51,13 +51,14 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   protected final static int OMIT_NORMS          = 0x00000010;
   protected final static int OMIT_TF_POSITIONS   = 0x00000020;
 
-  static final Logger log = LoggerFactory.getLogger( SpatialFieldType.class );
+  protected final Logger log = LoggerFactory.getLogger( getClass() );
 
   protected SpatialContext reader;
   protected SpatialArgsParser argsParser;
 
   protected boolean ignoreIncompatibleGeometry = false;
   protected SpatialStrategy<T> spatialStrategy;
+  protected double distPrec;
 
 
   @Override
@@ -67,6 +68,11 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
     if( v != null ) {
       ignoreIncompatibleGeometry = Boolean.valueOf( v );
     }
+    v = args.remove("distPrec");
+    if (v != null)
+      distPrec = Double.parseDouble(v);
+
+    //args.setDistPrecision(readDouble(aa.remove("distPrec")));
 
     reader = SpatialContextProvider.getContext();
     argsParser = new SpatialArgsParser();
