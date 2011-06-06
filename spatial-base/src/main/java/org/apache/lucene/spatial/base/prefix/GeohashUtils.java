@@ -17,11 +17,11 @@
 
 package org.apache.lucene.spatial.base.prefix;
 
-import java.util.Arrays;
-
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
+
+import java.util.Arrays;
 
 /**
  * Utilities for encoding and decoding geohashes. Based on
@@ -31,7 +31,7 @@ public class GeohashUtils {
 
   private static final char[] BASE_32 = {'0', '1', '2', '3', '4', '5', '6',
       '7', '8', '9', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', 'm', 'n',
-      'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+      'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};//note: this is sorted
 
   private static final int[] BASE_32_IDX;//sparse array of indexes from '0' to 'z'
 
@@ -147,14 +147,15 @@ public class GeohashUtils {
       }
 
     }
-    return shapeIO.makeBBox(minX,maxX,minY,maxY);
+    return shapeIO.makeBBox(minX, maxX, minY, maxY);
   }
 
-  public static String[] getSubGeoHashes(String baseGeoHash) {
+  /** Array of geohashes 1 level below the baseGeohash. Sorted. */
+  public static String[] getSubGeohashes(String baseGeohash) {
     String[] hashes = new String[BASE_32.length];
-    for (int i = 0; i < BASE_32.length; i++) {
+    for (int i = 0; i < BASE_32.length; i++) {//note: already sorted
       char c = BASE_32[i];
-      hashes[i] = baseGeoHash+c;
+      hashes[i] = baseGeohash+c;
     }
     return hashes;
   }
@@ -164,7 +165,7 @@ public class GeohashUtils {
   }
 
   /**
-   * Return a geohash length that will have a width & height >= specified arguments.
+   * Return the longest geohash length that will have a width & height >= specified arguments.
    */
   public static int lookupHashLenForWidthHeight(double width, double height) {
     //loop through hash length arrays from beginning till we find one.

@@ -17,6 +17,7 @@
 
 package org.apache.lucene.spatial.base.prefix;
 
+import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -24,18 +25,15 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * TODO should implementations be threadsafe or not, and thus you might be expected to create one for each thread?
- *  If it is immutable (a good idea, in my opinion) we can consider it threadsafe.
+ * Implementations should be threadsafe and immutable once initialized.
  */
 public abstract class SpatialPrefixGrid {
 
-  public static final char COVER = '*';
-  public static final char INTERSECTS = '+';
-
-  //TODO some sort of precision model should probably be here. Maybe via a spatial context.
+  protected static final Charset UTF8 = Charset.forName("UTF-8");
 
   protected final int maxLevels;
 
@@ -51,79 +49,263 @@ public abstract class SpatialPrefixGrid {
     return shapeIO;
   }
 
+  public int getMaxLevels() {
+    return maxLevels;
+  }
+
   @Override
   public String toString() {
     return getClass().getSimpleName()+"(maxLevels:"+maxLevels+",shapeIO:"+shapeIO+")";
   }
 
   /**
-   * Returns a "minimal" set of cells at the same grid level that together cover the given shape -- about 4. This is a
-   * loose definition in which the grid level chosen should be the lowest in which the shape area fills over half of the
-   * area covered by the returned cells.
-   * @param shape not null
-   * @return not null, not-empty, no duplicates, sorted.
+   * See {@link org.apache.lucene.spatial.base.query.SpatialArgs#getDistPrecision()}.
+   * A grid level looked up via {@link #getLevelForDistance(double)} is returned.
+   *
+   * @param shape
+   * @param precision 0-0.5
+   * @return 1-maxLevels
    */
-  public abstract Collection<Cell> getCells(Shape shape);
+  public int getMaxLevelForPrecision(Shape shape, double precision) {
+    if (precision < 0 || precision > 0.5)
+      throw new IllegalArgumentException("Precision "+precision+" must be between [0-0.5]");
+    if (precision == 0 || shape instanceof Point)
+      return maxLevels;
+    double bboxArea = shape.getBoundingBox().getArea();
+    if (bboxArea == 0)
+      return maxLevels;
+    double avgSideLenFromCenter = Math.sqrt(bboxArea)/2;
+    return getLevelForDistance(avgSideLenFromCenter*precision);
+  }
 
   /**
-   * Returns the cell that encompasses all spatial data.
-   * TODO rename to getTopCell?
+   * Returns the level of the smallest grid size with a side length that is greater or equal to the provided
+   * distance.
+   * @param dist >= 0
+   * @return level [1-maxLevels]
+   */
+  public abstract int getLevelForDistance(double dist);
+
+  //TODO double getDistanceForLevel(int level)
+
+  /**
+   * Returns the level 0 cell which encompasses all spatial data. Equivalent to {@link #getCell(String)} with "".
+   * This cell is threadsafe, just like a spatial prefix grid is, although cells aren't
+   * generally threadsafe.
+   * TODO rename to getTopCell or is this fine?
    */
   public Cell getWorldCell() {
     return getCell("");
   }
 
-  //TODO getCell x,y with accuracy radius?
-  public abstract Cell getCell(double x, double y, int level);
-
-  public int getMaxLevels() {
-    return maxLevels;
-  }
-
-  //TODO deprecate for byte[]
-  /** The cell for the specified token. Token should *not* end with INTERSECTS */
+  /**
+   * The cell for the specified token. The empty string should be equal to {@link #getWorldCell()}.
+   * Precondition: Never called when token length > maxLevel.
+   */
   public abstract Cell getCell(String token);
-//
-//  public Cell getCell(byte[] token) {
-//    return getCell(new String(token,UTF8));
-//  }
-
-  protected static final Charset UTF8 = Charset.forName("UTF-8");
 
   /**
-   * Decodes the token into a Point. The token must be at its full resolution (i.e. end
-   * with a '+') otherwise null is returned.
+   * Decodes the token into a Point. The token must be leaf token or else null is returned.
+   * Precondition: Never called when token length > maxLevel.
+   * TODO: DWS: Longer term I expect this to go away.
    * @param token
    * @return possibly null
    */
-  public abstract Point getPoint(String token);
+  public Point getPoint(String token) {
+    final Cell cell = getCell(token);
+    if (!cell.isLeaf())
+      return null;
+    return cell.getShape().getCenter();
+  }
 
-  public static abstract class Cell implements Comparable<Cell> {
+  protected Cell getCell(Point p, int level) {
+    return getCells(p,level,false).get(0);
+  }
 
-    protected final String token;
+  /**
+   * Gets the intersecting & including cells for the specified shape, without exceeding detail level.
+   * The result is a set of cells (no dups), sorted. Unmodifiable.
+   * <p>
+   * This implementation checks if shape is a Point and if so uses an implementation that
+   * recursively calls {@link Cell#getSubCell(org.apache.lucene.spatial.base.shape.Point)}. Cell subclasses
+   * ideally implement that method with a quick implementation, otherwise, subclasses should
+   * override this method to invoke {@link #getCellsAltPoint(org.apache.lucene.spatial.base.shape.Point, int, boolean)}.
+   * TODO consider another approach returning an iterator -- won't build up all cells in memory.
+   */
+  public List<Cell> getCells(Shape shape, int detailLevel, boolean inclParents) {
+    if (detailLevel > maxLevels)
+      throw new IllegalArgumentException("detailLevel > maxLevels");
+    ArrayList<Cell> cells;
+    if (shape instanceof Point) {
+      //optimized point algorithm
+      final int initialCapacity = inclParents ? 1 + detailLevel : 1;
+      cells = new ArrayList<Cell>(initialCapacity);
+      recursiveGetCells(getWorldCell(),(Point)shape,detailLevel,true,cells);
+      assert cells.size() == initialCapacity;
+    } else {
+      cells = new ArrayList<Cell>(inclParents ? 512 : 1024);
+      recursiveGetCells(getWorldCell(), shape, detailLevel, inclParents, cells);
+    }
+    if (inclParents) {
+      Cell c = cells.remove(0);//remove getWorldCell()
+      assert c.getLevel() == 0;
+    }
+    return cells;
+  }
+
+  private void recursiveGetCells(Cell cell, Shape shape, int detailLevel, boolean inclParents,
+                                    Collection<Cell> result) {
+    if (cell.isLeaf()) {//cell is within shape
+      result.add(cell);
+      return;
+    }
+    final Collection<Cell> subCells = cell.getSubCells(shape);
+    if (cell.getLevel() == detailLevel - 1) {
+      if (subCells.size() < cell.getSubCellsSize()) {
+        if (inclParents)
+          result.add(cell);
+        for (Cell subCell : subCells) {
+          subCell.setLeaf();
+        }
+        result.addAll(subCells);
+      } else {//a bottom level (i.e. detail level) optimization where all boxes intersect, so use parent cell.
+        cell.setLeaf();
+        result.add(cell);
+      }
+    } else {
+      if (inclParents)
+        result.add(cell);
+      for (Cell subCell : subCells) {
+        recursiveGetCells(subCell, shape, detailLevel, inclParents, result);//tail call
+      }
+    }
+  }
+
+  private void recursiveGetCells(Cell cell, Point point, int detailLevel, boolean inclParents,
+                                 Collection<Cell> result) {
+    if (inclParents)
+      result.add(cell);
+    final Cell pCell = cell.getSubCell(point);
+    if (cell.getLevel() == detailLevel - 1) {
+      pCell.setLeaf();
+      result.add(pCell);
+    } else {
+      recursiveGetCells(pCell, point, detailLevel, inclParents, result);//tail call
+    }
+  }
+
+  /** Subclasses might override {@link #getCells(org.apache.lucene.spatial.base.shape.Shape, int, boolean)}
+   * and check if the argument is a shape and if so, delegate
+   * to this implementation, which calls {@link #getCell(org.apache.lucene.spatial.base.shape.Point, int)} and
+   * then calls {@link #getCell(String)} repeatedly if inclParents is true.
+   */
+  protected final List<Cell> getCellsAltPoint(Point p, int detailLevel, boolean inclParents) {
+    Cell cell = getCell(p,detailLevel);
+    if (!inclParents)
+      return Collections.singletonList(cell);
+    String endToken = cell.getTokenString();
+    assert endToken.length() == detailLevel;
+    List<Cell> cells = new ArrayList<Cell>(detailLevel);
+    for(int i = 1; i < detailLevel; i++) {
+      cells.add(getCell(endToken.substring(0,i)));
+    }
+    cells.add(cell);
+    return cells;
+  }
+
+  /**
+   * Represents a grid cell. These are not necessarily threadsafe, although new Cell("") (world cell) must be.
+   */
+  public abstract class Cell implements Comparable<Cell> {
+
+
+    protected final String token;//this is the only part of equality
+
+    protected IntersectCase shapeRel;//set in getSubCells(filter), and via setLeaf().
 
     public Cell(String token) {
       this.token = token;
+      if (getLevel() == 0)
+        getShape();//ensure any lazy instantiation completes to make this threadsafe
     }
 
-    //TODO deprecate for byte[]
+    public IntersectCase getShapeRel() {
+      return shapeRel;
+    }
+
+    public boolean isLeaf() {
+      //note: presently we don't yet support indexing terminal tokens so we assume full-resolution tokens are.
+      return shapeRel == IntersectCase.WITHIN || getLevel() == getMaxLevels();
+    }
+
+    public void setLeaf() {
+      assert getLevel() != 0;
+      shapeRel = IntersectCase.WITHIN;
+    }
+
     public String getTokenString() {
       return token;
     }
-
 
     public byte[] getBytes() {
       return token.getBytes(UTF8);
     }
 
-    public abstract int getLevel();
+    public int getLevel() {
+      return this.token.length();
+    }
+
+    //TODO add getParent() and update some algorithms to use this?
+    //public Cell getParent();
 
     /**
-     * Gets the cells at the next level that cover this cell.
-     * @param node
-     * @return A set of cells (no dups), 2 or more in size, sorted. Null if hits a depth/precision constraint.
+     * Like {@link #getSubCells()} but with the results filtered by a shape. If that shape is a {@link Point} then it
+     * must call {@link #getSubCell(org.apache.lucene.spatial.base.shape.Point)};
+     * Precondition: Never called when getLevel() == maxLevel.
+     * @param shapeFilter an optional filter for the returned cells.
+     * @return A set of cells (no dups), sorted. Not Modifiable.
+     */
+    public Collection<Cell> getSubCells(Shape shapeFilter) {
+      //Note: Higher-performing subclasses might override to consider the shape filter to generate fewer cells.
+      if (shapeFilter instanceof Point) {
+        return Collections.singleton(getSubCell((Point)shapeFilter));
+      }
+      Collection<Cell> cells = getSubCells();
+      if (shapeFilter != null ) {
+        ArrayList<Cell> copy = new ArrayList<Cell>(cells.size());//copy since cells contractually isn't modifiable
+        for (Cell cell : cells) {
+          IntersectCase rel = cell.getShape().intersect(shapeFilter,SpatialPrefixGrid.this.shapeIO);
+          if (rel == IntersectCase.OUTSIDE)
+            continue;
+          cell.shapeRel = rel;
+          copy.add(cell);
+        }
+        cells = copy;
+      }
+      return cells;
+    }
+
+    /**
+     * Performant implementations are expected to implement this efficiently by considering the current
+     * cell's boundary.
+     * Precondition: Never called when getLevel() == maxLevel.
+     * Precondition: this.getShape().intersect(p) != OUTSIDE.
+     * @param p
+     * @return
+     */
+    public abstract Cell getSubCell(Point p);
+
+    //TODO Cell getSubCell(byte b)
+
+    /**
+     * Gets the cells at the next grid cell level that cover this cell.
+     * Precondition: Never called when getLevel() == maxLevel.
+     * @return A set of cells (no dups), sorted. Not Modifiable.
      */
     public abstract Collection<Cell> getSubCells();
+
+    /** {@link #getSubCells()}.size() -- usually a constant. Should be >=2 */
+    public abstract int getSubCellsSize();
 
     public abstract Shape getShape();
 
@@ -146,8 +328,9 @@ public abstract class SpatialPrefixGrid {
 
     @Override
     public String toString() {
-      return getTokenString();
+      return getTokenString() + (isLeaf() ?"*":"");
     }
+
   }
 
   /** Transitional for legacy code. */

@@ -5,13 +5,12 @@ import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * A SpatialPrefixGrid based on Geohashes.  Uses {@link GeohashUtils} to do all the geohash work.
- *
- * TODO at the moment it doesn't handle suffixes such as {@link SpatialPrefixGrid#INTERSECTS}. Only does full-resolution
- * points.
  */
 public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
 
@@ -26,26 +25,14 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
   public static int getMaxLevelsPossible() { return GeohashUtils.MAX_PRECISION; }
 
   @Override
-  public Collection<Cell> getCells(Shape shape) {
-    BBox r = shape.getBoundingBox();
-    double width = r.getMaxX() - r.getMinX();
-    double height = r.getMaxY() - r.getMinY();
-    int len = GeohashUtils.lookupHashLenForWidthHeight(width,height);
-    len = Math.min(len,maxLevels-1);
-
-    //TODO !! Bug: incomplete when at top level and covers more than 4 cells
-    Set<Cell> cornerCells = new TreeSet<Cell>();
-    cornerCells.add(getCell(r.getMinX(), r.getMinY(), len));
-    cornerCells.add(getCell(r.getMinX(), r.getMaxY(), len));
-    cornerCells.add(getCell(r.getMaxX(), r.getMaxY(), len));
-    cornerCells.add(getCell(r.getMaxX(), r.getMinY(), len));
-
-    return cornerCells;
+  public int getLevelForDistance(double dist) {
+    final int level = GeohashUtils.lookupHashLenForWidthHeight(dist, dist);
+    return Math.max(Math.min(level, maxLevels), 1);
   }
 
   @Override
-  public Cell getCell(double x, double y, int level) {
-    return new GhCell(GeohashUtils.encode(y, x, level));//args are lat,lon (y,x)
+  public Cell getCell(Point p, int level) {
+    return new GhCell(GeohashUtils.encode(p.getY(),p.getX(), level));//args are lat,lon (y,x)
   }
 
   @Override
@@ -53,16 +40,21 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
     return new GhCell(token);
   }
 
-  @Override
+  @Override //for performance
   public Point getPoint(String token) {
     if (token.length() < maxLevels)
       return null;
     return GeohashUtils.decode(token,shapeIO);
   }
 
-  /**
-   * A cell in a geospatial grid hierarchy as specified by a {@link GeohashSpatialPrefixGrid}.
-   */
+  @Override
+  public List<Cell> getCells(Shape shape, int detailLevel, boolean inclParents) {
+    if (shape instanceof Point)
+      return super.getCellsAltPoint((Point) shape, detailLevel, inclParents);
+    else
+      return super.getCells(shape, detailLevel, inclParents);
+  }
+
   class GhCell extends SpatialPrefixGrid.Cell {
     public GhCell(String token) {
       super(token);
@@ -70,10 +62,7 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
 
     @Override
     public Collection<SpatialPrefixGrid.Cell> getSubCells() {
-      if (getLevel() >= GeohashSpatialPrefixGrid.this.getMaxLevels())
-        return null;
-      String[] hashes = GeohashUtils.getSubGeoHashes(getGeohash());
-      Arrays.sort(hashes);
+      String[] hashes = GeohashUtils.getSubGeohashes(getGeohash());//sorted
       ArrayList<SpatialPrefixGrid.Cell> cells = new ArrayList<SpatialPrefixGrid.Cell>(hashes.length);
       for (String hash : hashes) {
         cells.add(new GhCell(hash));
@@ -82,21 +71,26 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
     }
 
     @Override
-    public int getLevel() {
-      return this.token.length();
+    public int getSubCellsSize() {
+      return 32;//8x4
     }
 
     @Override
+    public Cell getSubCell(Point p) {
+      return GeohashSpatialPrefixGrid.this.getCell(p,getLevel()+1);//not performant!
+    }
+
+    private BBox shape;//cache
+
+    @Override
     public BBox getShape() {
-      return GeohashUtils.decodeBoundary(getGeohash(), shapeIO);// min-max lat, min-max lon
+      if (shape == null)
+        shape = GeohashUtils.decodeBoundary(getGeohash(), shapeIO);// min-max lat, min-max lon
+      return shape;
     }
 
     private String getGeohash() {
       return token;
-//      if (getLevel() >= getMaxLevels())
-//        return token.substring(0,token.length()-1);
-//      else
-//        return token;
     }
 
   }
