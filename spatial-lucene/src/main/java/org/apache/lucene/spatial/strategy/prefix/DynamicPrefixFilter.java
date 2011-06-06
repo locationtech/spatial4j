@@ -68,12 +68,16 @@ RE "scan" threshold:
   private final SpatialPrefixGrid grid;
   private final Shape queryShape;
   private final int prefixGridScanLevel;//at least one less than grid.getMaxLevels()
+  private final int detailLevel;//TODO not yet supported
 
-  public DynamicPrefixFilter(String fieldName, SpatialPrefixGrid grid, Shape queryShape, int prefixGridScanLevel) {
+  public DynamicPrefixFilter(String fieldName, SpatialPrefixGrid grid, Shape queryShape, int prefixGridScanLevel,
+                             int detailLevel) {
     this.fieldName = fieldName;
     this.grid = grid;
     this.queryShape = queryShape;
-    this.prefixGridScanLevel = Math.min(prefixGridScanLevel,grid.getMaxLevels()-1);
+    this.prefixGridScanLevel = Math.max(1,Math.min(prefixGridScanLevel,grid.getMaxLevels()-1));
+    this.detailLevel = detailLevel;
+    assert detailLevel <= grid.getMaxLevels();
   }
 
   @Override
@@ -90,7 +94,7 @@ RE "scan" threshold:
 
     //cells is treated like a stack. LinkedList conveniently has bulk add to beginning. It's in sorted order so that we
     //  always advance forward through the termsEnum index.
-    LinkedList<SpatialPrefixGrid.Cell> cells = new LinkedList<SpatialPrefixGrid.Cell>(grid.getCells(queryShape));
+    LinkedList<SpatialPrefixGrid.Cell> cells = new LinkedList<SpatialPrefixGrid.Cell>(grid.getWorldCell().getSubCells());
 
     //This is a recursive algorithm that starts with one or more "big" cells, and then recursively dives down into the
     // first such cell that intersects with the query shape.  It's a depth first traversal because we don't move onto
@@ -98,7 +102,7 @@ RE "scan" threshold:
     // cell, if the query shape *contains* the cell then we can conveniently short-circuit the depth traversal and
     // grab all documents assigned to this cell/term.  For an intersection of the cell and query shape, we either
     // recursively step down another grid level or we decide heuristically (via prefixGridScanLevel) that there aren't
-    // that many points, and so we scan through all terms within this cell (e.g. the term starts with the cell's term),
+    // that many points, and so we scan through all terms within this cell (i.e. the term starts with the cell's term),
     // seeing which ones are within the query shape.
     while(!cells.isEmpty() && term != null) {
       final SpatialPrefixGrid.Cell cell = cells.removeFirst();
@@ -135,10 +139,11 @@ RE "scan" threshold:
         } else {
           //Scan through all terms within this cell to see if they are within the queryShape.
           for(; term != null && term.startsWith(cellTerm); term = termsEnum.next()) {
+            //TODO following check is to avoid needless term.utf8ToString().
+            if (term.length < grid.getMaxLevels())//intermediate ngram
+              continue;
             // We use a simple & fast point instead of grid.getCell(term).getShape()  (a bbox)
             Point p = grid.getPoint(term.utf8ToString());
-            if (p == null)//intermediate ngram
-              continue;
             if(queryShape.intersect(p, grid.getShapeIO()) == IntersectCase.OUTSIDE)
               continue;
 
