@@ -1,6 +1,7 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import java.util.Collection;
@@ -13,7 +14,7 @@ public class MockSpatialPrefixGrid extends SpatialPrefixGrid {
   }
 
   @Override
-  protected int getLevelForDistance(double dist) {
+  public int getLevelForDistance(double dist) {
     return 5;
   }
 
@@ -28,6 +29,11 @@ public class MockSpatialPrefixGrid extends SpatialPrefixGrid {
 
       @Override
       public Collection<Cell> getSubCells() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public Cell getSubCell(Point p) {
         throw new UnsupportedOperationException();
       }
 
