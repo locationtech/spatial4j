@@ -26,7 +26,6 @@ import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
-import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
@@ -98,7 +97,7 @@ RE "scan" threshold:
     //This is a recursive algorithm that starts with one or more "big" cells, and then recursively dives down into the
     // first such cell that intersects with the query shape.  It's a depth first traversal because we don't move onto
     // the next big cell (breadth) until we're completely done considering all smaller cells beneath it. For a given
-    // cell, if the query shape *contains* the cell then we can conveniently short-circuit the depth traversal and
+    // cell, if its *within* the query shape then we can conveniently short-circuit the depth traversal and
     // grab all documents assigned to this cell/term.  For an intersection of the cell and query shape, we either
     // recursively step down another grid level or we decide heuristically (via prefixGridScanLevel) that there aren't
     // that many points, and so we scan through all terms within this cell (i.e. the term starts with the cell's term),
@@ -108,7 +107,7 @@ RE "scan" threshold:
       IntersectCase intersection = cell.getShapeRel();
       if (intersection == IntersectCase.OUTSIDE)
         continue;
-      final BytesRef cellTerm = new BytesRef(cell.getBytes());
+      final BytesRef cellTerm = new BytesRef(cell.getTokenBytes());
       TermsEnum.SeekStatus seekStat = termsEnum.seek(cellTerm);
       if (seekStat == TermsEnum.SeekStatus.END)
         break;
@@ -134,7 +133,7 @@ RE "scan" threshold:
             int termLevel = term_getLevel(term);
             if (termLevel > detailLevel)
               continue;
-            if (termLevel == detailLevel || termLevel > detailLevel && term_isLeaf(term)) {
+            if (termLevel == detailLevel || term_isLeaf(term)) {
               //TODO should put more thought into implications of box vs point; this is a detail wart
               final String token = term.utf8ToString();
               Shape cShape = termLevel == grid.getMaxLevels() ? grid.getPoint(token) : grid.getCell(token).getShape();
@@ -152,16 +151,13 @@ RE "scan" threshold:
     return bits;
   }
 
-  /** Temporary method that should migrate to SpatialPrefixGrid.
+  /* TODO Temporary methods that should migrate to SpatialPrefixGrid.
    * The implementation will need to change when indexing shapes is supported.
+   * Perhaps we make some sort of mutable Cell like grid.makeBlankCell() and we add a reset(term) method?
    */
   private int term_getLevel(BytesRef term) {
     return term.length;
   }
-
-  /** Temporary method that should migrate to SpatialPrefixGrid.
-   * The implementation will need to change when indexing shapes is supported.
-   */
   private boolean term_isLeaf(BytesRef term) {
     return term.length < grid.getMaxLevels();
   }

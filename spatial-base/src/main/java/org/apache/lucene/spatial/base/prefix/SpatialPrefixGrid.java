@@ -244,7 +244,7 @@ public abstract class SpatialPrefixGrid {
       return token;
     }
 
-    public byte[] getBytes() {
+    public byte[] getTokenBytes() {
       return token.getBytes(UTF8);
     }
 
