@@ -159,7 +159,7 @@ RE "scan" threshold:
     return term.length;
   }
   private boolean term_isLeaf(BytesRef term) {
-    return term.length < grid.getMaxLevels();
+    return term.length == grid.getMaxLevels();
   }
 
   private void addDocs(DocsEnum docsEnum, OpenBitSet bits) throws IOException {
