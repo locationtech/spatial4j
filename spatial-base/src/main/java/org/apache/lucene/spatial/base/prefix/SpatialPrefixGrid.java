@@ -105,17 +105,14 @@ public abstract class SpatialPrefixGrid {
   public abstract Cell getCell(String token);
 
   /**
-   * Decodes the token into a Point. The token must be leaf token or else null is returned.
+   * Decodes the token into a Point.
    * Precondition: Never called when token length > maxLevel.
    * TODO: DWS: Longer term I expect this to go away.
    * @param token
    * @return possibly null
    */
   public Point getPoint(String token) {
-    final Cell cell = getCell(token);
-    if (!cell.isLeaf())
-      return null;
-    return cell.getShape().getCenter();
+    return getCell(token).getShape().getCenter();
   }
 
   protected Cell getCell(Point p, int level) {
@@ -302,7 +299,7 @@ public abstract class SpatialPrefixGrid {
      * Precondition: Never called when getLevel() == maxLevel.
      * @return A set of cells (no dups), sorted. Not Modifiable.
      */
-    public abstract Collection<Cell> getSubCells();
+    protected abstract Collection<Cell> getSubCells();
 
     /** {@link #getSubCells()}.size() -- usually a constant. Should be >=2 */
     public abstract int getSubCellsSize();

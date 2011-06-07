@@ -42,8 +42,6 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
 
   @Override //for performance
   public Point getPoint(String token) {
-    if (token.length() < maxLevels)
-      return null;
     return GeohashUtils.decode(token,shapeIO);
   }
 
