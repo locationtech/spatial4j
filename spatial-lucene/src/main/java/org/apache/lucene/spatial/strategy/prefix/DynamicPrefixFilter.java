@@ -45,8 +45,6 @@ public class DynamicPrefixFilter extends Filter {
 
   /* TODOs for future:
 
-Add a precision short-circuit so that we are not accurate on the edge but we're faster.
-
 Can a polygon query shape be optimized / made-simpler at recursive depths (e.g. intersection of shape + cell box)
 
 RE "scan" threshold:
@@ -68,7 +66,7 @@ RE "scan" threshold:
   private final SpatialPrefixGrid grid;
   private final Shape queryShape;
   private final int prefixGridScanLevel;//at least one less than grid.getMaxLevels()
-  private final int detailLevel;//TODO not yet supported
+  private final int detailLevel;
 
   public DynamicPrefixFilter(String fieldName, SpatialPrefixGrid grid, Shape queryShape, int prefixGridScanLevel,
                              int detailLevel) {
@@ -94,7 +92,8 @@ RE "scan" threshold:
 
     //cells is treated like a stack. LinkedList conveniently has bulk add to beginning. It's in sorted order so that we
     //  always advance forward through the termsEnum index.
-    LinkedList<SpatialPrefixGrid.Cell> cells = new LinkedList<SpatialPrefixGrid.Cell>(grid.getWorldCell().getSubCells());
+    LinkedList<SpatialPrefixGrid.Cell> cells = new LinkedList<SpatialPrefixGrid.Cell>(
+        grid.getWorldCell().getSubCells(queryShape) );
 
     //This is a recursive algorithm that starts with one or more "big" cells, and then recursively dives down into the
     // first such cell that intersects with the query shape.  It's a depth first traversal because we don't move onto
@@ -106,55 +105,65 @@ RE "scan" threshold:
     // seeing which ones are within the query shape.
     while(!cells.isEmpty() && term != null) {
       final SpatialPrefixGrid.Cell cell = cells.removeFirst();
-      assert cell.getLevel() > 0;
-      final BytesRef cellTerm = new BytesRef(cell.getBytes());
-
-      //TODO: benchmark this dubious optimization
-      //Optimization: If term is "ahead" of this cell (not within and comes after) then short-circuit. This avoids
-      // calling potentially expensive queryShape.intersect(cell.getShape()).
-      if (!term.startsWith(cellTerm) && cellTerm.compareTo(term) < 0)
-        continue;
-
-      IntersectCase intersection = queryShape.intersect(cell.getShape(), grid.getShapeIO());
+      IntersectCase intersection = cell.getShapeRel();
       if (intersection == IntersectCase.OUTSIDE)
         continue;
+      final BytesRef cellTerm = new BytesRef(cell.getBytes());
       TermsEnum.SeekStatus seekStat = termsEnum.seek(cellTerm);
       if (seekStat == TermsEnum.SeekStatus.END)
         break;
       term = termsEnum.term();
       if (seekStat == TermsEnum.SeekStatus.NOT_FOUND)
         continue;
-      if (intersection == IntersectCase.CONTAINS) {
+      if (intersection == IntersectCase.WITHIN || cell.getLevel() == detailLevel) {
         docsEnum = termsEnum.docs(delDocs, docsEnum);
         addDocs(docsEnum,bits);
         term = termsEnum.next();//move to next term
       } else {//any other intersection
 
         //Decide whether to continue to divide & conquer, or whether it's time to scan through terms beneath this cell.
+        // Scanning is a performance optimization trade-off.
         boolean scan = cell.getLevel() >= prefixGridScanLevel;//simple heuristic
 
         if (!scan) {
           //Divide & conquer
-          cells.addAll(0, cell.getSubCells());//add to beginning
+          cells.addAll(0, cell.getSubCells(queryShape));//add to beginning
         } else {
-          //Scan through all terms within this cell to see if they are within the queryShape.
+          //Scan through all terms within this cell to see if they are within the queryShape. No seek()s.
           for(; term != null && term.startsWith(cellTerm); term = termsEnum.next()) {
-            //TODO following check is to avoid needless term.utf8ToString().
-            if (term.length < grid.getMaxLevels())//intermediate ngram
+            int termLevel = term_getLevel(term);
+            if (termLevel > detailLevel)
               continue;
-            // We use a simple & fast point instead of grid.getCell(term).getShape()  (a bbox)
-            Point p = grid.getPoint(term.utf8ToString());
-            if(queryShape.intersect(p, grid.getShapeIO()) == IntersectCase.OUTSIDE)
-              continue;
+            if (termLevel == detailLevel || termLevel > detailLevel && term_isLeaf(term)) {
+              //TODO should put more thought into implications of box vs point; this is a detail wart
+              final String token = term.utf8ToString();
+              Shape cShape = termLevel == grid.getMaxLevels() ? grid.getPoint(token) : grid.getCell(token).getShape();
+              if(queryShape.intersect(cShape, grid.getShapeIO()) == IntersectCase.OUTSIDE)
+                continue;
 
-            docsEnum = termsEnum.docs(delDocs, docsEnum);
-            addDocs(docsEnum,bits);
-          }
+              docsEnum = termsEnum.docs(delDocs, docsEnum);
+              addDocs(docsEnum,bits);
+            }
+          }//term loop
         }
       }
     }//cell loop
 
     return bits;
+  }
+
+  /** Temporary method that should migrate to SpatialPrefixGrid.
+   * The implementation will need to change when indexing shapes is supported.
+   */
+  private int term_getLevel(BytesRef term) {
+    return term.length;
+  }
+
+  /** Temporary method that should migrate to SpatialPrefixGrid.
+   * The implementation will need to change when indexing shapes is supported.
+   */
+  private boolean term_isLeaf(BytesRef term) {
+    return term.length < grid.getMaxLevels();
   }
 
   private void addDocs(DocsEnum docsEnum, OpenBitSet bits) throws IOException {
@@ -182,17 +191,20 @@ RE "scan" threshold:
 
     DynamicPrefixFilter that = (DynamicPrefixFilter) o;
 
-    if (fieldName != null ? !fieldName.equals(that.fieldName) : that.fieldName != null) return false;
-    if (queryShape != null ? !queryShape.equals(that.queryShape) : that.queryShape != null) return false;
+    if (!fieldName.equals(that.fieldName)) return false;
+    //note that we don't need to look at grid since for the same field it should be the same
     if (prefixGridScanLevel != that.prefixGridScanLevel) return false;
+    if (detailLevel != that.detailLevel) return false;
+    if (!queryShape.equals(that.queryShape)) return false;
 
     return true;
   }
 
   @Override
   public int hashCode() {
-    int result = fieldName != null ? fieldName.hashCode() : 0;
-    result = 31 * result + (queryShape != null ? queryShape.hashCode() : 0);
+    int result = fieldName.hashCode();
+    result = 31 * result + queryShape.hashCode();
+    result = 31 * result + detailLevel;
     return result;
   }
 }
