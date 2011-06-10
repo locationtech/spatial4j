@@ -117,7 +117,7 @@ public class Rectangle implements BBox {
     }
 
     if(!BBox.class.isInstance(shape)) {
-      throw new IllegalArgumentException( "Rectangle can only be compared with another Extent" );
+      return shape.intersect(this,context).transpose();
     }
 
     BBox ext = shape.getBoundingBox();
