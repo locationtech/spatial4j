@@ -226,7 +226,7 @@
   <!-- update -->
   <requestHandler name="/update" class="solr.XmlUpdateRequestHandler" >
     <lst name="defaults">
-      <str name="update.processor">spatial</str>
+      <str name="update.chain">spatial</str>
     </lst>
   </requestHandler>
   
