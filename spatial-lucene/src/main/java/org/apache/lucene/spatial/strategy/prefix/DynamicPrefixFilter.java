@@ -87,7 +87,6 @@ RE "scan" threshold:
     TermsEnum termsEnum = terms.iterator();
     DocsEnum docsEnum = null;//cached for termsEnum.docs() calls
     Bits delDocs = reader.getDeletedDocs();
-    BytesRef term = termsEnum.next();//the most recent term examined via termsEnum.term()
 
     //cells is treated like a stack. LinkedList conveniently has bulk add to beginning. It's in sorted order so that we
     //  always advance forward through the termsEnum index.
@@ -102,22 +101,21 @@ RE "scan" threshold:
     // recursively step down another grid level or we decide heuristically (via prefixGridScanLevel) that there aren't
     // that many points, and so we scan through all terms within this cell (i.e. the term starts with the cell's term),
     // seeing which ones are within the query shape.
-    while(!cells.isEmpty() && term != null) {
+    while(!cells.isEmpty()) {
       final SpatialPrefixGrid.Cell cell = cells.removeFirst();
       IntersectCase intersection = cell.getShapeRel();
+      assert intersection != null;
       if (intersection == IntersectCase.OUTSIDE)
         continue;
       final BytesRef cellTerm = new BytesRef(cell.getTokenBytes());
       TermsEnum.SeekStatus seekStat = termsEnum.seek(cellTerm);
       if (seekStat == TermsEnum.SeekStatus.END)
         break;
-      term = termsEnum.term();
       if (seekStat == TermsEnum.SeekStatus.NOT_FOUND)
         continue;
       if (intersection == IntersectCase.WITHIN || cell.getLevel() == detailLevel) {
         docsEnum = termsEnum.docs(delDocs, docsEnum);
         addDocs(docsEnum,bits);
-        term = termsEnum.next();//move to next term
       } else {//any other intersection
 
         //Decide whether to continue to divide & conquer, or whether it's time to scan through terms beneath this cell.
@@ -129,7 +127,7 @@ RE "scan" threshold:
           cells.addAll(0, cell.getSubCells(queryShape));//add to beginning
         } else {
           //Scan through all terms within this cell to see if they are within the queryShape. No seek()s.
-          for(; term != null && term.startsWith(cellTerm); term = termsEnum.next()) {
+          for(BytesRef term = termsEnum.term(); term != null && term.startsWith(cellTerm); term = termsEnum.next()) {
             int termLevel = term_getLevel(term);
             if (termLevel > detailLevel)
               continue;
