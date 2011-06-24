@@ -125,14 +125,17 @@ RE "scan" threshold:
           cells.addAll(0, cell.getSubCells(queryShape));//add to beginning
         } else {
           //Scan through all terms within this cell to see if they are within the queryShape. No seek()s.
+          SpatialPrefixGrid.Cell scanCell = null;
           for(BytesRef term = termsEnum.term(); term != null && term.startsWith(cellTerm); term = termsEnum.next()) {
-            int termLevel = term_getLevel(term);
+            if (scanCell == null)
+              scanCell = grid.getCell(term.bytes, term.offset, term.length);
+            else
+              scanCell.reset(term.bytes, term.offset, term.length);
+            int termLevel = scanCell.getLevel();
             if (termLevel > detailLevel)
               continue;
-            if (termLevel == detailLevel || term_isLeaf(term)) {
-              //TODO should put more thought into implications of box vs point; this is a detail wart
-              final String token = term.utf8ToString();
-              Shape cShape = termLevel == grid.getMaxLevels() ? grid.getPoint(token) : grid.getCell(token).getShape();
+            if (termLevel == detailLevel || scanCell.isLeaf()) {
+              Shape cShape = scanCell.getShape();
               if(queryShape.intersect(cShape, grid.getShapeIO()) == IntersectCase.OUTSIDE)
                 continue;
 
@@ -145,17 +148,6 @@ RE "scan" threshold:
     }//cell loop
 
     return bits;
-  }
-
-  /* TODO Temporary methods that should migrate to SpatialPrefixGrid.
-   * The implementation will need to change when indexing shapes is supported.
-   * Perhaps we make some sort of mutable Cell like grid.makeBlankCell() and we add a reset(term) method?
-   */
-  private int term_getLevel(BytesRef term) {
-    return term.length;
-  }
-  private boolean term_isLeaf(BytesRef term) {
-    return term.length == grid.getMaxLevels();
   }
 
   private void addDocs(DocsEnum docsEnum, OpenBitSet bits) throws IOException {

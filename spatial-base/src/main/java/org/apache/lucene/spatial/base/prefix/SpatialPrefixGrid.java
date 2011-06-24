@@ -104,11 +104,14 @@ public abstract class SpatialPrefixGrid {
    */
   public abstract Cell getCell(String token);
 
+  public abstract Cell getCell(byte[] bytes, int offset, int len);
+
   /**
    * Decodes the token into a Point.
    * Precondition: Never called when token length > maxLevel.
    * TODO: DWS: Longer term I expect this to go away.
    * @param token
+   * @deprecated
    * @return possibly null
    */
   public Point getPoint(String token) {
@@ -215,15 +218,32 @@ public abstract class SpatialPrefixGrid {
    */
   public abstract class Cell implements Comparable<Cell> {
 
+    private byte[] bytes;
+    private int b_off;
+    private int b_len;
 
-    protected final String token;//this is the only part of equality
+    private String token;//this is the only part of equality
 
     protected IntersectCase shapeRel;//set in getSubCells(filter), and via setLeaf().
 
-    public Cell(String token) {
+    protected Cell(String token) {
       this.token = token;
       if (getLevel() == 0)
         getShape();//ensure any lazy instantiation completes to make this threadsafe
+    }
+
+    protected Cell(byte[] bytes, int off, int len) {
+      this.bytes = bytes;
+      this.b_off = off;
+      this.b_len = len;
+    }
+
+    public void reset(byte[] bytes, int off, int len) {
+      this.bytes = bytes;
+      this.b_off = off;
+      this.b_len = len;
+      token = null;
+      shapeRel = null;
     }
 
     public IntersectCase getShapeRel() {
@@ -241,15 +261,24 @@ public abstract class SpatialPrefixGrid {
     }
 
     public String getTokenString() {
+      if (token == null)
+        token = new String(bytes, b_off, b_len, UTF8);
       return token;
     }
 
     public byte[] getTokenBytes() {
-      return token.getBytes(UTF8);
+      if (bytes != null) {
+        assert b_off == 0 && b_len == bytes.length;
+      } else {
+        bytes = token.getBytes(UTF8);
+        b_off = 0;
+        b_len = bytes.length;
+      }
+      return bytes;
     }
 
     public int getLevel() {
-      return this.token.length();
+      return token != null ? token.length() : b_len;
     }
 
     //TODO add getParent() and update some algorithms to use this?
@@ -304,6 +333,10 @@ public abstract class SpatialPrefixGrid {
     /** {@link #getSubCells()}.size() -- usually a constant. Should be >=2 */
     public abstract int getSubCellsSize();
 
+    /**
+     * Note: Might be a Point, such as when {@link #getLevel()} == maxLevels.
+     * TODO should put more thought into implications of box vs point
+     */
     public abstract Shape getShape();
 
     @Override

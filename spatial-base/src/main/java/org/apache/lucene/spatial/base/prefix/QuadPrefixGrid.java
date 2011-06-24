@@ -137,6 +137,11 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
     return new QuadCell(token);
   }
 
+  @Override
+  public Cell getCell(byte[] bytes, int offset, int len) {
+    return new QuadCell(bytes, offset, len);
+  }
+
   @Override //for performance
   public List<Cell> getCells(Shape shape, int detailLevel, boolean inclParents) {
     if (shape instanceof Point)
@@ -226,6 +231,16 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
       this.shapeRel = shapeRel;
     }
 
+    QuadCell(byte[] bytes, int off, int len) {
+      super(bytes, off, len);
+    }
+
+    @Override
+    public void reset(byte[] bytes, int off, int len) {
+      super.reset(bytes, off, len);
+      shape = null;
+    }
+
     @Override
     public Collection<Cell> getSubCells() {
       ArrayList<Cell> cells = new ArrayList<Cell>(4);
@@ -246,16 +261,20 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
       return QuadPrefixGrid.this.getCell(p,getLevel()+1);//not performant!
     }
 
-    private BBox shape;//cache
+    private Shape shape;//cache
 
     @Override
     public Shape getShape() {
-      if (shape == null)
+      if (shape == null) {
         shape = makeShape();
+        if (getLevel() == getMaxLevels())
+          shape = shape.getCenter();
+      }
       return shape;
     }
 
     private BBox makeShape() {
+      String token = getTokenString();
       double xmin = QuadPrefixGrid.this.xmin;
       double ymin = QuadPrefixGrid.this.ymin;
 

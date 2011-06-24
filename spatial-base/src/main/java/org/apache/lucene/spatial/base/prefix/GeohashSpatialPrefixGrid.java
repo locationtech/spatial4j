@@ -40,6 +40,11 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
     return new GhCell(token);
   }
 
+  @Override
+  public Cell getCell(byte[] bytes, int offset, int len) {
+    return new GhCell(bytes, offset, len);
+  }
+
   @Override //for performance
   public Point getPoint(String token) {
     return GeohashUtils.decode(token,shapeIO);
@@ -54,8 +59,18 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
   }
 
   class GhCell extends SpatialPrefixGrid.Cell {
-    public GhCell(String token) {
+    GhCell(String token) {
       super(token);
+    }
+
+    GhCell(byte[] bytes, int off, int len) {
+      super(bytes, off, len);
+    }
+
+    @Override
+    public void reset(byte[] bytes, int off, int len) {
+      super.reset(bytes, off, len);
+      shape = null;
     }
 
     @Override
@@ -78,17 +93,21 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
       return GeohashSpatialPrefixGrid.this.getCell(p,getLevel()+1);//not performant!
     }
 
-    private BBox shape;//cache
+    private Shape shape;//cache
 
     @Override
-    public BBox getShape() {
-      if (shape == null)
-        shape = GeohashUtils.decodeBoundary(getGeohash(), shapeIO);// min-max lat, min-max lon
+    public Shape getShape() {
+      if (shape == null) {
+        if (getLevel() == getMaxLevels())
+          shape = getPoint(getGeohash());
+        else
+          shape = GeohashUtils.decodeBoundary(getGeohash(), shapeIO);// min-max lat, min-max lon
+      }
       return shape;
     }
 
     private String getGeohash() {
-      return token;
+      return getTokenString();
     }
 
   }
