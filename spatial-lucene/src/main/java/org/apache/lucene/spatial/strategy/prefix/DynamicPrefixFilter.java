@@ -103,16 +103,14 @@ RE "scan" threshold:
     // seeing which ones are within the query shape.
     while(!cells.isEmpty()) {
       final SpatialPrefixGrid.Cell cell = cells.removeFirst();
-      IntersectCase intersection = cell.getShapeRel();
-      assert intersection != null;
-      if (intersection == IntersectCase.OUTSIDE)
-        continue;
       final BytesRef cellTerm = new BytesRef(cell.getTokenBytes());
       TermsEnum.SeekStatus seekStat = termsEnum.seek(cellTerm);
       if (seekStat == TermsEnum.SeekStatus.END)
         break;
       if (seekStat == TermsEnum.SeekStatus.NOT_FOUND)
         continue;
+      final IntersectCase intersection = cell.getShapeRel();//from query shape
+      assert intersection != null && intersection != IntersectCase.OUTSIDE;
       if (intersection == IntersectCase.WITHIN || cell.getLevel() == detailLevel) {
         docsEnum = termsEnum.docs(delDocs, docsEnum);
         addDocs(docsEnum,bits);
