@@ -88,6 +88,8 @@ public abstract class SpatialPrefixGrid {
 
   //TODO double getDistanceForLevel(int level)
 
+  private transient Cell worldCell;//cached
+
   /**
    * Returns the level 0 cell which encompasses all spatial data. Equivalent to {@link #getCell(String)} with "".
    * This cell is threadsafe, just like a spatial prefix grid is, although cells aren't
@@ -95,7 +97,9 @@ public abstract class SpatialPrefixGrid {
    * TODO rename to getTopCell or is this fine?
    */
   public Cell getWorldCell() {
-    return getCell("");
+    if (worldCell == null)
+      worldCell = getCell("");
+    return worldCell;
   }
 
   /**
@@ -106,16 +110,11 @@ public abstract class SpatialPrefixGrid {
 
   public abstract Cell getCell(byte[] bytes, int offset, int len);
 
-  /**
-   * Decodes the token into a Point.
-   * Precondition: Never called when token length > maxLevel.
-   * TODO: DWS: Longer term I expect this to go away.
-   * @param token
-   * @deprecated
-   * @return possibly null
-   */
-  public Point getPoint(String token) {
-    return getCell(token).getShape().getCenter();
+  public final Cell getCell(byte[] bytes, int offset, int len, Cell target) {
+    if (target == null)
+      return getCell(bytes, offset, len);
+    target.reset(bytes, offset, len);
+    return target;
   }
 
   protected Cell getCell(Point p, int level) {

@@ -14,9 +14,12 @@ public class PrefixFieldCacheProvider extends ShapeFieldCacheProvider<Point> {
     this.grid = grid;
   }
 
+  //A kluge that this is a field
+  private SpatialPrefixGrid.Cell scanCell = null;
+
   @Override
   protected Point readShape(BytesRef term) {
-    final String token = term.utf8ToString();
-    return grid.getPoint(token);
+    scanCell = grid.getCell(term.bytes, term.offset, term.length, scanCell);
+    return scanCell.isLeaf() ? scanCell.getShape().getCenter() : null;
   }
 }

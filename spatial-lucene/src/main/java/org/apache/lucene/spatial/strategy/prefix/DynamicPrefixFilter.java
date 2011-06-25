@@ -127,10 +127,7 @@ RE "scan" threshold:
           //Scan through all terms within this cell to see if they are within the queryShape. No seek()s.
           SpatialPrefixGrid.Cell scanCell = null;
           for(BytesRef term = termsEnum.term(); term != null && term.startsWith(cellTerm); term = termsEnum.next()) {
-            if (scanCell == null)
-              scanCell = grid.getCell(term.bytes, term.offset, term.length);
-            else
-              scanCell.reset(term.bytes, term.offset, term.length);
+            scanCell = grid.getCell(term.bytes, term.offset, term.length, scanCell);
             int termLevel = scanCell.getLevel();
             if (termLevel > detailLevel)
               continue;

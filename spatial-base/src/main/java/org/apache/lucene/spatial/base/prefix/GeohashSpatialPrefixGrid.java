@@ -1,7 +1,6 @@
 package org.apache.lucene.spatial.base.prefix;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -43,11 +42,6 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
   @Override
   public Cell getCell(byte[] bytes, int offset, int len) {
     return new GhCell(bytes, offset, len);
-  }
-
-  @Override //for performance
-  public Point getPoint(String token) {
-    return GeohashUtils.decode(token,shapeIO);
   }
 
   @Override
@@ -99,9 +93,9 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
     public Shape getShape() {
       if (shape == null) {
         if (getLevel() == getMaxLevels())
-          shape = getPoint(getGeohash());
+          shape = GeohashUtils.decode(getGeohash(), shapeIO);
         else
-          shape = GeohashUtils.decodeBoundary(getGeohash(), shapeIO);// min-max lat, min-max lon
+          shape = GeohashUtils.decodeBoundary(getGeohash(), shapeIO);
       }
       return shape;
     }
