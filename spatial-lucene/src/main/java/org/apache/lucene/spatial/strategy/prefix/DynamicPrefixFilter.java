@@ -87,6 +87,7 @@ RE "scan" threshold:
     TermsEnum termsEnum = terms.iterator();
     DocsEnum docsEnum = null;//cached for termsEnum.docs() calls
     Bits delDocs = reader.getDeletedDocs();
+    SpatialPrefixGrid.Cell scanCell = null;
 
     //cells is treated like a stack. LinkedList conveniently has bulk add to beginning. It's in sorted order so that we
     //  always advance forward through the termsEnum index.
@@ -109,12 +110,19 @@ RE "scan" threshold:
         break;
       if (seekStat == TermsEnum.SeekStatus.NOT_FOUND)
         continue;
-      final IntersectCase intersection = cell.getShapeRel();//from query shape
-      assert intersection != null && intersection != IntersectCase.OUTSIDE;
-      if (intersection == IntersectCase.WITHIN || cell.getLevel() == detailLevel) {
+      if (cell.getLevel() == detailLevel || cell.isLeaf()) {
         docsEnum = termsEnum.docs(delDocs, docsEnum);
         addDocs(docsEnum,bits);
       } else {//any other intersection
+        //If the next indexed term is the leaf marker, then add all of them
+        BytesRef nextCellTerm = termsEnum.next();
+        assert nextCellTerm.startsWith(cellTerm);
+        scanCell = grid.getCell(nextCellTerm.bytes, nextCellTerm.offset, nextCellTerm.length, scanCell);
+        if (scanCell.isLeaf()) {
+          docsEnum = termsEnum.docs(delDocs, docsEnum);
+          addDocs(docsEnum,bits);
+          termsEnum.next();//move pointer to avoid potential redundant addDocs() below
+        }
 
         //Decide whether to continue to divide & conquer, or whether it's time to scan through terms beneath this cell.
         // Scanning is a performance optimization trade-off.
@@ -125,7 +133,6 @@ RE "scan" threshold:
           cells.addAll(0, cell.getSubCells(queryShape));//add to beginning
         } else {
           //Scan through all terms within this cell to see if they are within the queryShape. No seek()s.
-          SpatialPrefixGrid.Cell scanCell = null;
           for(BytesRef term = termsEnum.term(); term != null && term.startsWith(cellTerm); term = termsEnum.next()) {
             scanCell = grid.getCell(term.bytes, term.offset, term.length, scanCell);
             int termLevel = scanCell.getLevel();
