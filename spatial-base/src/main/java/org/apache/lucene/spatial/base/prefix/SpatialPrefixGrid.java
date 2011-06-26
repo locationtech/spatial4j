@@ -216,7 +216,12 @@ public abstract class SpatialPrefixGrid {
    * Represents a grid cell. These are not necessarily threadsafe, although new Cell("") (world cell) must be.
    */
   public abstract class Cell implements Comparable<Cell> {
+    public static final byte LEAF_BYTE = '+';//NOTE: must sort before letters & numbers
 
+    /*
+    Holds a byte[] and/or String representation of the cell. Both are lazy constructed from the other.
+    Neither contains the trailing leaf byte.
+     */
     private byte[] bytes;
     private int b_off;
     private int b_len;
@@ -229,20 +234,32 @@ public abstract class SpatialPrefixGrid {
       this.token = token;
       if (getLevel() == 0)
         getShape();//ensure any lazy instantiation completes to make this threadsafe
+      else
+        assert token.charAt(token.length()-1) != LEAF_BYTE;
     }
 
     protected Cell(byte[] bytes, int off, int len) {
       this.bytes = bytes;
       this.b_off = off;
       this.b_len = len;
+      fixLeaf();
     }
 
     public void reset(byte[] bytes, int off, int len) {
+      assert getLevel() != 0;
+      token = null;
+      shapeRel = null;
       this.bytes = bytes;
       this.b_off = off;
       this.b_len = len;
-      token = null;
-      shapeRel = null;
+      fixLeaf();
+    }
+
+    private void fixLeaf() {
+      if (bytes[b_off + b_len - 1] == LEAF_BYTE) {
+        b_len--;
+        setLeaf();
+      }
     }
 
     public IntersectCase getShapeRel() {
@@ -250,7 +267,6 @@ public abstract class SpatialPrefixGrid {
     }
 
     public boolean isLeaf() {
-      //note: presently we don't yet support indexing terminal tokens so we assume full-resolution tokens are.
       return shapeRel == IntersectCase.WITHIN || getLevel() == getMaxLevels();
     }
 
@@ -259,15 +275,18 @@ public abstract class SpatialPrefixGrid {
       shapeRel = IntersectCase.WITHIN;
     }
 
+    /** Note: doesn't contain a trailing leaf byte. */
     public String getTokenString() {
       if (token == null)
         token = new String(bytes, b_off, b_len, UTF8);
       return token;
     }
 
+    /** Note: doesn't contain a trailing leaf byte. */
     public byte[] getTokenBytes() {
       if (bytes != null) {
-        assert b_off == 0 && b_len == bytes.length;
+        if (b_off != 0 || b_len != bytes.length)
+          throw new IllegalStateException("Not supported if byte[] needs to be recreated.");
       } else {
         bytes = token.getBytes(UTF8);
         b_off = 0;
@@ -357,17 +376,19 @@ public abstract class SpatialPrefixGrid {
 
     @Override
     public String toString() {
-      return getTokenString() + (isLeaf() ?"*":"");
+      return getTokenString() + (isLeaf() ? LEAF_BYTE :"");
     }
 
   }
 
-  /** Transitional for legacy code. */
-  @Deprecated
+  /** Will add the trailing leaf byte for leaves, as a new token. */
   public static List<String> cellsToTokenStrings(Collection<Cell> cells) {
-    ArrayList<String> tokens = new ArrayList<String>(cells.size());
+    ArrayList<String> tokens = new ArrayList<String>((int)(cells.size()*1.5));
     for (Cell cell : cells) {
-      tokens.add(cell.getTokenString());
+      final String token = cell.getTokenString();
+      tokens.add(token);
+      if (cell.isLeaf())
+        tokens.add(token+Cell.LEAF_BYTE);
     }
     return tokens;
   }
