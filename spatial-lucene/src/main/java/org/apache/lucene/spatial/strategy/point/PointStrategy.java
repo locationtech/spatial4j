@@ -106,19 +106,19 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
 
   @Override
   public Filter makeFilter(SpatialArgs args, PointFieldInfo fieldInfo) {
-    if( args.getShape() instanceof PointDistance) {
+    if( args.getShape() instanceof Circle) {
       if( SpatialOperation.is( args.getOperation(),
           SpatialOperation.Intersects,
           SpatialOperation.IsWithin )) {
         DistanceCalculator calc = reader.getDistanceCalculator();
-        PointDistance pd = (PointDistance)args.getShape();
-        Query bbox = makeWithin(pd.getBoundingBox(), fieldInfo);
+        Circle circle = (Circle)args.getShape();
+        Query bbox = makeWithin(circle.getBoundingBox(), fieldInfo);
 
         // Make the ValueSource
         ValueSource valueSource = makeValueSource(args, fieldInfo, calc);
 
         return new ValueSourceFilter(
-            new QueryWrapperFilter( bbox ), valueSource, 0, pd.getDistance() );
+            new QueryWrapperFilter( bbox ), valueSource, 0, circle.getDistance() );
       }
     }
     return new QueryWrapperFilter( makeQuery(args, fieldInfo) );
@@ -127,7 +127,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
   @Override
   public Query makeQuery(SpatialArgs args, PointFieldInfo fieldInfo) {
     // For starters, just limit the bbox
-    BBox bbox = args.getShape().getBoundingBox();
+    Rectangle bbox = args.getShape().getBoundingBox();
     if (bbox.getCrossesDateLine()) {
       throw new UnsupportedOperationException( "Crossing dateline not yet supported" );
     }
@@ -147,14 +147,14 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
       SpatialOperation.Intersects,
       SpatialOperation.IsWithin ) ) {
       spatial = makeWithin(bbox, fieldInfo);
-      if( args.getShape() instanceof PointDistance) {
-        PointDistance pd = (PointDistance)args.getShape();
+      if( args.getShape() instanceof Circle) {
+        Circle circle = (Circle)args.getShape();
 
         // Make the ValueSource
         valueSource = makeValueSource(args, fieldInfo, calc);
 
         ValueSourceFilter vsf = new ValueSourceFilter(
-            new QueryWrapperFilter( spatial ), valueSource, 0, pd.getDistance() );
+            new QueryWrapperFilter( spatial ), valueSource, 0, circle.getDistance() );
 
         spatial = new FilteredQuery( new MatchAllDocsQuery(), vsf );
       }
@@ -189,7 +189,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
    * Constructs a query to retrieve documents that fully contain the input envelope.
    * @return the spatial query
    */
-  private Query makeWithin(BBox bbox, PointFieldInfo fieldInfo) {
+  private Query makeWithin(Rectangle bbox, PointFieldInfo fieldInfo) {
     Query qX = NumericRangeQuery.newDoubleRange(
       fieldInfo.getFieldNameX(),
       finfo.precisionStep,
@@ -215,7 +215,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
    * Constructs a query to retrieve documents that fully contain the input envelope.
    * @return the spatial query
    */
-  Query makeDisjoint(BBox bbox, PointFieldInfo fieldInfo) {
+  Query makeDisjoint(Rectangle bbox, PointFieldInfo fieldInfo) {
     Query qX = NumericRangeQuery.newDoubleRange(
       fieldInfo.getFieldNameX(),
       finfo.precisionStep,

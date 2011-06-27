@@ -7,7 +7,7 @@ import de.micromata.opengis.kml.v_2_2_0.*;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
-import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import java.io.File;
@@ -54,8 +54,8 @@ public class KMLHelper
 
   private static List<Coordinate> getCoords( Shape s )
   {
-    if( s instanceof BBox) {
-      BBox r = (BBox)s;
+    if( s instanceof Rectangle) {
+      Rectangle r = (Rectangle)s;
       List<Coordinate> coords = new ArrayList<Coordinate>(5);
       coords.add( new Coordinate( r.getMinX(),r.getMinY() ) );
       coords.add( new Coordinate( r.getMaxX(),r.getMinY() ) );
@@ -157,7 +157,7 @@ public class KMLHelper
 
   //  shape = shape.project( projection, false );
 
-  //  shape = new Rectangle( -170,-85, 170, 85 );
+  //  shape = new RectangeImpl( -170,-85, 170, 85 );
 
     List<String> vals = SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(shape,5,false)); //new GeometryShape( shape ) ); //new EnvelopeShape( shape.getEnvelopeInternal() ) );
     System.out.println( vals );

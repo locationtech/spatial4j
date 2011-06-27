@@ -19,7 +19,7 @@ package com.googlecode.lucene.spatial.base.context;
 
 import com.googlecode.lucene.spatial.base.shape.JtsEnvelope;
 import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
-import com.googlecode.lucene.spatial.base.shape.JtsPoint2D;
+import com.googlecode.lucene.spatial.base.shape.JtsPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -65,7 +65,7 @@ public class JtsSpatialContext extends AbstractSpatialContext {
         WKTReader reader = new WKTReader(factory);
         Geometry geo = reader.read(str);
         if (geo instanceof com.vividsolutions.jts.geom.Point) {
-          return new JtsPoint2D((com.vividsolutions.jts.geom.Point)geo);
+          return new JtsPoint((com.vividsolutions.jts.geom.Point)geo);
         } else if (geo.isRectangle()) {
           return new JtsEnvelope(geo.getEnvelopeInternal());
         }
@@ -87,14 +87,14 @@ public class JtsSpatialContext extends AbstractSpatialContext {
       return bytes.array();
     }
 
-    if (BBox.class.isInstance(shape)) {
-      BBox b = (BBox) shape;
+    if (Rectangle.class.isInstance(shape)) {
+      Rectangle rect = (Rectangle) shape;
       ByteBuffer bytes = ByteBuffer.wrap(new byte[1 + (4 * 8)]);
       bytes.put(TYPE_BBOX);
-      bytes.putDouble(b.getMinX());
-      bytes.putDouble(b.getMaxX());
-      bytes.putDouble(b.getMinY());
-      bytes.putDouble(b.getMaxY());
+      bytes.putDouble(rect.getMinX());
+      bytes.putDouble(rect.getMaxX());
+      bytes.putDouble(rect.getMinY());
+      bytes.putDouble(rect.getMaxY());
       return bytes.array();
     }
 
@@ -114,7 +114,7 @@ public class JtsSpatialContext extends AbstractSpatialContext {
     ByteBuffer bytes = ByteBuffer.wrap(array, offset, length);
     byte type = bytes.get();
     if (type == TYPE_POINT) {
-      return new JtsPoint2D(factory.createPoint(new Coordinate(bytes.getDouble(), bytes.getDouble())));
+      return new JtsPoint(factory.createPoint(new Coordinate(bytes.getDouble(), bytes.getDouble())));
     } else if (type == TYPE_BBOX) {
       return new JtsEnvelope(
           bytes.getDouble(), bytes.getDouble(),
@@ -154,17 +154,17 @@ public class JtsSpatialContext extends AbstractSpatialContext {
       nf.setMinimumFractionDigits(6);
       Point point = (Point) shape;
       return nf.format(point.getX()) + " " + nf.format(point.getY());
-    } else if (BBox.class.isInstance(shape)) {
-      BBox bbox = (BBox) shape;
+    } else if (Rectangle.class.isInstance(shape)) {
+      Rectangle rect = (Rectangle) shape;
       NumberFormat nf = NumberFormat.getInstance(Locale.US);
       nf.setGroupingUsed(false );
       nf.setMaximumFractionDigits(6);
       nf.setMinimumFractionDigits(6);
       return
-        nf.format(bbox.getMinX()) + " " +
-        nf.format(bbox.getMinY()) + " " +
-        nf.format(bbox.getMaxX()) + " " +
-        nf.format(bbox.getMaxY());
+        nf.format(rect.getMinX()) + " " +
+        nf.format(rect.getMinY()) + " " +
+        nf.format(rect.getMaxX()) + " " +
+        nf.format(rect.getMaxY());
     } else if (JtsGeometry.class.isInstance(shape)) {
       JtsGeometry geo = (JtsGeometry) shape;
       return geo.geo.toText();
@@ -176,35 +176,35 @@ public class JtsSpatialContext extends AbstractSpatialContext {
     if (JtsGeometry.class.isInstance(shape)) {
       return ((JtsGeometry)shape).geo;
     }
-    if (JtsPoint2D.class.isInstance(shape)) {
-      return ((JtsPoint2D) shape).getJtsPoint();
+    if (JtsPoint.class.isInstance(shape)) {
+      return ((JtsPoint) shape).getJtsPoint();
     }
     if (JtsEnvelope.class.isInstance(shape)) {
       return factory.toGeometry(((JtsEnvelope)shape).envelope);
     }
-    if (PointDistance.class.isInstance(shape)) {
+    if (Circle.class.isInstance(shape)) {
       // TODO, this should maybe pick a bunch of points
       // and make a circle like:
       //  http://docs.codehaus.org/display/GEOTDOC/01+How+to+Create+a+Geometry#01HowtoCreateaGeometry-CreatingaCircle
       // If this crosses the dateline, it could make two parts
       // is there an existing utility that does this?
-      PointDistance pd = (PointDistance)shape;
+      Circle circle = (Circle)shape;
       GeometricShapeFactory gsf = new GeometricShapeFactory(factory);
-      gsf.setSize(pd.getBoundingBox().getWidth()/2.0f);
+      gsf.setSize(circle.getBoundingBox().getWidth()/2.0f);
       gsf.setNumPoints(100);
-      gsf.setBase(new Coordinate(pd.getCenter().getX(),pd.getCenter().getY()));
+      gsf.setBase(new Coordinate(circle.getCenter().getX(),circle.getCenter().getY()));
       return gsf.createCircle();
     }
     throw new InvalidShapeException("can't make Geometry from: " + shape);
   }
 
   @Override
-  public BBox makeBBox(double minX, double maxX, double minY, double maxY) {
+  public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
     return new JtsEnvelope(new Envelope(minX,maxX,minY,maxY));
   }
 
   @Override
   public Point makePoint(double x, double y) {
-    return new JtsPoint2D(factory.createPoint(new Coordinate(x, y)));
+    return new JtsPoint(factory.createPoint(new Coordinate(x, y)));
   }
 }

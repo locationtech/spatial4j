@@ -19,7 +19,7 @@ package org.apache.lucene.spatial.base.context;
 
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -31,7 +31,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
  */
 public abstract class SpatialContext {
 
-  private final BBox worldBoundsWGS84 = makeBBox(-180, 180, -90, 90);
+  private final Rectangle worldBoundsWGS84 = makeRect(-180, 180, -90, 90);
 
   /**
    * Read a shape from a given string (ie, X Y, XMin XMax... WKT)
@@ -53,7 +53,7 @@ public abstract class SpatialContext {
 
   public abstract Point makePoint( double x, double y );
 
-  public abstract BBox makeBBox( double minX, double maxX, double minY, double maxY );
+  public abstract Rectangle makeRect(double minX, double maxX, double minY, double maxY);
 
   /**
    * Get a calculator that will work in this context
@@ -67,7 +67,7 @@ public abstract class SpatialContext {
   /**
    * Returns the x,y bounds of the "world". By default this returns WGS84 -180,180,-90,90.
    */
-  public BBox getWorldBounds() {
+  public Rectangle getWorldBounds() {
     return worldBoundsWGS84;
   }
 

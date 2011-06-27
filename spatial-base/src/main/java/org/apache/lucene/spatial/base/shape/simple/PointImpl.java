@@ -21,17 +21,17 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 
-public class Point2D implements Point {
+public class PointImpl implements Point {
 
   private double x;
   private double y;
 
-  public Point2D(double x, double y) {
+  public PointImpl(double x, double y) {
     this.x = x;
     this.y = y;
   }
@@ -46,22 +46,22 @@ public class Point2D implements Point {
     return y;
   }
   @Override
-  public BBox getBoundingBox() {
-    return new Rectangle(x, x, y, y);
+  public Rectangle getBoundingBox() {
+    return new RectangeImpl(x, x, y, y);
   }
 
   @Override
-  public Point2D getCenter() {
+  public PointImpl getCenter() {
     return this;
   }
 
   @Override
   public IntersectCase intersect(Shape shape, SpatialContext context) {
-    if(!BBox.class.isInstance(shape)) {
+    if(!Rectangle.class.isInstance(shape)) {
       throw new IllegalArgumentException("Point can only be compared with another Extent");
     }
 
-    BBox ext = shape.getBoundingBox();
+    Rectangle ext = shape.getBoundingBox();
     if(x >= ext.getMinX() &&
        x <= ext.getMaxX() &&
        y >= ext.getMinY() &&
@@ -88,7 +88,7 @@ public class Point2D implements Point {
     if (obj.getClass() != getClass()) {
       return false;
     }
-    Point2D rhs = (Point2D) obj;
+    PointImpl rhs = (PointImpl) obj;
     return new EqualsBuilder()
                   .appendSuper(super.equals(obj))
                   .append(x, rhs.x)

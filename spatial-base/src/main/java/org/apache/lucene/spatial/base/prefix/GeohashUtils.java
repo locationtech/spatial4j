@@ -18,7 +18,7 @@
 package org.apache.lucene.spatial.base.prefix;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
 
 import java.util.Arrays;
@@ -112,14 +112,14 @@ public class GeohashUtils {
    * @return Array with the latitude at index 0, and longitude at index 1
    */
   public static Point decode(String geohash, SpatialContext shapeIO) {
-    BBox rect = decodeBoundary(geohash,shapeIO);
+    Rectangle rect = decodeBoundary(geohash,shapeIO);
     double latitude = (rect.getMinY() + rect.getMaxY()) / 2D;
     double longitude = (rect.getMinX() + rect.getMaxX()) / 2D;
     return shapeIO.makePoint(longitude,latitude);
 	}
 
   /** Returns min-max lat, min-max lon. */
-  public static BBox decodeBoundary(String geohash, SpatialContext shapeIO) {
+  public static Rectangle decodeBoundary(String geohash, SpatialContext shapeIO) {
     double minY = -90, maxY = 90, minX = -180, maxX = 180;
     boolean isEven = true;
 
@@ -147,7 +147,7 @@ public class GeohashUtils {
       }
 
     }
-    return shapeIO.makeBBox(minX, maxX, minY, maxY);
+    return shapeIO.makeRect(minX, maxX, minY, maxY);
   }
 
   /** Array of geohashes 1 level below the baseGeohash. Sorted. */

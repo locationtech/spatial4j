@@ -22,22 +22,22 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUtils;
-import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Rectangle;
+import org.apache.lucene.spatial.base.shape.Circle;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.PointDistance;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 /**
  * An ellipse-like geometry based on the haversine formula with a supplied earth radius.
  */
-public final class PointDistanceShape implements PointDistance {
+public final class HaversineWGS84Circle implements Circle {
   private final Point point;
   private final double distance;
   private final double radius;
 
-  private final BBox enclosingBox;//calculated & cached
+  private final Rectangle enclosingBox;//calculated & cached
 
-  public PointDistanceShape(Point p, double dist, double radius, SpatialContext shapeIO) {
+  public HaversineWGS84Circle(Point p, double dist, double radius, SpatialContext shapeIO) {
     this.point = p;
     this.distance = dist;
     this.radius = radius;
@@ -57,7 +57,7 @@ public final class PointDistanceShape implements PointDistance {
     return radius;
   }
 
-  private BBox calcEnclosingBox(SpatialContext shapeIO) {
+  private Rectangle calcEnclosingBox(SpatialContext shapeIO) {
     //!! code copied from LatLonType.createSpatialQuery(); this should be consolidated
     final int LAT = 0;
     final int LONG = 1;
@@ -97,10 +97,10 @@ public final class PointDistanceShape implements PointDistance {
 
     //(end of code from LatLonType.createSpatialQuery())
     //if (ll_lon <= ur_lon) {
-    return shapeIO.makeBBox(ll_lon,ur_lon,ll_lat,ur_lat);
+    return shapeIO.makeRect(ll_lon, ur_lon, ll_lat, ur_lat);
 //    } else {
-//      enclosingBox1 = shapeIO.makeBBox(Math.max(ll_lon,ur_lon),180,ll_lat,ur_lat);
-//      enclosingBox2 = shapeIO.makeBBox(-180,Math.min(ll_lon,ur_lon),ll_lat,ur_lat);
+//      enclosingBox1 = shapeIO.makeRect(Math.max(ll_lon,ur_lon),180,ll_lat,ur_lat);
+//      enclosingBox2 = shapeIO.makeRect(-180,Math.min(ll_lon,ur_lon),ll_lat,ur_lat);
 //    }
   }
 
@@ -115,12 +115,12 @@ public final class PointDistanceShape implements PointDistance {
   }
 
   @Override
-  public BBox getBoundingBox() {
+  public Rectangle getBoundingBox() {
     return enclosingBox;
 //    if (enclosingBox2 == null)
 //      return enclosingBox1;
 //    //wrap longitude around the world (note: both boxes have same latitudes)
-//    return new Rectangle(-180,180,enclosingBox1.getMinY(),enclosingBox1.getMaxY());
+//    return new RectangeImpl(-180,180,enclosingBox1.getMinY(),enclosingBox1.getMaxY());
   }
 
   @Override
@@ -138,7 +138,7 @@ public final class PointDistanceShape implements PointDistance {
     }
 
     //do quick check to see if all corners are within this circle for CONTAINS
-    BBox bbox = other.getBoundingBox();
+    Rectangle bbox = other.getBoundingBox();
     if (contains(bbox.getMinX(),bbox.getMinY()) &&
         contains(bbox.getMinX(),bbox.getMaxY()) &&
         contains(bbox.getMaxX(),bbox.getMaxY()) &&
@@ -150,7 +150,7 @@ public final class PointDistanceShape implements PointDistance {
 
   @Override
   public String toString() {
-    return "PointDistance(" + point + ",dist=" + distance + ')';
+    return "Circle(" + point + ",dist=" + distance + ')';
   }
 
 
@@ -161,7 +161,7 @@ public final class PointDistanceShape implements PointDistance {
     if (obj.getClass() != getClass()) {
       return false;
     }
-    PointDistanceShape rhs = (PointDistanceShape) obj;
+    HaversineWGS84Circle rhs = (HaversineWGS84Circle) obj;
     return new EqualsBuilder()
                   .appendSuper(super.equals(obj))
                   .append(point, rhs.point)

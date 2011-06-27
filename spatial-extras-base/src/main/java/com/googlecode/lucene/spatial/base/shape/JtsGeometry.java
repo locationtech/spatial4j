@@ -19,7 +19,7 @@ package com.googlecode.lucene.spatial.base.shape;
 
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
@@ -55,8 +55,8 @@ public class JtsGeometry implements Shape {
   }
 
   @Override
-  public JtsPoint2D getCenter() {
-    return new JtsPoint2D(geo.getCentroid());
+  public JtsPoint getCenter() {
+    return new JtsPoint(geo.getCentroid());
   }
 
   private GeometryFactory getGeometryFactory(SpatialContext context) {
@@ -68,7 +68,7 @@ public class JtsGeometry implements Shape {
 
   @Override
   public IntersectCase intersect(Shape other, SpatialContext context) {
-    BBox ext = other.getBoundingBox();
+    Rectangle ext = other.getBoundingBox();
     if (!ext.hasSize()) {
       throw new IllegalArgumentException("the query shape must cover some area (not a point or line)");
     }
@@ -88,8 +88,8 @@ public class JtsGeometry implements Shape {
       qGeo = (Polygon) getGeometryFactory(context).toGeometry(env);
     } else if (JtsGeometry.class.isInstance(other)) {
       qGeo = (Polygon)((JtsGeometry)other).geo;
-    } else if(BBox.class.isInstance(other)) {
-      BBox e = (BBox)other;
+    } else if(Rectangle.class.isInstance(other)) {
+      Rectangle e = (Rectangle)other;
       Envelope env = new Envelope(e.getMinX(), e.getMaxX(), e.getMinY(), e.getMaxY());
       qGeo = (Polygon) getGeometryFactory(context).toGeometry(env);
     } else {

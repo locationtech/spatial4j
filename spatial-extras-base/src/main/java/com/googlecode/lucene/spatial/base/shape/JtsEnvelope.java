@@ -19,15 +19,15 @@ package com.googlecode.lucene.spatial.base.shape;
 
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.simple.Point2D;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 
-public class JtsEnvelope implements BBox {
+public class JtsEnvelope implements Rectangle {
 
   public final Envelope envelope;
 
@@ -97,8 +97,8 @@ public class JtsEnvelope implements BBox {
 
   @Override
   public IntersectCase intersect(Shape other, SpatialContext context) {
-    if (BBox.class.isInstance(other)) {
-      BBox ext = other.getBoundingBox();
+    if (Rectangle.class.isInstance(other)) {
+      Rectangle ext = other.getBoundingBox();
       if (ext.getMinX() > envelope.getMaxX() ||
           ext.getMaxX() < envelope.getMinX() ||
           ext.getMinY() > envelope.getMaxY() ||
@@ -153,7 +153,7 @@ public class JtsEnvelope implements BBox {
   @Override
   public Point getCenter() {
     final Coordinate centre = envelope.centre();
-    return new Point2D(centre.x, centre.y);
-    //return new JtsPoint2D(new GeometryFactory().createPoint(envelope.centre()));
+    return new PointImpl(centre.x, centre.y);
+    //return new JtsPoint(new GeometryFactory().createPoint(envelope.centre()));
   }
 }

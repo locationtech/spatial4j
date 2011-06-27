@@ -2,20 +2,19 @@
 package org.googlecode.lucene.spatial.test.context;
 
 
-import java.io.IOException;
-
-import org.apache.lucene.spatial.base.shape.simple.PointDistanceShape;
-import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.Shapes;
-import org.apache.lucene.spatial.base.shape.simple.Point2D;
-import org.apache.lucene.spatial.base.shape.simple.Rectangle;
-import org.apache.lucene.spatial.test.context.BaseSpatialContextTestCase;
-import org.junit.Test;
-
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import com.googlecode.lucene.spatial.base.shape.JtsEnvelope;
 import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
-import com.googlecode.lucene.spatial.base.shape.JtsPoint2D;
+import com.googlecode.lucene.spatial.base.shape.JtsPoint;
+import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.Shapes;
+import org.apache.lucene.spatial.base.shape.simple.HaversineWGS84Circle;
+import org.apache.lucene.spatial.base.shape.simple.PointImpl;
+import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
+import org.apache.lucene.spatial.test.context.BaseSpatialContextTestCase;
+import org.junit.Test;
+
+import java.io.IOException;
 
 
 /**
@@ -32,12 +31,12 @@ public class JtsSpatialContextTestCase extends BaseSpatialContextTestCase {
   @Test
   public void testImplementsEqualsAndHash() throws Exception {
     checkShapesImplementEquals( new Class[] {
-      Point2D.class,
-      PointDistanceShape.class,
-      Rectangle.class,
+      PointImpl.class,
+      HaversineWGS84Circle.class,
+      RectangeImpl.class,
       Shapes.class,
       JtsEnvelope.class,
-      JtsPoint2D.class,
+      JtsPoint.class,
       JtsGeometry.class
     });
   }

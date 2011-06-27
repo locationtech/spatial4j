@@ -20,10 +20,10 @@ package org.apache.lucene.spatial.base.prefix;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
-import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.simple.Point2D;
+import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
   final int[]    levelN; // number
 
   public QuadPrefixGrid(
-      SpatialContext shapeIO, BBox bounds, int maxLevels) {
+      SpatialContext shapeIO, Rectangle bounds, int maxLevels) {
     super(shapeIO, maxLevels);
     this.xmin = bounds.getMinX();
     this.xmax = bounds.getMaxX();
@@ -98,7 +98,7 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
       double ymin, double ymax,
       int maxLevels) {
     this(SpatialContextProvider.getContext(),
-        SpatialContextProvider.getContext().makeBBox(xmin,xmax,ymin,ymax),maxLevels);
+        SpatialContextProvider.getContext().makeRect(xmin, xmax, ymin, ymax),maxLevels);
   }
 
 
@@ -128,7 +128,7 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
   @Override
   public Cell getCell(Point p, int level) {
     List<Cell> cells = new ArrayList<Cell>(1);
-    build(xmid, ymid, 0, cells, new StringBuilder(), new Point2D(p.getX(),p.getY()), level);
+    build(xmid, ymid, 0, cells, new StringBuilder(), new PointImpl(p.getX(),p.getY()), level);
     return cells.get(0);//note cells could be longer if p on edge
   }
 
@@ -189,8 +189,8 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
     double h = levelH[level] / 2;
 
     int strlen = str.length();
-    BBox bBox = shapeIO.makeBBox(cx - w, cx + w, cy - h, cy + h);
-    IntersectCase v = shape.intersect(bBox, shapeIO);
+    Rectangle rectangle = shapeIO.makeRect(cx - w, cx + w, cy - h, cy + h);
+    IntersectCase v = shape.intersect(rectangle, shapeIO);
     if (IntersectCase.CONTAINS == v) {
       str.append(c);
       //str.append(SpatialPrefixGrid.COVER);
@@ -273,7 +273,7 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
       return shape;
     }
 
-    private BBox makeShape() {
+    private Rectangle makeShape() {
       String token = getTokenString();
       double xmin = QuadPrefixGrid.this.xmin;
       double ymin = QuadPrefixGrid.this.ymin;
@@ -303,7 +303,7 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
         width = gridW;
         height = gridH;
       }
-      return shapeIO.makeBBox(xmin, xmin + width, ymin, ymin + height);
+      return shapeIO.makeRect(xmin, xmin + width, ymin, ymin + height);
     }
   }//QuadCell
 }

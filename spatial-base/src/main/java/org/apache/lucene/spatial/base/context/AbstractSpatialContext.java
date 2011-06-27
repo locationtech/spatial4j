@@ -17,18 +17,18 @@
 
 package org.apache.lucene.spatial.base.context;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-import java.util.StringTokenizer;
-
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.simple.PointDistanceShape;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.simple.HaversineWGS84Circle;
+
+import java.text.NumberFormat;
+import java.util.Locale;
+import java.util.StringTokenizer;
 
 public abstract class AbstractSpatialContext extends SpatialContext {
 
@@ -45,10 +45,10 @@ public abstract class AbstractSpatialContext extends SpatialContext {
     }
 
     if(Character.isLetter(str.charAt(0))) {
-      if( str.startsWith( "PointDistance(" ) ) {
+      if( str.startsWith( "Circle(" ) ) {
         int idx = str.lastIndexOf( ')' );
         if( idx > 0 ) {
-          String body = str.substring( "PointDistance(".length(), idx );
+          String body = str.substring( "Circle(".length(), idx );
           StringTokenizer st = new StringTokenizer(body, " ");
           double x = Double.parseDouble(st.nextToken());
           double y = Double.parseDouble(st.nextToken());
@@ -75,7 +75,7 @@ public abstract class AbstractSpatialContext extends SpatialContext {
             throw new InvalidShapeException( "Missing Distance: "+str );
           }
           Point p = makePoint( x, y );
-          return new PointDistanceShape( p, d, units.earthRadius(), this );
+          return new HaversineWGS84Circle( p, d, units.earthRadius(), this );
         }
       }
       return null;
@@ -87,7 +87,7 @@ public abstract class AbstractSpatialContext extends SpatialContext {
     if (st.hasMoreTokens()) {
       double p2 = Double.parseDouble(st.nextToken());
       double p3 = Double.parseDouble(st.nextToken());
-      return makeBBox(p0, p2, p1, p3);
+      return makeRect(p0, p2, p1, p3);
     }
     return makePoint(p0, p1);
   }
@@ -96,17 +96,17 @@ public abstract class AbstractSpatialContext extends SpatialContext {
     return units;
   }
 
-  public String writeBBox(BBox bbox) {
+  public String writeRect(Rectangle rect) {
     NumberFormat nf = NumberFormat.getInstance(Locale.US);
     nf.setGroupingUsed(false);
     nf.setMaximumFractionDigits(6);
     nf.setMinimumFractionDigits(6);
 
     return
-      nf.format(bbox.getMinX()) + " " +
-      nf.format(bbox.getMinY()) + " " +
-      nf.format(bbox.getMaxX()) + " " +
-      nf.format(bbox.getMaxY());
+      nf.format(rect.getMinX()) + " " +
+      nf.format(rect.getMinY()) + " " +
+      nf.format(rect.getMaxX()) + " " +
+      nf.format(rect.getMaxY());
   }
 
   @Override

@@ -8,7 +8,7 @@ import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.simple.Point2D;
+import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.prefix.NGramPrefixGridStrategy;
 import org.apache.lucene.spatial.test.SpatialMatchConcern;
@@ -50,7 +50,7 @@ public class NGramPrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpat
   @Test
   public void testPrefixGridLosAngeles() throws IOException {
 
-    Shape point = new Point2D(-118.243680, 34.052230);
+    Shape point = new PointImpl(-118.243680, 34.052230);
 
     Document losAngeles = new Document();
     losAngeles.add(new Field("name", "Los Angeles", Field.Store.YES, Field.Index.NOT_ANALYZED));

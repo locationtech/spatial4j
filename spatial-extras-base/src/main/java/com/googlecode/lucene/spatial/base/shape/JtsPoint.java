@@ -20,16 +20,16 @@ package com.googlecode.lucene.spatial.base.shape;
 
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import com.vividsolutions.jts.geom.Point;
 
-public class JtsPoint2D implements org.apache.lucene.spatial.base.shape.Point {
+public class JtsPoint implements org.apache.lucene.spatial.base.shape.Point {
 
   private Point point;
 
-  public JtsPoint2D(Point point) {
+  public JtsPoint(Point point) {
     this.point = point;
   }
 
@@ -54,8 +54,8 @@ public class JtsPoint2D implements org.apache.lucene.spatial.base.shape.Point {
 
   @Override
   public IntersectCase intersect(Shape other, SpatialContext context) {
-    if(BBox.class.isInstance(other)) {
-      BBox ext = other.getBoundingBox();
+    if(Rectangle.class.isInstance(other)) {
+      Rectangle ext = other.getBoundingBox();
       if (point.getX() >= ext.getMinX() &&
           point.getX() <= ext.getMaxX() &&
           point.getY() >= ext.getMinY() &&
@@ -90,7 +90,7 @@ public class JtsPoint2D implements org.apache.lucene.spatial.base.shape.Point {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    JtsPoint2D that = (JtsPoint2D) o;
+    JtsPoint that = (JtsPoint) o;
     return point.equals(that.point);
   }
 

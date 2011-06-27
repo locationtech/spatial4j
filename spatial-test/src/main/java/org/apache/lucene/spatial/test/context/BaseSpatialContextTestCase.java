@@ -1,25 +1,25 @@
 package org.apache.lucene.spatial.test.context;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
-import org.apache.lucene.spatial.base.shape.BBox;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.simple.PointDistanceShape;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.Shapes;
-import org.apache.lucene.spatial.base.shape.simple.Point2D;
-import org.apache.lucene.spatial.base.shape.simple.Rectangle;
+import org.apache.lucene.spatial.base.shape.simple.HaversineWGS84Circle;
+import org.apache.lucene.spatial.base.shape.simple.PointImpl;
+import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -34,7 +34,7 @@ public abstract class BaseSpatialContextTestCase {
     String arg = SpatialOperation.IsWithin + "(-10 -20 10 20)";
     SpatialArgs out = parser.parse(arg, reader);
     assertEquals(SpatialOperation.IsWithin, out.getOperation());
-    BBox bounds = (BBox) out.getShape();
+    Rectangle bounds = (Rectangle) out.getShape();
     assertEquals(-10.0, bounds.getMinX(), 0D);
     assertEquals(10.0, bounds.getMaxX(), 0D);
 
@@ -93,12 +93,12 @@ public abstract class BaseSpatialContextTestCase {
 
     // BBOX
     s = reader.readShape("-10 -20 10 20");
-    BBox b = (BBox) s;
+    Rectangle b = (Rectangle) s;
     assertEquals(-10.0, b.getMinX(), 0D);
     assertEquals(-20.0, b.getMinY(), 0D);
     assertEquals(10.0, b.getMaxX(), 0D);
     assertEquals(20.0, b.getMaxY(), 0D);
-    b = (BBox) help.writeThenRead(s);
+    b = (Rectangle) help.writeThenRead(s);
     assertEquals(-10.0, b.getMinX(), 0D);
     assertEquals(-20.0, b.getMinY(), 0D);
     assertEquals(10.0, b.getMaxX(), 0D);
@@ -106,16 +106,16 @@ public abstract class BaseSpatialContextTestCase {
     Assert.assertTrue( s.hasArea() );
 
     // Point/Distance
-    s = reader.readShape("PointDistance( 1.23 4.56 distance=7.89)");
-    PointDistanceShape circle = (PointDistanceShape)s;
+    s = reader.readShape("Circle( 1.23 4.56 distance=7.89)");
+    HaversineWGS84Circle circle = (HaversineWGS84Circle)s;
     assertEquals(1.23, circle.getCenter().getX(), 0D);
     assertEquals(4.56, circle.getCenter().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
     assertEquals(reader.getUnits().earthRadius(), circle.getRadius(), 0D);
     Assert.assertTrue( s.hasArea() );
 
-    s = reader.readShape("PointDistance( 1.23  4.56 d=7.89 )");
-    circle = (PointDistanceShape) s;
+    s = reader.readShape("Circle( 1.23  4.56 d=7.89 )");
+    circle = (HaversineWGS84Circle) s;
     assertEquals(1.23, circle.getCenter().getX(), 0D);
     assertEquals(4.56, circle.getCenter().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
@@ -125,10 +125,10 @@ public abstract class BaseSpatialContextTestCase {
 
   public static void checkBBoxIntersection( SpatialContext context ) {
 
-    BBox big = context.makeBBox(0, 100, 0, 100);
-    BBox rr0 = context.makeBBox(25, 75, 25, 75);
-    BBox rr1 = context.makeBBox(120, 150, 0, 100);
-    BBox rr2 = context.makeBBox(-1, 50, 0, 50);
+    Rectangle big = context.makeRect(0, 100, 0, 100);
+    Rectangle rr0 = context.makeRect(25, 75, 25, 75);
+    Rectangle rr1 = context.makeRect(120, 150, 0, 100);
+    Rectangle rr2 = context.makeRect(-1, 50, 0, 50);
 
     assertEquals(IntersectCase.CONTAINS, big.intersect(rr0, context));
     assertEquals(IntersectCase.WITHIN, rr0.intersect(big, context));
@@ -155,9 +155,9 @@ public abstract class BaseSpatialContextTestCase {
   @Test
   public void testImplementsEqualsAndHash() throws Exception {
     checkShapesImplementEquals( new Class[] {
-      Point2D.class,
-      PointDistanceShape.class,
-      Rectangle.class,
+      PointImpl.class,
+      HaversineWGS84Circle.class,
+      RectangeImpl.class,
       Shapes.class,
     });
   }

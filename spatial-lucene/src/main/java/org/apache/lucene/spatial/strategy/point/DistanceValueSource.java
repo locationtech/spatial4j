@@ -32,7 +32,7 @@ import org.apache.lucene.search.function.DocValues;
 import org.apache.lucene.search.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.simple.Point2D;
+import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 
 /**
  *
@@ -93,7 +93,7 @@ public class DistanceValueSource extends ValueSource {
       public double doubleVal(int doc) {
         // make sure it has minX and area
         if (ptX.valid.get(doc) && ptY.valid.get(doc)) {
-          Point2D pt = new Point2D( ptX.values[doc],  ptY.values[doc] );
+          PointImpl pt = new PointImpl( ptX.values[doc],  ptY.values[doc] );
           return calculator.calculate(from, pt);
         }
         return 0;

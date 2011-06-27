@@ -24,17 +24,17 @@ import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.*;
 
 /**
- * When minX > maxX, this will assume it is world coordinates that cross the
+ * A simple Rectangle implementation that also supports a longitudinal wrap-around. When minX > maxX, this will assume it is world coordinates that cross the
  * date line using degrees
  */
-public class Rectangle implements BBox {
+public class RectangeImpl implements Rectangle {
 
   private double minX;
   private double maxX;
   private double minY;
   private double maxY;
 
-  public Rectangle(double minX, double maxX, double minY, double maxY) {
+  public RectangeImpl(double minX, double maxX, double minY, double maxY) {
     this.minX = minX;
     this.maxX = maxX;
     this.minY = minY;
@@ -96,7 +96,7 @@ public class Rectangle implements BBox {
   }
 
   @Override
-  public BBox getBoundingBox() {
+  public Rectangle getBoundingBox() {
     return this;
   }
 
@@ -112,15 +112,15 @@ public class Rectangle implements BBox {
       return IntersectCase.INTERSECTS;
     }
 
-    if (shape instanceof PointDistance) {
+    if (shape instanceof Circle) {
       return shape.intersect(this, context).transpose();
     }
 
-    if(!BBox.class.isInstance(shape)) {
+    if(!Rectangle.class.isInstance(shape)) {
       return shape.intersect(this,context).transpose();
     }
 
-    BBox ext = shape.getBoundingBox();
+    Rectangle ext = shape.getBoundingBox();
     if (ext.getMinX() > maxX ||
         ext.getMaxX() < minX ||
         ext.getMinY() > maxY ||
@@ -160,7 +160,7 @@ public class Rectangle implements BBox {
       if (x >= 180)
         x -= 360;
     }
-    return new Point2D(x, y);
+    return new PointImpl(x, y);
   }
 
   @Override
@@ -170,7 +170,7 @@ public class Rectangle implements BBox {
     if (obj.getClass() != getClass()) {
       return false;
     }
-    Rectangle rhs = (Rectangle) obj;
+    RectangeImpl rhs = (RectangeImpl) obj;
     return new EqualsBuilder()
                   .appendSuper(super.equals(obj))
                   .append(minX, rhs.minX)

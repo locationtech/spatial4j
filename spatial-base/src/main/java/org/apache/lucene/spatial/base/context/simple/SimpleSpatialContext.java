@@ -17,17 +17,17 @@
 
 package org.apache.lucene.spatial.base.context.simple;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-
 import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.simple.Point2D;
-import org.apache.lucene.spatial.base.shape.simple.Rectangle;
+import org.apache.lucene.spatial.base.shape.simple.PointImpl;
+import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
+
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class SimpleSpatialContext extends AbstractSpatialContext {
 
@@ -57,19 +57,19 @@ public class SimpleSpatialContext extends AbstractSpatialContext {
       nf.setMinimumFractionDigits(6);
       Point point = (Point) shape;
       return nf.format(point.getX()) + " " + nf.format(point.getY());
-    } else if (BBox.class.isInstance(shape)) {
-      return writeBBox((BBox) shape);
+    } else if (Rectangle.class.isInstance(shape)) {
+      return writeRect((Rectangle) shape);
     }
     return shape.toString();
   }
 
   @Override
-  public BBox makeBBox(double minX, double maxX, double minY, double maxY) {
-    return new Rectangle( minX, maxX, minY, maxY );
+  public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
+    return new RectangeImpl( minX, maxX, minY, maxY );
   }
 
   @Override
   public Point makePoint(double x, double y) {
-    return new Point2D(x,y);
+    return new PointImpl(x,y);
   }
 }

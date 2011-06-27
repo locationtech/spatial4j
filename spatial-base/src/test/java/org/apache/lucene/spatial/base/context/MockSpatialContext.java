@@ -2,7 +2,7 @@ package org.apache.lucene.spatial.base.context;
 
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-import org.apache.lucene.spatial.base.shape.BBox;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -25,7 +25,7 @@ public class MockSpatialContext extends SpatialContext {
   }
 
   @Override
-  public BBox makeBBox(double minX, double maxX, double minY, double maxY) {
+  public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
     return null;
   }
 

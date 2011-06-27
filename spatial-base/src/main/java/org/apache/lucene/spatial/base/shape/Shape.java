@@ -37,7 +37,7 @@ public interface Shape {
   /**
    * Get the bounding box for this Shape
    */
-  BBox getBoundingBox();
+  Rectangle getBoundingBox();
 
   /**
    * @return true if the shape has area.  This will be false for points and lines

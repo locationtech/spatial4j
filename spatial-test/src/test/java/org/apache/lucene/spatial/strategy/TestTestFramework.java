@@ -17,20 +17,20 @@
 
 package org.apache.lucene.spatial.strategy;
 
+import org.apache.lucene.spatial.base.context.SpatialContextProvider;
+import org.apache.lucene.spatial.base.query.SpatialArgsParser;
+import org.apache.lucene.spatial.base.query.SpatialOperation;
+import org.apache.lucene.spatial.base.shape.Rectangle;
+import org.apache.lucene.spatial.test.SpatialTestQuery;
+import org.apache.lucene.spatial.test.StrategyTestCase;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.lucene.spatial.base.context.SpatialContextProvider;
-import org.apache.lucene.spatial.base.query.SpatialArgsParser;
-import org.apache.lucene.spatial.base.query.SpatialOperation;
-import org.apache.lucene.spatial.base.shape.BBox;
-import org.apache.lucene.spatial.test.SpatialTestQuery;
-import org.apache.lucene.spatial.test.StrategyTestCase;
-import org.junit.Assert;
-import org.junit.Test;
 
 
 /**
@@ -55,7 +55,7 @@ public class TestTestFramework {
    // assert
     Assert.assertEquals( 1, sf.ids.size() );
     Assert.assertTrue( sf.ids.get(0).equals( "G5391959" ) );
-    Assert.assertTrue( sf.args.getShape() instanceof BBox );
+    Assert.assertTrue( sf.args.getShape() instanceof Rectangle);
     Assert.assertEquals( SpatialOperation.IsWithin, sf.args.getOperation() );
   }
 

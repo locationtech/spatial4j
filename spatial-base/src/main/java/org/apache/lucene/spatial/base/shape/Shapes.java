@@ -17,19 +17,19 @@
 
 package org.apache.lucene.spatial.base.shape;
 
-import java.util.Collection;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
+
+import java.util.Collection;
 
 /**
  * A collection of Shape objects.
  */
 public class Shapes implements Shape {
   private final Collection<Shape> geoms;
-  private final BBox bbox;
+  private final Rectangle bbox;
 
   public Shapes(Collection<Shape> geoms, SpatialContext shapeIO) {
     this.geoms = geoms;
@@ -38,17 +38,17 @@ public class Shapes implements Shape {
     double maxX = Double.MIN_VALUE;
     double maxY = Double.MIN_VALUE;
     for (Shape geom : geoms) {
-      BBox r = geom.getBoundingBox();
+      Rectangle r = geom.getBoundingBox();
       minX = Math.min(minX,r.getMinX());
       minY = Math.min(minY,r.getMinY());
       maxX = Math.max(maxX,r.getMaxX());
       maxY = Math.max(maxY,r.getMaxY());
     }
-    this.bbox = shapeIO.makeBBox(minX, maxX, minY, maxY);
+    this.bbox = shapeIO.makeRect(minX, maxX, minY, maxY);
   }
 
   @Override
-  public BBox getBoundingBox() {
+  public Rectangle getBoundingBox() {
     return bbox;
   }
 
