@@ -132,6 +132,12 @@
 				<configuration>
           <scanIntervalSeconds>0</scanIntervalSeconds>
           <contextPath>/</contextPath>
+          <systemProperties>
+            <systemProperty>
+              <name>SpatialContextProvider</name>
+              <value>com.googlecode.lucene.spatial.base.context.JtsSpatialContext</value>
+            </systemProperty>
+          </systemProperties>
 				</configuration>
 			</plugin>
 		</plugins>
