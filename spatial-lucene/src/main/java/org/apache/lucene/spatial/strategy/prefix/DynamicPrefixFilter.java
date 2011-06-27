@@ -105,7 +105,7 @@ RE "scan" threshold:
     while(!cells.isEmpty()) {
       final SpatialPrefixGrid.Cell cell = cells.removeFirst();
       final BytesRef cellTerm = new BytesRef(cell.getTokenBytes());
-      TermsEnum.SeekStatus seekStat = termsEnum.seek(cellTerm);
+      TermsEnum.SeekStatus seekStat = termsEnum.seekCeil(cellTerm);
       if (seekStat == TermsEnum.SeekStatus.END)
         break;
       if (seekStat == TermsEnum.SeekStatus.NOT_FOUND)
