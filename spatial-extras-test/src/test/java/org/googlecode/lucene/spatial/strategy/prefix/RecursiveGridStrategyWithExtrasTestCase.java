@@ -28,8 +28,14 @@ public class RecursiveGridStrategyWithExtrasTestCase extends StrategyTestCase<Si
    * For now, the only difference from the Simple version is that this uses JtsSpatialContext
    */
   @Test
-  public void testGeohashStrategy() throws IOException {
+  public void testWorldCitiesWithinBox() throws IOException {
     getAddAndVerifyIndexedDocuments(DATA_WORLD_CITIES_POINTS);
     executeQueries(SpatialMatchConcern.FILTER, QTEST_Cities_IsWithin_BBox);
+  }
+
+  @Test
+  public void testPolygonIndex() throws IOException {
+    getAddAndVerifyIndexedDocuments(DATA_STATES_POLY);
+    executeQueries(SpatialMatchConcern.FILTER, QTEST_States_Intersects_BBox);
   }
 }
