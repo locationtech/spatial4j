@@ -1,12 +1,12 @@
-package org.googlecode.lucene.spatial.strategy;
+package org.googlecode.lucene.spatial.test.strategy;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.test.strategy.BaseGeohashStrategyTestCase;
+import org.apache.lucene.spatial.test.strategy.BaseRecursiveGridStrategyTestCase;
 
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 
 
-public class ExtrasGeohashStrategyTestCase extends BaseGeohashStrategyTestCase {
+public class ExtrasRecursiveGridStrategyTestCase extends BaseRecursiveGridStrategyTestCase {
 
   @Override
   protected SpatialContext getSpatialContext() {

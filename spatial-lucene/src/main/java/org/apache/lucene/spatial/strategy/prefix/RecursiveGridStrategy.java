@@ -30,11 +30,11 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 
 
-public class DynamicPrefixStrategy extends PrefixGridStrategy {
+public class RecursiveGridStrategy extends PrefixGridStrategy {
 
   private int prefixGridScanLevel;//TODO how is this customized?
 
-  public DynamicPrefixStrategy(GeohashSpatialPrefixGrid grid) {
+  public RecursiveGridStrategy(GeohashSpatialPrefixGrid grid) {
     super(grid);
     prefixGridScanLevel = grid.getMaxLevels() - 4;//TODO this default constant is dependent on the prefix grid size
   }
@@ -66,7 +66,7 @@ public class DynamicPrefixStrategy extends PrefixGridStrategy {
 
     int detailLevel = grid.getMaxLevelForPrecision(qshape,args.getDistPrecision());
 
-    return new DynamicPrefixFilter(
+    return new RecursiveGridFilter(
         fieldInfo.getFieldName(), grid,qshape, prefixGridScanLevel, detailLevel);
   }
 }

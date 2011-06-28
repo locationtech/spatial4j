@@ -17,23 +17,28 @@
 
 package org.apache.solr.spatial.prefix;
 
-import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
-import org.apache.lucene.spatial.strategy.prefix.NGramPrefixGridStrategy;
+import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
+import org.apache.lucene.spatial.strategy.prefix.RecursiveGridStrategy;
+import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
 
-public class NGramSpatialPrefixGridFieldType extends PrefixGridFieldType {
+
+/**
+ *
+ */
+public class RecursiveGridFieldType extends PrefixGridFieldType {
 
   @Override
-  protected NGramPrefixGridStrategy initStrategy(Integer maxLevels, Double degrees) {
-    QuadPrefixGrid grid;
+  protected PrefixGridStrategy initStrategy(Integer maxLevels, Double degrees) {
+    GeohashSpatialPrefixGrid grid;
     if (maxLevels != null) {
-      grid = new QuadPrefixGrid(reader,maxLevels);
+      grid = new GeohashSpatialPrefixGrid(reader,maxLevels);
     } else {
-      grid = new QuadPrefixGrid(reader,QuadPrefixGrid.MAX_LEVELS_POSSIBLE);
+      grid = new GeohashSpatialPrefixGrid(reader,GeohashSpatialPrefixGrid.getMaxLevelsPossible());
       int level = grid.getLevelForDistance(degrees) + 1;//returns 1 greater
       if (level != grid.getMaxLevels())
-        grid = new QuadPrefixGrid(reader,level);
+        grid = new GeohashSpatialPrefixGrid(reader,level);
     }
-    return new NGramPrefixGridStrategy(grid);
+    return new RecursiveGridStrategy(grid);
   }
 
 }

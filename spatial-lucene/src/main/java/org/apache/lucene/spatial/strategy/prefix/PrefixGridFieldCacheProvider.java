@@ -5,11 +5,11 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.strategy.util.ShapeFieldCacheProvider;
 import org.apache.lucene.util.BytesRef;
 
-public class PrefixFieldCacheProvider extends ShapeFieldCacheProvider<Point> {
+public class PrefixGridFieldCacheProvider extends ShapeFieldCacheProvider<Point> {
 
   final SpatialPrefixGrid grid; //
 
-  public PrefixFieldCacheProvider(SpatialPrefixGrid grid, String shapeField, int defaultSize) {
+  public PrefixGridFieldCacheProvider(SpatialPrefixGrid grid, String shapeField, int defaultSize) {
     super( shapeField, defaultSize );
     this.grid = grid;
   }

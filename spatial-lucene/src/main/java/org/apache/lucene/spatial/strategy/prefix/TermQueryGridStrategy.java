@@ -11,9 +11,9 @@ import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 
 import java.util.List;
 
-public class NGramPrefixGridStrategy extends PrefixGridStrategy {
+public class TermQueryGridStrategy extends PrefixGridStrategy {
 
-  public NGramPrefixGridStrategy(SpatialPrefixGrid grid) {
+  public TermQueryGridStrategy(SpatialPrefixGrid grid) {
     super(grid);
   }
 

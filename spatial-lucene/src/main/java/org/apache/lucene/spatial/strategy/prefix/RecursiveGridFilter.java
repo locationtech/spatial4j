@@ -40,7 +40,7 @@ import java.util.LinkedList;
  * that all points at a prefix fit in the shape or not to either short-circuit unnecessary traversals or to efficiently
  * load all enclosed points.
  */
-public class DynamicPrefixFilter extends Filter {
+public class RecursiveGridFilter extends Filter {
 
   /* TODOs for future:
 
@@ -67,7 +67,7 @@ RE "scan" threshold:
   private final int prefixGridScanLevel;//at least one less than grid.getMaxLevels()
   private final int detailLevel;
 
-  public DynamicPrefixFilter(String fieldName, SpatialPrefixGrid grid, Shape queryShape, int prefixGridScanLevel,
+  public RecursiveGridFilter(String fieldName, SpatialPrefixGrid grid, Shape queryShape, int prefixGridScanLevel,
                              int detailLevel) {
     this.fieldName = fieldName;
     this.grid = grid;
@@ -177,7 +177,7 @@ RE "scan" threshold:
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    DynamicPrefixFilter that = (DynamicPrefixFilter) o;
+    RecursiveGridFilter that = (RecursiveGridFilter) o;
 
     if (!fieldName.equals(that.fieldName)) return false;
     //note that we don't need to look at grid since for the same field it should be the same

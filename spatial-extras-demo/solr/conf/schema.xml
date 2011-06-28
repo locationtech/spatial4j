@@ -55,9 +55,9 @@
 
 
     <!-- Geometry Field Strategies -->
-    <fieldtype name="grid"  class="org.apache.solr.spatial.prefix.NGramSpatialPrefixGridFieldType"  ignoreIncompatibleGeometry="true" />
-    <fieldtype name="point" class="org.apache.solr.spatial.point.PointFieldType"               ignoreIncompatibleGeometry="true" />
-    <fieldtype name="geohash" class="org.apache.solr.spatial.prefix.DynamicPrefixFieldType"         ignoreIncompatibleGeometry="true" />
+    <fieldtype name="point" class="org.apache.solr.spatial.point.PointFieldType" ignoreIncompatibleGeometry="true" />
+    <fieldtype name="grid"  class="org.apache.solr.spatial.prefix.TermQueryGridFieldType" ignoreIncompatibleGeometry="true" />
+    <fieldtype name="geohash" class="org.apache.solr.spatial.prefix.RecursiveGridFieldType" ignoreIncompatibleGeometry="true" />
 
  </types>
 
@@ -68,8 +68,8 @@
    <field name="source" type="string"  indexed="true" stored="true" />
    
    <!-- geometry -->
-   <field name="grid"    type="grid"    indexed="true" stored="true"  multiValued="false" />
    <field name="point"   type="point"   indexed="true" stored="true"  multiValued="false" />
+   <field name="grid"    type="grid"    indexed="true" stored="true"  multiValued="false" />
    <field name="geohash" type="geohash" indexed="true" stored="true"  multiValued="true" />
    
  </fields>

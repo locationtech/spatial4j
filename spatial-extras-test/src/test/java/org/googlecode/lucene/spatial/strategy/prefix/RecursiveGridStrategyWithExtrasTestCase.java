@@ -3,7 +3,7 @@ package org.googlecode.lucene.spatial.strategy.prefix;
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.prefix.DynamicPrefixStrategy;
+import org.apache.lucene.spatial.strategy.prefix.RecursiveGridStrategy;
 import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
@@ -11,16 +11,16 @@ import org.junit.Test;
 import java.io.IOException;
 
 
-public class GeohashStrategyWithExtrasTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
+public class RecursiveGridStrategyWithExtrasTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     int maxLength = GeohashSpatialPrefixGrid.getMaxLevelsPossible();
     this.shapeIO = new JtsSpatialContext();
-    GeohashSpatialPrefixGrid grs = new GeohashSpatialPrefixGrid(
+    GeohashSpatialPrefixGrid grid = new GeohashSpatialPrefixGrid(
         shapeIO, maxLength );
-    this.strategy = new DynamicPrefixStrategy( grs );
+    this.strategy = new RecursiveGridStrategy( grid );
     this.fieldInfo = new SimpleSpatialFieldInfo( "geohash" );
   }
 

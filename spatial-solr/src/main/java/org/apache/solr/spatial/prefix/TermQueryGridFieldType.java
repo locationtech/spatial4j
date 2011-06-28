@@ -17,28 +17,23 @@
 
 package org.apache.solr.spatial.prefix;
 
-import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
-import org.apache.lucene.spatial.strategy.prefix.DynamicPrefixStrategy;
-import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
+import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
+import org.apache.lucene.spatial.strategy.prefix.TermQueryGridStrategy;
 
-
-/**
- *
- */
-public class DynamicPrefixFieldType extends PrefixGridFieldType {
+public class TermQueryGridFieldType extends PrefixGridFieldType {
 
   @Override
-  protected PrefixGridStrategy initStrategy(Integer maxLevels, Double degrees) {
-    GeohashSpatialPrefixGrid grid;
+  protected TermQueryGridStrategy initStrategy(Integer maxLevels, Double degrees) {
+    QuadPrefixGrid grid;
     if (maxLevels != null) {
-      grid = new GeohashSpatialPrefixGrid(reader,maxLevels);
+      grid = new QuadPrefixGrid(reader,maxLevels);
     } else {
-      grid = new GeohashSpatialPrefixGrid(reader,GeohashSpatialPrefixGrid.getMaxLevelsPossible());
+      grid = new QuadPrefixGrid(reader,QuadPrefixGrid.MAX_LEVELS_POSSIBLE);
       int level = grid.getLevelForDistance(degrees) + 1;//returns 1 greater
       if (level != grid.getMaxLevels())
-        grid = new GeohashSpatialPrefixGrid(reader,level);
+        grid = new QuadPrefixGrid(reader,level);
     }
-    return new DynamicPrefixStrategy(grid);
+    return new TermQueryGridStrategy(grid);
   }
 
 }

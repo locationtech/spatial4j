@@ -10,7 +10,7 @@ import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.prefix.NGramPrefixGridStrategy;
+import org.apache.lucene.spatial.strategy.prefix.TermQueryGridStrategy;
 import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
@@ -18,14 +18,14 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class NGramPrefixGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo>{
+public class TermQueryGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo>{
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
 
     this.shapeIO = new JtsSpatialContext();
-    this.strategy = new NGramPrefixGridStrategy(
+    this.strategy = new TermQueryGridStrategy(
       new QuadPrefixGrid(shapeIO, 12));
     this.fieldInfo = new SimpleSpatialFieldInfo("geo");
   }

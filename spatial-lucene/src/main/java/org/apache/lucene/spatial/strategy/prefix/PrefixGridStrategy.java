@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
   protected final SpatialPrefixGrid grid;
-  private final Map<String, PrefixFieldCacheProvider> provider = new ConcurrentHashMap<String, PrefixFieldCacheProvider>();
+  private final Map<String, PrefixGridFieldCacheProvider> provider = new ConcurrentHashMap<String, PrefixGridFieldCacheProvider>();
   protected int defaultFieldValuesArrayLen = 2;
   protected double distErrPct = SpatialArgs.DEFAULT_DIST_PRECISION;
 
@@ -64,12 +64,12 @@ public abstract class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFi
   }
   
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo, DistanceCalculator calc) {
-    PrefixFieldCacheProvider p = provider.get( fieldInfo.getFieldName() );
+    PrefixGridFieldCacheProvider p = provider.get( fieldInfo.getFieldName() );
     if( p == null ) {
       synchronized (this) {//double checked locking idiom is okay since provider is threadsafe
         p = provider.get( fieldInfo.getFieldName() );
         if (p == null) {
-          p = new PrefixFieldCacheProvider(grid, fieldInfo.getFieldName(), defaultFieldValuesArrayLen);
+          p = new PrefixGridFieldCacheProvider(grid, fieldInfo.getFieldName(), defaultFieldValuesArrayLen);
           provider.put(fieldInfo.getFieldName(),p);
         }
       }
