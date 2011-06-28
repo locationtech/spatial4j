@@ -159,7 +159,7 @@
         </configuration>
       </plugin>
 
-      <!-- TODO DWS: IMO, this doesn't belong in a project pom; it belongs in your settings.xml -->
+      <!-- TODO DWS: this doesn't belong in a project pom; it belongs in your settings.xml -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-eclipse-plugin</artifactId>
@@ -173,61 +173,9 @@
   </reporting>
 
   <repositories>
-    <!-- TODO We can't possibly need all these, and some should be moved to more specific poms. -->
     <!-- note: default: releases=true, snapshots=false -->
-    <repository>
-      <id>jboss.releases</id>
-      <name>JBoss releases</name>
-      <url>http://repository.jboss.org/maven2</url>
-    </repository>
-    
-    <repository>
-      <id>org.apache.snapshots</id>
-      <name>Apache Snapshot Repository</name>
-      <url>https://repository.apache.org/content/repositories/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    
-    <repository>
-      <id>org.apache.release</id>
-      <name>Apache Release Repository</name>
-      <url>https://repository.apache.org/content/repositories/releases/</url>
-    </repository>
-    
-    <!-- Ryan puts stuff here... -->
-    <repository>
-      <id>voyager</id>
-      <url>http://dev.dextergis.com:8081/artifactory/repo/</url>
-    </repository> 
-    
-    <repository>
-      <id>Sonatype OSS</id>
-      <url>http://oss.sonatype.org/content/repositories/releases/</url>
-    </repository>
 
-    <repository>
-      <id>opengeo</id>
-      <name>OpenGeo Maven Repository</name>
-      <url>http://repo.opengeo.org/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-
-    <repository>
-      <id>osgeo</id>
-      <name>Open Source Geospatial Foundation Repository</name>
-      <url>http://download.osgeo.org/webdav/geotools/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-
+    <!-- for JavaAPIforKml -->
     <repository>
       <id>maven2-repository.dev.java.net</id>
       <name>Java.net Maven 2 Repository</name>
@@ -238,10 +186,11 @@
       </snapshots>
     </repository>
 
+    <!-- for Lucene -->
     <repository>
       <id>lucene-hudson-trunk</id>
       <name>Lucene hudson trunk</name>
-      <url>https://builds.apache.org/job/Lucene-Solr-Maven-trunk/lastSuccessfulBuild/artifact/maven_artifacts</url>
+      <url>https://builds.apache.org/job/Lucene-Solr-Maven-trunk/lastSuccessfulBuild/artifact/maven_artifacts/</url>
       <layout>default</layout>
       <releases>
         <enabled>false</enabled>
@@ -252,7 +201,70 @@
     </repository>
 
   </repositories>
-  
+
+  <profiles>
+    <profile>
+      <id>repos</id>
+      <repositories>
+        <!-- TODO Do we even need these? -->
+        <!-- note: default: releases=true, snapshots=false -->
+        <repository>
+          <id>jboss.releases</id>
+          <name>JBoss releases</name>
+          <url>http://repository.jboss.org/maven2</url>
+        </repository>
+
+        <repository>
+          <id>org.apache.snapshots</id>
+          <name>Apache Snapshot Repository</name>
+          <url>https://repository.apache.org/content/repositories/snapshots/</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+
+        <repository>
+          <id>org.apache.release</id>
+          <name>Apache Release Repository</name>
+          <url>https://repository.apache.org/content/repositories/releases/</url>
+        </repository>
+
+        <!-- Ryan puts stuff here... -->
+        <repository>
+          <id>voyager</id>
+          <url>http://dev.dextergis.com:8081/artifactory/repo/</url>
+        </repository>
+
+        <repository>
+          <id>Sonatype OSS</id>
+          <url>http://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+
+        <repository>
+          <id>opengeo</id>
+          <name>OpenGeo Maven Repository</name>
+          <url>http://repo.opengeo.org/</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+
+        <repository>
+          <id>osgeo</id>
+          <name>Open Source Geospatial Foundation Repository</name>
+          <url>http://download.osgeo.org/webdav/geotools/</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+
+      </repositories>
+    </profile>
+  </profiles>
+
   <modules>
     <module>spatial-base</module>
     <module>spatial-lucene</module>
