@@ -15,7 +15,7 @@ import java.io.IOException;
 
 public class SpatialDemoUpdateProcessorFactory extends UpdateRequestProcessorFactory
 {
-  final SpatialContext reader = SpatialContextProvider.getContext();
+  final SpatialContext ctx = SpatialContextProvider.getContext();
 
   @Override
   public DemoUpdateProcessor getInstance(SolrQueryRequest req, SolrQueryResponse rsp, UpdateRequestProcessor next)
@@ -39,7 +39,7 @@ public class SpatialDemoUpdateProcessorFactory extends UpdateRequestProcessorFac
           throw new RuntimeException( "multiple values found for 'geometry' field: "+f.getValue() );
         }
         if( !(f.getValue() instanceof Shape) ) {
-          Shape shape = reader.readShape( f.getValue().toString() );
+          Shape shape = ctx.readShape( f.getValue().toString() );
           f.setValue( shape, f.getBoost() );
         }
       }

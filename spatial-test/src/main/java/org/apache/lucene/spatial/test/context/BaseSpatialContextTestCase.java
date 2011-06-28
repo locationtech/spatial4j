@@ -28,11 +28,11 @@ public abstract class BaseSpatialContextTestCase {
 
   protected abstract AbstractSpatialContext getSpatialContext();
 
-  public static void checkArgParser(SpatialContext reader) {
+  public static void checkArgParser(SpatialContext ctx) {
     SpatialArgsParser parser = new SpatialArgsParser();
 
     String arg = SpatialOperation.IsWithin + "(-10 -20 10 20)";
-    SpatialArgs out = parser.parse(arg, reader);
+    SpatialArgs out = parser.parse(arg, ctx);
     assertEquals(SpatialOperation.IsWithin, out.getOperation());
     Rectangle bounds = (Rectangle) out.getShape();
     assertEquals(-10.0, bounds.getMinX(), 0D);
@@ -40,18 +40,18 @@ public abstract class BaseSpatialContextTestCase {
 
     // Disjoint should not be scored
     arg = SpatialOperation.IsDisjointTo + " (-10 10 -20 20)";
-    out = parser.parse(arg, reader);
+    out = parser.parse(arg, ctx);
     assertEquals(SpatialOperation.IsDisjointTo, out.getOperation());
 
     try {
-      parser.parse(SpatialOperation.IsDisjointTo + "[ ]", reader);
+      parser.parse(SpatialOperation.IsDisjointTo + "[ ]", ctx);
       fail("spatial operations need args");
     }
     catch (Exception ex) {
     }
 
     try {
-      parser.parse("XXXX(-10 10 -20 20)", reader);
+      parser.parse("XXXX(-10 10 -20 20)", ctx);
       fail("unknown operation!");
     }
     catch (Exception ex) {
@@ -79,20 +79,20 @@ public abstract class BaseSpatialContextTestCase {
   };
 
 
-  public static void checkBasicShapeIO( AbstractSpatialContext reader, WriteReader help ) throws Exception {
+  public static void checkBasicShapeIO( AbstractSpatialContext ctx, WriteReader help ) throws Exception {
 
     // Simple Point
-    Shape s = reader.readShape("10 20");
+    Shape s = ctx.readShape("10 20");
     Point p = (Point) s;
     assertEquals(10.0, p.getX(), 0D);
     assertEquals(20.0, p.getY(), 0D);
     p = (Point) help.writeThenRead(s);
     assertEquals(10.0, p.getX(), 0D);
     assertEquals(20.0, p.getY(), 0D);
-    Assert.assertFalse( s.hasArea() );
+    Assert.assertFalse(s.hasArea());
 
     // BBOX
-    s = reader.readShape("-10 -20 10 20");
+    s = ctx.readShape("-10 -20 10 20");
     Rectangle b = (Rectangle) s;
     assertEquals(-10.0, b.getMinX(), 0D);
     assertEquals(-20.0, b.getMinY(), 0D);
@@ -103,23 +103,23 @@ public abstract class BaseSpatialContextTestCase {
     assertEquals(-20.0, b.getMinY(), 0D);
     assertEquals(10.0, b.getMaxX(), 0D);
     assertEquals(20.0, b.getMaxY(), 0D);
-    Assert.assertTrue( s.hasArea() );
+    Assert.assertTrue(s.hasArea());
 
     // Point/Distance
-    s = reader.readShape("Circle( 1.23 4.56 distance=7.89)");
+    s = ctx.readShape("Circle( 1.23 4.56 distance=7.89)");
     HaversineWGS84Circle circle = (HaversineWGS84Circle)s;
     assertEquals(1.23, circle.getCenter().getX(), 0D);
     assertEquals(4.56, circle.getCenter().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
-    assertEquals(reader.getUnits().earthRadius(), circle.getRadius(), 0D);
-    Assert.assertTrue( s.hasArea() );
+    assertEquals(ctx.getUnits().earthRadius(), circle.getRadius(), 0D);
+    Assert.assertTrue(s.hasArea());
 
-    s = reader.readShape("Circle( 1.23  4.56 d=7.89 )");
+    s = ctx.readShape("Circle( 1.23  4.56 d=7.89 )");
     circle = (HaversineWGS84Circle) s;
     assertEquals(1.23, circle.getCenter().getX(), 0D);
     assertEquals(4.56, circle.getCenter().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
-    assertEquals(reader.getUnits().earthRadius(), circle.getRadius(), 0D);
+    assertEquals(ctx.getUnits().earthRadius(), circle.getRadius(), 0D);
   }
 
 

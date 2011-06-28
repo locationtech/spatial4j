@@ -51,8 +51,8 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
   final int[]    levelN; // number
 
   public QuadPrefixGrid(
-      SpatialContext shapeIO, Rectangle bounds, int maxLevels) {
-    super(shapeIO, maxLevels);
+      SpatialContext ctx, Rectangle bounds, int maxLevels) {
+    super(ctx, maxLevels);
     this.xmin = bounds.getMinX();
     this.xmax = bounds.getMaxX();
     this.ymin = bounds.getMinY();
@@ -84,13 +84,13 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
     this(SpatialContextProvider.getContext(), DEFAULT_MAX_LEVELS);
   }
 
-  public QuadPrefixGrid(SpatialContext shapeIO) {
-    this(shapeIO, DEFAULT_MAX_LEVELS);
+  public QuadPrefixGrid(SpatialContext ctx) {
+    this(ctx, DEFAULT_MAX_LEVELS);
   }
 
   public QuadPrefixGrid(
-      SpatialContext shapeIO, int maxLevels) {
-    this(shapeIO, shapeIO.getWorldBounds(), maxLevels);
+      SpatialContext ctx, int maxLevels) {
+    this(ctx, ctx.getWorldBounds(), maxLevels);
   }
 
   public QuadPrefixGrid(
@@ -189,8 +189,8 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
     double h = levelH[level] / 2;
 
     int strlen = str.length();
-    Rectangle rectangle = shapeIO.makeRect(cx - w, cx + w, cy - h, cy + h);
-    IntersectCase v = shape.intersect(rectangle, shapeIO);
+    Rectangle rectangle = ctx.makeRect(cx - w, cx + w, cy - h, cy + h);
+    IntersectCase v = shape.intersect(rectangle, ctx);
     if (IntersectCase.CONTAINS == v) {
       str.append(c);
       //str.append(SpatialPrefixGrid.COVER);
@@ -303,7 +303,7 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
         width = gridW;
         height = gridH;
       }
-      return shapeIO.makeRect(xmin, xmin + width, ymin, ymin + height);
+      return ctx.makeRect(xmin, xmin + width, ymin, ymin + height);
     }
   }//QuadCell
 }

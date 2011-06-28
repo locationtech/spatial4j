@@ -17,8 +17,8 @@ public class PointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    this.shapeIO = new JtsSpatialContext();
-    this.strategy = new PointStrategy( new SimpleSpatialContext(),//TODO bug? why not shapeIO?
+    this.ctx = new JtsSpatialContext();
+    this.strategy = new PointStrategy( new SimpleSpatialContext(),//TODO bug? why not ctx?
       new TrieFieldInfo(), FieldCache.NUMERIC_UTILS_DOUBLE_PARSER );
     this.fieldInfo = new PointFieldInfo( "point" );
   }

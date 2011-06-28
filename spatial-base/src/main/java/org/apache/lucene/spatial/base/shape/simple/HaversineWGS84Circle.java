@@ -37,11 +37,11 @@ public final class HaversineWGS84Circle implements Circle {
 
   private final Rectangle enclosingBox;//calculated & cached
 
-  public HaversineWGS84Circle(Point p, double dist, double radius, SpatialContext shapeIO) {
+  public HaversineWGS84Circle(Point p, double dist, double radius, SpatialContext ctx) {
     this.point = p;
     this.distance = dist;
     this.radius = radius;
-    this.enclosingBox = calcEnclosingBox(shapeIO);
+    this.enclosingBox = calcEnclosingBox(ctx);
   }
 
   public Point getCenter() {
@@ -57,7 +57,7 @@ public final class HaversineWGS84Circle implements Circle {
     return radius;
   }
 
-  private Rectangle calcEnclosingBox(SpatialContext shapeIO) {
+  private Rectangle calcEnclosingBox(SpatialContext ctx) {
     //!! code copied from LatLonType.createSpatialQuery(); this should be consolidated
     final int LAT = 0;
     final int LONG = 1;
@@ -97,10 +97,10 @@ public final class HaversineWGS84Circle implements Circle {
 
     //(end of code from LatLonType.createSpatialQuery())
     //if (ll_lon <= ur_lon) {
-    return shapeIO.makeRect(ll_lon, ur_lon, ll_lat, ur_lat);
+    return ctx.makeRect(ll_lon, ur_lon, ll_lat, ur_lat);
 //    } else {
-//      enclosingBox1 = shapeIO.makeRect(Math.max(ll_lon,ur_lon),180,ll_lat,ur_lat);
-//      enclosingBox2 = shapeIO.makeRect(-180,Math.min(ll_lon,ur_lon),ll_lat,ur_lat);
+//      enclosingBox1 = ctx.makeRect(Math.max(ll_lon,ur_lon),180,ll_lat,ur_lat);
+//      enclosingBox2 = ctx.makeRect(-180,Math.min(ll_lon,ur_lon),ll_lat,ur_lat);
 //    }
   }
 

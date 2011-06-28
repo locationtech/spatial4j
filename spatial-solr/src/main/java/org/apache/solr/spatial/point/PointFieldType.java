@@ -17,21 +17,16 @@
 
 package org.apache.solr.spatial.point;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.spatial.strategy.point.PointFieldInfo;
 import org.apache.lucene.spatial.strategy.point.PointStrategy;
 import org.apache.lucene.spatial.strategy.util.TrieFieldInfo;
-import org.apache.solr.schema.FieldType;
-import org.apache.solr.schema.IndexSchema;
-import org.apache.solr.schema.SchemaAware;
-import org.apache.solr.schema.SchemaField;
-import org.apache.solr.schema.TrieDoubleField;
-import org.apache.solr.schema.TrieField;
+import org.apache.solr.schema.*;
 import org.apache.solr.spatial.SpatialFieldType;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 public class PointFieldType extends SpatialFieldType<PointFieldInfo> implements SchemaAware
@@ -76,7 +71,7 @@ public class PointFieldType extends SpatialFieldType<PointFieldInfo> implements 
     info.setPrecisionStep( df.getPrecisionStep() );
     info.store = true; // TODO properties &...
 
-    spatialStrategy = new PointStrategy(reader,info,FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
+    spatialStrategy = new PointStrategy(ctx,info,FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
     spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 

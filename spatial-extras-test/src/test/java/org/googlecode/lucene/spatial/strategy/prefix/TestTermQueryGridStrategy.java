@@ -22,8 +22,8 @@ public class TestTermQueryGridStrategy extends SpatialTestCase {
 
   @Test
   public void testNGramPrefixGridLosAngeles() throws IOException {
-    final JtsSpatialContext shapeIO = new JtsSpatialContext();
-    final QuadPrefixGrid grid = new QuadPrefixGrid(shapeIO);
+    final JtsSpatialContext ctx = new JtsSpatialContext();
+    final QuadPrefixGrid grid = new QuadPrefixGrid(ctx);
 
     SimpleSpatialFieldInfo fieldInfo = new SimpleSpatialFieldInfo("geo");
     TermQueryGridStrategy prefixGridStrategy = new TermQueryGridStrategy(grid);
@@ -41,7 +41,7 @@ public class TestTermQueryGridStrategy extends SpatialTestCase {
 
     SpatialArgs spatialArgs = spatialArgsParser.parse(
         "IsWithin(POLYGON((-127.00390625 39.8125,-112.765625 39.98828125,-111.53515625 31.375,-125.94921875 30.14453125,-127.00390625 39.8125)))",
-        shapeIO);
+        ctx);
 
     Query query = prefixGridStrategy.makeQuery(spatialArgs, fieldInfo);
     SearchResults searchResults = executeQuery(query, 1);

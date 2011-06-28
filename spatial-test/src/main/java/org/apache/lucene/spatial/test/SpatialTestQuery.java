@@ -28,7 +28,7 @@ public class SpatialTestQuery {
    */
   public static Iterator<SpatialTestQuery> getTestQueries(
       final SpatialArgsParser parser,
-      final SpatialContext shapeIO,
+      final SpatialContext ctx,
       final String name,
       final InputStream in ) throws IOException {
     return new LineReader<SpatialTestQuery>(new InputStreamReader(in,"UTF-8")) {
@@ -53,7 +53,7 @@ public class SpatialTestQuery {
           while (st.hasMoreTokens()) {
             test.ids.add(st.nextToken().trim());
           }
-          test.args = parser.parse(line.substring(idx + 1).trim(), shapeIO);
+          test.args = parser.parse(line.substring(idx + 1).trim(), ctx);
           return test;
         }
         catch( Exception ex ) {

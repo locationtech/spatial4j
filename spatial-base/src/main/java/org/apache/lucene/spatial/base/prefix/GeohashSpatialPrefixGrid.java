@@ -13,8 +13,8 @@ import java.util.List;
  */
 public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
 
-  public GeohashSpatialPrefixGrid(SpatialContext shapeIO, int maxLevels) {
-    super(shapeIO, maxLevels);
+  public GeohashSpatialPrefixGrid(SpatialContext ctx, int maxLevels) {
+    super(ctx, maxLevels);
     int MAXP = getMaxLevelsPossible();
     if (maxLevels <= 0 || maxLevels > MAXP)
       throw new IllegalArgumentException("maxLen must be [1-"+MAXP+"] but got "+ maxLevels);
@@ -93,9 +93,9 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
     public Shape getShape() {
       if (shape == null) {
         if (getLevel() == getMaxLevels())
-          shape = GeohashUtils.decode(getGeohash(), shapeIO);
+          shape = GeohashUtils.decode(getGeohash(), ctx);
         else
-          shape = GeohashUtils.decodeBoundary(getGeohash(), shapeIO);
+          shape = GeohashUtils.decodeBoundary(getGeohash(), ctx);
       }
       return shape;
     }

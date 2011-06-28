@@ -111,15 +111,15 @@ public class GeohashUtils {
    * @param geohash Geohash to deocde
    * @return Array with the latitude at index 0, and longitude at index 1
    */
-  public static Point decode(String geohash, SpatialContext shapeIO) {
-    Rectangle rect = decodeBoundary(geohash,shapeIO);
+  public static Point decode(String geohash, SpatialContext ctx) {
+    Rectangle rect = decodeBoundary(geohash,ctx);
     double latitude = (rect.getMinY() + rect.getMaxY()) / 2D;
     double longitude = (rect.getMinX() + rect.getMaxX()) / 2D;
-    return shapeIO.makePoint(longitude,latitude);
+    return ctx.makePoint(longitude,latitude);
 	}
 
   /** Returns min-max lat, min-max lon. */
-  public static Rectangle decodeBoundary(String geohash, SpatialContext shapeIO) {
+  public static Rectangle decodeBoundary(String geohash, SpatialContext ctx) {
     double minY = -90, maxY = 90, minX = -180, maxX = 180;
     boolean isEven = true;
 
@@ -147,7 +147,7 @@ public class GeohashUtils {
       }
 
     }
-    return shapeIO.makeRect(minX, maxX, minY, maxY);
+    return ctx.makeRect(minX, maxX, minY, maxY);
   }
 
   /** Array of geohashes 1 level below the baseGeohash. Sorted. */

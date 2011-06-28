@@ -31,7 +31,7 @@ public class Shapes implements Shape {
   private final Collection<Shape> geoms;
   private final Rectangle bbox;
 
-  public Shapes(Collection<Shape> geoms, SpatialContext shapeIO) {
+  public Shapes(Collection<Shape> geoms, SpatialContext ctx) {
     this.geoms = geoms;
     double minX = Double.MAX_VALUE;
     double minY = Double.MAX_VALUE;
@@ -44,7 +44,7 @@ public class Shapes implements Shape {
       maxX = Math.max(maxX,r.getMaxX());
       maxY = Math.max(maxY,r.getMaxY());
     }
-    this.bbox = shapeIO.makeRect(minX, maxX, minY, maxY);
+    this.bbox = ctx.makeRect(minX, maxX, minY, maxY);
   }
 
   @Override

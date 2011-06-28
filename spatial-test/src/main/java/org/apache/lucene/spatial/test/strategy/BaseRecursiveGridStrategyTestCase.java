@@ -22,9 +22,9 @@ public abstract class BaseRecursiveGridStrategyTestCase extends StrategyTestCase
     super.setUp();
     maxLength = GeohashSpatialPrefixGrid.getMaxLevelsPossible();
     // SimpleIO
-    this.shapeIO = getSpatialContext();
+    this.ctx = getSpatialContext();
     this.strategy = new RecursiveGridStrategy(new GeohashSpatialPrefixGrid(
-        shapeIO, maxLength ));
+        ctx, maxLength ));
     this.fieldInfo = new SimpleSpatialFieldInfo( "geohash" );
   }
 

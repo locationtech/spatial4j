@@ -31,12 +31,12 @@ public class RecursiveGridFieldType extends PrefixGridFieldType {
   protected PrefixGridStrategy initStrategy(Integer maxLevels, Double degrees) {
     GeohashSpatialPrefixGrid grid;
     if (maxLevels != null) {
-      grid = new GeohashSpatialPrefixGrid(reader,maxLevels);
+      grid = new GeohashSpatialPrefixGrid(ctx,maxLevels);
     } else {
-      grid = new GeohashSpatialPrefixGrid(reader,GeohashSpatialPrefixGrid.getMaxLevelsPossible());
+      grid = new GeohashSpatialPrefixGrid(ctx,GeohashSpatialPrefixGrid.getMaxLevelsPossible());
       int level = grid.getLevelForDistance(degrees) + 1;//returns 1 greater
       if (level != grid.getMaxLevels())
-        grid = new GeohashSpatialPrefixGrid(reader,level);
+        grid = new GeohashSpatialPrefixGrid(ctx,level);
     }
     return new RecursiveGridStrategy(grid);
   }

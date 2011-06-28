@@ -37,16 +37,16 @@ public abstract class SpatialPrefixGrid {
 
   protected final int maxLevels;
 
-  protected final SpatialContext shapeIO;
+  protected final SpatialContext ctx;
 
-  public SpatialPrefixGrid(SpatialContext shapeIO, int maxLevels) {
+  public SpatialPrefixGrid(SpatialContext ctx, int maxLevels) {
     assert maxLevels > 0;
-    this.shapeIO = shapeIO;
+    this.ctx = ctx;
     this.maxLevels = maxLevels;
   }
 
-  public SpatialContext getShapeIO() {
-    return shapeIO;
+  public SpatialContext getSpatialContext() {
+    return ctx;
   }
 
   public int getMaxLevels() {
@@ -55,7 +55,7 @@ public abstract class SpatialPrefixGrid {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName()+"(maxLevels:"+maxLevels+",shapeIO:"+shapeIO+")";
+    return getClass().getSimpleName()+"(maxLevels:"+maxLevels+",ctx:"+ctx+")";
   }
 
   /**
@@ -318,7 +318,7 @@ public abstract class SpatialPrefixGrid {
       if (shapeFilter != null ) {
         ArrayList<Cell> copy = new ArrayList<Cell>(cells.size());//copy since cells contractually isn't modifiable
         for (Cell cell : cells) {
-          IntersectCase rel = cell.getShape().intersect(shapeFilter,SpatialPrefixGrid.this.shapeIO);
+          IntersectCase rel = cell.getShape().intersect(shapeFilter,SpatialPrefixGrid.this.ctx);
           if (rel == IntersectCase.OUTSIDE)
             continue;
           cell.shapeRel = rel;

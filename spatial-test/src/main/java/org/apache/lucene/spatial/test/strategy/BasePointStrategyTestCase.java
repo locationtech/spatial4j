@@ -19,8 +19,8 @@ public abstract class BasePointStrategyTestCase extends StrategyTestCase<PointFi
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    this.shapeIO = getSpatialContext();
-    this.strategy = new PointStrategy(shapeIO,
+    this.ctx = getSpatialContext();
+    this.strategy = new PointStrategy(ctx,
         new TrieFieldInfo(), FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
     this.fieldInfo = new PointFieldInfo( "point" );
   }

@@ -140,7 +140,7 @@ RE "scan" threshold:
               continue;
             if (termLevel == detailLevel || scanCell.isLeaf()) {
               Shape cShape = scanCell.getShape();
-              if(queryShape.intersect(cShape, grid.getShapeIO()) == IntersectCase.OUTSIDE)
+              if(queryShape.intersect(cShape, grid.getSpatialContext()) == IntersectCase.OUTSIDE)
                 continue;
 
               docsEnum = termsEnum.docs(delDocs, docsEnum);

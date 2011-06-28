@@ -17,9 +17,9 @@ public class RecursiveGridStrategyWithExtrasTestCase extends StrategyTestCase<Si
   public void setUp() throws Exception {
     super.setUp();
     int maxLength = GeohashSpatialPrefixGrid.getMaxLevelsPossible();
-    this.shapeIO = new JtsSpatialContext();
+    this.ctx = new JtsSpatialContext();
     GeohashSpatialPrefixGrid grid = new GeohashSpatialPrefixGrid(
-        shapeIO, maxLength );
+        ctx, maxLength );
     this.strategy = new RecursiveGridStrategy( grid );
     this.fieldInfo = new SimpleSpatialFieldInfo( "geohash" );
   }

@@ -18,12 +18,12 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 public class SampleDataWriter {
 
   protected final PrintWriter out;
-  protected final SpatialContext shapeIO;
+  protected final SpatialContext ctx;
   protected final boolean bbox;
   protected final int maxLength;
 
-  public SampleDataWriter(File f, SpatialContext shapeIO, boolean bbox, int maxLength) throws IOException {
-    this.shapeIO=shapeIO;
+  public SampleDataWriter(File f, SpatialContext ctx, boolean bbox, int maxLength) throws IOException {
+    this.ctx=ctx;
     this.bbox = bbox;
     this.maxLength = maxLength;
 
@@ -54,9 +54,9 @@ public class SampleDataWriter {
 
 
   protected String toString( String name, Shape shape ) {
-    String v = shapeIO.toString( shape );
+    String v = ctx.toString( shape );
     if( maxLength > 0 && v.length() > maxLength ) {
-      Geometry g = ((JtsSpatialContext)shapeIO).getGeometryFrom(shape);
+      Geometry g = ((JtsSpatialContext)ctx).getGeometryFrom(shape);
 
       long last = v.length();
       Envelope env = g.getEnvelopeInternal();
@@ -79,7 +79,7 @@ public class SampleDataWriter {
   }
 
   public void write(String id, String name, double x, double y)  throws IOException {
-    this.write(id, name, shapeIO.makePoint(x, y) );
+    this.write(id, name, ctx.makePoint(x, y) );
   }
 
   public void write(String id, String name, Shape shape)  throws IOException {

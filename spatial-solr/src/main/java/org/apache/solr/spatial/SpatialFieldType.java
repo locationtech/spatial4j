@@ -53,7 +53,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   protected final Logger log = LoggerFactory.getLogger( getClass() );
 
-  protected SpatialContext reader;
+  protected SpatialContext ctx;
   protected SpatialArgsParser argsParser;
 
   protected boolean ignoreIncompatibleGeometry = false;
@@ -74,7 +74,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
     //args.setDistPrecision(readDouble(aa.remove("distPrec")));
 
-    reader = SpatialContextProvider.getContext();
+    ctx = SpatialContextProvider.getContext();
     argsParser = new SpatialArgsParser();
   }
 
@@ -87,7 +87,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   @Override
   public final Fieldable createField(SchemaField field, Object val, float boost)
   {
-    Shape shape = (val instanceof Shape)?((Shape)val):reader.readShape( val.toString() );
+    Shape shape = (val instanceof Shape)?((Shape)val): ctx.readShape( val.toString() );
     if( shape == null ) {
       log.warn( "null shape for input: "+val );
       return null;
@@ -98,7 +98,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   @Override
   public final Fieldable[] createFields(SchemaField field, Object val, float boost)
   {
-    Shape shape = (val instanceof Shape)?((Shape)val):reader.readShape( val.toString() );
+    Shape shape = (val instanceof Shape)?((Shape)val): ctx.readShape( val.toString() );
     if( shape == null ) {
       log.warn( "null shape for input: "+val );
       return null;
@@ -123,7 +123,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   @Override
   public final Query getFieldQuery(QParser parser, SchemaField field, String externalVal)
   {
-    return getFieldQuery( parser, field, argsParser.parse( externalVal, reader ) );
+    return getFieldQuery( parser, field, argsParser.parse( externalVal, ctx) );
   }
 
   public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)

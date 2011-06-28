@@ -24,7 +24,7 @@ import java.util.List;
 
 public class GridInfoServlet extends HttpServlet
 {
-  JtsSpatialContext shapeIO = new JtsSpatialContext();
+  JtsSpatialContext ctx = new JtsSpatialContext();
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -55,7 +55,7 @@ public class GridInfoServlet extends HttpServlet
         SampleData data = reader.next();
         if( country.equalsIgnoreCase( data.id ) ) {
           name = data.name;
-          shape = shapeIO.readShape( data.shape );
+          shape = ctx.readShape( data.shape );
           break;
         }
       }
@@ -66,8 +66,8 @@ public class GridInfoServlet extends HttpServlet
       }
     }
     int depth = getIntParam( req, "depth", 16 );
-    SpatialContext reader = new JtsSpatialContext();
-    QuadPrefixGrid grid = new QuadPrefixGrid( reader, depth );
+    SpatialContext ctx = new JtsSpatialContext();
+    QuadPrefixGrid grid = new QuadPrefixGrid( ctx, depth );
     int resolution = getIntParam(req, "resolution", 5);
 
     // If they don't set a country, then use the input
@@ -78,7 +78,7 @@ public class GridInfoServlet extends HttpServlet
         return;
       }
       try {
-        shape = reader.readShape( geo );
+        shape = ctx.readShape( geo );
       }
       catch( Exception ex ) {
         ex.printStackTrace();

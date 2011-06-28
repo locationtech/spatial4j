@@ -11,7 +11,7 @@ import java.util.StringTokenizer;
 
 public class SpatialArgsParser
 {
-  public SpatialArgs parse(String v, SpatialContext reader) throws InvalidSpatialArgument, InvalidShapeException {
+  public SpatialArgs parse(String v, SpatialContext ctx) throws InvalidSpatialArgument, InvalidShapeException {
     int idx = v.indexOf('(');
     int edx = v.lastIndexOf(')');
 
@@ -26,7 +26,7 @@ public class SpatialArgsParser
       throw new InvalidSpatialArgument("missing body : " + v, null);
     }
 
-    Shape shape = reader.readShape(body);
+    Shape shape = ctx.readShape(body);
     SpatialArgs args = new SpatialArgs(op,shape);
 
     if (v.length() > (edx + 1)) {

@@ -57,13 +57,13 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
   protected final SpatialArgsParser argsParser = new SpatialArgsParser();
 
   protected SpatialStrategy<T> strategy;
-  protected SpatialContext shapeIO;
+  protected SpatialContext ctx;
   protected T fieldInfo;
 
   protected void executeQueries(SpatialMatchConcern concern, String... testQueryFile) throws IOException {
     log.info("testing queried for strategy "+strategy);
     for( String path : testQueryFile ) {
-      Iterator<SpatialTestQuery> testQueryIterator = getTestQueries(path, shapeIO);
+      Iterator<SpatialTestQuery> testQueryIterator = getTestQueries(path, ctx);
       runTestQueries(testQueryIterator, concern);
     }
   }
@@ -82,7 +82,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
       Document document = new Document();
       document.add(new Field("id", data.id, Store.YES, Index.ANALYZED));
       document.add(new Field("name", data.name, Store.YES, Index.ANALYZED));
-      Shape shape = shapeIO.readShape(data.shape);
+      Shape shape = ctx.readShape(data.shape);
       for (Fieldable f : strategy.createFields(fieldInfo, shape, true, true)) {
         if( f != null ) { // null if incompatibleGeometry && ignore
           document.add(f);
@@ -98,10 +98,10 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
         getClass().getClassLoader().getResourceAsStream("data/"+testDataFile) );
   }
 
-  protected Iterator<SpatialTestQuery> getTestQueries(String testQueryFile, SpatialContext shapeIO) throws IOException {
+  protected Iterator<SpatialTestQuery> getTestQueries(String testQueryFile, SpatialContext ctx) throws IOException {
     InputStream in = getClass().getClassLoader().getResourceAsStream(testQueryFile);
     return SpatialTestQuery.getTestQueries(
-        argsParser, shapeIO, testQueryFile, in );
+        argsParser, ctx, testQueryFile, in );
   }
 
   public void runTestQueries(
@@ -110,7 +110,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
     while (queries.hasNext()) {
       SpatialTestQuery q = queries.next();
 
-      String msg = q.line; //"Query: " + q.args.toString(shapeIO);
+      String msg = q.line; //"Query: " + q.args.toString(ctx);
       SearchResults got = executeQuery(strategy.makeQuery(q.args, fieldInfo), 100);
       if (concern.orderIsImportant) {
         Iterator<String> ids = q.ids.iterator();

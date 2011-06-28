@@ -24,9 +24,9 @@ public class TermQueryGridStrategyTestCase extends StrategyTestCase<SimpleSpatia
   public void setUp() throws Exception {
     super.setUp();
 
-    this.shapeIO = new JtsSpatialContext();
+    this.ctx = new JtsSpatialContext();
     this.strategy = new TermQueryGridStrategy(
-      new QuadPrefixGrid(shapeIO, 12));
+      new QuadPrefixGrid(ctx, 12));
     this.fieldInfo = new SimpleSpatialFieldInfo("geo");
   }
 
@@ -62,7 +62,7 @@ public class TermQueryGridStrategyTestCase extends StrategyTestCase<SimpleSpatia
     SpatialArgsParser spatialArgsParser = new SpatialArgsParser();
     SpatialArgs spatialArgs = spatialArgsParser.parse(
         "IsWithin(POLYGON((-127.00390625 39.8125,-112.765625 39.98828125,-111.53515625 31.375,-125.94921875 30.14453125,-127.00390625 39.8125)))",
-        shapeIO );
+        ctx );
 
     Query query = strategy.makeQuery(spatialArgs, fieldInfo);
     SearchResults searchResults = executeQuery(query, 1);

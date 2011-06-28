@@ -53,10 +53,10 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
 
   private final TrieFieldInfo finfo;
   private final DoubleParser parser;
-  private final SpatialContext reader;
+  private final SpatialContext ctx;
 
-  public PointStrategy( SpatialContext reader, TrieFieldInfo finfo, DoubleParser parser ) {
-    this.reader = reader;
+  public PointStrategy( SpatialContext ctx, TrieFieldInfo finfo, DoubleParser parser ) {
+    this.ctx = ctx;
     this.finfo = finfo;
     this.parser = parser;
   }
@@ -76,7 +76,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
       f[0] = finfo.createDouble( fieldInfo.getFieldNameX(), point.getX() );
       f[1] = finfo.createDouble( fieldInfo.getFieldNameY(), point.getY() );
       if( store ) {
-        f[2] = new Field( fieldInfo.getFieldName(), reader.toString( shape ), Store.YES, Index.NO );
+        f[2] = new Field( fieldInfo.getFieldName(), ctx.toString( shape ), Store.YES, Index.NO );
       }
       return f;
     }
@@ -110,7 +110,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
       if( SpatialOperation.is( args.getOperation(),
           SpatialOperation.Intersects,
           SpatialOperation.IsWithin )) {
-        DistanceCalculator calc = reader.getDistanceCalculator();
+        DistanceCalculator calc = ctx.getDistanceCalculator();
         Circle circle = (Circle)args.getShape();
         Query bbox = makeWithin(circle.getBoundingBox(), fieldInfo);
 
@@ -133,7 +133,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
     }
 
     ValueSource valueSource = null;
-    DistanceCalculator calc = reader.getDistanceCalculator();
+    DistanceCalculator calc = ctx.getDistanceCalculator();
 
     Query spatial = null;
     SpatialOperation op = args.getOperation();
