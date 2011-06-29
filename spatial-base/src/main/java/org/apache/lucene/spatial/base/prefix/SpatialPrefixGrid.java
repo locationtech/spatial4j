@@ -142,7 +142,7 @@ public abstract class SpatialPrefixGrid {
       recursiveGetCells(getWorldCell(),(Point)shape,detailLevel,true,cells);
       assert cells.size() == initialCapacity;
     } else {
-      cells = new ArrayList<Cell>(inclParents ? 512 : 1024);
+      cells = new ArrayList<Cell>(inclParents ? 1024 : 512);
       recursiveGetCells(getWorldCell(), shape, detailLevel, inclParents, cells);
     }
     if (inclParents) {
@@ -376,7 +376,7 @@ public abstract class SpatialPrefixGrid {
 
     @Override
     public String toString() {
-      return getTokenString() + (isLeaf() ? LEAF_BYTE :"");
+      return getTokenString() + (isLeaf() ? (char)LEAF_BYTE :"");
     }
 
   }
@@ -388,7 +388,7 @@ public abstract class SpatialPrefixGrid {
       final String token = cell.getTokenString();
       tokens.add(token);
       if (cell.isLeaf())
-        tokens.add(token+Cell.LEAF_BYTE);
+        tokens.add(token+(char)Cell.LEAF_BYTE);
     }
     return tokens;
   }
