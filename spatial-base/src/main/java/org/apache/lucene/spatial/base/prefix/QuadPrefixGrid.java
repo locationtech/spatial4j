@@ -20,8 +20,8 @@ package org.apache.lucene.spatial.base.prefix;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
-import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 
@@ -29,7 +29,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.StringTokenizer;
 
 public class QuadPrefixGrid extends SpatialPrefixGrid {
   public static final int MAX_LEVELS_POSSIBLE = 50;//not really sure how big this should be
@@ -211,15 +210,6 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
     str.setLength(strlen);
   }
 
-  public static List<String> parseStrings(String cells) {
-    ArrayList<String> tokens = new ArrayList<String>();
-    StringTokenizer st = new StringTokenizer(cells, "[], ");
-    while (st.hasMoreTokens()) {
-      tokens.add(st.nextToken());
-    }
-    return tokens;
-  }
-
   class QuadCell extends Cell {
 
     public QuadCell(String token) {
@@ -265,11 +255,8 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
 
     @Override
     public Shape getShape() {
-      if (shape == null) {
+      if (shape == null)
         shape = makeShape();
-        if (getLevel() == getMaxLevels())
-          shape = shape.getCenter();
-      }
       return shape;
     }
 
