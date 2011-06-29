@@ -46,12 +46,19 @@ public abstract class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFi
     List<SpatialPrefixGrid.Cell> cells = grid.getCells(shape, detailLevel, true);//true=intermediates cells
     if (cells.get(0).getLevel() == 0)
       cells.remove(0);//don't want world cell
+    //If shape isn't a point, add a full-resolution center-point so that
+    // PrefixFieldCacheProvider has the center-points.
+    // TODO index each center of a multi-point? Yes/no?
+    if (!(shape instanceof Point)) {
+      Point ctr = shape.getCenter();
+      cells.add(grid.getCells(ctr,grid.getMaxLevels(),false).get(0));
+    }
     BasicGridFieldable fieldable = new BasicGridFieldable(fieldInfo.getFieldName(), store);
     List<String> tokens = SpatialPrefixGrid.cellsToTokenStrings(cells);
     fieldable.tokens = new StringListTokenizer(tokens);
 
-    if (store) {//TODO is this for debugging?
-      fieldable.value = tokens.toString();
+    if (store) {//TODO figure out how to re-use original string instead of reconstituting it.
+      fieldable.value = grid.getSpatialContext().toString(shape);
     }
 
     return fieldable;

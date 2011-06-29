@@ -21,7 +21,9 @@ public class RecursiveGridStrategyWithExtrasTestCase extends StrategyTestCase<Si
     GeohashSpatialPrefixGrid grid = new GeohashSpatialPrefixGrid(
         ctx, maxLength );
     this.strategy = new RecursiveGridStrategy( grid );
+    //((RecursiveGridStrategy)strategy).setDistErrPct(0.1);//little faster
     this.fieldInfo = new SimpleSpatialFieldInfo( "geohash" );
+    this.storeShape = false;//unnecessary
   }
 
   /**
