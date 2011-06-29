@@ -381,14 +381,15 @@ public abstract class SpatialPrefixGrid {
 
   }
 
-  /** Will add the trailing leaf byte for leaves, as a new token. */
+  /** Will add the trailing leaf byte for leaves. This isn't particularly efficient. */
   public static List<String> cellsToTokenStrings(Collection<Cell> cells) {
-    ArrayList<String> tokens = new ArrayList<String>((int)(cells.size()*1.5));
+    ArrayList<String> tokens = new ArrayList<String>((int)(cells.size()));
     for (Cell cell : cells) {
       final String token = cell.getTokenString();
-      tokens.add(token);
       if (cell.isLeaf())
         tokens.add(token+(char)Cell.LEAF_BYTE);
+      else
+        tokens.add(token);
     }
     return tokens;
   }
