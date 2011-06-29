@@ -139,7 +139,8 @@ RE "scan" threshold:
             if (termLevel > detailLevel)
               continue;
             if (termLevel == detailLevel || scanCell.isLeaf()) {
-              Shape cShape = scanCell.getShape();
+              //TODO should put more thought into implications of box vs point
+              Shape cShape = termLevel == grid.getMaxLevels() ? scanCell.getCenter() : scanCell.getShape();
               if(queryShape.intersect(cShape, grid.getSpatialContext()) == IntersectCase.OUTSIDE)
                 continue;
 

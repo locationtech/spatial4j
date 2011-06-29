@@ -91,13 +91,14 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
 
     @Override
     public Shape getShape() {
-      if (shape == null) {
-        if (getLevel() == getMaxLevels())
-          shape = GeohashUtils.decode(getGeohash(), ctx);
-        else
-          shape = GeohashUtils.decodeBoundary(getGeohash(), ctx);
-      }
+      if (shape == null)
+        shape = GeohashUtils.decodeBoundary(getGeohash(), ctx);
       return shape;
+    }
+
+    @Override
+    public Point getCenter() {
+      return GeohashUtils.decode(getGeohash(), ctx);
     }
 
     private String getGeohash() {

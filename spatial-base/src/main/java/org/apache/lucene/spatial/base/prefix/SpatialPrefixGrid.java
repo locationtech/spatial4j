@@ -351,11 +351,11 @@ public abstract class SpatialPrefixGrid {
     /** {@link #getSubCells()}.size() -- usually a constant. Should be >=2 */
     public abstract int getSubCellsSize();
 
-    /**
-     * Note: Might be a Point, such as when {@link #getLevel()} == maxLevels.
-     * TODO should put more thought into implications of box vs point
-     */
     public abstract Shape getShape();
+
+    public Point getCenter() {
+      return getShape().getCenter();
+    }
 
     @Override
     public int compareTo(Cell o) {
