@@ -98,8 +98,8 @@ public class KMLHelper
     Folder folder = document.createAndAddFolder().withName( "tokens" );
     for( CharSequence t : tokens ) {
       String token = t.toString();
-      String style = token.endsWith( "*" ) ? "#ccc" : "#mmm";
-      folder.getFeature().add( create( token.substring(0,token.length()-1), style, grid ) );
+      String style = token.charAt(token.length()-1) == (char) SpatialPrefixGrid.Cell.LEAF_BYTE ? "#ccc" : "#mmm";
+      folder.getFeature().add( create( token, style, grid ) );
     }
     return kml;
   }

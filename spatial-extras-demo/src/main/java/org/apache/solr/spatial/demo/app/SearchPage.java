@@ -1,18 +1,12 @@
 package org.apache.solr.spatial.demo.app;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
+import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -43,11 +37,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.RepeatingView;
-import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.*;
 import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.StringResourceStream;
@@ -55,7 +45,15 @@ import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.micromata.opengis.kml.v_2_2_0.Kml;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class SearchPage extends WebPage
@@ -338,9 +336,13 @@ public class SearchPage extends WebPage
       QueryResponse rsp = solr.query( new SolrQuery( "id:"+id ).setFields( "grid,name" ) );
       SolrDocumentList docs = rsp.getResults();
       if( docs.size() > 0 ) {
-        String cells = (String)docs.get(0).get( "grid" );
+        String shapeString = (String)docs.get(0).get( "grid" );
         String name = (String)docs.get(0).get( "name" );
-        List<String> tokens = QuadPrefixGrid.parseStrings(cells);
+
+        Shape shape = grid.getSpatialContext().readShape(shapeString);
+        int detailLevel = grid.getMaxLevelForPrecision(shape, SpatialArgs.DEFAULT_DIST_PRECISION);
+        List<SpatialPrefixGrid.Cell> cells = grid.getCells(shape, detailLevel, false);//false = no intermediates
+        List<String> tokens = SpatialPrefixGrid.cellsToTokenStrings(cells);
         return KMLHelper.toKML(name, grid, tokens);
       }
     }
