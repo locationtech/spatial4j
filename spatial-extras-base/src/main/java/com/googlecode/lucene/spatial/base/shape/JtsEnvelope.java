@@ -97,39 +97,39 @@ public class JtsEnvelope implements Rectangle {
 
   @Override
   public IntersectCase intersect(Shape other, SpatialContext context) {
-    if (Rectangle.class.isInstance(other)) {
-      Rectangle ext = other.getBoundingBox();
-      if (ext.getMinX() > envelope.getMaxX() ||
-          ext.getMaxX() < envelope.getMinX() ||
-          ext.getMinY() > envelope.getMaxY() ||
-          ext.getMaxY() < envelope.getMinY()) {
-        return IntersectCase.OUTSIDE;
-      }
-
-      if (ext.getMinX() >= envelope.getMinX() &&
-          ext.getMaxX() <= envelope.getMaxX() &&
-          ext.getMinY() >= envelope.getMinY() &&
-          ext.getMaxY() <= envelope.getMaxY()) {
-        return IntersectCase.CONTAINS;
-      }
-
-      if (envelope.getMinX() >= ext.getMinY() &&
-          envelope.getMaxX() <= ext.getMaxX() &&
-          envelope.getMinY() >= ext.getMinY() &&
-          envelope.getMaxY() <= ext.getMaxY()) {
-        return IntersectCase.WITHIN;
-      }
-      return IntersectCase.INTERSECTS;
-    } else if (other instanceof Point) {
+    // ** NOTE ** the overall order of logic is kept consistent here with simple.RectangleImpl.
+    if (other instanceof Point) {
       Point p = (Point)other;
-      if (envelope.contains(p.getX(),p.getY()))
-        return IntersectCase.CONTAINS;
-      else
-        return IntersectCase.OUTSIDE;
-    } else if (JtsGeometry.class.isInstance(other)) {
+      return (envelope.contains(p.getX(),p.getY())) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
+    }
+
+    if (! (other instanceof Rectangle) ) {
       return other.intersect(this,context).transpose();
     }
-    throw new IllegalArgumentException("JtsEnvelope can be compared with Envelope or Geogmetry");
+
+    // Rectangle...
+    Rectangle ext = other.getBoundingBox();
+    if (ext.getMinX() > envelope.getMaxX() ||
+        ext.getMaxX() < envelope.getMinX() ||
+        ext.getMinY() > envelope.getMaxY() ||
+        ext.getMaxY() < envelope.getMinY()) {
+      return IntersectCase.OUTSIDE;
+    }
+
+    if (ext.getMinX() >= envelope.getMinX() &&
+        ext.getMaxX() <= envelope.getMaxX() &&
+        ext.getMinY() >= envelope.getMinY() &&
+        ext.getMaxY() <= envelope.getMaxY()) {
+      return IntersectCase.CONTAINS;
+    }
+
+    if (envelope.getMinX() >= ext.getMinY() &&
+        envelope.getMaxX() <= ext.getMaxX() &&
+        envelope.getMinY() >= ext.getMinY() &&
+        envelope.getMaxY() <= ext.getMaxY()) {
+      return IntersectCase.WITHIN;
+    }
+    return IntersectCase.INTERSECTS;
   }
 
   @Override

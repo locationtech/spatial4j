@@ -18,12 +18,10 @@
 package com.googlecode.lucene.spatial.base.shape;
 
 
+import com.vividsolutions.jts.geom.Point;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
-
-import com.vividsolutions.jts.geom.Point;
 
 public class JtsPoint implements org.apache.lucene.spatial.base.shape.Point {
 
@@ -54,22 +52,10 @@ public class JtsPoint implements org.apache.lucene.spatial.base.shape.Point {
 
   @Override
   public IntersectCase intersect(Shape other, SpatialContext context) {
-    if(Rectangle.class.isInstance(other)) {
-      Rectangle ext = other.getBoundingBox();
-      if (point.getX() >= ext.getMinX() &&
-          point.getX() <= ext.getMaxX() &&
-          point.getY() >= ext.getMinY() &&
-          point.getY() <= ext.getMaxY()) {
-        return IntersectCase.WITHIN;
-      }
-      return IntersectCase.OUTSIDE;
-    } else if(JtsGeometry.class.isInstance(other)) {
-      if (((JtsGeometry)other).geo.contains(point)) {
-        return IntersectCase.WITHIN;
-      }
-      return IntersectCase.OUTSIDE;
-    }
-    throw new IllegalArgumentException( "JtsEnvelope can be compared with Envelope or Geogmetry" );
+    // ** NOTE ** the overall order of logic is kept consistent here with simple.PointImpl.
+    if (other instanceof org.apache.lucene.spatial.base.shape.Point)
+      return this.equals(other) ? IntersectCase.INTERSECTS : IntersectCase.OUTSIDE;
+    return other.intersect(this,context).transpose();
   }
 
   @Override

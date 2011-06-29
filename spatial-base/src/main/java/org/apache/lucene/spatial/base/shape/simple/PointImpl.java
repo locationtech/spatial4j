@@ -56,19 +56,10 @@ public class PointImpl implements Point {
   }
 
   @Override
-  public IntersectCase intersect(Shape shape, SpatialContext context) {
-    if(!Rectangle.class.isInstance(shape)) {
-      throw new IllegalArgumentException("Point can only be compared with another Extent");
-    }
-
-    Rectangle ext = shape.getBoundingBox();
-    if(x >= ext.getMinX() &&
-       x <= ext.getMaxX() &&
-       y >= ext.getMinY() &&
-       y <= ext.getMaxY()){
-      return IntersectCase.WITHIN;
-    }
-    return IntersectCase.OUTSIDE;
+  public IntersectCase intersect(Shape other, SpatialContext context) {
+    if (other instanceof Point)
+      return this.equals(other) ? IntersectCase.INTERSECTS : IntersectCase.OUTSIDE;
+    return other.intersect(this,context).transpose();
   }
 
   @Override

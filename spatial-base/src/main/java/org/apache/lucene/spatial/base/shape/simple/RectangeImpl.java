@@ -101,26 +101,24 @@ public class RectangeImpl implements Rectangle {
   }
 
   @Override
-  public IntersectCase intersect(Shape shape, SpatialContext context) {
-    if (shape instanceof Point) {
-      Point point = (Point) shape;
+  public IntersectCase intersect(Shape other, SpatialContext context) {
+    if (other instanceof Point) {
+      Point point = (Point) other;
       if (point.getY() > getMaxY() || point.getY() < getMinY() ||
           (minX > maxX ?
               (point.getX() < minX && point.getX() > maxX)
               : (point.getX() < minX || point.getX() > maxX) ))
         return IntersectCase.OUTSIDE;
-      return IntersectCase.INTERSECTS;
+      return IntersectCase.CONTAINS;
     }
 
-    if (shape instanceof Circle) {
-      return shape.intersect(this, context).transpose();
+    if (! (other instanceof Rectangle) ) {
+      return other.intersect(this,context).transpose();
     }
 
-    if(!Rectangle.class.isInstance(shape)) {
-      return shape.intersect(this,context).transpose();
-    }
+    //Must be another rectangle...
 
-    Rectangle ext = shape.getBoundingBox();
+    Rectangle ext = other.getBoundingBox();
     if (ext.getMinX() > maxX ||
         ext.getMaxX() < minX ||
         ext.getMinY() > maxY ||

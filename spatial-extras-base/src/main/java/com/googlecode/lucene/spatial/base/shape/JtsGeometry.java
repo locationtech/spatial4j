@@ -17,20 +17,16 @@
 
 package com.googlecode.lucene.spatial.base.shape;
 
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.shape.Circle;
+import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
-
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.IntersectionMatrix;
-import com.vividsolutions.jts.geom.Lineal;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.Puntal;
-import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
+import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 
 public class JtsGeometry implements Shape {
   public final Geometry geo;
@@ -68,9 +64,15 @@ public class JtsGeometry implements Shape {
 
   @Override
   public IntersectCase intersect(Shape other, SpatialContext context) {
+    if (other instanceof Point) {
+      Point pt = (Point)other;
+      JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : context.makePoint(pt.getX(), pt.getY()));
+      return geo.contains(jtsPoint.getJtsPoint()) ? IntersectCase.INTERSECTS : IntersectCase.OUTSIDE;
+    }
+
     Rectangle ext = other.getBoundingBox();
-    if (!ext.hasSize()) {
-      throw new IllegalArgumentException("the query shape must cover some area (not a point or line)");
+    if (!ext.hasSize()) {//TODO revisit the soundness of this logic
+      throw new IllegalArgumentException("the query shape must cover some area (not a line)");
     }
 
     // Quick test if this is outside
@@ -82,18 +84,41 @@ public class JtsGeometry implements Shape {
       return IntersectCase.OUTSIDE;
     }
 
+    if (other instanceof Circle) {
+      //Test each point to see how many of them are outside of the circle.
+      Coordinate[] coords = geo.getCoordinates();
+      int outside = 0;
+      int i = 0;
+      for (Coordinate coord : coords) {
+        i++;
+        IntersectCase sect = other.intersect(new PointImpl(coord.x, coord.y), context);
+        if (sect == IntersectCase.OUTSIDE)
+          outside++;
+        if (i != outside && outside != 0)//short circuit: partially outside, partially inside
+          return IntersectCase.INTERSECTS;
+      }
+      if (i == outside) {
+        return (intersect(other.getCenter(),context) == IntersectCase.OUTSIDE)
+            ? IntersectCase.OUTSIDE : IntersectCase.CONTAINS;
+      }
+      assert outside == 0;
+      return IntersectCase.WITHIN;
+    }
+    
     Polygon qGeo = null;
-    if (JtsEnvelope.class.isInstance(other)) {
-      Envelope env = ((JtsEnvelope)other).envelope;
+    if (other instanceof Rectangle) {
+      Envelope env;
+      if (other instanceof JtsEnvelope) {
+        env = ((JtsEnvelope)other).envelope;
+      } else {
+        Rectangle r = (Rectangle)other;
+        env = new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY());
+      }
       qGeo = (Polygon) getGeometryFactory(context).toGeometry(env);
-    } else if (JtsGeometry.class.isInstance(other)) {
+    } else if (other instanceof JtsGeometry) {
       qGeo = (Polygon)((JtsGeometry)other).geo;
-    } else if(Rectangle.class.isInstance(other)) {
-      Rectangle e = (Rectangle)other;
-      Envelope env = new Envelope(e.getMinX(), e.getMaxX(), e.getMinY(), e.getMaxY());
-      qGeo = (Polygon) getGeometryFactory(context).toGeometry(env);
     } else {
-      throw new IllegalArgumentException("this field only support intersectio with Extents or JTS Geometry");
+      throw new IllegalArgumentException("Incompatible intersection of "+this+" with "+other);
     }
 
     //fast algorithm, short-circuit

@@ -22,9 +22,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUtils;
-import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Circle;
 import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 /**
@@ -105,8 +105,12 @@ public final class HaversineWGS84Circle implements Circle {
   }
 
   public boolean contains(double x, double y) {
+    return calcDistance(x, y) <= distance;
+  }
+
+  private double calcDistance(double x, double y) {
     return DistanceUtils.haversine(Math.toRadians(point.getY()), Math.toRadians(point.getX()),
-            Math.toRadians(y), Math.toRadians(x), radius) <= distance;
+        Math.toRadians(y), Math.toRadians(x), radius);
   }
 
   @Override
@@ -125,27 +129,46 @@ public final class HaversineWGS84Circle implements Circle {
 
   @Override
   public IntersectCase intersect(Shape other, SpatialContext context) {
-    //do quick check against bounding box for OUTSIDE
-    if (enclosingBox.intersect(other,context) == IntersectCase.OUTSIDE) {
-//      if (enclosingBox2 == null || enclosingBox2.intersect(other,context) == IntersectCase.OUTSIDE)
-      return IntersectCase.OUTSIDE;
-    }
-
-    //TODO faster to do this first or here, after enclosingBox ?
     if (other instanceof Point) {
       Point point = (Point) other;
       return contains(point.getX(),point.getY()) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
     }
 
-    //do quick check to see if all corners are within this circle for CONTAINS
-    Rectangle bbox = other.getBoundingBox();
-    if (contains(bbox.getMinX(),bbox.getMinY()) &&
-        contains(bbox.getMinX(),bbox.getMaxY()) &&
-        contains(bbox.getMaxX(),bbox.getMaxY()) &&
-        contains(bbox.getMaxX(),bbox.getMinY()))
-      return IntersectCase.CONTAINS;
+    if (other instanceof Rectangle) {
+      //do quick check against bounding box for OUTSIDE
+      if (enclosingBox.intersect(other,context) == IntersectCase.OUTSIDE) {
+//      if (enclosingBox2 == null || enclosingBox2.intersect(other,context) == IntersectCase.OUTSIDE)
+        return IntersectCase.OUTSIDE;
+      }
 
-    return IntersectCase.INTERSECTS;//needn't actually intersect; this is a good guess
+      //do quick check to see if all corners are within this circle for CONTAINS
+      Rectangle bbox = other.getBoundingBox();
+      if (contains(bbox.getMinX(),bbox.getMinY()) &&
+          contains(bbox.getMinX(),bbox.getMaxY()) &&
+          contains(bbox.getMaxX(),bbox.getMaxY()) &&
+          contains(bbox.getMaxX(),bbox.getMinY()))
+        return IntersectCase.CONTAINS;
+
+      return IntersectCase.INTERSECTS;//needn't actually intersect; this is a good guess
+    }
+
+    if (other instanceof Circle) {
+      Circle circle = (Circle)other;
+      double crossDist = calcDistance(circle.getCenter().getX(), circle.getCenter().getY());
+      double aDist = distance, bDist = circle.getDistance();
+      if (crossDist > aDist + bDist)
+        return IntersectCase.OUTSIDE;
+
+      if (crossDist < aDist && crossDist + bDist <= aDist)
+        return IntersectCase.CONTAINS;
+      if (crossDist < bDist && crossDist + aDist <= bDist)
+        return IntersectCase.WITHIN;
+
+      return IntersectCase.INTERSECTS;
+    }
+
+    return other.intersect(this, context).transpose();
+
   }
 
   @Override
