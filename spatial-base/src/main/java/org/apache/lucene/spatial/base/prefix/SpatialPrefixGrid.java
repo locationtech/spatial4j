@@ -232,17 +232,20 @@ public abstract class SpatialPrefixGrid {
 
     protected Cell(String token) {
       this.token = token;
+      if (token.length() > 0 && token.charAt(token.length()-1) == (char)LEAF_BYTE) {
+        this.token = token.substring(0,token.length()-1);
+        setLeaf();
+      }
+
       if (getLevel() == 0)
         getShape();//ensure any lazy instantiation completes to make this threadsafe
-      else
-        assert token.charAt(token.length()-1) != LEAF_BYTE;
     }
 
     protected Cell(byte[] bytes, int off, int len) {
       this.bytes = bytes;
       this.b_off = off;
       this.b_len = len;
-      fixLeaf();
+      b_fixLeaf();
     }
 
     public void reset(byte[] bytes, int off, int len) {
@@ -252,10 +255,10 @@ public abstract class SpatialPrefixGrid {
       this.bytes = bytes;
       this.b_off = off;
       this.b_len = len;
-      fixLeaf();
+      b_fixLeaf();
     }
 
-    private void fixLeaf() {
+    private void b_fixLeaf() {
       if (bytes[b_off + b_len - 1] == LEAF_BYTE) {
         b_len--;
         setLeaf();
