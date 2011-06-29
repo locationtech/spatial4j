@@ -59,6 +59,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
   protected SpatialStrategy<T> strategy;
   protected SpatialContext ctx;
   protected T fieldInfo;
+  protected boolean storeShape = true;
 
   protected void executeQueries(SpatialMatchConcern concern, String... testQueryFile) throws IOException {
     log.info("testing queried for strategy "+strategy);
@@ -83,7 +84,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
       document.add(new Field("id", data.id, Store.YES, Index.ANALYZED));
       document.add(new Field("name", data.name, Store.YES, Index.ANALYZED));
       Shape shape = ctx.readShape(data.shape);
-      for (Fieldable f : strategy.createFields(fieldInfo, shape, true, true)) {
+      for (Fieldable f : strategy.createFields(fieldInfo, shape, true, storeShape)) {
         if( f != null ) { // null if incompatibleGeometry && ignore
           document.add(f);
         }
