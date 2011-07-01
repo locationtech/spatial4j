@@ -140,7 +140,7 @@
         <artifactId>findbugs-maven-plugin</artifactId>
         <version>2.3.2</version>
         <configuration>
-          <findbugsXmlOutput>true</findbugsXmlOutput>
+          <!--<findbugsXmlOutput>true</findbugsXmlOutput> deprecated-->
           <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
           <xmlOutput>true</xmlOutput>
         </configuration>
