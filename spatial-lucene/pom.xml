@@ -13,7 +13,7 @@
   <artifactId>spatial-lucene</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
-  <name>Spatial - lucene</name>
+  <name>Spatial - Lucene</name>
   <description>
     lucene stuff
   </description>
