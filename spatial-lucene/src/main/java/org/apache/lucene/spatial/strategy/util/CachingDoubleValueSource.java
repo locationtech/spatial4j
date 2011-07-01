@@ -1,13 +1,13 @@
 package org.apache.lucene.spatial.strategy.util;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.function.DocValues;
 import org.apache.lucene.search.function.ValueSource;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CachingDoubleValueSource extends ValueSource {
 
@@ -33,7 +33,7 @@ public class CachingDoubleValueSource extends ValueSource {
 
       @Override
       public double doubleVal(int doc) {
-        Integer key = new Integer( base+doc );
+        Integer key = Integer.valueOf( base+doc );
         Double v = cache.get( key );
         if( v == null ) {
           v = Double.valueOf( vals.doubleVal(doc) );
