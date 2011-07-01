@@ -28,7 +28,8 @@ public class SpatialContextProvider {
         instance = clazz.newInstance();
         return instance;
       } catch (Exception e) {
-        log.warn("Using default SpatialContext", e);
+        //don't log full stack trace
+        log.warn("Using default SpatialContext because: " + e.toString());
       }
     }
     instance = new SimpleSpatialContext();
