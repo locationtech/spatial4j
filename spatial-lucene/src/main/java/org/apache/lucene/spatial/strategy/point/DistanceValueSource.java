@@ -18,6 +18,7 @@
 package org.apache.lucene.spatial.strategy.point;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -28,8 +29,8 @@ import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.search.cache.CachedArrayCreator;
 import org.apache.lucene.search.cache.DoubleValuesCreator;
 import org.apache.lucene.search.cache.CachedArray.DoubleValues;
-import org.apache.lucene.search.function.DocValues;
-import org.apache.lucene.search.function.ValueSource;
+import org.apache.lucene.queries.function.DocValues;
+import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
@@ -75,8 +76,8 @@ public class DistanceValueSource extends ValueSource {
    * @return the values
    */
   @Override
-  public DocValues getValues(AtomicReaderContext context) throws IOException {
-    IndexReader reader = context.reader;
+  public DocValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
+    IndexReader reader = readerContext.reader;
 
     final DoubleValues ptX = FieldCache.DEFAULT.getDoubles(reader, fields.getFieldNameX(),
           new DoubleValuesCreator(fields.getFieldNameX(), parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));

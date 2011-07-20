@@ -86,7 +86,7 @@ RE "scan" threshold:
       return null;
     TermsEnum termsEnum = terms.iterator();
     DocsEnum docsEnum = null;//cached for termsEnum.docs() calls
-    Bits delDocs = reader.getDeletedDocs();
+    Bits liveDocs = reader.getLiveDocs();
     SpatialPrefixGrid.Cell scanCell = null;
 
     //cells is treated like a stack. LinkedList conveniently has bulk add to beginning. It's in sorted order so that we
@@ -111,7 +111,7 @@ RE "scan" threshold:
       if (seekStat == TermsEnum.SeekStatus.NOT_FOUND)
         continue;
       if (cell.getLevel() == detailLevel || cell.isLeaf()) {
-        docsEnum = termsEnum.docs(delDocs, docsEnum);
+        docsEnum = termsEnum.docs(liveDocs, docsEnum);
         addDocs(docsEnum,bits);
       } else {//any other intersection
         //If the next indexed term is the leaf marker, then add all of them
@@ -119,7 +119,7 @@ RE "scan" threshold:
         assert nextCellTerm.startsWith(cellTerm);
         scanCell = grid.getCell(nextCellTerm.bytes, nextCellTerm.offset, nextCellTerm.length, scanCell);
         if (scanCell.isLeaf()) {
-          docsEnum = termsEnum.docs(delDocs, docsEnum);
+          docsEnum = termsEnum.docs(liveDocs, docsEnum);
           addDocs(docsEnum,bits);
           termsEnum.next();//move pointer to avoid potential redundant addDocs() below
         }
@@ -144,7 +144,7 @@ RE "scan" threshold:
               if(queryShape.intersect(cShape, grid.getSpatialContext()) == IntersectCase.OUTSIDE)
                 continue;
 
-              docsEnum = termsEnum.docs(delDocs, docsEnum);
+              docsEnum = termsEnum.docs(liveDocs, docsEnum);
               addDocs(docsEnum,bits);
             }
           }//term loop

@@ -27,7 +27,6 @@ public class TrieFieldInfo {
         index );
     f.setDoubleValue(v);
     f.setOmitNorms(omitNorms);
-    f.setOmitTermFreqAndPositions(omitTF);
     return f;
   }
 }

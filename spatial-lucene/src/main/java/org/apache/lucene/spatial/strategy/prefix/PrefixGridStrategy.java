@@ -3,7 +3,7 @@ package org.apache.lucene.spatial.strategy.prefix;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.function.ValueSource;
+import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;

@@ -20,8 +20,8 @@ package org.apache.lucene.spatial.strategy.prefix;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.function.ValueSource;
-import org.apache.lucene.search.function.ValueSourceQuery;
+import org.apache.lucene.queries.function.ValueSource;
+import org.apache.lucene.queries.function.FunctionQuery;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
 import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
@@ -53,7 +53,7 @@ public class RecursiveGridStrategy extends PrefixGridStrategy {
     Filter f = makeFilter(args, fieldInfo);
 
     ValueSource vs = makeValueSource(args, fieldInfo);
-    return new FilteredQuery( new ValueSourceQuery( vs), f );
+    return new FilteredQuery( new FunctionQuery(vs), f );
   }
 
   @Override

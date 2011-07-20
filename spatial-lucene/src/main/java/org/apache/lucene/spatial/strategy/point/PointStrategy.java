@@ -30,8 +30,8 @@ import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.FieldCache.DoubleParser;
-import org.apache.lucene.search.function.ValueSource;
-import org.apache.lucene.search.function.ValueSourceQuery;
+import org.apache.lucene.queries.function.ValueSource;
+import org.apache.lucene.queries.function.FunctionQuery;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
@@ -174,7 +174,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
       else {
         valueSource = makeValueSource(args, fieldInfo, calc);
       }
-      Query spatialRankingQuery = new ValueSourceQuery(valueSource);
+      Query spatialRankingQuery = new FunctionQuery(valueSource);
       BooleanQuery bq = new BooleanQuery();
       bq.add(spatial,BooleanClause.Occur.MUST);
       bq.add(spatialRankingQuery,BooleanClause.Occur.MUST);

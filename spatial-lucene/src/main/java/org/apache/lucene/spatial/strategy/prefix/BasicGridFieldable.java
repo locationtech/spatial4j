@@ -34,7 +34,7 @@ public class BasicGridFieldable extends AbstractField {
 
   public BasicGridFieldable(String name, boolean stored) {
     super(name, stored ? Store.YES : Store.NO, Index.ANALYZED_NO_NORMS, TermVector.NO);
-    setOmitTermFreqAndPositions(true);
+    setOmitNorms(true);
   }
 
   @Override

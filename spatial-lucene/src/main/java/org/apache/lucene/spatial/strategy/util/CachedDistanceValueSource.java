@@ -19,12 +19,13 @@ package org.apache.lucene.spatial.strategy.util;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
-import org.apache.lucene.search.function.DocValues;
-import org.apache.lucene.search.function.ValueSource;
+import org.apache.lucene.queries.function.DocValues;
+import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.shape.Point;
 
@@ -67,9 +68,9 @@ public class CachedDistanceValueSource extends ValueSource {
    * @return the values
    */
   @Override
-  public DocValues getValues(AtomicReaderContext context) throws IOException {
+  public DocValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
     final ShapeFieldCache<Point> cache =
-      provider.getCache(context.reader);
+      provider.getCache(readerContext.reader);
 
     return new DocValues() {
       @Override

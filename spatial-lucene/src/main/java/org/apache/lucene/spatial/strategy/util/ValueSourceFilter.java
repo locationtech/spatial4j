@@ -6,8 +6,8 @@ import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.FilteredDocIdSet;
-import org.apache.lucene.search.function.DocValues;
-import org.apache.lucene.search.function.ValueSource;
+import org.apache.lucene.queries.function.DocValues;
+import org.apache.lucene.queries.function.ValueSource;
 
 public class ValueSourceFilter extends Filter {
 
@@ -29,7 +29,7 @@ public class ValueSourceFilter extends Filter {
 
   @Override
   public DocIdSet getDocIdSet(AtomicReaderContext context) throws IOException {
-    final DocValues values = source.getValues( context );
+    final DocValues values = source.getValues( null, context );
     return new FilteredDocIdSet(startingFilter.getDocIdSet(context)) {
       @Override
       public boolean match(int doc) {
