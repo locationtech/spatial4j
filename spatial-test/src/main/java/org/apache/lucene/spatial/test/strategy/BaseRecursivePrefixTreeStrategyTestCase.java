@@ -1,9 +1,9 @@
 package org.apache.lucene.spatial.test.strategy;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.geohash.GeohashPrefixTree;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.prefix.RecursiveGridStrategy;
+import org.apache.lucene.spatial.strategy.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
@@ -11,7 +11,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 
-public abstract class BaseRecursiveGridStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
+public abstract class BaseRecursivePrefixTreeStrategyTestCase extends StrategyTestCase<SimpleSpatialFieldInfo> {
 
   private int maxLength;
 
@@ -20,10 +20,10 @@ public abstract class BaseRecursiveGridStrategyTestCase extends StrategyTestCase
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    maxLength = GeohashSpatialPrefixGrid.getMaxLevelsPossible();
+    maxLength = GeohashPrefixTree.getMaxLevelsPossible();
     // SimpleIO
     this.ctx = getSpatialContext();
-    this.strategy = new RecursiveGridStrategy(new GeohashSpatialPrefixGrid(
+    this.strategy = new RecursivePrefixTreeStrategy(new GeohashPrefixTree(
         ctx, maxLength ));
     this.fieldInfo = new SimpleSpatialFieldInfo( "geohash" );
   }
@@ -34,7 +34,7 @@ public abstract class BaseRecursiveGridStrategyTestCase extends StrategyTestCase
 
     //execute queries for each prefix grid scan level
     for(int i = 0; i <= maxLength; i++) {
-      ((RecursiveGridStrategy)strategy).setPrefixGridScanLevel(i);
+      ((RecursivePrefixTreeStrategy)strategy).setPrefixGridScanLevel(i);
       executeQueries(SpatialMatchConcern.FILTER, QTEST_Cities_IsWithin_BBox);
     }
   }

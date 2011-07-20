@@ -17,29 +17,28 @@
 
 package org.apache.solr.spatial.prefix;
 
-import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
-import org.apache.lucene.spatial.strategy.prefix.RecursiveGridStrategy;
-import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
+import org.apache.lucene.spatial.base.prefix.geohash.GeohashPrefixTree;
+import org.apache.lucene.spatial.strategy.prefix.RecursivePrefixTreeStrategy;
+import org.apache.lucene.spatial.strategy.prefix.PrefixTreeStrategy;
 
 
 /**
  *
  */
-public class RecursiveGridFieldType extends PrefixGridFieldType {
+public class RecursiveGeohashPrefixTreeFieldType extends PrefixTreeFieldType {
 
   @Override
-  protected PrefixGridStrategy initStrategy(Integer maxLevels, Double degrees) {
-    GeohashSpatialPrefixGrid grid;
+  protected PrefixTreeStrategy initStrategy(Integer maxLevels, Double degrees) {
+    GeohashPrefixTree grid;
     if (maxLevels != null) {
-      grid = new GeohashSpatialPrefixGrid(ctx,maxLevels);
+      grid = new GeohashPrefixTree(ctx,maxLevels);
     } else {
-      grid = new GeohashSpatialPrefixGrid(ctx,GeohashSpatialPrefixGrid.getMaxLevelsPossible());
+      grid = new GeohashPrefixTree(ctx,GeohashPrefixTree.getMaxLevelsPossible());
       int level = grid.getLevelForDistance(degrees) + 1;//returns 1 greater
       if (level != grid.getMaxLevels())
-        grid = new GeohashSpatialPrefixGrid(ctx,level);
+        grid = new GeohashPrefixTree(ctx,level);
     }
-    return new RecursiveGridStrategy(grid);
+    return new RecursivePrefixTreeStrategy(grid);
   }
-
 }
 

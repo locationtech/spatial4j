@@ -27,8 +27,8 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 /**
  *
  */
-class GridCellsTokenizer extends Tokenizer {
-  public GridCellsTokenizer(Reader input) {
+class PrefixCellsTokenizer extends Tokenizer {
+  public PrefixCellsTokenizer(Reader input) {
     super(input);
   }
 

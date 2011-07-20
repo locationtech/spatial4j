@@ -1,6 +1,8 @@
-package org.apache.lucene.spatial.base.prefix;
+package org.apache.lucene.spatial.base.prefix.geohash;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree.Cell;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -11,9 +13,9 @@ import java.util.List;
 /**
  * A SpatialPrefixGrid based on Geohashes.  Uses {@link GeohashUtils} to do all the geohash work.
  */
-public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
+public class GeohashPrefixTree extends SpatialPrefixTree {
 
-  public GeohashSpatialPrefixGrid(SpatialContext ctx, int maxLevels) {
+  public GeohashPrefixTree(SpatialContext ctx, int maxLevels) {
     super(ctx, maxLevels);
     int MAXP = getMaxLevelsPossible();
     if (maxLevels <= 0 || maxLevels > MAXP)
@@ -52,7 +54,7 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
       return super.getCells(shape, detailLevel, inclParents);
   }
 
-  class GhCell extends SpatialPrefixGrid.Cell {
+  class GhCell extends SpatialPrefixTree.Cell {
     GhCell(String token) {
       super(token);
     }
@@ -68,9 +70,9 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
     }
 
     @Override
-    public Collection<SpatialPrefixGrid.Cell> getSubCells() {
+    public Collection<SpatialPrefixTree.Cell> getSubCells() {
       String[] hashes = GeohashUtils.getSubGeohashes(getGeohash());//sorted
-      ArrayList<SpatialPrefixGrid.Cell> cells = new ArrayList<SpatialPrefixGrid.Cell>(hashes.length);
+      ArrayList<SpatialPrefixTree.Cell> cells = new ArrayList<SpatialPrefixTree.Cell>(hashes.length);
       for (String hash : hashes) {
         cells.add(new GhCell(hash));
       }
@@ -84,7 +86,7 @@ public class GeohashSpatialPrefixGrid extends SpatialPrefixGrid {
 
     @Override
     public Cell getSubCell(Point p) {
-      return GeohashSpatialPrefixGrid.this.getCell(p,getLevel()+1);//not performant!
+      return GeohashPrefixTree.this.getCell(p,getLevel()+1);//not performant!
     }
 
     private Shape shape;//cache

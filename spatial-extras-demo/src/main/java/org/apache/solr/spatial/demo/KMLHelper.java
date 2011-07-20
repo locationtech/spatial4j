@@ -5,8 +5,8 @@ import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 import de.micromata.opengis.kml.v_2_2_0.*;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
+import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -67,9 +67,9 @@ public class KMLHelper
     throw new IllegalArgumentException( "for now only extent supported..." );
   }
 
-  private static Placemark create( String key, String style, SpatialPrefixGrid grid )
+  private static Placemark create( String key, String style, SpatialPrefixTree grid )
   {
-    final SpatialPrefixGrid.Cell cell = grid.getCell(key);
+    final SpatialPrefixTree.Cell cell = grid.getCell(key);
     Shape r = cell.getShape();
     List<Coordinate> coords = getCoords( r );
 
@@ -85,7 +85,7 @@ public class KMLHelper
     return p;
   }
 
-  public static Kml toKML(String name, SpatialPrefixGrid grid, List<? extends CharSequence> tokens )
+  public static Kml toKML(String name, SpatialPrefixTree grid, List<? extends CharSequence> tokens )
   {
     final Kml kml = KmlFactory.createKml();
     Document document = kml.createAndSetDocument()
@@ -98,7 +98,7 @@ public class KMLHelper
     Folder folder = document.createAndAddFolder().withName( "tokens" );
     for( CharSequence t : tokens ) {
       String token = t.toString();
-      String style = token.charAt(token.length()-1) == (char) SpatialPrefixGrid.Cell.LEAF_BYTE ? "#ccc" : "#mmm";
+      String style = token.charAt(token.length()-1) == (char) SpatialPrefixTree.Cell.LEAF_BYTE ? "#ccc" : "#mmm";
       folder.getFeature().add( create( token, style, grid ) );
     }
     return kml;
@@ -107,8 +107,8 @@ public class KMLHelper
 
   public static void main( String[] args ) throws Exception
   {
-    QuadPrefixGrid grid = new QuadPrefixGrid( 0, 10, 0, 10, 10 );
-    grid = new QuadPrefixGrid( -180, 180, -90-180, 90, 16 ); // make it like WGS84
+    QuadPrefixTree grid = new QuadPrefixTree( 0, 10, 0, 10, 10 );
+    grid = new QuadPrefixTree( -180, 180, -90-180, 90, 16 ); // make it like WGS84
 
 
 //    CRSCache cache = new CRSCache();
@@ -159,7 +159,7 @@ public class KMLHelper
 
   //  shape = new RectangeImpl( -170,-85, 170, 85 );
 
-    List<String> vals = SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(shape,5,false)); //new GeometryShape( shape ) ); //new EnvelopeShape( shape.getEnvelopeInternal() ) );
+    List<String> vals = SpatialPrefixTree.cellsToTokenStrings(grid.getCells(shape,5,false)); //new GeometryShape( shape ) ); //new EnvelopeShape( shape.getEnvelopeInternal() ) );
     System.out.println( vals );
 
 //    StringBuilder str = new StringBuilder();

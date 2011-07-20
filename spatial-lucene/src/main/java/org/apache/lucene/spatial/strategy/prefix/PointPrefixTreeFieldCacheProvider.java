@@ -1,21 +1,21 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.strategy.util.ShapeFieldCacheProvider;
 import org.apache.lucene.util.BytesRef;
 
-public class PrefixGridFieldCacheProvider extends ShapeFieldCacheProvider<Point> {
+public class PointPrefixTreeFieldCacheProvider extends ShapeFieldCacheProvider<Point> {
 
-  final SpatialPrefixGrid grid; //
+  final SpatialPrefixTree grid; //
 
-  public PrefixGridFieldCacheProvider(SpatialPrefixGrid grid, String shapeField, int defaultSize) {
+  public PointPrefixTreeFieldCacheProvider(SpatialPrefixTree grid, String shapeField, int defaultSize) {
     super( shapeField, defaultSize );
     this.grid = grid;
   }
 
   //A kluge that this is a field
-  private SpatialPrefixGrid.Cell scanCell = null;
+  private SpatialPrefixTree.Cell scanCell = null;
 
   @Override
   protected Point readShape(BytesRef term) {

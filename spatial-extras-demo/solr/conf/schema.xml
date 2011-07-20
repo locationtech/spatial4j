@@ -55,9 +55,9 @@
 
 
     <!-- Geometry Field Strategies -->
-    <fieldtype name="point" class="org.apache.solr.spatial.point.PointFieldType" ignoreIncompatibleGeometry="true" />
-    <fieldtype name="grid"  class="org.apache.solr.spatial.prefix.TermQueryGridFieldType" ignoreIncompatibleGeometry="true" />
-    <fieldtype name="geohash" class="org.apache.solr.spatial.prefix.RecursiveGridFieldType" ignoreIncompatibleGeometry="true" />
+    <fieldtype name="point"   class="org.apache.solr.spatial.point.PointFieldType"                       ignoreIncompatibleGeometry="true" />
+    <fieldtype name="quad"    class="org.apache.solr.spatial.prefix.TermQueryQuadPrefixTreeFieldType"    ignoreIncompatibleGeometry="true" />
+    <fieldtype name="geohash" class="org.apache.solr.spatial.prefix.RecursiveGeohashPrefixTreeFieldType" ignoreIncompatibleGeometry="true" />
 
  </types>
 
@@ -69,7 +69,7 @@
    
    <!-- geometry -->
    <field name="point"   type="point"   indexed="true" stored="true"  multiValued="false" />
-   <field name="grid"    type="grid"    indexed="true" stored="true"  multiValued="false" />
+   <field name="quad"    type="quad"    indexed="true" stored="true"  multiValued="false" />
    <field name="geohash" type="geohash" indexed="true" stored="true"  multiValued="true" />
    
  </fields>
@@ -80,8 +80,8 @@
  <uniqueKey>id</uniqueKey>
 
  <!-- Various index strategies -->
- <copyField source="grid" dest="point"/>
- <copyField source="grid" dest="geohash"/>
+ <copyField source="quad" dest="point"/>
+ <copyField source="quad" dest="geohash"/>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>name</defaultSearchField>

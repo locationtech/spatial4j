@@ -7,12 +7,15 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
 
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+
 public class StartDemo
 {
 	public static void main(String[] args) throws Exception
 	{
 	  // this add resource reloading...
     System.setProperty( "wicket.configuration", "development" );
+    System.setProperty( "SpatialContextProvider", JtsSpatialContext.class.getName() );
 
 	  File dir = new File( "src/main/webapp" );
 	  System.out.println( "dir: "+dir.getAbsolutePath() + " :: "+dir.exists() );

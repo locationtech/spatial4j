@@ -5,8 +5,8 @@ import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
-import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
+import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.solr.spatial.demo.KMLHelper;
 
@@ -67,7 +67,7 @@ public class GridInfoServlet extends HttpServlet
     }
     int depth = getIntParam( req, "depth", 16 );
     SpatialContext ctx = new JtsSpatialContext();
-    QuadPrefixGrid grid = new QuadPrefixGrid( ctx, depth );
+    QuadPrefixTree grid = new QuadPrefixTree( ctx, depth );
     int resolution = getIntParam(req, "resolution", 5);
 
     // If they don't set a country, then use the input
@@ -86,7 +86,7 @@ public class GridInfoServlet extends HttpServlet
       }
     }
 
-    List<String> info = SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(shape, resolution, false));
+    List<String> info = SpatialPrefixTree.cellsToTokenStrings(grid.getCells(shape, resolution, false));
     String format = req.getParameter( "format" );
     if( "kml".equals( format ) ) {
       if( name == null || name.length() < 2 ) {

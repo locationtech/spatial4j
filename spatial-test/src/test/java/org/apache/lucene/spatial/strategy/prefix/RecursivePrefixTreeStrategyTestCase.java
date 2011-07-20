@@ -2,11 +2,11 @@ package org.apache.lucene.spatial.strategy.prefix;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
-import org.apache.lucene.spatial.test.strategy.BaseRecursiveGridStrategyTestCase;
+import org.apache.lucene.spatial.test.strategy.BaseRecursivePrefixTreeStrategyTestCase;
 import org.junit.Before;
 
 
-public class RecursiveGridStrategyTestCase extends BaseRecursiveGridStrategyTestCase {
+public class RecursivePrefixTreeStrategyTestCase extends BaseRecursivePrefixTreeStrategyTestCase {
 
   @Before
   public void setUp() throws Exception {

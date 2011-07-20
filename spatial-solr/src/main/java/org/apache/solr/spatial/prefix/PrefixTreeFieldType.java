@@ -1,16 +1,16 @@
 package org.apache.solr.spatial.prefix;
 
 import org.apache.lucene.spatial.base.distance.DistanceUtils;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.prefix.PrefixGridStrategy;
+import org.apache.lucene.spatial.strategy.prefix.PrefixTreeStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;
 
 import java.util.Map;
 
-public abstract class PrefixGridFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
+public abstract class PrefixTreeFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
 
   private static final double DEFAULT_MAX_DETAIL_KM = 0.001;//1m
 
@@ -35,8 +35,8 @@ public abstract class PrefixGridFieldType extends SpatialFieldType<SimpleSpatial
       degrees = maxDetailKm2Degrees(DEFAULT_MAX_DETAIL_KM);
     }
 
-    PrefixGridStrategy strat = initStrategy(maxLevels, degrees);
-    final SpatialPrefixGrid grid = strat.getGrid();
+    PrefixTreeStrategy strat = initStrategy(maxLevels, degrees);
+    final SpatialPrefixTree grid = strat.getGrid();
     log.info("strat "+strat+" maxLevels: "+ grid.getMaxLevels());//TODO output field name & maxDetailKm
 
     strat.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
@@ -55,7 +55,7 @@ public abstract class PrefixGridFieldType extends SpatialFieldType<SimpleSpatial
     return latLonOut[1] * DistanceUtils.RADIANS_TO_DEGREES;
   }
 
-  protected abstract PrefixGridStrategy initStrategy(Integer maxLevels, Double degrees);
+  protected abstract PrefixTreeStrategy initStrategy(Integer maxLevels, Double degrees);
 
   @Override
   protected SimpleSpatialFieldInfo getFieldInfo(SchemaField field) {

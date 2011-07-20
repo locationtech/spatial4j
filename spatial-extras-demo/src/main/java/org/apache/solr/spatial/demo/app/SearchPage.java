@@ -2,8 +2,9 @@ package org.apache.solr.spatial.demo.app;
 
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.commons.lang.time.DurationFormatUtils;
-import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
+import org.apache.lucene.spatial.base.prefix.geohash.GeohashPrefixTree;
+import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -24,6 +25,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -45,6 +47,9 @@ import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Throwables;
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
@@ -65,7 +70,8 @@ public class SearchPage extends WebPage
 
 
   // Dirty Dirty Dirty Hack...
-  static final QuadPrefixGrid grid = new QuadPrefixGrid( -180, 180, -90-180, 90, 16 );
+  //static final SpatialPrefixTree grid = new QuadPrefixTree( -180, 180, -90-180, 90, 16 );
+  static final SpatialPrefixTree grid = new GeohashPrefixTree(new JtsSpatialContext(),GeohashPrefixTree.getMaxLevelsPossible());
   static final SolrServer solr;
   static {
     SolrServer s = null;
@@ -95,7 +101,7 @@ public class SearchPage extends WebPage
         Arrays.asList( "(all)","world-cities-points.txt", "countries-poly.txt", "countries-bbox.txt", "states-poly.txt", "states-bbox.txt" ) ));
     searchForm.add( new TextField<String>( "fq" ) );
     searchForm.add( new DropDownChoice<String>("field",
-        Arrays.asList( "point", "geohash", "grid" ) ));
+        Arrays.asList( "point", "geohash", "quad" ) ));
     searchForm.add( new DropDownChoice<SpatialOperation>("op",
         SpatialOperation.values() ));
 
@@ -128,11 +134,11 @@ public class SearchPage extends WebPage
             t = ex;
           }
           log.warn( "unable to execute query", ex );
-          error.setObject( toTraceString(t) );
+          error.setObject( Throwables.getStackTraceAsString(t) );
         }
         catch (Throwable ex) {
           log.warn( "unable to execute query", ex );
-          error.setObject( toTraceString(ex) );
+          error.setObject( Throwables.getStackTraceAsString(ex) );
         }
         elapsed.setObject( System.currentTimeMillis()-now );
         return rsp;
@@ -157,31 +163,7 @@ public class SearchPage extends WebPage
             row.add( new Label( "score", doc.getFieldValue( "score" )+"" ));
             row.add( new ExternalLink( "link", "/solr/select?q=id:"+ClientUtils.escapeQueryChars(id) ));
 
-            row.add( new Link<Void>( "kml" ) {
-              @Override
-              public void onClick() {
-                StringWriter out = new StringWriter();
-                Kml kml = getKML( id );
-                kml.marshal( out );
-                final String name = kml.getFeature().getName();
-                IResourceStream resourceStream = new StringResourceStream(
-                    out.getBuffer(), "application/vnd.google-earth.kml+xml" );
-                getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream)
-                {
-                  @Override
-                  public String getFileName()
-                  {
-                    return name+".kml";
-                  }
-
-                  @Override
-                  public void respond(RequestCycle requestCycle)
-                  {
-                    super.respond(requestCycle);
-                  }
-                });
-              }
-            });
+            row.add( addKmlLink( "kml", id, "geohash" ));
             rv.add( row );
           }
         }
@@ -318,31 +300,50 @@ public class SearchPage extends WebPage
     }));
     add( load );
   }
+  
+  public Link<Void> addKmlLink( String id, final String docID, final String field ) {
+    return new Link<Void>( "kml" ) {
+      @Override
+      public void onClick() {
+        StringWriter out = new StringWriter();
+        Kml kml = getKML( docID, field );
+        kml.marshal( out );
+        final String name = kml.getFeature().getName();
+        IResourceStream resourceStream = new StringResourceStream(
+            out.getBuffer(), "application/vnd.google-earth.kml+xml" );
+        getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream)
+        {
+          @Override
+          public String getFileName()
+          {
+            return name+".kml";
+          }
 
-  public static String toTraceString( Throwable ex )
-  {
-    StringWriter str = new StringWriter();
-    PrintWriter out = new PrintWriter( str );
-    out.println( ex.toString() );
-    ex.printStackTrace( out );
-    out.flush();
-    str.flush();
-    return str.toString();
+          @Override
+          public void respond(RequestCycle requestCycle)
+          {
+            super.respond(requestCycle);
+          }
+        });
+      }
+    };
   }
 
-  public Kml getKML( String id )
+  public Kml getKML( String id, String field )
   {
     try {
-      QueryResponse rsp = solr.query( new SolrQuery( "id:"+id ).setFields( "grid,name" ) );
+      QueryResponse rsp = solr.query( new SolrQuery( "id:"+id ).setFields( "name,"+field ) );
       SolrDocumentList docs = rsp.getResults();
       if( docs.size() > 0 ) {
-        String shapeString = (String)docs.get(0).get( "grid" );
         String name = (String)docs.get(0).get( "name" );
+
+        // for multi valued fields, just use the first...
+        String shapeString = (String)docs.get(0).getFirstValue( field );
 
         Shape shape = grid.getSpatialContext().readShape(shapeString);
         int detailLevel = grid.getMaxLevelForPrecision(shape, SpatialArgs.DEFAULT_DIST_PRECISION);
-        List<SpatialPrefixGrid.Cell> cells = grid.getCells(shape, detailLevel, false);//false = no intermediates
-        List<String> tokens = SpatialPrefixGrid.cellsToTokenStrings(cells);
+        List<SpatialPrefixTree.Cell> cells = grid.getCells(shape, detailLevel, false);//false = no intermediates
+        List<String> tokens = SpatialPrefixTree.cellsToTokenStrings(cells);
         return KMLHelper.toKML(name, grid, tokens);
       }
     }

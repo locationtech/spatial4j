@@ -2,7 +2,7 @@ package org.apache.lucene.spatial.strategy.prefix;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
@@ -14,12 +14,12 @@ import java.io.IOException;
 import java.util.Arrays;
 
 
-public class TestTermQueryGridStrategy extends SpatialTestCase {
+public class TestTermQueryPrefixGridStrategy extends SpatialTestCase {
 
   @Test
   public void testNGramPrefixGridLosAngeles() throws IOException {
     SimpleSpatialFieldInfo fieldInfo = new SimpleSpatialFieldInfo("geo");
-    TermQueryGridStrategy prefixGridStrategy = new TermQueryGridStrategy(new QuadPrefixGrid());
+    TermQueryPrefixTreeStrategy prefixGridStrategy = new TermQueryPrefixTreeStrategy(new QuadPrefixTree());
 
     Shape point = new PointImpl(-118.243680, 34.052230);
 

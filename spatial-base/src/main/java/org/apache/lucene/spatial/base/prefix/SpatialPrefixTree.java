@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Implementations should be threadsafe and immutable once initialized.
  */
-public abstract class SpatialPrefixGrid {
+public abstract class SpatialPrefixTree {
 
   protected static final Charset UTF8 = Charset.forName("UTF-8");
 
@@ -39,7 +39,7 @@ public abstract class SpatialPrefixGrid {
 
   protected final SpatialContext ctx;
 
-  public SpatialPrefixGrid(SpatialContext ctx, int maxLevels) {
+  public SpatialPrefixTree(SpatialContext ctx, int maxLevels) {
     assert maxLevels > 0;
     this.ctx = ctx;
     this.maxLevels = maxLevels;
@@ -321,7 +321,7 @@ public abstract class SpatialPrefixGrid {
       if (shapeFilter != null ) {
         ArrayList<Cell> copy = new ArrayList<Cell>(cells.size());//copy since cells contractually isn't modifiable
         for (Cell cell : cells) {
-          IntersectCase rel = cell.getShape().intersect(shapeFilter,SpatialPrefixGrid.this.ctx);
+          IntersectCase rel = cell.getShape().intersect(shapeFilter,SpatialPrefixTree.this.ctx);
           if (rel == IntersectCase.OUTSIDE)
             continue;
           cell.shapeRel = rel;

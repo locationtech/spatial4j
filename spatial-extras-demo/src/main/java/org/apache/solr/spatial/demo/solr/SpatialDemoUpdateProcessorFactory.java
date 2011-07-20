@@ -33,7 +33,7 @@ public class SpatialDemoUpdateProcessorFactory extends UpdateRequestProcessorFac
     public void processAdd(AddUpdateCommand cmd) throws IOException
     {
       // This converts the 'geo' field to a shape once and will let the standard CopyField copy to relevant fields
-      SolrInputField f = cmd.solrDoc.get( "grid" );
+      SolrInputField f = cmd.solrDoc.get( "quad" );
       if( f != null ) {
         if( f.getValueCount() > 1 ) {
           throw new RuntimeException( "multiple values found for 'geometry' field: "+f.getValue() );

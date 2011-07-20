@@ -15,11 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.prefix;
+package org.apache.lucene.spatial.base.prefix.quad;
 
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree.Cell;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -30,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class QuadPrefixGrid extends SpatialPrefixGrid {
+public class QuadPrefixTree extends SpatialPrefixTree {
   public static final int MAX_LEVELS_POSSIBLE = 50;//not really sure how big this should be
 
   public static final int DEFAULT_MAX_LEVELS = 12;
@@ -49,7 +51,7 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
   final int[]    levelS; // side
   final int[]    levelN; // number
 
-  public QuadPrefixGrid(
+  public QuadPrefixTree(
       SpatialContext ctx, Rectangle bounds, int maxLevels) {
     super(ctx, maxLevels);
     this.xmin = bounds.getMinX();
@@ -79,20 +81,20 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
     }
   }
 
-  public QuadPrefixGrid() {
+  public QuadPrefixTree() {
     this(SpatialContextProvider.getContext(), DEFAULT_MAX_LEVELS);
   }
 
-  public QuadPrefixGrid(SpatialContext ctx) {
+  public QuadPrefixTree(SpatialContext ctx) {
     this(ctx, DEFAULT_MAX_LEVELS);
   }
 
-  public QuadPrefixGrid(
+  public QuadPrefixTree(
       SpatialContext ctx, int maxLevels) {
     this(ctx, ctx.getWorldBounds(), maxLevels);
   }
 
-  public QuadPrefixGrid(
+  public QuadPrefixTree(
       double xmin, double xmax,
       double ymin, double ymax,
       int maxLevels) {
@@ -248,7 +250,7 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
 
     @Override
     public Cell getSubCell(Point p) {
-      return QuadPrefixGrid.this.getCell(p,getLevel()+1);//not performant!
+      return QuadPrefixTree.this.getCell(p,getLevel()+1);//not performant!
     }
 
     private Shape shape;//cache
@@ -262,8 +264,8 @@ public class QuadPrefixGrid extends SpatialPrefixGrid {
 
     private Rectangle makeShape() {
       String token = getTokenString();
-      double xmin = QuadPrefixGrid.this.xmin;
-      double ymin = QuadPrefixGrid.this.ymin;
+      double xmin = QuadPrefixTree.this.xmin;
+      double ymin = QuadPrefixTree.this.ymin;
 
       for (int i = 0; i < token.length(); i++) {
         char c = token.charAt(i);

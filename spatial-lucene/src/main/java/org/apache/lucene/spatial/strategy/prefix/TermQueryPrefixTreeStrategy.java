@@ -3,7 +3,7 @@ package org.apache.lucene.spatial.strategy.prefix;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -11,9 +11,9 @@ import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 
 import java.util.List;
 
-public class TermQueryGridStrategy extends PrefixGridStrategy {
+public class TermQueryPrefixTreeStrategy extends PrefixTreeStrategy {
 
-  public TermQueryGridStrategy(SpatialPrefixGrid grid) {
+  public TermQueryPrefixTreeStrategy(SpatialPrefixTree grid) {
     super(grid);
   }
 
@@ -32,10 +32,10 @@ public class TermQueryGridStrategy extends PrefixGridStrategy {
     }
     Shape qshape = args.getShape();
     int detailLevel = grid.getMaxLevelForPrecision(qshape, args.getDistPrecision());
-    List<SpatialPrefixGrid.Cell> cells = grid.getCells(qshape, detailLevel, false);
+    List<SpatialPrefixTree.Cell> cells = grid.getCells(qshape, detailLevel, false);
 
     BooleanQuery booleanQuery = new BooleanQuery();
-    for (SpatialPrefixGrid.Cell cell : cells) {
+    for (SpatialPrefixTree.Cell cell : cells) {
       booleanQuery.add(new TermQuery(new Term(field.getFieldName(), cell.getTokenString())), BooleanClause.Occur.SHOULD);
     }
     return booleanQuery;

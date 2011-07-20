@@ -6,7 +6,7 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -21,16 +21,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author David Smiley - dsmiley@mitre.org
- */
-public abstract class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
-  protected final SpatialPrefixGrid grid;
-  private final Map<String, PrefixGridFieldCacheProvider> provider = new ConcurrentHashMap<String, PrefixGridFieldCacheProvider>();
+
+public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
+  protected final SpatialPrefixTree grid;
+  private final Map<String, PointPrefixTreeFieldCacheProvider> provider = new ConcurrentHashMap<String, PointPrefixTreeFieldCacheProvider>();
   protected int defaultFieldValuesArrayLen = 2;
   protected double distErrPct = SpatialArgs.DEFAULT_DIST_PRECISION;
 
-  public PrefixGridStrategy(SpatialPrefixGrid grid) {
+  public PrefixTreeStrategy(SpatialPrefixTree grid) {
     this.grid = grid;
   }
 
@@ -39,7 +37,7 @@ public abstract class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFi
     this.defaultFieldValuesArrayLen = defaultFieldValuesArrayLen;
   }
 
-  /** See {@link SpatialPrefixGrid#getMaxLevelForPrecision(org.apache.lucene.spatial.base.shape.Shape, double)}. */
+  /** See {@link SpatialPrefixTree#getMaxLevelForPrecision(org.apache.lucene.spatial.base.shape.Shape, double)}. */
   public void setDistErrPct(double distErrPct) {
     this.distErrPct = distErrPct;
   }
@@ -47,7 +45,7 @@ public abstract class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFi
   @Override
   public Fieldable createField(SimpleSpatialFieldInfo fieldInfo, Shape shape, boolean index, boolean store) {
     int detailLevel = grid.getMaxLevelForPrecision(shape,distErrPct);
-    List<SpatialPrefixGrid.Cell> cells = grid.getCells(shape, detailLevel, true);//true=intermediates cells
+    List<SpatialPrefixTree.Cell> cells = grid.getCells(shape, detailLevel, true);//true=intermediates cells
     //If shape isn't a point, add a full-resolution center-point so that
     // PrefixFieldCacheProvider has the center-points.
     // TODO index each center of a multi-point? Yes/no?
@@ -56,7 +54,7 @@ public abstract class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFi
       //TODO should be smarter; don't index 2 tokens for this in CellTokenizer. Harmless though.
       cells.add(grid.getCells(ctr,grid.getMaxLevels(),false).get(0));
     }
-    BasicGridFieldable fieldable = new BasicGridFieldable(fieldInfo.getFieldName(), store);
+    BasicPrefixTreeFieldable fieldable = new BasicPrefixTreeFieldable(fieldInfo.getFieldName(), store);
     fieldable.tokens = new CellTokenizer(cells.iterator());
 
     if (store) {//TODO figure out how to re-use original string instead of reconstituting it.
@@ -71,9 +69,9 @@ public abstract class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFi
 
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 
-    private Iterator<SpatialPrefixGrid.Cell> iter = null;
+    private Iterator<SpatialPrefixTree.Cell> iter = null;
 
-    public CellTokenizer(Iterator<SpatialPrefixGrid.Cell> tokens) {
+    public CellTokenizer(Iterator<SpatialPrefixTree.Cell> tokens) {
       this.iter = tokens;
     }
 
@@ -85,12 +83,12 @@ public abstract class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFi
       if (nextTokenStringNeedingLeaf != null) {
         termAtt.setLength(0);
         termAtt.append(nextTokenStringNeedingLeaf);
-        termAtt.append((char) SpatialPrefixGrid.Cell.LEAF_BYTE);
+        termAtt.append((char) SpatialPrefixTree.Cell.LEAF_BYTE);
         nextTokenStringNeedingLeaf = null;
         return true;
       }
       if (iter.hasNext()) {
-        SpatialPrefixGrid.Cell cell = iter.next();
+        SpatialPrefixTree.Cell cell = iter.next();
         termAtt.setLength(0);
         CharSequence token = cell.getTokenString();
         termAtt.append(token);
@@ -118,12 +116,12 @@ public abstract class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFi
   }
   
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo, DistanceCalculator calc) {
-    PrefixGridFieldCacheProvider p = provider.get( fieldInfo.getFieldName() );
+    PointPrefixTreeFieldCacheProvider p = provider.get( fieldInfo.getFieldName() );
     if( p == null ) {
       synchronized (this) {//double checked locking idiom is okay since provider is threadsafe
         p = provider.get( fieldInfo.getFieldName() );
         if (p == null) {
-          p = new PrefixGridFieldCacheProvider(grid, fieldInfo.getFieldName(), defaultFieldValuesArrayLen);
+          p = new PointPrefixTreeFieldCacheProvider(grid, fieldInfo.getFieldName(), defaultFieldValuesArrayLen);
           provider.put(fieldInfo.getFieldName(),p);
         }
       }
@@ -132,7 +130,7 @@ public abstract class PrefixGridStrategy extends SpatialStrategy<SimpleSpatialFi
     return new CachedDistanceValueSource(point, calc, p);
   }
 
-  public SpatialPrefixGrid getGrid() {
+  public SpatialPrefixTree getGrid() {
     return grid;
   }
 }

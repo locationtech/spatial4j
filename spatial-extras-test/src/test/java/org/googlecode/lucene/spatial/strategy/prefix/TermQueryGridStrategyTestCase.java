@@ -4,13 +4,13 @@ import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.prefix.TermQueryGridStrategy;
+import org.apache.lucene.spatial.strategy.prefix.TermQueryPrefixTreeStrategy;
 import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
 import org.junit.Test;
@@ -25,8 +25,8 @@ public class TermQueryGridStrategyTestCase extends StrategyTestCase<SimpleSpatia
     super.setUp();
 
     this.ctx = new JtsSpatialContext();
-    this.strategy = new TermQueryGridStrategy(
-      new QuadPrefixGrid(ctx, 12));
+    this.strategy = new TermQueryPrefixTreeStrategy(
+      new QuadPrefixTree(ctx, 12));
     this.fieldInfo = new SimpleSpatialFieldInfo("geo");
   }
 

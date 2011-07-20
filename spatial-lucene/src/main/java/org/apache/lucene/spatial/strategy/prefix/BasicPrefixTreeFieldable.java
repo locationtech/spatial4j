@@ -28,11 +28,11 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.Field.TermVector;
 
 
-public class BasicGridFieldable extends AbstractField {
+class BasicPrefixTreeFieldable extends AbstractField {
   public String value;
   public TokenStream tokens;
 
-  public BasicGridFieldable(String name, boolean stored) {
+  public BasicPrefixTreeFieldable(String name, boolean stored) {
     super(name, stored ? Store.YES : Store.NO, Index.ANALYZED_NO_NORMS, TermVector.NO);
     setOmitNorms(true);
   }

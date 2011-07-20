@@ -23,18 +23,18 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.queries.function.FunctionQuery;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
-import org.apache.lucene.spatial.base.prefix.GeohashSpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 
 
-public class RecursiveGridStrategy extends PrefixGridStrategy {
+public class RecursivePrefixTreeStrategy extends PrefixTreeStrategy {
 
   private int prefixGridScanLevel;//TODO how is this customized?
 
-  public RecursiveGridStrategy(GeohashSpatialPrefixGrid grid) {
+  public RecursivePrefixTreeStrategy(SpatialPrefixTree grid) {
     super(grid);
     prefixGridScanLevel = grid.getMaxLevels() - 4;//TODO this default constant is dependent on the prefix grid size
   }
@@ -66,7 +66,7 @@ public class RecursiveGridStrategy extends PrefixGridStrategy {
 
     int detailLevel = grid.getMaxLevelForPrecision(qshape,args.getDistPrecision());
 
-    return new RecursiveGridFilter(
+    return new RecursivePrefixTreeFilter(
         fieldInfo.getFieldName(), grid,qshape, prefixGridScanLevel, detailLevel);
   }
 }

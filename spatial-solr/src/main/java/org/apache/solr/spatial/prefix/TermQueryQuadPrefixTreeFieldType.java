@@ -17,24 +17,24 @@
 
 package org.apache.solr.spatial.prefix;
 
-import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
-import org.apache.lucene.spatial.strategy.prefix.TermQueryGridStrategy;
+import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
+import org.apache.lucene.spatial.strategy.prefix.TermQueryPrefixTreeStrategy;
 
-public class TermQueryGridFieldType extends PrefixGridFieldType {
+public class TermQueryQuadPrefixTreeFieldType extends PrefixTreeFieldType {
 
   @Override
-  protected TermQueryGridStrategy initStrategy(Integer maxLevels, Double degrees) {
-    QuadPrefixGrid grid;
+  protected TermQueryPrefixTreeStrategy initStrategy(Integer maxLevels, Double degrees) {
+    QuadPrefixTree grid;
     if (maxLevels != null) {
-      grid = new QuadPrefixGrid(ctx,maxLevels);
+      grid = new QuadPrefixTree(ctx,maxLevels);
     } else {
-      grid = new QuadPrefixGrid(ctx,QuadPrefixGrid.MAX_LEVELS_POSSIBLE);
+      grid = new QuadPrefixTree(ctx,QuadPrefixTree.MAX_LEVELS_POSSIBLE);
       int level = grid.getLevelForDistance(degrees) + 1;//returns 1 greater
       if (level != grid.getMaxLevels())
-        grid = new QuadPrefixGrid(ctx,level);
+        grid = new QuadPrefixTree(ctx,level);
     }
-    return new TermQueryGridStrategy(grid);
+    return new TermQueryPrefixTreeStrategy(grid);
   }
-
+  
 }
 

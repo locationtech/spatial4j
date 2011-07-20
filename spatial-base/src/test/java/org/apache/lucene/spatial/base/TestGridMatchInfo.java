@@ -1,7 +1,7 @@
 package org.apache.lucene.spatial.base;
 
-import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
+import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
@@ -18,7 +18,7 @@ public class TestGridMatchInfo {
   @Test @Ignore
   public void testMatchInfo() {
     // Check Validatio
-    QuadPrefixGrid grid = new QuadPrefixGrid(0, 10, 0, 10, 2);
+    QuadPrefixTree grid = new QuadPrefixTree(0, 10, 0, 10, 2);
 
 
 //    GeometricShapeFactory gsf = new GeometricShapeFactory();
@@ -31,7 +31,7 @@ public class TestGridMatchInfo {
     shape = new PointImpl(3, 3);
 
     //TODO UPDATE BASED ON NEW API
-    List<String> m = SpatialPrefixGrid.cellsToTokenStrings(grid.getCells(shape,3,false));
+    List<String> m = SpatialPrefixTree.cellsToTokenStrings(grid.getCells(shape,3,false));
     System.out.println(m);
 
     for (CharSequence s : m) {

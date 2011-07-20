@@ -25,7 +25,7 @@ import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.spatial.base.IntersectCase;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
@@ -35,12 +35,12 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 /**
- * Performs a dynamic length spatial filter against a field indexed using an NGram based {@link SpatialPrefixGrid}.
+ * Performs a dynamic length spatial filter against a field indexed using an NGram based {@link SpatialPrefixTree}.
  * This filter recursively traverses each grid length and uses methods on {@link Shape} to efficiently know
  * that all points at a prefix fit in the shape or not to either short-circuit unnecessary traversals or to efficiently
  * load all enclosed points.
  */
-public class RecursiveGridFilter extends Filter {
+public class RecursivePrefixTreeFilter extends Filter {
 
   /* TODOs for future:
 
@@ -62,12 +62,12 @@ RE "scan" threshold:
   */
 
   private final String fieldName;
-  private final SpatialPrefixGrid grid;
+  private final SpatialPrefixTree grid;
   private final Shape queryShape;
   private final int prefixGridScanLevel;//at least one less than grid.getMaxLevels()
   private final int detailLevel;
 
-  public RecursiveGridFilter(String fieldName, SpatialPrefixGrid grid, Shape queryShape, int prefixGridScanLevel,
+  public RecursivePrefixTreeFilter(String fieldName, SpatialPrefixTree grid, Shape queryShape, int prefixGridScanLevel,
                              int detailLevel) {
     this.fieldName = fieldName;
     this.grid = grid;
@@ -87,11 +87,11 @@ RE "scan" threshold:
     TermsEnum termsEnum = terms.iterator();
     DocsEnum docsEnum = null;//cached for termsEnum.docs() calls
     Bits liveDocs = reader.getLiveDocs();
-    SpatialPrefixGrid.Cell scanCell = null;
+    SpatialPrefixTree.Cell scanCell = null;
 
     //cells is treated like a stack. LinkedList conveniently has bulk add to beginning. It's in sorted order so that we
     //  always advance forward through the termsEnum index.
-    LinkedList<SpatialPrefixGrid.Cell> cells = new LinkedList<SpatialPrefixGrid.Cell>(
+    LinkedList<SpatialPrefixTree.Cell> cells = new LinkedList<SpatialPrefixTree.Cell>(
         grid.getWorldCell().getSubCells(queryShape) );
 
     //This is a recursive algorithm that starts with one or more "big" cells, and then recursively dives down into the
@@ -103,7 +103,7 @@ RE "scan" threshold:
     // that many points, and so we scan through all terms within this cell (i.e. the term starts with the cell's term),
     // seeing which ones are within the query shape.
     while(!cells.isEmpty()) {
-      final SpatialPrefixGrid.Cell cell = cells.removeFirst();
+      final SpatialPrefixTree.Cell cell = cells.removeFirst();
       final BytesRef cellTerm = new BytesRef(cell.getTokenBytes());
       TermsEnum.SeekStatus seekStat = termsEnum.seekCeil(cellTerm);
       if (seekStat == TermsEnum.SeekStatus.END)
@@ -178,7 +178,7 @@ RE "scan" threshold:
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    RecursiveGridFilter that = (RecursiveGridFilter) o;
+    RecursivePrefixTreeFilter that = (RecursivePrefixTreeFilter) o;
 
     if (!fieldName.equals(that.fieldName)) return false;
     //note that we don't need to look at grid since for the same field it should be the same

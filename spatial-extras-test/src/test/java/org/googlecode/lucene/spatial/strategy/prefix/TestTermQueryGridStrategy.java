@@ -4,13 +4,13 @@ import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.base.prefix.QuadPrefixGrid;
+import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.strategy.prefix.TermQueryGridStrategy;
+import org.apache.lucene.spatial.strategy.prefix.TermQueryPrefixTreeStrategy;
 import org.apache.lucene.spatial.test.SpatialTestCase;
 import org.junit.Test;
 
@@ -23,10 +23,10 @@ public class TestTermQueryGridStrategy extends SpatialTestCase {
   @Test
   public void testNGramPrefixGridLosAngeles() throws IOException {
     final JtsSpatialContext ctx = new JtsSpatialContext();
-    final QuadPrefixGrid grid = new QuadPrefixGrid(ctx);
+    final QuadPrefixTree grid = new QuadPrefixTree(ctx);
 
     SimpleSpatialFieldInfo fieldInfo = new SimpleSpatialFieldInfo("geo");
-    TermQueryGridStrategy prefixGridStrategy = new TermQueryGridStrategy(grid);
+    TermQueryPrefixTreeStrategy prefixGridStrategy = new TermQueryPrefixTreeStrategy(grid);
 
     Shape point = new PointImpl(-118.243680, 34.052230);
 
