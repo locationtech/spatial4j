@@ -52,10 +52,10 @@ public class SpatialArgs {
     }
   }
 
-  public String toString( SpatialContext io ) {
+  public String toString( SpatialContext context ) {
     StringBuilder str = new StringBuilder();
     str.append( operation.getName() ).append( '(' );
-    str.append( io.toString( shape ) );
+    str.append( context.toString( shape ) );
     if( min != null ) {
       str.append(" min=").append(min);
     }
