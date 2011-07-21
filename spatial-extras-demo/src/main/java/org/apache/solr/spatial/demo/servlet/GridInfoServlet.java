@@ -86,7 +86,7 @@ public class GridInfoServlet extends HttpServlet
       }
     }
 
-    List<String> info = SpatialPrefixTree.cellsToTokenStrings(grid.getCells(shape, resolution, false));
+    List<String> info = SpatialPrefixTree.nodesToTokenStrings(grid.getNodes(shape, resolution, false));
     String format = req.getParameter( "format" );
     if( "kml".equals( format ) ) {
       if( name == null || name.length() < 2 ) {

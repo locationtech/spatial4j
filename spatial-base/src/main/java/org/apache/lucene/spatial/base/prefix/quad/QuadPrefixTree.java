@@ -20,8 +20,8 @@ package org.apache.lucene.spatial.base.prefix.quad;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
+import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree.Cell;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -127,35 +127,35 @@ public class QuadPrefixTree extends SpatialPrefixTree {
   }
 
   @Override
-  public Cell getCell(Point p, int level) {
-    List<Cell> cells = new ArrayList<Cell>(1);
+  public Node getNode(Point p, int level) {
+    List<Node> cells = new ArrayList<Node>(1);
     build(xmid, ymid, 0, cells, new StringBuilder(), new PointImpl(p.getX(),p.getY()), level);
     return cells.get(0);//note cells could be longer if p on edge
   }
 
   @Override
-  public Cell getCell(String token) {
+  public Node getNode(String token) {
     return new QuadCell(token);
   }
 
   @Override
-  public Cell getCell(byte[] bytes, int offset, int len) {
+  public Node getNode(byte[] bytes, int offset, int len) {
     return new QuadCell(bytes, offset, len);
   }
 
   @Override //for performance
-  public List<Cell> getCells(Shape shape, int detailLevel, boolean inclParents) {
+  public List<Node> getNodes(Shape shape, int detailLevel, boolean inclParents) {
     if (shape instanceof Point)
-      return super.getCellsAltPoint((Point) shape, detailLevel, inclParents);
+      return super.getNodesAltPoint((Point) shape, detailLevel, inclParents);
     else
-      return super.getCells(shape, detailLevel, inclParents);
+      return super.getNodes(shape, detailLevel, inclParents);
   }
 
   private void build(
       double x,
       double y,
       int level,
-      List<Cell> matches,
+      List<Node> matches,
       StringBuilder str,
       Shape shape,
       int maxLevel) {
@@ -181,7 +181,7 @@ public class QuadPrefixTree extends SpatialPrefixTree {
       double cx,
       double cy,
       int level,
-      List<Cell> matches,
+      List<Node> matches,
       StringBuilder str,
       Shape shape,
       int maxLevel) {
@@ -212,19 +212,19 @@ public class QuadPrefixTree extends SpatialPrefixTree {
     str.setLength(strlen);
   }
 
-  class QuadCell extends Cell {
+  class QuadCell extends Node {
 
     public QuadCell(String token) {
-      super(token);
+      super(QuadPrefixTree.this, token);
     }
 
     public QuadCell(String token, IntersectCase shapeRel) {
-      super(token);
+      super(QuadPrefixTree.this, token);
       this.shapeRel = shapeRel;
     }
 
     QuadCell(byte[] bytes, int off, int len) {
-      super(bytes, off, len);
+      super(QuadPrefixTree.this, bytes, off, len);
     }
 
     @Override
@@ -234,8 +234,8 @@ public class QuadPrefixTree extends SpatialPrefixTree {
     }
 
     @Override
-    public Collection<Cell> getSubCells() {
-      ArrayList<Cell> cells = new ArrayList<Cell>(4);
+    public Collection<Node> getSubCells() {
+      List<Node> cells = new ArrayList<Node>(4);
       cells.add(new QuadCell(getTokenString()+"A"));
       cells.add(new QuadCell(getTokenString()+"B"));
       cells.add(new QuadCell(getTokenString()+"C"));
@@ -249,8 +249,8 @@ public class QuadPrefixTree extends SpatialPrefixTree {
     }
 
     @Override
-    public Cell getSubCell(Point p) {
-      return QuadPrefixTree.this.getCell(p,getLevel()+1);//not performant!
+    public Node getSubCell(Point p) {
+      return QuadPrefixTree.this.getNode(p,getLevel()+1);//not performant!
     }
 
     private Shape shape;//cache

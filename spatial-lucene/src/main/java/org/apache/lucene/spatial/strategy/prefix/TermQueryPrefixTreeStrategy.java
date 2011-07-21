@@ -3,6 +3,7 @@ package org.apache.lucene.spatial.strategy.prefix;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
+import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
@@ -32,10 +33,10 @@ public class TermQueryPrefixTreeStrategy extends PrefixTreeStrategy {
     }
     Shape qshape = args.getShape();
     int detailLevel = grid.getMaxLevelForPrecision(qshape, args.getDistPrecision());
-    List<SpatialPrefixTree.Cell> cells = grid.getCells(qshape, detailLevel, false);
+    List<Node> cells = grid.getNodes(qshape, detailLevel, false);
 
     BooleanQuery booleanQuery = new BooleanQuery();
-    for (SpatialPrefixTree.Cell cell : cells) {
+    for (Node cell : cells) {
       booleanQuery.add(new TermQuery(new Term(field.getFieldName(), cell.getTokenString())), BooleanClause.Occur.SHOULD);
     }
     return booleanQuery;

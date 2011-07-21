@@ -1,5 +1,6 @@
 package org.apache.lucene.spatial.strategy.prefix;
 
+import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.strategy.util.ShapeFieldCacheProvider;
@@ -15,11 +16,11 @@ public class PointPrefixTreeFieldCacheProvider extends ShapeFieldCacheProvider<P
   }
 
   //A kluge that this is a field
-  private SpatialPrefixTree.Cell scanCell = null;
+  private Node scanCell = null;
 
   @Override
   protected Point readShape(BytesRef term) {
-    scanCell = grid.getCell(term.bytes, term.offset, term.length, scanCell);
+    scanCell = grid.getNode(term.bytes, term.offset, term.length, scanCell);
     return scanCell.isLeaf() ? scanCell.getShape().getCenter() : null;
   }
 }

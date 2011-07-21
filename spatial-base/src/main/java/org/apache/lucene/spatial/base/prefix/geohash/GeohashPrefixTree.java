@@ -1,8 +1,8 @@
 package org.apache.lucene.spatial.base.prefix.geohash;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree.Cell;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -23,7 +23,9 @@ public class GeohashPrefixTree extends SpatialPrefixTree {
   }
 
   /** Any more than this and there's no point (double lat & lon are the same). */
-  public static int getMaxLevelsPossible() { return GeohashUtils.MAX_PRECISION; }
+  public static int getMaxLevelsPossible() {
+    return GeohashUtils.MAX_PRECISION;
+  }
 
   @Override
   public int getLevelForDistance(double dist) {
@@ -32,35 +34,33 @@ public class GeohashPrefixTree extends SpatialPrefixTree {
   }
 
   @Override
-  public Cell getCell(Point p, int level) {
+  public Node getNode(Point p, int level) {
     return new GhCell(GeohashUtils.encode(p.getY(),p.getX(), level));//args are lat,lon (y,x)
   }
 
   @Override
-  public Cell getCell(String token) {
+  public Node getNode(String token) {
     return new GhCell(token);
   }
 
   @Override
-  public Cell getCell(byte[] bytes, int offset, int len) {
+  public Node getNode(byte[] bytes, int offset, int len) {
     return new GhCell(bytes, offset, len);
   }
 
   @Override
-  public List<Cell> getCells(Shape shape, int detailLevel, boolean inclParents) {
-    if (shape instanceof Point)
-      return super.getCellsAltPoint((Point) shape, detailLevel, inclParents);
-    else
-      return super.getCells(shape, detailLevel, inclParents);
+  public List<Node> getNodes(Shape shape, int detailLevel, boolean inclParents) {
+    return shape instanceof Point ? super.getNodesAltPoint((Point) shape, detailLevel, inclParents) :
+        super.getNodes(shape, detailLevel, inclParents);
   }
 
-  class GhCell extends SpatialPrefixTree.Cell {
+  class GhCell extends Node {
     GhCell(String token) {
-      super(token);
+      super(GeohashPrefixTree.this, token);
     }
 
     GhCell(byte[] bytes, int off, int len) {
-      super(bytes, off, len);
+      super(GeohashPrefixTree.this, bytes, off, len);
     }
 
     @Override
@@ -70,9 +70,9 @@ public class GeohashPrefixTree extends SpatialPrefixTree {
     }
 
     @Override
-    public Collection<SpatialPrefixTree.Cell> getSubCells() {
+    public Collection<Node> getSubCells() {
       String[] hashes = GeohashUtils.getSubGeohashes(getGeohash());//sorted
-      ArrayList<SpatialPrefixTree.Cell> cells = new ArrayList<SpatialPrefixTree.Cell>(hashes.length);
+      List<Node> cells = new ArrayList<Node>(hashes.length);
       for (String hash : hashes) {
         cells.add(new GhCell(hash));
       }
@@ -85,16 +85,17 @@ public class GeohashPrefixTree extends SpatialPrefixTree {
     }
 
     @Override
-    public Cell getSubCell(Point p) {
-      return GeohashPrefixTree.this.getCell(p,getLevel()+1);//not performant!
+    public Node getSubCell(Point p) {
+      return GeohashPrefixTree.this.getNode(p,getLevel()+1);//not performant!
     }
 
     private Shape shape;//cache
 
     @Override
     public Shape getShape() {
-      if (shape == null)
+      if (shape == null) {
         shape = GeohashUtils.decodeBoundary(getGeohash(), ctx);
+      }
       return shape;
     }
 

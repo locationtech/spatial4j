@@ -2,9 +2,9 @@ package org.apache.solr.spatial.demo.app;
 
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.prefix.geohash.GeohashPrefixTree;
-import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -25,7 +25,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -50,7 +49,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Throwables;
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
@@ -342,8 +340,8 @@ public class SearchPage extends WebPage
 
         Shape shape = grid.getSpatialContext().readShape(shapeString);
         int detailLevel = grid.getMaxLevelForPrecision(shape, SpatialArgs.DEFAULT_DIST_PRECISION);
-        List<SpatialPrefixTree.Cell> cells = grid.getCells(shape, detailLevel, false);//false = no intermediates
-        List<String> tokens = SpatialPrefixTree.cellsToTokenStrings(cells);
+        List<Node> cells = grid.getNodes(shape, detailLevel, false);//false = no intermediates
+        List<String> tokens = SpatialPrefixTree.nodesToTokenStrings(cells);
         return KMLHelper.toKML(name, grid, tokens);
       }
     }

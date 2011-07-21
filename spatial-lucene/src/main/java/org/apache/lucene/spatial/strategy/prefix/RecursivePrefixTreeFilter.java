@@ -25,6 +25,7 @@ import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.util.Bits;
@@ -87,12 +88,12 @@ RE "scan" threshold:
     TermsEnum termsEnum = terms.iterator();
     DocsEnum docsEnum = null;//cached for termsEnum.docs() calls
     Bits liveDocs = reader.getLiveDocs();
-    SpatialPrefixTree.Cell scanCell = null;
+    Node scanCell = null;
 
     //cells is treated like a stack. LinkedList conveniently has bulk add to beginning. It's in sorted order so that we
     //  always advance forward through the termsEnum index.
-    LinkedList<SpatialPrefixTree.Cell> cells = new LinkedList<SpatialPrefixTree.Cell>(
-        grid.getWorldCell().getSubCells(queryShape) );
+    LinkedList<Node> cells = new LinkedList<Node>(
+        grid.getWorldNode().getSubCells(queryShape) );
 
     //This is a recursive algorithm that starts with one or more "big" cells, and then recursively dives down into the
     // first such cell that intersects with the query shape.  It's a depth first traversal because we don't move onto
@@ -103,7 +104,7 @@ RE "scan" threshold:
     // that many points, and so we scan through all terms within this cell (i.e. the term starts with the cell's term),
     // seeing which ones are within the query shape.
     while(!cells.isEmpty()) {
-      final SpatialPrefixTree.Cell cell = cells.removeFirst();
+      final Node cell = cells.removeFirst();
       final BytesRef cellTerm = new BytesRef(cell.getTokenBytes());
       TermsEnum.SeekStatus seekStat = termsEnum.seekCeil(cellTerm);
       if (seekStat == TermsEnum.SeekStatus.END)
@@ -117,7 +118,7 @@ RE "scan" threshold:
         //If the next indexed term is the leaf marker, then add all of them
         BytesRef nextCellTerm = termsEnum.next();
         assert nextCellTerm.startsWith(cellTerm);
-        scanCell = grid.getCell(nextCellTerm.bytes, nextCellTerm.offset, nextCellTerm.length, scanCell);
+        scanCell = grid.getNode(nextCellTerm.bytes, nextCellTerm.offset, nextCellTerm.length, scanCell);
         if (scanCell.isLeaf()) {
           docsEnum = termsEnum.docs(liveDocs, docsEnum);
           addDocs(docsEnum,bits);
@@ -134,7 +135,7 @@ RE "scan" threshold:
         } else {
           //Scan through all terms within this cell to see if they are within the queryShape. No seek()s.
           for(BytesRef term = termsEnum.term(); term != null && term.startsWith(cellTerm); term = termsEnum.next()) {
-            scanCell = grid.getCell(term.bytes, term.offset, term.length, scanCell);
+            scanCell = grid.getNode(term.bytes, term.offset, term.length, scanCell);
             int termLevel = scanCell.getLevel();
             if (termLevel > detailLevel)
               continue;

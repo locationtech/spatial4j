@@ -31,7 +31,7 @@ public class TestGridMatchInfo {
     shape = new PointImpl(3, 3);
 
     //TODO UPDATE BASED ON NEW API
-    List<String> m = SpatialPrefixTree.cellsToTokenStrings(grid.getCells(shape,3,false));
+    List<String> m = SpatialPrefixTree.nodesToTokenStrings(grid.getNodes(shape,3,false));
     System.out.println(m);
 
     for (CharSequence s : m) {

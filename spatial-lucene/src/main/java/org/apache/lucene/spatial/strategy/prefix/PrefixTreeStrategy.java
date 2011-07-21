@@ -6,6 +6,7 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
+import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.Point;
@@ -45,14 +46,14 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
   @Override
   public Fieldable createField(SimpleSpatialFieldInfo fieldInfo, Shape shape, boolean index, boolean store) {
     int detailLevel = grid.getMaxLevelForPrecision(shape,distErrPct);
-    List<SpatialPrefixTree.Cell> cells = grid.getCells(shape, detailLevel, true);//true=intermediates cells
+    List<Node> cells = grid.getNodes(shape, detailLevel, true);//true=intermediates cells
     //If shape isn't a point, add a full-resolution center-point so that
     // PrefixFieldCacheProvider has the center-points.
     // TODO index each center of a multi-point? Yes/no?
     if (!(shape instanceof Point)) {
       Point ctr = shape.getCenter();
       //TODO should be smarter; don't index 2 tokens for this in CellTokenizer. Harmless though.
-      cells.add(grid.getCells(ctr,grid.getMaxLevels(),false).get(0));
+      cells.add(grid.getNodes(ctr,grid.getMaxLevels(),false).get(0));
     }
     BasicPrefixTreeFieldable fieldable = new BasicPrefixTreeFieldable(fieldInfo.getFieldName(), store);
     fieldable.tokens = new CellTokenizer(cells.iterator());
@@ -69,9 +70,9 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
 
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 
-    private Iterator<SpatialPrefixTree.Cell> iter = null;
+    private Iterator<Node> iter = null;
 
-    public CellTokenizer(Iterator<SpatialPrefixTree.Cell> tokens) {
+    public CellTokenizer(Iterator<Node> tokens) {
       this.iter = tokens;
     }
 
@@ -83,12 +84,12 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
       if (nextTokenStringNeedingLeaf != null) {
         termAtt.setLength(0);
         termAtt.append(nextTokenStringNeedingLeaf);
-        termAtt.append((char) SpatialPrefixTree.Cell.LEAF_BYTE);
+        termAtt.append((char) Node.LEAF_BYTE);
         nextTokenStringNeedingLeaf = null;
         return true;
       }
       if (iter.hasNext()) {
-        SpatialPrefixTree.Cell cell = iter.next();
+        Node cell = iter.next();
         termAtt.setLength(0);
         CharSequence token = cell.getTokenString();
         termAtt.append(token);
