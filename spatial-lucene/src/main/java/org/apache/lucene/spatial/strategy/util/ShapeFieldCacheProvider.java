@@ -60,6 +60,7 @@ public abstract class ShapeFieldCacheProvider<T extends Shape> {
         term = te.next();
       }
     }
+    sidx.put(reader, idx);
     long elapsed = System.currentTimeMillis() - startTime;
     log.info("Cached: [" + count + " in " + elapsed + "ms] " + idx);
     return idx;
