@@ -1,6 +1,6 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
   <head>  
-    <title>Quad Demo</title>
+    <title>Playground</title>
     
 <style type="text/css">
 h4 { margin:10px 2px; padding:0px; }
@@ -284,7 +284,7 @@ h4 { margin:10px 2px; padding:0px; }
       
       
       <h4>Grid</h4>
-      <select name="depth" style="width:50px">
+      <select name="depth" style="width:100px">
         <option value="1">1</option>
         <option value="2">2</option>
         <option value="3">3</option>
@@ -307,21 +307,18 @@ h4 { margin:10px 2px; padding:0px; }
       </select>
       <span>Maximum Depth</span>
       <br>
-      
-      <select name="resolution" style="width:50px">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4" selected="selected">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
+
+      <select name="distErrPct" style="width:100px">
+        <option value="0.01">0.01</option>
+        <option value="0.025" selected="selected">0.025</option>
+        <option value="0.05">0.05</option>
+        <option value="0.10">0.10</option>
+        <option value="0.15">0.15</option>
+        <option value="0.20">0.20</option>
       </select>
-      <span>Resolution (how many levels past the 'best fit')</span>
+      <span>Distance Error Percent</span>
       <br>
-      
+
       
       <br/><br/>
       <input type="submit" />

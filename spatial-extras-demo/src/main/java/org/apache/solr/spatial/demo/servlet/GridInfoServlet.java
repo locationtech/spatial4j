@@ -7,6 +7,7 @@ import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
+import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.solr.spatial.demo.KMLHelper;
 
@@ -40,6 +41,14 @@ public class GridInfoServlet extends HttpServlet
     return defaultValue;
   }
 
+  public static double getDoubleParam( HttpServletRequest req, String p, double defaultValue )
+  {
+    String v = req.getParameter( p );
+    if( v != null && v.length() > 0 ) {
+      return Double.parseDouble( v );
+    }
+    return defaultValue;
+  }
 
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException
@@ -68,7 +77,7 @@ public class GridInfoServlet extends HttpServlet
     int depth = getIntParam( req, "depth", 16 );
     SpatialContext ctx = new JtsSpatialContext();
     QuadPrefixTree grid = new QuadPrefixTree( ctx, depth );
-    int resolution = getIntParam(req, "resolution", 5);
+    double distErrPct = getDoubleParam(req, "distErrPct", SpatialArgs.DEFAULT_DIST_PRECISION);
 
     // If they don't set a country, then use the input
     if( shape == null ) {
@@ -85,8 +94,9 @@ public class GridInfoServlet extends HttpServlet
         res.sendError(HttpServletResponse.SC_BAD_REQUEST, "error parsing geo :: "+ex );
       }
     }
-
-    List<String> info = SpatialPrefixTree.nodesToTokenStrings(grid.getNodes(shape, resolution, false));
+    int detailLevel = grid.getMaxLevelForPrecision(shape,distErrPct);
+    log("Using detail level "+detailLevel);
+    List<String> info = SpatialPrefixTree.nodesToTokenStrings(grid.getNodes(shape, detailLevel, false));
     String format = req.getParameter( "format" );
     if( "kml".equals( format ) ) {
       if( name == null || name.length() < 2 ) {
