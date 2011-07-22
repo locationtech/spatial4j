@@ -128,6 +128,9 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
   public Query makeQuery(SpatialArgs args, PointFieldInfo fieldInfo) {
     // For starters, just limit the bbox
     Rectangle bbox = args.getShape().getBoundingBox();
+    if (!args.getShape().equals(bbox)) {
+      log.warn("TODO Only bbox is supported at this time, not {}",args.getShape().getClass().getName());
+    }
     if (bbox.getCrossesDateLine()) {
       throw new UnsupportedOperationException( "Crossing dateline not yet supported" );
     }
