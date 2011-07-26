@@ -1,11 +1,11 @@
-package org.apache.lucene.spatial.strategy.point;
+package org.apache.lucene.spatial.strategy.vector;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
-import org.apache.lucene.spatial.test.strategy.BasePointStrategyTestCase;
+import org.apache.lucene.spatial.test.strategy.BaseTwoDoublesStrategyTestCase;
 
 
-public class PointStrategyTestCase extends BasePointStrategyTestCase {
+public class TwoDoublesStrategyTestCase extends BaseTwoDoublesStrategyTestCase {
 
   @Override
   protected SpatialContext getSpatialContext() {

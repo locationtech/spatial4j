@@ -15,25 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.strategy.point;
-
-import java.io.IOException;
-import java.util.Map;
+package org.apache.lucene.spatial.strategy.vector;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
-import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.search.FieldCache.DoubleParser;
-import org.apache.lucene.search.cache.CachedArrayCreator;
-import org.apache.lucene.search.cache.DoubleValuesCreator;
-import org.apache.lucene.search.cache.CachedArray.DoubleValues;
 import org.apache.lucene.queries.function.DocValues;
 import org.apache.lucene.queries.function.ValueSource;
+import org.apache.lucene.search.FieldCache;
+import org.apache.lucene.search.FieldCache.DoubleParser;
+import org.apache.lucene.search.cache.CachedArray.DoubleValues;
+import org.apache.lucene.search.cache.CachedArrayCreator;
+import org.apache.lucene.search.cache.DoubleValuesCreator;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  *
@@ -42,18 +42,15 @@ import org.apache.lucene.spatial.base.shape.simple.PointImpl;
  */
 public class DistanceValueSource extends ValueSource {
 
-  private final PointFieldInfo fields;
+  private final TwoDoublesFieldInfo fields;
   private final DistanceCalculator calculator;
   private final Point from;
   private final DoubleParser parser;
 
   /**
    * Constructor.
-   * @param queryEnvelope the query envelope
-   * @param queryPower the query power (scoring algorithm)
-   * @param targetPower the target power (scoring algorithm)
    */
-  public DistanceValueSource(Point from, DistanceCalculator calc, PointFieldInfo fields, DoubleParser parser) {
+  public DistanceValueSource(Point from, DistanceCalculator calc, TwoDoublesFieldInfo fields, DoubleParser parser) {
     this.from = from;
     this.fields = fields;
     this.calculator = calc;
@@ -62,7 +59,6 @@ public class DistanceValueSource extends ValueSource {
 
   /**
    * Returns the ValueSource description.
-   * @return the description
    */
   @Override
   public String description() {
@@ -72,8 +68,6 @@ public class DistanceValueSource extends ValueSource {
 
   /**
    * Returns the DocValues used by the function query.
-   * @param reader the index reader
-   * @return the values
    */
   @Override
   public DocValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
@@ -109,7 +103,7 @@ public class DistanceValueSource extends ValueSource {
 
   /**
    * Determines if this ValueSource is equal to another.
-   * @param o the ValueSource to compare
+   * @param obj the ValueSource to compare
    * @return <code>true</code> if the two objects are based upon the same query envelope
    */
   @Override

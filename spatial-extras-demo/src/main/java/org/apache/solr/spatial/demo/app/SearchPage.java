@@ -99,7 +99,7 @@ public class SearchPage extends WebPage
         Arrays.asList( "(all)","world-cities-points.txt", "countries-poly.txt", "countries-bbox.txt", "states-poly.txt", "states-bbox.txt" ) ));
     searchForm.add( new TextField<String>( "fq" ) );
     searchForm.add( new DropDownChoice<String>("field",
-        Arrays.asList( "point", "geohash", "quad" ) ));
+        Arrays.asList( "vector2d", "geohash", "quad" ) ));
     searchForm.add( new DropDownChoice<SpatialOperation>("op",
         SpatialOperation.values() ));
 

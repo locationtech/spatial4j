@@ -2,8 +2,8 @@ package org.apache.lucene.spatial.test.strategy;
 
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.strategy.point.PointFieldInfo;
-import org.apache.lucene.spatial.strategy.point.PointStrategy;
+import org.apache.lucene.spatial.strategy.vector.TwoDoublesFieldInfo;
+import org.apache.lucene.spatial.strategy.vector.TwoDoublesStrategy;
 import org.apache.lucene.spatial.strategy.util.TrieFieldInfo;
 import org.apache.lucene.spatial.test.SpatialMatchConcern;
 import org.apache.lucene.spatial.test.StrategyTestCase;
@@ -12,7 +12,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 
-public abstract class BasePointStrategyTestCase extends StrategyTestCase<PointFieldInfo> {
+public abstract class BaseTwoDoublesStrategyTestCase extends StrategyTestCase<TwoDoublesFieldInfo> {
 
   protected abstract SpatialContext getSpatialContext();
 
@@ -20,9 +20,9 @@ public abstract class BasePointStrategyTestCase extends StrategyTestCase<PointFi
   public void setUp() throws Exception {
     super.setUp();
     this.ctx = getSpatialContext();
-    this.strategy = new PointStrategy(ctx,
+    this.strategy = new TwoDoublesStrategy(ctx,
         new TrieFieldInfo(), FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
-    this.fieldInfo = new PointFieldInfo( "point" );
+    this.fieldInfo = new TwoDoublesFieldInfo( "vector2d" );
   }
 
   @Test

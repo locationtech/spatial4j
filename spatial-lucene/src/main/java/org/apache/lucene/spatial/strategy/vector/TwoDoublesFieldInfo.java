@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.strategy.point;
+package org.apache.lucene.spatial.strategy.vector;
 
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 
-public class PointFieldInfo implements SpatialFieldInfo {
+public class TwoDoublesFieldInfo implements SpatialFieldInfo {
 
   public static final String SUFFIX_X = "__x";
   public static final String SUFFIX_Y = "__y";
@@ -28,7 +28,7 @@ public class PointFieldInfo implements SpatialFieldInfo {
   private final String fieldNameX;
   private final String fieldNameY;
 
-  public PointFieldInfo(String fieldNamePrefix) {
+  public TwoDoublesFieldInfo(String fieldNamePrefix) {
     fieldName = fieldNamePrefix;
     fieldNameX = fieldNamePrefix + SUFFIX_X;
     fieldNameY = fieldNamePrefix + SUFFIX_Y;

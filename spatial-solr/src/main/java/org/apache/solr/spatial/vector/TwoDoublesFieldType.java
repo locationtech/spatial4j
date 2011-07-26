@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.point;
+package org.apache.solr.spatial.vector;
 
 import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.spatial.strategy.point.PointFieldInfo;
-import org.apache.lucene.spatial.strategy.point.PointStrategy;
+import org.apache.lucene.spatial.strategy.vector.TwoDoublesFieldInfo;
+import org.apache.lucene.spatial.strategy.vector.TwoDoublesStrategy;
 import org.apache.lucene.spatial.strategy.util.TrieFieldInfo;
 import org.apache.solr.schema.*;
 import org.apache.solr.spatial.SpatialFieldType;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class PointFieldType extends SpatialFieldType<PointFieldInfo> implements SchemaAware
+public class TwoDoublesFieldType extends SpatialFieldType<TwoDoublesFieldInfo> implements SchemaAware
 {
   protected final int fieldProps = (INDEXED | TOKENIZED | OMIT_NORMS | OMIT_TF_POSITIONS);
 
@@ -61,8 +61,8 @@ public class PointFieldType extends SpatialFieldType<PointFieldInfo> implements 
     for( SchemaField sf : fields ) {
       if( sf.getType() == this ) {
         String name = sf.getName();
-        schema.getFields().put( name+PointFieldInfo.SUFFIX_X, new SchemaField( name+PointFieldInfo.SUFFIX_X, doubleType, p, null ) );
-        schema.getFields().put( name+PointFieldInfo.SUFFIX_Y, new SchemaField( name+PointFieldInfo.SUFFIX_Y, doubleType, p, null ) );
+        schema.getFields().put( name+ TwoDoublesFieldInfo.SUFFIX_X, new SchemaField( name+ TwoDoublesFieldInfo.SUFFIX_X, doubleType, p, null ) );
+        schema.getFields().put( name+ TwoDoublesFieldInfo.SUFFIX_Y, new SchemaField( name+ TwoDoublesFieldInfo.SUFFIX_Y, doubleType, p, null ) );
       }
     }
 
@@ -71,13 +71,13 @@ public class PointFieldType extends SpatialFieldType<PointFieldInfo> implements 
     info.setPrecisionStep( df.getPrecisionStep() );
     info.store = true; // TODO properties &...
 
-    spatialStrategy = new PointStrategy(ctx,info,FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
+    spatialStrategy = new TwoDoublesStrategy(ctx,info,FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
     spatialStrategy.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
   }
 
   @Override
-  protected PointFieldInfo getFieldInfo(SchemaField field) {
-    return new PointFieldInfo(field.getName());
+  protected TwoDoublesFieldInfo getFieldInfo(SchemaField field) {
+    return new TwoDoublesFieldInfo(field.getName());
   }
 }
 

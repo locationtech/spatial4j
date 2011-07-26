@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.strategy.point;
+package org.apache.lucene.spatial.strategy.vector;
 
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
@@ -47,15 +47,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
+public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
 
-  static final Logger log = LoggerFactory.getLogger(PointStrategy.class);
+  static final Logger log = LoggerFactory.getLogger(TwoDoublesStrategy.class);
 
   private final TrieFieldInfo finfo;
   private final DoubleParser parser;
   private final SpatialContext ctx;
 
-  public PointStrategy( SpatialContext ctx, TrieFieldInfo finfo, DoubleParser parser ) {
+  public TwoDoublesStrategy(SpatialContext ctx, TrieFieldInfo finfo, DoubleParser parser) {
     this.ctx = ctx;
     this.finfo = finfo;
     this.parser = parser;
@@ -67,7 +67,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
   }
 
   @Override
-  public Fieldable[] createFields(PointFieldInfo fieldInfo,
+  public Fieldable[] createFields(TwoDoublesFieldInfo fieldInfo,
       Shape shape, boolean index, boolean store) {
     if( shape instanceof Point ) {
       Point point = (Point)shape;
@@ -81,31 +81,31 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
       return f;
     }
     if( !ignoreIncompatibleGeometry ) {
-      throw new IllegalArgumentException( "PointStrategy can not index: "+shape );
+      throw new IllegalArgumentException( "TwoDoublesStrategy can not index: "+shape );
     }
     return null;
   }
 
   @Override
-  public Fieldable createField(PointFieldInfo indexInfo, Shape shape,
+  public Fieldable createField(TwoDoublesFieldInfo indexInfo, Shape shape,
       boolean index, boolean store) {
     throw new UnsupportedOperationException("Point is poly field");
   }
 
   @Override
-  public ValueSource makeValueSource(SpatialArgs args, PointFieldInfo fieldInfo) {
+  public ValueSource makeValueSource(SpatialArgs args, TwoDoublesFieldInfo fieldInfo) {
     DistanceCalculator calc = new EuclidianDistanceCalculator();
     return makeValueSource(args, fieldInfo,calc);
   }
 
-  public ValueSource makeValueSource(SpatialArgs args, PointFieldInfo fieldInfo, DistanceCalculator calc) {
+  public ValueSource makeValueSource(SpatialArgs args, TwoDoublesFieldInfo fieldInfo, DistanceCalculator calc) {
     Point p = args.getShape().getCenter();
     return new DistanceValueSource(p, calc, fieldInfo, parser);
   }
 
 
   @Override
-  public Filter makeFilter(SpatialArgs args, PointFieldInfo fieldInfo) {
+  public Filter makeFilter(SpatialArgs args, TwoDoublesFieldInfo fieldInfo) {
     if( args.getShape() instanceof Circle) {
       if( SpatialOperation.is( args.getOperation(),
           SpatialOperation.Intersects,
@@ -125,7 +125,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
   }
 
   @Override
-  public Query makeQuery(SpatialArgs args, PointFieldInfo fieldInfo) {
+  public Query makeQuery(SpatialArgs args, TwoDoublesFieldInfo fieldInfo) {
     // For starters, just limit the bbox
     Rectangle bbox = args.getShape().getBoundingBox();
     if (!args.getShape().equals(bbox)) {
@@ -192,7 +192,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
    * Constructs a query to retrieve documents that fully contain the input envelope.
    * @return the spatial query
    */
-  private Query makeWithin(Rectangle bbox, PointFieldInfo fieldInfo) {
+  private Query makeWithin(Rectangle bbox, TwoDoublesFieldInfo fieldInfo) {
     Query qX = NumericRangeQuery.newDoubleRange(
       fieldInfo.getFieldNameX(),
       finfo.precisionStep,
@@ -218,7 +218,7 @@ public class PointStrategy extends SpatialStrategy<PointFieldInfo> {
    * Constructs a query to retrieve documents that fully contain the input envelope.
    * @return the spatial query
    */
-  Query makeDisjoint(Rectangle bbox, PointFieldInfo fieldInfo) {
+  Query makeDisjoint(Rectangle bbox, TwoDoublesFieldInfo fieldInfo) {
     Query qX = NumericRangeQuery.newDoubleRange(
       fieldInfo.getFieldNameX(),
       finfo.precisionStep,
