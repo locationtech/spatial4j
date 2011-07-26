@@ -6,7 +6,7 @@ import org.apache.wicket.request.target.coding.HybridUrlCodingStrategy;
 /**
  * Application object for your web application. If you want to run this application without deploying, run the Start class.
  *
- * @see voyager.quads.StartDemo.Start#main(String[])
+ * @see org.apache.solr.spatial.demo.StartDemo#main(String[])
  */
 public class WicketApplication extends WebApplication
 {

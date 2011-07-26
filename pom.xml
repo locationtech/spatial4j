@@ -13,6 +13,7 @@
   <packaging>pom</packaging>  
 
   <properties>
+    <!-- this magic system property is honored by many plugins: http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- TODO do we really buy anything by putting these here instead of in maven-compiler-plugin ? -->
     <maven.compile.source>1.6</maven.compile.source>
@@ -77,14 +78,34 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
         <configuration>
-          <encoding>utf-8</encoding> 
           <source>${maven.compile.source}</source>
           <target>${maven.compile.target}</target>
           <optimize>${maven.compile.optimize}</optimize>
           <showDeprecation>${maven.compile.deprecation}</showDeprecation>
         </configuration>
       </plugin>
-      
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <systemPropertyVariables>
+            <!-- taken from Lucene's pom -->
+            <jetty.testMode>1</jetty.testMode>
+            <tests.verbose>${tests.verbose}</tests.verbose>
+            <tests.codec>${tests.codec}</tests.codec>
+            <tests.directory>${tests.directory}</tests.directory>
+            <tests.iter>${tests.iter}</tests.iter>
+            <tests.locale>${tests.locale}</tests.locale>
+            <tests.luceneMatchVersion>${tests.luceneMatchVersion}</tests.luceneMatchVersion>
+            <tests.multiplier>${tests.multiplier}</tests.multiplier>
+            <tests.nightly>${tests.nightly}</tests.nightly>
+            <tests.seed>${tests.seed}</tests.seed>
+            <tests.timezone>${tests.timezone}</tests.timezone>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
       
       <plugin>
          <!-- Add SVN Revision To A JAR Manifest
@@ -120,7 +141,6 @@
         <version>2.5</version>
         <configuration>
           <linkXRef>true</linkXRef>
-          <sourceEncoding>utf-8</sourceEncoding>
           <minimumTokens>100</minimumTokens>
           <targetJdk>1.6</targetJdk>
           <!--
