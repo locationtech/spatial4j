@@ -71,7 +71,7 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
 
   protected void getAddAndVerifyIndexedDocuments(String testDataFile) throws IOException {
     List<Document> testDocuments = getDocuments(testDataFile);
-    addDocuments(testDocuments);
+    addDocumentsAndCommit(testDocuments);
     verifyDocumentsIndexed(testDocuments.size());
   }
 

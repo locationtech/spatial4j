@@ -56,10 +56,23 @@ public abstract class SpatialTestCase extends LuceneTestCase {
 
   // ================================================= Helper Methods ================================================
 
-  protected void addDocuments(List<Document> documents) throws IOException {
+  protected void addDocument(Document doc) throws IOException {
+    indexWriter.addDocument(doc);
+  }
+
+  protected void addDocumentsAndCommit(List<Document> documents) throws IOException {
     for (Document document : documents) {
       indexWriter.addDocument(document);
     }
+    commit();
+  }
+
+  protected void deleteAllAndCommit() throws IOException {
+    indexWriter.deleteAll();
+    commit();
+  }
+
+  protected void commit() throws IOException {
     indexWriter.commit();
     if (indexReader == null) {
       indexReader = IndexReader.open(directory);

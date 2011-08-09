@@ -56,7 +56,7 @@ public class TermQueryGridStrategyTestCase extends StrategyTestCase<SimpleSpatia
     losAngeles.add(new Field("name", "Los Angeles", Field.Store.YES, Field.Index.NOT_ANALYZED));
     losAngeles.add(strategy.createField(fieldInfo, point, true, true));
 
-    addDocuments(Arrays.asList(losAngeles));
+    addDocumentsAndCommit(Arrays.asList(losAngeles));
 
     // Polygon won't work with SimpleSpatialContext
     SpatialArgsParser spatialArgsParser = new SpatialArgsParser();

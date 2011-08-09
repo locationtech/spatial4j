@@ -34,7 +34,7 @@ public class TestTermQueryGridStrategy extends SpatialTestCase {
     losAngeles.add(new Field("name", "Los Angeles", Field.Store.YES, Field.Index.NOT_ANALYZED));
     losAngeles.add(prefixGridStrategy.createField(fieldInfo, point, true, true));
 
-    addDocuments(Arrays.asList(losAngeles));
+    addDocumentsAndCommit(Arrays.asList(losAngeles));
 
     // This won't work with simple spatial context...
     SpatialArgsParser spatialArgsParser = new SpatialArgsParser();
