@@ -19,6 +19,7 @@ package org.apache.lucene.spatial.base.context;
 
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
+import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.Circle;
 import org.apache.lucene.spatial.base.shape.Rectangle;
@@ -53,20 +54,29 @@ public abstract class SpatialContext {
    */
   public abstract Shape readShape(String value) throws InvalidShapeException;
 
+  public Point readLatCommaLonPoint(String value) throws InvalidShapeException {
+    double[] latLon = DistanceUtils.parseLatitudeLongitude(value);
+    return makePoint(latLon[1],latLon[0]);
+  }
+
   public abstract String toString(Shape shape);
 
   public abstract Point makePoint( double x, double y );
 
   public abstract Rectangle makeRect(double minX, double maxX, double minY, double maxY);
 
+
+  public Circle makeCircle(double x, double y, double distance) {
+    return makeCircle(makePoint(x,y),distance);
+  }
+
   /**
    *
-   * @param x
-   * @param y
+   * @param ctr
    * @param distance The units of "distance" should be the same as {@link #getUnits()}.
    * @return
    */
-  public abstract Circle makeCircle(double x, double y, double distance);
+  public abstract Circle makeCircle(Point ctr, double distance);
 
   /**
    * Get a calculator that will work in this context

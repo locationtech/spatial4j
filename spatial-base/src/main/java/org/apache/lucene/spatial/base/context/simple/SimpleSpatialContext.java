@@ -66,8 +66,8 @@ public class SimpleSpatialContext extends AbstractSpatialContext {
   }
 
   @Override
-  public Circle makeCircle(double x, double y, double distance) {
-    return new HaversineWGS84Circle( makePoint( x, y ), distance, units.earthRadius(), this );
+  public Circle makeCircle(Point point, double distance) {
+    return new HaversineWGS84Circle( point, distance, units.earthRadius(), this );
   }
 
   @Override

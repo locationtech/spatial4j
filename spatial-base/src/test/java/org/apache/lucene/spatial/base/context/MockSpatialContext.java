@@ -37,7 +37,7 @@ public class MockSpatialContext extends SpatialContext {
   }
 
   @Override
-  public Circle makeCircle(double x, double y, double distance) {
+  public Circle makeCircle(Point point, double distance) {
     throw new UnsupportedOperationException("TODO unimplemented");//TODO
   }
 
