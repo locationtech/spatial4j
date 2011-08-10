@@ -20,9 +20,11 @@ package org.apache.lucene.spatial.base.context.simple;
 import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
+import org.apache.lucene.spatial.base.shape.Circle;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.simple.HaversineWGS84Circle;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
 
@@ -61,6 +63,11 @@ public class SimpleSpatialContext extends AbstractSpatialContext {
       return writeRect((Rectangle) shape);
     }
     return shape.toString();
+  }
+
+  @Override
+  public Circle makeCircle(double x, double y, double distance) {
+    return new HaversineWGS84Circle( makePoint( x, y ), distance, units.earthRadius(), this );
   }
 
   @Override

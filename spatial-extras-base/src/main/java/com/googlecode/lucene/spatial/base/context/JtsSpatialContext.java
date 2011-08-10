@@ -30,6 +30,7 @@ import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.*;
+import org.apache.lucene.spatial.base.shape.simple.HaversineWGS84Circle;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -196,6 +197,11 @@ public class JtsSpatialContext extends AbstractSpatialContext {
       return gsf.createCircle();
     }
     throw new InvalidShapeException("can't make Geometry from: " + shape);
+  }
+
+  @Override
+  public Circle makeCircle(double x, double y, double distance) {
+    return new HaversineWGS84Circle( makePoint( x, y ), distance, units.earthRadius(), this );
   }
 
   @Override

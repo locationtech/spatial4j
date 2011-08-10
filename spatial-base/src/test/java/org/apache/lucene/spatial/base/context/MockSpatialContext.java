@@ -1,13 +1,20 @@
 package org.apache.lucene.spatial.base.context;
 
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
+import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
+import org.apache.lucene.spatial.base.shape.Circle;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 
 public class MockSpatialContext extends SpatialContext {
+
+  @Override
+  public DistanceUnits getUnits() {
+    throw new UnsupportedOperationException("TODO unimplemented");//TODO
+  }
 
   @Override
   public Shape readShape(String value) throws InvalidShapeException {
@@ -27,6 +34,11 @@ public class MockSpatialContext extends SpatialContext {
   @Override
   public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
     return null;
+  }
+
+  @Override
+  public Circle makeCircle(double x, double y, double distance) {
+    throw new UnsupportedOperationException("TODO unimplemented");//TODO
   }
 
   @Override

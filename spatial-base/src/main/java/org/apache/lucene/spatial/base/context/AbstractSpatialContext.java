@@ -21,10 +21,8 @@ import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.distance.EuclideanDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.simple.HaversineWGS84Circle;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -74,8 +72,8 @@ public abstract class AbstractSpatialContext extends SpatialContext {
           if( d == null ) {
             throw new InvalidShapeException( "Missing Distance: "+str );
           }
-          Point p = makePoint( x, y );
-          return new HaversineWGS84Circle( p, d, units.earthRadius(), this );
+          //NOTE: we are assuming the units of 'd' is the same as that of the spatial context.
+          return makeCircle(x, y, d);
         }
       }
       return null;
@@ -92,6 +90,7 @@ public abstract class AbstractSpatialContext extends SpatialContext {
     return makePoint(p0, p1);
   }
 
+  @Override
   public DistanceUnits getUnits() {
     return units;
   }
