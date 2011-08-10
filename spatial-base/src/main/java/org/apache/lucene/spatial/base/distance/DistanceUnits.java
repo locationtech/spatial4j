@@ -29,7 +29,7 @@ public enum DistanceUnits {
 
   private static final double MILES_KILOMETRES_RATIO = 1.609344;
 
-  private final String unit;
+  private final String units;
 
   private final double earthCircumference;
 
@@ -38,12 +38,12 @@ public enum DistanceUnits {
   /**
    * Creates a new DistanceUnit that represents the given unit
    *
-   * @param unit Distance unit in String form
+   * @param units Distance unit in String form
    * @param earthRadius Radius of the Earth in the specific distance unit
    * @param earthCircumfence Circumference of the Earth in the specific distance unit
    */
-  DistanceUnits(String unit, double earthRadius, double earthCircumfence) {
-    this.unit = unit;
+  DistanceUnits(String units, double earthRadius, double earthCircumfence) {
+    this.units = units;
     this.earthCircumference = earthCircumfence;
     this.earthRadius = earthRadius;
   }
@@ -56,13 +56,13 @@ public enum DistanceUnits {
    * @throws IllegalArgumentException if no DistanceUnit which represents the given unit is found
    */
   public static DistanceUnits findDistanceUnit(String unit) {
-    if (MILES.getUnit().equalsIgnoreCase(unit) || unit.equalsIgnoreCase("mi")) {
+    if (MILES.getUnits().equalsIgnoreCase(unit) || unit.equalsIgnoreCase("mi")) {
       return MILES;
     }
-    if (KILOMETERS.getUnit().equalsIgnoreCase(unit)) {
+    if (KILOMETERS.getUnits().equalsIgnoreCase(unit)) {
       return KILOMETERS;
     }
-    if (EUCLIDEAN.getUnit().equalsIgnoreCase(unit) || unit.length()==0) {
+    if (EUCLIDEAN.getUnits().equalsIgnoreCase(unit) || unit.length()==0) {
       return EUCLIDEAN;
     }
     throw new IllegalArgumentException("Unknown distance unit " + unit);
@@ -90,8 +90,8 @@ public enum DistanceUnits {
    *
    * @return String representation of the distance unit
    */
-  public String getUnit() {
-    return unit;
+  public String getUnits() {
+    return units;
   }
 
   /**
