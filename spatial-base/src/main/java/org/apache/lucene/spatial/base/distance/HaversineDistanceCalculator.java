@@ -38,6 +38,7 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
 
   @Override
   public double calculate(Point p1, Point p2) {
-    return DistanceUtils.haversine( p1.getX(), p1.getY(), p2.getX(), p2.getY(), radius );
+    return DistanceUtils.haversine( Math.toRadians(p1.getX()), Math.toRadians(p1.getY()),
+        Math.toRadians(p2.getX()), Math.toRadians(p2.getY()), radius );
   }
 }
