@@ -34,7 +34,7 @@ import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.queries.function.FunctionQuery;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
-import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
+import org.apache.lucene.spatial.base.distance.EuclideanDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
@@ -94,7 +94,7 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
 
   @Override
   public ValueSource makeValueSource(SpatialArgs args, TwoDoublesFieldInfo fieldInfo) {
-    DistanceCalculator calc = new EuclidianDistanceCalculator();
+    DistanceCalculator calc = new EuclideanDistanceCalculator();
     return makeValueSource(args, fieldInfo,calc);
   }
 

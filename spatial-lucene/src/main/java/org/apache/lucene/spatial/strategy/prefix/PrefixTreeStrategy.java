@@ -5,7 +5,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
-import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
+import org.apache.lucene.spatial.base.distance.EuclideanDistanceCalculator;
 import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
@@ -112,7 +112,7 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
 
   @Override
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
-    DistanceCalculator calc = new EuclidianDistanceCalculator();
+    DistanceCalculator calc = new EuclideanDistanceCalculator();
     return makeValueSource(args, fieldInfo,calc);
   }
   

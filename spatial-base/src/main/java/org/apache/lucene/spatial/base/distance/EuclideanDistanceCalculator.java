@@ -20,15 +20,15 @@ package org.apache.lucene.spatial.base.distance;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-public class EuclidianDistanceCalculator implements DistanceCalculator {
+public class EuclideanDistanceCalculator implements DistanceCalculator {
 
   private final boolean squared;
 
-  public EuclidianDistanceCalculator() {
+  public EuclideanDistanceCalculator() {
     this.squared = false;
   }
 
-  public EuclidianDistanceCalculator( boolean squared ) {
+  public EuclideanDistanceCalculator(boolean squared) {
     this.squared = squared;
   }
 

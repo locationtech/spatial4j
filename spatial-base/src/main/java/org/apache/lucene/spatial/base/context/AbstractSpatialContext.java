@@ -19,7 +19,7 @@ package org.apache.lucene.spatial.base.context;
 
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
-import org.apache.lucene.spatial.base.distance.EuclidianDistanceCalculator;
+import org.apache.lucene.spatial.base.distance.EuclideanDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
@@ -113,8 +113,8 @@ public abstract class AbstractSpatialContext extends SpatialContext {
   public DistanceCalculator getDistanceCalculator( Class<? extends DistanceCalculator> clazz )
   {
     if( clazz == null ) {
-      return new EuclidianDistanceCalculator();
+      return new EuclideanDistanceCalculator();
     }
-    return null;
+    return null;//TODO a likely bug
   }
 }
