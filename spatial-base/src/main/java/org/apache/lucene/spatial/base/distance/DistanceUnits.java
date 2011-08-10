@@ -24,7 +24,8 @@ package org.apache.lucene.spatial.base.distance;
 public enum DistanceUnits {
 
   MILES("miles", 3959, 24902),
-  KILOMETERS("km", 6371, 40076);
+  KILOMETERS("km", 6371, 40076),
+  EUCLIDEAN("u", -1, -1);//non-spherical -- a plane
 
   private static final double MILES_KILOMETRES_RATIO = 1.609344;
 
@@ -58,11 +59,12 @@ public enum DistanceUnits {
     if (MILES.getUnit().equalsIgnoreCase(unit) || unit.equalsIgnoreCase("mi")) {
       return MILES;
     }
-
     if (KILOMETERS.getUnit().equalsIgnoreCase(unit)) {
       return KILOMETERS;
     }
-
+    if (EUCLIDEAN.getUnit().equalsIgnoreCase(unit) || unit.length()==0) {
+      return EUCLIDEAN;
+    }
     throw new IllegalArgumentException("Unknown distance unit " + unit);
   }
 
@@ -76,6 +78,9 @@ public enum DistanceUnits {
   public double convert(double distance, DistanceUnits from) {
     if (from == this) {
       return distance;
+    }
+    if (this == EUCLIDEAN || from == EUCLIDEAN) {
+      throw new IllegalStateException("Can't convert euclidean distances: "+from+" -> "+this);
     }
     return (this == MILES) ? distance / MILES_KILOMETRES_RATIO : distance * MILES_KILOMETRES_RATIO;
   }
