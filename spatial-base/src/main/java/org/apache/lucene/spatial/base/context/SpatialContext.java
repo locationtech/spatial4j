@@ -18,7 +18,9 @@
 package org.apache.lucene.spatial.base.context;
 
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
+import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
+import org.apache.lucene.spatial.base.shape.Circle;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -32,6 +34,8 @@ import org.apache.lucene.spatial.base.shape.Shape;
 public abstract class SpatialContext {
 
   private final Rectangle worldBoundsWGS84 = makeRect(-180, 180, -90, 90);
+
+  public abstract DistanceUnits getUnits();
 
   /**
    * Read a shape from a given string (ie, X Y, XMin XMax... WKT)
@@ -54,6 +58,15 @@ public abstract class SpatialContext {
   public abstract Point makePoint( double x, double y );
 
   public abstract Rectangle makeRect(double minX, double maxX, double minY, double maxY);
+
+  /**
+   *
+   * @param x
+   * @param y
+   * @param distance The units of "distance" should be the same as {@link #getUnits()}.
+   * @return
+   */
+  public abstract Circle makeCircle(double x, double y, double distance);
 
   /**
    * Get a calculator that will work in this context
