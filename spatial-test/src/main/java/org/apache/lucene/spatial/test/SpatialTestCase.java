@@ -67,9 +67,8 @@ public abstract class SpatialTestCase extends LuceneTestCase {
     commit();
   }
 
-  protected void deleteAllAndCommit() throws IOException {
+  protected void deleteAll() throws IOException {
     indexWriter.deleteAll();
-    commit();
   }
 
   protected void commit() throws IOException {
