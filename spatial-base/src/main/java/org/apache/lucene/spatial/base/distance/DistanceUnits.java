@@ -25,6 +25,7 @@ public enum DistanceUnits {
 
   MILES("miles", 3959, 24902),
   KILOMETERS("km", 6371, 40076),
+  //TODO add RADIANS ?
   EUCLIDEAN("u", -1, -1);//non-spherical -- a plane
 
   private static final double MILES_KILOMETRES_RATIO = 1.609344;

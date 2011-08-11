@@ -18,9 +18,8 @@
 package org.apache.lucene.spatial.base.distance;
 
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.Shape;
 
-public class HaversineDistanceCalculator implements DistanceCalculator {
+public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
 
   final double radius;
 
@@ -29,16 +28,8 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
   }
 
   @Override
-  public double calculate(Point from, Shape shape) {
-    if (Point.class.isInstance(shape)) {
-      return calculate(from, (Point)shape);
-    }
-    throw new UnsupportedOperationException( "Distance to shape is not yet supported" );
-  }
-
-  @Override
-  public double calculate(Point p1, Point p2) {
+  public double calculate(Point p1, double toX, double toY) {
     return DistanceUtils.haversine( Math.toRadians(p1.getX()), Math.toRadians(p1.getY()),
-        Math.toRadians(p2.getX()), Math.toRadians(p2.getY()), radius );
+        Math.toRadians(toX), Math.toRadians(toY), radius );
   }
 }

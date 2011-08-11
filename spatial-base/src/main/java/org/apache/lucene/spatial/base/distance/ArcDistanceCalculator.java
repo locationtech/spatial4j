@@ -18,10 +18,9 @@
 package org.apache.lucene.spatial.base.distance;
 
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.Shape;
 
 
-public class ArcDistanceCalculator implements DistanceCalculator {
+public class ArcDistanceCalculator extends AbstractDistanceCalculator {
   final DistanceUnits units;
 
   public ArcDistanceCalculator( DistanceUnits units ) {
@@ -29,17 +28,7 @@ public class ArcDistanceCalculator implements DistanceCalculator {
   }
 
   @Override
-  public double calculate(Point from, Shape shape) {
-    if (Point.class.isInstance(shape)) {
-      return calculate(from, (Point)shape);
-    }
-    throw new UnsupportedOperationException( "Distance to shape is not yet supported" );
-  }
-
-  @Override
-  public double calculate(Point from, Point point) {
-    LatLng p1 = new LatLng( from.getY(), from.getX() );
-    LatLng p2 = new LatLng( point.getY(), point.getX() );
-    return p1.arcDistance( p2, units );
+  public double calculate(Point from, double toX, double toY) {
+    return DistanceUtils.arcDistance(units,from.getX(),from.getY(),toX,toY);
   }
 }

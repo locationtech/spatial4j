@@ -53,18 +53,6 @@ public class DistanceUtils {
   public static final double EARTH_EQUATORIAL_RADIUS_MI = 3963.205;
   public static final double EARTH_EQUATORIAL_RADIUS_KM = EARTH_EQUATORIAL_RADIUS_MI * MILES_TO_KM;
 
-
-  public static double getDistanceMi(double x1, double y1, double x2, double y2) {
-    return getLLMDistance(x1, y1, x2, y2);
-  }
-
-  public static double getLLMDistance (double x1, double y1, double x2, double y2) {
-
-    LatLng p1 = new LatLng( x1, y1 );
-    LatLng p2 = new LatLng( x2, y2 );
-    return p1.arcDistance( p2, DistanceUnits.MILES );
-  }
-
   /**
    * distance/radius.
    * @param distance The distance travelled
@@ -323,7 +311,7 @@ public class DistanceUtils {
    * @param externalVal The value to parse
    * @param dimension   The expected number of values for the point
    * @return An array of the values that make up the point (aka vector)
-   * @throws org.apache.lucene.spatial.tier.InvalidShapeException if the dimension specified does not match the number of values in the externalValue.
+   * @throws InvalidShapeException if the dimension specified does not match the number of values in the externalValue.
    */
   public static String[] parsePoint(String[] out, String externalVal, int dimension) throws InvalidShapeException {
     //TODO: Should we support sparse vectors?
@@ -441,5 +429,43 @@ public class DistanceUtils {
     latLon[1] = toks[1];
 
     return latLon;
+  }
+
+  /**
+   * (MIGRATED FROM org.apache.lucene.spatial.geometry.LatLng.arcDistance())
+   * Calculates the distance between two lat/lng's in miles or meters.
+   * Imported from mq java client.  Variable references changed to match.
+   *
+   * @return Returns the distance in meters or miles, according to lUnits param.
+   */
+  public static double arcDistance(DistanceUnits lUnits, double lat1, double lng1, double lat2, double lng2) {
+    // Check for same position
+    if (lat1 == lat2 && lng1 == lng2)
+      return 0.0;
+
+    // Get the m_dLongitude difference. Don't need to worry about
+    // crossing 180 since cos(x) = cos(-x)
+    double dLon = lng2 - lng1;
+
+    double a = radians(90.0 - lat1);
+    double c = radians(90.0 - lat2);
+    double cosB = (Math.cos(a) * Math.cos(c))
+        + (Math.sin(a) * Math.sin(c) * Math.cos(radians(dLon)));
+
+    double radius = (lUnits == DistanceUnits.MILES) ? 3963.205/* MILERADIUSOFEARTH */
+        : 6378.160187/* KMRADIUSOFEARTH */;
+
+    // Find angle subtended (with some bounds checking) in radians and
+    // multiply by earth radius to find the arc distance
+    if (cosB < -1.0)
+      return 3.14159265358979323846/* PI */* radius;
+    else if (cosB >= 1.0)
+      return 0;
+    else
+      return Math.acos(cosB) * radius;
+  }
+
+  static double radians(double a) {
+    return a * 0.01745329251994;
   }
 }

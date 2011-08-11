@@ -18,9 +18,8 @@
 package org.apache.lucene.spatial.base.distance;
 
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.Shape;
 
-public class EuclideanDistanceCalculator implements DistanceCalculator {
+public class EuclideanDistanceCalculator extends AbstractDistanceCalculator {
 
   private final boolean squared;
 
@@ -36,21 +35,13 @@ public class EuclideanDistanceCalculator implements DistanceCalculator {
   //--------------------------------------------------------
 
   @Override
-  public double calculate(Point from, Shape shape) {
-    if (Point.class.isInstance(shape)) {
-      return calculate(from, (Point)shape);
-    }
-    throw new UnsupportedOperationException( "Distance to shape is not yet supported" );
-  }
-
-  @Override
-  public double calculate(Point from, Point point) {
+  public double calculate(Point from, double toX, double toY) {
     double result = 0;
 
-    double v = from.getX() - point.getX();
+    double v = from.getX() - toX;
     result += (v * v);
 
-    v = from.getY() - point.getY();
+    v = from.getY() - toY;
     result += (v * v);
 
     if( squared )
