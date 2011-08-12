@@ -173,7 +173,6 @@ public class DistanceUtils {
    * @param upperRight If true, give lat/lon for the upper right corner, else lower left
    * @param sphereRadius     The radius to use for the calculation
    * @return The Lat/Lon in Radians
-
    */
   public static double[] latLonCorner(double latCenter, double lonCenter,
                                       double distance, double [] result, boolean upperRight, double sphereRadius) {
@@ -203,11 +202,12 @@ public class DistanceUtils {
     double cosAngDist = Math.cos(distance / sphereRadius);
     double cosStartLat = Math.cos(startLat);
     double sinAngDist = Math.sin(distance / sphereRadius);
-    double lat2 = Math.asin(Math.sin(startLat) * cosAngDist +
+    double sinStartLat = Math.sin(startLat);
+    double lat2 = Math.asin(sinStartLat * cosAngDist +
             cosStartLat * sinAngDist * Math.cos(bearing));
 
     double lon2 = startLon + Math.atan2(Math.sin(bearing) * sinAngDist * cosStartLat,
-            cosAngDist - Math.sin(startLat) * Math.sin(lat2));
+            cosAngDist - sinStartLat * Math.sin(lat2));
 
     /*lat2 = (lat2*180)/Math.PI;
     lon2 = (lon2*180)/Math.PI;*/

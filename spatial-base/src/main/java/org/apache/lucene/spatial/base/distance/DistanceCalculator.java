@@ -17,10 +17,18 @@
 
 package org.apache.lucene.spatial.base.distance;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 
 public interface DistanceCalculator {
+
   //public double calculate(Point from, Shape shape); //TODO reconsider
-  public double calculate(Point from, Point point);
+
+  public double calculate(Point from, Point to);
   public double calculate(Point from, double toX, double toY);
+
+  //public Point pointOnBearing(Point from, double angle);
+
+  public Rectangle (Point from, double distance, SpatialContext ctx);
 }

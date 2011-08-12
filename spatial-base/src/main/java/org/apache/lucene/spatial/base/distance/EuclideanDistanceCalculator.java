@@ -17,7 +17,9 @@
 
 package org.apache.lucene.spatial.base.distance;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 
 public class EuclideanDistanceCalculator extends AbstractDistanceCalculator {
 
@@ -49,4 +51,10 @@ public class EuclideanDistanceCalculator extends AbstractDistanceCalculator {
 
     return Math.sqrt(result);
   }
+
+  @Override
+  public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
+    return ctx.makeRect(from.getX()-distance,from.getX()+distance,from.getY()-distance,from.getY()+distance);
+  }
+
 }
