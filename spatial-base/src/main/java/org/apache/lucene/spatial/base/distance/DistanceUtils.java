@@ -39,19 +39,18 @@ public class DistanceUtils {
 
 
   public static final double KM_TO_MILES = 0.621371192;
-  public static final double MILES_TO_KM = 1.609344;
+  public static final double MILES_TO_KM = 1 / KM_TO_MILES;//1.609
 
   /**
    * The International Union of Geodesy and Geophysics says the Earth's mean radius in KM is:
    *
    * [1] http://en.wikipedia.org/wiki/Earth_radius
    */
-  public static final double EARTH_MEAN_RADIUS_KM = 6371.009;
+  public static final double EARTH_MEAN_RADIUS_KM = 6371.0087714;
+  public static final double EARTH_MEAN_RADIUS_MI = EARTH_MEAN_RADIUS_KM * KM_TO_MILES;
 
-  public static final double EARTH_MEAN_RADIUS_MI = EARTH_MEAN_RADIUS_KM / MILES_TO_KM;
-
-  public static final double EARTH_EQUATORIAL_RADIUS_MI = 3963.205;
-  public static final double EARTH_EQUATORIAL_RADIUS_KM = EARTH_EQUATORIAL_RADIUS_MI * MILES_TO_KM;
+  //public static final double EARTH_EQUATORIAL_RADIUS_MI = 3963.205;
+  //public static final double EARTH_EQUATORIAL_RADIUS_KM = EARTH_EQUATORIAL_RADIUS_MI * MILES_TO_KM;
 
   /**
    * distance/radius.
@@ -304,6 +303,44 @@ public class DistanceUtils {
   }
 
   /**
+   * (MIGRATED FROM org.apache.lucene.spatial.geometry.LatLng.arcDistance())
+   * Calculates the distance between two lat/lng's in miles or meters.
+   * Imported from mq java client.  Variable references changed to match.
+   *
+   * @return Returns the distance in meters or miles, according to lUnits param.
+   */
+  public static double arcDistance(DistanceUnits lUnits, double lat1, double lng1, double lat2, double lng2) {
+    // Check for same position
+    if (lat1 == lat2 && lng1 == lng2)
+      return 0.0;
+
+    // Get the m_dLongitude difference. Don't need to worry about
+    // crossing 180 since cos(x) = cos(-x)
+    double dLon = lng2 - lng1;
+
+    double a = radians(90.0 - lat1);
+    double c = radians(90.0 - lat2);
+    double cosB = (Math.cos(a) * Math.cos(c))
+        + (Math.sin(a) * Math.sin(c) * Math.cos(radians(dLon)));
+
+    double radius = (lUnits == DistanceUnits.MILES) ? 3963.205/* MILERADIUSOFEARTH */
+        : 6378.160187/* KMRADIUSOFEARTH */;
+
+    // Find angle subtended (with some bounds checking) in radians and
+    // multiply by earth radius to find the arc distance
+    if (cosB < -1.0)
+      return 3.14159265358979323846/* PI */* radius;
+    else if (cosB >= 1.0)
+      return 0;
+    else
+      return Math.acos(cosB) * radius;
+  }
+
+  static double radians(double a) {
+    return a * 0.01745329251994;
+  }
+
+  /**
    * Given a string containing <i>dimension</i> values encoded in it, separated by commas, return a String array of length <i>dimension</i>
    * containing the values.
    *
@@ -431,41 +468,4 @@ public class DistanceUtils {
     return latLon;
   }
 
-  /**
-   * (MIGRATED FROM org.apache.lucene.spatial.geometry.LatLng.arcDistance())
-   * Calculates the distance between two lat/lng's in miles or meters.
-   * Imported from mq java client.  Variable references changed to match.
-   *
-   * @return Returns the distance in meters or miles, according to lUnits param.
-   */
-  public static double arcDistance(DistanceUnits lUnits, double lat1, double lng1, double lat2, double lng2) {
-    // Check for same position
-    if (lat1 == lat2 && lng1 == lng2)
-      return 0.0;
-
-    // Get the m_dLongitude difference. Don't need to worry about
-    // crossing 180 since cos(x) = cos(-x)
-    double dLon = lng2 - lng1;
-
-    double a = radians(90.0 - lat1);
-    double c = radians(90.0 - lat2);
-    double cosB = (Math.cos(a) * Math.cos(c))
-        + (Math.sin(a) * Math.sin(c) * Math.cos(radians(dLon)));
-
-    double radius = (lUnits == DistanceUnits.MILES) ? 3963.205/* MILERADIUSOFEARTH */
-        : 6378.160187/* KMRADIUSOFEARTH */;
-
-    // Find angle subtended (with some bounds checking) in radians and
-    // multiply by earth radius to find the arc distance
-    if (cosB < -1.0)
-      return 3.14159265358979323846/* PI */* radius;
-    else if (cosB >= 1.0)
-      return 0;
-    else
-      return Math.acos(cosB) * radius;
-  }
-
-  static double radians(double a) {
-    return a * 0.01745329251994;
-  }
 }

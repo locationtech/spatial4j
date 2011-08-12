@@ -23,12 +23,12 @@ package org.apache.lucene.spatial.base.distance;
  */
 public enum DistanceUnits {
 
-  MILES("miles", 3959, 24902),
-  KILOMETERS("km", 6371, 40076),
+  //TODO do we need circumference?
+  KILOMETERS("km", DistanceUtils.EARTH_MEAN_RADIUS_KM, 40076),
+  MILES("miles", DistanceUtils.EARTH_MEAN_RADIUS_MI, 24902),
   //TODO add RADIANS ?
-  EUCLIDEAN("u", -1, -1);//non-spherical -- a plane
+  EUCLIDEAN("u", -1, -1);
 
-  private static final double MILES_KILOMETRES_RATIO = 1.609344;
 
   private final String units;
 
@@ -83,7 +83,7 @@ public enum DistanceUnits {
     if (this == EUCLIDEAN || from == EUCLIDEAN) {
       throw new IllegalStateException("Can't convert euclidean distances: "+from+" -> "+this);
     }
-    return (this == MILES) ? distance / MILES_KILOMETRES_RATIO : distance * MILES_KILOMETRES_RATIO;
+    return (this == MILES) ? distance * DistanceUtils.KM_TO_MILES : distance * DistanceUtils.MILES_TO_KM;
   }
 
   /**
