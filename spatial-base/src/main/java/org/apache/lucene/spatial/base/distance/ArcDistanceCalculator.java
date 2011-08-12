@@ -17,12 +17,10 @@
 
 package org.apache.lucene.spatial.base.distance;
 
-import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.Rectangle;
 
 //TODO determine how this compares to HaversineDistance, and potentially delete if not useful
-public class ArcDistanceCalculator extends AbstractDistanceCalculator {
+public abstract class ArcDistanceCalculator extends AbstractDistanceCalculator {
   final DistanceUnits units;
 
   public ArcDistanceCalculator( DistanceUnits units ) {
@@ -34,8 +32,4 @@ public class ArcDistanceCalculator extends AbstractDistanceCalculator {
     return DistanceUtils.arcDistance(units,from.getX(),from.getY(),toX,toY);
   }
 
-  @Override
-  public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
-    throw new UnsupportedOperationException("TODO unimplemented");//TODO
-  }
 }

@@ -30,5 +30,5 @@ public interface DistanceCalculator {
 
   //public Point pointOnBearing(Point from, double angle);
 
-  public Rectangle (Point from, double distance, SpatialContext ctx);
+  public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx);
 }
