@@ -323,13 +323,12 @@ public class DistanceUtils {
     double cosB = (Math.cos(a) * Math.cos(c))
         + (Math.sin(a) * Math.sin(c) * Math.cos(radians(dLon)));
 
-    double radius = (lUnits == DistanceUnits.MILES) ? 3963.205/* MILERADIUSOFEARTH */
-        : 6378.160187/* KMRADIUSOFEARTH */;
+    double radius = lUnits.earthRadius();
 
     // Find angle subtended (with some bounds checking) in radians and
     // multiply by earth radius to find the arc distance
     if (cosB < -1.0)
-      return 3.14159265358979323846/* PI */* radius;
+      return Math.PI * radius;
     else if (cosB >= 1.0)
       return 0;
     else
@@ -337,7 +336,7 @@ public class DistanceUtils {
   }
 
   static double radians(double a) {
-    return a * 0.01745329251994;
+    return a * DEGREES_TO_RADIANS;
   }
 
   /**
