@@ -61,7 +61,7 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
     final double _b = cosStartLat * sinAngDist;
 
     boolean touchesNorthPole = startLat + angDistance >= DEG_90_AS_RADS;
-    boolean touchesSouthPole = startLat - angDistance <= DEG_180_AS_RADS;
+    boolean touchesSouthPole = startLat - angDistance <= -DEG_90_AS_RADS;
 
     if (touchesNorthPole) {
       double latS = Math.asin(_a - _b);//reduced form given that cos(PI) == -1 (south)
@@ -84,9 +84,9 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
 
   private double normLonDeg(double lon_deg) {
     if (lon_deg < -180)
-      lon_deg += 180;
+      lon_deg += 360;
     else if (lon_deg > 180)
-      lon_deg -= 180;
+      lon_deg -= 360;
     return lon_deg;
   }
 }
