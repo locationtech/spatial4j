@@ -4,6 +4,7 @@ import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import java.util.ArrayList;
@@ -17,6 +18,9 @@ public class GeohashPrefixTree extends SpatialPrefixTree {
 
   public GeohashPrefixTree(SpatialContext ctx, int maxLevels) {
     super(ctx, maxLevels);
+    Rectangle bounds = ctx.getWorldBounds();
+    if (bounds == null || bounds.getMinX() != -180)
+      throw new IllegalArgumentException("Geohash only supports lat-lon world bounds. Got "+bounds);
     int MAXP = getMaxLevelsPossible();
     if (maxLevels <= 0 || maxLevels > MAXP)
       throw new IllegalArgumentException("maxLen must be [1-"+MAXP+"] but got "+ maxLevels);
