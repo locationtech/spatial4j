@@ -21,26 +21,31 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.apache.lucene.spatial.base.shape.Circle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 /**
- * An ellipse-like geometry based on the haversine formula with a supplied earth radius.
+ * A circle, otherwise known as a point-radius, which is based on a
+ * {@link org.apache.lucene.spatial.base.distance.DistanceCalculator} which does all the work. This implementation
+ * should work for both Euclidean 2D and Haversine/WGS84 surfaces.
+ * Threadsafe & immutable.
  */
 public final class HaversineWGS84Circle implements Circle {
   private final Point point;
   private final double distance;
-  private final double radius;
 
+  private final SpatialContext ctx;//TODO store the distance-calculator instead?
+  
   private final Rectangle enclosingBox;//calculated & cached
 
-  public HaversineWGS84Circle(Point p, double dist, double radius, SpatialContext ctx) {
+  public HaversineWGS84Circle(Point p, double dist, SpatialContext ctx) {
+    if (!ctx.isGeo())
+      throw new IllegalArgumentException("Expecting geo SpatialContext but didn't get one: "+ctx);
     this.point = p;
     this.distance = dist;
-    this.radius = radius;
+    this.ctx = ctx;
     this.enclosingBox = calcEnclosingBox(ctx);
   }
 
@@ -53,64 +58,13 @@ public final class HaversineWGS84Circle implements Circle {
     return distance;
   }
 
-  public double getRadius() {
-    return radius;
-  }
-
   private Rectangle calcEnclosingBox(SpatialContext ctx) {
-    //!! code copied from LatLonType.createSpatialQuery(); this should be consolidated
-    final int LAT = 0;
-    final int LONG = 1;
-
-    double[] point = new double[]{this.point.getY(),this.point.getX()};
-    point[0] = point[0] * DistanceUtils.DEGREES_TO_RADIANS;
-    point[1] = point[1] * DistanceUtils.DEGREES_TO_RADIANS;
-    double[] tmp = new double[2];
-    //these calculations aren't totally accurate, but it should be good enough
-    //TODO: Optimize to do in single calculations.  Would need to deal with poles, prime meridian, etc.
-    double [] north = DistanceUtils.pointOnBearing(point[LAT], point[LONG], distance, 0, tmp, radius);
-    //This returns the point as radians, but we need degrees b/c that is what the field is stored as
-    double ur_lat = north[LAT] * DistanceUtils.RADIANS_TO_DEGREES;//get it now, as we are going to reuse tmp
-    double [] east = DistanceUtils.pointOnBearing(point[LAT], point[LONG], distance, DistanceUtils.DEG_90_AS_RADS, tmp, radius);
-    double ur_lon = east[LONG] * DistanceUtils.RADIANS_TO_DEGREES;
-    double [] south = DistanceUtils.pointOnBearing(point[LAT], point[LONG], distance, DistanceUtils.DEG_180_AS_RADS, tmp, radius);
-    double ll_lat = south[LAT] * DistanceUtils.RADIANS_TO_DEGREES;
-    double [] west = DistanceUtils.pointOnBearing(point[LAT], point[LONG], distance, DistanceUtils.DEG_270_AS_RADS, tmp, radius);
-    double ll_lon = west[LONG] * DistanceUtils.RADIANS_TO_DEGREES;
-
-    //TODO: can we reuse our bearing calculations?
-    double angDist = DistanceUtils.angularDistance(distance, radius);//in radians
-
-    // for the poles, do something slightly different - a polar "cap".
-    // Also, note point[LAT] is in radians, but ur and ll are in degrees
-    if (point[LAT] + angDist > DistanceUtils.DEG_90_AS_RADS) { // we cross the north pole
-      ll_lat = Math.min(ll_lat, ur_lat);
-      ur_lat = 90;
-      ll_lon = -180;
-      ur_lon = 180;
-    } else if (point[LAT] - angDist < -DistanceUtils.DEG_90_AS_RADS) { // we cross the south pole
-      ur_lat = Math.max(ll_lat, ur_lat);
-      ll_lat = -90;
-      ll_lon = -180;
-      ur_lon = 180;
-    }
-
-    //(end of code from LatLonType.createSpatialQuery())
-    //if (ll_lon <= ur_lon) {
-    return ctx.makeRect(ll_lon, ur_lon, ll_lat, ur_lat);
-//    } else {
-//      enclosingBox1 = ctx.makeRect(Math.max(ll_lon,ur_lon),180,ll_lat,ur_lat);
-//      enclosingBox2 = ctx.makeRect(-180,Math.min(ll_lon,ur_lon),ll_lat,ur_lat);
-//    }
+    assert this.ctx == ctx;
+    return ctx.getDistanceCalculator().calcBoxByDistFromPt(getCenter(), distance, ctx);
   }
 
   public boolean contains(double x, double y) {
-    return calcDistance(x, y) <= distance;
-  }
-
-  private double calcDistance(double x, double y) {
-    return DistanceUtils.haversine(Math.toRadians(point.getY()), Math.toRadians(point.getX()),
-        Math.toRadians(y), Math.toRadians(x), radius);
+    return ctx.getDistanceCalculator().calculate(point, x, y) <= distance;
   }
 
   @Override
@@ -118,6 +72,10 @@ public final class HaversineWGS84Circle implements Circle {
     return distance > 0;
   }
 
+  /**
+   * Note that the bounding box might contain a minX that is > maxX, due to WGS84 dateline.
+   * @return
+   */
   @Override
   public Rectangle getBoundingBox() {
     return enclosingBox;
@@ -135,6 +93,7 @@ public final class HaversineWGS84Circle implements Circle {
     }
 
     if (other instanceof Rectangle) {
+      //TODO DWS: update this algorithm to be much faster
       //do quick check against bounding box for OUTSIDE
       if (enclosingBox.intersect(other,context) == IntersectCase.OUTSIDE) {
 //      if (enclosingBox2 == null || enclosingBox2.intersect(other,context) == IntersectCase.OUTSIDE)
@@ -154,7 +113,7 @@ public final class HaversineWGS84Circle implements Circle {
 
     if (other instanceof Circle) {
       Circle circle = (Circle)other;
-      double crossDist = calcDistance(circle.getCenter().getX(), circle.getCenter().getY());
+      double crossDist = ctx.getDistanceCalculator().calculate(point, circle.getCenter());
       double aDist = distance, bDist = circle.getDistance();
       if (crossDist > aDist + bDist)
         return IntersectCase.OUTSIDE;
@@ -173,7 +132,8 @@ public final class HaversineWGS84Circle implements Circle {
 
   @Override
   public String toString() {
-    return "Circle(" + point + ",dist=" + distance + ')';
+    //I'm deliberately making this look basic and not fully detailed with class name & misc fields.
+    return "Circle(" + point + ",d=" + distance + ')';
   }
 
 
@@ -189,7 +149,7 @@ public final class HaversineWGS84Circle implements Circle {
                   .appendSuper(super.equals(obj))
                   .append(point, rhs.point)
                   .append(distance, rhs.distance)
-                  .append(radius, rhs.radius)
+                  .append(ctx, rhs.ctx)
                   .isEquals();
   }
 
@@ -198,7 +158,7 @@ public final class HaversineWGS84Circle implements Circle {
     return new HashCodeBuilder(11, 97).
       append(point).
       append(distance).
-      append(radius).
+      append(ctx).
       toHashCode();
   }
 }
