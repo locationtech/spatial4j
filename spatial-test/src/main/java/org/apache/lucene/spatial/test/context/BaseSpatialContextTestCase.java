@@ -1,7 +1,6 @@
 package org.apache.lucene.spatial.test.context;
 
 import org.apache.lucene.spatial.base.IntersectCase;
-import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
@@ -26,7 +25,7 @@ import static org.junit.Assert.fail;
  */
 public abstract class BaseSpatialContextTestCase {
 
-  protected abstract AbstractSpatialContext getSpatialContext();
+  protected abstract SpatialContext getSpatialContext();
 
   public static void checkArgParser(SpatialContext ctx) {
     SpatialArgsParser parser = new SpatialArgsParser();
@@ -79,7 +78,7 @@ public abstract class BaseSpatialContextTestCase {
   };
 
 
-  public static void checkBasicShapeIO( AbstractSpatialContext ctx, WriteReader help ) throws Exception {
+  public static void checkBasicShapeIO( SpatialContext ctx, WriteReader help ) throws Exception {
 
     // Simple Point
     Shape s = ctx.readShape("10 20");
@@ -164,7 +163,7 @@ public abstract class BaseSpatialContextTestCase {
 
   @Test
   public void testSimpleShapeIO() throws Exception {
-    final AbstractSpatialContext io =  getSpatialContext();
+    final SpatialContext io =  getSpatialContext();
     checkBasicShapeIO( io, new WriteReader() {
       @Override
       public Shape writeThenRead(Shape s) {

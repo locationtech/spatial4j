@@ -26,10 +26,14 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
-import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
+import org.apache.lucene.spatial.base.distance.EuclideanDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-import org.apache.lucene.spatial.base.shape.*;
+import org.apache.lucene.spatial.base.shape.Circle;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Rectangle;
+import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.HaversineWGS84Circle;
 
 import java.io.IOException;
@@ -37,7 +41,7 @@ import java.nio.ByteBuffer;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class JtsSpatialContext extends AbstractSpatialContext {
+public class JtsSpatialContext extends SpatialContext {
 
   private static final byte TYPE_POINT = 0;
   private static final byte TYPE_BBOX = 1;
@@ -46,15 +50,15 @@ public class JtsSpatialContext extends AbstractSpatialContext {
   public GeometryFactory factory;
 
   public JtsSpatialContext() {
-    this( new GeometryFactory(), DistanceUnits.KILOMETERS );
+    this( new GeometryFactory(), null, null );
   }
 
   public JtsSpatialContext( DistanceUnits units ) {
-    this( new GeometryFactory(), units );
+    this( new GeometryFactory(), units, null);
   }
 
-  public JtsSpatialContext(GeometryFactory f, DistanceUnits units) {
-    super( units );
+  public JtsSpatialContext(GeometryFactory f, DistanceUnits units, EuclideanDistanceCalculator calculator) {
+    super( units, calculator);
     factory = f;
   }
 
@@ -201,7 +205,7 @@ public class JtsSpatialContext extends AbstractSpatialContext {
 
   @Override
   public Circle makeCircle(Point point, double distance) {
-    return new HaversineWGS84Circle( point, distance, units.earthRadius(), this );
+    return new HaversineWGS84Circle( point, distance, this );
   }
 
   @Override

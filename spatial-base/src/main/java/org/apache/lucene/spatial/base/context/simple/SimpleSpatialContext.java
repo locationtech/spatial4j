@@ -17,12 +17,13 @@
 
 package org.apache.lucene.spatial.base.context.simple;
 
-import org.apache.lucene.spatial.base.context.AbstractSpatialContext;
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.Circle;
-import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.HaversineWGS84Circle;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
@@ -31,14 +32,18 @@ import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class SimpleSpatialContext extends AbstractSpatialContext {
-
-  public SimpleSpatialContext(DistanceUnits units) {
-    super(units);
-  }
+public class SimpleSpatialContext extends SpatialContext {
 
   public SimpleSpatialContext() {
-    super( DistanceUnits.KILOMETERS );
+    this(null);
+  }
+
+  public SimpleSpatialContext(DistanceUnits units) {
+    this(units, null);
+  }
+
+  public SimpleSpatialContext(DistanceUnits units, DistanceCalculator calculator) {
+    super(units, calculator);
   }
 
   @Override
@@ -67,7 +72,7 @@ public class SimpleSpatialContext extends AbstractSpatialContext {
 
   @Override
   public Circle makeCircle(Point point, double distance) {
-    return new HaversineWGS84Circle( point, distance, units.earthRadius(), this );
+    return new HaversineWGS84Circle( point, distance, this );
   }
 
   @Override
