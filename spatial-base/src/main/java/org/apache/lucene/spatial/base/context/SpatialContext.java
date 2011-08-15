@@ -17,10 +17,7 @@
 
 package org.apache.lucene.spatial.base.context;
 
-import org.apache.lucene.spatial.base.distance.DistanceCalculator;
-import org.apache.lucene.spatial.base.distance.DistanceUnits;
-import org.apache.lucene.spatial.base.distance.DistanceUtils;
-import org.apache.lucene.spatial.base.distance.HaversineDistanceCalculator;
+import org.apache.lucene.spatial.base.distance.*;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.Circle;
 import org.apache.lucene.spatial.base.shape.Point;
@@ -52,7 +49,10 @@ public abstract class SpatialContext {
       units = DistanceUnits.KILOMETERS;
     }
     if (calculator == null) {
-      calculator = new HaversineDistanceCalculator(units.earthRadius());
+      if (units == DistanceUnits.EUCLIDEAN)
+        calculator = new EuclideanDistanceCalculator();
+      else
+        calculator = new HaversineDistanceCalculator(units.earthRadius());
     }
     this.units = units;
     this.calculator = calculator;
