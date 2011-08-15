@@ -30,6 +30,7 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
   protected double distErrPct = SpatialArgs.DEFAULT_DIST_PRECISION;
 
   public PrefixTreeStrategy(SpatialPrefixTree grid) {
+    super(grid.getSpatialContext());
     this.grid = grid;
   }
 

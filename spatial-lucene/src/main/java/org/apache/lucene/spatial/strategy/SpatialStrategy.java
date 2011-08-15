@@ -4,6 +4,7 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.queries.function.ValueSource;
+import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -13,6 +14,15 @@ import org.apache.lucene.spatial.base.shape.Shape;
 public abstract class SpatialStrategy<T extends SpatialFieldInfo> {
 
   protected boolean ignoreIncompatibleGeometry = false;
+  protected final SpatialContext ctx;
+
+  public SpatialStrategy(SpatialContext ctx) {
+    this.ctx = ctx;
+  }
+
+  public SpatialContext getSpatialContext() {
+    return ctx;
+  }
 
   public boolean isPolyField() {
     return false;

@@ -54,10 +54,9 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
 
   private final TrieFieldInfo finfo;
   private final DoubleParser parser;
-  private final SpatialContext ctx;
 
   public TwoDoublesStrategy(SpatialContext ctx, TrieFieldInfo finfo, DoubleParser parser) {
-    this.ctx = ctx;
+    super(ctx);
     this.finfo = finfo;
     this.parser = parser;
   }
