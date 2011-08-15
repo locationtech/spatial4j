@@ -10,7 +10,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.Shapes;
 import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
-import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
+import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
 import org.apache.lucene.spatial.test.context.BaseSpatialContextTestCase;
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ public class JtsSpatialContextTestCase extends BaseSpatialContextTestCase {
     checkShapesImplementEquals( new Class[] {
       PointImpl.class,
       CircleImpl.class,
-      RectangeImpl.class,
+      RectangleImpl.class,
       Shapes.class,
       JtsEnvelope.class,
       JtsPoint.class,

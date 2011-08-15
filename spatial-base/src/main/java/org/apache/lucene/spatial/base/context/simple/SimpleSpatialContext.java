@@ -27,7 +27,7 @@ import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
-import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
+import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -77,7 +77,7 @@ public class SimpleSpatialContext extends SpatialContext {
 
   @Override
   public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
-    return new RectangeImpl( minX, maxX, minY, maxY );
+    return new RectangleImpl( minX, maxX, minY, maxY );
   }
 
   @Override

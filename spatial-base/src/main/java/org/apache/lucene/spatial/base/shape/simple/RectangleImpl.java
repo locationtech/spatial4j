@@ -29,14 +29,14 @@ import org.apache.lucene.spatial.base.shape.*;
  * it is world coordinates that cross the date line using degrees.
  * Immutable & threadsafe.
  */
-public class RectangeImpl implements Rectangle {
+public class RectangleImpl implements Rectangle {
 
   private final double minX;
   private final double maxX;
   private final double minY;
   private final double maxY;
 
-  public RectangeImpl(double minX, double maxX, double minY, double maxY) {
+  public RectangleImpl(double minX, double maxX, double minY, double maxY) {
     this.minX = minX;
     this.maxX = maxX;
     this.minY = minY;
@@ -167,7 +167,7 @@ public class RectangeImpl implements Rectangle {
     if (obj.getClass() != getClass()) {
       return false;
     }
-    RectangeImpl rhs = (RectangeImpl) obj;
+    RectangleImpl rhs = (RectangleImpl) obj;
     return new EqualsBuilder()
                   .appendSuper(super.equals(obj))
                   .append(minX, rhs.minX)

@@ -47,7 +47,7 @@ public class PointImpl implements Point {
   }
   @Override
   public Rectangle getBoundingBox() {
-    return new RectangeImpl(x, x, y, y);
+    return new RectangleImpl(x, x, y, y);
   }
 
   @Override

@@ -82,7 +82,7 @@ public final class CircleImpl implements Circle {
 //    if (enclosingBox2 == null)
 //      return enclosingBox1;
 //    //wrap longitude around the world (note: both boxes have same latitudes)
-//    return new RectangeImpl(-180,180,enclosingBox1.getMinY(),enclosingBox1.getMaxY());
+//    return new RectangleImpl(-180,180,enclosingBox1.getMinY(),enclosingBox1.getMaxY());
   }
 
   @Override

@@ -158,7 +158,7 @@ public class KMLHelper
 
   //  shape = shape.project( projection, false );
 
-  //  shape = new RectangeImpl( -170,-85, 170, 85 );
+  //  shape = new RectangleImpl( -170,-85, 170, 85 );
 
     List<String> vals = SpatialPrefixTree.nodesToTokenStrings(grid.getNodes(shape,5,false)); //new GeometryShape( shape ) ); //new EnvelopeShape( shape.getEnvelopeInternal() ) );
     System.out.println( vals );

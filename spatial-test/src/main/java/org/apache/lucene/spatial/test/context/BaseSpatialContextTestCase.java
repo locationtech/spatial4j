@@ -11,7 +11,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.Shapes;
 import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
-import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
+import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -154,7 +154,7 @@ public abstract class BaseSpatialContextTestCase {
     checkShapesImplementEquals( new Class[] {
       PointImpl.class,
       CircleImpl.class,
-      RectangeImpl.class,
+      RectangleImpl.class,
       Shapes.class,
     });
   }

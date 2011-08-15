@@ -4,7 +4,7 @@ import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
-import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
+import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ public class TestGridMatchInfo {
 //    gsf.setSize( 9.5 );
 //    Shape shape = new JtsGeometry( gsf.createCircle() );
 
-    Shape shape = new RectangeImpl(0, 6, 5, 10);
+    Shape shape = new RectangleImpl(0, 6, 5, 10);
 
     shape = new PointImpl(3, 3);
 
