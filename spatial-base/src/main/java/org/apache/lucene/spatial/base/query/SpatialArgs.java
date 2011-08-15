@@ -19,6 +19,7 @@ package org.apache.lucene.spatial.base.query;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
+import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.exception.InvalidSpatialArgument;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -70,7 +71,7 @@ public class SpatialArgs {
   @Override
   public String toString()
   {
-    return toString( new SimpleSpatialContext() );
+    return toString( new SimpleSpatialContext(DistanceUnits.KILOMETERS) );
   }
 
   //------------------------------------------------
@@ -90,7 +91,7 @@ public class SpatialArgs {
    * @return
    */
   public Shape getShape() {
-    if (shape != null && operation == SpatialOperation.BBoxWithin)
+    if (shape != null && (operation == SpatialOperation.BBoxWithin || operation == SpatialOperation.BBoxIntersects))
       return shape.getBoundingBox();
     return shape;
   }

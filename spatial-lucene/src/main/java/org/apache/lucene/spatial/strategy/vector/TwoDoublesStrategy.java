@@ -35,6 +35,7 @@ import org.apache.lucene.queries.function.FunctionQuery;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclideanDistanceCalculator;
+import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
@@ -127,10 +128,11 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
   @Override
   public Query makeQuery(SpatialArgs args, TwoDoublesFieldInfo fieldInfo) {
     // For starters, just limit the bbox
-    Rectangle bbox = args.getShape().getBoundingBox();
-    if (!args.getShape().equals(bbox)) {
-      log.warn("TODO Only bbox is supported at this time, not {}",args.getShape().getClass().getName());
+    Shape shape = args.getShape();
+    if (!(shape instanceof Rectangle)) {
+      throw new InvalidShapeException("A rectangle is the only supported at this time, not "+shape.getClass());//TODO
     }
+    Rectangle bbox = (Rectangle) shape;
     if (bbox.getCrossesDateLine()) {
       throw new UnsupportedOperationException( "Crossing dateline not yet supported" );
     }
