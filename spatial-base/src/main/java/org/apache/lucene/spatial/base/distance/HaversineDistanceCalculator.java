@@ -82,11 +82,4 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
     return ctx.makeRect(lonW_deg, lonE_deg, latS*RADIANS_TO_DEGREES, latN*RADIANS_TO_DEGREES);
   }
 
-  private double normLonDeg(double lon_deg) {
-    if (lon_deg < -180)
-      lon_deg += 360;
-    else if (lon_deg > 180)
-      lon_deg -= 360;
-    return lon_deg;
-  }
 }

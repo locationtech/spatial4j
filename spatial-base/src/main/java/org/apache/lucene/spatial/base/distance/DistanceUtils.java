@@ -262,6 +262,21 @@ public class DistanceUtils {
   }
 
   /**
+   * Puts in range 180 < lon_deg <= 180, accepting values 360 +/- this range. If more extreme values are given
+   * then assertions will fail.
+   */
+  public static double normLonDeg(double lon_deg) {
+    if (lon_deg <= -180) {//TODO need to consider implications of -180 & 180 duality in the framework some time
+      lon_deg += 360;
+      assert lon_deg == normLonDeg(lon_deg);
+    } else if (lon_deg > 180) {
+      lon_deg -= 360;
+      assert lon_deg == normLonDeg(lon_deg);
+    }
+    return lon_deg;
+  }
+
+  /**
    * The square of the Euclidean Distance.  Not really a distance, but useful if all that matters is
    * comparing the result to another one.
    *
@@ -466,5 +481,6 @@ public class DistanceUtils {
 
     return latLon;
   }
+
 
 }

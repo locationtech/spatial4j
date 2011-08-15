@@ -21,6 +21,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.apache.lucene.spatial.base.shape.*;
 
 /**
@@ -67,11 +68,18 @@ public class RectangeImpl implements Rectangle {
 
   @Override
   public double getWidth() {
+    //Note that an arbitrary full-wap longitude line can't be supported because 0 would be indiscernible from zero
+    // width; instead we only consider -180 to 180 as the special one.
+    if (minX == -180 && maxX == 180)
+      return 360;
     double w = maxX - minX;
-    if (w > 360)
-      return w - 360;
-    else if (w < 0 || (w == 0 && minX != maxX))
-      return w + 360;
+    if (w > 360) {
+      w -= 360;
+      assert w <= 360;
+    } else if (w < 0) {//old code: || (w == 0 && minX != maxX)
+      w += 360;
+      assert w >= 0;
+    }
     return w;
   }
 
@@ -156,10 +164,7 @@ public class RectangeImpl implements Rectangle {
   public Point getCenter() {
     final double y = getHeight() / 2 + minY;
     double x = getWidth() / 2 + minX;
-    if (x > 180)
-      x -= 360;
-    else if (x < -180)
-      x += 360;
+    x = DistanceUtils.normLonDeg(x);
     return new PointImpl(x, y);
   }
 

@@ -16,7 +16,15 @@ import static org.junit.Assert.assertTrue;
 public class TestDistances {
 
   private final SpatialContext ctx = new SimpleSpatialContext(DistanceUnits.KILOMETERS);
-  private final HaversineDistanceCalculator DC = new HaversineDistanceCalculator(DistanceUtils.EARTH_MEAN_RADIUS_KM);
+  private final DistanceCalculator DC = new HaversineDistanceCalculator(DistanceUtils.EARTH_MEAN_RADIUS_KM);
+
+  @Test
+  public void testSomeDistances() {
+    //See to veryify: from http://www.movable-type.co.uk/scripts/latlong.html
+    Point ctr = pLL(0,100);
+    assertEquals(11100,DC.calculate(ctr,pLL(10,0)),40);
+    assertEquals(11100,DC.calculate(ctr,pLL(10,-160)),40);
+  }
 
   @Test
   public void testHaversineBBox() {
@@ -34,17 +42,20 @@ public class TestDistances {
         Point center = pLL(lat, lon);
         //--distShort
         Rectangle r = DC.calcBoxByDistFromPt(center,distShort,ctx);
-        checkR(r,center);
+        String msg = r+" ctr:"+center;
+
+        checkR(msg, r, center);
         assertEquals(latA == 90, spans(r));
+        //TODO
       }
     }
   }
 
-  private void checkR(Rectangle r, Point center) {
+  private void checkR(String msg, Rectangle r, Point center) {
     if (!spans(r)) {
-      //assertEquals(center.getX(), r.getCenter().getX(), 0.0001);
+      assertEquals(msg,DistanceUtils.normLonDeg(center.getX()), r.getCenter().getX(), 0.0001);
     }
-    assertEquals(IntersectCase.CONTAINS, ctx.getWorldBounds().intersect(r, ctx));
+    assertEquals(msg,IntersectCase.CONTAINS, ctx.getWorldBounds().intersect(r, ctx));
   }
 //
 //  private void assertPointEquals(Point expected, Point actual) {
