@@ -9,7 +9,7 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.Shapes;
-import org.apache.lucene.spatial.base.shape.simple.HaversineWGS84Circle;
+import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
 import org.junit.Assert;
@@ -106,14 +106,14 @@ public abstract class BaseSpatialContextTestCase {
 
     // Point/Distance
     s = ctx.readShape("Circle( 1.23 4.56 distance=7.89)");
-    HaversineWGS84Circle circle = (HaversineWGS84Circle)s;
+    CircleImpl circle = (CircleImpl)s;
     assertEquals(1.23, circle.getCenter().getX(), 0D);
     assertEquals(4.56, circle.getCenter().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
     Assert.assertTrue(s.hasArea());
 
     s = ctx.readShape("Circle( 1.23  4.56 d=7.89 )");
-    circle = (HaversineWGS84Circle) s;
+    circle = (CircleImpl) s;
     assertEquals(1.23, circle.getCenter().getX(), 0D);
     assertEquals(4.56, circle.getCenter().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
@@ -153,7 +153,7 @@ public abstract class BaseSpatialContextTestCase {
   public void testImplementsEqualsAndHash() throws Exception {
     checkShapesImplementEquals( new Class[] {
       PointImpl.class,
-      HaversineWGS84Circle.class,
+      CircleImpl.class,
       RectangeImpl.class,
       Shapes.class,
     });

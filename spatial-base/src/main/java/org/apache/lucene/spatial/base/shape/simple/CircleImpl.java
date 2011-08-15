@@ -32,7 +32,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
  * should work for both Euclidean 2D and Haversine/WGS84 surfaces.
  * Threadsafe & immutable.
  */
-public final class HaversineWGS84Circle implements Circle {
+public final class CircleImpl implements Circle {
   private final Point point;
   private final double distance;
 
@@ -40,7 +40,7 @@ public final class HaversineWGS84Circle implements Circle {
   
   private final Rectangle enclosingBox;//calculated & cached
 
-  public HaversineWGS84Circle(Point p, double dist, SpatialContext ctx) {
+  public CircleImpl(Point p, double dist, SpatialContext ctx) {
     if (!ctx.isGeo())
       throw new IllegalArgumentException("Expecting geo SpatialContext but didn't get one: "+ctx);
     this.point = p;
@@ -144,7 +144,7 @@ public final class HaversineWGS84Circle implements Circle {
     if (obj.getClass() != getClass()) {
       return false;
     }
-    HaversineWGS84Circle rhs = (HaversineWGS84Circle) obj;
+    CircleImpl rhs = (CircleImpl) obj;
     return new EqualsBuilder()
                   .appendSuper(super.equals(obj))
                   .append(point, rhs.point)

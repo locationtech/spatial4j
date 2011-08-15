@@ -25,7 +25,7 @@ import org.apache.lucene.spatial.base.shape.Circle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.simple.HaversineWGS84Circle;
+import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
 
@@ -72,7 +72,7 @@ public class SimpleSpatialContext extends SpatialContext {
 
   @Override
   public Circle makeCircle(Point point, double distance) {
-    return new HaversineWGS84Circle( point, distance, this );
+    return new CircleImpl( point, distance, this );
   }
 
   @Override

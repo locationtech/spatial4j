@@ -8,7 +8,7 @@ import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
 import com.googlecode.lucene.spatial.base.shape.JtsPoint;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.Shapes;
-import org.apache.lucene.spatial.base.shape.simple.HaversineWGS84Circle;
+import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.base.shape.simple.RectangeImpl;
 import org.apache.lucene.spatial.test.context.BaseSpatialContextTestCase;
@@ -32,7 +32,7 @@ public class JtsSpatialContextTestCase extends BaseSpatialContextTestCase {
   public void testImplementsEqualsAndHash() throws Exception {
     checkShapesImplementEquals( new Class[] {
       PointImpl.class,
-      HaversineWGS84Circle.class,
+      CircleImpl.class,
       RectangeImpl.class,
       Shapes.class,
       JtsEnvelope.class,
