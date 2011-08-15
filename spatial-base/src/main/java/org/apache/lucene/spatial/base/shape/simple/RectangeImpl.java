@@ -67,7 +67,12 @@ public class RectangeImpl implements Rectangle {
 
   @Override
   public double getWidth() {
-    return maxX - minX;
+    double w = maxX - minX;
+    if (w > 360)
+      return w - 360;
+    else if (w < 0 || (w == 0 && minX != maxX))
+      return w + 360;
+    return w;
   }
 
   @Override
@@ -92,7 +97,7 @@ public class RectangeImpl implements Rectangle {
 
   @Override
   public boolean hasSize() {
-    return maxX > minX && maxY > minY;
+    return maxX != minX && maxY != minY;
   }
 
   @Override
@@ -149,15 +154,12 @@ public class RectangeImpl implements Rectangle {
 
   @Override
   public Point getCenter() {
-    final double y = (maxY - minY) / 2 + minY;
-    double x;
-    if (minX <= maxX)
-      x = (maxX - minX) / 2 + minX;
-    else {
-      x = (maxX + 360.0 - minX) + minX;
-      if (x >= 180)
-        x -= 360;
-    }
+    final double y = getHeight() / 2 + minY;
+    double x = getWidth() / 2 + minX;
+    if (x > 180)
+      x -= 360;
+    else if (x < -180)
+      x += 360;
     return new PointImpl(x, y);
   }
 
