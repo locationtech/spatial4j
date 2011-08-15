@@ -87,6 +87,7 @@ public final class CircleImpl implements Circle {
 
   @Override
   public IntersectCase intersect(Shape other, SpatialContext context) {
+    assert ctx == context;
     if (other instanceof Point) {
       Point point = (Point) other;
       return contains(point.getX(),point.getY()) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
