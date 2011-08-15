@@ -19,7 +19,7 @@ public class GeohashPrefixTree extends SpatialPrefixTree {
   public GeohashPrefixTree(SpatialContext ctx, int maxLevels) {
     super(ctx, maxLevels);
     Rectangle bounds = ctx.getWorldBounds();
-    if (bounds == null || bounds.getMinX() != -180)
+    if (bounds.getMinX() != -180)
       throw new IllegalArgumentException("Geohash only supports lat-lon world bounds. Got "+bounds);
     int MAXP = getMaxLevelsPossible();
     if (maxLevels <= 0 || maxLevels > MAXP)

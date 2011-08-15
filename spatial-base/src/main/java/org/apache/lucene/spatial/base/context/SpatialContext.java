@@ -38,11 +38,11 @@ public abstract class SpatialContext {
   private final DistanceCalculator calculator;
   private final Rectangle worldBounds;
 
-  SpatialContext() {
-    this(null,null);
+  protected SpatialContext(DistanceUnits units, DistanceCalculator calculator) {
+    this(units,calculator,null);
   }
 
-  protected SpatialContext(DistanceUnits units, DistanceCalculator calculator) {
+  protected SpatialContext(DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {
     if (units == null) {
       if (calculator != null)
         throw new IllegalArgumentException("if units is null, calculator must be defaulted via null too.");
@@ -57,18 +57,24 @@ public abstract class SpatialContext {
     this.units = units;
     this.calculator = calculator;
     //TODO DWS: I don't like the way I initialize worldBounds, but it'll do for now.
-    switch(units) {
-      case KILOMETERS:
-      case MILES:
-        this.worldBounds = makeRect(-180,180,-90,90);
-        break;
-      case EUCLIDEAN:
-        this.worldBounds = null;
-        break;
-      default:
-        throw new IllegalStateException("Unknown unit to calc world bounds: "+units);
+    if (worldBounds == null) {
+      switch(units) {
+        case KILOMETERS:
+        case MILES:
+          worldBounds = makeRect(-180,180,-90,90);
+          break;
+        case EUCLIDEAN:
+          double v = Double.MAX_VALUE;
+          worldBounds = makeRect(-v, v,-v, v);
+          break;
+        default:
+          throw new IllegalStateException("Unknown unit to calc world bounds: "+units);
+      }
+    } else {
+      //copy so we can ensure we have the right implementation
+      worldBounds = makeRect(worldBounds.getMinX(),worldBounds.getMaxX(),worldBounds.getMinY(),worldBounds.getMaxY());
     }
-
+    this.worldBounds = worldBounds;
   }
 
   public DistanceUnits getUnits() {

@@ -35,15 +35,19 @@ import java.util.Locale;
 public class SimpleSpatialContext extends SpatialContext {
 
   public SimpleSpatialContext() {
-    this(null);
+    this(null, null, null);
   }
 
   public SimpleSpatialContext(DistanceUnits units) {
-    this(units, null);
+    this(units, null, null);
   }
 
   public SimpleSpatialContext(DistanceUnits units, DistanceCalculator calculator) {
-    super(units, calculator);
+    this(units, calculator, null);
+  }
+
+  public SimpleSpatialContext(DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {
+    super(units, calculator, worldBounds);
   }
 
   @Override
