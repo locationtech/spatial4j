@@ -25,21 +25,23 @@ import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.apache.lucene.spatial.base.shape.*;
 
 /**
- * A simple Rectangle implementation that also supports a longitudinal wrap-around. When minX > maxX, this will assume it is world coordinates that cross the
- * date line using degrees
+ * A simple Rectangle implementation that also supports a longitudinal wrap-around. When minX > maxX, this will assume
+ * it is world coordinates that cross the date line using degrees.
+ * Immutable & threadsafe.
  */
 public class RectangeImpl implements Rectangle {
 
-  private double minX;
-  private double maxX;
-  private double minY;
-  private double maxY;
+  private final double minX;
+  private final double maxX;
+  private final double minY;
+  private final double maxY;
 
   public RectangeImpl(double minX, double maxX, double minY, double maxY) {
     this.minX = minX;
     this.maxX = maxX;
     this.minY = minY;
     this.maxY = maxY;
+    assert minY <= maxY;
   }
 
   @Override
@@ -49,11 +51,7 @@ public class RectangeImpl implements Rectangle {
 
   @Override
   public double getArea() {
-    // CrossedDateline = true;
-    if (minX > maxX) {
-      return Math.abs(maxX + 360.0 - minX) * Math.abs(maxY - minY);
-    }
-    return Math.abs(maxX - minX) * Math.abs(maxY - minY);
+    return getWidth() * getHeight();
   }
 
   @Override
@@ -68,15 +66,8 @@ public class RectangeImpl implements Rectangle {
 
   @Override
   public double getWidth() {
-    //Note that an arbitrary full-wap longitude line can't be supported because 0 would be indiscernible from zero
-    // width; instead we only consider -180 to 180 as the special one.
-    if (minX == -180 && maxX == 180)
-      return 360;
     double w = maxX - minX;
-    if (w > 360) {
-      w -= 360;
-      assert w <= 360;
-    } else if (w < 0) {//old code: || (w == 0 && minX != maxX)
+    if (w < 0) {//only true when minX > maxX (WGS84 assumed)
       w += 360;
       assert w >= 0;
     }
@@ -164,7 +155,8 @@ public class RectangeImpl implements Rectangle {
   public Point getCenter() {
     final double y = getHeight() / 2 + minY;
     double x = getWidth() / 2 + minX;
-    x = DistanceUtils.normLonDeg(x);
+    if (minX > maxX)//WGS84
+      x = DistanceUtils.normLonDeg(x);
     return new PointImpl(x, y);
   }
 
