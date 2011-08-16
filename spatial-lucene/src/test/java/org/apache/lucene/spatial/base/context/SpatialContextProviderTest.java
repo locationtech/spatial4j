@@ -1,17 +1,17 @@
 package org.apache.lucene.spatial.base.context;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.junit.After;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 
 public class SpatialContextProviderTest {
 
   @Test
   public void testGetContext_simpleSpatialContext() {
-    System.setProperty("SpatialContextProvider", "org.apache.lucene.spatial.base.context.MockSpatialContext");
+    System.setProperty("SpatialContextProvider", MockSpatialContext.class.getName());
 
     SpatialContext spatialContext = SpatialContextProvider.getContext();
     assertEquals(MockSpatialContext.class, spatialContext.getClass());
