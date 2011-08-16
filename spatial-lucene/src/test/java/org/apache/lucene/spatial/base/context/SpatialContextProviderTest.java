@@ -2,12 +2,18 @@ package org.apache.lucene.spatial.base.context;
 
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 
 public class SpatialContextProviderTest {
+
+  @BeforeClass
+  public static void setUp() {
+    SpatialContextProvider.clear();
+  }
 
   @Test
   public void testGetContext_simpleSpatialContext() {
