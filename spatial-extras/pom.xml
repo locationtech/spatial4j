@@ -12,8 +12,8 @@
   </parent>
 
   <groupId>org.apache.lucene.spatial</groupId>
-  <artifactId>spatial-extras-base</artifactId>
-  <name>Spatial Extras - Base</name>
+  <artifactId>spatial-extras</artifactId>
+  <name>Spatial - Extras</name>
 
   <dependencies>
 

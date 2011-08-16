@@ -297,8 +297,8 @@
   <modules>
     <module>spatial-lucene</module>
     <module>spatial-solr</module>
-    <module>spatial-extras-base</module>
-    <module>spatial-extras-demo</module>
+    <module>spatial-extras</module>
+    <module>spatial-demo</module>
   </modules>
   
 </project>

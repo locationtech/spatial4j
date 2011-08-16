@@ -25,11 +25,11 @@ Major implementations:
 Ads Solr support on top of the Spatial-lucene module.
 
 
-* Spatial-extras-base
+* Spatial-extras
 An extension of Spatial-base that uses the 3rd party JTS library to implement the shapes.
 This primarily ads polygon support and WKT processing.
 
 
-* Spatial-extras-demo
+* Spatial-demo
 Contains a demo web application using Spatial-solr.  Consumes sample data and geonames.
 See the provided README.txt in there for instructions to try it out.

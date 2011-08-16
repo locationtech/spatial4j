@@ -10,10 +10,10 @@
   </parent>
   
 	<groupId>org.apache.lucene.spatial</groupId>
-  <artifactId>spatial-extras-demo</artifactId>
+  <artifactId>spatial-demo</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
-  <name>Spatial Extras - Demo</name>
+  <name>Spatial - Demo</name>
   <description>
     Show solr + KML stuff
   </description>
@@ -29,7 +29,7 @@
 	  
 	  <dependency>
 		  <groupId>org.apache.lucene.spatial</groupId>
-	    <artifactId>spatial-extras-base</artifactId>
+	    <artifactId>spatial-extras</artifactId>
       <version>${project.version}</version>
 	  </dependency>
 
