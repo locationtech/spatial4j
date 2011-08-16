@@ -32,6 +32,13 @@
 	    <artifactId>spatial-extras-base</artifactId>
       <version>${project.version}</version>
 	  </dependency>
+
+    <dependency>
+      <groupId>org.apache.lucene.spatial</groupId>
+      <artifactId>spatial-lucene</artifactId>
+      <type>test-jar</type>
+      <version>${project.version}</version>
+    </dependency>
     
     <dependency>
       <groupId>com.google.guava</groupId>
