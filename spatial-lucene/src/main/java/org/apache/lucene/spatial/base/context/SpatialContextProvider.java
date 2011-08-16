@@ -36,7 +36,7 @@ public class SpatialContextProvider {
     return instance;
   }
 
-  static void clear() {
+  static synchronized void clear() {
     instance = null;
   }
 }
