@@ -106,11 +106,11 @@
           </systemPropertyVariables>
         </configuration>
       </plugin>
-      
+
+      <!-- Add SVN Revision To A JAR Manifest
+       - http://maven.apache.org/plugin-developers/cookbook/add-svn-revision-to-manifest.html
+      -->
       <plugin>
-         <!-- Add SVN Revision To A JAR Manifest
-            - http://maven.apache.org/plugin-developers/cookbook/add-svn-revision-to-manifest.html 
-           -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
         <version>1.0</version>
@@ -295,12 +295,9 @@
   </profiles>
 
   <modules>
-    <module>spatial-base</module>
     <module>spatial-lucene</module>
-    <module>spatial-test</module>
     <module>spatial-solr</module>
     <module>spatial-extras-base</module>
-    <module>spatial-extras-test</module>
     <module>spatial-extras-demo</module>
   </modules>
   

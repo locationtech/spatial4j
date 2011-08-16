@@ -52,7 +52,7 @@ public class SampleDataLoader
 
     for( String[] d : names ) {
       InputStream in =
-        getClass().getClassLoader().getResourceAsStream("data/"+d[0]);
+        getClass().getClassLoader().getResourceAsStream("data/" +d[0]);
       index(solr, d[0], d[1], new SampleDataReader( in ) );
     }
 

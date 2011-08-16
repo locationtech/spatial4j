@@ -19,9 +19,10 @@
 
     <dependency>
       <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>spatial-base</artifactId>
+      <artifactId>spatial-lucene</artifactId>
       <version>${project.version}</version>
     </dependency>
+
 
     <dependency>
       <groupId>com.vividsolutions</groupId>
@@ -35,6 +36,21 @@
       </exclusions>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.lucene.spatial</groupId>
+      <artifactId>spatial-lucene</artifactId>
+      <type>test-jar</type>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-test-framework</artifactId>
+      <version>4.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    
   </dependencies>
 
 </project>
