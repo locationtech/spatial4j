@@ -21,14 +21,6 @@
 
   <dependencies>
   
-    <!-- Lucene Spatial -->
-    
-    <dependency>
-      <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>spatial-base</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     <!-- LUCENE -->
     
     <dependency>

@@ -26,7 +26,7 @@ Ads Solr support on top of the Spatial-lucene module.
 
 
 * Spatial-extras
-An extension of Spatial-base that uses the 3rd party JTS library to implement the shapes.
+An extension of Spatial-lucene that uses the 3rd party JTS library to implement the shapes.
 This primarily ads polygon support and WKT processing.
 
 
