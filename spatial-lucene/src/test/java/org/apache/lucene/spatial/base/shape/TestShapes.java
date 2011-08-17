@@ -2,10 +2,13 @@ package org.apache.lucene.spatial.base.shape;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
-import org.apache.lucene.spatial.base.distance.*;
+import org.apache.lucene.spatial.base.distance.DistanceCalculator;
+import org.apache.lucene.spatial.base.distance.DistanceUnits;
+import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author dsmiley
@@ -45,7 +48,7 @@ public class TestShapes {
     Rectangle r = ctx.makeRect(x, maxX, -height / 2, height / 2);
     String msg = r.toString();
 
-    assertEquals(msg, width != 0 && height != 0, r.hasSize());
+    assertEquals(msg, width != 0 && height != 0, r.hasArea());
     assertEquals(msg, width != 0 && height != 0, r.getArea() > 0);
     assertEqualsPct(msg, height, r.getHeight());
     assertEqualsPct(msg, width, r.getWidth());

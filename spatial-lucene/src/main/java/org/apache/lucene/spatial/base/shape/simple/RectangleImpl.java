@@ -46,7 +46,7 @@ public class RectangleImpl implements Rectangle {
 
   @Override
   public boolean hasArea() {
-    return getWidth() > 0 && getHeight() > 0;
+    return maxX != minX && maxY != minY;
   }
 
   @Override
@@ -92,11 +92,6 @@ public class RectangleImpl implements Rectangle {
   @Override
   public double getMinY() {
     return minY;
-  }
-
-  @Override
-  public boolean hasSize() {
-    return maxX != minX && maxY != minY;
   }
 
   @Override

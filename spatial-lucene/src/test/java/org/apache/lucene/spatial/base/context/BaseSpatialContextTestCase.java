@@ -59,12 +59,12 @@ public abstract class BaseSpatialContextTestCase {
       try {
         clazz.getDeclaredMethod( "equals", Object.class );
       } catch (Exception e) {
-        Assert.fail( "MultiShape need to define 'equals' : " + clazz.getName() );
+        Assert.fail( "Shape needs to define 'equals' : " + clazz.getName() );
       }
       try {
         clazz.getDeclaredMethod( "hashCode" );
       } catch (Exception e) {
-        Assert.fail( "MultiShape need to define 'hashCode' : " + clazz.getName() );
+        Assert.fail( "Shape needs to define 'hashCode' : " + clazz.getName() );
       }
     }
   }

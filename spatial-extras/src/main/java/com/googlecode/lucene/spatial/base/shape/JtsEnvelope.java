@@ -84,11 +84,6 @@ public class JtsEnvelope implements Rectangle {
     return envelope.getMinY();
   }
 
-  @Override
-  public boolean hasSize() {
-    return envelope.getWidth() > 0 && envelope.getHeight() > 0;
-  }
-
   //----------------------------------------
   //----------------------------------------
 

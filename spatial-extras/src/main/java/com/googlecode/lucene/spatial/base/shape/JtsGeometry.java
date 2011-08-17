@@ -69,7 +69,7 @@ public class JtsGeometry implements Shape {
     }
 
     Rectangle ext = other.getBoundingBox();
-    if (!ext.hasSize()) {//TODO revisit the soundness of this logic
+    if (!ext.hasArea()) {//TODO revisit the soundness of this logic
       throw new IllegalArgumentException("the query shape must cover some area (not a line)");
     }
 

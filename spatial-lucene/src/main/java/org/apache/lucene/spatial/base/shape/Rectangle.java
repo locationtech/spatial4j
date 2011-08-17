@@ -27,11 +27,9 @@ public interface Rectangle extends Shape {
   public double getMaxX();
   public double getMaxY();
 
-  public double getArea(); // optional
+  /** If {@link #hasArea()} then this returns the area, otherwise it returns 0. */
+  public double getArea();
+  /** Only meaningful for geospatial contexts. */
   public boolean getCrossesDateLine();
 
-  /**
-   * Width and height have a meaningful value
-   */
-  public boolean hasSize();
 }
