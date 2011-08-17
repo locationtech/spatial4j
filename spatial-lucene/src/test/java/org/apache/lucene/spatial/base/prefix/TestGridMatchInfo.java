@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.base;
+package org.apache.lucene.spatial.base.prefix;
 
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
