@@ -6,7 +6,7 @@ import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
 import com.googlecode.lucene.spatial.base.shape.JtsPoint;
 import org.apache.lucene.spatial.base.context.BaseSpatialContextTestCase;
 import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.Shapes;
+import org.apache.lucene.spatial.base.shape.MultiShape;
 import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
@@ -32,7 +32,7 @@ public class JtsSpatialContextTestCase extends BaseSpatialContextTestCase {
       PointImpl.class,
       CircleImpl.class,
       RectangleImpl.class,
-      Shapes.class,
+      MultiShape.class,
       JtsEnvelope.class,
       JtsPoint.class,
       JtsGeometry.class
