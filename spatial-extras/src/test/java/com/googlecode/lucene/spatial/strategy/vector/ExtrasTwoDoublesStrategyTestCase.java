@@ -6,7 +6,7 @@ import org.apache.lucene.spatial.strategy.vector.BaseTwoDoublesStrategyTestCase;
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 
 
-public class ExtrasPointStrategyTestCase extends BaseTwoDoublesStrategyTestCase {
+public class ExtrasTwoDoublesStrategyTestCase extends BaseTwoDoublesStrategyTestCase {
 
   @Override
   protected SpatialContext getSpatialContext() {
