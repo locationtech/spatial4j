@@ -12,9 +12,17 @@ import static org.junit.Assert.*;
  */
 public class TestShapes {
 
+  protected SpatialContext getGeoContext() {
+    return new SimpleSpatialContext(DistanceUnits.KILOMETERS);
+  }
+
+  protected SpatialContext getNonGeoContext() {
+    return new SimpleSpatialContext(DistanceUnits.EUCLIDEAN);
+  }
+
   @Test
   public void testGeoRectangle() {
-    SpatialContext ctx = new SimpleSpatialContext(DistanceUnits.KILOMETERS);
+    SpatialContext ctx = getGeoContext();
     double[] lons = new double[]{0,45,175,180, -45,-175};//minX
     for (double lon : lons) {
       double[] lonWs = new double[]{0,20,180,200};//width
@@ -28,6 +36,7 @@ public class TestShapes {
     testRectangle(-180, 360, 0, ctx);
     testRectangle(-180, 360, 20, ctx);
   }
+
 
   private void testRectangle(double x, double width, int height, SpatialContext ctx) {
     double maxX = x + width;
@@ -57,7 +66,7 @@ public class TestShapes {
 
   @Test
   public void testSimpleRectangle() {
-    SpatialContext ctx = new SimpleSpatialContext(DistanceUnits.EUCLIDEAN);
+    SpatialContext ctx = getNonGeoContext();
     double[] minXs = new double[]{-1000,-360,-180,-20,0,20,180,1000};
     for (double minX : minXs) {
       double[] widths = new double[]{0,10,180,360,400};

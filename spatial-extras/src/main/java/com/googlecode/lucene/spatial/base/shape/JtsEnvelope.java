@@ -36,6 +36,8 @@ public class JtsEnvelope implements Rectangle {
   }
 
   public JtsEnvelope(double x1, double x2, double y1, double y2) {
+    if (x2 < x1)
+      throw new IllegalArgumentException("JtsEnvelope doesn't support crossing the dateline.");
     this.envelope = new Envelope(x1, x2, y1, y2);
   }
 
@@ -54,12 +56,12 @@ public class JtsEnvelope implements Rectangle {
 
   @Override
   public double getHeight() {
-    return envelope.getWidth();
+    return envelope.getHeight();
   }
 
   @Override
   public double getWidth() {
-    return envelope.getHeight();
+    return envelope.getWidth();
   }
 
   @Override
@@ -84,7 +86,7 @@ public class JtsEnvelope implements Rectangle {
 
   @Override
   public boolean hasSize() {
-    return !envelope.isNull();
+    return envelope.getWidth() > 0 && envelope.getHeight() > 0;
   }
 
   //----------------------------------------
