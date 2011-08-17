@@ -38,8 +38,6 @@ public final class CircleImpl implements Circle {
   private final Rectangle enclosingBox;//calculated & cached
 
   public CircleImpl(Point p, double dist, SpatialContext ctx) {
-    if (!ctx.isGeo())
-      throw new IllegalArgumentException("Expecting geo SpatialContext but didn't get one: "+ctx);
     this.point = p;
     this.distance = dist;
     this.ctx = ctx;
@@ -144,7 +142,6 @@ public final class CircleImpl implements Circle {
     }
     CircleImpl rhs = (CircleImpl) obj;
     return new EqualsBuilder()
-                  .appendSuper(super.equals(obj))
                   .append(point, rhs.point)
                   .append(distance, rhs.distance)
                   .append(ctx, rhs.ctx)

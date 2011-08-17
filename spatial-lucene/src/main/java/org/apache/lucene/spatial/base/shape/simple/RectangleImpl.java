@@ -164,7 +164,6 @@ public class RectangleImpl implements Rectangle {
     }
     RectangleImpl rhs = (RectangleImpl) obj;
     return new EqualsBuilder()
-                  .appendSuper(super.equals(obj))
                   .append(minX, rhs.minX)
                   .append(minY, rhs.minY)
                   .append(maxX, rhs.maxX)

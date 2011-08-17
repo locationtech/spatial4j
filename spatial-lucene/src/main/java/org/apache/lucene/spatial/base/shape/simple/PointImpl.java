@@ -28,8 +28,8 @@ import org.apache.lucene.spatial.base.shape.Shape;
 
 public class PointImpl implements Point {
 
-  private double x;
-  private double y;
+  private final double x;
+  private final double y;
 
   public PointImpl(double x, double y) {
     this.x = x;
@@ -81,7 +81,6 @@ public class PointImpl implements Point {
     }
     PointImpl rhs = (PointImpl) obj;
     return new EqualsBuilder()
-                  .appendSuper(super.equals(obj))
                   .append(x, rhs.x)
                   .append(y, rhs.y)
                   .isEquals();
