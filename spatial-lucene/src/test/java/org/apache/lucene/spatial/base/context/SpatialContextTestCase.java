@@ -1,8 +1,6 @@
-package org.apache.lucene.spatial.context;
+package org.apache.lucene.spatial.base.context;
 
-import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
-import org.apache.lucene.spatial.context.BaseSpatialContextTestCase;
 
 
 /**

@@ -1,17 +1,15 @@
+package com.googlecode.lucene.spatial.base.context;
 
-package com.googlecode.lucene.spatial.context;
 
-
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import com.googlecode.lucene.spatial.base.shape.JtsEnvelope;
 import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
 import com.googlecode.lucene.spatial.base.shape.JtsPoint;
+import org.apache.lucene.spatial.base.context.BaseSpatialContextTestCase;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.Shapes;
 import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
-import org.apache.lucene.spatial.context.BaseSpatialContextTestCase;
 import org.junit.Test;
 
 import java.io.IOException;

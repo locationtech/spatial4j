@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.context;
+package org.apache.lucene.spatial.base.context;
 
 import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
