@@ -83,8 +83,8 @@ public final class CircleImpl implements Circle {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext context) {
-    assert ctx == context;
+  public IntersectCase intersect(Shape other, SpatialContext ctx) {
+    assert ctx == ctx;
     if (other instanceof Point) {
       Point point = (Point) other;
       return contains(point.getX(),point.getY()) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
@@ -93,7 +93,7 @@ public final class CircleImpl implements Circle {
     if (other instanceof Rectangle) {
       //TODO DWS: update this algorithm to be much faster
       //do quick check against bounding box for OUTSIDE
-      if (enclosingBox.intersect(other,context) == IntersectCase.OUTSIDE) {
+      if (enclosingBox.intersect(other, ctx) == IntersectCase.OUTSIDE) {
 //      if (enclosingBox2 == null || enclosingBox2.intersect(other,context) == IntersectCase.OUTSIDE)
         return IntersectCase.OUTSIDE;
       }
@@ -124,7 +124,7 @@ public final class CircleImpl implements Circle {
       return IntersectCase.INTERSECTS;
     }
 
-    return other.intersect(this, context).transpose();
+    return other.intersect(this, ctx).transpose();
 
   }
 

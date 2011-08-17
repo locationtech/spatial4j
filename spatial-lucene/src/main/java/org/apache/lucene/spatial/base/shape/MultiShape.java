@@ -67,11 +67,11 @@ public class MultiShape implements Shape {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext context) {
+  public IntersectCase intersect(Shape other, SpatialContext ctx) {
     boolean allOutside = true;
     boolean allContains = true;
     for (Shape geom : geoms) {
-      IntersectCase sect = geom.intersect(other, context);
+      IntersectCase sect = geom.intersect(other, ctx);
       if (sect != IntersectCase.OUTSIDE)
         allOutside = false;
       if (sect != IntersectCase.CONTAINS)

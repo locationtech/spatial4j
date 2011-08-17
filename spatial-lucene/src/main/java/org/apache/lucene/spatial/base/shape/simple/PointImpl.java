@@ -56,10 +56,10 @@ public class PointImpl implements Point {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext context) {
+  public IntersectCase intersect(Shape other, SpatialContext ctx) {
     if (other instanceof Point)
       return this.equals(other) ? IntersectCase.INTERSECTS : IntersectCase.OUTSIDE;
-    return other.intersect(this,context).transpose();
+    return other.intersect(this, ctx).transpose();
   }
 
   @Override

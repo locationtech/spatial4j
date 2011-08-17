@@ -105,7 +105,7 @@ public class RectangleImpl implements Rectangle {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext context) {
+  public IntersectCase intersect(Shape other, SpatialContext ctx) {
     if (other instanceof Point) {
       Point point = (Point) other;
       if (point.getY() > getMaxY() || point.getY() < getMinY() ||
@@ -117,7 +117,7 @@ public class RectangleImpl implements Rectangle {
     }
 
     if (! (other instanceof Rectangle) ) {
-      return other.intersect(this,context).transpose();
+      return other.intersect(this, ctx).transpose();
     }
 
     //Must be another rectangle...

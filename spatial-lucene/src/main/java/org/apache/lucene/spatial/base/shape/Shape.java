@@ -34,7 +34,7 @@ public interface Shape {
    * Note, if the bounding boxes of both shapes intersect yet both shapes actually don't intersect, then the
    * implementation may return INTERSECTS.
    */
-  IntersectCase intersect(Shape other, SpatialContext context);
+  IntersectCase intersect(Shape other, SpatialContext ctx);
 
   /**
    * Get the bounding box for this Shape

@@ -116,24 +116,24 @@ public abstract class BaseSpatialContextTestCase {
   }
 
 
-  public static void checkBBoxIntersection( SpatialContext context ) {
+  public static void checkBBoxIntersection( SpatialContext ctx ) {
 
-    Rectangle big = context.makeRect(0, 100, 0, 100);
-    Rectangle rr0 = context.makeRect(25, 75, 25, 75);
-    Rectangle rr1 = context.makeRect(120, 150, 0, 100);
-    Rectangle rr2 = context.makeRect(-1, 50, 0, 50);
+    Rectangle big = ctx.makeRect(0, 100, 0, 100);
+    Rectangle rr0 = ctx.makeRect(25, 75, 25, 75);
+    Rectangle rr1 = ctx.makeRect(120, 150, 0, 100);
+    Rectangle rr2 = ctx.makeRect(-1, 50, 0, 50);
 
-    assertEquals(IntersectCase.CONTAINS, big.intersect(rr0, context));
-    assertEquals(IntersectCase.WITHIN, rr0.intersect(big, context));
-    assertEquals(IntersectCase.OUTSIDE, big.intersect(rr1, context));
-    assertEquals(IntersectCase.OUTSIDE, rr1.intersect(big, context));
-    assertEquals(IntersectCase.INTERSECTS, rr2.intersect(big, context));
-    assertEquals(IntersectCase.INTERSECTS, big.intersect(rr2, context));
+    assertEquals(IntersectCase.CONTAINS, big.intersect(rr0, ctx));
+    assertEquals(IntersectCase.WITHIN, rr0.intersect(big, ctx));
+    assertEquals(IntersectCase.OUTSIDE, big.intersect(rr1, ctx));
+    assertEquals(IntersectCase.OUTSIDE, rr1.intersect(big, ctx));
+    assertEquals(IntersectCase.INTERSECTS, rr2.intersect(big, ctx));
+    assertEquals(IntersectCase.INTERSECTS, big.intersect(rr2, ctx));
 
-    Point p1 = context.makePoint(1000, 20);
-    Point p2 = context.makePoint(50, 50);
-    assertEquals(IntersectCase.OUTSIDE, p1.intersect(big, context));
-    assertEquals(IntersectCase.WITHIN, p2.intersect(big, context));
+    Point p1 = ctx.makePoint(1000, 20);
+    Point p2 = ctx.makePoint(50, 50);
+    assertEquals(IntersectCase.OUTSIDE, p1.intersect(big, ctx));
+    assertEquals(IntersectCase.WITHIN, p2.intersect(big, ctx));
   }
 
   //--------------------------------------------------------------

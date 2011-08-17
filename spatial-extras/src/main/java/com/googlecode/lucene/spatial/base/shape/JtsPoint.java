@@ -51,11 +51,11 @@ public class JtsPoint implements org.apache.lucene.spatial.base.shape.Point {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext context) {
+  public IntersectCase intersect(Shape other, SpatialContext ctx) {
     // ** NOTE ** the overall order of logic is kept consistent here with simple.PointImpl.
     if (other instanceof org.apache.lucene.spatial.base.shape.Point)
       return this.equals(other) ? IntersectCase.INTERSECTS : IntersectCase.OUTSIDE;
-    return other.intersect(this,context).transpose();
+    return other.intersect(this,ctx).transpose();
   }
 
   @Override

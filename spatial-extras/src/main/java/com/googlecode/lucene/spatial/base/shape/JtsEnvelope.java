@@ -98,7 +98,7 @@ public class JtsEnvelope implements Rectangle {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext context) {
+  public IntersectCase intersect(Shape other, SpatialContext ctx) {
     // ** NOTE ** the overall order of logic is kept consistent here with simple.RectangleImpl.
     if (other instanceof Point) {
       Point p = (Point)other;
@@ -106,7 +106,7 @@ public class JtsEnvelope implements Rectangle {
     }
 
     if (! (other instanceof Rectangle) ) {
-      return other.intersect(this,context).transpose();
+      return other.intersect(this, ctx).transpose();
     }
 
     // Rectangle...

@@ -61,10 +61,10 @@ public class JtsGeometry implements Shape {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext context) {
+  public IntersectCase intersect(Shape other, SpatialContext ctx) {
     if (other instanceof Point) {
       Point pt = (Point)other;
-      JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : context.makePoint(pt.getX(), pt.getY()));
+      JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : ctx.makePoint(pt.getX(), pt.getY()));
       return geo.contains(jtsPoint.getJtsPoint()) ? IntersectCase.INTERSECTS : IntersectCase.OUTSIDE;
     }
 
@@ -89,14 +89,14 @@ public class JtsGeometry implements Shape {
       int i = 0;
       for (Coordinate coord : coords) {
         i++;
-        IntersectCase sect = other.intersect(new PointImpl(coord.x, coord.y), context);
+        IntersectCase sect = other.intersect(new PointImpl(coord.x, coord.y), ctx);
         if (sect == IntersectCase.OUTSIDE)
           outside++;
         if (i != outside && outside != 0)//short circuit: partially outside, partially inside
           return IntersectCase.INTERSECTS;
       }
       if (i == outside) {
-        return (intersect(other.getCenter(),context) == IntersectCase.OUTSIDE)
+        return (intersect(other.getCenter(), ctx) == IntersectCase.OUTSIDE)
             ? IntersectCase.OUTSIDE : IntersectCase.CONTAINS;
       }
       assert outside == 0;
@@ -112,7 +112,7 @@ public class JtsGeometry implements Shape {
         Rectangle r = (Rectangle)other;
         env = new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY());
       }
-      qGeo = (Polygon) getGeometryFactory(context).toGeometry(env);
+      qGeo = (Polygon) getGeometryFactory(ctx).toGeometry(env);
     } else if (other instanceof JtsGeometry) {
       qGeo = (Polygon)((JtsGeometry)other).geo;
     } else {
