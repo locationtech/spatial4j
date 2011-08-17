@@ -40,6 +40,18 @@ public class TestShapes {
     testRectangle(-180, 360, 20, ctx);
   }
 
+  @Test
+  public void testSimpleRectangle() {
+    SpatialContext ctx = getNonGeoContext();
+    double[] minXs = new double[]{-1000,-360,-180,-20,0,20,180,1000};
+    for (double minX : minXs) {
+      double[] widths = new double[]{0,10,180,360,400};
+      for (double width : widths) {
+        testRectangle(minX, width, 0, ctx);
+        testRectangle(minX, width, 20, ctx);
+      }
+    }
+  }
 
   private void testRectangle(double x, double width, int height, SpatialContext ctx) {
     double maxX = x + width;
@@ -55,7 +67,7 @@ public class TestShapes {
     Point center = r.getCenter();
     msg += " ctr:"+center;
     //System.out.println(msg);
-    assertEquals(msg, IntersectCase.CONTAINS,r.intersect(center, ctx));
+    assertIntersect(msg, IntersectCase.CONTAINS, r, center, ctx);
     DistanceCalculator dc = ctx.getDistanceCalculator();
     double dCorner = dc.calculate(center, r.getMaxX(), r.getMaxY());//UR
 
@@ -67,16 +79,50 @@ public class TestShapes {
     assertEqualsPct(msg, dCorner, dc.calculate(center, r.getMinX(), r.getMinY()));//LL
   }
 
+
   @Test
-  public void testSimpleRectangle() {
+  public void testSimpleCircle() {
     SpatialContext ctx = getNonGeoContext();
     double[] minXs = new double[]{-1000,-360,-180,-20,0,20,180,1000};
     for (double minX : minXs) {
       double[] widths = new double[]{0,10,180,360,400};
       for (double width : widths) {
-        testRectangle(minX, width, 0, ctx);
-        testRectangle(minX, width, 20, ctx);
+        testCircle(minX, width, 0, ctx);
+        testCircle(minX, width, 20/2, ctx);
       }
+    }
+  }
+
+  private void testCircle(double x, double y, double dist, SpatialContext ctx) {
+    Circle c = ctx.makeCircle(x, y, dist);
+    assertEquals(c,ctx.makeCircle(ctx.makePoint(x,y),dist));
+    String msg = c.toString();
+    //System.out.println(msg);
+
+    assertEquals(msg,dist > 0, c.hasArea());
+    final Rectangle bbox = c.getBoundingBox();
+    assertEquals(msg,dist > 0, bbox.getArea() > 0);
+    assertEqualsPct(msg, bbox.getHeight(), dist*2);
+    assertTrue(msg,bbox.getWidth() >= dist*2);
+    assertIntersect(msg, IntersectCase.CONTAINS, c , c.getCenter(), ctx);
+    assertIntersect(msg, IntersectCase.CONTAINS, bbox, c, ctx);
+  }
+
+  private void assertIntersect(String msg, IntersectCase expected, Shape a, Shape b, SpatialContext ctx ) {
+    IntersectCase sect = a.intersect(b, ctx);
+    if (sect == expected)
+      return;
+    if (expected == IntersectCase.WITHIN || expected == IntersectCase.CONTAINS) {
+      if (a.getClass().equals(b.getClass())) // they are the same
+        assertEquals(a,b);
+      else {
+        //they are effectively points or lines that are the same location
+        assertTrue(msg,!a.hasArea());
+        assertTrue(msg,!b.hasArea());
+        assertEquals(msg,a.getBoundingBox(),b.getBoundingBox());
+      }
+    } else {
+      assertEquals(msg,expected,sect);
     }
   }
 

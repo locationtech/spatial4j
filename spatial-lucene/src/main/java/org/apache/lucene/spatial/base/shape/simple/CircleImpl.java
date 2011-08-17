@@ -19,7 +19,6 @@ package org.apache.lucene.spatial.base.shape.simple;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.*;
 
@@ -82,29 +81,20 @@ public final class CircleImpl implements Circle {
 
   @Override
   public IntersectCase intersect(Shape other, SpatialContext ctx) {
-    assert ctx == ctx;
+    assert this.ctx == ctx;
     if (other instanceof Point) {
       Point point = (Point) other;
       return contains(point.getX(),point.getY()) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
     }
 
     if (other instanceof Rectangle) {
-      //TODO DWS: update this algorithm to be much faster
-      //do quick check against bounding box for OUTSIDE
-      if (enclosingBox.intersect(other, ctx) == IntersectCase.OUTSIDE) {
-//      if (enclosingBox2 == null || enclosingBox2.intersect(other,context) == IntersectCase.OUTSIDE)
-        return IntersectCase.OUTSIDE;
-      }
-
-      //do quick check to see if all corners are within this circle for CONTAINS
-      Rectangle bbox = other.getBoundingBox();
-      if (contains(bbox.getMinX(),bbox.getMinY()) &&
-          contains(bbox.getMinX(),bbox.getMaxY()) &&
-          contains(bbox.getMaxX(),bbox.getMaxY()) &&
-          contains(bbox.getMaxX(),bbox.getMinY()))
-        return IntersectCase.CONTAINS;
-
-      return IntersectCase.INTERSECTS;//needn't actually intersect; this is a good guess
+      final Rectangle r = (Rectangle) other;
+      //Note: Surprisingly complicated!
+      if (enclosingBox.getCrossesDateLine() || r.getCrossesDateLine()) {
+        //throw new UnsupportedSpatialOperation("TODO circle spanning the dateline isn't yet supported.");
+        return intersectRectangleEstimate(r, ctx);
+      } else
+        return intersect2DRectangle(r, ctx);
     }
 
     if (other instanceof Circle) {
@@ -123,7 +113,104 @@ public final class CircleImpl implements Circle {
     }
 
     return other.intersect(this, ctx).transpose();
+  }
 
+  /** This code is basically the "old" logic prior to 16-August 2011. */
+  private IntersectCase intersectRectangleEstimate(Rectangle r, SpatialContext ctx) {
+    //!! next 5 lines is COPY-PASTED from intersect2DRectangle
+    //--We start by leveraging the fact we have a calculated bbox that is "cheaper" than use of DistanceCalculator.
+    final IntersectCase bboxSect = enclosingBox.intersect(r,ctx);
+    if (bboxSect == IntersectCase.OUTSIDE || bboxSect == IntersectCase.WITHIN)
+      return bboxSect;
+    else if (bboxSect == IntersectCase.CONTAINS && enclosingBox.equals(r))//nasty identity edge-case
+      return IntersectCase.WITHIN;
+
+    //do quick check to see if all corners are within this circle for CONTAINS
+    Rectangle bbox = r.getBoundingBox();
+    if (contains(bbox.getMinX(),bbox.getMinY()) &&
+        contains(bbox.getMinX(),bbox.getMaxY()) &&
+        contains(bbox.getMaxX(),bbox.getMaxY()) &&
+        contains(bbox.getMaxX(),bbox.getMinY()))
+      return IntersectCase.CONTAINS;
+
+    return IntersectCase.INTERSECTS;//needn't actually intersect; this is a good guess
+  }
+
+  /** !! DOES NOT WORK WITH CROSSING DATELINE */
+  private IntersectCase intersect2DRectangle(final Rectangle r, SpatialContext ctx) {
+    //--We start by leveraging the fact we have a calculated bbox that is "cheaper" than use of DistanceCalculator.
+    final IntersectCase bboxSect = enclosingBox.intersect(r,ctx);
+    if (bboxSect == IntersectCase.OUTSIDE || bboxSect == IntersectCase.WITHIN)
+      return bboxSect;
+    else if (bboxSect == IntersectCase.CONTAINS && enclosingBox.equals(r))//nasty identity edge-case
+      return IntersectCase.WITHIN;
+
+    //!!THIS CODE WON'T WORK WITH CROSSING DATELINE
+
+    //At this point, the only thing we are certain of is that circle is *NOT* WITHIN r, since the bounding box of a
+    // circle MUST be within r for the circle to be within r.
+
+    //--Quickly determine if they are OUTSIDE or not.
+    //see http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection/1879223#1879223
+    final double closestX;
+    if ( point.getX() < r.getMinX() )
+      closestX = r.getMinX();
+    else if (point.getX() > r.getMaxX())
+      closestX = r.getMaxX();
+    else
+      closestX = point.getX();
+
+    final double closestY;
+    if ( point.getY() < r.getMinY() )
+      closestY = r.getMinY();
+    else if (point.getX() > r.getMaxY())
+      closestY = r.getMaxY();
+    else
+      closestY = point.getY();
+
+    //Check if there is an intersection from this circle to closestXY
+    boolean didContainOnClosestXY = false;
+    if (point.getX() == closestX) {
+      double distY = Math.abs(point.getY() - closestY);
+      if (distY > distance)
+        return IntersectCase.OUTSIDE;
+    } else if (point.getY() == closestY) {
+      double distX = Math.abs(point.getX() - closestX);
+      if (distX > distance)
+        return IntersectCase.OUTSIDE;
+    } else {
+      //fallback on more expensive DistanceCalculator
+      didContainOnClosestXY = true;
+      if(! contains(closestX,closestY) )
+        return IntersectCase.OUTSIDE;
+    }
+
+    //At this point we know that it's *NOT* OUTSIDE, so there is some level of intersection. It's *NOT* WITHIN either.
+    // The only question left is whether circle CONTAINS r or simply intersects it.
+
+    //if circle contains r, then its bbox MUST also CONTAIN r.
+    if (bboxSect != IntersectCase.CONTAINS)
+      return IntersectCase.INTERSECTS;
+
+    //Find the furthest point of r away from the center of the circle. If that point is contained, then all of r is
+    // contained.
+    double farthestX = r.getMaxX() - point.getX() > point.getX() - r.getMinX() ? r.getMaxX() : r.getMinX();
+    double farthestY = r.getMaxY() - point.getY() > point.getY() - r.getMinY() ? r.getMaxY() : r.getMinY();
+    if (contains(farthestX,farthestY))
+      return IntersectCase.CONTAINS;
+    return IntersectCase.INTERSECTS;
+
+    //--check if all corners of r are within the circle. We have to use DistanceCalculator.
+//    for (int i = 0; i < 4; i++) {
+//      double iX = (i == 0 || i == 1) ? r.getMinX() : r.getMaxX();
+//      double iY = (i == 0 || i == 2) ? r.getMinY() : r.getMaxY();
+//      if (didContainOnClosestXY && iX == closestX && iY == closestY)
+//        continue;//we already know this pair of x & y is contained.
+//      if (! contains(iX,iY) ) {
+//        return IntersectCase.INTERSECTS;//some corners contain, some don't
+//      }
+//    }
+//    return IntersectCase.CONTAINS;
   }
 
   @Override

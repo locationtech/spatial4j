@@ -23,11 +23,29 @@ public enum IntersectCase {
   OUTSIDE,
   INTERSECTS;
 
+  //TODO what about equality? if two Shape instances are equal then the result might be CONTAINS or WITHIN, and
+  // some logic might fail under this edge condition.
+
   public IntersectCase transpose() {
     switch(this) {
       case CONTAINS: return IntersectCase.WITHIN;
       case WITHIN: return IntersectCase.CONTAINS;
       default: return this;
     }
+  }
+
+  /**
+   * TODO need to test this!
+   * If you were to call aShape.intersect(bShape) and aShape.intersect(cShape), you could call
+   * this to merge the intersect results as if bShape & cShape were combined into {@link MultiShape}.
+   * @param other
+   * @return
+   */
+  public IntersectCase combine(IntersectCase other) {
+    if (this == other)
+      return this;
+    if (this == WITHIN || other == WITHIN)
+      return WITHIN;
+    return INTERSECTS;
   }
 }
