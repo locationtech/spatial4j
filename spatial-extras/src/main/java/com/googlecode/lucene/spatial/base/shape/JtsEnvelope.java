@@ -17,7 +17,7 @@
 
 package com.googlecode.lucene.spatial.base.shape;
 
-import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;

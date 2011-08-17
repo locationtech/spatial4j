@@ -17,7 +17,7 @@
 
 package org.apache.lucene.spatial.base.prefix.quad;
 
-import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
 import org.apache.lucene.spatial.base.prefix.Node;

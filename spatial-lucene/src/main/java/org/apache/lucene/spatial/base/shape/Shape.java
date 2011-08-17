@@ -17,7 +17,6 @@
 
 package org.apache.lucene.spatial.base.shape;
 
-import org.apache.lucene.spatial.base.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 
 public interface Shape {

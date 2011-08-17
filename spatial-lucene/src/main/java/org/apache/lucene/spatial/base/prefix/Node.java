@@ -1,6 +1,6 @@
 package org.apache.lucene.spatial.base.prefix;
 
-import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base;
+package org.apache.lucene.spatial.base.shape;
 
 public enum IntersectCase {
   WITHIN,

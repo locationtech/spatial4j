@@ -19,7 +19,7 @@ package com.googlecode.lucene.spatial.base.shape;
 
 
 import com.vividsolutions.jts.geom.Point;
-import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Shape;
 

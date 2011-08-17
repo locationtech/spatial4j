@@ -20,12 +20,10 @@ package com.googlecode.lucene.spatial.base.shape;
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
-import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.Circle;
+import org.apache.lucene.spatial.base.shape.*;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.Rectangle;
-import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 
 public class JtsGeometry implements Shape {

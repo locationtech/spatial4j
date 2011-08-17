@@ -1,14 +1,10 @@
 package org.apache.lucene.spatial.base.context;
 
-import org.apache.lucene.spatial.base.IntersectCase;
-import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
-import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.Rectangle;
-import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.Shapes;
+import org.apache.lucene.spatial.base.shape.*;
 import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;

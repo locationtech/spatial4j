@@ -19,12 +19,9 @@ package org.apache.lucene.spatial.base.shape.simple;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.Circle;
-import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.Rectangle;
-import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.*;
 
 /**
  * A circle, otherwise known as a point-radius, which is based on a

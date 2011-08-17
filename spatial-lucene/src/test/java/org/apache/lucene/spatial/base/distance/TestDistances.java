@@ -1,6 +1,6 @@
 package org.apache.lucene.spatial.base.distance;
 
-import org.apache.lucene.spatial.base.IntersectCase;
+import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.shape.Point;
@@ -55,7 +55,7 @@ public class TestDistances {
     if (!spans(r)) {
       assertEquals(msg,DistanceUtils.normLonDeg(center.getX()), r.getCenter().getX(), 0.0001);
     }
-    assertEquals(msg,IntersectCase.CONTAINS, ctx.getWorldBounds().intersect(r, ctx));
+    assertEquals(msg, IntersectCase.CONTAINS, ctx.getWorldBounds().intersect(r, ctx));
   }
 //
 //  private void assertPointEquals(Point expected, Point actual) {
