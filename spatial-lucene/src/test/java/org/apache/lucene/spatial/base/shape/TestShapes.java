@@ -7,8 +7,9 @@ import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.junit.Test;
 
+import static org.apache.lucene.spatial.base.shape.IntersectCase.*;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author dsmiley
@@ -21,6 +22,29 @@ public class TestShapes {
 
   protected SpatialContext getNonGeoContext() {
     return new SimpleSpatialContext(DistanceUnits.EUCLIDEAN);
+  }
+
+  @Test
+  public void testSimplePoint() {
+    SpatialContext ctx = getNonGeoContext();
+    Point pt = ctx.makePoint(0,0);
+    String msg = pt.toString();
+
+    //test equals & hashcode
+    Point pt2 = ctx.makePoint(0,0);
+    assertEquals(msg,pt,pt2);
+    assertEquals(msg,pt.hashCode(),pt2.hashCode());
+
+    assertFalse(msg,pt.hasArea());
+    assertEquals(msg,pt.getCenter(),pt);
+    Rectangle bbox = pt.getBoundingBox();
+    assertFalse(msg,bbox.hasArea());
+    assertEquals(msg,pt,bbox.getCenter());
+
+    assertIntersect(msg, CONTAINS, pt, pt2, ctx);
+    assertIntersect(msg, OUTSIDE, pt, ctx.makePoint(0, 1), ctx);
+    assertIntersect(msg, OUTSIDE, pt, ctx.makePoint(1, 0), ctx);
+    assertIntersect(msg, OUTSIDE, pt, ctx.makePoint(1, 1), ctx);
   }
 
   @Test
@@ -58,6 +82,11 @@ public class TestShapes {
     if (ctx.isGeo())
       maxX = DistanceUtils.normLonDeg(maxX);
     Rectangle r = ctx.makeRect(x, maxX, -height / 2, height / 2);
+    //test equals & hashcode of duplicate
+    Rectangle r2 = ctx.makeRect(x, maxX, -height / 2, height / 2);
+    assertEquals(r,r2);
+    assertEquals(r.hashCode(),r2.hashCode());
+
     String msg = r.toString();
 
     assertEquals(msg, width != 0 && height != 0, r.hasArea());
@@ -67,7 +96,7 @@ public class TestShapes {
     Point center = r.getCenter();
     msg += " ctr:"+center;
     //System.out.println(msg);
-    assertIntersect(msg, IntersectCase.CONTAINS, r, center, ctx);
+    assertIntersect(msg, CONTAINS, r, center, ctx);
     DistanceCalculator dc = ctx.getDistanceCalculator();
     double dCorner = dc.calculate(center, r.getMaxX(), r.getMaxY());//UR
 
@@ -95,24 +124,32 @@ public class TestShapes {
 
   private void testCircle(double x, double y, double dist, SpatialContext ctx) {
     Circle c = ctx.makeCircle(x, y, dist);
-    assertEquals(c,ctx.makeCircle(ctx.makePoint(x,y),dist));
     String msg = c.toString();
     //System.out.println(msg);
+    //test equals & hashcode of duplicate
+    final Circle c2 = ctx.makeCircle(ctx.makePoint(x, y), dist);
+    assertEquals(c, c2);
+    assertEquals(c.hashCode(),c2.hashCode());
 
     assertEquals(msg,dist > 0, c.hasArea());
     final Rectangle bbox = c.getBoundingBox();
     assertEquals(msg,dist > 0, bbox.getArea() > 0);
     assertEqualsPct(msg, bbox.getHeight(), dist*2);
     assertTrue(msg,bbox.getWidth() >= dist*2);
-    assertIntersect(msg, IntersectCase.CONTAINS, c , c.getCenter(), ctx);
-    assertIntersect(msg, IntersectCase.CONTAINS, bbox, c, ctx);
+    assertIntersect(msg, CONTAINS, c , c.getCenter(), ctx);
+    assertIntersect(msg, CONTAINS, bbox, c, ctx);
   }
 
   private void assertIntersect(String msg, IntersectCase expected, Shape a, Shape b, SpatialContext ctx ) {
+    _assertIntersect(msg,expected,a,b,ctx);
+    //check flipped a & b w/ transpose(), while we're at it
+    _assertIntersect("(transposed) " + msg, expected.transpose(), b, a, ctx);
+  }
+  private void _assertIntersect(String msg, IntersectCase expected, Shape a, Shape b, SpatialContext ctx ) {
     IntersectCase sect = a.intersect(b, ctx);
     if (sect == expected)
       return;
-    if (expected == IntersectCase.WITHIN || expected == IntersectCase.CONTAINS) {
+    if (expected == WITHIN || expected == CONTAINS) {
       if (a.getClass().equals(b.getClass())) // they are the same
         assertEquals(a,b);
       else {

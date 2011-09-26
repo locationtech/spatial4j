@@ -17,6 +17,7 @@
 
 package com.googlecode.lucene.spatial.base.shape;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Rectangle;
@@ -149,8 +150,9 @@ public class JtsEnvelope implements Rectangle {
 
   @Override
   public Point getCenter() {
-    final Coordinate centre = envelope.centre();
-    return new PointImpl(centre.x, centre.y);
-    //return new JtsPoint(new GeometryFactory().createPoint(envelope.centre()));
+    //TODO make JtsCoordinate (more lightweight than JtsPoint) ?
+//    final Coordinate centre = envelope.centre();
+//    return new PointImpl(centre.x, centre.y);
+    return new JtsPoint(new GeometryFactory().createPoint(envelope.centre()));
   }
 }
