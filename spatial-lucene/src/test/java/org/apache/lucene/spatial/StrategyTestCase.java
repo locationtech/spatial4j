@@ -21,9 +21,8 @@ package org.apache.lucene.spatial;
 import junit.framework.Assert;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
@@ -37,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-
 
 public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends SpatialTestCase {
 
@@ -81,10 +79,10 @@ public abstract class StrategyTestCase<T extends SpatialFieldInfo> extends Spati
     while (sampleData.hasNext()) {
       SampleData data = sampleData.next();
       Document document = new Document();
-      document.add(new Field("id", data.id, Store.YES, Index.ANALYZED));
-      document.add(new Field("name", data.name, Store.YES, Index.ANALYZED));
+      document.add(new Field("id", StringField.TYPE_STORED, data.id));
+      document.add(new Field("name", StringField.TYPE_STORED, data.name));
       Shape shape = ctx.readShape(data.shape);
-      for (Fieldable f : strategy.createFields(fieldInfo, shape, true, storeShape)) {
+      for (IndexableField f : strategy.createFields(fieldInfo, shape, true, storeShape)) {
         if( f != null ) { // null if incompatibleGeometry && ignore
           document.add(f);
         }

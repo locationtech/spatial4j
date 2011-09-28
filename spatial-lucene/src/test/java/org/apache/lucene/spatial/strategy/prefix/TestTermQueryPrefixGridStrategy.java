@@ -2,6 +2,7 @@ package org.apache.lucene.spatial.strategy.prefix;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -24,7 +25,7 @@ public class TestTermQueryPrefixGridStrategy extends SpatialTestCase {
     Shape point = new PointImpl(-118.243680, 34.052230);
 
     Document losAngeles = new Document();
-    losAngeles.add(new Field("name", "Los Angeles", Field.Store.YES, Field.Index.NOT_ANALYZED));
+    losAngeles.add(new Field("name", StringField.TYPE_STORED, "Los Angeles"));
     losAngeles.add(prefixGridStrategy.createField(fieldInfo, point, true, true));
 
     addDocumentsAndCommit(Arrays.asList(losAngeles));

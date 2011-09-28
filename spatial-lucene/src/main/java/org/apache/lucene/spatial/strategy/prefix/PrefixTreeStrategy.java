@@ -2,7 +2,9 @@ package org.apache.lucene.spatial.strategy.prefix;
 
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.EuclideanDistanceCalculator;
@@ -21,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 
 public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
   protected final SpatialPrefixTree grid;
@@ -45,7 +46,7 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
   }
 
   @Override
-  public Fieldable createField(SimpleSpatialFieldInfo fieldInfo, Shape shape, boolean index, boolean store) {
+  public IndexableField createField(SimpleSpatialFieldInfo fieldInfo, Shape shape, boolean index, boolean store) {
     int detailLevel = grid.getMaxLevelForPrecision(shape,distErrPct);
     List<Node> cells = grid.getNodes(shape, detailLevel, true);//true=intermediates cells
     //If shape isn't a point, add a full-resolution center-point so that
@@ -56,14 +57,36 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
       //TODO should be smarter; don't index 2 tokens for this in CellTokenizer. Harmless though.
       cells.add(grid.getNodes(ctr,grid.getMaxLevels(),false).get(0));
     }
-    BasicPrefixTreeFieldable fieldable = new BasicPrefixTreeFieldable(fieldInfo.getFieldName(), store);
-    fieldable.tokens = new CellTokenizer(cells.iterator());
 
-    if (store) {//TODO figure out how to re-use original string instead of reconstituting it.
-      fieldable.value = grid.getSpatialContext().toString(shape);
+    Field field = new Field(fieldInfo.getFieldName(), store ? TYPE_STORED : TYPE_UNSTORED);
+    if (index) {
+      field.setTokenStream(new CellTokenizer(cells.iterator()));
+    }
+    if (store) {
+      //TODO figure out how to re-use original string instead of reconstituting it.
+      field.setValue(grid.getSpatialContext().toString(shape));
     }
 
-    return fieldable;
+    return field;
+  }
+
+  /* Indexed, tokenized, not stored. */
+  public static final FieldType TYPE_UNSTORED = new FieldType();
+
+  /* Indexed, tokenized, stored. */
+  public static final FieldType TYPE_STORED = new FieldType();
+
+  static {
+    TYPE_UNSTORED.setIndexed(true);
+    TYPE_UNSTORED.setTokenized(true);
+    TYPE_UNSTORED.setOmitNorms(true);
+    TYPE_UNSTORED.freeze();
+
+    TYPE_STORED.setStored(true);
+    TYPE_STORED.setIndexed(true);
+    TYPE_STORED.setTokenized(true);
+    TYPE_STORED.setOmitNorms(true);
+    TYPE_STORED.freeze();
   }
 
   /** Outputs the tokenString of a cell, and if its a leaf, outputs it again with the leaf byte. */

@@ -1,7 +1,7 @@
 package org.apache.lucene.spatial.strategy.util;
 
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.NumericField;
-import org.apache.lucene.document.Field.Store;
 
 /**
  * Hold some of the parameters used by solr...
@@ -20,13 +20,13 @@ public class TrieFieldInfo {
   }
 
   public NumericField createDouble( String name, double v ) {
-    NumericField f = new NumericField(
-        name,
-        precisionStep,
-        store?Store.YES:Store.NO,
-        index );
+    FieldType fieldType = new FieldType();
+    fieldType.setStored(store);
+    fieldType.setIndexed(index);
+    fieldType.setOmitNorms(omitNorms);
+
+    NumericField f = new NumericField(name, precisionStep, fieldType);
     f.setDoubleValue(v);
-    f.setOmitNorms(omitNorms);
     return f;
   }
 }

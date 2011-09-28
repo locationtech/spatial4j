@@ -17,7 +17,7 @@
 
 package org.apache.solr.spatial;
 
-import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.base.context.SpatialContext;
@@ -39,8 +39,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Map;
 
-/**
- */
 public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends FieldType
 {
   protected final Logger log = LoggerFactory.getLogger( getClass() );
@@ -77,7 +75,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   //--------------------------------------------------------------
 
   @Override
-  public final Fieldable createField(SchemaField field, Object val, float boost)
+  public final IndexableField createField(SchemaField field, Object val, float boost)
   {
     Shape shape = (val instanceof Shape)?((Shape)val): ctx.readShape( val.toString() );
     if( shape == null ) {
@@ -88,7 +86,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   }
 
   @Override
-  public final Fieldable[] createFields(SchemaField field, Object val, float boost)
+  public final IndexableField[] createFields(SchemaField field, Object val, float boost)
   {
     Shape shape = (val instanceof Shape)?((Shape)val): ctx.readShape( val.toString() );
     if( shape == null ) {
@@ -124,7 +122,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   }
 
   @Override
-  public void write(TextResponseWriter writer, String name, Fieldable f) throws IOException {
+  public void write(TextResponseWriter writer, String name, IndexableField f) throws IOException {
     writer.writeStr(name, f.stringValue(), true);
   }
 

@@ -18,9 +18,8 @@
 package org.apache.lucene.spatial.strategy.vector;
 
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Filter;
@@ -67,16 +66,20 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
   }
 
   @Override
-  public Fieldable[] createFields(TwoDoublesFieldInfo fieldInfo,
+  public IndexableField[] createFields(TwoDoublesFieldInfo fieldInfo,
       Shape shape, boolean index, boolean store) {
     if( shape instanceof Point ) {
       Point point = (Point)shape;
 
-      Fieldable[] f = new Fieldable[store?3:2];
-      f[0] = finfo.createDouble( fieldInfo.getFieldNameX(), point.getX() );
-      f[1] = finfo.createDouble( fieldInfo.getFieldNameY(), point.getY() );
-      if( store ) {
-        f[2] = new Field( fieldInfo.getFieldName(), ctx.toString( shape ), Store.YES, Index.NO );
+      IndexableField[] f = new IndexableField[(index ? 2 : 0) + (store ? 1 : 0)];
+      if (index) {
+        f[0] = finfo.createDouble( fieldInfo.getFieldNameX(), point.getX() );
+        f[1] = finfo.createDouble( fieldInfo.getFieldNameY(), point.getY() );
+      }
+      if(store) {
+        FieldType customType = new FieldType();
+        customType.setStored(true);
+        f[f.length-1] = new Field( fieldInfo.getFieldName(), customType, ctx.toString( shape ) );
       }
       return f;
     }
@@ -87,7 +90,7 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
   }
 
   @Override
-  public Fieldable createField(TwoDoublesFieldInfo indexInfo, Shape shape,
+  public IndexableField createField(TwoDoublesFieldInfo indexInfo, Shape shape,
       boolean index, boolean store) {
     throw new UnsupportedOperationException("Point is poly field");
   }
