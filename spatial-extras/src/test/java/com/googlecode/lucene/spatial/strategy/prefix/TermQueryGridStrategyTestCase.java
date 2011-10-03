@@ -54,7 +54,7 @@ public class TermQueryGridStrategyTestCase extends StrategyTestCase<SimpleSpatia
     Shape point = new PointImpl(-118.243680, 34.052230);
 
     Document losAngeles = new Document();
-    losAngeles.add(new Field("name", StringField.TYPE_STORED, "Los Angeles"));
+    losAngeles.add(new Field("name", "Los Angeles", StringField.TYPE_STORED));
     losAngeles.add(strategy.createField(fieldInfo, point, true, true));
 
     addDocumentsAndCommit(Arrays.asList(losAngeles));

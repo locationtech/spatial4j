@@ -43,7 +43,7 @@ public abstract class IndexShapeTask<T extends SpatialFieldInfo> extends PerfTas
         continue;
       }
       Document document = new Document();
-      document.add(new Field("id",StringField.TYPE_STORED,UUID.randomUUID().toString()));
+      document.add(new Field("id",UUID.randomUUID().toString(),StringField.TYPE_STORED));
       for (IndexableField field : fields) {
         document.add(field);
       }

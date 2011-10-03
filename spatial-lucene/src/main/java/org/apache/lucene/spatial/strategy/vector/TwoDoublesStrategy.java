@@ -18,14 +18,14 @@
 package org.apache.lucene.spatial.strategy.vector;
 
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FieldType;
-import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.*;
+import org.apache.lucene.index.*;
+import org.apache.lucene.document.*;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.FieldCache.DoubleParser;
@@ -79,7 +79,7 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
       if(store) {
         FieldType customType = new FieldType();
         customType.setStored(true);
-        f[f.length-1] = new Field( fieldInfo.getFieldName(), customType, ctx.toString( shape ) );
+        f[f.length-1] = new Field( fieldInfo.getFieldName(), ctx.toString( shape ), customType );
       }
       return f;
     }
