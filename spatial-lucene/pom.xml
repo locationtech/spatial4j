@@ -32,25 +32,25 @@
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-core</artifactId>
-      <version>4.0-SNAPSHOT</version>
+      <version>${lucene.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-queries</artifactId>
-      <version>4.0-SNAPSHOT</version>
+      <version>${lucene.version}</version>
     </dependency>
     
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-analyzers-common</artifactId>
-      <version>4.0-SNAPSHOT</version>
+      <version>${lucene.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-benchmark</artifactId>
-      <version>4.0-SNAPSHOT</version>
+      <version>${lucene.version}</version>
       <optional>true</optional>
     </dependency>
     
@@ -59,7 +59,7 @@
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-test-framework</artifactId>
-      <version>4.0-SNAPSHOT</version>
+      <version>${lucene.version}</version>
       <scope>test</scope>
     </dependency>
 
