@@ -51,7 +51,10 @@ public abstract class PrefixTreeFieldType extends SpatialFieldType<SimpleSpatial
   private double maxDetailKm2Degrees(double dist) {
     double[] latLonOut = DistanceUtils.pointOnBearing(0, 0, dist, DistanceUtils.DEG_90_AS_RADS, null,
         DistanceUtils.EARTH_MEAN_RADIUS_KM);
-    assert latLonOut[0] == 0;
+    if( Math.abs(latLonOut[0]) > 0.0001 ) {
+      throw new RuntimeException("Expect LatLonOut[0]==0, not: ["+latLonOut[0]+","+latLonOut[1]+"]");
+      //assert latLonOut[0] == 0;
+    }
     return latLonOut[1] * DistanceUtils.RADIANS_TO_DEGREES;
   }
 
