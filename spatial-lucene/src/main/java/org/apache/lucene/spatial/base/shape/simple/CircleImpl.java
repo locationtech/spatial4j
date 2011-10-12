@@ -23,7 +23,7 @@ import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.*;
 
 /**
- * A circle, otherwise known as a point-radius, which is based on a
+ * A circle, also known as a point-radius, based on a
  * {@link org.apache.lucene.spatial.base.distance.DistanceCalculator} which does all the work. This implementation
  * should work for both Euclidean 2D and Haversine/WGS84 surfaces.
  * Threadsafe & immutable.

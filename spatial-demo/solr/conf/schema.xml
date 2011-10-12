@@ -55,9 +55,9 @@
 
 
     <!-- Geometry Field Strategies -->
-    <fieldtype name="vector2d"  class="org.apache.solr.spatial.vector.TwoDoublesFieldType"                  ignoreIncompatibleGeometry="true" />
-    <fieldtype name="quad"      class="org.apache.solr.spatial.prefix.TermQueryQuadPrefixTreeFieldType"     ignoreIncompatibleGeometry="true" />
-    <fieldtype name="geohash"   class="org.apache.solr.spatial.prefix.RecursiveGeohashPrefixTreeFieldType"  ignoreIncompatibleGeometry="true" />
+    <fieldType name="vector2d"  class="org.apache.solr.spatial.vector.TwoDoublesFieldType"                  ignoreIncompatibleGeometry="true" />
+    <fieldType name="quad"      class="org.apache.solr.spatial.prefix.TermQueryQuadPrefixTreeFieldType"     ignoreIncompatibleGeometry="true" />
+    <fieldType name="geohash"   class="org.apache.solr.spatial.prefix.RecursiveGeohashPrefixTreeFieldType"  ignoreIncompatibleGeometry="true" />
 
  </types>
 
