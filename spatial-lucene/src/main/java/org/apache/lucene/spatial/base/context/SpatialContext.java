@@ -178,12 +178,16 @@ public abstract class SpatialContext {
       return null;
     }
 
+    if (str.indexOf(',') != -1)
+      return readLatCommaLonPoint(str);
     StringTokenizer st = new StringTokenizer(str, " ");
     double p0 = Double.parseDouble(st.nextToken());
     double p1 = Double.parseDouble(st.nextToken());
     if (st.hasMoreTokens()) {
       double p2 = Double.parseDouble(st.nextToken());
       double p3 = Double.parseDouble(st.nextToken());
+      if (st.hasMoreTokens())
+        throw new InvalidShapeException("Only 4 numbers supported (rect) but found more: "+str);
       return makeRect(p0, p2, p1, p3);
     }
     return makePoint(p0, p1);

@@ -78,6 +78,7 @@ public abstract class BaseSpatialContextTestCase {
 
     // Simple Point
     Shape s = ctx.readShape("10 20");
+    assertEquals(s,ctx.readShape("20,10"));//check comma for y,x format
     Point p = (Point) s;
     assertEquals(10.0, p.getX(), 0D);
     assertEquals(20.0, p.getY(), 0D);
