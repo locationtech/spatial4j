@@ -19,6 +19,7 @@ import static org.junit.Assert.fail;
 
 /**
  */
+@SuppressWarnings("unchecked")
 public abstract class BaseSpatialContextTestCase {
 
   protected abstract SpatialContext getSpatialContext();
@@ -42,20 +43,20 @@ public abstract class BaseSpatialContextTestCase {
       parser.parse(SpatialOperation.IsDisjointTo + "[ ]", ctx);
       fail("spatial operations need args");
     }
-    catch (Exception ex) {
+    catch (Exception ex) {//expected
     }
 
     try {
       parser.parse("XXXX(-10 10 -20 20)", ctx);
       fail("unknown operation!");
     }
-    catch (Exception ex) {
+    catch (Exception ex) {//expected
     }
   }
 
-  public static void checkShapesImplementEquals( Class<Shape>[] classes ) {
+  public static void checkShapesImplementEquals( Class[] classes ) {
 
-    for( Class<Shape> clazz : classes ) {
+    for( Class clazz : classes ) {
       try {
         clazz.getDeclaredMethod( "equals", Object.class );
       } catch (Exception e) {
@@ -71,8 +72,7 @@ public abstract class BaseSpatialContextTestCase {
 
   public static interface WriteReader {
     Shape writeThenRead( Shape s ) throws IOException;
-  };
-
+  }
 
   public static void checkBasicShapeIO( SpatialContext ctx, WriteReader help ) throws Exception {
 

@@ -9,6 +9,7 @@ public class ShapeFieldCache<T extends Shape> {
   private List<T>[] cache;
   public int defaultLength;
 
+  @SuppressWarnings({"unchecked"})
   public ShapeFieldCache( int length, int defaultLength ) {
     cache = new List[length];
     this.defaultLength= defaultLength;
