@@ -18,11 +18,11 @@
 package org.apache.solr.spatial;
 
 import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
-import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
@@ -64,7 +64,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
     //args.setDistPrecision(readDouble(aa.remove("distPrec")));
 
-    ctx = SpatialContextProvider.getContext();
+    ctx = SpatialContextProvider.getContext();//TODO use a field specific ctx; not a global singleton
     argsParser = new SpatialArgsParser();
   }
 
@@ -75,8 +75,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   //--------------------------------------------------------------
 
   @Override
-  public final IndexableField createField(SchemaField field, Object val, float boost)
-  {
+  public final IndexableField createField(SchemaField field, Object val, float boost) {
     Shape shape = (val instanceof Shape)?((Shape)val): ctx.readShape( val.toString() );
     if( shape == null ) {
       log.warn( "null shape for input: "+val );
@@ -86,8 +85,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   }
 
   @Override
-  public final IndexableField[] createFields(SchemaField field, Object val, float boost)
-  {
+  public final IndexableField[] createFields(SchemaField field, Object val, float boost) {
     Shape shape = (val instanceof Shape)?((Shape)val): ctx.readShape( val.toString() );
     if( shape == null ) {
       log.warn( "null shape for input: "+val );
@@ -107,18 +105,18 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   @Override
   public Query getRangeQuery(QParser parser, SchemaField field, String part1, String part2, boolean minInclusive, boolean maxInclusive) {
-    throw new UnsupportedOperationException();
+    //TODO assume a pair of points and bounding-box query
+    throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "Range query not supported on SpatialField: " + field.getName());
   }
 
   @Override
-  public final Query getFieldQuery(QParser parser, SchemaField field, String externalVal)
-  {
-    return getFieldQuery( parser, field, argsParser.parse( externalVal, ctx) );
+  public ValueSource getValueSource(SchemaField field, QParser parser) {
+    throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "ValueSource not supported on SpatialField: " + field.getName());
   }
 
-  public Query getFieldQuery(QParser parser, SchemaField field, SpatialArgs args)
-  {
-    return spatialStrategy.makeQuery(args, getFieldInfo(field));
+  @Override
+  public Query getFieldQuery(QParser parser, SchemaField field, String externalVal) {
+    return spatialStrategy.makeQuery(argsParser.parse( externalVal, ctx), getFieldInfo(field));
   }
 
   @Override
