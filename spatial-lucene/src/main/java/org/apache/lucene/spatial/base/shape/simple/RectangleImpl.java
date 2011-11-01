@@ -132,7 +132,7 @@ public class RectangleImpl implements Rectangle {
       return IntersectCase.CONTAINS;
     }
 
-    if (minX >= ext.getMinY() &&
+    if (minX >= ext.getMinX() &&
         maxX <= ext.getMaxX() &&
         minY >= ext.getMinY() &&
         maxY <= ext.getMaxY()) {

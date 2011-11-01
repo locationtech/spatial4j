@@ -4,12 +4,10 @@ import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
-import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.junit.Test;
 
 import static org.apache.lucene.spatial.base.shape.IntersectCase.*;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author dsmiley
@@ -78,9 +76,7 @@ public class TestShapes {
   }
 
   private void testRectangle(double x, double width, int height, SpatialContext ctx) {
-    double maxX = x + width;
-    if (ctx.isGeo())
-      maxX = DistanceUtils.normLonDeg(maxX);
+    double maxX = ctx.normX(x + width);
     Rectangle r = ctx.makeRect(x, maxX, -height / 2, height / 2);
     //test equals & hashcode of duplicate
     Rectangle r2 = ctx.makeRect(x, maxX, -height / 2, height / 2);
@@ -89,6 +85,11 @@ public class TestShapes {
 
     String msg = r.toString();
 
+    if (width > 0 && width < 180) {//since we shift by width to try different intersections
+      assertIntersect(msg, IntersectCase.OUTSIDE, r, ctx.makeRect(ctx.normX(x+1.5*width),ctx.normX(x+2*width),r.getMinY(),r.getMaxY()), ctx);
+      assertIntersect(msg, IntersectCase.CONTAINS, r, ctx.makeRect(ctx.normX(x+0.5*width),maxX,r.getMinY(),r.getMaxY()), ctx);
+      assertIntersect(msg, IntersectCase.INTERSECTS, r, ctx.makeRect(ctx.normX(x+0.5*width),ctx.normX(x+1.5*width),r.getMinY(),r.getMaxY()), ctx);
+    }
     assertEquals(msg, width != 0 && height != 0, r.hasArea());
     assertEquals(msg, width != 0 && height != 0, r.getArea() > 0);
     assertEqualsPct(msg, height, r.getHeight());
@@ -141,6 +142,7 @@ public class TestShapes {
   }
 
   private void assertIntersect(String msg, IntersectCase expected, Shape a, Shape b, SpatialContext ctx ) {
+    msg = a+" intersect "+b;//use different msg
     _assertIntersect(msg,expected,a,b,ctx);
     //check flipped a & b w/ transpose(), while we're at it
     _assertIntersect("(transposed) " + msg, expected.transpose(), b, a, ctx);
@@ -150,7 +152,7 @@ public class TestShapes {
     if (sect == expected)
       return;
     if (expected == WITHIN || expected == CONTAINS) {
-      if (a.getClass().equals(b.getClass())) // they are the same
+      if (a.getClass().equals(b.getClass())) // they are the same shape type
         assertEquals(a,b);
       else {
         //they are effectively points or lines that are the same location
