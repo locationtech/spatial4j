@@ -75,6 +75,8 @@ public abstract class SpatialContext {
       worldBounds = makeRect(worldBounds.getMinX(),worldBounds.getMaxX(),worldBounds.getMinY(),worldBounds.getMaxY());
     }
     this.worldBounds = worldBounds;
+    if (worldBounds.getCrossesDateLine())
+      throw new IllegalArgumentException("worldbounds shouldn't cross dateline: "+worldBounds);
   }
 
   public DistanceUnits getUnits() {
@@ -87,6 +89,22 @@ public abstract class SpatialContext {
 
   public Rectangle getWorldBounds() {
     return worldBounds;
+  }
+
+  public double normX(double x) {
+    if (isGeo()) {
+      return DistanceUtils.normLonDeg(x);
+    } else {
+      return x;
+    }
+  }
+
+  public double normY(double y) {
+    if (isGeo()) {
+      return DistanceUtils.normLatDeg(y);
+    } else {
+      return y;
+    }
   }
 
   /**

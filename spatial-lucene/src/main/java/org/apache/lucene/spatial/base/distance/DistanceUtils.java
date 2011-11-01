@@ -277,6 +277,21 @@ public class DistanceUtils {
   }
 
   /**
+   * Puts in range -90 <= lat_deg <= 90, accepting values 180 +/- this range. If more extreme values are given
+   * then assertions will fail.
+   */
+  public static double normLatDeg(double lat_deg) {
+    if (lat_deg > 90) {
+      lat_deg = 90 - (lat_deg - 90);
+      assert lat_deg == normLatDeg(lat_deg);
+    } else if (lat_deg < -90) {
+      lat_deg = -90 + (-90 - lat_deg);
+      assert lat_deg == normLatDeg(lat_deg);
+    }
+    return lat_deg;
+  }
+
+  /**
    * The square of the Euclidean Distance.  Not really a distance, but useful if all that matters is
    * comparing the result to another one.
    *
