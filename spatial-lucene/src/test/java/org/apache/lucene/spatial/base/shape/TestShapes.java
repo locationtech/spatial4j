@@ -48,9 +48,9 @@ public class TestShapes {
   @Test
   public void testGeoRectangle() {
     SpatialContext ctx = getGeoContext();
-    double[] lons = new double[]{0,45,175,180, -45,-175};//minX
+    double[] lons = new double[]{0,45,175,180,-45,-175};//minX
     for (double lon : lons) {
-      double[] lonWs = new double[]{0,20,180,200};//width
+      double[] lonWs = new double[]{0,20,180,200,355};//width
       for (double lonW : lonWs) {
         testRectangle(lon, lonW, 0, ctx);
         testRectangle(lon, lonW, 20, ctx);
@@ -85,9 +85,9 @@ public class TestShapes {
 
     String msg = r.toString();
 
-    if (width > 0 && width < 180) {//since we shift by width to try different intersections
-      assertIntersect(msg, IntersectCase.OUTSIDE, r, ctx.makeRect(ctx.normX(x+1.5*width),ctx.normX(x+2*width),r.getMinY(),r.getMaxY()), ctx);
-      assertIntersect(msg, IntersectCase.CONTAINS, r, ctx.makeRect(ctx.normX(x+0.5*width),maxX,r.getMinY(),r.getMaxY()), ctx);
+    if (width > 0 && (!ctx.isGeo() || width < 180)) {//since we shift by width to try different intersections
+      assertIntersect(msg, IntersectCase.OUTSIDE,    r, ctx.makeRect(ctx.normX(x+1.5*width),ctx.normX(x+2*width),r.getMinY(),r.getMaxY()), ctx);
+      assertIntersect(msg, IntersectCase.CONTAINS,   r, ctx.makeRect(ctx.normX(x+0.5*width),maxX,r.getMinY(),r.getMaxY()), ctx);
       assertIntersect(msg, IntersectCase.INTERSECTS, r, ctx.makeRect(ctx.normX(x+0.5*width),ctx.normX(x+1.5*width),r.getMinY(),r.getMaxY()), ctx);
     }
     assertEquals(msg, width != 0 && height != 0, r.hasArea());
@@ -153,7 +153,7 @@ public class TestShapes {
       return;
     if (expected == WITHIN || expected == CONTAINS) {
       if (a.getClass().equals(b.getClass())) // they are the same shape type
-        assertEquals(a,b);
+        assertEquals(msg,a,b);
       else {
         //they are effectively points or lines that are the same location
         assertTrue(msg,!a.hasArea());

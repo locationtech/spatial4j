@@ -104,7 +104,7 @@ public class RectangleImpl implements Rectangle {
     if (other instanceof Point) {
       Point point = (Point) other;
       if (point.getY() > getMaxY() || point.getY() < getMinY() ||
-          (minX > maxX ?
+          (getCrossesDateLine() ?
               (point.getX() < minX && point.getX() > maxX)
               : (point.getX() < minX || point.getX() > maxX) ))
         return IntersectCase.OUTSIDE;
@@ -118,24 +118,51 @@ public class RectangleImpl implements Rectangle {
     //Must be another rectangle...
 
     Rectangle ext = other.getBoundingBox();
-    if (ext.getMinX() > maxX ||
-        ext.getMaxX() < minX ||
+
+    //For ext & this we have local minX and maxX variable pairs. We rotate them so that minX <= maxX
+    double ext_minX = ext.getMinX();
+    double ext_maxX = ext.getMaxX();
+    double minX = this.minX;
+    double maxX = this.maxX;
+    if (ctx.isGeo()) {
+      //the 360 check is an edge-case for complete world-wrap
+      if (ext.getWidth() < 360) {
+        if (!ext.getCrossesDateLine())
+          ext_minX += 360;
+        ext_maxX += 360;
+      } else {
+        ext_minX = -180;
+        ext_maxX = 180+360;
+      }
+
+      if (getWidth() < 360) {
+        if (!getCrossesDateLine())
+          minX += 360;
+        maxX += 360;
+      } else {
+        minX = -180;
+        maxX = 180+360;
+      }
+    }
+
+    if (ext_minX > maxX ||
+        ext_maxX < minX ||
         ext.getMinY() > maxY ||
         ext.getMaxY() < minY) {
       return IntersectCase.OUTSIDE;
     }
 
-    if (ext.getMinX() >= minX &&
-        ext.getMaxX() <= maxX &&
+    if (ext_minX >= minX &&
+        ext_maxX <= maxX &&
         ext.getMinY() >= minY &&
         ext.getMaxY() <= maxY) {
       return IntersectCase.CONTAINS;
     }
 
-    if (minX >= ext.getMinX() &&
-        maxX <= ext.getMaxX() &&
-        minY >= ext.getMinY() &&
-        maxY <= ext.getMaxY()) {
+    if (ext_minX <= minX &&
+        ext_maxX >= maxX &&
+        ext.getMinY() <= minY &&
+        ext.getMaxY() >= maxY) {
       return IntersectCase.WITHIN;
     }
     return IntersectCase.INTERSECTS;

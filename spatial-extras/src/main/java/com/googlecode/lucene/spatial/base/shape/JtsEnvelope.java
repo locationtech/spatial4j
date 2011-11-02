@@ -96,6 +96,7 @@ public class JtsEnvelope implements Rectangle {
   @Override
   public IntersectCase intersect(Shape other, SpatialContext ctx) {
     // ** NOTE ** the overall order of logic is kept consistent here with simple.RectangleImpl.
+    // ... except this doesn't do date-line cross
     if (other instanceof Point) {
       Point p = (Point)other;
       return (envelope.contains(p.getX(),p.getY())) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
@@ -121,7 +122,7 @@ public class JtsEnvelope implements Rectangle {
       return IntersectCase.CONTAINS;
     }
 
-    if (envelope.getMinX() >= ext.getMinY() &&
+    if (envelope.getMinX() >= ext.getMinX() &&
         envelope.getMaxX() <= ext.getMaxX() &&
         envelope.getMinY() >= ext.getMinY() &&
         envelope.getMaxY() <= ext.getMaxY()) {
