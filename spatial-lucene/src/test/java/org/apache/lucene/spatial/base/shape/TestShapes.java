@@ -48,7 +48,7 @@ public class TestShapes {
   @Test
   public void testGeoRectangle() {
     SpatialContext ctx = getGeoContext();
-    double[] lons = new double[]{0,45,175,180,-45,-175};//minX
+    double[] lons = new double[]{0,45,160,180,-45,-175};//minX
     for (double lon : lons) {
       double[] lonWs = new double[]{0,20,180,200,355};//width
       for (double lonW : lonWs) {
