@@ -127,18 +127,19 @@ public class RectangleImpl implements Rectangle {
     if (ctx.isGeo()) {
       //the 360 check is an edge-case for complete world-wrap
       if (ext.getWidth() < 360) {
-        if (!ext.getCrossesDateLine())
-          ext_minX += 360;
-        ext_maxX += 360;
+        //TODO the -180/180 normalization logic should happen in constructor / ctx
+        if (ext_minX == 180)
+          ext_minX = -180;
+        ext_maxX = ext_minX + ext.getWidth();
       } else {
         ext_minX = -180;
         ext_maxX = 180+360;
       }
 
       if (getWidth() < 360) {
-        if (!getCrossesDateLine())
-          minX += 360;
-        maxX += 360;
+        if (minX == 180)
+          minX = -180;
+        maxX = minX + getWidth();
       } else {
         minX = -180;
         maxX = 180+360;
