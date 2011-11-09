@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<schema name="test" version="1.0">
+  <types>
+
+    <fieldType name="tint" class="solr.TrieIntField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="tfloat" class="solr.TrieFloatField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="tlong" class="solr.TrieLongField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="tdouble" class="solr.TrieDoubleField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
+
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true"/>
+
+    <fieldType name="recursive" class="org.apache.solr.spatial.prefix.RecursiveGeohashPrefixTreeFieldType" />
+
+  </types>
+
+
+  <fields>
+
+    <field name="id" type="string" required="true"/>
+
+    <field name="recursive" multiValued="true" type="recursive" />
+
+  </fields>
+
+  <uniqueKey>id</uniqueKey>
+
+  <!--<copyField source="title" dest="title_stemmed"/>-->
+
+</schema>
