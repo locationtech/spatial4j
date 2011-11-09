@@ -262,33 +262,19 @@ public class DistanceUtils {
   }
 
   /**
-   * Puts in range 180 < lon_deg <= 180, accepting values 360 +/- this range. If more extreme values are given
-   * then assertions will fail.
+   * Puts in range -180 <= lon_deg < +180.
    */
   public static double normLonDeg(double lon_deg) {
-    if (lon_deg <= -180) {//TODO need to consider implications of -180 & 180 duality in the framework some time
-      lon_deg += 360;
-      assert lon_deg == normLonDeg(lon_deg);
-    } else if (lon_deg > 180) {
-      lon_deg -= 360;
-      assert lon_deg == normLonDeg(lon_deg);
-    }
-    return lon_deg;
+    double off = (lon_deg + 180) % 360;
+    return off < 0 ? 180 + off : -180 + off;
   }
 
   /**
-   * Puts in range -90 <= lat_deg <= 90, accepting values 180 +/- this range. If more extreme values are given
-   * then assertions will fail.
+   * Puts in range -90 <= lat_deg <= 90.
    */
   public static double normLatDeg(double lat_deg) {
-    if (lat_deg > 90) {
-      lat_deg = 90 - (lat_deg - 90);
-      assert lat_deg == normLatDeg(lat_deg);
-    } else if (lat_deg < -90) {
-      lat_deg = -90 + (-90 - lat_deg);
-      assert lat_deg == normLatDeg(lat_deg);
-    }
-    return lat_deg;
+    double off = Math.abs((lat_deg + 90) % 360);
+    return off <= 180 ? off-90 : -off;
   }
 
   /**

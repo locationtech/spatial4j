@@ -1,14 +1,13 @@
 package org.apache.lucene.spatial.base.distance;
 
-import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
+import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author David Smiley - dsmiley@mitre.org
@@ -48,6 +47,24 @@ public class TestDistances {
         assertEquals(latA == 90, spans(r));
         //TODO
       }
+    }
+  }
+
+  @Test
+  public void testNormLat() {
+    double[][] lats = new double[][] {{-90,-90},{90,90},{0,0}, {-100,-80},
+        {-90-180,90},{-90-360,-90},{90+180,-90},{90+360,90}};
+    for (double[] pair : lats) {
+      assertEquals("input "+pair[0],pair[1],ctx.normY(pair[0]),0.001);
+    }
+  }
+
+  @Test
+  public void testNormLon() {
+    double[][] lons = new double[][] {{-180,-180},{180,-180},{0,0}, {-190,170},
+        {-180-360,-180},{-180-720,-180},{180+360,-180},{180+720,-180}};
+    for (double[] pair : lons) {
+      assertEquals("input "+pair[0],pair[1],ctx.normX(pair[0]),0.001);
     }
   }
 
