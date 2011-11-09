@@ -7,7 +7,6 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
-import org.apache.lucene.spatial.base.distance.EuclideanDistanceCalculator;
 import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
@@ -136,8 +135,8 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
 
   @Override
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
-    DistanceCalculator calc = new EuclideanDistanceCalculator();
-    return makeValueSource(args, fieldInfo,calc);
+    DistanceCalculator calc = grid.getSpatialContext().getDistanceCalculator();
+    return makeValueSource(args, fieldInfo, calc);
   }
   
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo, DistanceCalculator calc) {

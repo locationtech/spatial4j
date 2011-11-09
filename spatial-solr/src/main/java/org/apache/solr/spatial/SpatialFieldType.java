@@ -78,7 +78,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   public final IndexableField createField(SchemaField field, Object val, float boost) {
     Shape shape = (val instanceof Shape)?((Shape)val): ctx.readShape( val.toString() );
     if( shape == null ) {
-      log.warn( "null shape for input: "+val );
+      log.warn( "Field {}: null shape for input: {}", field, val );
       return null;
     }
     return spatialStrategy.createField(getFieldInfo(field), shape, field.indexed(), field.stored());
@@ -88,7 +88,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   public final IndexableField[] createFields(SchemaField field, Object val, float boost) {
     Shape shape = (val instanceof Shape)?((Shape)val): ctx.readShape( val.toString() );
     if( shape == null ) {
-      log.warn( "null shape for input: "+val );
+      log.warn( "Field {}: null shape for input: {}", field, val );
       return null;
     }
     return spatialStrategy.createFields(getFieldInfo(field), shape, field.indexed(), field.stored());
@@ -116,6 +116,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, String externalVal) {
+    //if (parser.getLocalParams().getBool(FILTER,false);)
     return spatialStrategy.makeQuery(argsParser.parse( externalVal, ctx), getFieldInfo(field));
   }
 

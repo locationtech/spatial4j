@@ -24,17 +24,21 @@ public abstract class SpatialStrategy<T extends SpatialFieldInfo> {
     return ctx;
   }
 
+  /** Corresponds with Solr's  FieldType.isPolyField(). */
   public boolean isPolyField() {
     return false;
   }
 
   /**
+   * Corresponds with Solr's  FieldType.createField().
+   *
    * This may return a null field if it does not want to make anything.
    * This is reasonable behavior if 'ignoreIncompatibleGeometry=true' and the
    * geometry is incompatible
    */
   public abstract IndexableField createField(T fieldInfo, Shape shape, boolean index, boolean store);
 
+  /** Corresponds with Solr's FieldType.createFields(). */
   public IndexableField[] createFields(T fieldInfo, Shape shape, boolean index, boolean store) {
     return new IndexableField[] { createField(fieldInfo, shape, index, store) };
   }
