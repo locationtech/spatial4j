@@ -1,10 +1,12 @@
 package org.apache.lucene.spatial.base.context;
 
-import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
-import org.apache.lucene.spatial.base.shape.*;
+import org.apache.lucene.spatial.base.shape.MultiShape;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Rectangle;
+import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
@@ -116,27 +118,6 @@ public abstract class BaseSpatialContextTestCase {
     assertEquals(7.89, circle.getDistance(), 0D);
   }
 
-
-  public static void checkBBoxIntersection( SpatialContext ctx ) {
-
-    Rectangle big = ctx.makeRect(0, 100, 0, 100);
-    Rectangle rr0 = ctx.makeRect(25, 75, 25, 75);
-    Rectangle rr1 = ctx.makeRect(120, 150, 0, 100);
-    Rectangle rr2 = ctx.makeRect(-1, 50, 0, 50);
-
-    assertEquals(IntersectCase.CONTAINS, big.intersect(rr0, ctx));
-    assertEquals(IntersectCase.WITHIN, rr0.intersect(big, ctx));
-    assertEquals(IntersectCase.OUTSIDE, big.intersect(rr1, ctx));
-    assertEquals(IntersectCase.OUTSIDE, rr1.intersect(big, ctx));
-    assertEquals(IntersectCase.INTERSECTS, rr2.intersect(big, ctx));
-    assertEquals(IntersectCase.INTERSECTS, big.intersect(rr2, ctx));
-
-    Point p1 = ctx.makePoint(1000, 20);
-    Point p2 = ctx.makePoint(50, 50);
-    assertEquals(IntersectCase.OUTSIDE, p1.intersect(big, ctx));
-    assertEquals(IntersectCase.WITHIN, p2.intersect(big, ctx));
-  }
-
   //--------------------------------------------------------------
   // Actual tests
   //--------------------------------------------------------------
@@ -168,8 +149,6 @@ public abstract class BaseSpatialContextTestCase {
     });
   }
 
-  @Test
-  public void testSimpleIntersection() throws Exception {
-    checkBBoxIntersection(getSpatialContext());
-  }
+  //Looking for more tests?  Shapes are tested in TestShapes.
+
 }
