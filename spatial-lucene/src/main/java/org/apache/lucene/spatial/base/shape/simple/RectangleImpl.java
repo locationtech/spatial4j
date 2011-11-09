@@ -37,6 +37,7 @@ public class RectangleImpl implements Rectangle {
   private final double maxY;
 
   public RectangleImpl(double minX, double maxX, double minY, double maxY) {
+    //We assume any normalization / validation of params already occurred.
     this.minX = minX;
     this.maxX = maxX;
     this.minY = minY;
@@ -127,22 +128,23 @@ public class RectangleImpl implements Rectangle {
     if (ctx.isGeo()) {
       //the 360 check is an edge-case for complete world-wrap
       if (ext.getWidth() < 360) {
-        //TODO the -180/180 normalization logic should happen in constructor / ctx
-        if (ext_minX == 180)
-          ext_minX = -180;
         ext_maxX = ext_minX + ext.getWidth();
       } else {
-        ext_minX = -180;
         ext_maxX = 180+360;
       }
 
       if (getWidth() < 360) {
-        if (minX == 180)
-          minX = -180;
         maxX = minX + getWidth();
       } else {
-        minX = -180;
         maxX = 180+360;
+      }
+
+      if (maxX < ext_minX) {
+        minX += 360;
+        maxX += 360;
+      } else if (ext_maxX < minX) {
+        ext_minX += 360;
+        ext_maxX += 360;
       }
     }
 

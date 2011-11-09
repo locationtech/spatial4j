@@ -56,10 +56,14 @@ public class TestShapes {
         testRectangle(lon, lonW, 20, ctx);
       }
     }
+
     //The only way to officially support complete longitude wrap-around is via western longitude = -180. We can't
     // support any point because 0 is undifferentiated in sign.
     testRectangle(-180, 360, 0, ctx);
     testRectangle(-180, 360, 20, ctx);
+
+    //Test geo rectangle intersections
+    testRectIntersect(ctx);
   }
 
   @Test
@@ -73,10 +77,12 @@ public class TestShapes {
         testRectangle(minX, width, 20, ctx);
       }
     }
+
+    testRectIntersect(ctx);
   }
 
   private void testRectangle(double x, double width, int height, SpatialContext ctx) {
-    double maxX = ctx.normX(x + width);
+    double maxX = x + width;
     Rectangle r = ctx.makeRect(x, maxX, -height / 2, height / 2);
     //test equals & hashcode of duplicate
     Rectangle r2 = ctx.makeRect(x, maxX, -height / 2, height / 2);
@@ -85,11 +91,6 @@ public class TestShapes {
 
     String msg = r.toString();
 
-    if (width > 0 && (!ctx.isGeo() || width < 180)) {//since we shift by width to try different intersections
-      assertIntersect(msg, IntersectCase.OUTSIDE,    r, ctx.makeRect(ctx.normX(x+1.5*width),ctx.normX(x+2*width),r.getMinY(),r.getMaxY()), ctx);
-      assertIntersect(msg, IntersectCase.CONTAINS,   r, ctx.makeRect(ctx.normX(x+0.5*width),maxX,r.getMinY(),r.getMaxY()), ctx);
-      assertIntersect(msg, IntersectCase.INTERSECTS, r, ctx.makeRect(ctx.normX(x+0.5*width),ctx.normX(x+1.5*width),r.getMinY(),r.getMaxY()), ctx);
-    }
     assertEquals(msg, width != 0 && height != 0, r.hasArea());
     assertEquals(msg, width != 0 && height != 0, r.getArea() > 0);
     assertEqualsPct(msg, height, r.getHeight());
@@ -109,6 +110,44 @@ public class TestShapes {
     assertEqualsPct(msg, dCorner, dc.calculate(center, r.getMinX(), r.getMinY()));//LL
   }
 
+  private void testRectIntersect(SpatialContext ctx) {
+    final double INCR = 45;
+    final double Y = 10;
+    for(double left = -180; left <= 180; left += INCR) {
+      for(double right = left; right - left <= 360; right += INCR) {
+        Rectangle r = ctx.makeRect(left,right,-Y,Y);
+
+        //test contains (which also tests within)
+        for(double left2 = left; left2 <= right; left2 += INCR) {
+          for(double right2 = left2; right2 <= right; right2 += INCR) {
+            Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
+            assertIntersect(null, IntersectCase.CONTAINS, r, r2, ctx);
+          }
+        }
+        //test point contains
+        assertIntersect(null,IntersectCase.CONTAINS, r, ctx.makePoint(left,Y),ctx);
+
+        //test outside
+        for(double left2 = right+INCR; left2 - left < 360; left2 += INCR) {
+          for(double right2 = left2; right2 - left < 360; right2 += INCR) {
+            Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
+            assertIntersect(null, IntersectCase.OUTSIDE, r, r2, ctx);
+
+            //test point outside
+            assertIntersect(null,IntersectCase.OUTSIDE, r, ctx.makePoint(left2,Y),ctx);
+          }
+        }
+        //test intersect
+        for(double left2 = left+INCR; left2 <= right; left2 += INCR) {
+          for(double right2 = right+INCR; right2 - left < 360; right2 += INCR) {
+            Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
+            assertIntersect(null, IntersectCase.INTERSECTS, r, r2, ctx);
+          }
+        }
+
+      }
+    }
+  }
 
   @Test
   public void testSimpleCircle() {

@@ -73,6 +73,9 @@ public abstract class SpatialContext {
     } else {
       //copy so we can ensure we have the right implementation
       worldBounds = makeRect(worldBounds.getMinX(),worldBounds.getMaxX(),worldBounds.getMinY(),worldBounds.getMaxY());
+      //there are other assumptions in the framework that assume geo == WGS84 essentially so I'll assume that here.
+      if (isGeo())
+        assert worldBounds.equals(makeRect(-180,180,-90,90));
     }
     this.worldBounds = worldBounds;
     if (worldBounds.getCrossesDateLine())
@@ -138,10 +141,13 @@ public abstract class SpatialContext {
 
   public abstract String toString(Shape shape);
 
+  /** Construct a point. The parameters will be normalized. */
   public abstract Point makePoint( double x, double y );
 
+  /** Construct a rectangle. The parameters will be normalized. */
   public abstract Rectangle makeRect(double minX, double maxX, double minY, double maxY);
 
+  /** Construct a circle. The parameters will be normalized. */
   public Circle makeCircle(double x, double y, double distance) {
     return makeCircle(makePoint(x,y),distance);
   }

@@ -81,11 +81,57 @@ public class SimpleSpatialContext extends SpatialContext {
 
   @Override
   public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
+    //--Normalize parameters
+    if (isGeo()) {
+      double delta = calcWidth(minX,maxX);
+      if (delta >= 360) {
+        minX = -180;
+        maxX = 180;
+      } else {
+        minX = normX(minX);
+        maxX = normX(maxX);
+        assert Math.abs(delta - calcWidth(minX,maxX)) < 0.0001;//recompute delta; should be the same
+      }
+      if (minY > maxY) {
+        throw new IllegalArgumentException("maxY must be >= minY");
+      }
+//      if (minY < -90 || minY > 90 || maxY < -90 || maxY > 90)
+//        throw new IllegalArgumentException("minY or maxY is outside of -90 to 90 bounds. What did you mean?");
+//      debatable what to do in this situation.
+      if (minY <= -90) {
+        minX = -180;
+        maxX = 180;
+        maxY = Math.min(90,Math.max(maxY,-90 + (-90 - minY)));
+        minY = -90;
+      }
+      if (maxY >= 90) {
+        minX = -180;
+        maxX = 180;
+        minY = Math.max(-90,Math.min(minY,90 - (maxY - 90)));
+        maxY = 90;
+      }
+
+    } else {
+      //these normalizations probably won't do anything since it's not geo but should probably call them any way.
+      minX = normX(minX);
+      maxX = normX(maxX);
+      minY = normY(minY);
+      maxY = normY(maxY);
+    }
     return new RectangleImpl( minX, maxX, minY, maxY );
+  }
+
+  private double calcWidth(double minX,double maxX) {
+    double w = maxX - minX;
+    if (w < 0) {//only true when minX > maxX (WGS84 assumed)
+      w += 360;
+      assert w >= 0;
+    }
+    return w;
   }
 
   @Override
   public Point makePoint(double x, double y) {
-    return new PointImpl(x,y);
+    return new PointImpl(normX(x),normY(y));
   }
 }
