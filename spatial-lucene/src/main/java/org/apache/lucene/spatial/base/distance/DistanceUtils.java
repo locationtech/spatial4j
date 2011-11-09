@@ -265,6 +265,8 @@ public class DistanceUtils {
    * Puts in range -180 <= lon_deg < +180.
    */
   public static double normLonDeg(double lon_deg) {
+    if (lon_deg >= -180 && lon_deg < 180)
+      return lon_deg;//common case, and avoids slight double precision shifting
     double off = (lon_deg + 180) % 360;
     return off < 0 ? 180 + off : -180 + off;
   }
@@ -273,6 +275,8 @@ public class DistanceUtils {
    * Puts in range -90 <= lat_deg <= 90.
    */
   public static double normLatDeg(double lat_deg) {
+    if (lat_deg >= -90 && lat_deg <= 90)
+      return lat_deg;//common case, and avoids slight double precision shifting
     double off = Math.abs((lat_deg + 90) % 360);
     return off <= 180 ? off-90 : -off;
   }

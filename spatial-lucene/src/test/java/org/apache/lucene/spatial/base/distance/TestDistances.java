@@ -52,19 +52,23 @@ public class TestDistances {
 
   @Test
   public void testNormLat() {
-    double[][] lats = new double[][] {{-90,-90},{90,90},{0,0}, {-100,-80},
+    double[][] lats = new double[][] {
+        {1.23,1.23},//1.23 might become 1.2299999 after some math and we want to ensure that doesn't happen
+        {-90,-90},{90,90},{0,0}, {-100,-80},
         {-90-180,90},{-90-360,-90},{90+180,-90},{90+360,90}};
     for (double[] pair : lats) {
-      assertEquals("input "+pair[0],pair[1],ctx.normY(pair[0]),0.001);
+      assertEquals("input "+pair[0],pair[1],ctx.normY(pair[0]),0);
     }
   }
 
   @Test
   public void testNormLon() {
-    double[][] lons = new double[][] {{-180,-180},{180,-180},{0,0}, {-190,170},
+    double[][] lons = new double[][] {
+        {1.23,1.23},//1.23 might become 1.2299999 after some math and we want to ensure that doesn't happen
+        {-180,-180},{180,-180},{0,0}, {-190,170},
         {-180-360,-180},{-180-720,-180},{180+360,-180},{180+720,-180}};
     for (double[] pair : lons) {
-      assertEquals("input "+pair[0],pair[1],ctx.normX(pair[0]),0.001);
+      assertEquals("input "+pair[0],pair[1],ctx.normX(pair[0]),0);
     }
   }
 
