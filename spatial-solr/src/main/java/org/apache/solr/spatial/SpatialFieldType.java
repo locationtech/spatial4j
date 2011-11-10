@@ -19,10 +19,10 @@ package org.apache.solr.spatial;
 
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queries.function.ValueSource;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.*;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextProvider;
+import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
@@ -116,8 +116,19 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, String externalVal) {
-    //if (parser.getLocalParams().getBool(FILTER,false);)
-    return spatialStrategy.makeQuery(argsParser.parse( externalVal, ctx), getFieldInfo(field));
+    final SpatialArgs spatialArgs = argsParser.parse(externalVal, ctx);
+    final T fieldInfo = getFieldInfo(field);
+    //see SOLR-2883
+    if (parser.getLocalParams().getBool("needScore",true)) {
+      return spatialStrategy.makeQuery(spatialArgs, fieldInfo);
+    } else {
+      Filter filter = spatialStrategy.makeFilter(spatialArgs, fieldInfo);
+      if (filter instanceof QueryWrapperFilter) {
+        QueryWrapperFilter queryWrapperFilter = (QueryWrapperFilter) filter;
+        return queryWrapperFilter.getQuery();
+      }
+      return new ConstantScoreQuery(filter);
+    }
   }
 
   @Override
