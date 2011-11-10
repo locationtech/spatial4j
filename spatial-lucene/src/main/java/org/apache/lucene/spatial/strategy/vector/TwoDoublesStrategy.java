@@ -18,27 +18,21 @@
 package org.apache.lucene.spatial.strategy.vector;
 
 import org.apache.lucene.document.Field;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.FilteredQuery;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.*;
-import org.apache.lucene.index.*;
-import org.apache.lucene.document.*;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.QueryWrapperFilter;
-import org.apache.lucene.search.FieldCache.DoubleParser;
-import org.apache.lucene.queries.function.ValueSource;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queries.function.FunctionQuery;
+import org.apache.lucene.queries.function.ValueSource;
+import org.apache.lucene.search.*;
+import org.apache.lucene.search.FieldCache.DoubleParser;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.distance.DistanceCalculator;
-import org.apache.lucene.spatial.base.distance.EuclideanDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.exception.UnsupportedSpatialOperation;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialOperation;
-import org.apache.lucene.spatial.base.shape.*;
+import org.apache.lucene.spatial.base.shape.Circle;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Rectangle;
+import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.lucene.spatial.strategy.util.CachingDoubleValueSource;
 import org.apache.lucene.spatial.strategy.util.TrieFieldInfo;
@@ -97,15 +91,9 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
 
   @Override
   public ValueSource makeValueSource(SpatialArgs args, TwoDoublesFieldInfo fieldInfo) {
-    DistanceCalculator calc = new EuclideanDistanceCalculator();
-    return makeValueSource(args, fieldInfo,calc);
-  }
-
-  public ValueSource makeValueSource(SpatialArgs args, TwoDoublesFieldInfo fieldInfo, DistanceCalculator calc) {
     Point p = args.getShape().getCenter();
-    return new DistanceValueSource(p, calc, fieldInfo, parser);
+    return new DistanceValueSource(p, ctx.getDistanceCalculator(), fieldInfo, parser);
   }
-
 
   @Override
   public Filter makeFilter(SpatialArgs args, TwoDoublesFieldInfo fieldInfo) {
@@ -113,12 +101,11 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
       if( SpatialOperation.is( args.getOperation(),
           SpatialOperation.Intersects,
           SpatialOperation.IsWithin )) {
-        DistanceCalculator calc = ctx.getDistanceCalculator();
         Circle circle = (Circle)args.getShape();
         Query bbox = makeWithin(circle.getBoundingBox(), fieldInfo);
 
         // Make the ValueSource
-        ValueSource valueSource = makeValueSource(args, fieldInfo, calc);
+        ValueSource valueSource = makeValueSource(args, fieldInfo);
 
         return new ValueSourceFilter(
             new QueryWrapperFilter( bbox ), valueSource, 0, circle.getDistance() );
@@ -140,7 +127,6 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
     }
 
     ValueSource valueSource = null;
-    DistanceCalculator calc = ctx.getDistanceCalculator();
 
     Query spatial = null;
     SpatialOperation op = args.getOperation();
@@ -158,7 +144,7 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
         Circle circle = (Circle)args.getShape();
 
         // Make the ValueSource
-        valueSource = makeValueSource(args, fieldInfo, calc);
+        valueSource = makeValueSource(args, fieldInfo);
 
         ValueSourceFilter vsf = new ValueSourceFilter(
             new QueryWrapperFilter( spatial ), valueSource, 0, circle.getDistance() );
@@ -179,7 +165,7 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
         valueSource = new CachingDoubleValueSource(valueSource);
       }
       else {
-        valueSource = makeValueSource(args, fieldInfo, calc);
+        valueSource = makeValueSource(args, fieldInfo);
       }
       Query spatialRankingQuery = new FunctionQuery(valueSource);
       BooleanQuery bq = new BooleanQuery();
