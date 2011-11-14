@@ -25,12 +25,10 @@ import org.apache.lucene.queries.function.DocValues;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.search.FieldCache.DoubleParser;
-import org.apache.lucene.search.cache.CachedArray.DoubleValues;
-import org.apache.lucene.search.cache.CachedArrayCreator;
-import org.apache.lucene.search.cache.DoubleValuesCreator;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
+import org.apache.lucene.util.Bits;
 
 import java.io.IOException;
 import java.util.Map;
@@ -73,10 +71,10 @@ public class DistanceValueSource extends ValueSource {
   public DocValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
     IndexReader reader = readerContext.reader;
 
-    final DoubleValues ptX = FieldCache.DEFAULT.getDoubles(reader, fields.getFieldNameX(),
-          new DoubleValuesCreator(fields.getFieldNameX(), parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));
-    final DoubleValues ptY = FieldCache.DEFAULT.getDoubles(reader, fields.getFieldNameY(),
-        new DoubleValuesCreator(fields.getFieldNameY(), parser, CachedArrayCreator.CACHE_VALUES_AND_BITS));
+    final double[] ptX = FieldCache.DEFAULT.getDoubles(reader, fields.getFieldNameX(), true);
+    final double[] ptY = FieldCache.DEFAULT.getDoubles(reader, fields.getFieldNameY(), true);
+    final Bits validX =  FieldCache.DEFAULT.getDocsWithField(reader, fields.getFieldNameX());
+    final Bits validY =  FieldCache.DEFAULT.getDocsWithField(reader, fields.getFieldNameY());
 
     return new DocValues() {
       @Override
@@ -87,8 +85,8 @@ public class DistanceValueSource extends ValueSource {
       @Override
       public double doubleVal(int doc) {
         // make sure it has minX and area
-        if (ptX.valid.get(doc) && ptY.valid.get(doc)) {
-          PointImpl pt = new PointImpl( ptX.values[doc],  ptY.values[doc] );
+        if (validX.get(doc) && validY.get(doc)) {
+          PointImpl pt = new PointImpl( ptX[doc],  ptY[doc] );
           return calculator.calculate(from, pt);
         }
         return 0;
