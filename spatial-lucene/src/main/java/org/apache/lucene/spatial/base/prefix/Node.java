@@ -79,6 +79,8 @@ public abstract class Node implements Comparable<Node> {
     if (bytes[b_off + b_len - 1] == LEAF_BYTE) {
       b_len--;
       setLeaf();
+    } else if (getLevel() == spatialPrefixTree.getMaxLevels()) {
+      setLeaf();
     }
   }
 
@@ -87,7 +89,7 @@ public abstract class Node implements Comparable<Node> {
   }
 
   public boolean isLeaf() {
-    return shapeRel == IntersectCase.WITHIN || getLevel() == spatialPrefixTree.getMaxLevels();
+    return shapeRel == IntersectCase.WITHIN;
   }
 
   public void setLeaf() {
