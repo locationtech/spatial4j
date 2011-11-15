@@ -17,10 +17,6 @@
 
 package org.apache.lucene.spatial.strategy.util;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
@@ -28,6 +24,10 @@ import org.apache.lucene.queries.function.DocValues;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.shape.Point;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -40,33 +40,17 @@ public class CachedDistanceValueSource extends ValueSource {
   private final DistanceCalculator calculator;
   private final Point from;
 
-  /**
-   * Constructor.
-   * @param queryEnvelope the query envelope
-   * @param queryPower the query power (scoring algorithm)
-   * @param targetPower the target power (scoring algorithm)
-   */
   public CachedDistanceValueSource(Point from, DistanceCalculator calc, ShapeFieldCacheProvider<Point> provider) {
     this.from = from;
     this.provider = provider;
     this.calculator = calc;
   }
 
-  /**
-   * Returns the ValueSource description.
-   * @return the description
-   */
   @Override
   public String description() {
     return "DistanceValueSource("+calculator+")";
   }
 
-
-  /**
-   * Returns the DocValues used by the function query.
-   * @param reader the index reader
-   * @return the values
-   */
   @Override
   public DocValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
     final ShapeFieldCache<Point> cache =
@@ -83,10 +67,8 @@ public class CachedDistanceValueSource extends ValueSource {
         List<Point> vals = cache.getShapes( doc );
         if( vals != null ) {
           double v = calculator.calculate(from, vals.get(0));
-          if( vals.size() > 1 ) {
-            for( int i=1; i<vals.size(); i++ ) {
-              v = Math.min(v, calculator.calculate(from, vals.get(i)));
-            }
+          for( int i=1; i<vals.size(); i++ ) {
+            v = Math.min(v, calculator.calculate(from, vals.get(i)));
           }
           return v;
         }
@@ -100,11 +82,6 @@ public class CachedDistanceValueSource extends ValueSource {
     };
   }
 
-  /**
-   * Determines if this ValueSource is equal to another.
-   * @param o the ValueSource to compare
-   * @return <code>true</code> if the two objects are based upon the same query envelope
-   */
   @Override
   public boolean equals(Object obj) {
     if (obj == null) { return false; }

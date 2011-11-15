@@ -17,6 +17,11 @@
 
 package org.apache.lucene.spatial;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.io.LineReader;
+import org.apache.lucene.spatial.base.query.SpatialArgs;
+import org.apache.lucene.spatial.base.query.SpatialArgsParser;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,11 +29,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.io.LineReader;
-import org.apache.lucene.spatial.base.query.SpatialArgs;
-import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 
 /**
  * Helper class to execute queries
@@ -78,5 +78,10 @@ public class SpatialTestQuery {
         }
       }
     };
+  }
+
+  @Override
+  public String toString() {
+    return line;
   }
 }
