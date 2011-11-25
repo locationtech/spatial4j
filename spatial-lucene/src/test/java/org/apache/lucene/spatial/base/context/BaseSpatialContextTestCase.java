@@ -128,11 +128,8 @@ public abstract class BaseSpatialContextTestCase {
     assertEquals(7.89, circle.getDistance(), 0D);
     Assert.assertTrue(s.hasArea());
 
-    s = ctx.readShape("Circle( 1.23  4.56 d=7.89 )");
-    circle = (CircleImpl) s;
-    assertEquals(1.23, circle.getCenter().getX(), 0D);
-    assertEquals(4.56, circle.getCenter().getY(), 0D);
-    assertEquals(7.89, circle.getDistance(), 0D);
+    Shape s2 = ctx.readShape("Circle( 4.56,1.23 d=7.89 )"); // use lat,lon and use 'd' abbreviation
+    assertEquals(s,s2);
   }
 
   //--------------------------------------------------------------

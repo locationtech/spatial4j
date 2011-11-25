@@ -171,8 +171,15 @@ public abstract class SpatialContext {
         if( idx > 0 ) {
           String body = str.substring( "Circle(".length(), idx );
           StringTokenizer st = new StringTokenizer(body, " ");
-          double x = Double.parseDouble(st.nextToken());
-          double y = Double.parseDouble(st.nextToken());
+          String token = st.nextToken();
+          Point pt;
+          if (token.indexOf(',') != -1) {
+            pt = readLatCommaLonPoint(token);
+          } else {
+            double x = Double.parseDouble(token);
+            double y = Double.parseDouble(st.nextToken());
+            pt = makePoint(x,y);
+          }
           Double d = null;
 
           String arg = st.nextToken();
@@ -196,7 +203,7 @@ public abstract class SpatialContext {
             throw new InvalidShapeException( "Missing Distance: "+str );
           }
           //NOTE: we are assuming the units of 'd' is the same as that of the spatial context.
-          return makeCircle(x, y, d);
+          return makeCircle(pt, d);
         }
       }
       return null;
