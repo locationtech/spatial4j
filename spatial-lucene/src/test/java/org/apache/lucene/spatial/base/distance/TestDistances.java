@@ -36,10 +36,12 @@ public class TestDistances {
 
   @Test
   public void testSomeDistances() {
-    //See to veryify: from http://www.movable-type.co.uk/scripts/latlong.html
+    //See to verify: from http://www.movable-type.co.uk/scripts/latlong.html
     Point ctr = pLL(0,100);
-    assertEquals(11100,DC.calculate(ctr,pLL(10,0)),40);
-    assertEquals(11100,DC.calculate(ctr,pLL(10,-160)),40);
+    assertEquals(11100,DC.calculate(ctr,pLL(10,0)),3);
+    assertEquals(11100,DC.calculate(ctr,pLL(10,-160)),3);
+
+    assertEquals(314.40338,DC.calculate(pLL(1,2),pLL(3,4)),0.00001);
   }
 
   @Test

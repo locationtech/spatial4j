@@ -47,6 +47,7 @@ public class DistanceUtils {
    * [1] http://en.wikipedia.org/wiki/Earth_radius
    */
   public static final double EARTH_MEAN_RADIUS_KM = 6371.0087714;
+  public static final double EARTH_EQUITORIAL_RADIUS_KM = 6378.1370;
   public static final double EARTH_MEAN_RADIUS_MI = EARTH_MEAN_RADIUS_KM * KM_TO_MILES;
 
   //public static final double EARTH_EQUATORIAL_RADIUS_MI = 3963.205;
@@ -315,8 +316,8 @@ public class DistanceUtils {
       double diffY = y1 - y2;
       double hsinX = Math.sin(diffX * 0.5);
       double hsinY = Math.sin(diffY * 0.5);
-      double h = hsinX * hsinX +
-              (Math.cos(x1) * Math.cos(x2) * hsinY * hsinY);
+      double h = hsinY * hsinY +
+              (Math.cos(y1) * Math.cos(y2) * hsinX * hsinX);
       result = (radius * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h)));
     }
     return result;
