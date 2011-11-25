@@ -85,7 +85,7 @@ RE "scan" threshold:
     Terms terms = reader.fields().terms(fieldName);
     if (terms == null)
       return null;
-    TermsEnum termsEnum = terms.iterator();
+    TermsEnum termsEnum = terms.iterator(null);
     DocsEnum docsEnum = null;//cached for termsEnum.docs() calls
     Node scanCell = null;
 

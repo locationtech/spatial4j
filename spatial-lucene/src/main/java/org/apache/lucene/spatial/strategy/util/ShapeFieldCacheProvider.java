@@ -17,19 +17,15 @@
 
 package org.apache.lucene.spatial.strategy.util;
 
-import java.io.IOException;
-import java.util.WeakHashMap;
-
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.DocsEnum;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.index.*;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.util.BytesRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.WeakHashMap;
 
 
 public abstract class ShapeFieldCacheProvider<T extends Shape> {
@@ -60,8 +56,9 @@ public abstract class ShapeFieldCacheProvider<T extends Shape> {
     int count = 0;
     DocsEnum docs = null;
     Terms terms = reader.terms(shapeField);
+    TermsEnum te = null;
     if (terms != null) {
-      TermsEnum te = terms.iterator();
+      te = terms.iterator(te);
       BytesRef term = te.next();
       while (term != null) {
         T shape = readShape(term);
