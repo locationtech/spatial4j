@@ -181,7 +181,7 @@ public class RectangleImpl implements Rectangle {
     final double y = getHeight() / 2 + minY;
     double x = getWidth() / 2 + minX;
     if (minX > maxX)//WGS84
-      x = DistanceUtils.normLonDeg(x);
+      x = DistanceUtils.normLonDEG(x);
     return new PointImpl(x, y);
   }
 

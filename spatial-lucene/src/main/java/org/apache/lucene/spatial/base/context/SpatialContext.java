@@ -96,7 +96,7 @@ public abstract class SpatialContext {
 
   public double normX(double x) {
     if (isGeo()) {
-      return DistanceUtils.normLonDeg(x);
+      return DistanceUtils.normLonDEG(x);
     } else {
       return x;
     }
@@ -104,7 +104,7 @@ public abstract class SpatialContext {
 
   public double normY(double y) {
     if (isGeo()) {
-      return DistanceUtils.normLatDeg(y);
+      return DistanceUtils.normLatDEG(y);
     } else {
       return y;
     }

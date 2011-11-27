@@ -31,7 +31,7 @@ public class ArcDistanceCalculator extends AbstractDistanceCalculator {
 
   @Override
   public double calculate(Point from, double toX, double toY) {
-    return DistanceUtils.arcDistance(units,from.getX(),from.getY(),toX,toY);
+    return DistanceUtils.arcDistanceDEG(units, from.getX(), from.getY(), toX, toY);
   }
 
   @Override

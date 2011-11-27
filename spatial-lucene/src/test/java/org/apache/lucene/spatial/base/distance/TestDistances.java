@@ -93,7 +93,7 @@ public class TestDistances {
 
   private void checkR(String msg, Rectangle r, Point center) {
     if (!spans(r)) {
-      assertEquals(msg,DistanceUtils.normLonDeg(center.getX()), r.getCenter().getX(), 0.0001);
+      assertEquals(msg,DistanceUtils.normLonDEG(center.getX()), r.getCenter().getX(), 0.0001);
     }
     assertEquals(msg, IntersectCase.CONTAINS, ctx.getWorldBounds().intersect(r, ctx));
   }

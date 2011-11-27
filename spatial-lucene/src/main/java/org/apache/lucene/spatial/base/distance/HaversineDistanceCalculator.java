@@ -34,8 +34,8 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
 
   @Override
   public double calculate(Point p1, double toX, double toY) {
-    return DistanceUtils.haversine( Math.toRadians(p1.getX()), Math.toRadians(p1.getY()),
-        Math.toRadians(toX), Math.toRadians(toY), radius );
+    return DistanceUtils.haversineRAD(Math.toRadians(p1.getY()), Math.toRadians(p1.getX()),
+        Math.toRadians(toY), Math.toRadians(toX), radius);
   }
 
   @Override
@@ -49,8 +49,8 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
     if (angDistance >= Math.PI)//distance is >= opposite side of the globe
       return ctx.getWorldBounds();
 
-    double startLon = from.getX() * DEGREES_TO_RADIANS;
-    double startLat = from.getY() * DEGREES_TO_RADIANS;
+    double startLon = Math.toRadians(from.getX());
+    double startLat = Math.toRadians(from.getY());
 
     double sinStartLat = Math.sin(startLat);
     double cosStartLat = Math.cos(startLat);
@@ -65,21 +65,21 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
 
     if (touchesNorthPole) {
       double latS = Math.asin(_a - _b);//reduced form given that cos(PI) == -1 (south)
-      return ctx.makeRect(-180, 180, touchesSouthPole ? -90 : latS*RADIANS_TO_DEGREES ,90);
+      return ctx.makeRect(-180, 180, touchesSouthPole ? -90 : Math.toDegrees(latS) ,90);
     }
     double latN = Math.asin(_a + _b);//reduced form given that cos(0) == +1 (north)
     if (touchesSouthPole) {//but we know it doesn't touch the north pole
-      return ctx.makeRect(-180, 180, -90, latN*RADIANS_TO_DEGREES);
+      return ctx.makeRect(-180, 180, -90, Math.toDegrees(latN));
     }
     double latS = Math.asin(_a - _b);//reduced form given that cos(PI) == -1 (south)
 
     double lon_delta = Math.atan2(sinAngDist * cosStartLat, cosAngDist - sinStartLat * sinStartLat);
-    double lonW_deg = (startLon - lon_delta)*RADIANS_TO_DEGREES;
-    double lonE_deg = (startLon + lon_delta)*RADIANS_TO_DEGREES;
+    double lonW_deg = Math.toDegrees(startLon - lon_delta);
+    double lonE_deg = Math.toDegrees(startLon + lon_delta);
 
-    lonW_deg = normLonDeg(lonW_deg);
-    lonE_deg = normLonDeg(lonE_deg);
-    return ctx.makeRect(lonW_deg, lonE_deg, latS*RADIANS_TO_DEGREES, latN*RADIANS_TO_DEGREES);
+    lonW_deg = normLonDEG(lonW_deg);
+    lonE_deg = normLonDEG(lonE_deg);
+    return ctx.makeRect(lonW_deg, lonE_deg, Math.toDegrees(latS), Math.toDegrees(latN));
   }
 
 }
