@@ -23,6 +23,7 @@ import org.apache.lucene.index.IndexReader.AtomicReaderContext;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.DocIdSet;
+import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.prefix.Node;
@@ -31,6 +32,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.OpenBitSet;
+import org.apache.lucene.util.StringHelper;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -116,7 +118,7 @@ RE "scan" threshold:
       } else {//any other intersection
         //If the next indexed term is the leaf marker, then add all of them
         BytesRef nextCellTerm = termsEnum.next();
-        assert nextCellTerm.startsWith(cellTerm);
+        assert StringHelper.startsWith(nextCellTerm, cellTerm);
         scanCell = grid.getNode(nextCellTerm.bytes, nextCellTerm.offset, nextCellTerm.length, scanCell);
         if (scanCell.isLeaf()) {
           docsEnum = termsEnum.docs(acceptDocs, docsEnum);
@@ -133,7 +135,7 @@ RE "scan" threshold:
           cells.addAll(0, cell.getSubCells(queryShape));//add to beginning
         } else {
           //Scan through all terms within this cell to see if they are within the queryShape. No seek()s.
-          for(BytesRef term = termsEnum.term(); term != null && term.startsWith(cellTerm); term = termsEnum.next()) {
+          for(BytesRef term = termsEnum.term(); term != null && StringHelper.startsWith(term,cellTerm); term = termsEnum.next()) {
             scanCell = grid.getNode(term.bytes, term.offset, term.length, scanCell);
             int termLevel = scanCell.getLevel();
             if (termLevel > detailLevel)
@@ -156,15 +158,9 @@ RE "scan" threshold:
   }
 
   private void addDocs(DocsEnum docsEnum, OpenBitSet bits) throws IOException {
-    DocsEnum.BulkReadResult bulk = docsEnum.getBulkResult();
-    for (; ;) {
-      int nDocs = docsEnum.read();
-      if (nDocs == 0) break;
-      int[] docArr = bulk.docs.ints;
-      int end = bulk.docs.offset + nDocs;
-      for (int i = bulk.docs.offset; i < end; i++) {
-        bits.fastSet(docArr[i]);
-      }
+    int docid;
+    while ((docid = docsEnum.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
+      bits.fastSet(docid);
     }
   }
 
