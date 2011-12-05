@@ -44,7 +44,7 @@ public abstract class ShapeFieldCacheProvider<T extends Shape> {
 
   protected abstract T readShape( BytesRef term );
 
-  public synchronized ShapeFieldCache<T> getCache(IndexReader reader) throws CorruptIndexException, IOException {
+  public synchronized ShapeFieldCache<T> getCache(IndexReader reader) throws IOException {
     ShapeFieldCache<T> idx = sidx.get(reader);
     if (idx != null) {
       return idx;
@@ -63,7 +63,7 @@ public abstract class ShapeFieldCacheProvider<T extends Shape> {
       while (term != null) {
         T shape = readShape(term);
         if( shape != null ) {
-          docs = te.docs(null, docs);
+          docs = te.docs(null, docs, false);
           Integer docid = docs.nextDoc();
           while (docid != DocIdSetIterator.NO_MORE_DOCS) {
             idx.add( docid, shape );
