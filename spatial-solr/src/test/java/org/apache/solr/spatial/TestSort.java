@@ -22,18 +22,19 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-
-/**
- */
-public class TestSolrSpatialField extends SolrTestCaseJ4
+public class TestSort extends SolrTestCaseJ4
 {
+
+  public static final String SFIELD = "recursive";
+
   @BeforeClass
   public static void beforeClass() throws Exception {
     initCore("solrconfig.xml", "schema.xml");
   }
 
+  /** Test that that queries against a spatial field return the distance as the score. */
   @Test
-  public void testScoreDistance_directQuery() throws Exception {
+  public void directQuery() throws Exception {
     final String sfield = "recursive";
     assertU(adoc("id", "100", sfield, "1,2"));
     assertU(adoc("id", "101", sfield, "4,-1"));
@@ -77,6 +78,22 @@ public class TestSolrSpatialField extends SolrTestCaseJ4
         , 1e-4
         , "/response/docs/[0]/id=='101'"
         , "/response/docs/[1]/id=='100'"  );
+  }
+
+  @Test
+  public void multiVal() throws Exception {
+    assertU(adoc("id", "100", SFIELD, "1,2"));//1 point
+    assertU(adoc("id", "101", SFIELD, "4,-1", SFIELD, "3,5"));//2 points, 2nd is pretty close to query point
+    assertU(commit());
+
+    assertJQ(req(
+        "q", SFIELD +":\"Intersects(Circle(3,4 d=1000))\"",
+        "fl","id,score",
+        "sort","score asc")//want ascending due to increasing distance
+        , 1e-4
+        , "/response/docs/[0]/id=='101'"
+        , "/response/docs/[0]/score==111.04236"//dist to 3,5
+    );
   }
 
   /** Ported from DistanceFunctionTest */
