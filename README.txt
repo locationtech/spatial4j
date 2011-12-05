@@ -39,6 +39,8 @@ See the provided README.txt in there for instructions to try it out.
 === SOLR INSTRUCTIONS ===
 
 The following is a simple set of instructions to use LSP in Solr's trunk example app to get point multi-value support.
+For other features, like polygons, you'll need to add additional libs and know the right way to query and add data,
+which isn't documented yet.
 
 # Build
 %> mvn clean install
