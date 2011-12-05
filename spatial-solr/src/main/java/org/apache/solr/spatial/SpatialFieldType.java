@@ -28,6 +28,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.solr.common.SolrException;
+import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.response.TextResponseWriter;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
@@ -119,7 +120,8 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
     final SpatialArgs spatialArgs = argsParser.parse(externalVal, ctx);
     final T fieldInfo = getFieldInfo(field);
     //see SOLR-2883
-    if (parser.getLocalParams().getBool("needScore",true)) {
+    SolrParams localParams = parser.getLocalParams();
+    if (localParams == null || localParams.getBool("needScore", true)) {
       return spatialStrategy.makeQuery(spatialArgs, fieldInfo);
     } else {
       Filter filter = spatialStrategy.makeFilter(spatialArgs, fieldInfo);
