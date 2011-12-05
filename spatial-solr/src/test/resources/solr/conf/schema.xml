@@ -16,7 +16,7 @@
   limitations under the License.
   -->
 
-<schema name="test" version="1.0">
+<schema name="test" version="1.4">
   <types>
 
     <fieldType name="tint" class="solr.TrieIntField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
