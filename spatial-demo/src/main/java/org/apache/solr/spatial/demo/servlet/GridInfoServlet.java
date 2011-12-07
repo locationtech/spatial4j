@@ -3,7 +3,6 @@ package org.apache.solr.spatial.demo.servlet;
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.commons.io.IOUtils;
-import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
@@ -80,8 +79,7 @@ public class GridInfoServlet extends HttpServlet
       }
     }
     int depth = getIntParam( req, "depth", 16 );
-    SpatialContext ctx = new JtsSpatialContext();
-    
+
     String gridtype = req.getParameter("gridType");
     
     SpatialPrefixTree grid;
