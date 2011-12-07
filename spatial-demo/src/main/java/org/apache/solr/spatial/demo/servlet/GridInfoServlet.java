@@ -2,10 +2,12 @@ package org.apache.solr.spatial.demo.servlet;
 
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
+import org.apache.commons.io.IOUtils;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
+import org.apache.lucene.spatial.base.prefix.geohash.GeohashPrefixTree;
 import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -56,17 +58,20 @@ public class GridInfoServlet extends HttpServlet
     String name = req.getParameter( "name" );
     Shape shape = null;
     String country = req.getParameter( "country" );
-    if( country != null && country.length() == 2 ) {
-      InputStream in = getClass().getClassLoader().getResourceAsStream("countries-poly.txt");
-
-      SampleDataReader reader = new SampleDataReader( in );
-      while( reader.hasNext() ) {
-        SampleData data = reader.next();
-        if( country.equalsIgnoreCase( data.id ) ) {
-          name = data.name;
-          shape = ctx.readShape( data.shape );
-          break;
+    if( country != null && country.length() == 3 ) {
+      InputStream in = getClass().getClassLoader().getResourceAsStream("data/countries-poly.txt");
+      try {
+        SampleDataReader reader = new SampleDataReader( in );
+        while( reader.hasNext() ) {
+          SampleData data = reader.next();
+          if( country.equalsIgnoreCase( data.id ) ) {
+            name = data.name;
+            shape = ctx.readShape( data.shape );
+            break;
+          }
         }
+      } finally {
+        IOUtils.closeQuietly(in);
       }
 
       if( shape == null ) {
@@ -76,7 +81,19 @@ public class GridInfoServlet extends HttpServlet
     }
     int depth = getIntParam( req, "depth", 16 );
     SpatialContext ctx = new JtsSpatialContext();
-    QuadPrefixTree grid = new QuadPrefixTree( ctx, depth );
+    
+    String gridtype = req.getParameter("gridType");
+    
+    SpatialPrefixTree grid;
+    if ("geohash".equals(gridtype)) {
+      grid = new GeohashPrefixTree(ctx, depth);
+    } else if ("quad".equals(gridtype)) {
+      grid = new QuadPrefixTree( ctx, depth );
+    } else {
+      res.sendError(HttpServletResponse.SC_BAD_REQUEST, "unknown grid type: "+gridtype );
+      return;
+    }
+   
     double distErrPct = getDoubleParam(req, "distErrPct", SpatialArgs.DEFAULT_DIST_PRECISION);
 
     // If they don't set a country, then use the input
@@ -91,7 +108,7 @@ public class GridInfoServlet extends HttpServlet
       }
       catch( Exception ex ) {
         ex.printStackTrace();
-        res.sendError(HttpServletResponse.SC_BAD_REQUEST, "error parsing geo :: "+ex );
+        res.sendError(HttpServletResponse.SC_BAD_REQUEST, "error parsing geo: "+ex );
       }
     }
     int detailLevel = grid.getMaxLevelForPrecision(shape,distErrPct);
@@ -112,6 +129,7 @@ public class GridInfoServlet extends HttpServlet
 
     res.setContentType( "text/plain" );
     PrintStream out = new PrintStream( res.getOutputStream() );
+    out.println("Number of tokens: "+info.size());
     out.println( info.toString() );
   }
 }
