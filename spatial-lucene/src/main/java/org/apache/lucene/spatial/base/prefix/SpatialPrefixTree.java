@@ -28,7 +28,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Implementations should be threadsafe and immutable once initialized.
+ * A Spatial Prefix Tree, or Trie, which decomposes shapes into prefixed strings at variable lengths corresponding to
+ * variable precision.  Each string corresponds to a spatial region.
+ *
+ * Implementations of this class should be thread-safe and immutable once initialized.
  */
 public abstract class SpatialPrefixTree {
 
