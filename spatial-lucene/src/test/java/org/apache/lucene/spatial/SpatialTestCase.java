@@ -59,9 +59,6 @@ public abstract class SpatialTestCase extends LuceneTestCase {
     if (indexWriter != null) {
       indexWriter.close();
     }
-    if (indexSearcher != null) {
-      indexSearcher.close();
-    }
     if (indexReader != null) {
       indexReader.close();
     }
