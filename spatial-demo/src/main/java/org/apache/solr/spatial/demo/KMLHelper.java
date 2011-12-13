@@ -5,6 +5,7 @@ import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 import de.micromata.opengis.kml.v_2_2_0.*;
 import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
@@ -108,8 +109,8 @@ public class KMLHelper
 
   public static void main( String[] args ) throws Exception
   {
-    QuadPrefixTree grid = new QuadPrefixTree( 0, 10, 0, 10, 10 );
-    grid = new QuadPrefixTree( -180, 180, -90-180, 90, 16 ); // make it like WGS84
+    SpatialContext ctx = SimpleSpatialContext.GEO_KM;
+    QuadPrefixTree grid = new QuadPrefixTree(ctx, 16 ); // make it like WGS84
 
 
 //    CRSCache cache = new CRSCache();
@@ -137,7 +138,7 @@ public class KMLHelper
 //    shape = new JTSIndexible( "POINT(6 8)" ); // very small display!
 //    shape = new JTSIndexible( "POINT(3.5 5.6)" );
 
-    SpatialContext ctx = new JtsSpatialContext();
+    ctx = JtsSpatialContext.GEO_KM;
     GeometricShapeFactory gsf = new GeometricShapeFactory();
     gsf.setCentre( new com.vividsolutions.jts.geom.Coordinate( 4,2 ) );
     gsf.setSize( 4 );

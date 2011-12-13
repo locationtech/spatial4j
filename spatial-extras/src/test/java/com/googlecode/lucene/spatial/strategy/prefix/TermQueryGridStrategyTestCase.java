@@ -42,7 +42,7 @@ public class TermQueryGridStrategyTestCase extends StrategyTestCase<SimpleSpatia
   public void setUp() throws Exception {
     super.setUp();
 
-    this.ctx = new JtsSpatialContext();
+    this.ctx = JtsSpatialContext.GEO_KM;
     this.strategy = new TermQueryPrefixTreeStrategy(
       new QuadPrefixTree(ctx, 12));
     this.fieldInfo = new SimpleSpatialFieldInfo("geo");

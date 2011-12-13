@@ -35,7 +35,7 @@ public class RecursiveGridStrategyWithExtrasTestCase extends StrategyTestCase<Si
   public void setUp() throws Exception {
     super.setUp();
     int maxLength = GeohashPrefixTree.getMaxLevelsPossible();
-    this.ctx = new JtsSpatialContext();
+    this.ctx = JtsSpatialContext.GEO_KM;
     GeohashPrefixTree grid = new GeohashPrefixTree(
         ctx, maxLength );
     this.strategy = new RecursivePrefixTreeStrategy( grid );

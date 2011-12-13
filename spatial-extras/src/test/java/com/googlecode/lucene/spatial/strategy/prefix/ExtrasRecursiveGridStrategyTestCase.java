@@ -27,6 +27,6 @@ public class ExtrasRecursiveGridStrategyTestCase extends BaseRecursivePrefixTree
 
   @Override
   protected SpatialContext getSpatialContext() {
-    return new JtsSpatialContext();
+    return JtsSpatialContext.GEO_KM;
   }
 }

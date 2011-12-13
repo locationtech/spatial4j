@@ -39,7 +39,7 @@ public class JtsSpatialContextTestCase extends BaseSpatialContextTestCase {
 
   @Override
   protected JtsSpatialContext getSpatialContext() {
-    return new JtsSpatialContext();
+    return JtsSpatialContext.GEO_KM;
   }
 
   @Override

@@ -31,6 +31,6 @@ public class RecursivePrefixTreeStrategyTestCase extends BaseRecursivePrefixTree
 
   @Override
   protected SpatialContext getSpatialContext() {
-    return new SimpleSpatialContext();
+    return SimpleSpatialContext.GEO_KM;
   }
 }

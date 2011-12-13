@@ -69,7 +69,7 @@ public class SearchPage extends WebPage
 
   // Dirty Dirty Dirty Hack...
   //static final SpatialPrefixTree grid = new QuadPrefixTree( -180, 180, -90-180, 90, 16 );
-  static final SpatialPrefixTree grid = new GeohashPrefixTree(new JtsSpatialContext(),GeohashPrefixTree.getMaxLevelsPossible());
+  static final SpatialPrefixTree grid = new GeohashPrefixTree(JtsSpatialContext.GEO_KM,GeohashPrefixTree.getMaxLevelsPossible());
   static final SolrServer solr;
   static {
     SolrServer s = null;

@@ -20,6 +20,8 @@ package org.apache.lucene.spatial.strategy.prefix;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -37,7 +39,8 @@ public class TestTermQueryPrefixGridStrategy extends SpatialTestCase {
   @Test
   public void testNGramPrefixGridLosAngeles() throws IOException {
     SimpleSpatialFieldInfo fieldInfo = new SimpleSpatialFieldInfo("geo");
-    TermQueryPrefixTreeStrategy prefixGridStrategy = new TermQueryPrefixTreeStrategy(new QuadPrefixTree());
+    SpatialContext ctx = SimpleSpatialContext.GEO_KM;
+    TermQueryPrefixTreeStrategy prefixGridStrategy = new TermQueryPrefixTreeStrategy(new QuadPrefixTree(ctx));
 
     Shape point = new PointImpl(-118.243680, 34.052230);
 

@@ -19,7 +19,6 @@ package org.apache.lucene.spatial.base.prefix.quad;
 
 import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.context.SpatialContextProvider;
 import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.shape.Point;
@@ -81,10 +80,6 @@ public class QuadPrefixTree extends SpatialPrefixTree {
     }
   }
 
-  public QuadPrefixTree() {
-    this(SpatialContextProvider.getContext(), DEFAULT_MAX_LEVELS);
-  }
-
   public QuadPrefixTree(SpatialContext ctx) {
     this(ctx, DEFAULT_MAX_LEVELS);
   }
@@ -93,15 +88,6 @@ public class QuadPrefixTree extends SpatialPrefixTree {
       SpatialContext ctx, int maxLevels) {
     this(ctx, ctx.getWorldBounds(), maxLevels);
   }
-
-  public QuadPrefixTree(
-      double xmin, double xmax,
-      double ymin, double ymax,
-      int maxLevels) {
-    this(SpatialContextProvider.getContext(),
-        SpatialContextProvider.getContext().makeRect(xmin, xmax, ymin, ymax),maxLevels);
-  }
-
 
   public void printInfo() {
     NumberFormat nf = NumberFormat.getNumberInstance();

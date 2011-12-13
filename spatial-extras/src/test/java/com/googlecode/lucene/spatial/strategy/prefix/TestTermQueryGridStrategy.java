@@ -39,7 +39,7 @@ public class TestTermQueryGridStrategy extends SpatialTestCase {
 
   @Test
   public void testNGramPrefixGridLosAngeles() throws IOException {
-    final JtsSpatialContext ctx = new JtsSpatialContext();
+    final JtsSpatialContext ctx = JtsSpatialContext.GEO_KM;
     final QuadPrefixTree grid = new QuadPrefixTree(ctx);
 
     SimpleSpatialFieldInfo fieldInfo = new SimpleSpatialFieldInfo("geo");

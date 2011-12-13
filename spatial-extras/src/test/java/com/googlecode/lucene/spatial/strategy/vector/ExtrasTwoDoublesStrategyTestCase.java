@@ -27,6 +27,6 @@ public class ExtrasTwoDoublesStrategyTestCase extends BaseTwoDoublesStrategyTest
 
   @Override
   protected SpatialContext getSpatialContext() {
-    return new JtsSpatialContext();
+    return JtsSpatialContext.GEO_KM;
   }
 }

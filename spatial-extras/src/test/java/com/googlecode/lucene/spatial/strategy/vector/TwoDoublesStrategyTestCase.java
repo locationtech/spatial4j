@@ -34,8 +34,8 @@ public class TwoDoublesStrategyTestCase extends StrategyTestCase<TwoDoublesField
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    this.ctx = new JtsSpatialContext();
-    this.strategy = new TwoDoublesStrategy( new SimpleSpatialContext(),//TODO bug? why not ctx?
+    this.ctx = JtsSpatialContext.GEO_KM;
+    this.strategy = new TwoDoublesStrategy(SimpleSpatialContext.GEO_KM,//TODO bug? why not ctx?
       new TrieFieldInfo(), FieldCache.NUMERIC_UTILS_DOUBLE_PARSER );
     this.fieldInfo = new TwoDoublesFieldInfo( "vector2d" );
   }

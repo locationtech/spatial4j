@@ -27,8 +27,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
-import org.apache.lucene.spatial.base.distance.EuclideanDistanceCalculator;
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 import org.apache.lucene.spatial.base.shape.Circle;
 import org.apache.lucene.spatial.base.shape.Point;
@@ -49,16 +49,21 @@ public class JtsSpatialContext extends SpatialContext {
 
   public GeometryFactory factory;
 
+  public static JtsSpatialContext GEO_KM = new JtsSpatialContext(DistanceUnits.KILOMETERS);
+
+  @Deprecated
   public JtsSpatialContext() {
-    this( new GeometryFactory(), null, null );
+    this( null, null, null );
   }
-
+  
   public JtsSpatialContext( DistanceUnits units ) {
-    this( new GeometryFactory(), units, null);
+    this( null, units, null);
   }
 
-  public JtsSpatialContext(GeometryFactory f, DistanceUnits units, EuclideanDistanceCalculator calculator) {
+  public JtsSpatialContext(GeometryFactory f, DistanceUnits units, DistanceCalculator calculator) {
     super( units, calculator);
+    if (f == null)
+      f = new GeometryFactory();
     factory = f;
   }
 

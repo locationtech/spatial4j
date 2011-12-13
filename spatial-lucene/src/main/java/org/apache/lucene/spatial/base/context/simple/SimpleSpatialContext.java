@@ -34,6 +34,9 @@ import java.util.Locale;
 
 public class SimpleSpatialContext extends SpatialContext {
 
+  public static SimpleSpatialContext GEO_KM = new SimpleSpatialContext(DistanceUnits.KILOMETERS);
+
+  @Deprecated
   public SimpleSpatialContext() {
     this(null, null, null);
   }

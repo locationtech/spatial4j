@@ -24,7 +24,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.context.SpatialContextProvider;
 import org.apache.lucene.spatial.base.shape.Shape;
 
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
@@ -56,19 +55,6 @@ public class SampleDataWriter {
     out.println();
     out.flush();
   }
-
-  public SampleDataWriter(File f ) throws IOException {
-    this( f, SpatialContextProvider.getContext(), false, -1 );
-  }
-
-  public SampleDataWriter(File f, boolean bbox ) throws IOException {
-    this( f, SpatialContextProvider.getContext(), bbox, -1 );
-  }
-
-  public SampleDataWriter(File f, int maxLength ) throws IOException {
-    this( f, SpatialContextProvider.getContext(), false, -1 );
-  }
-
 
   protected String toString( String name, Shape shape ) {
     String v = ctx.toString( shape );

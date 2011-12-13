@@ -26,6 +26,6 @@ public class SpatialContextTestCase extends BaseSpatialContextTestCase {
 
   @Override
   protected SpatialContext getSpatialContext() {
-    return new SimpleSpatialContext();
+    return SimpleSpatialContext.GEO_KM;
   }
 }

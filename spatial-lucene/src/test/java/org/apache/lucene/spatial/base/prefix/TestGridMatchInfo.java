@@ -17,6 +17,9 @@
 
 package org.apache.lucene.spatial.base.prefix;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
+import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -34,8 +37,9 @@ public class TestGridMatchInfo {
 
   @Test @Ignore
   public void testMatchInfo() {
-    // Check Validatio
-    QuadPrefixTree grid = new QuadPrefixTree(0, 10, 0, 10, 2);
+    // Check Validation
+    SpatialContext ctx = new SimpleSpatialContext(DistanceUnits.EUCLIDEAN,null,new RectangleImpl(0,10,0,10));
+    QuadPrefixTree grid = new QuadPrefixTree(ctx, 2);
 
 
 //    GeometricShapeFactory gsf = new GeometricShapeFactory();
