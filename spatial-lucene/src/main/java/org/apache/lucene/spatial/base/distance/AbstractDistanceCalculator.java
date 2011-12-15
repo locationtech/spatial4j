@@ -36,4 +36,9 @@ public abstract class AbstractDistanceCalculator implements DistanceCalculator {
   public double calculate(Point from, Point to) {
     return calculate(from, to.getX(), to.getY());
   }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 }

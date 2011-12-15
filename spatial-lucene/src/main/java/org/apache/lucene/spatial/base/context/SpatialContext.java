@@ -236,4 +236,13 @@ public abstract class SpatialContext {
       nf.format(rect.getMaxX()) + " " +
       nf.format(rect.getMaxY());
   }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName()+"{" +
+        "units=" + units +
+        ", calculator=" + calculator +
+        ", worldBounds=" + worldBounds +
+        '}';
+  }
 }
