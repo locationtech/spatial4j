@@ -37,7 +37,7 @@ public abstract class BaseTwoDoublesStrategyTestCase extends StrategyTestCase<Tw
     this.ctx = getSpatialContext();
     this.strategy = new TwoDoublesStrategy(ctx,
         new TrieFieldInfo(), FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
-    this.fieldInfo = new TwoDoublesFieldInfo( "vector2d" );
+    this.fieldInfo = new TwoDoublesFieldInfo(getClass().getSimpleName());
   }
 
   @Test

@@ -41,11 +41,11 @@ public abstract class BaseRecursivePrefixTreeStrategyTestCase extends StrategyTe
     this.ctx = getSpatialContext();
     this.strategy = new RecursivePrefixTreeStrategy(new GeohashPrefixTree(
         ctx, maxLength ));
-    this.fieldInfo = new SimpleSpatialFieldInfo( "geohash" );
+    this.fieldInfo = new SimpleSpatialFieldInfo( getClass().getSimpleName() );
   }
 
   @Test
-  public void testGeohashStrategy() throws IOException {
+  public void testFilterWithVariableScanLevel() throws IOException {
     getAddAndVerifyIndexedDocuments(DATA_WORLD_CITIES_POINTS);
 
     //execute queries for each prefix grid scan level

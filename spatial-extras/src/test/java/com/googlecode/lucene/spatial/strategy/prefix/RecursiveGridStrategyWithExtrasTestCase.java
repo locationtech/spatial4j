@@ -40,7 +40,7 @@ public class RecursiveGridStrategyWithExtrasTestCase extends StrategyTestCase<Si
         ctx, maxLength );
     this.strategy = new RecursivePrefixTreeStrategy( grid );
     //((RecursiveGridStrategy)strategy).setDistErrPct(0.1);//little faster
-    this.fieldInfo = new SimpleSpatialFieldInfo( "geohash" );
+    this.fieldInfo = new SimpleSpatialFieldInfo( getClass().getSimpleName() );
     this.storeShape = false;//unnecessary
   }
 

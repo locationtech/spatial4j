@@ -37,7 +37,7 @@ public class TwoDoublesStrategyTestCase extends StrategyTestCase<TwoDoublesField
     this.ctx = JtsSpatialContext.GEO_KM;
     this.strategy = new TwoDoublesStrategy(SimpleSpatialContext.GEO_KM,//TODO bug? why not ctx?
       new TrieFieldInfo(), FieldCache.NUMERIC_UTILS_DOUBLE_PARSER );
-    this.fieldInfo = new TwoDoublesFieldInfo( "vector2d" );
+    this.fieldInfo = new TwoDoublesFieldInfo(getClass().getSimpleName());
   }
 
   @Test
