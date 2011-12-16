@@ -25,8 +25,7 @@ import static org.apache.lucene.spatial.base.distance.DistanceUtils.*;
 
 public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
 
-  final double radius;
-
+  private final double radius;
 
   public HaversineDistanceCalculator( double radius ) {
     this.radius = radius;
@@ -82,4 +81,21 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
     return ctx.makeRect(lonW_deg, lonE_deg, Math.toDegrees(latS), Math.toDegrees(latN));
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    HaversineDistanceCalculator that = (HaversineDistanceCalculator) o;
+
+    if (Double.compare(that.radius, radius) != 0) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    long temp = radius != +0.0d ? Double.doubleToLongBits(radius) : 0L;
+    return (int) (temp ^ (temp >>> 32));
+  }
 }

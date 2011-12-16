@@ -33,9 +33,6 @@ public class EuclideanDistanceCalculator extends AbstractDistanceCalculator {
     this.squared = squared;
   }
 
-  //--------------------------------------------------------
-  //--------------------------------------------------------
-
   @Override
   public double calculate(Point from, double toX, double toY) {
     double result = 0;
@@ -57,4 +54,20 @@ public class EuclideanDistanceCalculator extends AbstractDistanceCalculator {
     return ctx.makeRect(from.getX()-distance,from.getX()+distance,from.getY()-distance,from.getY()+distance);
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    EuclideanDistanceCalculator that = (EuclideanDistanceCalculator) o;
+
+    if (squared != that.squared) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return (squared ? 1 : 0);
+  }
 }
