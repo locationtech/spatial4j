@@ -18,10 +18,21 @@
 package org.apache.solr.spatial;
 
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUtils;
+import org.apache.lucene.spatial.base.prefix.geohash.GeohashUtils;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Rectangle;
+import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.solr.SolrTestCaseJ4;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Based off of Solr's SpatialFilterTest.
@@ -99,25 +110,140 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
     checkHits(fieldName, true, pt, distance, count, docIds);
   }
 
-  private void checkHits(String fieldName, boolean exact, String pt, double distance, int count, int ... docIds) {
+  private void checkHits(String fieldName, boolean exact, String ptStr, double distance, int count, int ... docIds) {
     String [] tests = new String[docIds != null && docIds.length > 0 ? docIds.length + 1 : 1];
-    tests[0] = "*[count(//doc)=" + count + "]";
+    //test for presence of required ids first
+    int i = 0;
     if (docIds != null && docIds.length > 0) {
-      int i = 1;
       for (int docId : docIds) {
         tests[i++] = "//result/doc/*[@name='id'][.='" + docId + "']";
       }
     }
+    //check total length last; maybe response includes ids it shouldn't.  Nicer to check this last instead of first so
+    // that there may be a more specific detailed id to investigate.
+    tests[i++] = "*[count(//doc)=" + count + "]";
 
     String method = exact ? "IsWithin" : "BBoxWithin";
-    double[] latLon = DistanceUtils.parseLatitudeLongitude(pt);
 
     assertQ(req(
-          "fl", "id", "q","*:*", "rows", "1000", "fq",
-          "{! }"+fieldName+":\""+method+"(Circle("+latLon[1]+" "+latLon[0]+" d="+distance+"))\""),
+          "fl", "id", "q","*:*", "rows", "1000",
+          "fq", fieldName+":\""+method+"(Circle("+ptStr.replaceAll(" ","")+" d="+distance+")) distPrec=0 \""),
         tests);
   }
 
+  //Needs to be <= what's used in the test schema.xml; best to use the same
+  final int PRECISION = 12;//aka geohash length
+  final SpatialContext ctx = SimpleSpatialContext.GEO_KM;//barely needed
+
+  @Test
+  public void testBug1() {
+    //AN ISSUE OF distPrec being 0 or the default
+    clearIndex();
+    final String fieldName = "geohashRecursiveRandom";
+    Point pt = ctx.makePoint(8.751008491963148,-6.406441060826182);
+    final int ID = 2;
+    assertU(adoc("id", ""+ID, fieldName, pt.getY()+","+pt.getX()));
+    assertU(commit());
+    final Point centerPt = ctx.makePoint(19.99999998137355,20.00000006519258);
+    final double queryDist = 3112.7;
+    checkHits(fieldName, centerPt.getY()+","+centerPt.getX(), queryDist, 0);
+  }
+  
+  @Test
+  public void geohashRecursiveRandom() {
+    final String fieldName = "geohashRecursiveRandom";//has length 12
+    
+    //1. Iterate test with the cluster at some worldly point of interest
+    Point[] clusterCenters = new Point[]{new PointImpl(0,0), new PointImpl(0,90),new PointImpl(0,-90)};
+    for (Point clusterCenter : clusterCenters) {
+      //2. Iterate on size of cluster (a really small one and a large one)
+      String hashCenter = GeohashUtils.encodeLatLon(clusterCenter.getY(), clusterCenter.getX(), PRECISION);
+      //calculate the number of degrees in the smallest grid box size (use for both lat & lon)
+      String smallBox = hashCenter.substring(0,hashCenter.length()-1);//chop off leaf precision
+      Rectangle clusterDims = GeohashUtils.decodeBoundary(smallBox,ctx);
+      double smallDegrees = Math.max(clusterDims.getMaxX()-clusterDims.getMinX(),clusterDims.getMaxY()-clusterDims.getMinY());
+      assert smallDegrees < 1;
+      double largeDegrees = 20d;//good large size; don't use >=45 for this test code to work
+      double[] sideDegrees = {largeDegrees,smallDegrees};
+      for (double sideDegree : sideDegrees) {
+        //3. Index random points in this cluster box
+        clearIndex();
+        List<Point> points = new ArrayList<Point>();
+        for(int i = 0; i < 20; i++) {
+          double x = random.nextDouble()*sideDegree - sideDegree/2 + clusterCenter.getX();
+          double y = random.nextDouble()*sideDegree - sideDegree/2 + clusterCenter.getY();
+          final Point pt = normPointXY(x, y);
+          points.add(pt);
+          assertU(adoc("id", ""+i, fieldName, pt.getY()+","+pt.getX()));
+        }
+        assertU(commit());
+
+        //3. Use 4 query centers. Each is radially out from each corner of cluster box by twice distance to box edge.
+        for(double qcXoff : new double[]{sideDegree,-sideDegree}) {//query-center X offset from cluster center
+          for(double qcYoff : new double[]{sideDegree,-sideDegree}) {//query-center Y offset from cluster center
+            Point queryCenter = normPointXY(qcXoff + clusterCenter.getX(),
+                qcYoff + clusterCenter.getY());
+            double[] distRange = calcDistRange(queryCenter,clusterCenter,sideDegree);
+            //4.1 query a small box getting nothing
+            final String queryCenterStr = queryCenter.getY() + "," + queryCenter.getX();
+            checkHits(fieldName, queryCenterStr, distRange[0]*0.99, 0);
+            //4.2 Query a large box enclosing the cluster, getting everything
+            checkHits(fieldName, queryCenterStr, distRange[1]*1.01, points.size());
+            //4.3 Query a medium box getting some (calculate the correct solution and verify)
+            double queryDist = distRange[0] + (distRange[1]-distRange[0])/2;//average
+
+            //Find matching points.  Put into int[] of doc ids which is the same thing as the index into points list.
+            int[] ids = new int[points.size()];
+            int ids_sz = 0;
+            for (int i = 0; i < points.size(); i++) {
+              Point point = points.get(i);
+              if (calcDist(queryCenter,point) <= queryDist)
+                ids[ids_sz++] = i;
+            }
+            ids = Arrays.copyOf(ids, ids_sz);
+            //assert ids_sz > 0 (can't because randomness keeps us from being able to)
+
+            checkHits(fieldName, queryCenterStr, queryDist, ids.length, ids);
+          }
+        }
+
+      }//for sideDegree
+
+    }//for clusterCenter
+
+  }//randomTest()
+
+  private double[] calcDistRange(Point startPoint, Point targetCenter, double targetSideDegrees) {
+    double min = Double.MAX_VALUE;
+    double max = Double.MIN_VALUE;
+    for(double xLen : new double[]{targetSideDegrees,-targetSideDegrees}) {
+      for(double yLen : new double[]{targetSideDegrees,-targetSideDegrees}) {
+        Point p2 = normPointXY(targetCenter.getX() + xLen / 2, targetCenter.getY() + yLen / 2);
+        double d = calcDist(startPoint, p2);
+        min = Math.min(min,d);
+        max = Math.max(max,d);
+      }
+    }
+    return new double[]{min,max};
+  }
+
+  private double calcDist(Point p1, Point p2) {
+    //TODO use ctx.calc?
+    return DistanceUtils.haversineRAD(Math.toRadians(p1.getY()), Math.toRadians(p1.getX()),
+        Math.toRadians(p2.getY()), Math.toRadians(p2.getX()), ctx.getUnits().earthRadius());
+  }
+
+  /** Normalize x & y (put in lon-lat ranges) & ensure geohash round-trip for given precision. */
+  private Point normPointXY(double x, double y) {
+    //put x,y as degrees into double[] as radians
+    double[] latLon = {Math.toRadians(y), Math.toRadians(x)};
+    DistanceUtils.normLatRAD(latLon);
+    DistanceUtils.normLatRAD(latLon);
+    double x2 = Math.toDegrees(latLon[1]);
+    double y2 = Math.toDegrees(latLon[0]);
+    //overwrite latLon, units is now degrees
+    return GeohashUtils.decode(GeohashUtils.encodeLatLon(y2, x2, PRECISION),ctx);
+  }
 
 }
 /*public void testSpatialQParser() throws Exception {

@@ -27,6 +27,7 @@
     <fieldType name="string" class="solr.StrField" sortMissingLast="true"/>
 
     <fieldType name="recursive" class="org.apache.solr.spatial.prefix.RecursiveGeohashPrefixTreeFieldType" />
+    <fieldType name="geohashRecursiveRandom" class="org.apache.solr.spatial.prefix.RecursiveGeohashPrefixTreeFieldType" maxLevels="12" />
 
   </types>
 
@@ -35,7 +36,8 @@
 
     <field name="id" type="string" required="true"/>
 
-    <field name="recursive" multiValued="true" type="recursive" />
+    <field name="recursive" type="recursive" multiValued="true" />
+    <field name="geohashRecursiveRandom" type="geohashRecursiveRandom" multiValued="true" />
 
   </fields>
 
