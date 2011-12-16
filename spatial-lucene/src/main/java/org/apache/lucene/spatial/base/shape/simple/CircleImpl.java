@@ -90,7 +90,8 @@ public final class CircleImpl implements Circle {
     if (other instanceof Rectangle) {
       final Rectangle r = (Rectangle) other;
       //Note: Surprisingly complicated!
-      if (enclosingBox.getCrossesDateLine() || r.getCrossesDateLine()) {
+      if (enclosingBox.getCrossesDateLine() || r.getCrossesDateLine()
+          || ctx.isGeo() && (enclosingBox.getWidth()==360 || r.getWidth()==360)) {
         //throw new UnsupportedSpatialOperation("TODO circle spanning the dateline isn't yet supported.");
         return intersectRectangleEstimate(r, ctx);
       } else
@@ -136,7 +137,7 @@ public final class CircleImpl implements Circle {
     return IntersectCase.INTERSECTS;//needn't actually intersect; this is a good guess
   }
 
-  /** !! DOES NOT WORK WITH CROSSING DATELINE */
+  /** !! DOES NOT WORK WITH CROSSING DATELINE OR WORLD-WRAP */
   private IntersectCase intersect2DRectangle(final Rectangle r, SpatialContext ctx) {
     //--We start by leveraging the fact we have a calculated bbox that is "cheaper" than use of DistanceCalculator.
     final IntersectCase bboxSect = enclosingBox.intersect(r,ctx);

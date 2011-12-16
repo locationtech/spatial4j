@@ -197,6 +197,8 @@ public class TestShapes {
     assertIntersect(msg, CONTAINS, bbox, c, ctx);
   }
 
+  //TODO test circle intersect, esp. world wrap, dateline wrap
+
   private void assertIntersect(String msg, IntersectCase expected, Shape a, Shape b, SpatialContext ctx ) {
     msg = a+" intersect "+b;//use different msg
     _assertIntersect(msg,expected,a,b,ctx);
