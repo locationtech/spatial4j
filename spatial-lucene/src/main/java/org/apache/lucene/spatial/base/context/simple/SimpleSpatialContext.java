@@ -101,13 +101,13 @@ public class SimpleSpatialContext extends SpatialContext {
 //      if (minY < -90 || minY > 90 || maxY < -90 || maxY > 90)
 //        throw new IllegalArgumentException("minY or maxY is outside of -90 to 90 bounds. What did you mean?");
 //      debatable what to do in this situation.
-      if (minY <= -90) {
+      if (minY < -90) {
         minX = -180;
         maxX = 180;
         maxY = Math.min(90,Math.max(maxY,-90 + (-90 - minY)));
         minY = -90;
       }
-      if (maxY >= 90) {
+      if (maxY > 90) {
         minX = -180;
         maxX = 180;
         minY = Math.max(-90,Math.min(minY,90 - (maxY - 90)));
