@@ -56,7 +56,7 @@ public class GeohashPrefixTree extends SpatialPrefixTree {
 
   @Override
   public Node getNode(Point p, int level) {
-    return new GhCell(GeohashUtils.encode(p.getY(),p.getX(), level));//args are lat,lon (y,x)
+    return new GhCell(GeohashUtils.encodeLatLon(p.getY(), p.getX(), level));//args are lat,lon (y,x)
   }
 
   @Override

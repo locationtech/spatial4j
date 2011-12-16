@@ -57,11 +57,11 @@ public class GeohashUtils {
    * @param longitude Longitude to encode
    * @return Geohash encoding of the longitude and latitude
    */
-  public static String encode(double latitude, double longitude) {
-    return encode(latitude,longitude, 12);
+  public static String encodeLatLon(double latitude, double longitude) {
+    return encodeLatLon(latitude, longitude, 12);
   }
 
-  public static String encode(double latitude, double longitude, int precision) {
+  public static String encodeLatLon(double latitude, double longitude, int precision) {
     double[] latInterval = {-90.0, 90.0};
     double[] lngInterval = {-180.0, 180.0};
 
