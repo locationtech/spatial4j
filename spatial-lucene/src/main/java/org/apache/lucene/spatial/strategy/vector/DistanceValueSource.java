@@ -21,7 +21,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
-import org.apache.lucene.queries.function.DocValues;
+import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.search.FieldCache.DoubleParser;
@@ -65,10 +65,10 @@ public class DistanceValueSource extends ValueSource {
 
 
   /**
-   * Returns the DocValues used by the function query.
+   * Returns the FunctionValues used by the function query.
    */
   @Override
-  public DocValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
+  public FunctionValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
     IndexReader reader = readerContext.reader;
 
     final double[] ptX = FieldCache.DEFAULT.getDoubles(reader, fields.getFieldNameX(), true);
@@ -76,7 +76,7 @@ public class DistanceValueSource extends ValueSource {
     final Bits validX =  FieldCache.DEFAULT.getDocsWithField(reader, fields.getFieldNameX());
     final Bits validY =  FieldCache.DEFAULT.getDocsWithField(reader, fields.getFieldNameY());
 
-    return new DocValues() {
+    return new FunctionValues() {
       @Override
       public float floatVal(int doc) {
         return (float) doubleVal(doc);

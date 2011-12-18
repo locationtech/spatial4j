@@ -19,9 +19,8 @@ package org.apache.lucene.spatial.strategy.util;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.index.IndexReader.AtomicReaderContext;
-import org.apache.lucene.queries.function.DocValues;
+import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
-import org.apache.lucene.spatial.base.shape.Point;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -44,10 +43,10 @@ public class CachingDoubleValueSource extends ValueSource {
   }
 
   @Override
-  public DocValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
+  public FunctionValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
     final int base = readerContext.docBase;
-    final DocValues vals = source.getValues(context,readerContext);
-    return new DocValues() {
+    final FunctionValues vals = source.getValues(context,readerContext);
+    return new FunctionValues() {
 
       @Override
       public double doubleVal(int doc) {
