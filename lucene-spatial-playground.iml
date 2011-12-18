@@ -7,7 +7,6 @@
       <excludeFolder url="file://$MODULE_DIR$/.clover" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
-    <orderEntry type="library" name="Clover IDEA Plugin" level="application" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.6.1" level="project" />

@@ -11,11 +11,11 @@
       <sourceFolder url="file://$MODULE_DIR$/target/generated-sources/test-annotations" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/target/generated-sources/annotations" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/target/maven-archiver" />
       <excludeFolder url="file://$MODULE_DIR$/target/surefire" />
       <excludeFolder url="file://$MODULE_DIR$/target/surefire-reports" />
       <excludeFolder url="file://$MODULE_DIR$/target/test-classes" />
     </content>
-    <orderEntry type="library" name="Clover IDEA Plugin" level="application" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="spatial-lucene" />
@@ -31,8 +31,9 @@
     <orderEntry type="library" name="Maven: commons-httpclient:commons-httpclient:3.1" level="project" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.5" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.6.1" level="project" />
-    <orderEntry type="library" name="Maven: commons-io:commons-io:1.4" level="project" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.codehaus.woodstox:wstx-asl:3.2.7" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.solr:solr-commons-csv:4.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.solr:solr-noggit:4.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-analyzers-phonetic:4.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-highlighter:4.0-SNAPSHOT" level="project" />
@@ -42,7 +43,6 @@
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-spatial:4.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-suggest:4.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-grouping:4.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.solr:solr-commons-csv:4.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: commons-fileupload:commons-fileupload:1.2.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:r05" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.4" level="project" />
