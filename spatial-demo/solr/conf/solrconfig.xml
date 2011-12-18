@@ -218,11 +218,12 @@
 
   <!-- spatial
    Only needed for an SpatialDemoUpdateProcessorFactory which copies  spatial objects from field "quad"
-    to other spatial fields in object form to avoid redundant/inefficient string to spatial object deserialization.
-    TODO don't hard-code "quad"; make configurable.
+    to other spatial fields in object form to avoid redundant/inefficient string to spatial object de-serialization.
    -->
   <updateRequestProcessorChain name="spatial">
-    <processor class="org.apache.solr.spatial.demo.solr.SpatialDemoUpdateProcessorFactory" />
+    <processor class="org.apache.solr.spatial.demo.solr.SpatialDemoUpdateProcessorFactory">
+      <str name="shapeField">quad</str>
+    </processor>
     <processor class="solr.LogUpdateProcessorFactory" />
     <processor class="solr.RunUpdateProcessorFactory" />
   </updateRequestProcessorChain>

@@ -23,6 +23,7 @@ import org.apache.lucene.spatial.base.shape.Circle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
+import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -34,52 +35,47 @@ import java.util.StringTokenizer;
  */
 public abstract class SpatialContext {
 
+  //These are non-null
   private final DistanceUnits units;
   private final DistanceCalculator calculator;
   private final Rectangle worldBounds;
 
-  protected SpatialContext(DistanceUnits units, DistanceCalculator calculator) {
-    this(units,calculator,null);
+  public static RectangleImpl GEO_WORLDBOUNDS = new RectangleImpl(-180,180,-90,90);
+  public static RectangleImpl MAX_WORLDBOUNDS;
+  static {
+    double v = Double.MAX_VALUE;
+    MAX_WORLDBOUNDS = new RectangleImpl(-v, v, -v, v);
   }
 
+  /**
+   *
+   * @param units Required; and establishes geo vs euclidean.
+   * @param calculator Optional; defaults to Haversine or Euclidean depending on units.
+   * @param worldBounds Optional; defaults to GEO_WORLDBOUNDS or MAX_WORLDBOUNDS depending on units.
+   */
   protected SpatialContext(DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {
-    if (units == null) {
-      if (calculator != null)
-        throw new IllegalArgumentException("if units is null, calculator must be defaulted via null too.");
-      units = DistanceUnits.KILOMETERS;
-    }
-    if (calculator == null) {
-      if (units == DistanceUnits.EUCLIDEAN)
-        calculator = new EuclideanDistanceCalculator();
-      else
-        calculator = new HaversineDistanceCalculator(units.earthRadius());
-    }
+    if (units == null)
+      throw new IllegalArgumentException("units can't be null");
     this.units = units;
-    this.calculator = calculator;
-    //TODO DWS: I don't like the way I initialize worldBounds, but it'll do for now.
-    if (worldBounds == null) {
-      switch(units) {
-        case KILOMETERS:
-        case MILES:
-          worldBounds = makeRect(-180,180,-90,90);
-          break;
-        case EUCLIDEAN:
-          double v = Double.MAX_VALUE;
-          worldBounds = makeRect(-v, v,-v, v);
-          break;
-        default:
-          throw new IllegalStateException("Unknown unit to calc world bounds: "+units);
-      }
-    } else {
-      //copy so we can ensure we have the right implementation
-      worldBounds = makeRect(worldBounds.getMinX(),worldBounds.getMaxX(),worldBounds.getMinY(),worldBounds.getMaxY());
-      //there are other assumptions in the framework that assume geo == WGS84 essentially so I'll assume that here.
-      if (isGeo())
-        assert worldBounds.equals(makeRect(-180,180,-90,90));
+
+    if (calculator == null) {
+      calculator = isGeo()
+          ? new HaversineDistanceCalculator(units.earthRadius())
+          : new EuclideanDistanceCalculator();
     }
+    this.calculator = calculator;
+
+    if (worldBounds == null) {
+      worldBounds = isGeo() ? GEO_WORLDBOUNDS : MAX_WORLDBOUNDS;
+    } else {
+      if (isGeo())
+        assert new RectangleImpl(worldBounds).equals(GEO_WORLDBOUNDS);
+      if (worldBounds.getCrossesDateLine())
+        throw new IllegalArgumentException("worldBounds shouldn't cross dateline: "+worldBounds);
+    }
+    //copy so we can ensure we have the right implementation
+    worldBounds = makeRect(worldBounds.getMinX(),worldBounds.getMaxX(),worldBounds.getMinY(),worldBounds.getMaxY());
     this.worldBounds = worldBounds;
-    if (worldBounds.getCrossesDateLine())
-      throw new IllegalArgumentException("worldbounds shouldn't cross dateline: "+worldBounds);
   }
 
   public DistanceUnits getUnits() {

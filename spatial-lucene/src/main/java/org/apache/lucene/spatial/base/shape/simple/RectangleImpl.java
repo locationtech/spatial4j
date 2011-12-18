@@ -36,6 +36,7 @@ public class RectangleImpl implements Rectangle {
   private final double minY;
   private final double maxY;
 
+  //TODO change to West South East North to be more consistent with OGC?
   public RectangleImpl(double minX, double maxX, double minY, double maxY) {
     //We assume any normalization / validation of params already occurred.
     this.minX = minX;
@@ -43,6 +44,11 @@ public class RectangleImpl implements Rectangle {
     this.minY = minY;
     this.maxY = maxY;
     assert minY <= maxY;
+  }
+
+  /** Copy constructor. */
+  public RectangleImpl(Rectangle r) {
+    this(r.getMinX(),r.getMaxX(),r.getMinY(),r.getMaxY());
   }
 
   @Override

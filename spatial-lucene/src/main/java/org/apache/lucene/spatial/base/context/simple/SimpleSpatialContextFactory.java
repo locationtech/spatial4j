@@ -15,11 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.spatial.base.context;
+package org.apache.lucene.spatial.base.context.simple;
 
-import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.SpatialContextFactory;
 
-
-public class MockSpatialContext extends SimpleSpatialContext {
-
+/**
+* @author dsmiley
+*/
+public class SimpleSpatialContextFactory extends SpatialContextFactory {
+  @Override
+  protected SpatialContext newSpatialContext() {
+    return new SimpleSpatialContext(units,calculator,worldBounds);
+  }
 }

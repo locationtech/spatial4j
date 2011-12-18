@@ -141,8 +141,8 @@
           <contextPath>/</contextPath>
           <systemProperties>
             <systemProperty>
-              <name>SpatialContextProvider</name>
-              <value>com.googlecode.lucene.spatial.base.context.JtsSpatialContext</value>
+              <name>SpatialContextFactory</name>
+              <value>com.googlecode.lucene.spatial.base.context.JtsSpatialContextFactory</value>
             </systemProperty>
           </systemProperties>
 				</configuration>

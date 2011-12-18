@@ -36,17 +36,8 @@ public class SimpleSpatialContext extends SpatialContext {
 
   public static SimpleSpatialContext GEO_KM = new SimpleSpatialContext(DistanceUnits.KILOMETERS);
 
-  @Deprecated
-  public SimpleSpatialContext() {
-    this(null, null, null);
-  }
-
   public SimpleSpatialContext(DistanceUnits units) {
     this(units, null, null);
-  }
-
-  public SimpleSpatialContext(DistanceUnits units, DistanceCalculator calculator) {
-    this(units, calculator, null);
   }
 
   public SimpleSpatialContext(DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {

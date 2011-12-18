@@ -35,6 +35,7 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
+import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -50,18 +51,13 @@ public class JtsSpatialContext extends SpatialContext {
   public GeometryFactory factory;
 
   public static JtsSpatialContext GEO_KM = new JtsSpatialContext(DistanceUnits.KILOMETERS);
-
-  @Deprecated
-  public JtsSpatialContext() {
-    this( null, null, null );
-  }
   
   public JtsSpatialContext( DistanceUnits units ) {
-    this( null, units, null);
+    this( null, units, null, null);
   }
 
-  public JtsSpatialContext(GeometryFactory f, DistanceUnits units, DistanceCalculator calculator) {
-    super( units, calculator);
+  public JtsSpatialContext(GeometryFactory f, DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {
+    super( units, calculator, worldBounds);
     if (f == null)
       f = new GeometryFactory();
     factory = f;

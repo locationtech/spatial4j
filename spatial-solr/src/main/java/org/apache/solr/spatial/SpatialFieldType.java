@@ -21,7 +21,7 @@ import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.search.*;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.context.SpatialContextProvider;
+import org.apache.lucene.spatial.base.context.SpatialContextFactory;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -63,9 +63,11 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
     if (v != null)
       distPrec = Double.parseDouble(v);
 
-    //args.setDistPrecision(readDouble(aa.remove("distPrec")));
+    //Solr expects us to remove the parameters we've used.
+    MapListener<String, String> argsWrap = new MapListener<String, String>(args);
+    ctx = SpatialContextFactory.makeSpatialContext(argsWrap, schema.getResourceLoader().getClassLoader());
+    args.keySet().removeAll(argsWrap.getSeenKeys());
 
-    ctx = SpatialContextProvider.getContext();//TODO use a field specific ctx; not a global singleton
     argsParser = new SpatialArgsParser();
   }
 

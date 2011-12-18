@@ -2,6 +2,7 @@ package org.apache.solr.spatial.demo;
 
 import java.io.File;
 
+import com.googlecode.lucene.spatial.base.context.JtsSpatialContextFactory;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
@@ -15,7 +16,7 @@ public class StartDemo
 	{
 	  // this add resource reloading...
     System.setProperty( "wicket.configuration", "development" );
-    System.setProperty( "SpatialContextProvider", JtsSpatialContext.class.getName() );
+    System.setProperty( "SpatialContextFactory", JtsSpatialContextFactory.class.getName() );
 
 	  File dir = new File( "src/main/webapp" );
 	  System.out.println( "dir: "+dir.getAbsolutePath() + " :: "+dir.exists() );

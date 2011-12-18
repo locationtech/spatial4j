@@ -27,6 +27,9 @@
     <fieldType name="string" class="solr.StrField" sortMissingLast="true"/>
 
     <fieldType name="recursive" class="org.apache.solr.spatial.prefix.RecursiveGeohashPrefixTreeFieldType" />
+    <fieldType name="queryQueryTrie" class="org.apache.solr.spatial.prefix.TermQueryQuadPrefixTreeFieldType"
+        units="u" distCalculator="euclidean^2" worldBounds="0 0 100 100"/>
+
     <fieldType name="geohashRecursiveRandom" class="org.apache.solr.spatial.prefix.RecursiveGeohashPrefixTreeFieldType" maxLevels="12" />
 
   </types>
