@@ -127,7 +127,7 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
 
     assertQ(req(
           "fl", "id", "q","*:*", "rows", "1000",
-          "fq", fieldName+":\""+method+"(Circle("+ptStr.replaceAll(" ","")+" d="+distance+")) distPrec=0 \""),
+          "fq", "{!field needScore=false f="+fieldName+"}"+method+"(Circle("+ptStr.replaceAll(" ","")+" d="+distance+")) distPrec=0"),
         tests);
   }
 
