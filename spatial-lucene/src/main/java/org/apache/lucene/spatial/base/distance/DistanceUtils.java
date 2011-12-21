@@ -340,6 +340,22 @@ public class DistanceUtils {
   }
 
   /**
+   * Converts a distance in the units of the radius to degrees.  A degree is the longitudinal
+   * distance moving along the equator, which is also a latitudinal distance anywhere.
+   * @param dist
+   * @param radius
+   * @return
+   */
+  public static double dist2Degrees(double dist, double radius) {
+    double[] latLonOut = pointOnBearingRAD(0, 0, dist, DEG_90_AS_RADS, null, radius);
+    if( Math.abs(latLonOut[0]) > 0.0001 ) {//latitude should essentially be 0
+      throw new RuntimeException("Expect LatLonOut[0]==0, not: ["+latLonOut[0]+","+latLonOut[1]+"]");
+      //assert latLonOut[0] == 0;
+    }
+    return Math.toDegrees(latLonOut[1]);
+  }
+
+  /**
    * Given a string containing <i>dimension</i> values encoded in it, separated by commas, return a String array of length <i>dimension</i>
    * containing the values.
    *
@@ -466,6 +482,7 @@ public class DistanceUtils {
 
     return latLon;
   }
+
 
 
 }
