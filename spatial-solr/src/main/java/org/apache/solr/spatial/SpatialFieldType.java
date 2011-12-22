@@ -49,8 +49,6 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   protected boolean ignoreIncompatibleGeometry = false;
   protected SpatialStrategy<T> spatialStrategy;
-  protected double distPrec;
-
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
@@ -59,9 +57,6 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
     if( v != null ) {
       ignoreIncompatibleGeometry = Boolean.valueOf( v );
     }
-    v = args.remove("distPrec");
-    if (v != null)
-      distPrec = Double.parseDouble(v);
 
     //Solr expects us to remove the parameters we've used.
     MapListener<String, String> argsWrap = new MapListener<String, String>(args);
