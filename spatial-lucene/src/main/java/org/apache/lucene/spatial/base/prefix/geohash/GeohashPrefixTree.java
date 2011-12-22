@@ -20,6 +20,7 @@ package org.apache.lucene.spatial.base.prefix.geohash;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTreeFactory;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
@@ -32,6 +33,21 @@ import java.util.List;
  * A SpatialPrefixGrid based on Geohashes.  Uses {@link GeohashUtils} to do all the geohash work.
  */
 public class GeohashPrefixTree extends SpatialPrefixTree {
+
+  public static class Factory extends SpatialPrefixTreeFactory {
+
+    @Override
+    protected int getLevelForDistance(double degrees) {
+      GeohashPrefixTree grid = new GeohashPrefixTree(ctx, GeohashPrefixTree.getMaxLevelsPossible());
+      return grid.getLevelForDistance(degrees) + 1;//returns 1 greater
+    }
+
+    @Override
+    protected SpatialPrefixTree newSPT() {
+      return new GeohashPrefixTree(ctx,
+          maxLevels != null ? maxLevels : GeohashPrefixTree.getMaxLevelsPossible());
+    }
+  }
 
   public GeohashPrefixTree(SpatialContext ctx, int maxLevels) {
     super(ctx, maxLevels);
@@ -129,6 +145,6 @@ public class GeohashPrefixTree extends SpatialPrefixTree {
       return getTokenString();
     }
 
-  }
+  }//class GhCell
 
 }

@@ -17,65 +17,48 @@
 
 package org.apache.solr.spatial.prefix;
 
-import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTreeFactory;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.prefix.PrefixTreeStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
+import org.apache.solr.spatial.MapListener;
 import org.apache.solr.spatial.SpatialFieldType;
 
 import java.util.Map;
 
-public abstract class PrefixTreeFieldType extends SpatialFieldType<SimpleSpatialFieldInfo> {
+public abstract class PrefixTreeFieldType<T extends PrefixTreeStrategy> extends SpatialFieldType<SimpleSpatialFieldInfo> {
 
-  private static final double DEFAULT_MAX_DETAIL_KM = 0.001;//1m
+  protected SpatialPrefixTree grid;
 
   @Override
   protected void init(IndexSchema schema, Map<String, String> args) {
     super.init(schema, args);
 
-    String v;
-    v = args.remove("maxLevels");
-    Integer maxLevels = null;
-    if (v != null) {
-      maxLevels = Integer.valueOf(v);
-    }
-    v = args.remove("maxDetailKm");
-    Double degrees = null;
-    if (v != null) {
-      if (maxLevels != null)
-        throw new RuntimeException("should not specify both maxLevels & maxDetailKm");
-      double dist = Double.parseDouble(v);
-      degrees = maxDetailKm2Degrees(dist);
-    } else if (maxLevels == null) {
-      degrees = maxDetailKm2Degrees(DEFAULT_MAX_DETAIL_KM);
-    }
+    //Solr expects us to remove the parameters we've used.
+    MapListener<String, String> argsWrap = new MapListener<String, String>(args);
+    grid = SpatialPrefixTreeFactory.makeSPT(argsWrap, schema.getResourceLoader().getClassLoader(), ctx);
+    args.keySet().removeAll(argsWrap.getSeenKeys());
 
-    PrefixTreeStrategy strat = initStrategy(maxLevels, degrees);
-    final SpatialPrefixTree grid = strat.getGrid();
-    log.info("strat "+strat+" maxLevels: "+ grid.getMaxLevels());//TODO output field name & maxDetailKm
+    PrefixTreeStrategy strat = initStrategy(schema, args);
 
     strat.setIgnoreIncompatibleGeometry( ignoreIncompatibleGeometry );
 
-    v = args.remove("distErrPct");
+    String v = args.remove("distErrPct");
     if (v != null)
       strat.setDistErrPct(Double.parseDouble(v));
+    
+    v = args.remove("defaultFieldValuesArrayLen");
+    if (v != null)
+      strat.setDefaultFieldValuesArrayLen(Integer.parseInt(v));
 
     spatialStrategy = strat;
+
+    log.info(this.toString()+" strat: "+strat+" maxLevels: "+ grid.getMaxLevels());//TODO output maxDetailKm
   }
 
-  private double maxDetailKm2Degrees(double dist) {
-    double[] latLonOut = DistanceUtils.pointOnBearingRAD(0, 0, dist, DistanceUtils.DEG_90_AS_RADS, null,
-        DistanceUtils.EARTH_MEAN_RADIUS_KM);
-    if( Math.abs(latLonOut[0]) > 0.0001 ) {
-      throw new RuntimeException("Expect LatLonOut[0]==0, not: ["+latLonOut[0]+","+latLonOut[1]+"]");
-      //assert latLonOut[0] == 0;
-    }
-    return Math.toDegrees(latLonOut[1]);
-  }
-
-  protected abstract PrefixTreeStrategy initStrategy(Integer maxLevels, Double degrees);
+  protected abstract T initStrategy(IndexSchema schema, Map<String, String> args);
 
   @Override
   protected SimpleSpatialFieldInfo getFieldInfo(SchemaField field) {

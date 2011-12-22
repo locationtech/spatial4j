@@ -17,22 +17,15 @@
 
 package org.apache.solr.spatial.prefix;
 
-import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
 import org.apache.lucene.spatial.strategy.prefix.TermQueryPrefixTreeStrategy;
+import org.apache.solr.schema.IndexSchema;
 
-public class TermQueryQuadPrefixTreeFieldType extends PrefixTreeFieldType {
+import java.util.Map;
+
+public class TermQueryPrefixTreeFieldType extends PrefixTreeFieldType<TermQueryPrefixTreeStrategy> {
 
   @Override
-  protected TermQueryPrefixTreeStrategy initStrategy(Integer maxLevels, Double degrees) {
-    QuadPrefixTree grid;
-    if (maxLevels != null) {
-      grid = new QuadPrefixTree(ctx,maxLevels);
-    } else {
-      grid = new QuadPrefixTree(ctx,QuadPrefixTree.MAX_LEVELS_POSSIBLE);
-      int level = grid.getLevelForDistance(degrees) + 1;//returns 1 greater
-      if (level != grid.getMaxLevels())
-        grid = new QuadPrefixTree(ctx,level);
-    }
+  protected TermQueryPrefixTreeStrategy initStrategy(IndexSchema schema, Map<String, String> args) {
     return new TermQueryPrefixTreeStrategy(grid);
   }
   

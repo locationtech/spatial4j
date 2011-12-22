@@ -912,6 +912,7 @@
         <w>bbox</w>
         <w>dups</w>
         <w>euclidian</w>
+        <w>geohashes</w>
         <w>geospatial</w>
         <w>solr's</w>
         <w>trie</w>
@@ -1497,6 +1498,7 @@
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/solr/solr-test-framework/4.0-SNAPSHOT/solr-test-framework-4.0-SNAPSHOT-sources.jar!/" />
+        <root url="file://$TEMPLATE$/Search/lucene-solr/solr/test-framework/src/java" />
       </SOURCES>
     </library>
     <library name="Maven: org.apache.wicket:wicket-extensions:1.4.17">

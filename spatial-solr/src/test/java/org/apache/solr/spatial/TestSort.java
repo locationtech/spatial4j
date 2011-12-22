@@ -44,11 +44,11 @@ public class TestSort extends SolrTestCaseJ4
         "q",sfield+":\"Intersects(Circle(3,4 d=1000))\"",
         "fl","id,score",
         "sort","score asc")//want ascending due to increasing distance
-        , 1e-4
+        , 0.0001//TODO Solr bug; this is ignored!
         , "/response/docs/[0]/id=='100'"
-        , "/response/docs/[0]/score==314.4034"
+        , "/response/docs/[0]/score==314.4033"
         , "/response/docs/[1]/id=='101'"
-        , "/response/docs/[1]/score==565.9612"
+        , "/response/docs/[1]/score==565.9615"
     );
     //query again with the query point closer to #101, and check the new ordering
     assertJQ(req(
@@ -92,7 +92,7 @@ public class TestSort extends SolrTestCaseJ4
         "sort","score asc")//want ascending due to increasing distance
         , 1e-4
         , "/response/docs/[0]/id=='101'"
-        , "/response/docs/[0]/score==111.04236"//dist to 3,5
+        , "/response/docs/[0]/score==111.042725"//dist to 3,5
     );
   }
 

@@ -53,9 +53,15 @@ copy (LSP)/spatial-solr/target/spatial-solr-VERSION.jar to (solr)/example/solr/l
 ## Comment out existing geohash field type (class=solr.GeoHashField) so that you don't use it.
 ## Define a field type
   <!-- LSP -->
-  <fieldType name="geohash" class="org.apache.solr.spatial.prefix.RecursiveGeohashPrefixTreeFieldType" />
+  <fieldType name="geo" class="org.apache.solr.spatial.prefix.RecursivePrefixTreeFieldType" />
+
+  Note: This field type has some optional params:
+  spatialContextFactory, units, distCalculator, worldbounds,
+  ignoreIncompatibleGeometry, distErrPct,
+  defaultFieldValuesArrayLen, prefixTree, maxLevels, maxDetailDist
+
 ## Make the "store" field use it, and make it multiValued since presumably you want it to be
-  <field name="store" type="geohash" indexed="true" stored="true" multiValued="true"/>
+  <field name="store" type="geo" indexed="true" stored="true" multiValued="true"/>
 
 # Remove the previous index (solr)/example/solr/data
 

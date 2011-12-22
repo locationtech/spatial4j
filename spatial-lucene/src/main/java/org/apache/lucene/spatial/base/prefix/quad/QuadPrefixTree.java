@@ -17,6 +17,7 @@
 
 package org.apache.lucene.spatial.base.prefix.quad;
 
+import org.apache.lucene.spatial.base.prefix.SpatialPrefixTreeFactory;
 import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.prefix.Node;
@@ -32,6 +33,22 @@ import java.util.Collection;
 import java.util.List;
 
 public class QuadPrefixTree extends SpatialPrefixTree {
+
+  public static class Factory extends SpatialPrefixTreeFactory {
+
+    @Override
+    protected int getLevelForDistance(double degrees) {
+      QuadPrefixTree grid = new QuadPrefixTree(ctx, MAX_LEVELS_POSSIBLE);
+      return grid.getLevelForDistance(degrees) + 1;//returns 1 greater
+    }
+
+    @Override
+    protected SpatialPrefixTree newSPT() {
+      return new QuadPrefixTree(ctx,
+          maxLevels != null ? maxLevels : MAX_LEVELS_POSSIBLE);
+    }
+  }
+
   public static final int MAX_LEVELS_POSSIBLE = 50;//not really sure how big this should be
 
   public static final int DEFAULT_MAX_LEVELS = 12;

@@ -17,27 +17,15 @@
 
 package org.apache.solr.spatial.prefix;
 
-import org.apache.lucene.spatial.base.prefix.geohash.GeohashPrefixTree;
 import org.apache.lucene.spatial.strategy.prefix.RecursivePrefixTreeStrategy;
-import org.apache.lucene.spatial.strategy.prefix.PrefixTreeStrategy;
+import org.apache.solr.schema.IndexSchema;
 
+import java.util.Map;
 
-/**
- *
- */
-public class RecursiveGeohashPrefixTreeFieldType extends PrefixTreeFieldType {
+public class RecursivePrefixTreeFieldType extends PrefixTreeFieldType<RecursivePrefixTreeStrategy> {
 
   @Override
-  protected PrefixTreeStrategy initStrategy(Integer maxLevels, Double degrees) {
-    GeohashPrefixTree grid;
-    if (maxLevels != null) {
-      grid = new GeohashPrefixTree(ctx,maxLevels);
-    } else {
-      grid = new GeohashPrefixTree(ctx,GeohashPrefixTree.getMaxLevelsPossible());
-      int level = grid.getLevelForDistance(degrees) + 1;//returns 1 greater
-      if (level != grid.getMaxLevels())
-        grid = new GeohashPrefixTree(ctx,level);
-    }
+  protected RecursivePrefixTreeStrategy initStrategy(IndexSchema schema, Map<String, String> args) {
     return new RecursivePrefixTreeStrategy(grid);
   }
 }
