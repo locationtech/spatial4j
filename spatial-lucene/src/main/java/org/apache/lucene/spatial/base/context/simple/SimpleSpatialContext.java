@@ -79,6 +79,8 @@ public class SimpleSpatialContext extends SpatialContext {
     if (isGeo()) {
       double delta = calcWidth(minX,maxX);
       if (delta >= 360) {
+        //The only way to officially support complete longitude wrap-around is via western longitude = -180. We can't
+        // support any point because 0 is undifferentiated in sign.
         minX = -180;
         maxX = 180;
       } else {
@@ -89,21 +91,21 @@ public class SimpleSpatialContext extends SpatialContext {
       if (minY > maxY) {
         throw new IllegalArgumentException("maxY must be >= minY");
       }
-//      if (minY < -90 || minY > 90 || maxY < -90 || maxY > 90)
-//        throw new IllegalArgumentException("minY or maxY is outside of -90 to 90 bounds. What did you mean?");
+      if (minY < -90 || minY > 90 || maxY < -90 || maxY > 90)
+        throw new IllegalArgumentException("minY or maxY is outside of -90 to 90 bounds. What did you mean?");
 //      debatable what to do in this situation.
-      if (minY < -90) {
-        minX = -180;
-        maxX = 180;
-        maxY = Math.min(90,Math.max(maxY,-90 + (-90 - minY)));
-        minY = -90;
-      }
-      if (maxY > 90) {
-        minX = -180;
-        maxX = 180;
-        minY = Math.max(-90,Math.min(minY,90 - (maxY - 90)));
-        maxY = 90;
-      }
+//      if (minY < -90) {
+//        minX = -180;
+//        maxX = 180;
+//        maxY = Math.min(90,Math.max(maxY,-90 + (-90 - minY)));
+//        minY = -90;
+//      }
+//      if (maxY > 90) {
+//        minX = -180;
+//        maxX = 180;
+//        minY = Math.max(-90,Math.min(minY,90 - (maxY - 90)));
+//        maxY = 90;
+//      }
 
     } else {
       //these normalizations probably won't do anything since it's not geo but should probably call them any way.

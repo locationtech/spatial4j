@@ -65,19 +65,16 @@ public class TestShapes {
   @Test
   public void testGeoRectangle() {
     SpatialContext ctx = getGeoContext();
-    double[] lons = new double[]{0,45,160,180,-45,-175};//minX
+    double[] lons = new double[]{0,45,160,180,-45,-175, -180};//minX
     for (double lon : lons) {
-      double[] lonWs = new double[]{0,20,180,200,355};//width
+      double[] lonWs = new double[]{0,20,180,200,355, 360};//width
       for (double lonW : lonWs) {
-        testRectangle(lon, lonW, 0, ctx);
-        testRectangle(lon, lonW, 20, ctx);
+        testRectangle(lon, lonW, 0, 0, ctx);
+        testRectangle(lon, lonW, -10, 10, ctx);
+        testRectangle(lon, lonW, 80, 10, ctx);//polar cap
+        testRectangle(lon, lonW, -90, 180, ctx);//full lat range
       }
     }
-
-    //The only way to officially support complete longitude wrap-around is via western longitude = -180. We can't
-    // support any point because 0 is undifferentiated in sign.
-    testRectangle(-180, 360, 0, ctx);
-    testRectangle(-180, 360, 20, ctx);
 
     //Test geo rectangle intersections
     testRectIntersect(ctx);
@@ -90,19 +87,19 @@ public class TestShapes {
     for (double minX : minXs) {
       double[] widths = new double[]{0,10,180,360,400};
       for (double width : widths) {
-        testRectangle(minX, width, 0, ctx);
-        testRectangle(minX, width, 20, ctx);
+        testRectangle(minX, width, 0, 0, ctx);
+        testRectangle(minX, width, -10, 10, ctx);
+        testRectangle(minX, width, 5, 10, ctx);
       }
     }
 
     testRectIntersect(ctx);
   }
 
-  private void testRectangle(double x, double width, int height, SpatialContext ctx) {
-    double maxX = x + width;
-    Rectangle r = ctx.makeRect(x, maxX, -height / 2, height / 2);
+  private void testRectangle(double minX, double width, double minY, double height, SpatialContext ctx) {
+    Rectangle r = ctx.makeRect(minX, minX + width, minY, minY+height);
     //test equals & hashcode of duplicate
-    Rectangle r2 = ctx.makeRect(x, maxX, -height / 2, height / 2);
+    Rectangle r2 = ctx.makeRect(minX, minX + width, minY, minY+height);
     assertEquals(r,r2);
     assertEquals(r.hashCode(),r2.hashCode());
 
@@ -110,21 +107,34 @@ public class TestShapes {
 
     assertEquals(msg, width != 0 && height != 0, r.hasArea());
     assertEquals(msg, width != 0 && height != 0, r.getArea() > 0);
+
     assertEqualsPct(msg, height, r.getHeight());
     assertEqualsPct(msg, width, r.getWidth());
     Point center = r.getCenter();
     msg += " ctr:"+center;
     //System.out.println(msg);
     assertIntersect(msg, CONTAINS, r, center, ctx);
-    DistanceCalculator dc = ctx.getDistanceCalculator();
-    double dCorner = dc.calculate(center, r.getMaxX(), r.getMaxY());//UR
 
-    assertEquals(msg,width != 0 || height != 0, dCorner != 0);
-    if (ctx.isGeo())
-      assertTrue(msg,dCorner >= 0);
-    assertEqualsPct(msg, dCorner, dc.calculate(center, r.getMaxX(), r.getMinY()));//LR
-    assertEqualsPct(msg, dCorner, dc.calculate(center, r.getMinX(), r.getMaxY()));//UL
-    assertEqualsPct(msg, dCorner, dc.calculate(center, r.getMinX(), r.getMinY()));//LL
+    DistanceCalculator dc = ctx.getDistanceCalculator();
+    double dUR = dc.calculate(center, r.getMaxX(), r.getMaxY());
+    double dLR = dc.calculate(center, r.getMaxX(), r.getMinY());
+    double dUL = dc.calculate(center, r.getMinX(), r.getMaxY());
+    double dLL = dc.calculate(center, r.getMinX(), r.getMinY());
+
+    assertEquals(msg,width != 0 || height != 0, dUR != 0);
+    if (dUR != 0)
+      assertTrue(dUR > 0 && dLL > 0);
+    assertEqualsPct(msg, dUR, dUL);
+    assertEqualsPct(msg, dLR, dLL);
+    if (!ctx.isGeo() || center.getY() == 0)
+      assertEqualsPct(msg, dUR, dLL);
+  }
+
+  // TODO Should this go into Rectangle or ctx API?
+  private boolean touchesPole(SpatialContext ctx, Rectangle r) {
+    if (!ctx.isGeo())
+      return false;
+    return r.getMaxY()==90 || r.getMaxY()==-90;
   }
 
   private void testRectIntersect(SpatialContext ctx) {
