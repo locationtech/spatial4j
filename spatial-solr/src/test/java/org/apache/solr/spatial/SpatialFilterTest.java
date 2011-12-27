@@ -131,6 +131,20 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
         tests);
   }
 
+  @Test
+  public void testRangeSyntax() {
+    String fieldName = "recursive";
+    setupDocs(fieldName);
+    //match docId 1
+    int docId = 1;
+    int count = 1;
+    assertQ(req(
+        "fl", "id", "q","*:*", "rows", "1000",
+        "fq", "{! needScore=false df="+fieldName+"}[32,-80 TO 33,-79]"),
+
+        "//result/doc/*[@name='id'][.='" + docId + "']",
+        "*[count(//doc)=" + count + "]");  }
+  
   //Needs to be <= what's used in the test schema.xml; best to use the same
   final int PRECISION = 12;//aka geohash length
   final SpatialContext ctx = SimpleSpatialContext.GEO_KM;//barely needed

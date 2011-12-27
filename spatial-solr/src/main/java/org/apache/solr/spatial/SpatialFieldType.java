@@ -24,6 +24,9 @@ import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextFactory;
 import org.apache.lucene.spatial.base.query.SpatialArgs;
 import org.apache.lucene.spatial.base.query.SpatialArgsParser;
+import org.apache.lucene.spatial.base.query.SpatialOperation;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
@@ -103,8 +106,17 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   @Override
   public Query getRangeQuery(QParser parser, SchemaField field, String part1, String part2, boolean minInclusive, boolean maxInclusive) {
-    //TODO assume a pair of points and bounding-box query
-    throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "Range query not supported on SpatialField: " + field.getName());
+    if (!minInclusive || !maxInclusive)
+      throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "Both sides of range query must be inclusive: " + field.getName());
+    Shape shape1 = ctx.readShape(part1);
+    Shape shape2 = ctx.readShape(part2);
+    if (!(shape1 instanceof Point) || !(shape2 instanceof Point))
+      throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "Both sides of range query must be points: " + field.getName());
+    Point p1 = (Point) shape1;
+    Point p2 = (Point) shape2;
+    Rectangle bbox = ctx.makeRect(p1.getX(),p2.getX(),p1.getY(),p2.getY());
+    SpatialArgs spatialArgs = new SpatialArgs(SpatialOperation.Intersects,bbox);
+    return getQueryFromSpatialArgs(parser, field, spatialArgs);
   }
 
   @Override
@@ -114,7 +126,10 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   @Override
   public Query getFieldQuery(QParser parser, SchemaField field, String externalVal) {
-    final SpatialArgs spatialArgs = argsParser.parse(externalVal, ctx);
+    return getQueryFromSpatialArgs(parser, field, argsParser.parse(externalVal, ctx));
+  }
+
+  private Query getQueryFromSpatialArgs(QParser parser, SchemaField field, SpatialArgs spatialArgs) {
     final T fieldInfo = getFieldInfo(field);
     //see SOLR-2883
     SolrParams localParams = parser.getLocalParams();
