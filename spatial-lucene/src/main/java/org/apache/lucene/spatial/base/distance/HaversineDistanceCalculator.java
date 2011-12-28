@@ -38,6 +38,11 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
   }
 
   @Override
+  public double convertDistanceToRadians(double distance) {
+    return DistanceUtils.dist2Radians(distance,radius);
+  }
+
+  @Override
   public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
     /*
     This code is very optimized to do the minimum number of calculations

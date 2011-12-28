@@ -50,6 +50,11 @@ public class EuclideanDistanceCalculator extends AbstractDistanceCalculator {
   }
 
   @Override
+  public double convertDistanceToRadians(double distance) {
+    return distance;
+  }
+
+  @Override
   public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
     return ctx.makeRect(from.getX()-distance,from.getX()+distance,from.getY()-distance,from.getY()+distance);
   }

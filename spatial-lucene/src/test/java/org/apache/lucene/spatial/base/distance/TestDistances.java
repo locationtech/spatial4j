@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 public class TestDistances {
 
   private final SpatialContext ctx = new SimpleSpatialContext(DistanceUnits.KILOMETERS);
-  private final DistanceCalculator DC = new HaversineDistanceCalculator(DistanceUtils.EARTH_MEAN_RADIUS_KM);
+  private final DistanceCalculator DC = ctx.getDistanceCalculator();
 
   @Test
   public void testSomeDistances() {
@@ -89,6 +89,18 @@ public class TestDistances {
     for (double[] pair : lons) {
       assertEquals("input "+pair[0],pair[1],ctx.normX(pair[0]),0);
     }
+  }
+
+  @Test
+  public void testDistToRadians() {
+    assertDistToRadians(0);
+    assertDistToRadians(500);
+    assertDistToRadians(ctx.getUnits().earthRadius());
+  }
+  private void assertDistToRadians(double dist) {
+    assertEquals(
+        DistanceUtils.pointOnBearingRAD(0, 0, dist, DistanceUtils.DEG_90_AS_RADS, null, ctx.getUnits().earthRadius())[1],
+        DC.convertDistanceToRadians(dist),10e-5);
   }
 
   private void checkR(String msg, Rectangle r, Point center) {

@@ -28,6 +28,12 @@ public interface DistanceCalculator {
   public double calculate(Point from, Point to);
   public double calculate(Point from, double toX, double toY);
 
+  /**
+   * Converts a distance to radians (multiples of the radius). A spherical
+   * earth model is assumed for geospatial, and non-geospatial is the identity function.
+   */
+  public double convertDistanceToRadians(double distance);
+
   //public Point pointOnBearing(Point from, double angle);
 
   public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx);

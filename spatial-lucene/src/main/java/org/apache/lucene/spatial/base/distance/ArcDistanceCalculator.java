@@ -35,6 +35,11 @@ public class ArcDistanceCalculator extends AbstractDistanceCalculator {
   }
 
   @Override
+  public double convertDistanceToRadians(double distance) {
+    return DistanceUtils.dist2Radians(distance,units.earthRadius());
+  }
+
+  @Override
   public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
     throw new UnsupportedOperationException();
   }

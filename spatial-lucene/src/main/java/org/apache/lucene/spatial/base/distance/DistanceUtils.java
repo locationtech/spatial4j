@@ -340,19 +340,19 @@ public class DistanceUtils {
   }
 
   /**
-   * Converts a distance in the units of the radius to degrees.  A degree is the longitudinal
-   * distance moving along the equator, which is also a latitudinal distance anywhere.
-   * @param dist
-   * @param radius
-   * @return
+   * Converts a distance in the units of the radius to degrees (360 degrees are in a circle). A spherical
+   * earth model is assumed.
    */
   public static double dist2Degrees(double dist, double radius) {
-    double[] latLonOut = pointOnBearingRAD(0, 0, dist, DEG_90_AS_RADS, null, radius);
-    if( Math.abs(latLonOut[0]) > 0.0001 ) {//latitude should essentially be 0
-      throw new RuntimeException("Expect LatLonOut[0]==0, not: ["+latLonOut[0]+","+latLonOut[1]+"]");
-      //assert latLonOut[0] == 0;
-    }
-    return Math.toDegrees(latLonOut[1]);
+    return Math.toDegrees(dist2Radians(dist, radius));
+  }
+
+  /**
+   * Converts a distance in the units of the radius to radians (multiples of the radius). A spherical
+   * earth model is assumed.
+   */
+  public static double dist2Radians(double dist, double radius) {
+    return dist / radius;
   }
 
   /**
