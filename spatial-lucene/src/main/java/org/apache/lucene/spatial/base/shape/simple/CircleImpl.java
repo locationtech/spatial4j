@@ -130,8 +130,8 @@ public final class CircleImpl implements Circle {
     Rectangle bbox = r.getBoundingBox();
     if (contains(bbox.getMinX(),bbox.getMinY()) &&
         contains(bbox.getMinX(),bbox.getMaxY()) &&
-        contains(bbox.getMaxX(),bbox.getMaxY()) &&
-        contains(bbox.getMaxX(),bbox.getMinY()))
+        contains(bbox.getMaxX(),bbox.getMinY()) &&
+        contains(bbox.getMaxX(),bbox.getMaxY()))
       return IntersectCase.CONTAINS;
 
     return IntersectCase.INTERSECTS;//needn't actually intersect; this is a good guess
@@ -164,7 +164,7 @@ public final class CircleImpl implements Circle {
     final double closestY;
     if ( point.getY() < r.getMinY() )
       closestY = r.getMinY();
-    else if (point.getX() > r.getMaxY())
+    else if (point.getY() > r.getMaxY())
       closestY = r.getMaxY();
     else
       closestY = point.getY();
@@ -217,7 +217,12 @@ public final class CircleImpl implements Circle {
   @Override
   public String toString() {
     //I'm deliberately making this look basic and not fully detailed with class name & misc fields.
-    return "Circle(" + point + ",d=" + distance + ')';
+    String dStr = String.format("%.1f",distance);
+    if (ctx.isGeo()) {
+      double distDEG = Math.toDegrees(ctx.getDistanceCalculator().convertDistanceToRadians(distance));
+      dStr += String.format("=%.1f\u00B0",distDEG);
+    }
+    return "Circle(" + point + ",d=" + dStr + ')';
   }
 
 
