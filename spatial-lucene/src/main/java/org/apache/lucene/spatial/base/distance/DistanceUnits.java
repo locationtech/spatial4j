@@ -26,7 +26,7 @@ public enum DistanceUnits {
   //TODO do we need circumference?
   KILOMETERS("km", DistanceUtils.EARTH_MEAN_RADIUS_KM, 40076),
   MILES("miles", DistanceUtils.EARTH_MEAN_RADIUS_MI, 24902),
-  //TODO add RADIANS ?
+  RADIANS("radians", 1, Math.PI * 2),//experimental
   EUCLIDEAN("u", -1, -1);
 
 
@@ -111,6 +111,10 @@ public enum DistanceUnits {
    */
   public double earthCircumference() {
     return earthCircumference;
+  }
+  
+  public boolean isGeo() {
+    return earthRadius > 0;
   }
 }
 

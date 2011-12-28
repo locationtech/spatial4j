@@ -111,7 +111,7 @@ public abstract class SpatialContext {
    * @return
    */
   public boolean isGeo() {
-    return getUnits() != DistanceUnits.EUCLIDEAN;
+    return getUnits().isGeo();
   }
 
   /**
