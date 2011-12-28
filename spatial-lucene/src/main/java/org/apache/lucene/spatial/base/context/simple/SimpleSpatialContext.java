@@ -70,6 +70,9 @@ public class SimpleSpatialContext extends SpatialContext {
 
   @Override
   public Circle makeCircle(Point point, double distance) {
+    if (distance < 0)
+      throw new InvalidShapeException("distance must be >= 0; got "+distance);
+    distance = Math.min(distance,maxCircleDistance);
     return new CircleImpl( point, distance, this );
   }
 
