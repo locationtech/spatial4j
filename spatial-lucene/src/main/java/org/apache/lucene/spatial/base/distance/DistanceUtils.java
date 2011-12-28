@@ -355,6 +355,10 @@ public class DistanceUtils {
     return dist / radius;
   }
 
+  public static double radians2Dist(double radians, double radius) {
+    return radians * radius;
+  }
+
   /**
    * Given a string containing <i>dimension</i> values encoded in it, separated by commas, return a String array of length <i>dimension</i>
    * containing the values.

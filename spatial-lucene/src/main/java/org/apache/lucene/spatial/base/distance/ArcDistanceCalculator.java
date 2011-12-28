@@ -17,48 +17,20 @@
 
 package org.apache.lucene.spatial.base.distance;
 
-import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Point;
-import org.apache.lucene.spatial.base.shape.Rectangle;
 
 //TODO determine how this compares to HaversineDistance, and potentially delete if not useful
-public class ArcDistanceCalculator extends AbstractDistanceCalculator {
-  final DistanceUnits units;
+public class ArcDistanceCalculator extends HaversineDistanceCalculator {
+  final DistanceUnits units;//don't bother using in equals / hashcode since we only use it for the radius (in superclass)
 
   public ArcDistanceCalculator( DistanceUnits units ) {
+    super(units.earthRadius());
     this.units = units;
   }
 
   @Override
   public double calculate(Point from, double toX, double toY) {
     return DistanceUtils.arcDistanceDEG(units, from.getX(), from.getY(), toX, toY);
-  }
-
-  @Override
-  public double convertDistanceToRadians(double distance) {
-    return DistanceUtils.dist2Radians(distance,units.earthRadius());
-  }
-
-  @Override
-  public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    ArcDistanceCalculator that = (ArcDistanceCalculator) o;
-
-    if (units != that.units) return false;
-
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return units != null ? units.hashCode() : 0;
   }
 
 }

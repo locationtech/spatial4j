@@ -39,7 +39,12 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
 
   @Override
   public double convertDistanceToRadians(double distance) {
-    return DistanceUtils.dist2Radians(distance,radius);
+    return DistanceUtils.dist2Radians(distance, radius);
+  }
+
+  @Override
+  public double convertRadiansToDistance(double radius) {
+    return DistanceUtils.radians2Dist(radius, this.radius);
   }
 
   @Override

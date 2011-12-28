@@ -34,6 +34,8 @@ public interface DistanceCalculator {
    */
   public double convertDistanceToRadians(double distance);
 
+  public double convertRadiansToDistance(double radius);
+
   //public Point pointOnBearing(Point from, double angle);
 
   public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx);
