@@ -173,12 +173,12 @@ public class DistanceUtils {
    * @param startLat The starting point latitude, in radians
    * @param startLon The starting point longitude, in radians
    * @param distance The distance to travel along the bearing.  The units are assumed to be the same as the sphereRadius units, both of which is up to the caller to know
-   * @param bearing The bearing, in radians.  North is a 0 deg. bearing, east is 90 deg, south is 180 deg, west is 270 deg.
+   * @param bearingRAD The bearing, in radians.  North is a 0 deg. bearing, east is 90 deg, south is 180 deg, west is 270 deg.
    * @param result A preallocated array to hold the results.  If null, a new one is constructed.
    * @param sphereRadius The radius of the sphere to use for the calculation.
    * @return The destination point, in radians.  First entry is latitude, second is longitude
    */
-  public static double[] pointOnBearingRAD(double startLat, double startLon, double distance, double bearing, double[] result, double sphereRadius) {
+  public static double[] pointOnBearingRAD(double startLat, double startLon, double distance, double bearingRAD, double[] result, double sphereRadius) {
     /*
  	lat2 = asin(sin(lat1)*cos(d/R) + cos(lat1)*sin(d/R)*cos(θ))
   	lon2 = lon1 + atan2(sin(θ)*sin(d/R)*cos(lat1), cos(d/R)−sin(lat1)*sin(lat2))
@@ -189,9 +189,9 @@ public class DistanceUtils {
     double sinAngDist = Math.sin(distance / sphereRadius);
     double sinStartLat = Math.sin(startLat);
     double lat2 = Math.asin(sinStartLat * cosAngDist +
-            cosStartLat * sinAngDist * Math.cos(bearing));
+            cosStartLat * sinAngDist * Math.cos(bearingRAD));
 
-    double lon2 = startLon + Math.atan2(Math.sin(bearing) * sinAngDist * cosStartLat,
+    double lon2 = startLon + Math.atan2(Math.sin(bearingRAD) * sinAngDist * cosStartLat,
             cosAngDist - sinStartLat * Math.sin(lat2));
 
     /*lat2 = (lat2*180)/Math.PI;

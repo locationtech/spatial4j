@@ -50,6 +50,15 @@ public class EuclideanDistanceCalculator extends AbstractDistanceCalculator {
   }
 
   @Override
+  public Point pointOnBearingRAD(Point from, double dist, double bearingRAD, SpatialContext ctx) {
+    if (dist == 0)
+      return from;
+    double y = Math.sin(bearingRAD) / dist;
+    double x = Math.cos(bearingRAD) / dist;
+    return ctx.makePoint(from.getX()+x, from.getY()+y);
+  }
+
+  @Override
   public double convertDistanceToRadians(double distance) {
     throw new UnsupportedOperationException("no geo!");
   }
