@@ -90,12 +90,20 @@ public final class CircleImpl implements Circle {
     if (other instanceof Rectangle) {
       final Rectangle r = (Rectangle) other;
       //Note: Surprisingly complicated!
-      if (enclosingBox.getCrossesDateLine() || r.getCrossesDateLine()
-          || ctx.isGeo() && (enclosingBox.getWidth()==360 || r.getWidth()==360)) {
-        //throw new UnsupportedSpatialOperation("TODO circle spanning the dateline isn't yet supported.");
-        return intersectRectangleEstimate(r, ctx);
+
+      //--We start by leveraging the fact we have a calculated bbox that is "cheaper" than use of DistanceCalculator.
+      final IntersectCase bboxSect = enclosingBox.intersect(r,ctx);
+      if (bboxSect == IntersectCase.OUTSIDE || bboxSect == IntersectCase.WITHIN)
+        return bboxSect;
+      else if (bboxSect == IntersectCase.CONTAINS && enclosingBox.equals(r))//nasty identity edge-case
+        return IntersectCase.WITHIN;
+      //bboxSect is INTERSECTS or CONTAINS
+
+      if (ctx.isGeo() && (enclosingBox.getCrossesDateLine() || r.getCrossesDateLine()
+          || enclosingBox.getWidth()==360 || r.getWidth()==360)) {
+        return intersectRectangleGeoCapable(r, bboxSect, ctx);
       } else
-        return intersect2DRectangle(r, ctx);
+        return intersect2DRectangle(r, bboxSect, ctx);
     }
 
     if (other instanceof Circle) {
@@ -116,38 +124,24 @@ public final class CircleImpl implements Circle {
     return other.intersect(this, ctx).transpose();
   }
 
-  /** This code is basically the "old" logic prior to 16-August 2011. */
-  private IntersectCase intersectRectangleEstimate(Rectangle r, SpatialContext ctx) {
-    //!! next 5 lines is COPY-PASTED from intersect2DRectangle
-    //--We start by leveraging the fact we have a calculated bbox that is "cheaper" than use of DistanceCalculator.
-    final IntersectCase bboxSect = enclosingBox.intersect(r,ctx);
-    if (bboxSect == IntersectCase.OUTSIDE || bboxSect == IntersectCase.WITHIN)
-      return bboxSect;
-    else if (bboxSect == IntersectCase.CONTAINS && enclosingBox.equals(r))//nasty identity edge-case
-      return IntersectCase.WITHIN;
+  /** Handles geospatial contexts that involve world wrap &/ pole wrap (and non-geo too). */
+  private IntersectCase intersectRectangleGeoCapable(Rectangle r, IntersectCase bboxSect, SpatialContext ctx) {
 
     //do quick check to see if all corners are within this circle for CONTAINS
-    Rectangle bbox = r.getBoundingBox();
-    if (contains(bbox.getMinX(),bbox.getMinY()) &&
-        contains(bbox.getMinX(),bbox.getMaxY()) &&
-        contains(bbox.getMaxX(),bbox.getMinY()) &&
-        contains(bbox.getMaxX(),bbox.getMaxY()))
+    if (contains(r.getMinX(),r.getMinY()) &&
+        contains(r.getMinX(),r.getMaxY()) &&
+        contains(r.getMaxX(),r.getMinY()) &&
+        contains(r.getMaxX(),r.getMaxY()))
       return IntersectCase.CONTAINS;
+
+    //TODO don't estimate.  And if c.bbox doesn't wrap a pole and if bboxSect == CONTAINS (common),
+    //  then don't need to check c's axis for intersection; it's OUTSIDE
 
     return IntersectCase.INTERSECTS;//needn't actually intersect; this is a good guess
   }
 
-  /** !! DOES NOT WORK WITH CROSSING DATELINE OR WORLD-WRAP */
-  private IntersectCase intersect2DRectangle(final Rectangle r, SpatialContext ctx) {
-    //--We start by leveraging the fact we have a calculated bbox that is "cheaper" than use of DistanceCalculator.
-    final IntersectCase bboxSect = enclosingBox.intersect(r,ctx);
-    if (bboxSect == IntersectCase.OUTSIDE || bboxSect == IntersectCase.WITHIN)
-      return bboxSect;
-    else if (bboxSect == IntersectCase.CONTAINS && enclosingBox.equals(r))//nasty identity edge-case
-      return IntersectCase.WITHIN;
-
-    //!!THIS CODE WON'T WORK WITH CROSSING DATELINE
-
+  /** !! DOES NOT WORK WITH CROSSING DATELINE OR WORLD-WRAP. */
+  private IntersectCase intersect2DRectangle(final Rectangle r, IntersectCase bboxSect, SpatialContext ctx) {
     //At this point, the only thing we are certain of is that circle is *NOT* WITHIN r, since the bounding box of a
     // circle MUST be within r for the circle to be within r.
 
@@ -173,11 +167,13 @@ public final class CircleImpl implements Circle {
     boolean didContainOnClosestXY = false;
     if (point.getX() == closestX) {
       double distY = Math.abs(point.getY() - closestY);
-      if (distY > distance)
+      double distanceYDEG = enclosingBox.getHeight()/2;//for non-geo, this is equal to distance
+      if (distY > distanceYDEG)
         return IntersectCase.OUTSIDE;
     } else if (point.getY() == closestY) {
       double distX = Math.abs(point.getX() - closestX);
-      if (distX > distance)
+      double distanceXDEG = enclosingBox.getWidth()/2;//for non-geo, this is equal to distance
+      if (distX > distanceXDEG)
         return IntersectCase.OUTSIDE;
     } else {
       //fallback on more expensive DistanceCalculator
@@ -217,6 +213,7 @@ public final class CircleImpl implements Circle {
   @Override
   public String toString() {
     //I'm deliberately making this look basic and not fully detailed with class name & misc fields.
+    //Add distance in degrees, which is easier to recognize and earth radius agnostic
     String dStr = String.format("%.1f",distance);
     if (ctx.isGeo()) {
       double distDEG = Math.toDegrees(ctx.getDistanceCalculator().convertDistanceToRadians(distance));
