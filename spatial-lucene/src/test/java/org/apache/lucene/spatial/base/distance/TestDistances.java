@@ -24,6 +24,8 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.junit.Test;
 
+import java.util.Random;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -66,6 +68,31 @@ public class TestDistances {
         assertEquals(latA == 90, spans(r));
         //TODO
       }
+    }
+  }
+
+  @Test
+  public void testDistCalcPointOnBearing() {
+    final long seed = System.currentTimeMillis();
+    System.out.println("Seed: "+seed);
+    Random random = new Random(seed);
+
+    testDistCalcPointOnBearing(random, new SimpleSpatialContext(DistanceUnits.EUCLIDEAN));
+    testDistCalcPointOnBearing(random, new SimpleSpatialContext(DistanceUnits.KILOMETERS));
+  }
+
+  private void testDistCalcPointOnBearing(Random random, SpatialContext ctx) {
+    DistanceCalculator dc = ctx.getDistanceCalculator();
+    for(int angDEG = 0; angDEG < 360; angDEG += 20) {
+      Point c = ctx.makePoint(random.nextInt(360),-90+random.nextInt(91));
+      double angRAD = Math.toRadians(angDEG);
+      //0 distance means same point
+      Point p2 = dc.pointOnBearingRAD(c,0,angRAD,ctx);
+      assertEquals(c,p2);
+      double dist = random.nextDouble()*20;
+      p2 = dc.pointOnBearingRAD(c,dist,angRAD,ctx);
+      double calcDist = dc.calculate(c,p2);
+      assertEquals(dist,calcDist,10e-5);
     }
   }
 

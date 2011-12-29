@@ -49,8 +49,12 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
 
   @Override
   public Point pointOnBearingRAD(Point from, double dist, double bearingRAD, SpatialContext ctx) {
-    double[] latLon = DistanceUtils.pointOnBearingRAD(from.getY(),from.getX(),dist,bearingRAD,null,radius);
-    return ctx.makePoint(latLon[1],latLon[0]);
+    if (dist == 0)
+      return from;
+    double[] latLon = DistanceUtils.pointOnBearingRAD(
+        Math.toRadians(from.getY()), Math.toRadians(from.getX()),
+        dist, bearingRAD, null, radius);
+    return ctx.makePoint(Math.toDegrees(latLon[1]),Math.toDegrees(latLon[0]));
   }
 
   @Override
