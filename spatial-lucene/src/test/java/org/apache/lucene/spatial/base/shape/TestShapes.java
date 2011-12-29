@@ -17,19 +17,26 @@
 
 package org.apache.lucene.spatial.base.shape;
 
+import org.apache.lucene.spatial.RandomSeed;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Random;
 
 import static org.apache.lucene.spatial.base.shape.IntersectCase.*;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author dsmiley
  */
 public class TestShapes {
+
+  private Random random;
 
   protected SpatialContext getGeoContext() {
     return new SimpleSpatialContext(DistanceUnits.KILOMETERS);
@@ -37,6 +44,11 @@ public class TestShapes {
 
   protected SpatialContext getNonGeoContext() {
     return new SimpleSpatialContext(DistanceUnits.EUCLIDEAN);
+  }
+
+  @Before
+  public void beforeClass() {
+    random = new Random(RandomSeed.seed());
   }
 
   @Test
@@ -179,21 +191,73 @@ public class TestShapes {
   @Test
   public void testSimpleCircle() {
     SpatialContext ctx = getNonGeoContext();
-    double[] minXs = new double[]{-1000,-360,-180,-20,0,20,180,1000};
-    for (double minX : minXs) {
-      double[] widths = new double[]{0,10,180,360,400};
-      for (double width : widths) {
-        testCircle(minX, width, 0, ctx);
-        testCircle(minX, width, 20/2, ctx);
+    double[] theXs = new double[]{-10,0,10};
+    for (double x : theXs) {
+      double[] theYs = new double[]{-20,0,20};
+      for (double y : theYs) {
+        testCircle(x, y, 0, ctx);
+        testCircle(x, y, 5, ctx);
       }
     }
+    //INTERSECTION:
+    //Start with some static tests that have shown to cause failures at some point:
+    assertEquals("getX not getY",INTERSECTS,ctx.makeCircle(107,-81,147).intersect(ctx.makeRect(92,121,-89,74),ctx));
+
+    testCircleIntersect(ctx);
+  }
+
+  @Test
+  public void testGeoCircle() {
+    SpatialContext ctx = getGeoContext();
+
+    //--Start with some static tests that once failed:
+
+    //Bug: numeric edge at pole, fails to init
+    ctx.makeCircle(
+        110,-12,ctx.getDistanceCalculator().convertRadiansToDistance(Math.toRadians(90+12)));
+    
+    {
+      //Bug in which distance was being confused as being in the same coordinate system as x,y.
+      double distDeltaToPole = 0.001;//1m
+      double distDeltaToPoleDEG = Math.toDegrees(ctx.getDistanceCalculator().convertDistanceToRadians(distDeltaToPole));
+      double dist = 1;//1km
+      double distDEG = Math.toDegrees(ctx.getDistanceCalculator().convertDistanceToRadians(dist));
+      Circle c = ctx.makeCircle(0,90-distDeltaToPoleDEG-distDEG,dist);
+      Rectangle cBBox = c.getBoundingBox();
+      Rectangle r = ctx.makeRect(cBBox.getMaxX()*0.99,cBBox.getMaxX()+1,c.getCenter().getY(),c.getCenter().getY());
+      assertEquals(INTERSECTS,c.getBoundingBox().intersect(r, ctx));
+      assertEquals("dist != xy space",INTERSECTS,c.intersect(r,ctx));//once failed here
+    }
+
+    assertEquals("wrong estimate",OUTSIDE,ctx.makeCircle(-166,59,5226.2).intersect(ctx.makeRect(36,66,23,23),ctx));
+
+    assertEquals("bad CONTAINS (dateline)",INTERSECTS,ctx.makeCircle(56,-50,12231.5).intersect(ctx.makeRect(108,26,39,48),ctx));
+
+    assertEquals("bad CONTAINS (backwrap2)",INTERSECTS,
+        ctx.makeCircle(112,-3,10118.8/*91*/).intersect(ctx.makeRect(-163,29,-38,10),ctx));
+    
+    //--Now proceed with systematic testing:
+
+    double distToOpposeSide = ctx.getUnits().earthRadius()*Math.PI;
+    assertEquals(ctx.getWorldBounds(),ctx.makeCircle(0,0,distToOpposeSide).getBoundingBox());
+    //assertEquals(ctx.makeCircle(0,0,distToOpposeSide/2 - 500).getBoundingBox());
+
+    double[] theXs = new double[]{-180,-45,90};
+    for (double x : theXs) {
+      double[] theYs = new double[]{-90,-45,0,45,90};
+      for (double y : theYs) {
+        testCircle(x, y, 0, ctx);
+        testCircle(x, y, 500, ctx);
+        testCircle(x, y, ctx.getUnits().earthRadius()*6, ctx);
+      }
+    }
+
+    testCircleIntersect(ctx);
   }
 
   private void testCircle(double x, double y, double dist, SpatialContext ctx) {
     Circle c = ctx.makeCircle(x, y, dist);
     String msg = c.toString();
-    //System.out.println(msg);
-    //test equals & hashcode of duplicate
     final Circle c2 = ctx.makeCircle(ctx.makePoint(x, y), dist);
     assertEquals(c, c2);
     assertEquals(c.hashCode(),c2.hashCode());
@@ -201,10 +265,80 @@ public class TestShapes {
     assertEquals(msg,dist > 0, c.hasArea());
     final Rectangle bbox = c.getBoundingBox();
     assertEquals(msg,dist > 0, bbox.getArea() > 0);
-    assertEqualsPct(msg, bbox.getHeight(), dist*2);
-    assertTrue(msg,bbox.getWidth() >= dist*2);
+    if (!ctx.isGeo()) {
+      //if not geo then units of dist == units of x,y
+      assertEqualsPct(msg, bbox.getHeight(), dist*2);
+      assertEqualsPct(msg, bbox.getWidth(), dist*2);
+    }
     assertIntersect(msg, CONTAINS, c , c.getCenter(), ctx);
     assertIntersect(msg, CONTAINS, bbox, c, ctx);
+  }
+  
+  private void testCircleIntersect(SpatialContext ctx) {
+    //Now do some randomized tests:
+    int i_C = 0, i_I = 0, i_W = 0, i_O = 0;//counters for the different intersection cases
+    int laps = 0;
+    while(i_C < 10 || i_I < 10 || i_W < 10 || i_O < 10) {
+      laps++;
+      double cX = -180 + random.nextInt(360);
+      double cY = -90 + random.nextInt(181);//includes +90
+      double cR = random.nextInt(181);
+      double cR_dist = ctx.getDistanceCalculator().calculate(ctx.makePoint(0,0),0,cR);
+      Circle c = ctx.makeCircle(cX, cY, cR_dist);
+
+      double rX = -180 + random.nextInt(360);
+      double rW = random.nextInt(361);
+      double rY1 = -90 + random.nextInt(181);
+      double rY2 = -90 + random.nextInt(181);
+      double rYmin = Math.min(rY1,rY2);
+      double rYmax = Math.max(rY1,rY2);
+      Rectangle r = ctx.makeRect(rX, rX+rW, rYmin, rYmax);
+
+      IntersectCase ic = c.intersect(r, ctx);
+
+      Point p;
+      switch (ic) {
+        case CONTAINS: 
+          i_C++;
+          p = randomPointWithin(random,r,ctx);
+          assertEquals(CONTAINS,c.intersect(p,ctx));
+          break;
+        case INTERSECTS: 
+          i_I++;
+          //hard to test anything here; instead we'll test it separately
+          break;
+        case WITHIN:
+          i_W++;
+          p = randomPointWithin(random,c,ctx);
+          assertEquals(CONTAINS,r.intersect(p,ctx));
+          break;
+        case OUTSIDE:
+          i_O++;
+          p = randomPointWithin(random,r,ctx);
+          assertEquals(OUTSIDE,c.intersect(p,ctx));
+          break;
+        default: fail(""+ic);
+      }
+    }
+    System.out.println("Laps: "+laps);
+
+    //TODO deliberately test INTERSECTS based on known intersection point
+  }
+
+  private Point randomPointWithin(Random random, Circle c, SpatialContext ctx) {
+    double d = c.getDistance() * random.nextDouble();
+    double angleRAD = Math.toRadians(360*random.nextDouble());
+    Point p = ctx.getDistanceCalculator().pointOnBearingRAD(c.getCenter(),d,angleRAD,ctx);
+    assertEquals(CONTAINS,c.intersect(p,ctx));
+    return p;
+  }
+
+  private Point randomPointWithin(Random random, Rectangle r, SpatialContext ctx) {
+    double x = r.getMinX() + random.nextDouble()*r.getWidth();
+    double y = r.getMinY() + random.nextDouble()*r.getHeight();
+    Point p = ctx.makePoint(x,y);
+    assertEquals(CONTAINS,r.intersect(p,ctx));
+    return p;
   }
 
   //TODO test circle intersect, esp. world wrap, dateline wrap

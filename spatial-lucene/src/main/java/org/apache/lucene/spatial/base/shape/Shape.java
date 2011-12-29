@@ -30,9 +30,6 @@ public interface Shape {
    *   this INTERSECTS other
    *
    * The context object is optional -- it may include spatial reference.
-   *
-   * Note, if the bounding boxes of both shapes intersect yet both shapes actually don't intersect, then the
-   * implementation may return INTERSECTS.
    */
   IntersectCase intersect(Shape other, SpatialContext ctx);
 
