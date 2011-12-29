@@ -24,9 +24,7 @@ import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
-import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 
 public class JtsEnvelope implements Rectangle {
 
@@ -126,6 +124,44 @@ public class JtsEnvelope implements Rectangle {
         envelope.getMaxX() <= ext.getMaxX() &&
         envelope.getMinY() >= ext.getMinY() &&
         envelope.getMaxY() <= ext.getMaxY()) {
+      return IntersectCase.WITHIN;
+    }
+    return IntersectCase.INTERSECTS;
+  }
+
+  @Override
+  public IntersectCase intersect_yRange(double minY, double maxY, SpatialContext ctx) {
+    if (minY > envelope.getMaxY() ||
+        maxY < envelope.getMinY()) {
+      return IntersectCase.OUTSIDE;
+    }
+
+    if (minY >= envelope.getMinY() &&
+        maxY <= envelope.getMaxY()) {
+      return IntersectCase.CONTAINS;
+    }
+
+    if ( envelope.getMinY() >= minY &&
+        envelope.getMaxY() <= maxY) {
+      return IntersectCase.WITHIN;
+    }
+    return IntersectCase.INTERSECTS;
+  }
+
+  @Override
+  public IntersectCase intersect_xRange(double minX, double maxX, SpatialContext ctx) {
+    if (minX > envelope.getMaxX() ||
+        maxX < envelope.getMinX()) {
+      return IntersectCase.OUTSIDE;
+    }
+
+    if (minX >= envelope.getMinX() &&
+        maxX <= envelope.getMaxX()) {
+      return IntersectCase.CONTAINS;
+    }
+
+    if ( envelope.getMinX() >= minX &&
+        envelope.getMaxX() <= maxX) {
       return IntersectCase.WITHIN;
     }
     return IntersectCase.INTERSECTS;

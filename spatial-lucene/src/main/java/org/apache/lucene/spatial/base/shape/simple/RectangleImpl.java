@@ -126,15 +126,54 @@ public class RectangleImpl implements Rectangle {
 
     Rectangle ext = other.getBoundingBox();
 
+    IntersectCase yIntersect = intersect_yRange(ext.getMinY(),ext.getMaxY(),ctx);
+    if (yIntersect == IntersectCase.OUTSIDE)
+      return IntersectCase.OUTSIDE;
+
+    IntersectCase xIntersect = intersect_xRange(ext.getMinX(),ext.getMaxX(),ctx);
+    if (xIntersect == IntersectCase.OUTSIDE)
+      return IntersectCase.OUTSIDE;
+
+    if (xIntersect == yIntersect)//in agreement
+      return xIntersect;
+
+    //if one side is equal, return the other
+    if (getMinX() == ext.getMinX() && getMaxX() == ext.getMaxX())
+      return yIntersect;
+    if (getMinY() == ext.getMinY() && getMaxY() == ext.getMaxY())
+      return xIntersect;
+
+    return IntersectCase.INTERSECTS;
+  }
+
+  public IntersectCase intersect_yRange(double ext_minY, double ext_maxY, SpatialContext ctx) {
+    if (ext_minY > maxY || ext_maxY < minY) {
+      return IntersectCase.OUTSIDE;
+    }
+
+    if (ext_minY >= minY && ext_maxY <= maxY) {
+      return IntersectCase.CONTAINS;
+    }
+
+    if (ext_minY <= minY && ext_maxY >= maxY) {
+      return IntersectCase.WITHIN;
+    }
+    return IntersectCase.INTERSECTS;
+  }
+
+  @Override
+  public IntersectCase intersect_xRange(double ext_minX, double ext_maxX, SpatialContext ctx) {
     //For ext & this we have local minX and maxX variable pairs. We rotate them so that minX <= maxX
-    double ext_minX = ext.getMinX();
-    double ext_maxX = ext.getMaxX();
     double minX = this.minX;
     double maxX = this.maxX;
     if (ctx.isGeo()) {
       //the 360 check is an edge-case for complete world-wrap
-      if (ext.getWidth() < 360) {
-        ext_maxX = ext_minX + ext.getWidth();
+      double ext_width = ext_maxX - ext_minX;
+      if (ext_width < 0)//this logic unfortunately duplicates getWidth()
+        ext_width += 360;
+
+      if (ext_width < 360) {
+        ext_maxX = ext_minX + ext_width;
       } else {
         ext_maxX = 180+360;
       }
@@ -154,24 +193,15 @@ public class RectangleImpl implements Rectangle {
       }
     }
 
-    if (ext_minX > maxX ||
-        ext_maxX < minX ||
-        ext.getMinY() > maxY ||
-        ext.getMaxY() < minY) {
+    if (ext_minX > maxX || ext_maxX < minX ) {
       return IntersectCase.OUTSIDE;
     }
 
-    if (ext_minX >= minX &&
-        ext_maxX <= maxX &&
-        ext.getMinY() >= minY &&
-        ext.getMaxY() <= maxY) {
+    if (ext_minX >= minX && ext_maxX <= maxX ) {
       return IntersectCase.CONTAINS;
     }
 
-    if (ext_minX <= minX &&
-        ext_maxX >= maxX &&
-        ext.getMinY() <= minY &&
-        ext.getMaxY() >= maxY) {
+    if (ext_minX <= minX && ext_maxX >= maxX ) {
       return IntersectCase.WITHIN;
     }
     return IntersectCase.INTERSECTS;

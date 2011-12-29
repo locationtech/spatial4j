@@ -17,6 +17,8 @@
 
 package org.apache.lucene.spatial.base.shape;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
+
 public interface Rectangle extends Shape {
 
   public double getWidth();
@@ -32,4 +34,7 @@ public interface Rectangle extends Shape {
   /** Only meaningful for geospatial contexts. */
   public boolean getCrossesDateLine();
 
+  /* There is no axis line shape, and this is more efficient then creating a flat Rectangle for intersect(). */
+  public IntersectCase intersect_yRange(double minY, double maxY, SpatialContext ctx);
+  public IntersectCase intersect_xRange(double minX, double maxX, SpatialContext ctx);
 }
