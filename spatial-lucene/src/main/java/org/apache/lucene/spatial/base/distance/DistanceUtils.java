@@ -263,7 +263,7 @@ public class DistanceUtils {
     if (lat_deg >= -90 && lat_deg <= 90)
       return lat_deg;//common case, and avoids slight double precision shifting
     double off = Math.abs((lat_deg + 90) % 360);
-    return off <= 180 ? off-90 : -off;
+    return (off <= 180 ? off : 360-off) - 90;
   }
 
   /**

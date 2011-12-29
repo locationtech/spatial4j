@@ -29,6 +29,7 @@ import org.junit.Test;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author David Smiley - dsmiley@mitre.org
@@ -101,9 +102,15 @@ public class TestDistances {
     double[][] lats = new double[][] {
         {1.23,1.23},//1.23 might become 1.2299999 after some math and we want to ensure that doesn't happen
         {-90,-90},{90,90},{0,0}, {-100,-80},
-        {-90-180,90},{-90-360,-90},{90+180,-90},{90+360,90}};
+        {-90-180,90},{-90-360,-90},{90+180,-90},{90+360,90},
+        {-12+180,12}};
     for (double[] pair : lats) {
       assertEquals("input "+pair[0],pair[1],ctx.normY(pair[0]),0);
+    }
+    Random random = new Random(RandomSeed.seed());
+    for(int i = -1000; i < 1000; i += random.nextInt(10)*10) {
+      double d = ctx.normY(i);
+      assertTrue(i + " " + d, d >= -90 && d <= 90);
     }
   }
 
@@ -115,6 +122,11 @@ public class TestDistances {
         {-180-360,-180},{-180-720,-180},{180+360,-180},{180+720,-180}};
     for (double[] pair : lons) {
       assertEquals("input "+pair[0],pair[1],ctx.normX(pair[0]),0);
+    }
+    Random random = new Random(RandomSeed.seed());
+    for(int i = -1000; i < 1000; i += random.nextInt(10)*10) {
+      double d = ctx.normX(i);
+      assertTrue(i + " " + d, d >= -180 && d < 180);
     }
   }
 
