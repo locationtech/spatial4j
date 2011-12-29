@@ -17,14 +17,19 @@
 
 package org.apache.lucene.spatial.base.shape;
 
+/**
+
+ No equality case.  If two Shape instances are equal then the result might be CONTAINS or WITHIN, and
+  some logic might fail under this edge condition when it's not careful to check.
+  Client code must be written to detect this and act accordingly.  In RectangleImpl.intersect(), it checks
+   for this explicitly, for example.  TestShapes.assertIntersect() checks too.
+ */
 public enum IntersectCase {
   WITHIN,
   CONTAINS,
   OUTSIDE,
   INTERSECTS;
 
-  //TODO what about equality? if two Shape instances are equal then the result might be CONTAINS or WITHIN, and
-  // some logic might fail under this edge condition.
 
   public IntersectCase transpose() {
     switch(this) {
@@ -46,6 +51,20 @@ public enum IntersectCase {
       return this;
     if (this == WITHIN || other == WITHIN)
       return WITHIN;
+    return INTERSECTS;
+  }
+
+  public boolean intersects() {
+    return this != OUTSIDE;
+  }
+
+  /** Not commutative!  WITHIN.inverse().inverse() != WITHIN. */
+  public IntersectCase inverse() {
+    switch(this) {
+      case OUTSIDE: return CONTAINS;
+      case CONTAINS: return OUTSIDE;
+      case WITHIN: return INTERSECTS;//not commutative!
+    }
     return INTERSECTS;
   }
 }
