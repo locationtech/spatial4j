@@ -17,11 +17,13 @@
 
 package org.apache.lucene.spatial.base.distance;
 
+import org.apache.lucene.spatial.RandomSeed;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Random;
@@ -73,9 +75,7 @@ public class TestDistances {
 
   @Test
   public void testDistCalcPointOnBearing() {
-    final long seed = System.currentTimeMillis();
-    System.out.println("Seed: "+seed);
-    Random random = new Random(seed);
+    Random random = new Random(RandomSeed.seed());
 
     testDistCalcPointOnBearing(random, new SimpleSpatialContext(DistanceUnits.EUCLIDEAN));
     testDistCalcPointOnBearing(random, new SimpleSpatialContext(DistanceUnits.KILOMETERS));
