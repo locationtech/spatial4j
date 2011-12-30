@@ -178,6 +178,17 @@ public class CircleImpl implements Circle {
       return inverseCircle.intersect(r,ctx).inverse();
     }
 
+    if (ctx.isGeo() && r.getWidth() == 360) {
+      //Rectangle wraps around the world longitudinally.  There are no corners to test.
+      //TODO
+//      if (r.intersect(y_frontalAxis,ctx).intersects()
+//          || (y_backNorthAxis != null && r.intersect(y_backNorthAxis,ctx).intersects())
+//          || (y_backSouthAxis != null && r.intersect(y_backSouthAxis,ctx).intersects()))
+//        return IntersectCase.INTERSECTS;
+//
+//      return IntersectCase.OUTSIDE;
+    }
+
     //do quick check to see if all corners are within this circle for CONTAINS
     int cornersIntersect = numCornersIntersect(r);
     if (cornersIntersect == 4) {

@@ -236,6 +236,8 @@ public class TestShapes {
     assertEquals("bad CONTAINS (backwrap2)",INTERSECTS,
         ctx.makeCircle(112,-3,10118.8/*91*/).intersect(ctx.makeRect(-163,29,-38,10),ctx));
     
+    assertEquals("bad CONTAINS (r x-wrap)",INTERSECTS,
+        ctx.makeCircle(-139,47,8895.6/*80*/).intersect(ctx.makeRect(-180,180,-3,12),ctx));
     //--Now proceed with systematic testing:
 
     double distToOpposeSide = ctx.getUnits().earthRadius()*Math.PI;
