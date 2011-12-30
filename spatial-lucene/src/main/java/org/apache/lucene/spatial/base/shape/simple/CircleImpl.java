@@ -20,10 +20,7 @@ package org.apache.lucene.spatial.base.shape.simple;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.apache.lucene.spatial.base.shape.*;
-
-import static org.apache.lucene.spatial.base.shape.IntersectCase.INTERSECTS;
 
 /**
  * A circle, also known as a point-radius, based on a
@@ -69,7 +66,7 @@ public class CircleImpl implements Circle {
     //check for possibility of back north or south axis when geo
     if (ctx.isGeo() && dist > 0) {
       //In the direction of latitude (N,S), distance is the same number of degrees.
-      double distDEG = Math.toDegrees(ctx.getDistanceCalculator().convertDistanceToRadians(distance));
+      double distDEG = ctx.getDistanceCalculator().distanceToDegrees(distance);
       double backX = point.getX() + 180;
       if (enclosingBox.getMaxY() == 90) {
         double diffY = Math.abs(distDEG + point.getY() - 90);//abs() only needed due to numeric imprecision
@@ -84,7 +81,7 @@ public class CircleImpl implements Circle {
       }
       
       if (distDEG > 90) {
-        double backDistance = ctx.getDistanceCalculator().convertRadiansToDistance(Math.toRadians(180-distDEG));
+        double backDistance = ctx.getDistanceCalculator().degreesToDistance(180 - distDEG);
         inverseCircle = new CircleImpl(ctx.makePoint(point.getX()+180,point.getY()+180),backDistance,ctx);
       } else {
         inverseCircle = null;
@@ -315,7 +312,7 @@ public class CircleImpl implements Circle {
     //Add distance in degrees, which is easier to recognize and earth radius agnostic
     String dStr = String.format("%.1f",distance);
     if (ctx.isGeo()) {
-      double distDEG = Math.toDegrees(ctx.getDistanceCalculator().convertDistanceToRadians(distance));
+      double distDEG = ctx.getDistanceCalculator().distanceToDegrees(distance);
       dStr += String.format("=%.1f\u00B0",distDEG);
     }
     return "Circle(" + point + ",d=" + dStr + ')';

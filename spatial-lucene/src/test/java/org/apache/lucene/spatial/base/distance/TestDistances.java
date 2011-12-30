@@ -23,7 +23,6 @@ import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Random;
@@ -139,7 +138,7 @@ public class TestDistances {
   private void assertDistToRadians(double dist) {
     assertEquals(
         DistanceUtils.pointOnBearingRAD(0, 0, dist, DistanceUtils.DEG_90_AS_RADS, null, ctx.getUnits().earthRadius())[1],
-        DC.convertDistanceToRadians(dist),10e-5);
+        DistanceUtils.dist2Radians(dist,ctx.getUnits().earthRadius()),10e-5);
   }
 
   private void checkR(String msg, Rectangle r, Point center) {

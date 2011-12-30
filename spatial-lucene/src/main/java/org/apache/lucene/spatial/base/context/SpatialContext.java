@@ -79,7 +79,7 @@ public abstract class SpatialContext {
     worldBounds = makeRect(worldBounds.getMinX(),worldBounds.getMaxX(),worldBounds.getMinY(),worldBounds.getMaxY());
     this.worldBounds = worldBounds;
     
-    this.maxCircleDistance = isGeo() ? calculator.convertRadiansToDistance(Math.PI) : Double.MAX_VALUE;
+    this.maxCircleDistance = isGeo() ? calculator.degreesToDistance(180) : Double.MAX_VALUE;
   }
 
   public DistanceUnits getUnits() {

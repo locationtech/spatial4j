@@ -59,12 +59,12 @@ public class EuclideanDistanceCalculator extends AbstractDistanceCalculator {
   }
 
   @Override
-  public double convertDistanceToRadians(double distance) {
+  public double distanceToDegrees(double distance) {
     throw new UnsupportedOperationException("no geo!");
   }
 
   @Override
-  public double convertRadiansToDistance(double radius) {
+  public double degreesToDistance(double radius) {
     throw new UnsupportedOperationException("no geo!");
   }
 
