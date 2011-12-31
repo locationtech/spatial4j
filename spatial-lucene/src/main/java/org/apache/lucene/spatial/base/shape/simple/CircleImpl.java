@@ -42,53 +42,27 @@ public class CircleImpl implements Circle {
 
   //we don't have a line shape so we use a rectangle for these axis
 
-  //note: It is be possible to instead store one double (y_distDEG instead of these and then calculate the necessary
-  // intersections when needed; use intersectXRange(), intersectYRange()
-
-  private final Rectangle x_axis;//can wrap; don't need -back variants
-  private final Rectangle y_frontalAxis;//rectangles can't wrap a pole so we need the below two:
-  private final Rectangle y_backNorthAxis;//null if none
-  private final Rectangle y_backSouthAxis;//null if none
+  private final double distDEG;// geo: [0 TO 180], otherwise NaN
 
   public CircleImpl(Point p, double dist, SpatialContext ctx) {
     //We assume any normalization / validation of params already occurred (including bounding dist)
     this.point = p;
     this.distance = dist;
     this.ctx = ctx;
-    this.enclosingBox = calcEnclosingBox(ctx);
+    this.enclosingBox = ctx.getDistanceCalculator().calcBoxByDistFromPt(point, distance, ctx);
 
-    x_axis = ctx.makeRect(enclosingBox.getMinX(), enclosingBox.getMaxX(),
-        this.getCenter().getY(), this.getCenter().getY());
-
-    y_frontalAxis = ctx.makeRect(this.getCenter().getX(), this.getCenter().getX(),
-        enclosingBox.getMinY(), enclosingBox.getMaxY());
-
-    //check for possibility of back north or south axis when geo
-    if (ctx.isGeo() && dist > 0) {
+    if (ctx.isGeo()) {
       //In the direction of latitude (N,S), distance is the same number of degrees.
-      double distDEG = ctx.getDistanceCalculator().distanceToDegrees(distance);
-      double backX = point.getX() + 180;
-      if (enclosingBox.getMaxY() == 90) {
-        double diffY = Math.abs(distDEG + point.getY() - 90);//abs() only needed due to numeric imprecision
-        y_backNorthAxis = ctx.makeRect(backX,backX,90-diffY,90);
-      } else
-        y_backNorthAxis = null;
-      if (enclosingBox.getMinY() == 90) {
-        double diffY = Math.abs(-90 - (point.getY() - distDEG));//abs() only needed due to numeric imprecision
-        y_backSouthAxis = ctx.makeRect(backX,backX,-90,-90+diffY);
-      } else {
-        y_backSouthAxis = null;
-      }
+      distDEG = ctx.getDistanceCalculator().distanceToDegrees(distance);
       
       if (distDEG > 90) {
-        double backDistance = ctx.getDistanceCalculator().degreesToDistance(180 - distDEG);
+        double backDistance = ctx.getDistanceCalculator().degreesToDistance(180 - distDEG) - Double.MIN_VALUE;
         inverseCircle = new CircleImpl(ctx.makePoint(point.getX()+180,point.getY()+180),backDistance,ctx);
       } else {
         inverseCircle = null;
       }
     } else {
-      y_backNorthAxis = null;
-      y_backSouthAxis = null;
+      distDEG = Double.NaN;
       inverseCircle = null;
     }
 
@@ -101,11 +75,6 @@ public class CircleImpl implements Circle {
   @Override
   public double getDistance() {
     return distance;
-  }
-
-  private Rectangle calcEnclosingBox(SpatialContext ctx) {
-    assert this.ctx == ctx;
-    return ctx.getDistanceCalculator().calcBoxByDistFromPt(getCenter(), distance, ctx);
   }
 
   public boolean contains(double x, double y) {
@@ -129,6 +98,11 @@ public class CircleImpl implements Circle {
   @Override
   public IntersectCase intersect(Shape other, SpatialContext ctx) {
     assert this.ctx == ctx;
+//This shortcut was problematic in testing due to distinctions of CONTAINS/WITHIN for no area shapes.
+//    if (distance == 0) {
+//      return point.intersect(other,ctx).intersects() ? IntersectCase.WITHIN : IntersectCase.OUTSIDE;
+//    }
+
     if (other instanceof Point) {
       Point point = (Point) other;
       return contains(point.getX(),point.getY()) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
@@ -145,6 +119,7 @@ public class CircleImpl implements Circle {
       else if (bboxSect == IntersectCase.CONTAINS && enclosingBox.equals(r))//nasty identity edge-case
         return IntersectCase.WITHIN;
       //bboxSect is INTERSECTS or CONTAINS
+      //The result can be OUTSIDE, CONTAINS, or INTERSECTS (not WITHIN)
 
       if (ctx.isGeo() && (enclosingBox.getCrossesDateLine() || r.getCrossesDateLine()
           || enclosingBox.getWidth()==360 || r.getWidth()==360)) {
@@ -178,23 +153,22 @@ public class CircleImpl implements Circle {
       return inverseCircle.intersect(r,ctx).inverse();
     }
 
+    //if a pole is wrapped, we have a separate algorithm
+    if (ctx.isGeo() && enclosingBox.getWidth() == 360) {
+      return intersectRectangleCircleWrapsPole(r, ctx);
+    }
+
+    //Rectangle wraps around the world longitudinally; there are no corners to test intersection
     if (ctx.isGeo() && r.getWidth() == 360) {
-      //Rectangle wraps around the world longitudinally.  There are no corners to test.
-      //TODO
-//      if (r.intersect(y_frontalAxis,ctx).intersects()
-//          || (y_backNorthAxis != null && r.intersect(y_backNorthAxis,ctx).intersects())
-//          || (y_backSouthAxis != null && r.intersect(y_backSouthAxis,ctx).intersects()))
-//        return IntersectCase.INTERSECTS;
-//
-//      return IntersectCase.OUTSIDE;
+      return IntersectCase.INTERSECTS;
     }
 
     //do quick check to see if all corners are within this circle for CONTAINS
     int cornersIntersect = numCornersIntersect(r);
     if (cornersIntersect == 4) {
-      //check for reverse wrap-around
-      IntersectCase xIntersect = r.intersect_xRange(x_axis.getMinX(),x_axis.getMaxX(),ctx);
-      if (xIntersect == IntersectCase.CONTAINS)
+      //ensure r's x axis is within c's.  If it doesn't, r sneaks around the globe to touch the other side (intersect).
+      IntersectCase xIntersect = r.intersect_xRange(enclosingBox.getMinX(),enclosingBox.getMaxX(),ctx);
+      if (xIntersect == IntersectCase.WITHIN)
         return IntersectCase.CONTAINS;
       return IntersectCase.INTERSECTS;
     }
@@ -204,15 +178,70 @@ public class CircleImpl implements Circle {
       return IntersectCase.INTERSECTS;
     
     //Now we check if one of the axis of the circle intersect with r.  If so we have
-    // intersection
-    //TODO make more efficient
-    if (r.intersect(x_axis,ctx).intersects()
-        || r.intersect(y_frontalAxis,ctx).intersects()
-        || (y_backNorthAxis != null && r.intersect(y_backNorthAxis,ctx).intersects())
-        || (y_backSouthAxis != null && r.intersect(y_backSouthAxis,ctx).intersects()))
+    // intersection.
+
+    /* x axis intersects  */
+    if ( r.intersect_yRange(point.getY(),point.getY(),ctx).intersects() // at y vertical
+          && r.intersect_xRange(enclosingBox.getMinX(),enclosingBox.getMaxX(),ctx).intersects() )
       return IntersectCase.INTERSECTS;
 
+    /* y axis intersects */
+    if (r.intersect_xRange(point.getX(),point.getX(),ctx).intersects()) { // at x horizontal
+      if (ctx.isGeo()) {
+        double yTop = getCenter().getY()+ distDEG;
+        assert yTop <= 90;
+        double yBot = getCenter().getY()- distDEG;
+        assert yBot <= 90;
+        if (r.intersect_yRange(yBot,yTop,ctx).intersects())//back bottom
+          return IntersectCase.INTERSECTS;
+      } else {
+        if (r.intersect_yRange(point.getY()-distance,point.getY()+distance,ctx).intersects())
+          return IntersectCase.INTERSECTS;
+      }
+    }
+
     return IntersectCase.OUTSIDE;
+  }
+
+  private IntersectCase intersectRectangleCircleWrapsPole(Rectangle r, SpatialContext ctx) {
+    
+    //Check if r is within the pole wrap region:
+    double yTop = point.getY()+ distDEG;
+    if (yTop > 90) {
+      double yTopOverlap = yTop - 90;
+      assert yTopOverlap <= 90;
+      if (r.getMinY() >= 90 - yTopOverlap)
+        return IntersectCase.CONTAINS;
+    } else {
+      double yBot = point.getY() - distDEG;
+      assert yBot < -90;
+      double yBotOverlap = -90 - yBot;
+      assert yBotOverlap <= 90;
+      if (r.getMaxY() <= -90 + yBotOverlap)
+        return IntersectCase.CONTAINS;
+    }
+
+    //If there are no corners to check intersection because r wraps completely...
+    if (r.getWidth() == 360)
+      return IntersectCase.INTERSECTS;
+
+    //Check corners:
+    int cornersIntersect = numCornersIntersect(r);
+    // (It might be possible to reduce contains() calls within nCI() to exactly two, but this intersection
+    //  code is complicated enough as it is.)
+    if (cornersIntersect == 4) {//all
+      double backX = ctx.normX(point.getX()+180);
+      if (r.intersect_xRange(backX,backX,ctx).intersects())
+        return IntersectCase.INTERSECTS;
+      else
+        return IntersectCase.CONTAINS;
+    } else if (cornersIntersect == 0) {//none
+      if (r.intersect_xRange(point.getX(),point.getX(),ctx).intersects())
+        return IntersectCase.INTERSECTS;
+      else
+        return IntersectCase.OUTSIDE;
+    } else//partial
+      return IntersectCase.INTERSECTS;
   }
 
   /** Returns either 0 for none, 1 for some, or 4 for all. */
@@ -320,7 +349,7 @@ public class CircleImpl implements Circle {
   @Override
   public String toString() {
     //I'm deliberately making this look basic and not fully detailed with class name & misc fields.
-    //Add distance in degrees, which is easier to recognize and earth radius agnostic
+    //Add distance in degrees, which is easier to recognize, and earth radius agnostic.
     String dStr = String.format("%.1f",distance);
     if (ctx.isGeo()) {
       double distDEG = ctx.getDistanceCalculator().distanceToDegrees(distance);

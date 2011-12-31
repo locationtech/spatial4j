@@ -238,6 +238,13 @@ public class TestShapes {
     
     assertEquals("bad CONTAINS (r x-wrap)",INTERSECTS,
         ctx.makeCircle(-139,47,8895.6/*80*/).intersect(ctx.makeRect(-180,180,-3,12),ctx));
+
+    assertEquals("bad CONTAINS (pwrap)",INTERSECTS,
+        ctx.makeCircle(-139,47,8895.6/*80*/).intersect(ctx.makeRect(-180,179,-3,12),ctx));
+
+    assertEquals("no-dist 1",WITHIN,
+        ctx.makeCircle(135,21,0).intersect(ctx.makeRect(-103,-154,-47,52),ctx));
+    
     //--Now proceed with systematic testing:
 
     double distToOpposeSide = ctx.getUnits().earthRadius()*Math.PI;
@@ -362,7 +369,15 @@ public class TestShapes {
         //they are effectively points or lines that are the same location
         assertTrue(msg,!a.hasArea());
         assertTrue(msg,!b.hasArea());
-        assertEquals(msg,a.getBoundingBox(),b.getBoundingBox());
+
+        Rectangle aBBox = a.getBoundingBox();
+        Rectangle bBBox = b.getBoundingBox();
+        if (aBBox.getHeight() == 0 && bBBox.getHeight() == 0
+            && (aBBox.getMaxY() == 90 && bBBox.getMaxY() == 90
+          || aBBox.getMinY() == -90 && bBBox.getMinY() == -90))
+          ;//== a point at the pole
+        else
+          assertEquals(msg, aBBox, bBBox);
       }
     } else {
       assertEquals(msg,expected,sect);
