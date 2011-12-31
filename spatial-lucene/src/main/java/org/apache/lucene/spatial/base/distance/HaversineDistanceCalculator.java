@@ -62,6 +62,8 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
     /*
     This code is very optimized to do the minimum number of calculations
      */
+    if (distance == 0)
+      return from.getBoundingBox();
 
     double angDistance = distance / radius;
 
@@ -79,18 +81,23 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
     final double _a = sinStartLat * cosAngDist;
     final double _b = cosStartLat * sinAngDist;
 
-    boolean touchesNorthPole = startLat + angDistance >= DEG_90_AS_RADS;
-    boolean touchesSouthPole = startLat - angDistance <= -DEG_90_AS_RADS;
-
-    if (touchesNorthPole) {
-      double latS = Math.asin(_a - _b);//reduced form given that cos(PI) == -1 (south)
-      return ctx.makeRect(-180, 180, touchesSouthPole ? -90 : Math.toDegrees(latS) ,90);
+    double northernOverlap = startLat + angDistance - DEG_90_AS_RADS;
+    double southernOverlap = -DEG_90_AS_RADS - (startLat - angDistance);
+    if (northernOverlap >= 0 || southernOverlap >= 0) {//touches either pole
+      double lonW_deg = -180, lonE_deg = 180;//world wrap: 360 deg
+      if (northernOverlap <= 0 && southernOverlap <= 0) {//doesn't pass either pole: 180 deg
+        lonW_deg = from.getX()-90;
+        lonE_deg = from.getX()+90;
+      }
+      double latS_deg = -90, latN_deg = 90;
+      if (northernOverlap < 0) {//doesn't touch north pole
+        latN_deg = Math.toDegrees(Math.asin(_a + _b));//reduced form given that cos(0) == +1 (north)
+      }
+      if (southernOverlap < 0) {//doesn't touch south pole
+        latS_deg = Math.toDegrees(Math.asin(_a - _b));//reduced form given that cos(PI) == -1 (south)
+      }
+      return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);
     }
-    double latN = Math.asin(_a + _b);//reduced form given that cos(0) == +1 (north)
-    if (touchesSouthPole) {//but we know it doesn't touch the north pole
-      return ctx.makeRect(-180, 180, -90, Math.toDegrees(latN));
-    }
-    double latS = Math.asin(_a - _b);//reduced form given that cos(PI) == -1 (south)
 
     double lon_delta = Math.atan2(sinAngDist * cosStartLat, cosAngDist - sinStartLat * sinStartLat);
     double lonW_deg = Math.toDegrees(startLon - lon_delta);
@@ -98,7 +105,11 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
 
     lonW_deg = normLonDEG(lonW_deg);
     lonE_deg = normLonDEG(lonE_deg);
-    return ctx.makeRect(lonW_deg, lonE_deg, Math.toDegrees(latS), Math.toDegrees(latN));
+
+    double latN_deg = Math.toDegrees(Math.asin(_a + _b));//reduced form given that cos(0) == +1 (north)
+    double latS_deg = Math.toDegrees(Math.asin(_a - _b));//reduced form given that cos(PI) == -1 (south)
+
+    return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);
   }
 
   @Override
