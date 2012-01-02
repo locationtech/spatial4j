@@ -17,7 +17,7 @@
 
 package org.apache.lucene.spatial.strategy.prefix;
 
-import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
@@ -34,7 +34,6 @@ import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.lucene.spatial.strategy.util.CachedDistanceValueSource;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +75,7 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
 
     Field field = new Field(fieldInfo.getFieldName(), store ? TYPE_STORED : TYPE_UNSTORED);
     if (index) {
-      field.setTokenStream(new CellTokenizer(cells.iterator()));
+      field.setTokenStream(new CellTokenStream(cells.iterator()));
     }
     if (store) {
       //TODO figure out how to re-use original string instead of reconstituting it.
@@ -106,23 +105,22 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
   }
 
   /** Outputs the tokenString of a cell, and if its a leaf, outputs it again with the leaf byte. */
-  static class CellTokenizer extends Tokenizer {
+  final static class CellTokenStream extends TokenStream {
 
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 
     private Iterator<Node> iter = null;
 
-    public CellTokenizer(Iterator<Node> tokens) {
+    public CellTokenStream(Iterator<Node> tokens) {
       this.iter = tokens;
     }
 
     CharSequence nextTokenStringNeedingLeaf = null;
 
     @Override
-    public final boolean incrementToken() throws IOException {
+    public boolean incrementToken() throws IOException {
       clearAttributes();
       if (nextTokenStringNeedingLeaf != null) {
-        termAtt.setLength(0);
         termAtt.append(nextTokenStringNeedingLeaf);
         termAtt.append((char) Node.LEAF_BYTE);
         nextTokenStringNeedingLeaf = null;
@@ -130,7 +128,6 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
       }
       if (iter.hasNext()) {
         Node cell = iter.next();
-        termAtt.setLength(0);
         CharSequence token = cell.getTokenString();
         termAtt.append(token);
         if (cell.isLeaf())
@@ -140,14 +137,6 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
       return false;
     }
 
-    @Override
-    public final void end() {
-    }
-
-    @Override
-    public void reset(Reader input) throws IOException {
-      super.reset(input);
-    }
   }
 
   @Override
