@@ -21,13 +21,14 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Iterator;
 
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 /**
  * Put a list of strings directly into the token stream
  */
-public class StringListTokenizer extends Tokenizer {
+public final class StringListTokenizer extends TokenStream {
 
   private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 
@@ -39,14 +40,10 @@ public class StringListTokenizer extends Tokenizer {
   }
 
   @Override
-  public final boolean incrementToken() throws IOException {
-    clearAttributes();
-    if (iter == null) {
-      iter = tokens.iterator();
-    }
+  public boolean incrementToken() {
     if (iter.hasNext()) {
+      clearAttributes();
       String t = iter.next();
-      termAtt.setLength(0);
       termAtt.append(t);
       return true;
     }
@@ -54,11 +51,8 @@ public class StringListTokenizer extends Tokenizer {
   }
 
   @Override
-  public final void end() {
-  }
-
-  @Override
-  public void reset(Reader input) throws IOException {
-    super.reset(input);
+  public void reset() throws IOException {
+    super.reset();
+    iter = tokens.iterator();
   }
 }
