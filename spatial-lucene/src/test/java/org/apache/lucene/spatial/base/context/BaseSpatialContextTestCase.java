@@ -164,6 +164,6 @@ public abstract class BaseSpatialContextTestCase {
     });
   }
 
-  //Looking for more tests?  Shapes are tested in TestShapes.
+  //Looking for more tests?  Shapes are tested in TestShapes2D.
 
 }

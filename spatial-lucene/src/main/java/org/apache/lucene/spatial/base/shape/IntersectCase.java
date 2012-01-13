@@ -22,7 +22,7 @@ package org.apache.lucene.spatial.base.shape;
  No equality case.  If two Shape instances are equal then the result might be CONTAINS or WITHIN, and
   some logic might fail under this edge condition when it's not careful to check.
   Client code must be written to detect this and act accordingly.  In RectangleImpl.intersect(), it checks
-   for this explicitly, for example.  TestShapes.assertIntersect() checks too.
+   for this explicitly, for example.  TestShapes2D.assertIntersect() checks too.
  */
 public enum IntersectCase {
   WITHIN,
