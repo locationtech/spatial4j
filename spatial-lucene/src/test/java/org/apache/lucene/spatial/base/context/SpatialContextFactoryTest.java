@@ -18,6 +18,7 @@ package org.apache.lucene.spatial.base.context;/*
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.distance.CartesianDistCalc;
+import org.apache.lucene.spatial.base.distance.LawOfCosinesDistCalc;
 import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
 import org.junit.After;
 import org.junit.Test;
@@ -69,6 +70,12 @@ public class SpatialContextFactoryTest {
         "worldBounds","-100 0 75 200");//West South East North
     assertEquals(new CartesianDistCalc(true),sc.getDistCalc());
     assertEquals(new RectangleImpl(-100,75,0,200),sc.getWorldBounds());
+
+    sc = call("units","miles",
+        "distCalculator","lawOfCosines");
+    assertEquals(DistanceUnits.MILES,sc.getUnits());
+    assertEquals(new LawOfCosinesDistCalc(sc.getUnits().earthRadius()),
+        sc.getDistCalc());
   }
   
   @Test

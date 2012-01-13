@@ -19,10 +19,7 @@ package org.apache.lucene.spatial.base.context;
 
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContextFactory;
-import org.apache.lucene.spatial.base.distance.DistanceCalculator;
-import org.apache.lucene.spatial.base.distance.DistanceUnits;
-import org.apache.lucene.spatial.base.distance.CartesianDistCalc;
-import org.apache.lucene.spatial.base.distance.HaversineDistCalc;
+import org.apache.lucene.spatial.base.distance.*;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 
 import java.util.Map;
@@ -89,6 +86,8 @@ public abstract class SpatialContextFactory {
       return;
     if (calcStr.equalsIgnoreCase("haversine")) {
       calculator = new HaversineDistCalc(units.earthRadius());
+    } else if (calcStr.equalsIgnoreCase("lawOfCosines")) {
+      calculator = new LawOfCosinesDistCalc(units.earthRadius());
     } else if (calcStr.equalsIgnoreCase("cartesian")) {
       calculator = new CartesianDistCalc();
     } else if (calcStr.equalsIgnoreCase("cartesian^2")) {
