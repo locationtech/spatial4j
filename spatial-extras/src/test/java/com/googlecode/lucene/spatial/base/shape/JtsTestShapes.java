@@ -37,6 +37,6 @@ public class JtsTestShapes extends TestShapes {
   }
 
   protected SpatialContext getNonGeoContext() {
-    return new JtsSpatialContext(DistanceUnits.EUCLIDEAN);
+    return new JtsSpatialContext(DistanceUnits.CARTESIAN);
   }
 }

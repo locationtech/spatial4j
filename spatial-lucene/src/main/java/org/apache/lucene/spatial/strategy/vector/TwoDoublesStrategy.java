@@ -92,7 +92,7 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
   @Override
   public ValueSource makeValueSource(SpatialArgs args, TwoDoublesFieldInfo fieldInfo) {
     Point p = args.getShape().getCenter();
-    return new DistanceValueSource(p, ctx.getDistanceCalculator(), fieldInfo, parser);
+    return new DistanceValueSource(p, ctx.getDistCalc(), fieldInfo, parser);
   }
 
   @Override

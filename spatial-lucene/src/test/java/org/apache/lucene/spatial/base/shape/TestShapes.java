@@ -43,7 +43,7 @@ public class TestShapes {
   }
 
   protected SpatialContext getNonGeoContext() {
-    return new SimpleSpatialContext(DistanceUnits.EUCLIDEAN);
+    return new SimpleSpatialContext(DistanceUnits.CARTESIAN);
   }
 
   @Before
@@ -127,11 +127,11 @@ public class TestShapes {
     //System.out.println(msg);
     assertIntersect(msg, CONTAINS, r, center, ctx);
 
-    DistanceCalculator dc = ctx.getDistanceCalculator();
-    double dUR = dc.calculate(center, r.getMaxX(), r.getMaxY());
-    double dLR = dc.calculate(center, r.getMaxX(), r.getMinY());
-    double dUL = dc.calculate(center, r.getMinX(), r.getMaxY());
-    double dLL = dc.calculate(center, r.getMinX(), r.getMinY());
+    DistanceCalculator dc = ctx.getDistCalc();
+    double dUR = dc.distance(center, r.getMaxX(), r.getMaxY());
+    double dLR = dc.distance(center, r.getMaxX(), r.getMinY());
+    double dUL = dc.distance(center, r.getMinX(), r.getMaxY());
+    double dLL = dc.distance(center, r.getMinX(), r.getMinY());
 
     assertEquals(msg,width != 0 || height != 0, dUR != 0);
     if (dUR != 0)
@@ -214,14 +214,14 @@ public class TestShapes {
 
     //Bug: numeric edge at pole, fails to init
     ctx.makeCircle(
-        110,-12,ctx.getDistanceCalculator().degreesToDistance(90 + 12));
+        110,-12,ctx.getDistCalc().degreesToDistance(90 + 12));
     
     {
       //Bug in which distance was being confused as being in the same coordinate system as x,y.
       double distDeltaToPole = 0.001;//1m
-      double distDeltaToPoleDEG = ctx.getDistanceCalculator().distanceToDegrees(distDeltaToPole);
+      double distDeltaToPoleDEG = ctx.getDistCalc().distanceToDegrees(distDeltaToPole);
       double dist = 1;//1km
-      double distDEG = ctx.getDistanceCalculator().distanceToDegrees(dist);
+      double distDEG = ctx.getDistCalc().distanceToDegrees(dist);
       Circle c = ctx.makeCircle(0,90-distDeltaToPoleDEG-distDEG,dist);
       Rectangle cBBox = c.getBoundingBox();
       Rectangle r = ctx.makeRect(cBBox.getMaxX()*0.99,cBBox.getMaxX()+1,c.getCenter().getY(),c.getCenter().getY());
@@ -292,7 +292,7 @@ public class TestShapes {
       double cX = -180 + random.nextInt(360);
       double cY = -90 + random.nextInt(181);//includes +90
       double cR = random.nextInt(181);
-      double cR_dist = ctx.getDistanceCalculator().calculate(ctx.makePoint(0,0),0,cR);
+      double cR_dist = ctx.getDistCalc().distance(ctx.makePoint(0, 0), 0, cR);
       Circle c = ctx.makeCircle(cX, cY, cR_dist);
 
       double rX = -180 + random.nextInt(360);
@@ -337,7 +337,7 @@ public class TestShapes {
   private Point randomPointWithin(Random random, Circle c, SpatialContext ctx) {
     double d = c.getDistance() * random.nextDouble();
     double angleRAD = Math.toRadians(360*random.nextDouble());
-    Point p = ctx.getDistanceCalculator().pointOnBearingRAD(c.getCenter(),d,angleRAD,ctx);
+    Point p = ctx.getDistCalc().pointOnBearingRAD(c.getCenter(),d,angleRAD,ctx);
     assertEquals(CONTAINS,c.intersect(p,ctx));
     return p;
   }

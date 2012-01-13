@@ -21,8 +21,8 @@ import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContextFactory;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
-import org.apache.lucene.spatial.base.distance.EuclideanDistanceCalculator;
-import org.apache.lucene.spatial.base.distance.HaversineDistanceCalculator;
+import org.apache.lucene.spatial.base.distance.CartesianDistCalc;
+import org.apache.lucene.spatial.base.distance.HaversineDistCalc;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 
 import java.util.Map;
@@ -88,11 +88,11 @@ public abstract class SpatialContextFactory {
     if (calcStr == null)
       return;
     if (calcStr.equalsIgnoreCase("haversine")) {
-      calculator = new HaversineDistanceCalculator(units.earthRadius());
-    } else if (calcStr.equalsIgnoreCase("euclidean")) {
-      calculator = new EuclideanDistanceCalculator();
-    } else if (calcStr.equalsIgnoreCase("euclidean^2")) {
-      calculator = new EuclideanDistanceCalculator(true);
+      calculator = new HaversineDistCalc(units.earthRadius());
+    } else if (calcStr.equalsIgnoreCase("cartesian")) {
+      calculator = new CartesianDistCalc();
+    } else if (calcStr.equalsIgnoreCase("cartesian^2")) {
+      calculator = new CartesianDistCalc(true);
     } else {
       throw new RuntimeException("Unknown calculator: "+calcStr);
     }

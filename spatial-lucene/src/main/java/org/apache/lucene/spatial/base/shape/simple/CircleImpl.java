@@ -25,7 +25,7 @@ import org.apache.lucene.spatial.base.shape.*;
 /**
  * A circle, also known as a point-radius, based on a
  * {@link org.apache.lucene.spatial.base.distance.DistanceCalculator} which does all the work. This implementation
- * should work for both Euclidean 2D and Haversine/WGS84 surfaces.
+ * should work for both cartesian 2D and Haversine/WGS84 surfaces.
  * Threadsafe & immutable.
  */
 public class CircleImpl implements Circle {
@@ -49,14 +49,14 @@ public class CircleImpl implements Circle {
     this.point = p;
     this.distance = dist;
     this.ctx = ctx;
-    this.enclosingBox = ctx.getDistanceCalculator().calcBoxByDistFromPt(point, distance, ctx);
+    this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, distance, ctx);
 
     if (ctx.isGeo()) {
       //In the direction of latitude (N,S), distance is the same number of degrees.
-      distDEG = ctx.getDistanceCalculator().distanceToDegrees(distance);
+      distDEG = ctx.getDistCalc().distanceToDegrees(distance);
       
       if (distDEG > 90) {
-        double backDistance = ctx.getDistanceCalculator().degreesToDistance(180 - distDEG) - Double.MIN_VALUE;
+        double backDistance = ctx.getDistCalc().degreesToDistance(180 - distDEG) - Double.MIN_VALUE;
         inverseCircle = new CircleImpl(ctx.makePoint(point.getX()+180,point.getY()+180),backDistance,ctx);
       } else {
         inverseCircle = null;
@@ -78,7 +78,7 @@ public class CircleImpl implements Circle {
   }
 
   public boolean contains(double x, double y) {
-    return ctx.getDistanceCalculator().calculate(point, x, y) <= distance;
+    return ctx.getDistCalc().distance(point, x, y) <= distance;
   }
 
   @Override
@@ -130,7 +130,7 @@ public class CircleImpl implements Circle {
 
     if (other instanceof Circle) {
       Circle circle = (Circle)other;
-      double crossDist = ctx.getDistanceCalculator().calculate(point, circle.getCenter());
+      double crossDist = ctx.getDistCalc().distance(point, circle.getCenter());
       double aDist = distance, bDist = circle.getDistance();
       if (crossDist > aDist + bDist)
         return IntersectCase.OUTSIDE;
@@ -352,7 +352,7 @@ public class CircleImpl implements Circle {
     //Add distance in degrees, which is easier to recognize, and earth radius agnostic.
     String dStr = String.format("%.1f",distance);
     if (ctx.isGeo()) {
-      double distDEG = ctx.getDistanceCalculator().distanceToDegrees(distance);
+      double distDEG = ctx.getDistCalc().distanceToDegrees(distance);
       dStr += String.format("=%.1f\u00B0",distDEG);
     }
     return "Circle(" + point + ",d=" + dStr + ')';

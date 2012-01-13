@@ -23,10 +23,8 @@ import org.apache.lucene.spatial.base.shape.Rectangle;
 
 public interface DistanceCalculator {
 
-  //public double calculate(Point from, Shape shape); //TODO reconsider
-
-  public double calculate(Point from, Point to);
-  public double calculate(Point from, double toX, double toY);
+  public double distance(Point from, Point to);
+  public double distance(Point from, double toX, double toY);
 
   public Point pointOnBearingRAD(Point from, double dist, double bearingRAD, SpatialContext ctx);
   

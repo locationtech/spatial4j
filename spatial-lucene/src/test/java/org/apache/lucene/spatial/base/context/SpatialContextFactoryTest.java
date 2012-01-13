@@ -17,7 +17,7 @@ package org.apache.lucene.spatial.base.context;/*
 
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
-import org.apache.lucene.spatial.base.distance.EuclideanDistanceCalculator;
+import org.apache.lucene.spatial.base.distance.CartesianDistCalc;
 import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
 import org.junit.After;
 import org.junit.Test;
@@ -54,34 +54,34 @@ public class SpatialContextFactoryTest {
     SpatialContext t = call();//default
     assertEquals(s.getClass(),t.getClass());
     assertEquals(s.getUnits(),t.getUnits());
-    assertEquals(s.getDistanceCalculator(),t.getDistanceCalculator());
+    assertEquals(s.getDistCalc(),t.getDistCalc());
     assertEquals(s.getWorldBounds(),t.getWorldBounds());
   }
   
   @Test
   public void testCustom() {
     SpatialContext sc = call("units","u");
-    assertEquals(DistanceUnits.EUCLIDEAN,sc.getUnits());
-    assertEquals(new EuclideanDistanceCalculator(),sc.getDistanceCalculator());
+    assertEquals(DistanceUnits.CARTESIAN,sc.getUnits());
+    assertEquals(new CartesianDistCalc(),sc.getDistCalc());
 
     sc = call("units","u",
-        "distCalculator","euclidean^2",
+        "distCalculator","cartesian^2",
         "worldBounds","-100 0 75 200");//West South East North
-    assertEquals(new EuclideanDistanceCalculator(true),sc.getDistanceCalculator());
+    assertEquals(new CartesianDistCalc(true),sc.getDistCalc());
     assertEquals(new RectangleImpl(-100,75,0,200),sc.getWorldBounds());
   }
   
   @Test
   public void testSystemPropertyLookup() {
     System.setProperty(PROP,DSCF.class.getName());
-    assertEquals(DistanceUnits.EUCLIDEAN,call().getUnits());//DSCF returns this
+    assertEquals(DistanceUnits.CARTESIAN,call().getUnits());//DSCF returns this
   }
 
   public static class DSCF extends SpatialContextFactory {
 
     @Override
     protected SpatialContext newSpatialContext() {
-      return new SimpleSpatialContext(DistanceUnits.EUCLIDEAN);
+      return new SimpleSpatialContext(DistanceUnits.CARTESIAN);
     }
   }
 }

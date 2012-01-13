@@ -36,16 +36,16 @@ import static org.junit.Assert.assertTrue;
 public class TestDistances {
 
   private final SpatialContext ctx = new SimpleSpatialContext(DistanceUnits.KILOMETERS);
-  private final DistanceCalculator DC = ctx.getDistanceCalculator();
+  private final DistanceCalculator DC = ctx.getDistCalc();
 
   @Test
   public void testSomeDistances() {
     //See to verify: from http://www.movable-type.co.uk/scripts/latlong.html
     Point ctr = pLL(0,100);
-    assertEquals(11100,DC.calculate(ctr,pLL(10,0)),3);
-    assertEquals(11100,DC.calculate(ctr,pLL(10,-160)),3);
+    assertEquals(11100,DC.distance(ctr, pLL(10, 0)),3);
+    assertEquals(11100,DC.distance(ctr, pLL(10, -160)),3);
 
-    assertEquals(314.40338,DC.calculate(pLL(1,2),pLL(3,4)),0.00001);
+    assertEquals(314.40338,DC.distance(pLL(1, 2), pLL(3, 4)),0.00001);
   }
 
   @Test
@@ -54,7 +54,7 @@ public class TestDistances {
     for (double lat : lats) {
       double[] lons = new double[]{0, 175, 180, -175, -180};
       for (double lon : lons) {
-        double dist5Deg = DC.calculate(pLL(85,0),pLL(90,0));
+        double dist5Deg = DC.distance(pLL(85, 0), pLL(90, 0));
         double distShort = dist5Deg / 2;
         double distMedium = dist5Deg * 2;
         //double distLong = DC.calculate(pLL(-45,0),pLL(50,0));//100 degrees (more than 90)
@@ -77,12 +77,12 @@ public class TestDistances {
   public void testDistCalcPointOnBearing() {
     Random random = new Random(RandomSeed.seed());
 
-    testDistCalcPointOnBearing(random, new SimpleSpatialContext(DistanceUnits.EUCLIDEAN));
+    testDistCalcPointOnBearing(random, new SimpleSpatialContext(DistanceUnits.CARTESIAN));
     testDistCalcPointOnBearing(random, new SimpleSpatialContext(DistanceUnits.KILOMETERS));
   }
 
   private void testDistCalcPointOnBearing(Random random, SpatialContext ctx) {
-    DistanceCalculator dc = ctx.getDistanceCalculator();
+    DistanceCalculator dc = ctx.getDistCalc();
     for(int angDEG = 0; angDEG < 360; angDEG += 20) {
       Point c = ctx.makePoint(random.nextInt(360),-90+random.nextInt(91));
       double angRAD = Math.toRadians(angDEG);
@@ -91,7 +91,7 @@ public class TestDistances {
       assertEquals(c,p2);
       double dist = random.nextDouble()*20;
       p2 = dc.pointOnBearingRAD(c,dist,angRAD,ctx);
-      double calcDist = dc.calculate(c,p2);
+      double calcDist = dc.distance(c, p2);
       assertEquals(dist,calcDist,10e-5);
     }
   }

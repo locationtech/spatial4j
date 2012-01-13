@@ -19,18 +19,15 @@ package org.apache.lucene.spatial.base.distance;
 
 import org.apache.lucene.spatial.base.shape.Point;
 
-//TODO determine how this compares to HaversineDistance, and potentially delete if not useful
-public class ArcDistanceCalculator extends HaversineDistanceCalculator {
-  final DistanceUnits units;//don't bother using in equals / hashcode since we only use it for the radius (in superclass)
+public class LawOfCosinesDistCalc extends HaversineDistCalc {
 
-  public ArcDistanceCalculator( DistanceUnits units ) {
-    super(units.earthRadius());
-    this.units = units;
+  public LawOfCosinesDistCalc(double radius) {
+    super(radius);
   }
 
   @Override
-  public double calculate(Point from, double toX, double toY) {
-    return DistanceUtils.arcDistanceDEG(units, from.getX(), from.getY(), toX, toY);
+  public double distance(Point from, double toX, double toY) {
+    return DistanceUtils.distLawOfCosinesDEG(from.getX(), from.getY(), toX, toY, radius);
   }
 
 }

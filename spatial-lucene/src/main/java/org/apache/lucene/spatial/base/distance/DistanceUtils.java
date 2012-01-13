@@ -52,7 +52,7 @@ public class DistanceUtils {
    *
    * @param vec1  The first vector
    * @param vec2  The second vector
-   * @param power The power (2 for Euclidean distance, 1 for manhattan, etc.)
+   * @param power The power (2 for cartesian distance, 1 for manhattan, etc.)
    * @return The length.
    *         <p/>
    *         See http://en.wikipedia.org/wiki/Lp_space
@@ -67,7 +67,7 @@ public class DistanceUtils {
    *
    * @param vec1         The first vector
    * @param vec2         The second vector
-   * @param power        The power (2 for Euclidean distance, 1 for manhattan, etc.)
+   * @param power        The power (2 for cartesian distance, 1 for manhattan, etc.)
    * @param oneOverPower If you've precalculated oneOverPower and cached it, use this method to save one division operation over {@link #vectorDistance(double[], double[], double)}.
    * @return The length.
    */
@@ -84,7 +84,7 @@ public class DistanceUtils {
         result += vec1[i] - vec2[i];
       }
     } else if (power == 2.0) {
-      result = Math.sqrt(squaredEuclideanDistance(vec1, vec2));
+      result = Math.sqrt(distSquaredCartesian(vec1, vec2));
     } else if (power == Integer.MAX_VALUE || Double.isInfinite(power)) {//infinite norm?
       for (int i = 0; i < vec1.length; i++) {
         result = Math.max(result, Math.max(vec1[i], vec2[i]));
@@ -267,14 +267,14 @@ public class DistanceUtils {
   }
 
   /**
-   * The square of the Euclidean Distance.  Not really a distance, but useful if all that matters is
+   * The square of the cartesian Distance.  Not really a distance, but useful if all that matters is
    * comparing the result to another one.
    *
    * @param vec1 The first point
    * @param vec2 The second point
-   * @return The squared Euclidean distance
+   * @return The squared cartesian distance
    */
-  public static double squaredEuclideanDistance(double[] vec1, double[] vec2) {
+  public static double distSquaredCartesian(double[] vec1, double[] vec2) {
     double result = 0;
     for (int i = 0; i < vec1.length; i++) {
       double v = vec1[i] - vec2[i];
@@ -293,41 +293,42 @@ public class DistanceUtils {
    * @return The distance between the two points, as determined by the Haversine formula.
 
    */
-  public static double haversineRAD(double lat1, double lon1, double lat2, double lon2, double radius) {
-    double result = 0;
-    //make sure they aren't all the same, as then we can just return 0
-    if ((lon1 != lon2) || (lat1 != lat2)) {
-      double hsinX = Math.sin((lon1 - lon2) * 0.5);
-      double hsinY = Math.sin((lat1 - lat2) * 0.5);
-      double h = hsinY * hsinY +
-              (Math.cos(lat1) * Math.cos(lat2) * hsinX * hsinX);
-      result = (radius * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h)));
-    }
-    return result;
+  public static double distHaversineRAD(double lat1, double lon1, double lat2, double lon2, double radius) {
+    // Check for same position
+    if (lat1 == lat2 && lon1 == lon2)
+      return 0.0;
+
+    double hsinX = Math.sin((lon1 - lon2) * 0.5);
+    double hsinY = Math.sin((lat1 - lat2) * 0.5);
+    double h = hsinY * hsinY +
+            (Math.cos(lat1) * Math.cos(lat2) * hsinX * hsinX);
+    return (radius * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h)));
   }
 
   /**
-   * (MIGRATED FROM org.apache.lucene.spatial.geometry.LatLng.arcDistance())
-   * Calculates the distance between two lat/lng's in miles or meters.
-   * Imported from mq java client.  Variable references changed to match.
+   * Calculates the distance between two lat/lng's using the Law of Cosines. Due to numeric conditioning
+   * errors, it is not as accurate as the Haversine formula for small distances.  But with
+   * double precision, it isn't that bad -- <a href="http://www.movable-type.co.uk/scripts/latlong.html">
+   *   allegedly 1 meter</a>.
    *
-   * @return Returns the distance in meters or miles, according to lUnits param.
+   * @return Returns the distance in the units used by the radius.
    */
-  public static double arcDistanceDEG(DistanceUnits lUnits, double lat1, double lng1, double lat2, double lng2) {
+  public static double distLawOfCosinesDEG(double lat1, double lon1, double lat2, double lon2, double radius) {
+    //(MIGRATED FROM org.apache.lucene.spatial.geometry.LatLng.arcDistance())
+    // Imported from mq java client.  Variable references changed to match.
+
     // Check for same position
-    if (lat1 == lat2 && lng1 == lng2)
+    if (lat1 == lat2 && lon1 == lon2)
       return 0.0;
 
     // Get the m_dLongitude difference. Don't need to worry about
     // crossing 180 since cos(x) = cos(-x)
-    double dLon = lng2 - lng1;
+    double dLon = lon2 - lon1;
 
     double a = Math.toRadians(90.0 - lat1);
     double c = Math.toRadians(90.0 - lat2);
     double cosB = (Math.cos(a) * Math.cos(c))
         + (Math.sin(a) * Math.sin(c) * Math.cos(Math.toRadians(dLon)));
-
-    double radius = lUnits.earthRadius();
 
     // Find angle subtended (with some bounds checking) in radians and
     // multiply by earth radius to find the arc distance

@@ -51,8 +51,8 @@ public abstract class SpatialContext {
 
   /**
    *
-   * @param units Required; and establishes geo vs euclidean.
-   * @param calculator Optional; defaults to Haversine or Euclidean depending on units.
+   * @param units Required; and establishes geo vs cartesian.
+   * @param calculator Optional; defaults to Haversine or cartesian depending on units.
    * @param worldBounds Optional; defaults to GEO_WORLDBOUNDS or MAX_WORLDBOUNDS depending on units.
    */
   protected SpatialContext(DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {
@@ -62,8 +62,8 @@ public abstract class SpatialContext {
 
     if (calculator == null) {
       calculator = isGeo()
-          ? new HaversineDistanceCalculator(units.earthRadius())
-          : new EuclideanDistanceCalculator();
+          ? new HaversineDistCalc(units.earthRadius())
+          : new CartesianDistCalc();
     }
     this.calculator = calculator;
 
@@ -86,7 +86,7 @@ public abstract class SpatialContext {
     return units;
   }
 
-  public DistanceCalculator getDistanceCalculator() {
+  public DistanceCalculator getDistCalc() {
     return calculator;
   }
 

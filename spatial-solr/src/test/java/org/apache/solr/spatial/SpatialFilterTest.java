@@ -27,7 +27,6 @@ import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.solr.SolrTestCaseJ4;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -243,7 +242,7 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
 
   private double calcDist(Point p1, Point p2) {
     //TODO use ctx.calc?
-    return DistanceUtils.haversineRAD(Math.toRadians(p1.getY()), Math.toRadians(p1.getX()),
+    return DistanceUtils.distHaversineRAD(Math.toRadians(p1.getY()), Math.toRadians(p1.getX()),
         Math.toRadians(p2.getY()), Math.toRadians(p2.getX()), ctx.getUnits().earthRadius());
   }
 

@@ -23,17 +23,17 @@ import org.apache.lucene.spatial.base.shape.Rectangle;
 
 import static org.apache.lucene.spatial.base.distance.DistanceUtils.*;
 
-public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
+public class HaversineDistCalc extends AbstractDistanceCalculator {
 
-  private final double radius;
+  protected final double radius;
 
-  public HaversineDistanceCalculator( double radius ) {
+  public HaversineDistCalc(double radius) {
     this.radius = radius;
   }
 
   @Override
-  public double calculate(Point p1, double toX, double toY) {
-    return DistanceUtils.haversineRAD(Math.toRadians(p1.getY()), Math.toRadians(p1.getX()),
+  public double distance(Point p1, double toX, double toY) {
+    return DistanceUtils.distHaversineRAD(Math.toRadians(p1.getY()), Math.toRadians(p1.getX()),
         Math.toRadians(toY), Math.toRadians(toX), radius);
   }
 
@@ -117,7 +117,7 @@ public class HaversineDistanceCalculator extends AbstractDistanceCalculator {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    HaversineDistanceCalculator that = (HaversineDistanceCalculator) o;
+    HaversineDistCalc that = (HaversineDistCalc) o;
 
     if (Double.compare(that.radius, radius) != 0) return false;
 

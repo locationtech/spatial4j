@@ -27,7 +27,7 @@ public enum DistanceUnits {
   KILOMETERS("km", DistanceUtils.EARTH_MEAN_RADIUS_KM, 40076),
   MILES("miles", DistanceUtils.EARTH_MEAN_RADIUS_MI, 24902),
   RADIANS("radians", 1, Math.PI * 2),//experimental
-  EUCLIDEAN("u", -1, -1);
+  CARTESIAN("u", -1, -1);
 
 
   private final String units;
@@ -63,8 +63,8 @@ public enum DistanceUnits {
     if (KILOMETERS.getUnits().equalsIgnoreCase(unit)) {
       return KILOMETERS;
     }
-    if (EUCLIDEAN.getUnits().equalsIgnoreCase(unit) || unit.length()==0) {
-      return EUCLIDEAN;
+    if (CARTESIAN.getUnits().equalsIgnoreCase(unit) || unit.length()==0) {
+      return CARTESIAN;
     }
     throw new IllegalArgumentException("Unknown distance unit " + unit);
   }
@@ -80,8 +80,8 @@ public enum DistanceUnits {
     if (from == this) {
       return distance;
     }
-    if (this == EUCLIDEAN || from == EUCLIDEAN) {
-      throw new IllegalStateException("Can't convert euclidean distances: "+from+" -> "+this);
+    if (this == CARTESIAN || from == CARTESIAN) {
+      throw new IllegalStateException("Can't convert cartesian distances: "+from+" -> "+this);
     }
     return (this == MILES) ? distance * DistanceUtils.KM_TO_MILES : distance * DistanceUtils.MILES_TO_KM;
   }

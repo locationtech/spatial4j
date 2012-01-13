@@ -141,7 +141,7 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
 
   @Override
   public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
-    DistanceCalculator calc = grid.getSpatialContext().getDistanceCalculator();
+    DistanceCalculator calc = grid.getSpatialContext().getDistCalc();
     return makeValueSource(args, fieldInfo, calc);
   }
   

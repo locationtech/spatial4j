@@ -21,20 +21,20 @@ import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 
-public class EuclideanDistanceCalculator extends AbstractDistanceCalculator {
+public class CartesianDistCalc extends AbstractDistanceCalculator {
 
   private final boolean squared;
 
-  public EuclideanDistanceCalculator() {
+  public CartesianDistCalc() {
     this.squared = false;
   }
 
-  public EuclideanDistanceCalculator(boolean squared) {
+  public CartesianDistCalc(boolean squared) {
     this.squared = squared;
   }
 
   @Override
-  public double calculate(Point from, double toX, double toY) {
+  public double distance(Point from, double toX, double toY) {
     double result = 0;
 
     double v = from.getX() - toX;
@@ -78,7 +78,7 @@ public class EuclideanDistanceCalculator extends AbstractDistanceCalculator {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    EuclideanDistanceCalculator that = (EuclideanDistanceCalculator) o;
+    CartesianDistCalc that = (CartesianDistCalc) o;
 
     if (squared != that.squared) return false;
 

@@ -87,7 +87,7 @@ public class DistanceValueSource extends ValueSource {
         // make sure it has minX and area
         if (validX.get(doc) && validY.get(doc)) {
           PointImpl pt = new PointImpl( ptX[doc],  ptY[doc] );
-          return calculator.calculate(from, pt);
+          return calculator.distance(from, pt);
         }
         return 0;
       }

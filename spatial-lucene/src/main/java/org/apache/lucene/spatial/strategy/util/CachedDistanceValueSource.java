@@ -66,9 +66,9 @@ public class CachedDistanceValueSource extends ValueSource {
       public double doubleVal(int doc) {
         List<Point> vals = cache.getShapes( doc );
         if( vals != null ) {
-          double v = calculator.calculate(from, vals.get(0));
+          double v = calculator.distance(from, vals.get(0));
           for( int i=1; i<vals.size(); i++ ) {
-            v = Math.min(v, calculator.calculate(from, vals.get(i)));
+            v = Math.min(v, calculator.distance(from, vals.get(i)));
           }
           return v;
         }
