@@ -34,7 +34,7 @@ public interface DistanceCalculator {
    */
   public double distanceToDegrees(double distance);
 
-  public double degreesToDistance(double radius);
+  public double degreesToDistance(double degrees);
 
   //public Point pointOnBearing(Point from, double angle);
 

@@ -43,8 +43,8 @@ public class HaversineDistCalc extends AbstractDistanceCalculator {
   }
 
   @Override
-  public double degreesToDistance(double radius) {
-    return DistanceUtils.radians2Dist(Math.toRadians(radius), this.radius);
+  public double degreesToDistance(double degrees) {
+    return DistanceUtils.radians2Dist(Math.toRadians(degrees), this.radius);
   }
 
   @Override

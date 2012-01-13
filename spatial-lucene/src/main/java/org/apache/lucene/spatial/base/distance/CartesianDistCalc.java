@@ -64,7 +64,7 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   }
 
   @Override
-  public double degreesToDistance(double radius) {
+  public double degreesToDistance(double degrees) {
     throw new UnsupportedOperationException("no geo!");
   }
 
