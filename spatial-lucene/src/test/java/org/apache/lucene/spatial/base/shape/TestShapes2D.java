@@ -38,7 +38,6 @@ public class TestShapes2D extends AbstractTestShapes {
 
   @Test
   public void testSimplePoint() {
-    SpatialContext ctx = getContext();
     Point pt = ctx.makePoint(0,0);
     String msg = pt.toString();
 
@@ -53,44 +52,42 @@ public class TestShapes2D extends AbstractTestShapes {
     assertFalse(msg,bbox.hasArea());
     assertEquals(msg,pt,bbox.getCenter());
 
-    assertIntersect(msg, CONTAINS, pt, pt2, ctx);
-    assertIntersect(msg, OUTSIDE, pt, ctx.makePoint(0, 1), ctx);
-    assertIntersect(msg, OUTSIDE, pt, ctx.makePoint(1, 0), ctx);
-    assertIntersect(msg, OUTSIDE, pt, ctx.makePoint(1, 1), ctx);
+    assertIntersect(msg, CONTAINS, pt, pt2);
+    assertIntersect(msg, OUTSIDE, pt, ctx.makePoint(0, 1));
+    assertIntersect(msg, OUTSIDE, pt, ctx.makePoint(1, 0));
+    assertIntersect(msg, OUTSIDE, pt, ctx.makePoint(1, 1));
   }
 
   @Test
   public void testSimpleRectangle() {
-    SpatialContext ctx = getContext();
     double[] minXs = new double[]{-1000,-360,-180,-20,0,20,180,1000};
     for (double minX : minXs) {
       double[] widths = new double[]{0,10,180,360,400};
       for (double width : widths) {
-        testRectangle(minX, width, 0, 0, ctx);
-        testRectangle(minX, width, -10, 10, ctx);
-        testRectangle(minX, width, 5, 10, ctx);
+        testRectangle(minX, width, 0, 0);
+        testRectangle(minX, width, -10, 10);
+        testRectangle(minX, width, 5, 10);
       }
     }
 
-    testRectIntersect(ctx);
+    testRectIntersect();
   }
 
   @Test
   public void testSimpleCircle() {
-    SpatialContext ctx = getContext();
     double[] theXs = new double[]{-10,0,10};
     for (double x : theXs) {
       double[] theYs = new double[]{-20,0,20};
       for (double y : theYs) {
-        testCircle(x, y, 0, ctx);
-        testCircle(x, y, 5, ctx);
+        testCircle(x, y, 0);
+        testCircle(x, y, 5);
       }
     }
     //INTERSECTION:
     //Start with some static tests that have shown to cause failures at some point:
     assertEquals("getX not getY",INTERSECTS,ctx.makeCircle(107,-81,147).intersect(ctx.makeRect(92,121,-89,74),ctx));
 
-    testCircleIntersect(ctx);
+    testCircleIntersect();
   }
 
 

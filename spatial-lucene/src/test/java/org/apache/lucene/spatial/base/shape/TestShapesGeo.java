@@ -22,9 +22,7 @@ import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.junit.Test;
 
-import static org.apache.lucene.spatial.base.shape.IntersectCase.INTERSECTS;
-import static org.apache.lucene.spatial.base.shape.IntersectCase.OUTSIDE;
-import static org.apache.lucene.spatial.base.shape.IntersectCase.WITHIN;
+import static org.apache.lucene.spatial.base.shape.IntersectCase.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -39,27 +37,24 @@ public class TestShapesGeo extends AbstractTestShapes {
 
   @Test
   public void testGeoRectangle() {
-    SpatialContext ctx = getContext();
     double[] lons = new double[]{0,45,160,180,-45,-175, -180};//minX
     for (double lon : lons) {
       double[] lonWs = new double[]{0,20,180,200,355, 360};//width
       for (double lonW : lonWs) {
-        testRectangle(lon, lonW, 0, 0, ctx);
-        testRectangle(lon, lonW, -10, 10, ctx);
-        testRectangle(lon, lonW, 80, 10, ctx);//polar cap
-        testRectangle(lon, lonW, -90, 180, ctx);//full lat range
+        testRectangle(lon, lonW, 0, 0);
+        testRectangle(lon, lonW, -10, 10);
+        testRectangle(lon, lonW, 80, 10);//polar cap
+        testRectangle(lon, lonW, -90, 180);//full lat range
       }
     }
 
     //Test geo rectangle intersections
-    testRectIntersect(ctx);
+    testRectIntersect();
   }
 
 
   @Test
   public void testGeoCircle() {
-    SpatialContext ctx = getContext();
-
     //--Start with some static tests that once failed:
 
     //Bug: numeric edge at pole, fails to init
@@ -84,13 +79,13 @@ public class TestShapesGeo extends AbstractTestShapes {
     assertEquals("bad CONTAINS (dateline)",INTERSECTS,ctx.makeCircle(56,-50,12231.5).intersect(ctx.makeRect(108,26,39,48),ctx));
 
     assertEquals("bad CONTAINS (backwrap2)",INTERSECTS,
-        ctx.makeCircle(112,-3,10118.8/*91*/).intersect(ctx.makeRect(-163,29,-38,10),ctx));
+        ctx.makeCircle(112,-3,degToDist(91)).intersect(ctx.makeRect(-163,29,-38,10),ctx));
 
     assertEquals("bad CONTAINS (r x-wrap)",INTERSECTS,
-        ctx.makeCircle(-139,47,8895.6/*80*/).intersect(ctx.makeRect(-180,180,-3,12),ctx));
+        ctx.makeCircle(-139,47,degToDist(80)).intersect(ctx.makeRect(-180,180,-3,12),ctx));
 
     assertEquals("bad CONTAINS (pwrap)",INTERSECTS,
-        ctx.makeCircle(-139,47,8895.6/*80*/).intersect(ctx.makeRect(-180,179,-3,12),ctx));
+        ctx.makeCircle(-139,47,degToDist(80)).intersect(ctx.makeRect(-180, 179, -3, 12), ctx));
 
     assertEquals("no-dist 1",WITHIN,
         ctx.makeCircle(135,21,0).intersect(ctx.makeRect(-103,-154,-47,52),ctx));
@@ -105,13 +100,16 @@ public class TestShapesGeo extends AbstractTestShapes {
     for (double x : theXs) {
       double[] theYs = new double[]{-90,-45,0,45,90};
       for (double y : theYs) {
-        testCircle(x, y, 0, ctx);
-        testCircle(x, y, 500, ctx);
-        testCircle(x, y, ctx.getUnits().earthRadius()*6, ctx);
+        testCircle(x, y, 0);
+        testCircle(x, y, 500);
+        testCircle(x, y, ctx.getUnits().earthRadius()*6);
       }
     }
 
-    testCircleIntersect(ctx);
+    testCircleIntersect();
   }
 
+  private double degToDist(int deg) {
+    return ctx.getDistCalc().degreesToDistance(deg);
+  }
 }

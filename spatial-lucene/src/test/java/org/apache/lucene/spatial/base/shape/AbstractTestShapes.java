@@ -37,21 +37,22 @@ import static org.junit.Assert.fail;
 public abstract class AbstractTestShapes {
   protected Random random;
 
-
+  protected SpatialContext ctx;
 
   @Before
   public void beforeClass() {
     random = new Random(RandomSeed.seed());
+    ctx = getContext();
   }
 
-  protected void assertIntersect(String msg, IntersectCase expected, Shape a, Shape b, SpatialContext ctx) {
+  protected void assertIntersect(String msg, IntersectCase expected, Shape a, Shape b) {
     msg = a+" intersect "+b;//use different msg
-    _assertIntersect(msg,expected,a,b,ctx);
+    _assertIntersect(msg,expected,a,b);
     //check flipped a & b w/ transpose(), while we're at it
-    _assertIntersect("(transposed) " + msg, expected.transpose(), b, a, ctx);
+    _assertIntersect("(transposed) " + msg, expected.transpose(), b, a);
   }
 
-  private void _assertIntersect(String msg, IntersectCase expected, Shape a, Shape b, SpatialContext ctx ) {
+  private void _assertIntersect(String msg, IntersectCase expected, Shape a, Shape b) {
     IntersectCase sect = a.intersect(b, ctx);
     if (sect == expected)
       return;
@@ -83,7 +84,7 @@ public abstract class AbstractTestShapes {
     assertEquals(msg,expected,actual, delta);
   }
 
-  protected void testRectangle(double minX, double width, double minY, double height, SpatialContext ctx) {
+  protected void testRectangle(double minX, double width, double minY, double height) {
     Rectangle r = ctx.makeRect(minX, minX + width, minY, minY+height);
     //test equals & hashcode of duplicate
     Rectangle r2 = ctx.makeRect(minX, minX + width, minY, minY+height);
@@ -100,7 +101,7 @@ public abstract class AbstractTestShapes {
     Point center = r.getCenter();
     msg += " ctr:"+center;
     //System.out.println(msg);
-    assertIntersect(msg, CONTAINS, r, center, ctx);
+    assertIntersect(msg, CONTAINS, r, center);
 
     DistanceCalculator dc = ctx.getDistCalc();
     double dUR = dc.distance(center, r.getMaxX(), r.getMaxY());
@@ -118,13 +119,13 @@ public abstract class AbstractTestShapes {
   }
 
   // TODO Should this go into Rectangle or ctx API?
-  private boolean touchesPole(SpatialContext ctx, Rectangle r) {
+  private boolean touchesPole(Rectangle r) {
     if (!ctx.isGeo())
       return false;
     return r.getMaxY()==90 || r.getMaxY()==-90;
   }
 
-  protected void testRectIntersect(SpatialContext ctx) {
+  protected void testRectIntersect() {
     final double INCR = 45;
     final double Y = 10;
     for(double left = -180; left <= 180; left += INCR) {
@@ -135,27 +136,27 @@ public abstract class AbstractTestShapes {
         for(double left2 = left; left2 <= right; left2 += INCR) {
           for(double right2 = left2; right2 <= right; right2 += INCR) {
             Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
-            assertIntersect(null, IntersectCase.CONTAINS, r, r2, ctx);
+            assertIntersect(null, IntersectCase.CONTAINS, r, r2);
           }
         }
         //test point contains
-        assertIntersect(null,IntersectCase.CONTAINS, r, ctx.makePoint(left,Y),ctx);
+        assertIntersect(null,IntersectCase.CONTAINS, r, ctx.makePoint(left,Y));
 
         //test outside
         for(double left2 = right+INCR; left2 - left < 360; left2 += INCR) {
           for(double right2 = left2; right2 - left < 360; right2 += INCR) {
             Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
-            assertIntersect(null, IntersectCase.OUTSIDE, r, r2, ctx);
+            assertIntersect(null, IntersectCase.OUTSIDE, r, r2);
 
             //test point outside
-            assertIntersect(null,IntersectCase.OUTSIDE, r, ctx.makePoint(left2,Y),ctx);
+            assertIntersect(null,IntersectCase.OUTSIDE, r, ctx.makePoint(left2,Y));
           }
         }
         //test intersect
         for(double left2 = left+INCR; left2 <= right; left2 += INCR) {
           for(double right2 = right+INCR; right2 - left < 360; right2 += INCR) {
             Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
-            assertIntersect(null, IntersectCase.INTERSECTS, r, r2, ctx);
+            assertIntersect(null, IntersectCase.INTERSECTS, r, r2);
           }
         }
 
@@ -163,7 +164,7 @@ public abstract class AbstractTestShapes {
     }
   }
 
-  protected void testCircle(double x, double y, double dist, SpatialContext ctx) {
+  protected void testCircle(double x, double y, double dist) {
     Circle c = ctx.makeCircle(x, y, dist);
     String msg = c.toString();
     final Circle c2 = ctx.makeCircle(ctx.makePoint(x, y), dist);
@@ -178,26 +179,27 @@ public abstract class AbstractTestShapes {
       assertEqualsPct(msg, bbox.getHeight(), dist*2);
       assertEqualsPct(msg, bbox.getWidth(), dist*2);
     }
-    assertIntersect(msg, CONTAINS, c , c.getCenter(), ctx);
-    assertIntersect(msg, CONTAINS, bbox, c, ctx);
+    assertIntersect(msg, CONTAINS, c , c.getCenter());
+    assertIntersect(msg, CONTAINS, bbox, c);
   }
 
-  protected void testCircleIntersect(SpatialContext ctx) {
+  protected void testCircleIntersect() {
     //Now do some randomized tests:
     int i_C = 0, i_I = 0, i_W = 0, i_O = 0;//counters for the different intersection cases
     int laps = 0;
-    while(i_C < 10 || i_I < 10 || i_W < 10 || i_O < 10) {
+    int MINLAPSPERCASE = 10;
+    while(i_C < MINLAPSPERCASE || i_I < MINLAPSPERCASE || i_W < MINLAPSPERCASE || i_O < MINLAPSPERCASE) {
       laps++;
-      double cX = -180 + random.nextInt(360);
-      double cY = -90 + random.nextInt(181);//includes +90
-      double cR = random.nextInt(181);
+      double cX = randRange(-180,179);
+      double cY = randRange(-90,90);
+      double cR = randRange(0, 180);
       double cR_dist = ctx.getDistCalc().distance(ctx.makePoint(0, 0), 0, cR);
       Circle c = ctx.makeCircle(cX, cY, cR_dist);
 
-      double rX = -180 + random.nextInt(360);
-      double rW = random.nextInt(361);
-      double rY1 = -90 + random.nextInt(181);
-      double rY2 = -90 + random.nextInt(181);
+      double rX = randRange(-180,179);
+      double rW = randRange(0,360);
+      double rY1 = randRange(-90,90);
+      double rY2 = randRange(-90,90);
       double rYmin = Math.min(rY1,rY2);
       double rYmax = Math.max(rY1,rY2);
       Rectangle r = ctx.makeRect(rX, rX+rW, rYmin, rYmax);
@@ -231,6 +233,17 @@ public abstract class AbstractTestShapes {
     System.out.println("Laps: "+laps);
 
     //TODO deliberately test INTERSECTS based on known intersection point
+  }
+
+  /** Returns a random integer between [start, end] with a limited number of possibilities instead of end-start+1. */
+  private int randRange(int start, int end) {
+    //I tested this.
+    double r = random.nextDouble();
+    final int BUCKETS = 91;
+    int ir = (int) Math.round(r*(BUCKETS-1));//put into buckets
+    int result = (int)((double)((end - start) * ir) / (double)(BUCKETS-1) + (double)start);
+    assert result >= start && result <= end;
+    return result;
   }
 
   private Point randomPointWithin(Random random, Circle c, SpatialContext ctx) {
