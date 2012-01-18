@@ -17,8 +17,10 @@
 
 package org.apache.lucene.spatial.strategy.util;
 
+import org.apache.lucene.analysis.NumericTokenStream;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.NumericField;
+import org.apache.lucene.index.IndexableField;
 
 /**
  * Hold some of the parameters used by solr...
@@ -36,14 +38,31 @@ public class TrieFieldInfo {
       precisionStep=Integer.MAX_VALUE;
   }
 
-  public NumericField createDouble( String name, double v ) {
+  public IndexableField createDouble( String name, double v ) {
     FieldType fieldType = new FieldType();
     fieldType.setStored(store);
-    fieldType.setIndexed(index);
     fieldType.setOmitNorms(omitNorms);
 
-    NumericField f = new NumericField(name, precisionStep, fieldType);
-    f.setDoubleValue(v);
-    return f;
+    if(store) {
+      fieldType.setIndexed(index);
+      fieldType.setTokenized(index);
+      
+      Field f = new Field(name, v, fieldType);
+      if(index) {
+        NumericTokenStream ts = new NumericTokenStream(precisionStep);
+        ts.setDoubleValue(v);
+        f.setTokenStream(ts);
+      }
+      
+      return f;
+    }
+    
+    if(index) {
+      NumericTokenStream ts = new NumericTokenStream(precisionStep);
+      ts.setDoubleValue(v);
+      return new Field(name,ts,fieldType);
+    }
+
+    throw new IllegalArgumentException("field must be indexed or stored");
   }
 }

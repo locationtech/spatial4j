@@ -21,6 +21,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
@@ -73,16 +74,22 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
       cells.add(grid.getNodes(ctr,grid.getMaxLevels(),false).get(0));
     }
 
-    Field field = new Field(fieldInfo.getFieldName(), store ? TYPE_STORED : TYPE_UNSTORED);
-    if (index) {
-      field.setTokenStream(new CellTokenStream(cells.iterator()));
+    String fname = fieldInfo.getFieldName();
+    if( store ) {
+      String wkt = grid.getSpatialContext().toString(shape);
+      if( index ) {
+        Field f = new Field(fname,wkt,TYPE_STORED);
+        f.setTokenStream(new CellTokenStream(cells.iterator()));
+        return f;
+      }
+      return new StoredField(fname,wkt);
     }
-    if (store) {
-      //TODO figure out how to re-use original string instead of reconstituting it.
-      field.setValue(grid.getSpatialContext().toString(shape));
+    
+    if( index ) {
+      return new Field(fname,new CellTokenStream(cells.iterator()),TYPE_UNSTORED);
     }
-
-    return field;
+    
+    throw new UnsupportedOperationException("Fields need to be indexed or store ["+fname+"]");
   }
 
   /* Indexed, tokenized, not stored. */
