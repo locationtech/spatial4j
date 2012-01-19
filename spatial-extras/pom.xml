@@ -23,8 +23,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>lucene-spatial-parent</artifactId>
     <groupId>org.apache.lucene.spatial</groupId>
+    <artifactId>lucene-spatial-parent</artifactId>
     <version>0.1-SNAPSHOT</version>
   </parent>
 
@@ -34,12 +34,29 @@
 
   <dependencies>
 
+    <!--
+    We must have lucene-test-framework before lucene-core on the classpath.
+    https://issues.apache.org/jira/browse/SOLR-3048
+    -->
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-test-framework</artifactId>
+      <version>${lucene.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene.spatial</groupId>
+      <artifactId>spatial-lucene</artifactId>
+      <type>test-jar</type>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.lucene.spatial</groupId>
       <artifactId>spatial-lucene</artifactId>
       <version>${project.version}</version>
     </dependency>
-
 
     <dependency>
       <groupId>com.vividsolutions</groupId>
@@ -53,21 +70,6 @@
       </exclusions>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>spatial-lucene</artifactId>
-      <type>test-jar</type>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-test-framework</artifactId>
-      <version>4.0-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
-    
   </dependencies>
 
 </project>
