@@ -76,6 +76,7 @@ public abstract class PrefixTreeStrategy extends SpatialStrategy<SimpleSpatialFi
 
     String fname = fieldInfo.getFieldName();
     if( store ) {
+      //TODO figure out how to re-use original string instead of reconstituting it.
       String wkt = grid.getSpatialContext().toString(shape);
       if( index ) {
         Field f = new Field(fname,wkt,TYPE_STORED);
