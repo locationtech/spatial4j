@@ -20,7 +20,7 @@ package org.apache.solr.spatial.vector;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.spatial.strategy.vector.TwoDoublesFieldInfo;
 import org.apache.lucene.spatial.strategy.vector.TwoDoublesStrategy;
-import org.apache.lucene.spatial.strategy.util.TrieFieldInfo;
+import org.apache.lucene.spatial.strategy.util.NumericFieldInfo;
 import org.apache.solr.schema.*;
 import org.apache.solr.spatial.SpatialFieldType;
 
@@ -67,7 +67,7 @@ public class TwoDoublesFieldType extends SpatialFieldType<TwoDoublesFieldInfo> i
     }
 
     TrieField df = (TrieField)doubleType;
-    TrieFieldInfo info = new TrieFieldInfo();
+    NumericFieldInfo info = new NumericFieldInfo();
     info.setPrecisionStep( df.getPrecisionStep() );
     info.store = true; // TODO properties &...
 

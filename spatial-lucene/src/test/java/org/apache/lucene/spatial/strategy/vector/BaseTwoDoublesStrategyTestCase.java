@@ -19,7 +19,7 @@ package org.apache.lucene.spatial.strategy.vector;
 
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.strategy.util.TrieFieldInfo;
+import org.apache.lucene.spatial.strategy.util.NumericFieldInfo;
 import org.apache.lucene.spatial.SpatialMatchConcern;
 import org.apache.lucene.spatial.StrategyTestCase;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public abstract class BaseTwoDoublesStrategyTestCase extends StrategyTestCase<Tw
     super.setUp();
     this.ctx = getSpatialContext();
     this.strategy = new TwoDoublesStrategy(ctx,
-        new TrieFieldInfo(), FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
+        new NumericFieldInfo(), FieldCache.NUMERIC_UTILS_DOUBLE_PARSER);
     this.fieldInfo = new TwoDoublesFieldInfo(getClass().getSimpleName());
   }
 

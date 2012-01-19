@@ -35,7 +35,7 @@ import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.strategy.SpatialStrategy;
 import org.apache.lucene.spatial.strategy.util.CachingDoubleValueSource;
-import org.apache.lucene.spatial.strategy.util.TrieFieldInfo;
+import org.apache.lucene.spatial.strategy.util.NumericFieldInfo;
 import org.apache.lucene.spatial.strategy.util.ValueSourceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +45,10 @@ public class TwoDoublesStrategy extends SpatialStrategy<TwoDoublesFieldInfo> {
 
   static final Logger log = LoggerFactory.getLogger(TwoDoublesStrategy.class);
 
-  private final TrieFieldInfo finfo;
+  private final NumericFieldInfo finfo;
   private final DoubleParser parser;
 
-  public TwoDoublesStrategy(SpatialContext ctx, TrieFieldInfo finfo, DoubleParser parser) {
+  public TwoDoublesStrategy(SpatialContext ctx, NumericFieldInfo finfo, DoubleParser parser) {
     super(ctx);
     this.finfo = finfo;
     this.parser = parser;

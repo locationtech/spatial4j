@@ -22,13 +22,13 @@
   <parent>
     <artifactId>lucene-spatial-parent</artifactId>
 		<groupId>org.apache.lucene.spatial</groupId>
-		<version>0.1-SNAPSHOT</version>
+		<version>0.1D</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   
 	<groupId>org.apache.lucene.spatial</groupId>
   <artifactId>spatial-solr</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.1D</version>
 	
   <name>Spatial - Solr</name>
   <description>

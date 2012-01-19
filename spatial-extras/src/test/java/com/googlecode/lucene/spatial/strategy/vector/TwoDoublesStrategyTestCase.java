@@ -22,7 +22,7 @@ import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.strategy.vector.TwoDoublesFieldInfo;
 import org.apache.lucene.spatial.strategy.vector.TwoDoublesStrategy;
-import org.apache.lucene.spatial.strategy.util.TrieFieldInfo;
+import org.apache.lucene.spatial.strategy.util.NumericFieldInfo;
 import org.apache.lucene.spatial.SpatialMatchConcern;
 import org.apache.lucene.spatial.StrategyTestCase;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class TwoDoublesStrategyTestCase extends StrategyTestCase<TwoDoublesField
     super.setUp();
     this.ctx = JtsSpatialContext.GEO_KM;
     this.strategy = new TwoDoublesStrategy(SimpleSpatialContext.GEO_KM,//TODO bug? why not ctx?
-      new TrieFieldInfo(), FieldCache.NUMERIC_UTILS_DOUBLE_PARSER );
+      new NumericFieldInfo(), FieldCache.NUMERIC_UTILS_DOUBLE_PARSER );
     this.fieldInfo = new TwoDoublesFieldInfo(getClass().getSimpleName());
   }
 

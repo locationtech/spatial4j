@@ -25,7 +25,7 @@ import org.apache.lucene.index.IndexableField;
 /**
  * Hold some of the parameters used by solr...
  */
-public class TrieFieldInfo {
+public class NumericFieldInfo {
   public int precisionStep = 8; // same as solr default
   public boolean store = true;
   public boolean index = true;
@@ -42,11 +42,10 @@ public class TrieFieldInfo {
     FieldType fieldType = new FieldType();
     fieldType.setStored(store);
     fieldType.setOmitNorms(omitNorms);
+    fieldType.setIndexed(index);
+    fieldType.setTokenized(index);
 
     if(store) {
-      fieldType.setIndexed(index);
-      fieldType.setTokenized(index);
-      
       Field f = new Field(name, v, fieldType);
       if(index) {
         NumericTokenStream ts = new NumericTokenStream(precisionStep);
