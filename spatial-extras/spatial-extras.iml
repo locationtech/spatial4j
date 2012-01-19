@@ -16,19 +16,19 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="spatial-lucene" />
-    <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.5" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-core:4.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-queries:4.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-analyzers-common:4.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.6.1" level="project" />
-    <orderEntry type="library" name="Maven: com.vividsolutions:jts:1.12" level="project" />
-    <orderEntry type="module" module-name="spatial-lucene" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.lucene:lucene-test-framework:4.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-core:4.0-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.7" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.ant:ant-junit:1.7.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.ant:ant:1.7.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.ant:ant-launcher:1.7.1" level="project" />
+    <orderEntry type="module" module-name="spatial-lucene" scope="TEST" />
+    <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.5" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-queries:4.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-analyzers-common:4.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.6.1" level="project" />
+    <orderEntry type="module" module-name="spatial-lucene" />
+    <orderEntry type="library" name="Maven: com.vividsolutions:jts:1.12" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.slf4j:slf4j-simple:1.6.1" level="project" />
   </component>
 </module>

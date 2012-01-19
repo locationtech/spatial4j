@@ -642,6 +642,77 @@
   <component name="AntConfiguration">
     <defaultAnt bundledAnt="true" />
   </component>
+  <component name="ArtifactManager">
+    <artifact type="war" name="spatial-demo:war">
+      <output-path>$PROJECT_DIR$/spatial-demo/target</output-path>
+      <root id="archive" name="spatial-demo-0.1-SNAPSHOT-r${buildNumber}.war">
+        <element id="artifact" artifact-name="spatial-demo:war exploded" />
+      </root>
+    </artifact>
+    <artifact type="exploded-war" name="spatial-demo:war exploded">
+      <output-path>$PROJECT_DIR$/spatial-demo/target/spatial-demo-0.1-SNAPSHOT-r${buildNumber}</output-path>
+      <root id="root">
+        <element id="javaee-facet-resources" facet="spatial-demo/web/Web" />
+        <element id="directory" name="WEB-INF">
+          <element id="directory" name="classes">
+            <element id="module-output" name="spatial-demo" />
+          </element>
+          <element id="directory" name="lib">
+            <element id="archive" name="spatial-solr-0.1-SNAPSHOT-r${buildNumber}.jar">
+              <element id="module-output" name="spatial-solr" />
+            </element>
+            <element id="archive" name="spatial-lucene-0.1-SNAPSHOT-r${buildNumber}.jar">
+              <element id="module-output" name="spatial-lucene" />
+            </element>
+            <element id="library" level="project" name="Maven: commons-lang:commons-lang:2.5" />
+            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-core:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-queries:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-analyzers-common:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.6.1" />
+            <element id="library" level="project" name="Maven: org.apache.solr:solr-core:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.solr:solr-solrj:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.zookeeper:zookeeper:3.3.3" />
+            <element id="library" level="project" name="Maven: org.slf4j:log4j-over-slf4j:1.6.1" />
+            <element id="library" level="project" name="Maven: commons-httpclient:commons-httpclient:3.1" />
+            <element id="library" level="project" name="Maven: commons-codec:commons-codec:1.6" />
+            <element id="library" level="project" name="Maven: org.slf4j:jcl-over-slf4j:1.6.1" />
+            <element id="library" level="project" name="Maven: commons-io:commons-io:2.1" />
+            <element id="library" level="project" name="Maven: org.codehaus.woodstox:wstx-asl:3.2.7" />
+            <element id="library" level="project" name="Maven: org.apache.solr:solr-commons-csv:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.solr:solr-noggit:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-analyzers-phonetic:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-highlighter:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-memory:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-misc:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-queryparser:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-spatial:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-suggest:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-grouping:4.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: commons-fileupload:commons-fileupload:1.2.1" />
+            <element id="library" level="project" name="Maven: com.google.guava:guava:r09" />
+            <element id="library" level="project" name="Maven: javax.servlet:servlet-api:2.4" />
+            <element id="archive" name="spatial-extras-0.1-SNAPSHOT-r${buildNumber}.jar">
+              <element id="module-output" name="spatial-extras" />
+            </element>
+            <element id="library" level="project" name="Maven: com.vividsolutions:jts:1.12" />
+            <element id="library" level="project" name="Maven: de.micromata.jak:JavaAPIforKml:2.2.0-SNAPSHOT" />
+            <element id="library" level="project" name="Maven: com.sun.xml.bind:jaxb-impl:2.2" />
+            <element id="library" level="project" name="Maven: javax.xml.bind:jaxb-api:2.2" />
+            <element id="library" level="project" name="Maven: javax.xml.stream:stax-api:1.0-2" />
+            <element id="library" level="project" name="Maven: javax.activation:activation:1.1" />
+            <element id="library" level="project" name="Maven: com.sun.xml.bind:jaxb-xjc:2.2" />
+            <element id="library" level="project" name="Maven: xmlunit:xmlunit:1.2" />
+            <element id="library" level="project" name="Maven: org.apache.wicket:wicket:1.4.17" />
+            <element id="library" level="project" name="Maven: org.apache.wicket:wicket-extensions:1.4.17" />
+            <element id="library" level="project" name="Maven: org.mortbay.jetty:jetty:6.1.25" />
+            <element id="library" level="project" name="Maven: org.mortbay.jetty:jetty-util:6.1.25" />
+            <element id="library" level="project" name="Maven: org.mortbay.jetty:servlet-api:2.5-20081211" />
+            <element id="library" level="project" name="Maven: org.mortbay.jetty:jetty-management:6.1.25" />
+          </element>
+        </element>
+      </root>
+    </artifact>
+  </component>
   <component name="BuildJarProjectSettings">
     <option name="BUILD_JARS_ON_MAKE" value="false" />
   </component>
@@ -765,6 +836,9 @@
     <option name="effort" value="default" />
     <option name="priority" value="Medium" />
   </component>
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/spatial-demo" />
+  </component>
   <component name="IdProvider" IDEtalkID="D6D18806095CE94B1CF31DB6824564D6" />
   <component name="InspectionProjectProfileManager">
     <profiles>
@@ -878,6 +952,18 @@
         <XML>
           <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
         </XML>
+        <codeStyleSettings language="CSS">
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="CoffeeScript">
+          <indentOptions>
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+          </indentOptions>
+        </codeStyleSettings>
         <codeStyleSettings language="Groovy">
           <indentOptions>
             <option name="INDENT_SIZE" value="2" />
@@ -888,6 +974,18 @@
         <codeStyleSettings language="JAVA">
           <indentOptions>
             <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="JavaScript">
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="SQL">
+          <indentOptions>
             <option name="CONTINUATION_INDENT_SIZE" value="4" />
             <option name="TAB_SIZE" value="2" />
           </indentOptions>
@@ -1003,6 +1101,17 @@
         <root url="jar://$MAVEN_REPOSITORY$/com/google/guava/guava/r09/guava-r09-sources.jar!/" />
       </SOURCES>
     </library>
+    <library name="Maven: com.ibm.icu:icu4j:4.8.1.1">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/ibm/icu/icu4j/4.8.1.1/icu4j-4.8.1.1.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/com/ibm/icu/icu4j/4.8.1.1/icu4j-4.8.1.1-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/ibm/icu/icu4j/4.8.1.1/icu4j-4.8.1.1-sources.jar!/" />
+      </SOURCES>
+    </library>
     <library name="Maven: com.sun.xml.bind:jaxb-impl:2.2">
       <CLASSES>
         <root url="jar://$MAVEN_REPOSITORY$/com/sun/xml/bind/jaxb-impl/2.2/jaxb-impl-2.2.jar!/" />
@@ -1047,15 +1156,15 @@
         <root url="jar://$MAVEN_REPOSITORY$/commons-beanutils/commons-beanutils/1.7.0/commons-beanutils-1.7.0-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: commons-codec:commons-codec:1.5">
+    <library name="Maven: commons-codec:commons-codec:1.6">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.5/commons-codec-1.5.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.6/commons-codec-1.6.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.5/commons-codec-1.5-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.6/commons-codec-1.6-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.5/commons-codec-1.5-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.6/commons-codec-1.6-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: commons-collections:commons-collections:3.2.1">
@@ -1429,9 +1538,11 @@
       </CLASSES>
       <JAVADOC>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-test-framework/4.0-SNAPSHOT/lucene-test-framework-4.0-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-test-framework/4.0-SNAPSHOT/lucene-test-framework-4.0-20111223.151855-1-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-test-framework/4.0-SNAPSHOT/lucene-test-framework-4.0-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-test-framework/4.0-SNAPSHOT/lucene-test-framework-4.0-20111223.151855-1-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.apache.lucene:lucene-xercesImpl:4.0-SNAPSHOT">
@@ -1495,10 +1606,12 @@
       </CLASSES>
       <JAVADOC>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/solr/solr-test-framework/4.0-SNAPSHOT/solr-test-framework-4.0-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/solr/solr-test-framework/4.0-SNAPSHOT/solr-test-framework-4.0-20111223.152243-1-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/solr/solr-test-framework/4.0-SNAPSHOT/solr-test-framework-4.0-SNAPSHOT-sources.jar!/" />
         <root url="file://$TEMPLATE$/Search/lucene-solr/solr/test-framework/src/java" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/solr/solr-test-framework/4.0-SNAPSHOT/solr-test-framework-4.0-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/solr/solr-test-framework/4.0-SNAPSHOT/solr-test-framework-4.0-20111223.152243-1-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.apache.wicket:wicket-extensions:1.4.17">
