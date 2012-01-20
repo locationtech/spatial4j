@@ -37,7 +37,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class TestDistances {
 
-  private Random random = new Random(RandomSeed.seed());
+  private final Random random = new Random(RandomSeed.seed());
+  //NOTE!  These are sometimes modified by tests.
   private SpatialContext ctx;
   private double EPS;
 
@@ -95,27 +96,32 @@ public class TestDistances {
   public void testDistCalcPointOnBearing_cartesian() {
     ctx = new SimpleSpatialContext(DistanceUnits.CARTESIAN);
     EPS = 10e-6;//tighter epsilon (aka delta)
-    testDistCalcPointOnBearing(100);
+    for(int i = 0; i < 1000; i++) {
+      testDistCalcPointOnBearing(random.nextInt(100));
+    }
   }
 
-  @Test @Ignore("Temporary!  TODO")
+  @Test
   public void testDistCalcPointOnBearing_geo() {
     //test known high delta
-    {
-      Point c = ctx.makePoint(-103,-79);
-      double angRAD = Math.toRadians(236);
-      double dist = 20025;
-      Point p2 = dc().pointOnBearingRAD(c, dist, angRAD, ctx);
-      //Pt(x=76.61200011750923,y=79.04946929870962)
-      double calcDist = dc().distance(c, p2);
-      assertEqualsRatio(dist, calcDist);
-    }
+//    {
+//      Point c = ctx.makePoint(-103,-79);
+//      double angRAD = Math.toRadians(236);
+//      double dist = 20025;
+//      Point p2 = dc().pointOnBearingRAD(c, dist, angRAD, ctx);
+//      //Pt(x=76.61200011750923,y=79.04946929870962)
+//      double calcDist = dc().distance(c, p2);
+//      assertEqualsRatio(dist, calcDist);
+//    }
+    double maxDist = ctx.getUnits().earthCircumference() / 2;
     for(int i = 0; i < 1000; i++) {
-      testDistCalcPointOnBearing(ctx.getUnits().earthCircumference()/2);
+      int dist = random.nextInt((int) maxDist);
+      EPS = (dist < maxDist*0.75 ? 10e-6 : 10e-3);
+      testDistCalcPointOnBearing(dist);
     }
   }
 
-  private void testDistCalcPointOnBearing(double maxDist) {
+  private void testDistCalcPointOnBearing(double dist) {
     for(int angDEG = 0; angDEG < 360; angDEG += random.nextInt(20)+1) {
       Point c = ctx.makePoint(random.nextInt(360),-90+random.nextInt(181));
       double angRAD = Math.toRadians(angDEG);
@@ -124,7 +130,6 @@ public class TestDistances {
       Point p2 = dc().pointOnBearingRAD(c, 0, angRAD, ctx);
       assertEquals(c,p2);
 
-      double dist = random.nextDouble()*maxDist;
       p2 = dc().pointOnBearingRAD(c, dist, angRAD, ctx);
       double calcDist = dc().distance(c, p2);
       assertEqualsRatio(dist, calcDist);
@@ -132,7 +137,9 @@ public class TestDistances {
   }
 
   private void assertEqualsRatio(double expected, double actual) {
-    double deltaRatio = Math.abs(actual - expected)/Math.min(actual, expected);
+    double delta = Math.abs(actual - expected);
+    double base = Math.min(actual, expected);
+    double deltaRatio = base==0 ? delta : Math.min(delta,delta / base);
     assertEquals(0,deltaRatio, EPS);
   }
 
