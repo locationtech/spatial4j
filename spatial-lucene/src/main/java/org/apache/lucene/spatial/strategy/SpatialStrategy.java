@@ -47,7 +47,7 @@ public abstract class SpatialStrategy<T extends SpatialFieldInfo> {
   }
 
   /**
-   * Corresponds with Solr's  FieldType.createField().
+   * Corresponds with Solr's FieldType.createField().
    *
    * This may return a null field if it does not want to make anything.
    * This is reasonable behavior if 'ignoreIncompatibleGeometry=true' and the
@@ -60,17 +60,17 @@ public abstract class SpatialStrategy<T extends SpatialFieldInfo> {
     return new IndexableField[] { createField(fieldInfo, shape, index, store) };
   }
 
-  public abstract ValueSource makeValueSource(SpatialArgs args, T field);
+  public abstract ValueSource makeValueSource(SpatialArgs args, T fieldInfo);
 
   /**
    * Make a query
    */
-  public abstract Query makeQuery(SpatialArgs args, T field);
+  public abstract Query makeQuery(SpatialArgs args, T fieldInfo);
 
   /**
    * Make a Filter
    */
-  public abstract Filter makeFilter(SpatialArgs args, T field);
+  public abstract Filter makeFilter(SpatialArgs args, T fieldInfo);
 
   public boolean isIgnoreIncompatibleGeometry() {
     return ignoreIncompatibleGeometry;

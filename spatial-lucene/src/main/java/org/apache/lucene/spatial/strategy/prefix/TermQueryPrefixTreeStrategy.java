@@ -36,12 +36,12 @@ public class TermQueryPrefixTreeStrategy extends PrefixTreeStrategy {
   }
 
   @Override
-  public Filter makeFilter(SpatialArgs args, SimpleSpatialFieldInfo field) {
-    return new QueryWrapperFilter( makeQuery(args, field) );
+  public Filter makeFilter(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
+    return new QueryWrapperFilter( makeQuery(args, fieldInfo) );
   }
 
   @Override
-  public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo field) {
+  public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
     if (args.getOperation() != SpatialOperation.Intersects &&
         args.getOperation() != SpatialOperation.IsWithin &&
         args.getOperation() != SpatialOperation.Overlaps ){
@@ -54,7 +54,7 @@ public class TermQueryPrefixTreeStrategy extends PrefixTreeStrategy {
 
     BooleanQuery booleanQuery = new BooleanQuery();
     for (Node cell : cells) {
-      booleanQuery.add(new TermQuery(new Term(field.getFieldName(), cell.getTokenString())), BooleanClause.Occur.SHOULD);
+      booleanQuery.add(new TermQuery(new Term(fieldInfo.getFieldName(), cell.getTokenString())), BooleanClause.Occur.SHOULD);
     }
     return booleanQuery;
   }
