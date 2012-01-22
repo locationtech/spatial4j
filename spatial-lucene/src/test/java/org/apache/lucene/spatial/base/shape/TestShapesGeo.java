@@ -19,10 +19,7 @@ package org.apache.lucene.spatial.base.shape;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
-import org.apache.lucene.spatial.base.distance.DistanceUnits;
-import org.apache.lucene.spatial.base.distance.HaversineDistCalc;
-import org.apache.lucene.spatial.base.distance.LawOfCosinesDistCalc;
-import org.apache.lucene.spatial.base.distance.VincentySphereDistCalc;
+import org.apache.lucene.spatial.base.distance.*;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -122,7 +119,7 @@ public abstract class TestShapesGeo extends AbstractTestShapes {
     protected SpatialContext getContext() {
       DistanceUnits units = DistanceUnits.KILOMETERS;
       return new SimpleSpatialContext(units,
-          new LawOfCosinesDistCalc(units.earthRadius()),
+          new GeodesicSphereDistCalc.LawOfCosines(units.earthRadius()),
           SpatialContext.GEO_WORLDBOUNDS);
     }
   }
@@ -136,8 +133,13 @@ public abstract class TestShapesGeo extends AbstractTestShapes {
     protected SpatialContext getContext() {
       DistanceUnits units = DistanceUnits.KILOMETERS;
       return new SimpleSpatialContext(units,
-          new HaversineDistCalc(units.earthRadius()),
+          new GeodesicSphereDistCalc.Haversine(units.earthRadius()),
           SpatialContext.GEO_WORLDBOUNDS);
+    }
+
+    @Override @Ignore @Test
+    public void testGeoCircle() {
+      super.testGeoCircle();
     }
   }
 
@@ -150,7 +152,7 @@ public abstract class TestShapesGeo extends AbstractTestShapes {
     protected SpatialContext getContext() {
       DistanceUnits units = DistanceUnits.KILOMETERS;
       return new SimpleSpatialContext(units,
-          new VincentySphereDistCalc(units.earthRadius()),
+          new GeodesicSphereDistCalc.Vincenty(units.earthRadius()),
           SpatialContext.GEO_WORLDBOUNDS);
     }
   }

@@ -18,7 +18,7 @@ package org.apache.lucene.spatial.base.context;/*
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.distance.CartesianDistCalc;
-import org.apache.lucene.spatial.base.distance.LawOfCosinesDistCalc;
+import org.apache.lucene.spatial.base.distance.GeodesicSphereDistCalc;
 import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
 import org.junit.After;
 import org.junit.Test;
@@ -74,7 +74,7 @@ public class SpatialContextFactoryTest {
     sc = call("units","miles",
         "distCalculator","lawOfCosines");
     assertEquals(DistanceUnits.MILES,sc.getUnits());
-    assertEquals(new LawOfCosinesDistCalc(sc.getUnits().earthRadius()),
+    assertEquals(new GeodesicSphereDistCalc.LawOfCosines(sc.getUnits().earthRadius()),
         sc.getDistCalc());
   }
   

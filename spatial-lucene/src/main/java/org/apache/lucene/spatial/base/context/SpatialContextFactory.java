@@ -85,9 +85,11 @@ public abstract class SpatialContextFactory {
     if (calcStr == null)
       return;
     if (calcStr.equalsIgnoreCase("haversine")) {
-      calculator = new HaversineDistCalc(units.earthRadius());
+      calculator = new GeodesicSphereDistCalc.Haversine(units.earthRadius());
     } else if (calcStr.equalsIgnoreCase("lawOfCosines")) {
-      calculator = new LawOfCosinesDistCalc(units.earthRadius());
+      calculator = new GeodesicSphereDistCalc.LawOfCosines(units.earthRadius());
+    } else if (calcStr.equalsIgnoreCase("vincentySphere")) {
+      calculator = new GeodesicSphereDistCalc.Vincenty(units.earthRadius());
     } else if (calcStr.equalsIgnoreCase("cartesian")) {
       calculator = new CartesianDistCalc();
     } else if (calcStr.equalsIgnoreCase("cartesian^2")) {

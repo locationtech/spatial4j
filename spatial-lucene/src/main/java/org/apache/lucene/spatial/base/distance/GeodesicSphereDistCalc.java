@@ -127,4 +127,42 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
     long temp = radius != +0.0d ? Double.doubleToLongBits(radius) : 0L;
     return (int) (temp ^ (temp >>> 32));
   }
+
+  public static class Haversine extends GeodesicSphereDistCalc {
+
+    public Haversine(double radius) {
+      super(radius);
+    }
+
+    @Override
+    public double distance(Point p1, double toX, double toY) {
+      return DistanceUtils.distHaversineRAD(toRadians(p1.getY()), toRadians(p1.getX()),
+          toRadians(toY), toRadians(toX), radius);
+    }
+
+  }
+
+  public static class LawOfCosines extends GeodesicSphereDistCalc {
+
+    public LawOfCosines(double radius) {
+      super(radius);
+    }
+
+    @Override
+    public double distance(Point from, double toX, double toY) {
+      return DistanceUtils.distLawOfCosinesDEG(from.getX(), from.getY(), toX, toY, radius);
+    }
+
+  }
+
+  public static class Vincenty extends GeodesicSphereDistCalc {
+    public Vincenty(double radius) {
+      super(radius);
+    }
+
+    @Override
+    public double distance(Point from, double toX, double toY) {
+      return DistanceUtils.distLawOfCosinesDEG(from.getY(),from.getX(),toY,toX,radius);
+    }
+  }
 }

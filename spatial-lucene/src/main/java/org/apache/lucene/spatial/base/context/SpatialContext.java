@@ -62,7 +62,7 @@ public abstract class SpatialContext {
 
     if (calculator == null) {
       calculator = isGeo()
-          ? new HaversineDistCalc(units.earthRadius())
+          ? new GeodesicSphereDistCalc.Haversine(units.earthRadius())
           : new CartesianDistCalc();
     }
     this.calculator = calculator;
