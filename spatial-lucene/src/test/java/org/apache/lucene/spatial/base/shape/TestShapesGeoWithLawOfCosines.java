@@ -21,13 +21,16 @@ import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.apache.lucene.spatial.base.distance.LawOfCosinesDistCalc;
+import org.junit.Ignore;
 
 /**
  * @author David Smiley - dsmiley@mitre.org
  */
-public class TestShapesGeoWithLawOfCosines extends TestShapes2D {
+@Ignore
+public class TestShapesGeoWithLawOfCosines extends TestShapesGeo {
 
-  protected SpatialContext getGeoContext() {
+  @Override
+  protected SpatialContext getContext() {
     DistanceUnits units = DistanceUnits.KILOMETERS;
     return new SimpleSpatialContext(units,
         new LawOfCosinesDistCalc(units.earthRadius()),

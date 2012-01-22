@@ -19,15 +19,16 @@ package org.apache.lucene.spatial.base.distance;
 
 import org.apache.lucene.spatial.base.shape.Point;
 
-public class LawOfCosinesDistCalc extends GeodesicSphereDistCalc {
-
-  public LawOfCosinesDistCalc(double radius) {
+/**
+ * @author dsmiley
+ */
+public class VincentySphereDistCalc extends GeodesicSphereDistCalc {
+  public VincentySphereDistCalc(double radius) {
     super(radius);
   }
 
   @Override
   public double distance(Point from, double toX, double toY) {
-    return DistanceUtils.distLawOfCosinesDEG(from.getX(), from.getY(), toX, toY, radius);
+    return DistanceUtils.distLawOfCosinesDEG(from.getY(),from.getX(),toY,toX,radius);
   }
-
 }
