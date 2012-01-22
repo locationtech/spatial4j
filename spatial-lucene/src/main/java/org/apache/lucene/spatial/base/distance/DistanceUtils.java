@@ -19,6 +19,8 @@ package org.apache.lucene.spatial.base.distance;
 
 import org.apache.lucene.spatial.base.exception.InvalidShapeException;
 
+import static java.lang.Math.toRadians;
+
 /**
  * Originally from Lucene 3x's old spatial contrib module. It has been modified here.
  */
@@ -139,7 +141,7 @@ public class DistanceUtils {
   public static double[] latLonCornerDEG(double latCenter, double lonCenter,
                                          double distance, double[] result,
                                          boolean upperRight, double sphereRadius) {
-    result = latLonCornerRAD(Math.toRadians(latCenter), Math.toRadians(lonCenter),
+    result = latLonCornerRAD(toRadians(latCenter), toRadians(lonCenter),
         distance, result, upperRight, sphereRadius);
     result[0] = Math.toDegrees(result[0]);
     result[1] = Math.toDegrees(result[1]);
@@ -325,10 +327,10 @@ public class DistanceUtils {
     // crossing 180 since cos(x) = cos(-x)
     double dLon = lon2 - lon1;
 
-    double a = Math.toRadians(90.0 - lat1);
-    double c = Math.toRadians(90.0 - lat2);
+    double a = toRadians(90.0 - lat1);
+    double c = toRadians(90.0 - lat2);
     double cosB = (Math.cos(a) * Math.cos(c))
-        + (Math.sin(a) * Math.sin(c) * Math.cos(Math.toRadians(dLon)));
+        + (Math.sin(a) * Math.sin(c) * Math.cos(toRadians(dLon)));
 
     // Find angle subtended (with some bounds checking) in radians and
     // multiply by earth radius to find the arc distance
@@ -338,6 +340,33 @@ public class DistanceUtils {
       return 0;
     else
       return Math.acos(cosB) * radius;
+  }
+
+  public static double distVincentyDEG(double lat1, double lon1, double lat2, double lon2, double radius) {
+    return distVincentyRAD(toRadians(lat1),toRadians(lon1),toRadians(lat2),toRadians(lon2)) * radius;
+  }
+
+  /**
+   * Calculates the great circle distance using the Vincenty Formula, simplified for a spherical model. This formula
+   * is accurate for any pair of points. The equation
+   * was taken from <a href="http://en.wikipedia.org/wiki/Great-circle_distance">Wikipedia</a>.
+   * <p/>
+   * The arguments are in radians, and the result is in radians.
+   */
+  public static double distVincentyRAD(double lat1, double lon1, double lat2, double lon2) {
+    double cosLat1 = Math.cos(lat1);
+    double cosLat2 = Math.cos(lat2);
+    double sinLat1 = Math.sin(lat1);
+    double sinLat2 = Math.sin(lat2);
+    double deltaLon = lon2 - lon1;
+    double cosDLon = Math.cos(deltaLon);
+    double sinDLon = Math.sin(deltaLon);
+
+    double a = cosLat2 * sinDLon;
+    double b = cosLat1*sinLat2 - sinLat1*cosLat2*cosDLon;
+    double c = sinLat1*sinLat2 + cosLat1*cosLat2*cosDLon;
+    
+    return Math.atan2(Math.sqrt(a*a+b*b),c);
   }
 
   /**
