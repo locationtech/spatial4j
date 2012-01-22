@@ -136,8 +136,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
     @Override
     public double distance(Point p1, double toX, double toY) {
-      return DistanceUtils.distHaversineRAD(toRadians(p1.getY()), toRadians(p1.getX()),
-          toRadians(toY), toRadians(toX), radius);
+      return DistanceUtils.distHaversineRAD(toRadians(p1.getY()), toRadians(p1.getX()), toRadians(toY), toRadians(toX)) * radius;
     }
 
   }
@@ -150,7 +149,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
     @Override
     public double distance(Point from, double toX, double toY) {
-      return DistanceUtils.distLawOfCosinesDEG(from.getX(), from.getY(), toX, toY, radius);
+      return DistanceUtils.distLawOfCosinesRAD(toRadians(from.getX()), toRadians(from.getY()), toRadians(toX), toRadians(toY)) * radius;
     }
 
   }
@@ -162,7 +161,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
     @Override
     public double distance(Point from, double toX, double toY) {
-      return DistanceUtils.distLawOfCosinesDEG(from.getY(),from.getX(),toY,toX,radius);
+      return DistanceUtils.distLawOfCosinesRAD(toRadians(from.getY()), toRadians(from.getX()), toRadians(toY), toRadians(toX)) * radius;
     }
   }
 }

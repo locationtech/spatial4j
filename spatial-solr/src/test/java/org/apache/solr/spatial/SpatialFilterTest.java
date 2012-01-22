@@ -242,8 +242,7 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
 
   private double calcDist(Point p1, Point p2) {
     //TODO use ctx.calc?
-    return DistanceUtils.distHaversineRAD(Math.toRadians(p1.getY()), Math.toRadians(p1.getX()),
-        Math.toRadians(p2.getY()), Math.toRadians(p2.getX()), ctx.getUnits().earthRadius());
+    return DistanceUtils.distHaversineRAD(Math.toRadians(p1.getY()), Math.toRadians(p1.getX()), Math.toRadians(p2.getY()), Math.toRadians(p2.getX())) * ctx.getUnits().earthRadius();
   }
 
   /** Normalize x & y (put in lon-lat ranges) & ensure geohash round-trip for given precision. */

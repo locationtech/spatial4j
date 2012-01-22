@@ -291,20 +291,17 @@ public class DistanceUtils {
    * @param lon1     The x coordinate of the first point, in radians
    * @param lat2     The y coordinate of the second point, in radians
    * @param lon2     The x coordinate of the second point, in radians
-   * @param radius The radius of the sphere
-   * @return The distance between the two points, as determined by the Haversine formula.
-
+   * @return The distance between the two points, as determined by the Haversine formula, in radians.
    */
-  public static double distHaversineRAD(double lat1, double lon1, double lat2, double lon2, double radius) {
+  public static double distHaversineRAD(double lat1, double lon1, double lat2, double lon2) {
     // Check for same position
     if (lat1 == lat2 && lon1 == lon2)
       return 0.0;
-
     double hsinX = Math.sin((lon1 - lon2) * 0.5);
     double hsinY = Math.sin((lat1 - lat2) * 0.5);
     double h = hsinY * hsinY +
             (Math.cos(lat1) * Math.cos(lat2) * hsinX * hsinX);
-    return (radius * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h)));
+    return 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
   }
 
   /**
@@ -312,10 +309,10 @@ public class DistanceUtils {
    * errors, it is not as accurate as the Haversine formula for small distances.  But with
    * double precision, it isn't that bad -- <a href="http://www.movable-type.co.uk/scripts/latlong.html">
    *   allegedly 1 meter</a>.
-   *
-   * @return Returns the distance in the units used by the radius.
+   * <p/>
+   * The arguments and return value are in radians.
    */
-  public static double distLawOfCosinesDEG(double lat1, double lon1, double lat2, double lon2, double radius) {
+  public static double distLawOfCosinesRAD(double lat1, double lon1, double lat2, double lon2) {
     //(MIGRATED FROM org.apache.lucene.spatial.geometry.LatLng.arcDistance())
     // Imported from mq java client.  Variable references changed to match.
 
@@ -327,23 +324,18 @@ public class DistanceUtils {
     // crossing 180 since cos(x) = cos(-x)
     double dLon = lon2 - lon1;
 
-    double a = toRadians(90.0 - lat1);
-    double c = toRadians(90.0 - lat2);
+    double a = DEG_90_AS_RADS - lat1;
+    double c = DEG_90_AS_RADS - lat2;
     double cosB = (Math.cos(a) * Math.cos(c))
-        + (Math.sin(a) * Math.sin(c) * Math.cos(toRadians(dLon)));
+        + (Math.sin(a) * Math.sin(c) * Math.cos(dLon));
 
-    // Find angle subtended (with some bounds checking) in radians and
-    // multiply by earth radius to find the arc distance
+    // Find angle subtended (with some bounds checking) in radians
     if (cosB < -1.0)
-      return Math.PI * radius;
+      return Math.PI;
     else if (cosB >= 1.0)
       return 0;
     else
-      return Math.acos(cosB) * radius;
-  }
-
-  public static double distVincentyDEG(double lat1, double lon1, double lat2, double lon2, double radius) {
-    return distVincentyRAD(toRadians(lat1),toRadians(lon1),toRadians(lat2),toRadians(lon2)) * radius;
+      return Math.acos(cosB);
   }
 
   /**
@@ -354,13 +346,17 @@ public class DistanceUtils {
    * The arguments are in radians, and the result is in radians.
    */
   public static double distVincentyRAD(double lat1, double lon1, double lat2, double lon2) {
+    // Check for same position
+    if (lat1 == lat2 && lon1 == lon2)
+      return 0.0;
+
     double cosLat1 = Math.cos(lat1);
     double cosLat2 = Math.cos(lat2);
     double sinLat1 = Math.sin(lat1);
     double sinLat2 = Math.sin(lat2);
-    double deltaLon = lon2 - lon1;
-    double cosDLon = Math.cos(deltaLon);
-    double sinDLon = Math.sin(deltaLon);
+    double dLon = lon2 - lon1;
+    double cosDLon = Math.cos(dLon);
+    double sinDLon = Math.sin(dLon);
 
     double a = cosLat2 * sinDLon;
     double b = cosLat1*sinLat2 - sinLat1*cosLat2*cosDLon;
