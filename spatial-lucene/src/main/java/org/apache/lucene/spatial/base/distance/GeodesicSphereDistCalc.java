@@ -161,7 +161,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
     @Override
     public double distance(Point from, double toX, double toY) {
-      return DistanceUtils.distLawOfCosinesRAD(toRadians(from.getY()), toRadians(from.getX()), toRadians(toY), toRadians(toX)) * radius;
+      return DistanceUtils.distVincentyRAD(toRadians(from.getY()), toRadians(from.getX()), toRadians(toY), toRadians(toX)) * radius;
     }
   }
 }

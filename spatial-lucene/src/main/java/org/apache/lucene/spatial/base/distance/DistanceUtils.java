@@ -17,8 +17,6 @@
 
 package org.apache.lucene.spatial.base.distance;
 
-import org.apache.lucene.spatial.base.exception.InvalidShapeException;
-
 import static java.lang.Math.toRadians;
 
 /**
