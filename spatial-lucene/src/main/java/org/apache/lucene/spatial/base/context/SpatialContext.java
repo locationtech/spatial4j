@@ -135,7 +135,7 @@ public abstract class SpatialContext {
   public abstract Shape readShape(String value) throws InvalidShapeException;
 
   public Point readLatCommaLonPoint(String value) throws InvalidShapeException {
-    double[] latLon = DistanceUtils.parseLatitudeLongitude(value);
+    double[] latLon = ParseUtils.parseLatitudeLongitude(value);
     return makePoint(latLon[1],latLon[0]);
   }
 
