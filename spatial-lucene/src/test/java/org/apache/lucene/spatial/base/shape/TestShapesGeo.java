@@ -20,6 +20,10 @@ package org.apache.lucene.spatial.base.shape;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
+import org.apache.lucene.spatial.base.distance.HaversineDistCalc;
+import org.apache.lucene.spatial.base.distance.LawOfCosinesDistCalc;
+import org.apache.lucene.spatial.base.distance.VincentySphereDistCalc;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.apache.lucene.spatial.base.shape.IntersectCase.*;
@@ -28,12 +32,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author David Smiley - dsmiley@mitre.org
  */
-public class TestShapesGeo extends AbstractTestShapes {
-
-  @Override
-  protected SpatialContext getContext() {
-    return new SimpleSpatialContext(DistanceUnits.KILOMETERS);
-  }
+public abstract class TestShapesGeo extends AbstractTestShapes {
 
   @Test
   public void testGeoRectangle() {
@@ -111,5 +110,48 @@ public class TestShapesGeo extends AbstractTestShapes {
 
   private double degToDist(int deg) {
     return ctx.getDistCalc().degreesToDistance(deg);
+  }
+
+  /**
+   * @author David Smiley - dsmiley@mitre.org
+   */
+  @Ignore
+  public static class TestLawOfCosines extends TestShapesGeo {
+
+    @Override
+    protected SpatialContext getContext() {
+      DistanceUnits units = DistanceUnits.KILOMETERS;
+      return new SimpleSpatialContext(units,
+          new LawOfCosinesDistCalc(units.earthRadius()),
+          SpatialContext.GEO_WORLDBOUNDS);
+    }
+  }
+
+  /**
+   * @author dsmiley
+   */
+  public static class TestHaversine extends TestShapesGeo {
+
+    @Override
+    protected SpatialContext getContext() {
+      DistanceUnits units = DistanceUnits.KILOMETERS;
+      return new SimpleSpatialContext(units,
+          new HaversineDistCalc(units.earthRadius()),
+          SpatialContext.GEO_WORLDBOUNDS);
+    }
+  }
+
+  /**
+   * @author dsmiley
+   */
+  public static class TestVincentySphere extends TestShapesGeo {
+
+    @Override
+    protected SpatialContext getContext() {
+      DistanceUnits units = DistanceUnits.KILOMETERS;
+      return new SimpleSpatialContext(units,
+          new VincentySphereDistCalc(units.earthRadius()),
+          SpatialContext.GEO_WORLDBOUNDS);
+    }
   }
 }
