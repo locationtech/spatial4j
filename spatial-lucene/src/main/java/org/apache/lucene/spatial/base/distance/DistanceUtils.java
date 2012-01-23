@@ -308,6 +308,9 @@ public class DistanceUtils {
    * double precision, it isn't that bad -- <a href="http://www.movable-type.co.uk/scripts/latlong.html">
    *   allegedly 1 meter</a>.
    * <p/>
+   * See <a href="http://gis.stackexchange.com/questions/4906/why-is-law-of-cosines-more-preferable-than-haversine-when-calculating-distance-b">
+   *  Why is law of cosines more preferable than haversine when calculating distance between two latitude-longitude points?</a>
+   * <p/>
    * The arguments and return value are in radians.
    */
   public static double distLawOfCosinesRAD(double lat1, double lon1, double lat2, double lon2) {

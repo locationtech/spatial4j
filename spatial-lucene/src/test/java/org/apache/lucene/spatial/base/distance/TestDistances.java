@@ -103,6 +103,9 @@ public class TestDistances {
 
   @Test
   public void testDistCalcPointOnBearing_geo() {
+    //The haversine formula has a higher error if the points are near antipodal. We adjust EPS tolerance for this case.
+    //TODO Eventually we should add the Vincenty formula for improved accuracy, or try some other cleverness.
+
     //test known high delta
 //    {
 //      Point c = ctx.makePoint(-103,-79);

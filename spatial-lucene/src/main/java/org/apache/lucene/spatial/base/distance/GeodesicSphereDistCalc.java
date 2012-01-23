@@ -128,6 +128,13 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
     return (int) (temp ^ (temp >>> 32));
   }
 
+  @Override
+  public final double distance(Point from, double toX, double toY) {
+    return distanceLatLonRAD(toRadians(from.getY()), toRadians(from.getX()), toRadians(toY), toRadians(toX)) * radius;
+  }
+
+  protected abstract double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2);
+
   public static class Haversine extends GeodesicSphereDistCalc {
 
     public Haversine(double radius) {
@@ -135,8 +142,8 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
     }
 
     @Override
-    public double distance(Point p1, double toX, double toY) {
-      return DistanceUtils.distHaversineRAD(toRadians(p1.getY()), toRadians(p1.getX()), toRadians(toY), toRadians(toX)) * radius;
+    protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {
+      return DistanceUtils.distHaversineRAD(lat1,lon1,lat2,lon2);
     }
 
   }
@@ -148,8 +155,8 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
     }
 
     @Override
-    public double distance(Point from, double toX, double toY) {
-      return DistanceUtils.distLawOfCosinesRAD(toRadians(from.getX()), toRadians(from.getY()), toRadians(toX), toRadians(toY)) * radius;
+    protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {
+      return DistanceUtils.distLawOfCosinesRAD(lat1,lon1,lat2,lon2);
     }
 
   }
@@ -160,8 +167,8 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
     }
 
     @Override
-    public double distance(Point from, double toX, double toY) {
-      return DistanceUtils.distVincentyRAD(toRadians(from.getY()), toRadians(from.getX()), toRadians(toY), toRadians(toX)) * radius;
+    protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {
+      return DistanceUtils.distVincentyRAD(lat1,lon1,lat2,lon2);
     }
   }
 }
