@@ -62,20 +62,22 @@ public class TestDistances {
     assertEquals(314.40338, dc().distance(pLL(1, 2), pLL(3, 4)),EPS);
   }
 
-  @Test @Ignore("Temporary!  TODO")
+  @Test
   public void testHaversineBBox() {
-    //first test known bug
+    DistanceCalculator dcV = new GeodesicSphereDistCalc.Vincenty(ctx.getUnits().earthRadius());
+    //first test regression
     {
       double d = 6894.1;
       Point pCtr = pLL(-20, 84);
       Point pTgt = pLL(-42, 15);
       assertTrue(dc().distance(pCtr, pTgt) < d);
-      //since the pairwaise distance is less than d, a bounding box from ctr with d should contain pTgt.
+      assertTrue(dcV.distance(pCtr, pTgt) < d);
+      //since the pairwise distance is less than d, a bounding box from ctr with d should contain pTgt.
       Rectangle r = dc().calcBoxByDistFromPt(pCtr, d, ctx);
-      assertEquals(IntersectCase.CONTAINS,r.intersect(pTgt,ctx));//once failed
+      assertEquals(IntersectCase.CONTAINS,r.intersect(pTgt,ctx));
     }
 
-    for (int T = 0; T < 1000; T++) {
+    for (int T = 0; T < 100; T++) {
       int latSpan = random.nextInt(179);
       int remainderLat = 179 - latSpan;
       double lat = -90 + 0.5 + random.nextInt(remainderLat) + latSpan/2;
@@ -86,10 +88,40 @@ public class TestDistances {
       String msg = "ctr: "+ctr+" dist: "+dist+" T:"+T;
 
       Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
-
-      assertEquals(msg, dist, dc().distance(ctr, r.getMinX(), ctr.getY()), EPS);
+      double calcDist = findClosestDistOnVertToPoint(r.getMinX(),r.getMinY(),r.getMaxY(),ctr);
+      assertEquals(msg,dist,calcDist,0.01);
     }
 
+  }
+  
+  private double findClosestDistOnVertToPoint(double lon, double lowLat, double highLat, Point ctr) {
+    //A binary search algorithm to find the point along the vertical lon between lowLat & highLat that is closest
+    // to ctr, and returns the distance.
+    double midLat = (highLat - lowLat)/2 + lowLat;
+    double midLatDist = ctx.getDistCalc().distance(ctr,lon,midLat);
+    double closestDist = midLatDist;
+    for(int L = 0; L < 100 && highLat - lowLat > 0.01; L++) {
+      boolean bottom = (midLat - lowLat > highLat - midLat);
+      double newMid = bottom ? (midLat - lowLat)/2 + lowLat : (highLat - midLat)/2 + midLat;
+      double newMidDist = ctx.getDistCalc().distance(ctr,lon,newMid);
+      if (newMidDist < midLatDist) {
+        closestDist = newMidDist;
+        if (bottom) {
+          highLat = midLat;
+        } else {
+          lowLat = midLat;
+        }
+        midLat = newMid;
+        midLatDist = newMidDist;
+      } else {
+        if (bottom) {
+          lowLat = newMid;
+        } else {
+          highLat = newMid;
+        }
+      }
+    }
+    return closestDist;
   }
 
   @Test

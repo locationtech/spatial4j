@@ -292,6 +292,8 @@ public class DistanceUtils {
    * @return The distance between the two points, as determined by the Haversine formula, in radians.
    */
   public static double distHaversineRAD(double lat1, double lon1, double lat2, double lon2) {
+    //TODO investigate slightly different formula using asin() and min() http://www.movable-type.co.uk/scripts/gis-faq-5.1.html
+
     // Check for same position
     if (lat1 == lat2 && lon1 == lon2)
       return 0.0;
@@ -314,6 +316,8 @@ public class DistanceUtils {
    * The arguments and return value are in radians.
    */
   public static double distLawOfCosinesRAD(double lat1, double lon1, double lat2, double lon2) {
+    //TODO validate formula
+
     //(MIGRATED FROM org.apache.lucene.spatial.geometry.LatLng.arcDistance())
     // Imported from mq java client.  Variable references changed to match.
 

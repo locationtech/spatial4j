@@ -22,10 +22,9 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 
 import static java.lang.Math.toRadians;
-import static org.apache.lucene.spatial.base.distance.DistanceUtils.DEG_90_AS_RADS;
-import static org.apache.lucene.spatial.base.distance.DistanceUtils.normLonDEG;
 
 /**
+ * A base class for a Distance Calculator that assumes a spherical earth model.
  * @author dsmiley
  */
 public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator {
@@ -42,7 +41,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
   @Override
   public double degreesToDistance(double degrees) {
-    return DistanceUtils.radians2Dist(toRadians(degrees), this.radius);
+    return DistanceUtils.radians2Dist(toRadians(degrees), radius);
   }
 
   @Override
@@ -52,62 +51,52 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
     double[] latLon = DistanceUtils.pointOnBearingRAD(
         toRadians(from.getY()), toRadians(from.getX()),
         dist, bearingRAD, null, radius);
-    return ctx.makePoint(Math.toDegrees(latLon[1]),Math.toDegrees(latLon[0]));
+    return ctx.makePoint(Math.toDegrees(latLon[1]), Math.toDegrees(latLon[0]));
   }
 
   @Override
   public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
     /*
-    This code is very optimized to do the minimum number of calculations
-     */
+   This code is very optimized to do the minimum number of calculations
+    */
     if (distance == 0)
       return from.getBoundingBox();
 
-    double angDistance = distance / radius;
+    double dist_rad = distance / radius;
+    double dist_deg = Math.toDegrees(dist_rad);
 
-    if (angDistance >= Math.PI)//distance is >= opposite side of the globe
+    if (dist_deg >= 180)//distance is >= opposite side of the globe
       return ctx.getWorldBounds();
 
-    double startLon = toRadians(from.getX());
-    double startLat = toRadians(from.getY());
+    //--calc latitude bounds
+    double latN_deg = from.getY() + dist_deg;
+    double latS_deg = from.getY() - dist_deg;
 
-    double sinStartLat = Math.sin(startLat);
-    double cosStartLat = Math.cos(startLat);
-    double cosAngDist = Math.cos(angDistance);
-    double sinAngDist = Math.sin(angDistance);
-
-    final double _a = sinStartLat * cosAngDist;
-    final double _b = cosStartLat * sinAngDist;
-
-    double northernOverlap = startLat + angDistance - DEG_90_AS_RADS;
-    double southernOverlap = -DEG_90_AS_RADS - (startLat - angDistance);
-    if (northernOverlap >= 0 || southernOverlap >= 0) {//touches either pole
+    if (latN_deg >= 90 || latS_deg <= -90) {//touches either pole
+      //we have special logic for longitude
       double lonW_deg = -180, lonE_deg = 180;//world wrap: 360 deg
-      if (northernOverlap <= 0 && southernOverlap <= 0) {//doesn't pass either pole: 180 deg
+      if (latN_deg <= 90 && latS_deg <= -90) {//doesn't pass either pole: 180 deg
         lonW_deg = from.getX()-90;
         lonE_deg = from.getX()+90;
       }
-      double latS_deg = -90, latN_deg = 90;
-      if (northernOverlap < 0) {//doesn't touch north pole
-        latN_deg = Math.toDegrees(Math.asin(_a + _b));//reduced form given that cos(0) == +1 (north)
-      }
-      if (southernOverlap < 0) {//doesn't touch south pole
-        latS_deg = Math.toDegrees(Math.asin(_a - _b));//reduced form given that cos(PI) == -1 (south)
-      }
+      if (latN_deg > 90)
+        latN_deg = 90;
+      if (latS_deg < -90)
+        latS_deg = -90;
+
       return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);
+    } else {
+      //--calc longitude bounds
+      //formula found here: http://stackoverflow.com/a/3115775/92186
+      double lat_rad = toRadians(from.getY());
+      double lon_delta_deg = Math.toDegrees(Math.asin( Math.sin(dist_rad) / Math.cos(lat_rad)));
+
+      double lonW_deg = from.getX()-lon_delta_deg;
+      double lonE_deg = from.getX()+lon_delta_deg;
+
+      return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);//ctx will normalize longitude
     }
 
-    double lon_delta = Math.atan2(sinAngDist * cosStartLat, cosAngDist - sinStartLat * sinStartLat);
-    double lonW_deg = Math.toDegrees(startLon - lon_delta);
-    double lonE_deg = Math.toDegrees(startLon + lon_delta);
-
-    lonW_deg = normLonDEG(lonW_deg);
-    lonE_deg = normLonDEG(lonE_deg);
-
-    double latN_deg = Math.toDegrees(Math.asin(_a + _b));//reduced form given that cos(0) == +1 (north)
-    double latS_deg = Math.toDegrees(Math.asin(_a - _b));//reduced form given that cos(PI) == -1 (south)
-
-    return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);
   }
 
   @Override
@@ -156,7 +145,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
     @Override
     protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {
-      return DistanceUtils.distLawOfCosinesRAD(lat1,lon1,lat2,lon2);
+      return DistanceUtils.distLawOfCosinesRAD(lat1, lon1, lat2, lon2);
     }
 
   }
@@ -168,7 +157,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
     @Override
     protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {
-      return DistanceUtils.distVincentyRAD(lat1,lon1,lat2,lon2);
+      return DistanceUtils.distVincentyRAD(lat1, lon1, lat2, lon2);
     }
   }
 }
