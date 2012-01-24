@@ -21,6 +21,7 @@ import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 
+import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
 
 /**
@@ -270,28 +271,26 @@ public class DistanceUtils {
     return (off <= 180 ? off : 360-off) - 90;
   }
 
-  public static Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
+  public static Rectangle calcBoxByDistFromPtDEG(double lat, double lon, double distance, SpatialContext ctx) {
     //See http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates Section 3.1, 3.2 and 3.3
 
-    if (distance == 0)
-      return from.getBoundingBox();
-
-    double dist_rad = distance / ctx.getUnits().earthRadius();
+    double radius = ctx.getUnits().earthRadius();
+    double dist_rad = distance / radius;
     double dist_deg = Math.toDegrees(dist_rad);
 
     if (dist_deg >= 180)//distance is >= opposite side of the globe
       return ctx.getWorldBounds();
 
     //--calc latitude bounds
-    double latN_deg = from.getY() + dist_deg;
-    double latS_deg = from.getY() - dist_deg;
+    double latN_deg = lat + dist_deg;
+    double latS_deg = lat - dist_deg;
 
     if (latN_deg >= 90 || latS_deg <= -90) {//touches either pole
       //we have special logic for longitude
       double lonW_deg = -180, lonE_deg = 180;//world wrap: 360 deg
       if (latN_deg <= 90 && latS_deg >= -90) {//doesn't pass either pole: 180 deg
-        lonW_deg = from.getX()-90;
-        lonE_deg = from.getX()+90;
+        lonW_deg = lon -90;
+        lonE_deg = lon +90;
       }
       if (latN_deg > 90)
         latN_deg = 90;
@@ -301,15 +300,23 @@ public class DistanceUtils {
       return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);
     } else {
       //--calc longitude bounds
-      double lat_rad = toRadians(from.getY());
+      double lat_rad = toRadians(lat);
       //See URL above for reference. This isn't intuitive.
       double lon_delta_deg = Math.toDegrees(Math.asin( Math.sin(dist_rad) / Math.cos(lat_rad)));
 
-      double lonW_deg = from.getX()-lon_delta_deg;
-      double lonE_deg = from.getX()+lon_delta_deg;
+      double lonW_deg = lon -lon_delta_deg;
+      double lonE_deg = lon +lon_delta_deg;
 
       return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);//ctx will normalize longitude
     }
+  }
+
+  public static double calcBoxByDistFromPtHorizAxisDEG(double lat, double lon, double distance, double radius) {
+    //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
+    double lat_rad = toRadians(lat);
+    double dist_rad = distance / radius;
+    double result_rad = Math.asin( Math.sin(lat_rad) / Math.cos(dist_rad));
+    return toDegrees(result_rad);
   }
 
   /**

@@ -81,6 +81,7 @@ public class TestDistances {
     checkBBox(ctx.makePoint(0,0),0);
     checkBBox(ctx.makePoint(0,0),0.000001);
     checkBBox(ctx.makePoint(0,90),0.000001);
+    checkBBox(ctx.makePoint(-32.7,-5.42),9829);
 
     for (int T = 0; T < 100; T++) {
       double lat = -90 + random.nextDouble()*180;
@@ -96,13 +97,19 @@ public class TestDistances {
     String msg = "ctr: "+ctr+" dist: "+dist;
 
     Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
+    double horizAxisLat = dc().calcBoxByDistFromPtHorizAxis(ctr,dist);
+
     //horizontal
-    Point tPt = findClosestPointOnVertToPoint(r.getMinX(), r.getMinY(), r.getMaxY(), ctr);
-    double calcDist = dc().distance(ctr,tPt);
-    if (r.getMaxY() == 90 || r.getMinY() == -90)
+    if (r.getMaxY() == 90 || r.getMinY() == -90) {
+      double calcDist = dc().distance(ctr,r.getMinX(), r.getMaxY() == 90 ? 90 : -90 );
       assertTrue(msg,calcDist <= dist);
-    else
+      //horizAxisLat is meaningless in this context
+  } else {
+      Point tPt = findClosestPointOnVertToPoint(r.getMinX(), r.getMinY(), r.getMaxY(), ctr);
+      double calcDist = dc().distance(ctr,tPt);
       assertEquals(msg,dist,calcDist,EPS);
+      assertEquals(msg,tPt.getY(),horizAxisLat,EPS);
+    }
     
     //vertical
     double topDist = dc().distance(ctr,ctr.getX(),r.getMaxY());
@@ -122,7 +129,7 @@ public class TestDistances {
     // to ctr, and returns the distance.
     double midLat = (highLat - lowLat)/2 + lowLat;
     double midLatDist = ctx.getDistCalc().distance(ctr,lon,midLat);
-    for(int L = 0; L < 100 && highLat - lowLat > 0.01; L++) {
+    for(int L = 0; L < 100 && highLat - lowLat > 0.001; L++) {
       boolean bottom = (midLat - lowLat > highLat - midLat);
       double newMid = bottom ? (midLat - lowLat)/2 + lowLat : (highLat - midLat)/2 + midLat;
       double newMidDist = ctx.getDistCalc().distance(ctr,lon,newMid);

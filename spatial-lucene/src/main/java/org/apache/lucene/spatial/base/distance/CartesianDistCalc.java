@@ -74,6 +74,11 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   }
 
   @Override
+  public double calcBoxByDistFromPtHorizAxis(Point from, double distance) {
+    return from.getY();
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;

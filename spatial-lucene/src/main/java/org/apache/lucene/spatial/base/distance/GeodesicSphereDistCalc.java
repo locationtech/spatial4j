@@ -58,7 +58,14 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
   @Override
   public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
     assert radius == ctx.getUnits().earthRadius();
-    return DistanceUtils.calcBoxByDistFromPt(from, distance, ctx);
+    if (distance == 0)
+      return from.getBoundingBox();
+    return DistanceUtils.calcBoxByDistFromPtDEG(from.getY(), from.getX(), distance, ctx);
+  }
+
+  @Override
+  public double calcBoxByDistFromPtHorizAxis(Point from, double distance) {
+    return DistanceUtils.calcBoxByDistFromPtHorizAxisDEG(from.getY(), from.getX(), distance, radius);
   }
 
   @Override
