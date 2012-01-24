@@ -17,6 +17,10 @@
 
 package org.apache.lucene.spatial.base.distance;
 
+import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.shape.Point;
+import org.apache.lucene.spatial.base.shape.Rectangle;
+
 import static java.lang.Math.toRadians;
 
 /**
@@ -264,6 +268,48 @@ public class DistanceUtils {
       return lat_deg;//common case, and avoids slight double precision shifting
     double off = Math.abs((lat_deg + 90) % 360);
     return (off <= 180 ? off : 360-off) - 90;
+  }
+
+  public static Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
+    //See http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates Section 3.1, 3.2 and 3.3
+
+    if (distance == 0)
+      return from.getBoundingBox();
+
+    double dist_rad = distance / ctx.getUnits().earthRadius();
+    double dist_deg = Math.toDegrees(dist_rad);
+
+    if (dist_deg >= 180)//distance is >= opposite side of the globe
+      return ctx.getWorldBounds();
+
+    //--calc latitude bounds
+    double latN_deg = from.getY() + dist_deg;
+    double latS_deg = from.getY() - dist_deg;
+
+    if (latN_deg >= 90 || latS_deg <= -90) {//touches either pole
+      //we have special logic for longitude
+      double lonW_deg = -180, lonE_deg = 180;//world wrap: 360 deg
+      if (latN_deg <= 90 && latS_deg >= -90) {//doesn't pass either pole: 180 deg
+        lonW_deg = from.getX()-90;
+        lonE_deg = from.getX()+90;
+      }
+      if (latN_deg > 90)
+        latN_deg = 90;
+      if (latS_deg < -90)
+        latS_deg = -90;
+
+      return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);
+    } else {
+      //--calc longitude bounds
+      double lat_rad = toRadians(from.getY());
+      //See URL above for reference. This isn't intuitive.
+      double lon_delta_deg = Math.toDegrees(Math.asin( Math.sin(dist_rad) / Math.cos(lat_rad)));
+
+      double lonW_deg = from.getX()-lon_delta_deg;
+      double lonE_deg = from.getX()+lon_delta_deg;
+
+      return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);//ctx will normalize longitude
+    }
   }
 
   /**
