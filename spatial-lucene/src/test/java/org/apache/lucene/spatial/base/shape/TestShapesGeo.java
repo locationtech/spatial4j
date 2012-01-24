@@ -109,9 +109,6 @@ public abstract class TestShapesGeo extends AbstractTestShapes {
     return ctx.getDistCalc().degreesToDistance(deg);
   }
 
-  /**
-   * @author David Smiley - dsmiley@mitre.org
-   */
   @Ignore
   public static class TestLawOfCosines extends TestShapesGeo {
 
@@ -124,9 +121,6 @@ public abstract class TestShapesGeo extends AbstractTestShapes {
     }
   }
 
-  /**
-   * @author dsmiley
-   */
   public static class TestHaversine extends TestShapesGeo {
 
     @Override
@@ -138,9 +132,6 @@ public abstract class TestShapesGeo extends AbstractTestShapes {
     }
   }
 
-  /**
-   * @author dsmiley
-   */
   public static class TestVincentySphere extends TestShapesGeo {
 
     @Override

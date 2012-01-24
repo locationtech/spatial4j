@@ -63,49 +63,70 @@ public class TestDistances {
   }
 
   @Test
-  public void testHaversineBBox() {
-    DistanceCalculator dcV = new GeodesicSphereDistCalc.Vincenty(ctx.getUnits().earthRadius());
+  public void testCalcBoxByDistFromPt() {
     //first test regression
     {
       double d = 6894.1;
       Point pCtr = pLL(-20, 84);
       Point pTgt = pLL(-42, 15);
       assertTrue(dc().distance(pCtr, pTgt) < d);
-      assertTrue(dcV.distance(pCtr, pTgt) < d);
       //since the pairwise distance is less than d, a bounding box from ctr with d should contain pTgt.
       Rectangle r = dc().calcBoxByDistFromPt(pCtr, d, ctx);
       assertEquals(IntersectCase.CONTAINS,r.intersect(pTgt,ctx));
+      checkBBox(pCtr,d);
     }
 
+    double MAXDIST = ctx.getUnits().earthCircumference() / 2;
+    checkBBox(ctx.makePoint(0,0), MAXDIST);
+    checkBBox(ctx.makePoint(0,0), MAXDIST *0.999999);
+    checkBBox(ctx.makePoint(0,0),0);
+    checkBBox(ctx.makePoint(0,0),0.000001);
+    checkBBox(ctx.makePoint(0,90),0.000001);
+
     for (int T = 0; T < 100; T++) {
-      int latSpan = random.nextInt(179);
-      int remainderLat = 179 - latSpan;
-      double lat = -90 + 0.5 + random.nextInt(remainderLat) + latSpan/2;
+      double lat = -90 + random.nextDouble()*180;
       double lon = -180 + random.nextDouble()*360;
       Point ctr = ctx.makePoint(lon,lat);
-      double dist = dc().distance(ctr, lon, lat + latSpan / 2);
-
-      String msg = "ctr: "+ctr+" dist: "+dist+" T:"+T;
-
-      Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
-      double calcDist = findClosestDistOnVertToPoint(r.getMinX(),r.getMinY(),r.getMaxY(),ctr);
-      assertEquals(msg,dist,calcDist,0.01);
+      double dist = MAXDIST*random.nextDouble();
+      checkBBox(ctr, dist);
     }
 
   }
-  
+
+  private void checkBBox(Point ctr, double dist) {
+    String msg = "ctr: "+ctr+" dist: "+dist;
+
+    Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
+    //horizontal
+    double calcDist = findClosestDistOnVertToPoint(r.getMinX(),r.getMinY(),r.getMaxY(),ctr);
+    if (r.getMaxY() == 90 || r.getMinY() == -90)
+      assertTrue(calcDist <= dist);
+    else
+      assertEquals(msg,dist,calcDist,0.01);
+    
+    //vertical
+    double topDist = dc().distance(ctr,ctr.getX(),r.getMaxY());
+    if (r.getMaxY() == 90)
+      assertTrue(topDist <= dist);
+    else
+      assertEquals(msg,dist,topDist,EPS);
+    double botDist = dc().distance(ctr,ctr.getX(),r.getMinY());
+    if (r.getMinY() == -90)
+      assertTrue(botDist <= dist);
+    else
+      assertEquals(msg,dist,botDist,EPS);
+  }
+
   private double findClosestDistOnVertToPoint(double lon, double lowLat, double highLat, Point ctr) {
     //A binary search algorithm to find the point along the vertical lon between lowLat & highLat that is closest
     // to ctr, and returns the distance.
     double midLat = (highLat - lowLat)/2 + lowLat;
     double midLatDist = ctx.getDistCalc().distance(ctr,lon,midLat);
-    double closestDist = midLatDist;
     for(int L = 0; L < 100 && highLat - lowLat > 0.01; L++) {
       boolean bottom = (midLat - lowLat > highLat - midLat);
       double newMid = bottom ? (midLat - lowLat)/2 + lowLat : (highLat - midLat)/2 + midLat;
       double newMidDist = ctx.getDistCalc().distance(ctr,lon,newMid);
       if (newMidDist < midLatDist) {
-        closestDist = newMidDist;
         if (bottom) {
           highLat = midLat;
         } else {
@@ -121,7 +142,7 @@ public class TestDistances {
         }
       }
     }
-    return closestDist;
+    return midLatDist;
   }
 
   @Test

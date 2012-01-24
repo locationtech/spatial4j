@@ -56,9 +56,8 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
   @Override
   public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
-    /*
-   This code is very optimized to do the minimum number of calculations
-    */
+    //See http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates Section 3.1, 3.2 and 3.3
+
     if (distance == 0)
       return from.getBoundingBox();
 
@@ -87,8 +86,8 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
       return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);
     } else {
       //--calc longitude bounds
-      //formula found here: http://stackoverflow.com/a/3115775/92186
       double lat_rad = toRadians(from.getY());
+      //See URL above for reference. This isn't intuitive.
       double lon_delta_deg = Math.toDegrees(Math.asin( Math.sin(dist_rad) / Math.cos(lat_rad)));
 
       double lonW_deg = from.getX()-lon_delta_deg;
