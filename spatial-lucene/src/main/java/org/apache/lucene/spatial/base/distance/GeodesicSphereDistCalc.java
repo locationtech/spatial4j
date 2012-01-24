@@ -74,7 +74,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
     if (latN_deg >= 90 || latS_deg <= -90) {//touches either pole
       //we have special logic for longitude
       double lonW_deg = -180, lonE_deg = 180;//world wrap: 360 deg
-      if (latN_deg <= 90 && latS_deg <= -90) {//doesn't pass either pole: 180 deg
+      if (latN_deg <= 90 && latS_deg >= -90) {//doesn't pass either pole: 180 deg
         lonW_deg = from.getX()-90;
         lonE_deg = from.getX()+90;
       }

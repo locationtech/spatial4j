@@ -24,7 +24,6 @@ import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Random;
@@ -86,7 +85,7 @@ public class TestDistances {
     for (int T = 0; T < 100; T++) {
       double lat = -90 + random.nextDouble()*180;
       double lon = -180 + random.nextDouble()*360;
-      Point ctr = ctx.makePoint(lon,lat);
+      Point ctr = ctx.makePoint(lon, lat);
       double dist = MAXDIST*random.nextDouble();
       checkBBox(ctr, dist);
     }
@@ -98,26 +97,27 @@ public class TestDistances {
 
     Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
     //horizontal
-    double calcDist = findClosestDistOnVertToPoint(r.getMinX(),r.getMinY(),r.getMaxY(),ctr);
+    Point tPt = findClosestPointOnVertToPoint(r.getMinX(), r.getMinY(), r.getMaxY(), ctr);
+    double calcDist = dc().distance(ctr,tPt);
     if (r.getMaxY() == 90 || r.getMinY() == -90)
-      assertTrue(calcDist <= dist);
+      assertTrue(msg,calcDist <= dist);
     else
-      assertEquals(msg,dist,calcDist,0.01);
+      assertEquals(msg,dist,calcDist,EPS);
     
     //vertical
     double topDist = dc().distance(ctr,ctr.getX(),r.getMaxY());
     if (r.getMaxY() == 90)
-      assertTrue(topDist <= dist);
+      assertTrue(msg,topDist <= dist);
     else
       assertEquals(msg,dist,topDist,EPS);
     double botDist = dc().distance(ctr,ctr.getX(),r.getMinY());
     if (r.getMinY() == -90)
-      assertTrue(botDist <= dist);
+      assertTrue(msg,botDist <= dist);
     else
       assertEquals(msg,dist,botDist,EPS);
   }
 
-  private double findClosestDistOnVertToPoint(double lon, double lowLat, double highLat, Point ctr) {
+  private Point findClosestPointOnVertToPoint(double lon, double lowLat, double highLat, Point ctr) {
     //A binary search algorithm to find the point along the vertical lon between lowLat & highLat that is closest
     // to ctr, and returns the distance.
     double midLat = (highLat - lowLat)/2 + lowLat;
@@ -142,7 +142,7 @@ public class TestDistances {
         }
       }
     }
-    return midLatDist;
+    return ctx.makePoint(lon,midLat);
   }
 
   @Test
@@ -238,21 +238,11 @@ public class TestDistances {
     assertDistToRadians(500);
     assertDistToRadians(ctx.getUnits().earthRadius());
   }
+
   private void assertDistToRadians(double dist) {
     assertEquals(
         DistanceUtils.pointOnBearingRAD(0, 0, dist, DistanceUtils.DEG_90_AS_RADS, null, ctx.getUnits().earthRadius())[1],
         DistanceUtils.dist2Radians(dist,ctx.getUnits().earthRadius()),10e-5);
-  }
-
-//
-//  private void assertPointEquals(Point expected, Point actual) {
-//    final double delta = 0.0001;
-//    assertEquals(expected.getX(), actual.getX(), delta);
-//    assertEquals(expected.getY(), actual.getY(), delta);
-//  }
-
-  private boolean spans(Rectangle r) {
-    return r.getWidth() == 360;
   }
 
   private Point pLL(double lat, double lon) {
