@@ -109,28 +109,29 @@ public class RectangleImpl implements Rectangle {
   @Override
   public IntersectCase intersect(Shape other, SpatialContext ctx) {
     if (other instanceof Point) {
-      Point point = (Point) other;
-      if (point.getY() > getMaxY() || point.getY() < getMinY() ||
-          (getCrossesDateLine() ?
-              (point.getX() < minX && point.getX() > maxX)
-              : (point.getX() < minX || point.getX() > maxX) ))
-        return IntersectCase.OUTSIDE;
-      return IntersectCase.CONTAINS;
+      return intersect((Point) other, ctx);
     }
-
-    if (! (other instanceof Rectangle) ) {
-      return other.intersect(this, ctx).transpose();
+    if (other instanceof Rectangle) {
+      return intersect((Rectangle)other, ctx);
     }
+    return other.intersect(this, ctx).transpose();
+  }
 
-    //Must be another rectangle...
+  public IntersectCase intersect(Point point, SpatialContext ctx) {
+    if (point.getY() > getMaxY() || point.getY() < getMinY() ||
+        (getCrossesDateLine() ?
+            (point.getX() < minX && point.getX() > maxX)
+            : (point.getX() < minX || point.getX() > maxX) ))
+      return IntersectCase.OUTSIDE;
+    return IntersectCase.CONTAINS;
+  }
 
-    Rectangle ext = other.getBoundingBox();
-
-    IntersectCase yIntersect = intersect_yRange(ext.getMinY(),ext.getMaxY(),ctx);
+  public IntersectCase intersect(Rectangle rect, SpatialContext ctx) {
+    IntersectCase yIntersect = intersect_yRange(rect.getMinY(),rect.getMaxY(),ctx);
     if (yIntersect == IntersectCase.OUTSIDE)
       return IntersectCase.OUTSIDE;
 
-    IntersectCase xIntersect = intersect_xRange(ext.getMinX(),ext.getMaxX(),ctx);
+    IntersectCase xIntersect = intersect_xRange(rect.getMinX(),rect.getMaxX(),ctx);
     if (xIntersect == IntersectCase.OUTSIDE)
       return IntersectCase.OUTSIDE;
 
@@ -138,9 +139,9 @@ public class RectangleImpl implements Rectangle {
       return xIntersect;
 
     //if one side is equal, return the other
-    if (getMinX() == ext.getMinX() && getMaxX() == ext.getMaxX())
+    if (getMinX() == rect.getMinX() && getMaxX() == rect.getMaxX())
       return yIntersect;
-    if (getMinY() == ext.getMinY() && getMaxY() == ext.getMaxY())
+    if (getMinY() == rect.getMinY() && getMaxY() == rect.getMaxY())
       return xIntersect;
 
     return IntersectCase.INTERSECTS;

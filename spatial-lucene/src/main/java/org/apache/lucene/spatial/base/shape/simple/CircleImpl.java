@@ -98,53 +98,46 @@ public class CircleImpl implements Circle {
   @Override
   public IntersectCase intersect(Shape other, SpatialContext ctx) {
     assert this.ctx == ctx;
-//This shortcut was problematic in testing due to distinctions of CONTAINS/WITHIN for no area shapes.
+//This shortcut was problematic in testing due to distinctions of CONTAINS/WITHIN for no-area shapes (lines, points).
 //    if (distance == 0) {
 //      return point.intersect(other,ctx).intersects() ? IntersectCase.WITHIN : IntersectCase.OUTSIDE;
 //    }
 
     if (other instanceof Point) {
-      Point point = (Point) other;
-      return contains(point.getX(),point.getY()) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
+      return intersect((Point) other);
     }
-
     if (other instanceof Rectangle) {
-      final Rectangle r = (Rectangle) other;
-      //Note: Surprisingly complicated!
-
-      //--We start by leveraging the fact we have a calculated bbox that is "cheaper" than use of DistanceCalculator.
-      final IntersectCase bboxSect = enclosingBox.intersect(r,ctx);
-      if (bboxSect == IntersectCase.OUTSIDE || bboxSect == IntersectCase.WITHIN)
-        return bboxSect;
-      else if (bboxSect == IntersectCase.CONTAINS && enclosingBox.equals(r))//nasty identity edge-case
-        return IntersectCase.WITHIN;
-      //bboxSect is INTERSECTS or CONTAINS
-      //The result can be OUTSIDE, CONTAINS, or INTERSECTS (not WITHIN)
-
-      if (ctx.isGeo() && (enclosingBox.getCrossesDateLine() || r.getCrossesDateLine()
-          || enclosingBox.getWidth()==360 || r.getWidth()==360)) {
-        return intersectRectangleGeoCapable(r, bboxSect, ctx);
-      } else
-        return intersect2DRectangle(r, bboxSect, ctx);
+      return intersect((Rectangle) other, ctx);
     }
-
     if (other instanceof Circle) {
-      Circle circle = (Circle)other;
-      double crossDist = ctx.getDistCalc().distance(point, circle.getCenter());
-      double aDist = distance, bDist = circle.getDistance();
-      if (crossDist > aDist + bDist)
-        return IntersectCase.OUTSIDE;
-
-      if (crossDist < aDist && crossDist + bDist <= aDist)
-        return IntersectCase.CONTAINS;
-      if (crossDist < bDist && crossDist + aDist <= bDist)
-        return IntersectCase.WITHIN;
-
-      return IntersectCase.INTERSECTS;
+      return intersect((Circle)other, ctx);
     }
-
     return other.intersect(this, ctx).transpose();
   }
+
+  public IntersectCase intersect(Point point) {
+    return contains(point.getX(),point.getY()) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
+  }
+
+  public IntersectCase intersect(Rectangle r, SpatialContext ctx) {
+    //Note: Surprisingly complicated!
+
+    //--We start by leveraging the fact we have a calculated bbox that is "cheaper" than use of DistanceCalculator.
+    final IntersectCase bboxSect = enclosingBox.intersect(r,ctx);
+    if (bboxSect == IntersectCase.OUTSIDE || bboxSect == IntersectCase.WITHIN)
+      return bboxSect;
+    else if (bboxSect == IntersectCase.CONTAINS && enclosingBox.equals(r))//nasty identity edge-case
+      return IntersectCase.WITHIN;
+    //bboxSect is INTERSECTS or CONTAINS
+    //The result can be OUTSIDE, CONTAINS, or INTERSECTS (not WITHIN)
+
+    if (ctx.isGeo() && (enclosingBox.getCrossesDateLine() || r.getCrossesDateLine()
+        || enclosingBox.getWidth()==360 || r.getWidth()==360)) {
+      return intersectRectangleGeoCapable(r, bboxSect, ctx);
+    } else
+      return intersect2DRectangle(r, bboxSect, ctx);
+  }
+
 
   /** Handles geospatial contexts that involve world wrap &/ pole wrap (and non-geo too). */
   private IntersectCase intersectRectangleGeoCapable(Rectangle r, IntersectCase bboxSect, SpatialContext ctx) {
@@ -344,6 +337,20 @@ public class CircleImpl implements Circle {
 //      }
 //    }
 //    return IntersectCase.CONTAINS;
+  }
+
+  public IntersectCase intersect(Circle circle, SpatialContext ctx) {
+    double crossDist = ctx.getDistCalc().distance(point, circle.getCenter());
+    double aDist = distance, bDist = circle.getDistance();
+    if (crossDist > aDist + bDist)
+      return IntersectCase.OUTSIDE;
+
+    if (crossDist < aDist && crossDist + bDist <= aDist)
+      return IntersectCase.CONTAINS;
+    if (crossDist < bDist && crossDist + aDist <= bDist)
+      return IntersectCase.WITHIN;
+
+    return IntersectCase.INTERSECTS;
   }
 
   @Override
