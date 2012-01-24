@@ -86,6 +86,13 @@ public abstract class TestShapesGeo extends AbstractTestShapes {
     assertEquals("no-dist 1",WITHIN,
         ctx.makeCircle(135,21,0).intersect(ctx.makeRect(-103,-154,-47,52),ctx));
 
+    assertEquals("bbox <= >= -90 bug",CONTAINS,
+        ctx.makeCircle(-64,-84,degToDist(124)).intersect(ctx.makeRect(-96,96,-10,-10),ctx));
+
+    //The horizontal axis line of a geo circle doesn't necessarily pass through c's ctr.
+    assertEquals("c's horiz axis doesn't pass through ctr",INTERSECTS,
+        ctx.makeCircle(71,-44,degToDist(40)).intersect(ctx.makeRect(15,27,-62,-34),ctx));
+
     //--Now proceed with systematic testing:
 
     double distToOpposeSide = ctx.getUnits().earthRadius()*Math.PI;
