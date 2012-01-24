@@ -38,6 +38,7 @@ public abstract class AbstractTestShapes {
   protected Random random;
 
   protected SpatialContext ctx;
+  private static final double EPS = 10e-9;
 
   @Before
   public void beforeClass() {
@@ -78,10 +79,11 @@ public abstract class AbstractTestShapes {
     }
   }
 
-  void assertEqualsPct(String msg, double expected, double actual) {
-    double delta = Math.abs(expected * 0.07);// TODO 7%!  I don't like that having it any smaller breaks. Why?
-    //System.out.println(delta);
-    assertEquals(msg,expected,actual, delta);
+  private void assertEqualsRatio(String msg, double expected, double actual) {
+    double delta = Math.abs(actual - expected);
+    double base = Math.min(actual, expected);
+    double deltaRatio = base==0 ? delta : Math.min(delta,delta / base);
+    assertEquals(msg,0,deltaRatio, EPS);
   }
 
   protected void testRectangle(double minX, double width, double minY, double height) {
@@ -96,8 +98,8 @@ public abstract class AbstractTestShapes {
     assertEquals(msg, width != 0 && height != 0, r.hasArea());
     assertEquals(msg, width != 0 && height != 0, r.getArea() > 0);
 
-    assertEqualsPct(msg, height, r.getHeight());
-    assertEqualsPct(msg, width, r.getWidth());
+    assertEqualsRatio(msg, height, r.getHeight());
+    assertEqualsRatio(msg, width, r.getWidth());
     Point center = r.getCenter();
     msg += " ctr:"+center;
     //System.out.println(msg);
@@ -112,17 +114,10 @@ public abstract class AbstractTestShapes {
     assertEquals(msg,width != 0 || height != 0, dUR != 0);
     if (dUR != 0)
       assertTrue(dUR > 0 && dLL > 0);
-    assertEqualsPct(msg, dUR, dUL);
-    assertEqualsPct(msg, dLR, dLL);
+    assertEqualsRatio(msg, dUR, dUL);
+    assertEqualsRatio(msg, dLR, dLL);
     if (!ctx.isGeo() || center.getY() == 0)
-      assertEqualsPct(msg, dUR, dLL);
-  }
-
-  // TODO Should this go into Rectangle or ctx API?
-  private boolean touchesPole(Rectangle r) {
-    if (!ctx.isGeo())
-      return false;
-    return r.getMaxY()==90 || r.getMaxY()==-90;
+      assertEqualsRatio(msg, dUR, dLL);
   }
 
   protected void testRectIntersect() {
@@ -176,8 +171,8 @@ public abstract class AbstractTestShapes {
     assertEquals(msg,dist > 0, bbox.getArea() > 0);
     if (!ctx.isGeo()) {
       //if not geo then units of dist == units of x,y
-      assertEqualsPct(msg, bbox.getHeight(), dist*2);
-      assertEqualsPct(msg, bbox.getWidth(), dist*2);
+      assertEqualsRatio(msg, bbox.getHeight(), dist * 2);
+      assertEqualsRatio(msg, bbox.getWidth(), dist * 2);
     }
     assertIntersect(msg, CONTAINS, c , c.getCenter());
     assertIntersect(msg, CONTAINS, bbox, c);
