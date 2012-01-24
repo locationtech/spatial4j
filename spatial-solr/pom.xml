@@ -37,6 +37,18 @@
   <packaging>jar</packaging>  
 
   <dependencies>
+
+    <!--
+    We must have *-test-framework before *-core on the classpath.
+    https://issues.apache.org/jira/browse/SOLR-3048
+    -->
+    <dependency>
+      <groupId>org.apache.solr</groupId>
+      <artifactId>solr-test-framework</artifactId>
+      <version>${lucene.version}</version>
+      <scope>test</scope>
+    </dependency>
+
 	  <dependency>
 		  <groupId>org.apache.lucene.spatial</groupId>
 	    <artifactId>spatial-lucene</artifactId>
@@ -48,13 +60,6 @@
 		  <artifactId>solr-core</artifactId>
 			<version>${lucene.version}</version>
 	  </dependency>
-
-    <dependency>
-      <groupId>org.apache.solr</groupId>
-      <artifactId>solr-test-framework</artifactId>
-      <version>${lucene.version}</version>
-      <scope>test</scope>
-    </dependency>
 
     <!-- TESTING -->
   </dependencies>
