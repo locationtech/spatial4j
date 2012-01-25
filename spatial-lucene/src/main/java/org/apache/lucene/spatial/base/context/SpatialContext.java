@@ -48,6 +48,8 @@ public abstract class SpatialContext {
   }
   
   protected final Double maxCircleDistance;//only for geo
+  protected final boolean NUDGE = true;//TODO document
+  private final double boundaryNudgeDegrees;
 
   /**
    *
@@ -80,6 +82,7 @@ public abstract class SpatialContext {
     this.worldBounds = worldBounds;
     
     this.maxCircleDistance = isGeo() ? calculator.degreesToDistance(180) : null;
+    this.boundaryNudgeDegrees = isGeo() ? calculator.distanceToDegrees(10e-6) : 0;
   }
 
   public DistanceUnits getUnits() {
@@ -104,10 +107,12 @@ public abstract class SpatialContext {
 
   public double normY(double y) {
     if (isGeo()) {
-      return DistanceUtils.normLatDEG(y);
-    } else {
-      return y;
+      y = DistanceUtils.normLatDEG(y);
+      if (NUDGE) {
+        y = DistanceUtils.nudgeLatDEG(y,getBoundaryNudgeDegrees());
+      }
     }
+    return y;
   }
 
   /**
@@ -244,5 +249,9 @@ public abstract class SpatialContext {
         ", calculator=" + calculator +
         ", worldBounds=" + worldBounds +
         '}';
+  }
+
+  public double getBoundaryNudgeDegrees() {
+    return boundaryNudgeDegrees;
   }
 }

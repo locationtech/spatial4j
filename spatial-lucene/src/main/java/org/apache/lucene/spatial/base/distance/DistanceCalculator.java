@@ -40,6 +40,6 @@ public interface DistanceCalculator {
 
   public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx);
 
-  public double calcBoxByDistFromPtHorizAxis(Point from, double distance);
+  public double calcBoxByDistFromPtHorizAxis(Point from, double distance, SpatialContext ctx);
 
 }

@@ -18,10 +18,8 @@
 package org.apache.lucene.spatial.base.distance;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 
-import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
 
 /**
@@ -278,6 +276,9 @@ public class DistanceUtils {
     double dist_rad = distance / radius;
     double dist_deg = Math.toDegrees(dist_rad);
 
+    if (dist_deg < ctx.getBoundaryNudgeDegrees())
+      return ctx.makeRect(lon,lon,lat,lat);
+
     if (dist_deg >= 180)//distance is >= opposite side of the globe
       return ctx.getWorldBounds();
 
@@ -285,13 +286,20 @@ public class DistanceUtils {
     double latN_deg = lat + dist_deg;
     double latS_deg = lat - dist_deg;
 
+    //don't permit the north or south boundary to fall directly on a pole
+    if (latN_deg == 90)
+      latN_deg -= ctx.getBoundaryNudgeDegrees();
+    if (latS_deg == -90)
+      latS_deg += ctx.getBoundaryNudgeDegrees();
+
     if (latN_deg >= 90 || latS_deg <= -90) {//touches either pole
       //we have special logic for longitude
       double lonW_deg = -180, lonE_deg = 180;//world wrap: 360 deg
-      if (latN_deg <= 90 && latS_deg >= -90) {//doesn't pass either pole: 180 deg
-        lonW_deg = lon -90;
-        lonE_deg = lon +90;
-      }
+//Commented because I no longer permit pole boundary.  If I did, you could have an exact half-sphere.
+//      if (latN_deg <= 90 && latS_deg >= -90) {//doesn't pass either pole: 180 deg
+//        lonW_deg = lon -90;
+//        lonE_deg = lon +90;
+//      }
       if (latN_deg > 90)
         latN_deg = 90;
       if (latS_deg < -90)
@@ -300,9 +308,7 @@ public class DistanceUtils {
       return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);
     } else {
       //--calc longitude bounds
-      double lat_rad = toRadians(lat);
-      //See URL above for reference. This isn't intuitive.
-      double lon_delta_deg = Math.toDegrees(Math.asin( Math.sin(dist_rad) / Math.cos(lat_rad)));
+      double lon_delta_deg = calcBoxByDistFromPtVertAxisOffsetDEG(lat, lon, distance, radius);
 
       double lonW_deg = lon -lon_delta_deg;
       double lonE_deg = lon +lon_delta_deg;
@@ -311,12 +317,35 @@ public class DistanceUtils {
     }
   }
 
+  public static double calcBoxByDistFromPtVertAxisOffsetDEG(double lat, double lon, double distance, double radius) {
+    //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
+    if (distance == 0)
+      return 0;
+    double lat_rad = toRadians(lat);
+    double dist_rad = distance / radius;
+    double result_rad = Math.asin(Math.sin(dist_rad) / Math.cos(lat_rad));
+
+    if (!Double.isNaN(result_rad))
+      return Math.toDegrees(result_rad);
+    //TODO should use use ctx.getBoundaryNudgeDegrees() offsets here or let caller
+    return 90;
+  }
+
   public static double calcBoxByDistFromPtHorizAxisDEG(double lat, double lon, double distance, double radius) {
     //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
+    if (distance == 0)
+      return lat;
     double lat_rad = toRadians(lat);
     double dist_rad = distance / radius;
     double result_rad = Math.asin( Math.sin(lat_rad) / Math.cos(dist_rad));
-    return toDegrees(result_rad);
+    if (!Double.isNaN(result_rad))
+      return Math.toDegrees(result_rad);
+    //TODO should use use ctx.getBoundaryNudgeDegrees() offsets here or let caller
+    if (lat > 0)
+      return 90;
+    if (lat < 0)
+      return -90;
+    return lat;
   }
 
   /**
@@ -443,4 +472,14 @@ public class DistanceUtils {
     return radians * radius;
   }
 
+  public static double nudgeLatDEG(double lat, double boundaryNudgeDegrees) {
+    assert lat >= -90 && lat <= 90;
+    double max = 90 - boundaryNudgeDegrees;
+    if (lat > max)
+      return max;
+    double min = -90 + boundaryNudgeDegrees;
+    if (lat < min)
+      return min;
+    return lat;
+  }
 }

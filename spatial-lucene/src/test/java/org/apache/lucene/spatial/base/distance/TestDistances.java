@@ -75,6 +75,9 @@ public class TestDistances {
       checkBBox(pCtr,d);
     }
 
+    assertEquals("0 dist, horiz line",
+        -45,dc().calcBoxByDistFromPtHorizAxis(ctx.makePoint(-180,-45),0,ctx),0);
+
     double MAXDIST = ctx.getUnits().earthCircumference() / 2;
     checkBBox(ctx.makePoint(0,0), MAXDIST);
     checkBBox(ctx.makePoint(0,0), MAXDIST *0.999999);
@@ -102,7 +105,9 @@ public class TestDistances {
     String msg = "ctr: "+ctr+" dist: "+dist;
 
     Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
-    double horizAxisLat = dc().calcBoxByDistFromPtHorizAxis(ctr,dist);
+    double horizAxisLat = dc().calcBoxByDistFromPtHorizAxis(ctr,dist, ctx);
+    if (!Double.isNaN(horizAxisLat))
+      assertTrue(r.intersect_yRange(horizAxisLat,horizAxisLat,ctx).intersects());
 
     //horizontal
     if (r.getWidth() >= 180) {
