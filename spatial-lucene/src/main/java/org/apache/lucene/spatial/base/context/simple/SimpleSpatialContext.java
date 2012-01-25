@@ -26,6 +26,7 @@ import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
+import org.apache.lucene.spatial.base.shape.simple.GeoCircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
 
@@ -72,8 +73,10 @@ public class SimpleSpatialContext extends SpatialContext {
   public Circle makeCircle(Point point, double distance) {
     if (distance < 0)
       throw new InvalidShapeException("distance must be >= 0; got "+distance);
-    distance = Math.min(distance,maxCircleDistance);
-    return new CircleImpl( point, distance, this );
+    if (isGeo())
+      return new GeoCircleImpl( point, Math.min(distance,maxCircleDistance), this );
+    else
+      return new CircleImpl( point, distance, this );
   }
 
   @Override

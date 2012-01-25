@@ -47,7 +47,7 @@ public abstract class SpatialContext {
     MAX_WORLDBOUNDS = new RectangleImpl(-v, v, -v, v);
   }
   
-  protected final double maxCircleDistance;
+  protected final Double maxCircleDistance;//only for geo
 
   /**
    *
@@ -79,7 +79,7 @@ public abstract class SpatialContext {
     worldBounds = makeRect(worldBounds.getMinX(),worldBounds.getMaxX(),worldBounds.getMinY(),worldBounds.getMaxY());
     this.worldBounds = worldBounds;
     
-    this.maxCircleDistance = isGeo() ? calculator.degreesToDistance(180) : Double.MAX_VALUE;
+    this.maxCircleDistance = isGeo() ? calculator.degreesToDistance(180) : null;
   }
 
   public DistanceUnits getUnits() {
