@@ -85,7 +85,7 @@ public class CircleImpl implements Circle {
 //    }
 
     if (other instanceof Point) {
-      return intersect((Point) other);
+      return intersect((Point) other, ctx);
     }
     if (other instanceof Rectangle) {
       return intersect((Rectangle) other, ctx);
@@ -96,7 +96,7 @@ public class CircleImpl implements Circle {
     return other.intersect(this, ctx).transpose();
   }
 
-  public IntersectCase intersect(Point point) {
+  public IntersectCase intersect(Point point, SpatialContext ctx) {
     return contains(point.getX(),point.getY()) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
   }
 
@@ -115,44 +115,49 @@ public class CircleImpl implements Circle {
     return intersectRectanglePhase2(r, bboxSect, ctx);
   }
 
-  /** !! DOES NOT WORK WITH CROSSING DATELINE OR WORLD-WRAP.
-   * TODO upgrade to handle crossing dateline, but not world-wrap; use some x-shifting code from RectangleImpl. */
   protected IntersectCase intersectRectanglePhase2(final Rectangle r, IntersectCase bboxSect, SpatialContext ctx) {
+    /*
+     !! DOES NOT WORK WITH GEO CROSSING DATELINE OR WORLD-WRAP.
+     TODO upgrade to handle crossing dateline, but not world-wrap; use some x-shifting code from RectangleImpl.
+     */
+
     //At this point, the only thing we are certain of is that circle is *NOT* WITHIN r, since the bounding box of a
     // circle MUST be within r for the circle to be within r.
 
     //--Quickly determine if they are OUTSIDE or not.
     //see http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection/1879223#1879223
     final double closestX;
-    if ( point.getX() < r.getMinX() )
+    double ctr_x = getXAxis();
+    if ( ctr_x < r.getMinX() )
       closestX = r.getMinX();
-    else if (point.getX() > r.getMaxX())
+    else if (ctr_x > r.getMaxX())
       closestX = r.getMaxX();
     else
-      closestX = point.getX();
+      closestX = ctr_x;
 
     final double closestY;
-    if ( point.getY() < r.getMinY() )
+    double ctr_y = getYAxis();
+    if ( ctr_y < r.getMinY() )
       closestY = r.getMinY();
-    else if (point.getY() > r.getMaxY())
+    else if (ctr_y > r.getMaxY())
       closestY = r.getMaxY();
     else
-      closestY = point.getY();
+      closestY = ctr_y;
 
     //Check if there is an intersection from this circle to closestXY
     boolean didContainOnClosestXY = false;
-    if (point.getX() == closestX) {
-      double distY = Math.abs(point.getY() - closestY);
-      double distanceYDEG = enclosingBox.getHeight()/2;//for non-geo, this is equal to distance
-      if (distY > distanceYDEG)
+    if (ctr_x == closestX) {
+      double deltaY = Math.abs(ctr_y - closestY);
+      double distYCirc = (ctr_y < closestY ? enclosingBox.getMaxY() - ctr_y : ctr_y - enclosingBox.getMinY());
+      if (deltaY > distYCirc)
         return IntersectCase.OUTSIDE;
-    } else if (point.getY() == closestY) {
-      double distX = Math.abs(point.getX() - closestX);
-      double distanceXDEG = enclosingBox.getWidth()/2;//for non-geo, this is equal to distance
-      if (distX > distanceXDEG)
+    } else if (ctr_y == closestY) {
+      double deltaX = Math.abs(ctr_x - closestX);
+      double distXCirc = (ctr_x < closestX ? enclosingBox.getMaxX() - ctr_x : ctr_x - enclosingBox.getMinX());
+      if (deltaX > distXCirc)
         return IntersectCase.OUTSIDE;
     } else {
-      //fallback on more expensive DistanceCalculator
+      //fallback on more expensive calculation
       didContainOnClosestXY = true;
       if(! contains(closestX,closestY) )
         return IntersectCase.OUTSIDE;
@@ -161,14 +166,14 @@ public class CircleImpl implements Circle {
     //At this point we know that it's *NOT* OUTSIDE, so there is some level of intersection. It's *NOT* WITHIN either.
     // The only question left is whether circle CONTAINS r or simply intersects it.
 
-    //if circle contains r, then its bbox MUST also CONTAIN r.
+    //If circle contains r, then its bbox MUST also CONTAIN r.
     if (bboxSect != IntersectCase.CONTAINS)
       return IntersectCase.INTERSECTS;
 
-    //Find the furthest point of r away from the center of the circle. If that point is contained, then all of r is
+    //Find the farthest point of r away from the center of the circle. If that point is contained, then all of r is
     // contained.
-    double farthestX = r.getMaxX() - point.getX() > point.getX() - r.getMinX() ? r.getMaxX() : r.getMinX();
-    double farthestY = r.getMaxY() - point.getY() > point.getY() - r.getMinY() ? r.getMaxY() : r.getMinY();
+    double farthestX = r.getMaxX() - ctr_x > ctr_x - r.getMinX() ? r.getMaxX() : r.getMinX();
+    double farthestY = r.getMaxY() - ctr_y > ctr_y - r.getMinY() ? r.getMaxY() : r.getMinY();
     if (contains(farthestX,farthestY))
       return IntersectCase.CONTAINS;
     return IntersectCase.INTERSECTS;
@@ -187,12 +192,19 @@ public class CircleImpl implements Circle {
 //    return IntersectCase.CONTAINS;
   }
 
+  protected double getYAxis() {
+    return point.getY();
+  }
+
+  protected double getXAxis() {
+    return point.getX();
+  }
+
   public IntersectCase intersect(Circle circle, SpatialContext ctx) {
     double crossDist = ctx.getDistCalc().distance(point, circle.getCenter());
     double aDist = distance, bDist = circle.getDistance();
     if (crossDist > aDist + bDist)
       return IntersectCase.OUTSIDE;
-
     if (crossDist < aDist && crossDist + bDist <= aDist)
       return IntersectCase.CONTAINS;
     if (crossDist < bDist && crossDist + aDist <= bDist)

@@ -26,8 +26,9 @@ import org.apache.lucene.spatial.base.shape.Rectangle;
  * @author David Smiley - dsmiley@mitre.org
  */
 public class GeoCircleImpl extends CircleImpl {
-  private final GeoCircleImpl inverseCircle;//when distance reaches > 1/2 way around the world, cache the inverse.
   private final double distDEG;// [0 TO 180]
+  private final GeoCircleImpl inverseCircle;//when distance reaches > 1/2 way around the world, cache the inverse.
+  private final double horizAxis;//will be NaN if touches a pole
 
   public GeoCircleImpl(Point p, double dist, SpatialContext ctx) {
     super(p, dist, ctx);
@@ -37,38 +38,52 @@ public class GeoCircleImpl extends CircleImpl {
     distDEG = ctx.getDistCalc().distanceToDegrees(distance);
 
     if (distDEG > 90) {
-      double backDistance = ctx.getDistCalc().degreesToDistance(180 - distDEG) - Double.MIN_VALUE;
-      inverseCircle = new GeoCircleImpl(ctx.makePoint(point.getX()+180,point.getY()+180),backDistance,ctx);
+      assert enclosingBox.getWidth() == 360;
+      double backDistDEG = 180 - distDEG;
+      if (backDistDEG >= ctx.getBoundaryNudgeDegrees()) {
+        double backDistance = ctx.getDistCalc().degreesToDistance(backDistDEG);
+        Point backPoint = ctx.makePoint(getCenter().getX() + 180, getCenter().getY() + 180);
+        inverseCircle = new GeoCircleImpl(backPoint,backDistance,ctx);
+      } else
+        inverseCircle = null;
+      horizAxis = getCenter().getY();//although probably not used
     } else {
       inverseCircle = null;
+      horizAxis = ctx.getDistCalc().calcBoxByDistFromPtHorizAxis(getCenter(), distance, ctx);
+      assert enclosingBox.intersect_yRange(horizAxis,horizAxis,ctx).intersects();
     }
+
   }
 
   @Override
-  protected IntersectCase intersectRectanglePhase2(Rectangle r, IntersectCase bboxSect, SpatialContext ctx) {
-    if (enclosingBox.getCrossesDateLine() || r.getCrossesDateLine()
-        || enclosingBox.getWidth()==360 || r.getWidth()==360) {
-      return intersectRectangleGeoCapable(r, bboxSect, ctx);
-    } else {
-      return super.intersectRectanglePhase2(r,bboxSect,ctx);
-    }
+  protected double getYAxis() {
+    return horizAxis;
   }
 
-  /** Handles geospatial contexts that involve world wrap &/ pole wrap (and non-geo too). */
-  private IntersectCase intersectRectangleGeoCapable(Rectangle r, IntersectCase bboxSect, SpatialContext ctx) {
+  /**
+   * Called after bounding box is intersected.
+   * @bboxSect INTERSECTS or CONTAINS from enclosingBox's intersection
+   * @result OUTSIDE, CONTAINS, or INTERSECTS (not WITHIN)
+   */
+  @Override
+  protected IntersectCase intersectRectanglePhase2(Rectangle r, IntersectCase bboxSect, SpatialContext ctx) {
+
+    //Rectangle wraps around the world longitudinally creating a solid band; there are no corners to test intersection
+    if (r.getWidth() == 360) {
+      return IntersectCase.INTERSECTS;
+    }
 
     if (inverseCircle != null) {
       return inverseCircle.intersect(r,ctx).inverse();
     }
 
     //if a pole is wrapped, we have a separate algorithm
-    if (ctx.isGeo() && enclosingBox.getWidth() == 360) {
+    if (enclosingBox.getWidth() == 360) {
       return intersectRectangleCircleWrapsPole(r, ctx);
     }
 
-    //Rectangle wraps around the world longitudinally; there are no corners to test intersection
-    if (ctx.isGeo() && r.getWidth() == 360) {
-      return IntersectCase.INTERSECTS;
+    if (!enclosingBox.getCrossesDateLine() && !r.getCrossesDateLine()) {
+      return super.intersectRectanglePhase2(r,bboxSect,ctx);
     }
 
     //do quick check to see if all corners are within this circle for CONTAINS
@@ -89,21 +104,21 @@ public class GeoCircleImpl extends CircleImpl {
     // intersection.
 
     /* x axis intersects  */
-    if ( r.intersect_yRange(point.getY(),point.getY(),ctx).intersects() // at y vertical
+    if ( r.intersect_yRange(getYAxis(),getYAxis(),ctx).intersects() // at y vertical
           && r.intersect_xRange(enclosingBox.getMinX(),enclosingBox.getMaxX(),ctx).intersects() )
       return IntersectCase.INTERSECTS;
 
     /* y axis intersects */
-    if (r.intersect_xRange(point.getX(),point.getX(),ctx).intersects()) { // at x horizontal
+    if (r.intersect_xRange(getXAxis(),getXAxis(),ctx).intersects()) { // at x horizontal
       if (ctx.isGeo()) {
         double yTop = getCenter().getY()+ distDEG;
         assert yTop <= 90;
         double yBot = getCenter().getY()- distDEG;
-        assert yBot <= 90;
+        assert yBot >= -90;
         if (r.intersect_yRange(yBot,yTop,ctx).intersects())//back bottom
           return IntersectCase.INTERSECTS;
       } else {
-        if (r.intersect_yRange(point.getY()-distance,point.getY()+distance,ctx).intersects())
+        if (r.intersect_yRange(getYAxis()-distance,getYAxis()+distance,ctx).intersects())
           return IntersectCase.INTERSECTS;
       }
     }
@@ -114,7 +129,7 @@ public class GeoCircleImpl extends CircleImpl {
   private IntersectCase intersectRectangleCircleWrapsPole(Rectangle r, SpatialContext ctx) {
 
     //Check if r is within the pole wrap region:
-    double yTop = point.getY()+ distDEG;
+    double yTop = getCenter().getY()+ distDEG;
     if (yTop > 90) {
       double yTopOverlap = yTop - 90;
       assert yTopOverlap <= 90;
@@ -122,11 +137,15 @@ public class GeoCircleImpl extends CircleImpl {
         return IntersectCase.CONTAINS;
     } else {
       double yBot = point.getY() - distDEG;
-      assert yBot < -90;
-      double yBotOverlap = -90 - yBot;
-      assert yBotOverlap <= 90;
-      if (r.getMaxY() <= -90 + yBotOverlap)
-        return IntersectCase.CONTAINS;
+      if (yBot < -90) {
+        double yBotOverlap = -90 - yBot;
+        assert yBotOverlap <= 90;
+        if (r.getMaxY() <= -90 + yBotOverlap)
+          return IntersectCase.CONTAINS;
+      } else {
+        assert yTop == 90 || yBot == -90;//we simply touch a pole
+        //continue
+      }
     }
 
     //If there are no corners to check intersection because r wraps completely...
@@ -138,13 +157,14 @@ public class GeoCircleImpl extends CircleImpl {
     // (It might be possible to reduce contains() calls within nCI() to exactly two, but this intersection
     //  code is complicated enough as it is.)
     if (cornersIntersect == 4) {//all
-      double backX = ctx.normX(point.getX()+180);
+      double backX = ctx.normX(getCenter().getX()+180);
       if (r.intersect_xRange(backX,backX,ctx).intersects())
         return IntersectCase.INTERSECTS;
       else
         return IntersectCase.CONTAINS;
     } else if (cornersIntersect == 0) {//none
-      if (r.intersect_xRange(point.getX(),point.getX(),ctx).intersects())
+      double frontX = getCenter().getX();
+      if (r.intersect_xRange(frontX,frontX,ctx).intersects())
         return IntersectCase.INTERSECTS;
       else
         return IntersectCase.OUTSIDE;
