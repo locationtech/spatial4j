@@ -26,8 +26,8 @@ import org.apache.lucene.spatial.base.shape.Rectangle;
  * @author David Smiley - dsmiley@mitre.org
  */
 public class GeoCircleImpl extends CircleImpl {
-  private final CircleImpl inverseCircle;//when distance reaches > 1/2 way around the world, cache the inverse.
-  private final double distDEG;// geo: [0 TO 180], otherwise NaN
+  private final GeoCircleImpl inverseCircle;//when distance reaches > 1/2 way around the world, cache the inverse.
+  private final double distDEG;// [0 TO 180]
 
   public GeoCircleImpl(Point p, double dist, SpatialContext ctx) {
     super(p, dist, ctx);
@@ -38,7 +38,7 @@ public class GeoCircleImpl extends CircleImpl {
 
     if (distDEG > 90) {
       double backDistance = ctx.getDistCalc().degreesToDistance(180 - distDEG) - Double.MIN_VALUE;
-      inverseCircle = new CircleImpl(ctx.makePoint(point.getX()+180,point.getY()+180),backDistance,ctx);
+      inverseCircle = new GeoCircleImpl(ctx.makePoint(point.getX()+180,point.getY()+180),backDistance,ctx);
     } else {
       inverseCircle = null;
     }
