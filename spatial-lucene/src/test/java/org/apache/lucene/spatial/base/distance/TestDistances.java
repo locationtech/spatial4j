@@ -82,6 +82,11 @@ public class TestDistances {
     checkBBox(ctx.makePoint(0,0),0.000001);
     checkBBox(ctx.makePoint(0,90),0.000001);
     checkBBox(ctx.makePoint(-32.7,-5.42),9829);
+    checkBBox(ctx.makePoint(0,90-20),ctx.getDistCalc().degreesToDistance(20));
+    {
+      double d = 0.010;//10m
+      checkBBox(ctx.makePoint(0,90-ctx.getDistCalc().distanceToDegrees(d+0.001)),d);
+    }
 
     for (int T = 0; T < 100; T++) {
       double lat = -90 + random.nextDouble()*180;
@@ -100,11 +105,11 @@ public class TestDistances {
     double horizAxisLat = dc().calcBoxByDistFromPtHorizAxis(ctr,dist);
 
     //horizontal
-    if (r.getMaxY() == 90 || r.getMinY() == -90) {
+    if (r.getWidth() >= 180) {
       double calcDist = dc().distance(ctr,r.getMinX(), r.getMaxY() == 90 ? 90 : -90 );
-      assertTrue(msg,calcDist <= dist);
+      assertTrue(msg,calcDist <= dist+EPS);
       //horizAxisLat is meaningless in this context
-  } else {
+    } else {
       Point tPt = findClosestPointOnVertToPoint(r.getMinX(), r.getMinY(), r.getMaxY(), ctr);
       double calcDist = dc().distance(ctr,tPt);
       assertEquals(msg,dist,calcDist,EPS);
@@ -114,12 +119,12 @@ public class TestDistances {
     //vertical
     double topDist = dc().distance(ctr,ctr.getX(),r.getMaxY());
     if (r.getMaxY() == 90)
-      assertTrue(msg,topDist <= dist);
+      assertTrue(msg,topDist <= dist+EPS);
     else
       assertEquals(msg,dist,topDist,EPS);
     double botDist = dc().distance(ctr,ctr.getX(),r.getMinY());
     if (r.getMinY() == -90)
-      assertTrue(msg,botDist <= dist);
+      assertTrue(msg,botDist <= dist+EPS);
     else
       assertEquals(msg,dist,botDist,EPS);
   }
@@ -129,7 +134,7 @@ public class TestDistances {
     // to ctr, and returns the distance.
     double midLat = (highLat - lowLat)/2 + lowLat;
     double midLatDist = ctx.getDistCalc().distance(ctr,lon,midLat);
-    for(int L = 0; L < 100 && highLat - lowLat > 0.001; L++) {
+    for(int L = 0; L < 100 && (highLat - lowLat > 0.001|| L < 20); L++) {
       boolean bottom = (midLat - lowLat > highLat - midLat);
       double newMid = bottom ? (midLat - lowLat)/2 + lowLat : (highLat - midLat)/2 + midLat;
       double newMidDist = ctx.getDistCalc().distance(ctr,lon,newMid);
