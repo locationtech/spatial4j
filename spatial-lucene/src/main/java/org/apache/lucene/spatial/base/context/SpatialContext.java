@@ -48,7 +48,7 @@ public abstract class SpatialContext {
   }
   
   protected final Double maxCircleDistance;//only for geo
-  protected final boolean NUDGE = true;//TODO document
+  protected final boolean NUDGE = false;//TODO document
   private final double boundaryNudgeDegrees;
 
   /**
@@ -82,7 +82,7 @@ public abstract class SpatialContext {
     this.worldBounds = worldBounds;
     
     this.maxCircleDistance = isGeo() ? calculator.degreesToDistance(180) : null;
-    this.boundaryNudgeDegrees = isGeo() ? calculator.distanceToDegrees(10e-6) : 0;
+    this.boundaryNudgeDegrees = isGeo() && NUDGE ? calculator.distanceToDegrees(10e-6) : 0;
   }
 
   public DistanceUnits getUnits() {

@@ -192,6 +192,9 @@ public class CircleImpl implements Circle {
 //    return IntersectCase.CONTAINS;
   }
 
+  /**
+   * The y axis horizontal of maximal left-right extent of the circle.
+   */
   protected double getYAxis() {
     return point.getY();
   }

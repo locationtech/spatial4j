@@ -28,7 +28,7 @@ import org.apache.lucene.spatial.base.shape.Rectangle;
 public class GeoCircleImpl extends CircleImpl {
   private final double distDEG;// [0 TO 180]
   private final GeoCircleImpl inverseCircle;//when distance reaches > 1/2 way around the world, cache the inverse.
-  private final double horizAxis;//will be NaN if touches a pole
+  private final double horizAxisY;//see getYAxis
 
   public GeoCircleImpl(Point p, double dist, SpatialContext ctx) {
     super(p, dist, ctx);
@@ -40,24 +40,32 @@ public class GeoCircleImpl extends CircleImpl {
     if (distDEG > 90) {
       assert enclosingBox.getWidth() == 360;
       double backDistDEG = 180 - distDEG;
-      if (backDistDEG >= ctx.getBoundaryNudgeDegrees()) {
+      if (backDistDEG >= 0) {
         double backDistance = ctx.getDistCalc().degreesToDistance(backDistDEG);
         Point backPoint = ctx.makePoint(getCenter().getX() + 180, getCenter().getY() + 180);
         inverseCircle = new GeoCircleImpl(backPoint,backDistance,ctx);
       } else
-        inverseCircle = null;
-      horizAxis = getCenter().getY();//although probably not used
+        inverseCircle = null;//whole globe
+      horizAxisY = getCenter().getY();//although probably not used
     } else {
       inverseCircle = null;
-      horizAxis = ctx.getDistCalc().calcBoxByDistFromPtHorizAxis(getCenter(), distance, ctx);
-      assert enclosingBox.intersect_yRange(horizAxis,horizAxis,ctx).intersects();
+      double _horizAxisY = ctx.getDistCalc().calcBoxByDistFromPtHorizAxis(getCenter(), distance, ctx);
+      //some rare numeric conditioning cases can cause this to be barely beyond the box
+      if (_horizAxisY > enclosingBox.getMaxY()) {
+        horizAxisY = enclosingBox.getMaxY();
+      } else if (_horizAxisY < enclosingBox.getMinY()) {
+        horizAxisY = enclosingBox.getMinY();
+      } else {
+        horizAxisY = _horizAxisY;
+      }
+      //assert enclosingBox.intersect_yRange(horizAxis,horizAxis,ctx).intersects();
     }
 
   }
 
   @Override
   protected double getYAxis() {
-    return horizAxis;
+    return horizAxisY;
   }
 
   /**
@@ -127,6 +135,11 @@ public class GeoCircleImpl extends CircleImpl {
   }
 
   private IntersectCase intersectRectangleCircleWrapsPole(Rectangle r, SpatialContext ctx) {
+    //This method handles the case where the circle wraps ONE pole, but not both.  For both,
+    // there is the inverseCircle case handled before now.  The only exception is for the case where
+    // the circle covers the entire globe, and we'll check that first.
+    if (distDEG == 180)//whole globe
+      return IntersectCase.CONTAINS;
 
     //Check if r is within the pole wrap region:
     double yTop = getCenter().getY()+ distDEG;
@@ -143,6 +156,7 @@ public class GeoCircleImpl extends CircleImpl {
         if (r.getMaxY() <= -90 + yBotOverlap)
           return IntersectCase.CONTAINS;
       } else {
+        //This point is probably not reachable ??
         assert yTop == 90 || yBot == -90;//we simply touch a pole
         //continue
       }

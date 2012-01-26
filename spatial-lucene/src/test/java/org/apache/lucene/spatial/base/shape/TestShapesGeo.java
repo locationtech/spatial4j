@@ -49,7 +49,7 @@ public abstract class TestShapesGeo extends AbstractTestShapes {
   }
 
 
-  @Test @Ignore("TODO fix!")
+  @Test
   public void testGeoCircle() {
     //--Start with some static tests that once failed:
 
@@ -60,6 +60,7 @@ public abstract class TestShapesGeo extends AbstractTestShapes {
     //Bug: horizXAxis not in enclosing rectangle, assertion
     ctx.makeCircle(-44,16,degToDist(106));
     ctx.makeCircle(-36,-76,degToDist(14));
+    ctx.makeCircle(107,82,degToDist(172));
 
 // TODO need to update this test to be valid
 //    {
@@ -116,6 +117,7 @@ public abstract class TestShapesGeo extends AbstractTestShapes {
       for (double y : theYs) {
         testCircle(x, y, 0);
         testCircle(x, y, 500);
+        testCircle(x, y, degToDist(90));
         testCircle(x, y, ctx.getUnits().earthRadius()*6);
       }
     }

@@ -276,7 +276,7 @@ public class DistanceUtils {
     double dist_rad = distance / radius;
     double dist_deg = Math.toDegrees(dist_rad);
 
-    if (dist_deg < ctx.getBoundaryNudgeDegrees())
+    if (dist_deg <= ctx.getBoundaryNudgeDegrees())
       return ctx.makeRect(lon,lon,lat,lat);
 
     if (dist_deg >= 180)//distance is >= opposite side of the globe
@@ -295,11 +295,10 @@ public class DistanceUtils {
     if (latN_deg >= 90 || latS_deg <= -90) {//touches either pole
       //we have special logic for longitude
       double lonW_deg = -180, lonE_deg = 180;//world wrap: 360 deg
-//Commented because I no longer permit pole boundary.  If I did, you could have an exact half-sphere.
-//      if (latN_deg <= 90 && latS_deg >= -90) {//doesn't pass either pole: 180 deg
-//        lonW_deg = lon -90;
-//        lonE_deg = lon +90;
-//      }
+      if (latN_deg <= 90 && latS_deg >= -90) {//doesn't pass either pole: 180 deg
+        lonW_deg = lon -90;
+        lonE_deg = lon +90;
+      }
       if (latN_deg > 90)
         latN_deg = 90;
       if (latS_deg < -90)
@@ -327,7 +326,6 @@ public class DistanceUtils {
 
     if (!Double.isNaN(result_rad))
       return Math.toDegrees(result_rad);
-    //TODO should use use ctx.getBoundaryNudgeDegrees() offsets here or let caller
     return 90;
   }
 
@@ -340,7 +338,7 @@ public class DistanceUtils {
     double result_rad = Math.asin( Math.sin(lat_rad) / Math.cos(dist_rad));
     if (!Double.isNaN(result_rad))
       return Math.toDegrees(result_rad);
-    //TODO should use use ctx.getBoundaryNudgeDegrees() offsets here or let caller
+    //TODO should we use use ctx.getBoundaryNudgeDegrees() offsets here or let caller?
     if (lat > 0)
       return 90;
     if (lat < 0)
