@@ -177,19 +177,6 @@ public class CircleImpl implements Circle {
     if (contains(farthestX,farthestY))
       return IntersectCase.CONTAINS;
     return IntersectCase.INTERSECTS;
-
-    //--check if all corners of r are within the circle. We have to use DistanceCalculator.
-//TODO what's up with this commented code?
-//    for (int i = 0; i < 4; i++) {
-//      double iX = (i == 0 || i == 1) ? r.getMinX() : r.getMaxX();
-//      double iY = (i == 0 || i == 2) ? r.getMinY() : r.getMaxY();
-//      if (didContainOnClosestXY && iX == closestX && iY == closestY)
-//        continue;//we already know this pair of x & y is contained.
-//      if (! contains(iX,iY) ) {
-//        return IntersectCase.INTERSECTS;//some corners contain, some don't
-//      }
-//    }
-//    return IntersectCase.CONTAINS;
   }
 
   /**

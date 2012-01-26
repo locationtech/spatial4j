@@ -90,6 +90,7 @@ public class GeoCircleImpl extends CircleImpl {
       return intersectRectangleCircleWrapsPole(r, ctx);
     }
 
+    //This is an optimization path for when there are no dateline or pole issues.
     if (!enclosingBox.getCrossesDateLine() && !r.getCrossesDateLine()) {
       return super.intersectRectanglePhase2(r,bboxSect,ctx);
     }
@@ -118,17 +119,12 @@ public class GeoCircleImpl extends CircleImpl {
 
     /* y axis intersects */
     if (r.intersect_xRange(getXAxis(),getXAxis(),ctx).intersects()) { // at x horizontal
-      if (ctx.isGeo()) {
-        double yTop = getCenter().getY()+ distDEG;
-        assert yTop <= 90;
-        double yBot = getCenter().getY()- distDEG;
-        assert yBot >= -90;
-        if (r.intersect_yRange(yBot,yTop,ctx).intersects())//back bottom
-          return IntersectCase.INTERSECTS;
-      } else {
-        if (r.intersect_yRange(getYAxis()-distance,getYAxis()+distance,ctx).intersects())
-          return IntersectCase.INTERSECTS;
-      }
+      double yTop = getCenter().getY()+ distDEG;
+      assert yTop <= 90;
+      double yBot = getCenter().getY()- distDEG;
+      assert yBot >= -90;
+      if (r.intersect_yRange(yBot,yTop,ctx).intersects())//back bottom
+        return IntersectCase.INTERSECTS;
     }
 
     return IntersectCase.OUTSIDE;
