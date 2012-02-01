@@ -39,8 +39,6 @@ See the provided README.txt in there for instructions to try it out.
 === SOLR INSTRUCTIONS ===
 
 The following is a simple set of instructions to use LSP in Solr's trunk example app to get point multi-value support.
-For other features, like polygons, you'll need to add additional libs and know the right way to query and add data,
-which isn't documented yet.
 
 # Build
 %> mvn clean install
@@ -78,3 +76,19 @@ which is probably a bug.
   The contents of the IsWithin operation is in this case 4 numbers, which means its a rectangle: minX minY maxX maxY
 For a circle (point-radius) use: store:"IsWithin(Circle(-98 34 d=200))"  The first two numbers are x and y (lon lat),
 and the d is distance in kilometers.
+
+=== POLYGON QUERIES ===
+
+To get polygons to work, you need to add two more libraries to Solr, the "extras", and JTS.
+
+#Copy libs to solr
+copy (LSP)/spatial-extras/target/spatial-extras-VERSION.jar to (solr)/example/solr/lib/
+Download http://sourceforge.net/projects/jts-topo-suite/files/jts/1.12/  and put the jar file within the zip into (solr)/example/solr/lib/
+
+#Specify the JTS "SpatialContextFactory"
+In the LSP field type we defined, add the following attribute:
+  spatialContextFactory="com.googlecode.lucene.spatial.base.context.JtsSpatialContextFactory"
+Note that you can alternatively set the value of this attribute to the Java system property "SpatialContextFactory".
+
+#An example polygon query that does a rough USA box looks like this.  It's in WKT format.
+store:"IsWithin(POLYGON((-122.78515625 48.6015625,-88.859375 48.07421875,-75.32421875 44.3828125,-65.48046875 49.65625,-58.9765625 46.140625,-69.875 42.625,-81.65234375 31.0234375,-79.015625 25.046875,-82.1796875 24.34375,-84.46484375 30.671875,-97.12109375 26.453125,-106.4375 32.25390625,-117.51171875 32.60546875,-125.59765625 41.04296875,-124.71875 47.37109375,-122.78515625 48.6015625))"
