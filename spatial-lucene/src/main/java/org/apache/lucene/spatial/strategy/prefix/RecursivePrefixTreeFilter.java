@@ -17,17 +17,13 @@
 
 package org.apache.lucene.spatial.strategy.prefix;
 
-import org.apache.lucene.index.DocsEnum;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexReader.AtomicReaderContext;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.index.*;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.Filter;
-import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
+import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
@@ -83,9 +79,9 @@ RE "scan" threshold:
 
   @Override
   public DocIdSet getDocIdSet(AtomicReaderContext ctx, Bits acceptDocs) throws IOException {
-    IndexReader reader = ctx.reader;
+    AtomicReader reader = ctx.reader();
     OpenBitSet bits = new OpenBitSet(reader.maxDoc());
-    Terms terms = reader.fields().terms(fieldName);
+    Terms terms = reader.terms(fieldName);
     if (terms == null)
       return null;
     TermsEnum termsEnum = terms.iterator(null);

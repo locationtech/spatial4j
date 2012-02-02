@@ -19,7 +19,7 @@ package org.apache.lucene.spatial;
 
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.search.IndexSearcher;
@@ -37,7 +37,7 @@ import java.util.List;
 
 public abstract class SpatialTestCase extends LuceneTestCase {
 
-  private IndexReader indexReader;
+  private DirectoryReader indexReader;
   private IndexWriter indexWriter;
   private Directory directory;
   private IndexSearcher indexSearcher;
@@ -88,9 +88,9 @@ public abstract class SpatialTestCase extends LuceneTestCase {
   protected void commit() throws IOException {
     indexWriter.commit();
     if (indexReader == null) {
-      indexReader = IndexReader.open(directory);
+      indexReader = DirectoryReader.open(directory);
     } else {
-      indexReader = IndexReader.openIfChanged(indexReader);
+      indexReader = DirectoryReader.openIfChanged(indexReader);
     }
     indexSearcher = newSearcher(indexReader);
   }

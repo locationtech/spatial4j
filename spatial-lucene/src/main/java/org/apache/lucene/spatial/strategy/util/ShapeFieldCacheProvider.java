@@ -44,7 +44,7 @@ public abstract class ShapeFieldCacheProvider<T extends Shape> {
 
   protected abstract T readShape( BytesRef term );
 
-  public synchronized ShapeFieldCache<T> getCache(IndexReader reader) throws IOException {
+  public synchronized ShapeFieldCache<T> getCache(AtomicReader reader) throws IOException {
     ShapeFieldCache<T> idx = sidx.get(reader);
     if (idx != null) {
       return idx;

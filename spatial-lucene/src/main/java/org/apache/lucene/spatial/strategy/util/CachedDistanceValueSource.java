@@ -19,7 +19,7 @@ package org.apache.lucene.spatial.strategy.util;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.lucene.index.IndexReader.AtomicReaderContext;
+import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.base.distance.DistanceCalculator;
@@ -54,7 +54,7 @@ public class CachedDistanceValueSource extends ValueSource {
   @Override
   public FunctionValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
     final ShapeFieldCache<Point> cache =
-      provider.getCache(readerContext.reader);
+      provider.getCache(readerContext.reader());
 
     return new FunctionValues() {
       @Override
