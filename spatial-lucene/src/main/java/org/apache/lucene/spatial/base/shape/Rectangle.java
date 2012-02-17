@@ -35,6 +35,6 @@ public interface Rectangle extends Shape {
   public boolean getCrossesDateLine();
 
   /* There is no axis line shape, and this is more efficient then creating a flat Rectangle for intersect(). */
-  public IntersectCase intersect_yRange(double minY, double maxY, SpatialContext ctx);
-  public IntersectCase intersect_xRange(double minX, double maxX, SpatialContext ctx);
+  public SpatialRelation relate_yRange(double minY, double maxY, SpatialContext ctx);
+  public SpatialRelation relate_xRange(double minX, double maxX, SpatialContext ctx);
 }

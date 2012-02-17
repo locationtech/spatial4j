@@ -18,35 +18,34 @@
 package org.apache.lucene.spatial.base.shape;
 
 /**
-
- No equality case.  If two Shape instances are equal then the result might be CONTAINS or WITHIN, and
-  some logic might fail under this edge condition when it's not careful to check.
-  Client code must be written to detect this and act accordingly.  In RectangleImpl.intersect(), it checks
-   for this explicitly, for example.  TestShapes2D.assertIntersect() checks too.
+ * The set of spatial relationships.  Naming is consistent with OGC spec conventions as seen in SQL/MM and others.
+ * No equality case.  If two Shape instances are equal then the result might be CONTAINS or WITHIN, and
+ * some logic might fail under this edge condition when it's not careful to check.
+ * Client code must be written to detect this and act accordingly.  In RectangleImpl.relate(), it checks
+ * for this explicitly, for example.  TestShapes2D.assertRelation() checks too.
  */
-public enum IntersectCase {
+public enum SpatialRelation {
   WITHIN,
   CONTAINS,
-  OUTSIDE,
+  DISJOINT,
   INTERSECTS;
+  //Don't have these: TOUCHES, CROSSES, OVERLAPS
 
-
-  public IntersectCase transpose() {
+  public SpatialRelation transpose() {
     switch(this) {
-      case CONTAINS: return IntersectCase.WITHIN;
-      case WITHIN: return IntersectCase.CONTAINS;
+      case CONTAINS: return SpatialRelation.WITHIN;
+      case WITHIN: return SpatialRelation.CONTAINS;
       default: return this;
     }
   }
 
   /**
-   * TODO need to test this!
-   * If you were to call aShape.intersect(bShape) and aShape.intersect(cShape), you could call
+   * If you were to call aShape.relate(bShape) and aShape.relate(cShape), you could call
    * this to merge the intersect results as if bShape & cShape were combined into {@link MultiShape}.
    * @param other
    * @return
    */
-  public IntersectCase combine(IntersectCase other) {
+  public SpatialRelation combine(SpatialRelation other) {
     if (this == other)
       return this;
     if (this == WITHIN || other == WITHIN)
@@ -55,14 +54,14 @@ public enum IntersectCase {
   }
 
   public boolean intersects() {
-    return this != OUTSIDE;
+    return this != DISJOINT;
   }
 
   /** Not commutative!  WITHIN.inverse().inverse() != WITHIN. */
-  public IntersectCase inverse() {
+  public SpatialRelation inverse() {
     switch(this) {
-      case OUTSIDE: return CONTAINS;
-      case CONTAINS: return OUTSIDE;
+      case DISJOINT: return CONTAINS;
+      case CONTAINS: return DISJOINT;
       case WITHIN: return INTERSECTS;//not commutative!
     }
     return INTERSECTS;

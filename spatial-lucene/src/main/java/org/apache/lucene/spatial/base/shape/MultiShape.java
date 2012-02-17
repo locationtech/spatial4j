@@ -67,23 +67,23 @@ public class MultiShape implements Shape {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext ctx) {
+  public SpatialRelation relate(Shape other, SpatialContext ctx) {
     boolean allOutside = true;
     boolean allContains = true;
     for (Shape geom : geoms) {
-      IntersectCase sect = geom.intersect(other, ctx);
-      if (sect != IntersectCase.OUTSIDE)
+      SpatialRelation sect = geom.relate(other, ctx);
+      if (sect != SpatialRelation.DISJOINT)
         allOutside = false;
-      if (sect != IntersectCase.CONTAINS)
+      if (sect != SpatialRelation.CONTAINS)
         allContains = false;
       if (!allContains && !allOutside)
-        return IntersectCase.INTERSECTS;//short circuit
+        return SpatialRelation.INTERSECTS;//short circuit
     }
     if (allOutside)
-      return IntersectCase.OUTSIDE;
+      return SpatialRelation.DISJOINT;
     if (allContains)
-      return IntersectCase.CONTAINS;
-    return IntersectCase.INTERSECTS;
+      return SpatialRelation.CONTAINS;
+    return SpatialRelation.INTERSECTS;
   }
 
 

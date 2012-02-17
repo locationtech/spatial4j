@@ -22,7 +22,7 @@ import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUnits;
 import org.junit.Test;
 
-import static org.apache.lucene.spatial.base.shape.IntersectCase.*;
+import static org.apache.lucene.spatial.base.shape.SpatialRelation.*;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
@@ -52,10 +52,10 @@ public class TestShapes2D extends AbstractTestShapes {
     assertFalse(msg,bbox.hasArea());
     assertEquals(msg,pt,bbox.getCenter());
 
-    assertIntersect(msg, CONTAINS, pt, pt2);
-    assertIntersect(msg, OUTSIDE, pt, ctx.makePoint(0, 1));
-    assertIntersect(msg, OUTSIDE, pt, ctx.makePoint(1, 0));
-    assertIntersect(msg, OUTSIDE, pt, ctx.makePoint(1, 1));
+    assertRelation(msg, CONTAINS, pt, pt2);
+    assertRelation(msg, DISJOINT, pt, ctx.makePoint(0, 1));
+    assertRelation(msg, DISJOINT, pt, ctx.makePoint(1, 0));
+    assertRelation(msg, DISJOINT, pt, ctx.makePoint(1, 1));
   }
 
   @Test
@@ -85,7 +85,7 @@ public class TestShapes2D extends AbstractTestShapes {
     }
     //INTERSECTION:
     //Start with some static tests that have shown to cause failures at some point:
-    assertEquals("getX not getY",INTERSECTS,ctx.makeCircle(107,-81,147).intersect(ctx.makeRect(92,121,-89,74),ctx));
+    assertEquals("getX not getY",INTERSECTS,ctx.makeCircle(107,-81,147).relate(ctx.makeRect(92, 121, -89, 74), ctx));
 
     testCircleIntersect();
   }

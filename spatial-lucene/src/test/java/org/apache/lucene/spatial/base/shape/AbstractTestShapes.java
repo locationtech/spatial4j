@@ -24,9 +24,9 @@ import org.junit.Before;
 
 import java.util.Random;
 
-import static org.apache.lucene.spatial.base.shape.IntersectCase.CONTAINS;
-import static org.apache.lucene.spatial.base.shape.IntersectCase.OUTSIDE;
-import static org.apache.lucene.spatial.base.shape.IntersectCase.WITHIN;
+import static org.apache.lucene.spatial.base.shape.SpatialRelation.CONTAINS;
+import static org.apache.lucene.spatial.base.shape.SpatialRelation.DISJOINT;
+import static org.apache.lucene.spatial.base.shape.SpatialRelation.WITHIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -46,15 +46,15 @@ public abstract class AbstractTestShapes {
     ctx = getContext();
   }
 
-  protected void assertIntersect(String msg, IntersectCase expected, Shape a, Shape b) {
+  protected void assertRelation(String msg, SpatialRelation expected, Shape a, Shape b) {
     msg = a+" intersect "+b;//use different msg
     _assertIntersect(msg,expected,a,b);
     //check flipped a & b w/ transpose(), while we're at it
     _assertIntersect("(transposed) " + msg, expected.transpose(), b, a);
   }
 
-  private void _assertIntersect(String msg, IntersectCase expected, Shape a, Shape b) {
-    IntersectCase sect = a.intersect(b, ctx);
+  private void _assertIntersect(String msg, SpatialRelation expected, Shape a, Shape b) {
+    SpatialRelation sect = a.relate(b, ctx);
     if (sect == expected)
       return;
     if (expected == WITHIN || expected == CONTAINS) {
@@ -103,7 +103,7 @@ public abstract class AbstractTestShapes {
     Point center = r.getCenter();
     msg += " ctr:"+center;
     //System.out.println(msg);
-    assertIntersect(msg, CONTAINS, r, center);
+    assertRelation(msg, CONTAINS, r, center);
 
     DistanceCalculator dc = ctx.getDistCalc();
     double dUR = dc.distance(center, r.getMaxX(), r.getMaxY());
@@ -131,27 +131,27 @@ public abstract class AbstractTestShapes {
         for(double left2 = left; left2 <= right; left2 += INCR) {
           for(double right2 = left2; right2 <= right; right2 += INCR) {
             Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
-            assertIntersect(null, IntersectCase.CONTAINS, r, r2);
+            assertRelation(null, SpatialRelation.CONTAINS, r, r2);
           }
         }
         //test point contains
-        assertIntersect(null,IntersectCase.CONTAINS, r, ctx.makePoint(left,Y));
+        assertRelation(null, SpatialRelation.CONTAINS, r, ctx.makePoint(left,Y));
 
-        //test outside
+        //test disjoint
         for(double left2 = right+INCR; left2 - left < 360; left2 += INCR) {
           for(double right2 = left2; right2 - left < 360; right2 += INCR) {
             Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
-            assertIntersect(null, IntersectCase.OUTSIDE, r, r2);
+            assertRelation(null, SpatialRelation.DISJOINT, r, r2);
 
-            //test point outside
-            assertIntersect(null,IntersectCase.OUTSIDE, r, ctx.makePoint(left2,Y));
+            //test point disjoint
+            assertRelation(null, SpatialRelation.DISJOINT, r, ctx.makePoint(left2,Y));
           }
         }
         //test intersect
         for(double left2 = left+INCR; left2 <= right; left2 += INCR) {
           for(double right2 = right+INCR; right2 - left < 360; right2 += INCR) {
             Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
-            assertIntersect(null, IntersectCase.INTERSECTS, r, r2);
+            assertRelation(null, SpatialRelation.INTERSECTS, r, r2);
           }
         }
 
@@ -174,8 +174,8 @@ public abstract class AbstractTestShapes {
       assertEqualsRatio(msg, bbox.getHeight(), dist * 2);
       assertEqualsRatio(msg, bbox.getWidth(), dist * 2);
     }
-    assertIntersect(msg, CONTAINS, c , c.getCenter());
-    assertIntersect(msg, CONTAINS, bbox, c);
+    assertRelation(msg, CONTAINS, c , c.getCenter());
+    assertRelation(msg, CONTAINS, bbox, c);
   }
 
   protected void testCircleIntersect() {
@@ -199,14 +199,14 @@ public abstract class AbstractTestShapes {
       double rYmax = Math.max(rY1,rY2);
       Rectangle r = ctx.makeRect(rX, rX+rW, rYmin, rYmax);
 
-      IntersectCase ic = c.intersect(r, ctx);
+      SpatialRelation ic = c.relate(r, ctx);
 
       Point p;
       switch (ic) {
         case CONTAINS:
           i_C++;
           p = randomPointWithin(random,r,ctx);
-          assertEquals(CONTAINS,c.intersect(p,ctx));
+          assertEquals(CONTAINS,c.relate(p, ctx));
           break;
         case INTERSECTS:
           i_I++;
@@ -215,12 +215,12 @@ public abstract class AbstractTestShapes {
         case WITHIN:
           i_W++;
           p = randomPointWithin(random,c,ctx);
-          assertEquals(CONTAINS,r.intersect(p,ctx));
+          assertEquals(CONTAINS,r.relate(p, ctx));
           break;
-        case OUTSIDE:
+        case DISJOINT:
           i_O++;
           p = randomPointWithin(random,r,ctx);
-          assertEquals(OUTSIDE,c.intersect(p,ctx));
+          assertEquals(DISJOINT,c.relate(p, ctx));
           break;
         default: fail(""+ic);
       }
@@ -245,7 +245,7 @@ public abstract class AbstractTestShapes {
     double d = c.getDistance() * random.nextDouble();
     double angleRAD = Math.toRadians(360*random.nextDouble());
     Point p = ctx.getDistCalc().pointOnBearingRAD(c.getCenter(),d,angleRAD,ctx);
-    assertEquals(CONTAINS,c.intersect(p,ctx));
+    assertEquals(CONTAINS,c.relate(p, ctx));
     return p;
   }
 
@@ -253,7 +253,7 @@ public abstract class AbstractTestShapes {
     double x = r.getMinX() + random.nextDouble()*r.getWidth();
     double y = r.getMinY() + random.nextDouble()*r.getHeight();
     Point p = ctx.makePoint(x,y);
-    assertEquals(CONTAINS,r.intersect(p,ctx));
+    assertEquals(CONTAINS,r.relate(p, ctx));
     return p;
   }
 

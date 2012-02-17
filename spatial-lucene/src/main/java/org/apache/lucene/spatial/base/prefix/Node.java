@@ -17,7 +17,7 @@
 
 package org.apache.lucene.spatial.base.prefix;
 
-import org.apache.lucene.spatial.base.shape.IntersectCase;
+import org.apache.lucene.spatial.base.shape.SpatialRelation;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Shape;
 
@@ -42,7 +42,7 @@ public abstract class Node implements Comparable<Node> {
 
   private String token;//this is the only part of equality
 
-  protected IntersectCase shapeRel;//set in getSubCells(filter), and via setLeaf().
+  protected SpatialRelation shapeRel;//set in getSubCells(filter), and via setLeaf().
   private SpatialPrefixTree spatialPrefixTree;
 
   protected Node(SpatialPrefixTree spatialPrefixTree, String token) {
@@ -84,17 +84,17 @@ public abstract class Node implements Comparable<Node> {
     }
   }
 
-  public IntersectCase getShapeRel() {
+  public SpatialRelation getShapeRel() {
     return shapeRel;
   }
 
   public boolean isLeaf() {
-    return shapeRel == IntersectCase.WITHIN;
+    return shapeRel == SpatialRelation.WITHIN;
   }
 
   public void setLeaf() {
     assert getLevel() != 0;
-    shapeRel = IntersectCase.WITHIN;
+    shapeRel = SpatialRelation.WITHIN;
   }
 
   /**
@@ -150,8 +150,8 @@ public abstract class Node implements Comparable<Node> {
     }
     List<Node> copy = new ArrayList<Node>(cells.size());//copy since cells contractually isn't modifiable
     for (Node cell : cells) {
-      IntersectCase rel = cell.getShape().intersect(shapeFilter, spatialPrefixTree.ctx);
-      if (rel == IntersectCase.OUTSIDE)
+      SpatialRelation rel = cell.getShape().relate(shapeFilter, spatialPrefixTree.ctx);
+      if (rel == SpatialRelation.DISJOINT)
         continue;
       cell.shapeRel = rel;
       copy.add(cell);
@@ -164,7 +164,7 @@ public abstract class Node implements Comparable<Node> {
    * Performant implementations are expected to implement this efficiently by considering the current
    * cell's boundary.
    * Precondition: Never called when getLevel() == maxLevel.
-   * Precondition: this.getShape().intersect(p) != OUTSIDE.
+   * Precondition: this.getShape().relate(p) != DISJOINT.
    *
    * @param p
    * @return

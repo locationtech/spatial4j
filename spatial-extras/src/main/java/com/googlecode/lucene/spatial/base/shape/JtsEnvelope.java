@@ -18,7 +18,7 @@
 package com.googlecode.lucene.spatial.base.shape;
 
 import com.vividsolutions.jts.geom.GeometryFactory;
-import org.apache.lucene.spatial.base.shape.IntersectCase;
+import org.apache.lucene.spatial.base.shape.SpatialRelation;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
@@ -92,16 +92,16 @@ public class JtsEnvelope implements Rectangle {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext ctx) {
+  public SpatialRelation relate(Shape other, SpatialContext ctx) {
     // ** NOTE ** the overall order of logic is kept consistent here with simple.RectangleImpl.
     // ... except this doesn't do date-line cross
     if (other instanceof Point) {
       Point p = (Point)other;
-      return (envelope.contains(p.getX(),p.getY())) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
+      return (envelope.contains(p.getX(),p.getY())) ? SpatialRelation.CONTAINS : SpatialRelation.DISJOINT;
     }
 
     if (! (other instanceof Rectangle) ) {
-      return other.intersect(this, ctx).transpose();
+      return other.relate(this, ctx).transpose();
     }
 
     // Rectangle...
@@ -110,61 +110,61 @@ public class JtsEnvelope implements Rectangle {
         ext.getMaxX() < envelope.getMinX() ||
         ext.getMinY() > envelope.getMaxY() ||
         ext.getMaxY() < envelope.getMinY()) {
-      return IntersectCase.OUTSIDE;
+      return SpatialRelation.DISJOINT;
     }
 
     if (ext.getMinX() >= envelope.getMinX() &&
         ext.getMaxX() <= envelope.getMaxX() &&
         ext.getMinY() >= envelope.getMinY() &&
         ext.getMaxY() <= envelope.getMaxY()) {
-      return IntersectCase.CONTAINS;
+      return SpatialRelation.CONTAINS;
     }
 
     if (envelope.getMinX() >= ext.getMinX() &&
         envelope.getMaxX() <= ext.getMaxX() &&
         envelope.getMinY() >= ext.getMinY() &&
         envelope.getMaxY() <= ext.getMaxY()) {
-      return IntersectCase.WITHIN;
+      return SpatialRelation.WITHIN;
     }
-    return IntersectCase.INTERSECTS;
+    return SpatialRelation.INTERSECTS;
   }
 
   @Override
-  public IntersectCase intersect_yRange(double minY, double maxY, SpatialContext ctx) {
+  public SpatialRelation relate_yRange(double minY, double maxY, SpatialContext ctx) {
     if (minY > envelope.getMaxY() ||
         maxY < envelope.getMinY()) {
-      return IntersectCase.OUTSIDE;
+      return SpatialRelation.DISJOINT;
     }
 
     if (minY >= envelope.getMinY() &&
         maxY <= envelope.getMaxY()) {
-      return IntersectCase.CONTAINS;
+      return SpatialRelation.CONTAINS;
     }
 
     if ( envelope.getMinY() >= minY &&
         envelope.getMaxY() <= maxY) {
-      return IntersectCase.WITHIN;
+      return SpatialRelation.WITHIN;
     }
-    return IntersectCase.INTERSECTS;
+    return SpatialRelation.INTERSECTS;
   }
 
   @Override
-  public IntersectCase intersect_xRange(double minX, double maxX, SpatialContext ctx) {
+  public SpatialRelation relate_xRange(double minX, double maxX, SpatialContext ctx) {
     if (minX > envelope.getMaxX() ||
         maxX < envelope.getMinX()) {
-      return IntersectCase.OUTSIDE;
+      return SpatialRelation.DISJOINT;
     }
 
     if (minX >= envelope.getMinX() &&
         maxX <= envelope.getMaxX()) {
-      return IntersectCase.CONTAINS;
+      return SpatialRelation.CONTAINS;
     }
 
     if ( envelope.getMinX() >= minX &&
         envelope.getMaxX() <= maxX) {
-      return IntersectCase.WITHIN;
+      return SpatialRelation.WITHIN;
     }
-    return IntersectCase.INTERSECTS;
+    return SpatialRelation.INTERSECTS;
   }
 
   @Override

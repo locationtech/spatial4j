@@ -26,12 +26,12 @@ public interface Shape {
    *
    *   this is WITHIN other
    *   this CONTAINS other
-   *   this is OUTSIDE other
+   *   this is DISJOINT other
    *   this INTERSECTS other
    *
    * The context object is optional -- it may include spatial reference.
    */
-  IntersectCase intersect(Shape other, SpatialContext ctx);
+  SpatialRelation relate(Shape other, SpatialContext ctx);
 
   /**
    * Get the bounding box for this Shape

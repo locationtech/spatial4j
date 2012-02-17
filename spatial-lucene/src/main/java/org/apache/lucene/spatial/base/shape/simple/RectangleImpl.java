@@ -19,7 +19,7 @@ package org.apache.lucene.spatial.base.shape.simple;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.lucene.spatial.base.shape.IntersectCase;
+import org.apache.lucene.spatial.base.shape.SpatialRelation;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.distance.DistanceUtils;
 import org.apache.lucene.spatial.base.shape.*;
@@ -107,33 +107,33 @@ public class RectangleImpl implements Rectangle {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext ctx) {
+  public SpatialRelation relate(Shape other, SpatialContext ctx) {
     if (other instanceof Point) {
-      return intersect((Point) other, ctx);
+      return relate((Point) other, ctx);
     }
     if (other instanceof Rectangle) {
-      return intersect((Rectangle)other, ctx);
+      return relate((Rectangle) other, ctx);
     }
-    return other.intersect(this, ctx).transpose();
+    return other.relate(this, ctx).transpose();
   }
 
-  public IntersectCase intersect(Point point, SpatialContext ctx) {
+  public SpatialRelation relate(Point point, SpatialContext ctx) {
     if (point.getY() > getMaxY() || point.getY() < getMinY() ||
         (getCrossesDateLine() ?
             (point.getX() < minX && point.getX() > maxX)
             : (point.getX() < minX || point.getX() > maxX) ))
-      return IntersectCase.OUTSIDE;
-    return IntersectCase.CONTAINS;
+      return SpatialRelation.DISJOINT;
+    return SpatialRelation.CONTAINS;
   }
 
-  public IntersectCase intersect(Rectangle rect, SpatialContext ctx) {
-    IntersectCase yIntersect = intersect_yRange(rect.getMinY(),rect.getMaxY(),ctx);
-    if (yIntersect == IntersectCase.OUTSIDE)
-      return IntersectCase.OUTSIDE;
+  public SpatialRelation relate(Rectangle rect, SpatialContext ctx) {
+    SpatialRelation yIntersect = relate_yRange(rect.getMinY(), rect.getMaxY(), ctx);
+    if (yIntersect == SpatialRelation.DISJOINT)
+      return SpatialRelation.DISJOINT;
 
-    IntersectCase xIntersect = intersect_xRange(rect.getMinX(),rect.getMaxX(),ctx);
-    if (xIntersect == IntersectCase.OUTSIDE)
-      return IntersectCase.OUTSIDE;
+    SpatialRelation xIntersect = relate_xRange(rect.getMinX(), rect.getMaxX(), ctx);
+    if (xIntersect == SpatialRelation.DISJOINT)
+      return SpatialRelation.DISJOINT;
 
     if (xIntersect == yIntersect)//in agreement
       return xIntersect;
@@ -144,26 +144,26 @@ public class RectangleImpl implements Rectangle {
     if (getMinY() == rect.getMinY() && getMaxY() == rect.getMaxY())
       return xIntersect;
 
-    return IntersectCase.INTERSECTS;
+    return SpatialRelation.INTERSECTS;
   }
 
-  public IntersectCase intersect_yRange(double ext_minY, double ext_maxY, SpatialContext ctx) {
+  public SpatialRelation relate_yRange(double ext_minY, double ext_maxY, SpatialContext ctx) {
     if (ext_minY > maxY || ext_maxY < minY) {
-      return IntersectCase.OUTSIDE;
+      return SpatialRelation.DISJOINT;
     }
 
     if (ext_minY >= minY && ext_maxY <= maxY) {
-      return IntersectCase.CONTAINS;
+      return SpatialRelation.CONTAINS;
     }
 
     if (ext_minY <= minY && ext_maxY >= maxY) {
-      return IntersectCase.WITHIN;
+      return SpatialRelation.WITHIN;
     }
-    return IntersectCase.INTERSECTS;
+    return SpatialRelation.INTERSECTS;
   }
 
   @Override
-  public IntersectCase intersect_xRange(double ext_minX, double ext_maxX, SpatialContext ctx) {
+  public SpatialRelation relate_xRange(double ext_minX, double ext_maxX, SpatialContext ctx) {
     //For ext & this we have local minX and maxX variable pairs. We rotate them so that minX <= maxX
     double minX = this.minX;
     double maxX = this.maxX;
@@ -195,17 +195,17 @@ public class RectangleImpl implements Rectangle {
     }
 
     if (ext_minX > maxX || ext_maxX < minX ) {
-      return IntersectCase.OUTSIDE;
+      return SpatialRelation.DISJOINT;
     }
 
     if (ext_minX >= minX && ext_maxX <= maxX ) {
-      return IntersectCase.CONTAINS;
+      return SpatialRelation.CONTAINS;
     }
 
     if (ext_minX <= minX && ext_maxX >= maxX ) {
-      return IntersectCase.WITHIN;
+      return SpatialRelation.WITHIN;
     }
-    return IntersectCase.INTERSECTS;
+    return SpatialRelation.INTERSECTS;
   }
 
   @Override

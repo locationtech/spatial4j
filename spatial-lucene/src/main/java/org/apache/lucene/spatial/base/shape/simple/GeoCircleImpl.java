@@ -18,7 +18,7 @@
 package org.apache.lucene.spatial.base.shape.simple;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.shape.IntersectCase;
+import org.apache.lucene.spatial.base.shape.SpatialRelation;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 
@@ -58,7 +58,7 @@ public class GeoCircleImpl extends CircleImpl {
       } else {
         horizAxisY = _horizAxisY;
       }
-      //assert enclosingBox.intersect_yRange(horizAxis,horizAxis,ctx).intersects();
+      //assert enclosingBox.relate_yRange(horizAxis,horizAxis,ctx).intersects();
     }
 
   }
@@ -71,71 +71,71 @@ public class GeoCircleImpl extends CircleImpl {
   /**
    * Called after bounding box is intersected.
    * @bboxSect INTERSECTS or CONTAINS from enclosingBox's intersection
-   * @result OUTSIDE, CONTAINS, or INTERSECTS (not WITHIN)
+   * @result DISJOINT, CONTAINS, or INTERSECTS (not WITHIN)
    */
   @Override
-  protected IntersectCase intersectRectanglePhase2(Rectangle r, IntersectCase bboxSect, SpatialContext ctx) {
+  protected SpatialRelation relateRectanglePhase2(Rectangle r, SpatialRelation bboxSect, SpatialContext ctx) {
 
     //Rectangle wraps around the world longitudinally creating a solid band; there are no corners to test intersection
     if (r.getWidth() == 360) {
-      return IntersectCase.INTERSECTS;
+      return SpatialRelation.INTERSECTS;
     }
 
     if (inverseCircle != null) {
-      return inverseCircle.intersect(r,ctx).inverse();
+      return inverseCircle.relate(r, ctx).inverse();
     }
 
     //if a pole is wrapped, we have a separate algorithm
     if (enclosingBox.getWidth() == 360) {
-      return intersectRectangleCircleWrapsPole(r, ctx);
+      return relateRectangleCircleWrapsPole(r, ctx);
     }
 
     //This is an optimization path for when there are no dateline or pole issues.
     if (!enclosingBox.getCrossesDateLine() && !r.getCrossesDateLine()) {
-      return super.intersectRectanglePhase2(r,bboxSect,ctx);
+      return super.relateRectanglePhase2(r, bboxSect, ctx);
     }
 
     //do quick check to see if all corners are within this circle for CONTAINS
     int cornersIntersect = numCornersIntersect(r);
     if (cornersIntersect == 4) {
       //ensure r's x axis is within c's.  If it doesn't, r sneaks around the globe to touch the other side (intersect).
-      IntersectCase xIntersect = r.intersect_xRange(enclosingBox.getMinX(),enclosingBox.getMaxX(),ctx);
-      if (xIntersect == IntersectCase.WITHIN)
-        return IntersectCase.CONTAINS;
-      return IntersectCase.INTERSECTS;
+      SpatialRelation xIntersect = r.relate_xRange(enclosingBox.getMinX(), enclosingBox.getMaxX(), ctx);
+      if (xIntersect == SpatialRelation.WITHIN)
+        return SpatialRelation.CONTAINS;
+      return SpatialRelation.INTERSECTS;
     }
 
-    //INTERSECT or OUTSIDE ?
+    //INTERSECT or DISJOINT ?
     if (cornersIntersect > 0)
-      return IntersectCase.INTERSECTS;
+      return SpatialRelation.INTERSECTS;
 
     //Now we check if one of the axis of the circle intersect with r.  If so we have
     // intersection.
 
     /* x axis intersects  */
-    if ( r.intersect_yRange(getYAxis(),getYAxis(),ctx).intersects() // at y vertical
-          && r.intersect_xRange(enclosingBox.getMinX(),enclosingBox.getMaxX(),ctx).intersects() )
-      return IntersectCase.INTERSECTS;
+    if ( r.relate_yRange(getYAxis(), getYAxis(), ctx).intersects() // at y vertical
+          && r.relate_xRange(enclosingBox.getMinX(), enclosingBox.getMaxX(), ctx).intersects() )
+      return SpatialRelation.INTERSECTS;
 
     /* y axis intersects */
-    if (r.intersect_xRange(getXAxis(),getXAxis(),ctx).intersects()) { // at x horizontal
+    if (r.relate_xRange(getXAxis(), getXAxis(), ctx).intersects()) { // at x horizontal
       double yTop = getCenter().getY()+ distDEG;
       assert yTop <= 90;
       double yBot = getCenter().getY()- distDEG;
       assert yBot >= -90;
-      if (r.intersect_yRange(yBot,yTop,ctx).intersects())//back bottom
-        return IntersectCase.INTERSECTS;
+      if (r.relate_yRange(yBot, yTop, ctx).intersects())//back bottom
+        return SpatialRelation.INTERSECTS;
     }
 
-    return IntersectCase.OUTSIDE;
+    return SpatialRelation.DISJOINT;
   }
 
-  private IntersectCase intersectRectangleCircleWrapsPole(Rectangle r, SpatialContext ctx) {
+  private SpatialRelation relateRectangleCircleWrapsPole(Rectangle r, SpatialContext ctx) {
     //This method handles the case where the circle wraps ONE pole, but not both.  For both,
     // there is the inverseCircle case handled before now.  The only exception is for the case where
     // the circle covers the entire globe, and we'll check that first.
     if (distDEG == 180)//whole globe
-      return IntersectCase.CONTAINS;
+      return SpatialRelation.CONTAINS;
 
     //Check if r is within the pole wrap region:
     double yTop = getCenter().getY()+ distDEG;
@@ -143,14 +143,14 @@ public class GeoCircleImpl extends CircleImpl {
       double yTopOverlap = yTop - 90;
       assert yTopOverlap <= 90;
       if (r.getMinY() >= 90 - yTopOverlap)
-        return IntersectCase.CONTAINS;
+        return SpatialRelation.CONTAINS;
     } else {
       double yBot = point.getY() - distDEG;
       if (yBot < -90) {
         double yBotOverlap = -90 - yBot;
         assert yBotOverlap <= 90;
         if (r.getMaxY() <= -90 + yBotOverlap)
-          return IntersectCase.CONTAINS;
+          return SpatialRelation.CONTAINS;
       } else {
         //This point is probably not reachable ??
         assert yTop == 90 || yBot == -90;//we simply touch a pole
@@ -160,7 +160,7 @@ public class GeoCircleImpl extends CircleImpl {
 
     //If there are no corners to check intersection because r wraps completely...
     if (r.getWidth() == 360)
-      return IntersectCase.INTERSECTS;
+      return SpatialRelation.INTERSECTS;
 
     //Check corners:
     int cornersIntersect = numCornersIntersect(r);
@@ -168,18 +168,18 @@ public class GeoCircleImpl extends CircleImpl {
     //  code is complicated enough as it is.)
     if (cornersIntersect == 4) {//all
       double backX = ctx.normX(getCenter().getX()+180);
-      if (r.intersect_xRange(backX,backX,ctx).intersects())
-        return IntersectCase.INTERSECTS;
+      if (r.relate_xRange(backX, backX, ctx).intersects())
+        return SpatialRelation.INTERSECTS;
       else
-        return IntersectCase.CONTAINS;
+        return SpatialRelation.CONTAINS;
     } else if (cornersIntersect == 0) {//none
       double frontX = getCenter().getX();
-      if (r.intersect_xRange(frontX,frontX,ctx).intersects())
-        return IntersectCase.INTERSECTS;
+      if (r.relate_xRange(frontX, frontX, ctx).intersects())
+        return SpatialRelation.INTERSECTS;
       else
-        return IntersectCase.OUTSIDE;
+        return SpatialRelation.DISJOINT;
     } else//partial
-      return IntersectCase.INTERSECTS;
+      return SpatialRelation.INTERSECTS;
   }
 
   /** Returns either 0 for none, 1 for some, or 4 for all. */

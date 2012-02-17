@@ -21,9 +21,9 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.Filter;
+import org.apache.lucene.spatial.base.shape.SpatialRelation;
 import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
-import org.apache.lucene.spatial.base.shape.IntersectCase;
 import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
@@ -140,7 +140,7 @@ RE "scan" threshold:
             if (termLevel == detailLevel || scanCell.isLeaf()) {
               //TODO should put more thought into implications of box vs point
               Shape cShape = termLevel == grid.getMaxLevels() ? scanCell.getCenter() : scanCell.getShape();
-              if(queryShape.intersect(cShape, grid.getSpatialContext()) == IntersectCase.OUTSIDE)
+              if(queryShape.relate(cShape, grid.getSpatialContext()) == SpatialRelation.DISJOINT)
                 continue;
 
               docsEnum = termsEnum.docs(acceptDocs, docsEnum, false);

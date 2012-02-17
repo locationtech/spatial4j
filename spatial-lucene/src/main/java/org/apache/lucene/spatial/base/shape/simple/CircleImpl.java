@@ -77,45 +77,45 @@ public class CircleImpl implements Circle {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext ctx) {
+  public SpatialRelation relate(Shape other, SpatialContext ctx) {
     assert this.ctx == ctx;
 //This shortcut was problematic in testing due to distinctions of CONTAINS/WITHIN for no-area shapes (lines, points).
 //    if (distance == 0) {
-//      return point.intersect(other,ctx).intersects() ? IntersectCase.WITHIN : IntersectCase.OUTSIDE;
+//      return point.relate(other,ctx).intersects() ? SpatialRelation.WITHIN : SpatialRelation.DISJOINT;
 //    }
 
     if (other instanceof Point) {
-      return intersect((Point) other, ctx);
+      return relate((Point) other, ctx);
     }
     if (other instanceof Rectangle) {
-      return intersect((Rectangle) other, ctx);
+      return relate((Rectangle) other, ctx);
     }
     if (other instanceof Circle) {
-      return intersect((Circle)other, ctx);
+      return relate((Circle) other, ctx);
     }
-    return other.intersect(this, ctx).transpose();
+    return other.relate(this, ctx).transpose();
   }
 
-  public IntersectCase intersect(Point point, SpatialContext ctx) {
-    return contains(point.getX(),point.getY()) ? IntersectCase.CONTAINS : IntersectCase.OUTSIDE;
+  public SpatialRelation relate(Point point, SpatialContext ctx) {
+    return contains(point.getX(),point.getY()) ? SpatialRelation.CONTAINS : SpatialRelation.DISJOINT;
   }
 
-  public IntersectCase intersect(Rectangle r, SpatialContext ctx) {
+  public SpatialRelation relate(Rectangle r, SpatialContext ctx) {
     //Note: Surprisingly complicated!
 
     //--We start by leveraging the fact we have a calculated bbox that is "cheaper" than use of DistanceCalculator.
-    final IntersectCase bboxSect = enclosingBox.intersect(r,ctx);
-    if (bboxSect == IntersectCase.OUTSIDE || bboxSect == IntersectCase.WITHIN)
+    final SpatialRelation bboxSect = enclosingBox.relate(r, ctx);
+    if (bboxSect == SpatialRelation.DISJOINT || bboxSect == SpatialRelation.WITHIN)
       return bboxSect;
-    else if (bboxSect == IntersectCase.CONTAINS && enclosingBox.equals(r))//nasty identity edge-case
-      return IntersectCase.WITHIN;
+    else if (bboxSect == SpatialRelation.CONTAINS && enclosingBox.equals(r))//nasty identity edge-case
+      return SpatialRelation.WITHIN;
     //bboxSect is INTERSECTS or CONTAINS
-    //The result can be OUTSIDE, CONTAINS, or INTERSECTS (not WITHIN)
+    //The result can be DISJOINT, CONTAINS, or INTERSECTS (not WITHIN)
 
-    return intersectRectanglePhase2(r, bboxSect, ctx);
+    return relateRectanglePhase2(r, bboxSect, ctx);
   }
 
-  protected IntersectCase intersectRectanglePhase2(final Rectangle r, IntersectCase bboxSect, SpatialContext ctx) {
+  protected SpatialRelation relateRectanglePhase2(final Rectangle r, SpatialRelation bboxSect, SpatialContext ctx) {
     /*
      !! DOES NOT WORK WITH GEO CROSSING DATELINE OR WORLD-WRAP.
      TODO upgrade to handle crossing dateline, but not world-wrap; use some x-shifting code from RectangleImpl.
@@ -124,7 +124,7 @@ public class CircleImpl implements Circle {
     //At this point, the only thing we are certain of is that circle is *NOT* WITHIN r, since the bounding box of a
     // circle MUST be within r for the circle to be within r.
 
-    //--Quickly determine if they are OUTSIDE or not.
+    //--Quickly determine if they are DISJOINT or not.
     //see http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection/1879223#1879223
     final double closestX;
     double ctr_x = getXAxis();
@@ -150,33 +150,33 @@ public class CircleImpl implements Circle {
       double deltaY = Math.abs(ctr_y - closestY);
       double distYCirc = (ctr_y < closestY ? enclosingBox.getMaxY() - ctr_y : ctr_y - enclosingBox.getMinY());
       if (deltaY > distYCirc)
-        return IntersectCase.OUTSIDE;
+        return SpatialRelation.DISJOINT;
     } else if (ctr_y == closestY) {
       double deltaX = Math.abs(ctr_x - closestX);
       double distXCirc = (ctr_x < closestX ? enclosingBox.getMaxX() - ctr_x : ctr_x - enclosingBox.getMinX());
       if (deltaX > distXCirc)
-        return IntersectCase.OUTSIDE;
+        return SpatialRelation.DISJOINT;
     } else {
       //fallback on more expensive calculation
       didContainOnClosestXY = true;
       if(! contains(closestX,closestY) )
-        return IntersectCase.OUTSIDE;
+        return SpatialRelation.DISJOINT;
     }
 
-    //At this point we know that it's *NOT* OUTSIDE, so there is some level of intersection. It's *NOT* WITHIN either.
+    //At this point we know that it's *NOT* DISJOINT, so there is some level of intersection. It's *NOT* WITHIN either.
     // The only question left is whether circle CONTAINS r or simply intersects it.
 
     //If circle contains r, then its bbox MUST also CONTAIN r.
-    if (bboxSect != IntersectCase.CONTAINS)
-      return IntersectCase.INTERSECTS;
+    if (bboxSect != SpatialRelation.CONTAINS)
+      return SpatialRelation.INTERSECTS;
 
     //Find the farthest point of r away from the center of the circle. If that point is contained, then all of r is
     // contained.
     double farthestX = r.getMaxX() - ctr_x > ctr_x - r.getMinX() ? r.getMaxX() : r.getMinX();
     double farthestY = r.getMaxY() - ctr_y > ctr_y - r.getMinY() ? r.getMaxY() : r.getMinY();
     if (contains(farthestX,farthestY))
-      return IntersectCase.CONTAINS;
-    return IntersectCase.INTERSECTS;
+      return SpatialRelation.CONTAINS;
+    return SpatialRelation.INTERSECTS;
   }
 
   /**
@@ -190,17 +190,17 @@ public class CircleImpl implements Circle {
     return point.getX();
   }
 
-  public IntersectCase intersect(Circle circle, SpatialContext ctx) {
+  public SpatialRelation relate(Circle circle, SpatialContext ctx) {
     double crossDist = ctx.getDistCalc().distance(point, circle.getCenter());
     double aDist = distance, bDist = circle.getDistance();
     if (crossDist > aDist + bDist)
-      return IntersectCase.OUTSIDE;
+      return SpatialRelation.DISJOINT;
     if (crossDist < aDist && crossDist + bDist <= aDist)
-      return IntersectCase.CONTAINS;
+      return SpatialRelation.CONTAINS;
     if (crossDist < bDist && crossDist + aDist <= bDist)
-      return IntersectCase.WITHIN;
+      return SpatialRelation.WITHIN;
 
-    return IntersectCase.INTERSECTS;
+    return SpatialRelation.INTERSECTS;
   }
 
   @Override

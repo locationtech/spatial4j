@@ -23,7 +23,7 @@ import org.apache.lucene.spatial.base.distance.*;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.apache.lucene.spatial.base.shape.IntersectCase.*;
+import static org.apache.lucene.spatial.base.shape.SpatialRelation.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -72,38 +72,38 @@ public abstract class TestShapesGeo extends AbstractTestShapes {
 //      Circle c = ctx.makeCircle(0,90-distDeltaToPoleDEG-distDEG,dist);
 //      Rectangle cBBox = c.getBoundingBox();
 //      Rectangle r = ctx.makeRect(cBBox.getMaxX()*0.99,cBBox.getMaxX()+1,c.getCenter().getY(),c.getCenter().getY());
-//      assertEquals(INTERSECTS,c.getBoundingBox().intersect(r, ctx));
-//      assertEquals("dist != xy space",INTERSECTS,c.intersect(r,ctx));//once failed here
+//      assertEquals(INTERSECTS,c.getBoundingBox().relate(r, ctx));
+//      assertEquals("dist != xy space",INTERSECTS,c.relate(r,ctx));//once failed here
 //    }
 
-    assertEquals("wrong estimate",OUTSIDE,ctx.makeCircle(-166,59,5226.2).intersect(ctx.makeRect(36,66,23,23),ctx));
+    assertEquals("wrong estimate", DISJOINT,ctx.makeCircle(-166,59,5226.2).relate(ctx.makeRect(36, 66, 23, 23), ctx));
 
-    assertEquals("bad CONTAINS (dateline)",INTERSECTS,ctx.makeCircle(56,-50,12231.5).intersect(ctx.makeRect(108,26,39,48),ctx));
+    assertEquals("bad CONTAINS (dateline)",INTERSECTS,ctx.makeCircle(56,-50,12231.5).relate(ctx.makeRect(108, 26, 39, 48), ctx));
 
     assertEquals("bad CONTAINS (backwrap2)",INTERSECTS,
-        ctx.makeCircle(112,-3,degToDist(91)).intersect(ctx.makeRect(-163,29,-38,10),ctx));
+        ctx.makeCircle(112,-3,degToDist(91)).relate(ctx.makeRect(-163, 29, -38, 10), ctx));
 
     assertEquals("bad CONTAINS (r x-wrap)",INTERSECTS,
-        ctx.makeCircle(-139,47,degToDist(80)).intersect(ctx.makeRect(-180,180,-3,12),ctx));
+        ctx.makeCircle(-139,47,degToDist(80)).relate(ctx.makeRect(-180, 180, -3, 12), ctx));
 
     assertEquals("bad CONTAINS (pwrap)",INTERSECTS,
-        ctx.makeCircle(-139,47,degToDist(80)).intersect(ctx.makeRect(-180, 179, -3, 12), ctx));
+        ctx.makeCircle(-139,47,degToDist(80)).relate(ctx.makeRect(-180, 179, -3, 12), ctx));
 
     assertEquals("no-dist 1",WITHIN,
-        ctx.makeCircle(135,21,0).intersect(ctx.makeRect(-103,-154,-47,52),ctx));
+        ctx.makeCircle(135,21,0).relate(ctx.makeRect(-103, -154, -47, 52), ctx));
 
     assertEquals("bbox <= >= -90 bug",CONTAINS,
-        ctx.makeCircle(-64,-84,degToDist(124)).intersect(ctx.makeRect(-96,96,-10,-10),ctx));
+        ctx.makeCircle(-64,-84,degToDist(124)).relate(ctx.makeRect(-96, 96, -10, -10), ctx));
 
     //The horizontal axis line of a geo circle doesn't necessarily pass through c's ctr.
     assertEquals("c's horiz axis doesn't pass through ctr",INTERSECTS,
-        ctx.makeCircle(71,-44,degToDist(40)).intersect(ctx.makeRect(15,27,-62,-34),ctx));
+        ctx.makeCircle(71,-44,degToDist(40)).relate(ctx.makeRect(15, 27, -62, -34), ctx));
 
     assertEquals("pole boundary",INTERSECTS,
-        ctx.makeCircle(-100,-12,degToDist(102)).intersect(ctx.makeRect(143,175,4,32),ctx));
+        ctx.makeCircle(-100,-12,degToDist(102)).relate(ctx.makeRect(143, 175, 4, 32), ctx));
 
     assertEquals("full circle assert",CONTAINS,
-        ctx.makeCircle(-64,32,degToDist(180)).intersect(ctx.makeRect(47,47,-14,90),ctx));
+        ctx.makeCircle(-64,32,degToDist(180)).relate(ctx.makeRect(47, 47, -14, 90), ctx));
 
     //--Now proceed with systematic testing:
 

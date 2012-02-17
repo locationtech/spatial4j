@@ -18,7 +18,7 @@
 package org.apache.lucene.spatial.base.prefix.quad;
 
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTreeFactory;
-import org.apache.lucene.spatial.base.shape.IntersectCase;
+import org.apache.lucene.spatial.base.shape.SpatialRelation;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
@@ -194,14 +194,14 @@ public class QuadPrefixTree extends SpatialPrefixTree {
 
     int strlen = str.length();
     Rectangle rectangle = ctx.makeRect(cx - w, cx + w, cy - h, cy + h);
-    IntersectCase v = shape.intersect(rectangle, ctx);
-    if (IntersectCase.CONTAINS == v) {
+    SpatialRelation v = shape.relate(rectangle, ctx);
+    if (SpatialRelation.CONTAINS == v) {
       str.append(c);
       //str.append(SpatialPrefixGrid.COVER);
       matches.add(new QuadCell(str.toString(),v.transpose()));
-    } else if (IntersectCase.OUTSIDE == v) {
+    } else if (SpatialRelation.DISJOINT == v) {
       // nothing
-    } else { // IntersectCase.WITHIN, IntersectCase.INTERSECTS
+    } else { // SpatialRelation.WITHIN, SpatialRelation.INTERSECTS
       str.append(c);
 
       int nextLevel = level+1;
@@ -221,7 +221,7 @@ public class QuadPrefixTree extends SpatialPrefixTree {
       super(QuadPrefixTree.this, token);
     }
 
-    public QuadCell(String token, IntersectCase shapeRel) {
+    public QuadCell(String token, SpatialRelation shapeRel) {
       super(QuadPrefixTree.this, token);
       this.shapeRel = shapeRel;
     }

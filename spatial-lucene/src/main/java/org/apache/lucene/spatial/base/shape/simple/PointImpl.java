@@ -19,7 +19,7 @@ package org.apache.lucene.spatial.base.shape.simple;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.lucene.spatial.base.shape.IntersectCase;
+import org.apache.lucene.spatial.base.shape.SpatialRelation;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.apache.lucene.spatial.base.shape.Point;
@@ -56,10 +56,10 @@ public class PointImpl implements Point {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext ctx) {
+  public SpatialRelation relate(Shape other, SpatialContext ctx) {
     if (other instanceof Point)
-      return this.equals(other) ? IntersectCase.INTERSECTS : IntersectCase.OUTSIDE;
-    return other.intersect(this, ctx).transpose();
+      return this.equals(other) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
+    return other.relate(this, ctx).transpose();
   }
 
   @Override

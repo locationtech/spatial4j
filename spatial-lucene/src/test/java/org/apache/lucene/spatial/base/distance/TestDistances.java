@@ -20,7 +20,7 @@ package org.apache.lucene.spatial.base.distance;
 import org.apache.lucene.spatial.RandomSeed;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
-import org.apache.lucene.spatial.base.shape.IntersectCase;
+import org.apache.lucene.spatial.base.shape.SpatialRelation;
 import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.Rectangle;
 import org.junit.Before;
@@ -71,7 +71,7 @@ public class TestDistances {
       assertTrue(dc().distance(pCtr, pTgt) < d);
       //since the pairwise distance is less than d, a bounding box from ctr with d should contain pTgt.
       Rectangle r = dc().calcBoxByDistFromPt(pCtr, d, ctx);
-      assertEquals(IntersectCase.CONTAINS,r.intersect(pTgt,ctx));
+      assertEquals(SpatialRelation.CONTAINS,r.relate(pTgt, ctx));
       checkBBox(pCtr,d);
     }
 
@@ -107,7 +107,7 @@ public class TestDistances {
     Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
     double horizAxisLat = dc().calcBoxByDistFromPtHorizAxis(ctr,dist, ctx);
     if (!Double.isNaN(horizAxisLat))
-      assertTrue(r.intersect_yRange(horizAxisLat,horizAxisLat,ctx).intersects());
+      assertTrue(r.relate_yRange(horizAxisLat, horizAxisLat, ctx).intersects());
 
     //horizontal
     if (r.getWidth() >= 180) {

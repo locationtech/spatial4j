@@ -20,7 +20,7 @@ package com.googlecode.lucene.spatial.base.shape;
 import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
-import org.apache.lucene.spatial.base.shape.IntersectCase;
+import org.apache.lucene.spatial.base.shape.SpatialRelation;
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.shape.*;
 import org.apache.lucene.spatial.base.shape.Point;
@@ -61,11 +61,11 @@ public class JtsGeometry implements Shape {
   }
 
   @Override
-  public IntersectCase intersect(Shape other, SpatialContext ctx) {
+  public SpatialRelation relate(Shape other, SpatialContext ctx) {
     if (other instanceof Point) {
       Point pt = (Point)other;
       JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : ctx.makePoint(pt.getX(), pt.getY()));
-      return geo.contains(jtsPoint.getJtsPoint()) ? IntersectCase.INTERSECTS : IntersectCase.OUTSIDE;
+      return geo.contains(jtsPoint.getJtsPoint()) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
     }
 
     Rectangle ext = other.getBoundingBox();
@@ -73,13 +73,13 @@ public class JtsGeometry implements Shape {
       throw new IllegalArgumentException("the query shape must cover some area (not a line)");
     }
 
-    // Quick test if this is outside
+    // Quick test if this is disjoint
     Envelope gEnv = geo.getEnvelopeInternal();
     if (ext.getMinX() > gEnv.getMaxX() ||
         ext.getMaxX() < gEnv.getMinX() ||
         ext.getMinY() > gEnv.getMaxY() ||
         ext.getMaxY() < gEnv.getMinY()) {
-      return IntersectCase.OUTSIDE;
+      return SpatialRelation.DISJOINT;
     }
 
     if (other instanceof Circle) {
@@ -89,18 +89,18 @@ public class JtsGeometry implements Shape {
       int i = 0;
       for (Coordinate coord : coords) {
         i++;
-        IntersectCase sect = other.intersect(new PointImpl(coord.x, coord.y), ctx);
-        if (sect == IntersectCase.OUTSIDE)
+        SpatialRelation sect = other.relate(new PointImpl(coord.x, coord.y), ctx);
+        if (sect == SpatialRelation.DISJOINT)
           outside++;
         if (i != outside && outside != 0)//short circuit: partially outside, partially inside
-          return IntersectCase.INTERSECTS;
+          return SpatialRelation.INTERSECTS;
       }
       if (i == outside) {
-        return (intersect(other.getCenter(), ctx) == IntersectCase.OUTSIDE)
-            ? IntersectCase.OUTSIDE : IntersectCase.CONTAINS;
+        return (relate(other.getCenter(), ctx) == SpatialRelation.DISJOINT)
+            ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
       }
       assert outside == 0;
-      return IntersectCase.WITHIN;
+      return SpatialRelation.WITHIN;
     }
     
     Polygon qGeo = null;
@@ -121,22 +121,22 @@ public class JtsGeometry implements Shape {
 
     //fast algorithm, short-circuit
     if (!RectangleIntersects.intersects(qGeo, geo)) {
-      return IntersectCase.OUTSIDE;
+      return SpatialRelation.DISJOINT;
     }
 
     //slower algorithm
     IntersectionMatrix matrix = geo.relate(qGeo);
     assert ! matrix.isDisjoint();//since rectangle intersection was true, shouldn't be disjoint
     if (matrix.isCovers()) {
-      return IntersectCase.CONTAINS;
+      return SpatialRelation.CONTAINS;
     }
 
     if (matrix.isCoveredBy()) {
-      return IntersectCase.WITHIN;
+      return SpatialRelation.WITHIN;
     }
 
     assert matrix.isIntersects();
-    return IntersectCase.INTERSECTS;
+    return SpatialRelation.INTERSECTS;
   }
 
   @Override
