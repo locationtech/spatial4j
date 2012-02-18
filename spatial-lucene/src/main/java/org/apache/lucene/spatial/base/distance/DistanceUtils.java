@@ -103,7 +103,7 @@ public class DistanceUtils {
 
   /**
    * Return the coordinates of a vector that is the corner of a box (upper right or lower left), assuming a Rectangular
-   * coordinate system.  Note, this does not apply for points on a sphere or ellipse (although it could be used as an approximatation).
+   * coordinate system.  Note, this does not apply for points on a sphere or ellipse (although it could be used as an approximation).
    *
    * @param center     The center point
    * @param result Holds the result, potentially resizing if needed.
@@ -121,53 +121,10 @@ public class DistanceUtils {
     //We don't care about the power here,
     // b/c we are always in a rectangular coordinate system, so any norm can be used by
     //using the definition of sine
-    distance = SIN_45_AS_RADS * distance; // sin(Pi/4) == (2^0.5)/2 == opp/hyp == opp/distance, solve for opp, similarily for cosine
+    distance = SIN_45_AS_RADS * distance; // sin(Pi/4) == (2^0.5)/2 == opp/hyp == opp/distance, solve for opp, similarly for cosine
     for (int i = 0; i < center.length; i++) {
       result[i] = center[i] + distance;
     }
-    return result;
-  }
-
-  /**
-   * @param latCenter  In degrees
-   * @param lonCenter  In degrees
-   * @param distance The distance
-   * @param result A preallocated array to hold the results.  If null, a new one is constructed.
-   * @param upperRight If true, calculate the upper right corner, else the lower left
-   * @param sphereRadius The radius of the sphere to use.
-   * @return The Lat/Lon in degrees
-   *
-   * @see #latLonCornerRAD(double, double, double, double[], boolean, double)
-   */
-  public static double[] latLonCornerDEG(double latCenter, double lonCenter,
-                                         double distance, double[] result,
-                                         boolean upperRight, double sphereRadius) {
-    result = latLonCornerRAD(toRadians(latCenter), toRadians(lonCenter),
-        distance, result, upperRight, sphereRadius);
-    result[0] = Math.toDegrees(result[0]);
-    result[1] = Math.toDegrees(result[1]);
-    return result;
-  }
-
-  /**
-   * Uses Haversine to calculate the corner of a box (upper right or lower left) that is the <i>distance</i> away, given a sphere of the specified <i>radius</i>.
-   *
-   * NOTE: This is not the same as calculating a box that transcribes a circle of the given distance.
-   *
-   * @param latCenter  In radians
-   * @param lonCenter  In radians
-   * @param distance   The distance
-   * @param result A preallocated array to hold the results.  If null, a new one is constructed.
-   * @param upperRight If true, give lat/lon for the upper right corner, else lower left
-   * @param sphereRadius     The radius to use for the calculation
-   * @return The Lat/Lon in Radians
-   */
-  public static double[] latLonCornerRAD(double latCenter, double lonCenter,
-                                         double distance, double[] result, boolean upperRight, double sphereRadius) {
-    // Haversine formula
-    double brng = upperRight ? DEG_45_AS_RADS : DEG_225_AS_RADS;
-    result = pointOnBearingRAD(latCenter, lonCenter, distance, brng, result, sphereRadius);
-
     return result;
   }
 
