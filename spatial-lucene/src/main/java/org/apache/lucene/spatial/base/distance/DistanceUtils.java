@@ -276,7 +276,7 @@ public class DistanceUtils {
     double dist_rad = distance / radius;
     double dist_deg = Math.toDegrees(dist_rad);
 
-    if (dist_deg <= ctx.getBoundaryNudgeDegrees())
+    if (dist_deg == 0)
       return ctx.makeRect(lon,lon,lat,lat);
 
     if (dist_deg >= 180)//distance is >= opposite side of the globe
@@ -285,12 +285,6 @@ public class DistanceUtils {
     //--calc latitude bounds
     double latN_deg = lat + dist_deg;
     double latS_deg = lat - dist_deg;
-
-    //don't permit the north or south boundary to fall directly on a pole
-    if (latN_deg == 90)
-      latN_deg -= ctx.getBoundaryNudgeDegrees();
-    if (latS_deg == -90)
-      latS_deg += ctx.getBoundaryNudgeDegrees();
 
     if (latN_deg >= 90 || latS_deg <= -90) {//touches either pole
       //we have special logic for longitude
@@ -470,14 +464,4 @@ public class DistanceUtils {
     return radians * radius;
   }
 
-  public static double nudgeLatDEG(double lat, double boundaryNudgeDegrees) {
-    assert lat >= -90 && lat <= 90;
-    double max = 90 - boundaryNudgeDegrees;
-    if (lat > max)
-      return max;
-    double min = -90 + boundaryNudgeDegrees;
-    if (lat < min)
-      return min;
-    return lat;
-  }
 }

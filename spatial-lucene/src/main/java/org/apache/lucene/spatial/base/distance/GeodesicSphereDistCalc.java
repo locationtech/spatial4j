@@ -65,9 +65,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
   @Override
   public double calcBoxByDistFromPtHorizAxis(Point from, double distance, SpatialContext ctx) {
-    return DistanceUtils.nudgeLatDEG(
-        DistanceUtils.calcBoxByDistFromPtHorizAxisDEG(from.getY(), from.getX(), distance, radius),
-        ctx.getBoundaryNudgeDegrees());
+    return DistanceUtils.calcBoxByDistFromPtHorizAxisDEG(from.getY(), from.getX(), distance, radius);
   }
 
   @Override

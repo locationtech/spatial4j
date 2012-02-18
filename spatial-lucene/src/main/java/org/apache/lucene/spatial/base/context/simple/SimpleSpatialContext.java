@@ -112,12 +112,6 @@ public class SimpleSpatialContext extends SpatialContext {
 //        minY = Math.max(-90,Math.min(minY,90 - (maxY - 90)));
 //        maxY = 90;
 //      }
-      if (NUDGE && minY == maxY) {
-        if (maxY == -90)
-          maxY += getBoundaryNudgeDegrees();
-        else if (minY == 90)
-          minY -= getBoundaryNudgeDegrees();
-      }
 
     } else {
       //these normalizations probably won't do anything since it's not geo but should probably call them any way.
