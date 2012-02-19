@@ -642,77 +642,6 @@
   <component name="AntConfiguration">
     <defaultAnt bundledAnt="true" />
   </component>
-  <component name="ArtifactManager">
-    <artifact type="war" name="spatial-demo:war">
-      <output-path>$PROJECT_DIR$/spatial-demo/target</output-path>
-      <root id="archive" name="spatial-demo-0.1-SNAPSHOT-r${buildNumber}.war">
-        <element id="artifact" artifact-name="spatial-demo:war exploded" />
-      </root>
-    </artifact>
-    <artifact type="exploded-war" name="spatial-demo:war exploded">
-      <output-path>$PROJECT_DIR$/spatial-demo/target/spatial-demo-0.1-SNAPSHOT-r${buildNumber}</output-path>
-      <root id="root">
-        <element id="javaee-facet-resources" facet="spatial-demo/web/Web" />
-        <element id="directory" name="WEB-INF">
-          <element id="directory" name="classes">
-            <element id="module-output" name="spatial-demo" />
-          </element>
-          <element id="directory" name="lib">
-            <element id="archive" name="spatial-solr-0.1-SNAPSHOT-r${buildNumber}.jar">
-              <element id="module-output" name="spatial-solr" />
-            </element>
-            <element id="archive" name="spatial-lucene-0.1-SNAPSHOT-r${buildNumber}.jar">
-              <element id="module-output" name="spatial-lucene" />
-            </element>
-            <element id="library" level="project" name="Maven: commons-lang:commons-lang:2.5" />
-            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-core:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-queries:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-analyzers-common:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.6.1" />
-            <element id="library" level="project" name="Maven: org.apache.solr:solr-core:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.solr:solr-solrj:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.zookeeper:zookeeper:3.3.3" />
-            <element id="library" level="project" name="Maven: org.slf4j:log4j-over-slf4j:1.6.1" />
-            <element id="library" level="project" name="Maven: commons-httpclient:commons-httpclient:3.1" />
-            <element id="library" level="project" name="Maven: commons-codec:commons-codec:1.6" />
-            <element id="library" level="project" name="Maven: org.slf4j:jcl-over-slf4j:1.6.1" />
-            <element id="library" level="project" name="Maven: commons-io:commons-io:2.1" />
-            <element id="library" level="project" name="Maven: org.codehaus.woodstox:wstx-asl:3.2.7" />
-            <element id="library" level="project" name="Maven: org.apache.solr:solr-commons-csv:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.solr:solr-noggit:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-analyzers-phonetic:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-highlighter:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-memory:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-misc:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-queryparser:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-spatial:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-suggest:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: org.apache.lucene:lucene-grouping:4.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: commons-fileupload:commons-fileupload:1.2.1" />
-            <element id="library" level="project" name="Maven: com.google.guava:guava:r09" />
-            <element id="library" level="project" name="Maven: javax.servlet:servlet-api:2.4" />
-            <element id="archive" name="spatial-extras-0.1-SNAPSHOT-r${buildNumber}.jar">
-              <element id="module-output" name="spatial-extras" />
-            </element>
-            <element id="library" level="project" name="Maven: com.vividsolutions:jts:1.12" />
-            <element id="library" level="project" name="Maven: de.micromata.jak:JavaAPIforKml:2.2.0-SNAPSHOT" />
-            <element id="library" level="project" name="Maven: com.sun.xml.bind:jaxb-impl:2.2" />
-            <element id="library" level="project" name="Maven: javax.xml.bind:jaxb-api:2.2" />
-            <element id="library" level="project" name="Maven: javax.xml.stream:stax-api:1.0-2" />
-            <element id="library" level="project" name="Maven: javax.activation:activation:1.1" />
-            <element id="library" level="project" name="Maven: com.sun.xml.bind:jaxb-xjc:2.2" />
-            <element id="library" level="project" name="Maven: xmlunit:xmlunit:1.2" />
-            <element id="library" level="project" name="Maven: org.apache.wicket:wicket:1.4.17" />
-            <element id="library" level="project" name="Maven: org.apache.wicket:wicket-extensions:1.4.17" />
-            <element id="library" level="project" name="Maven: org.mortbay.jetty:jetty:6.1.25" />
-            <element id="library" level="project" name="Maven: org.mortbay.jetty:jetty-util:6.1.25" />
-            <element id="library" level="project" name="Maven: org.mortbay.jetty:servlet-api:2.5-20081211" />
-            <element id="library" level="project" name="Maven: org.mortbay.jetty:jetty-management:6.1.25" />
-          </element>
-        </element>
-      </root>
-    </artifact>
-  </component>
   <component name="BuildJarProjectSettings">
     <option name="BUILD_JARS_ON_MAKE" value="false" />
   </component>
@@ -894,6 +823,16 @@
     <option name="USE_PROJECT_PROFILE" value="true" />
     <version value="1.0" />
   </component>
+  <component name="IssueNavigationConfiguration">
+    <option name="links">
+      <list>
+        <IssueNavigationLink>
+          <option name="issueRegexp" value="[A-Z]+\-\d+" />
+          <option name="linkRegexp" value="https://issues.apache.org/jira/browse/$0" />
+        </IssueNavigationLink>
+      </list>
+    </option>
+  </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_STRING" value="-target 1.6" />
   </component>
@@ -1007,11 +946,14 @@
   <component name="ProjectDictionaryState">
     <dictionary name="dsmiley">
       <words>
+        <w>asin</w>
+        <w>atan</w>
         <w>bbox</w>
         <w>dups</w>
         <w>euclidian</w>
         <w>geohashes</w>
         <w>geospatial</w>
+        <w>preallocated</w>
         <w>solr's</w>
         <w>trie</w>
       </words>
@@ -1310,15 +1252,15 @@
         <root url="jar://$MAVEN_REPOSITORY$/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: junit:junit:4.7">
+    <library name="Maven: junit:junit:4.10">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.7/junit-4.7.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.10/junit-4.10.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.7/junit-4.7-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.10/junit-4.10-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.7/junit-4.7-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.10/junit-4.10-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.apache.ant:ant-junit:1.7.1">
@@ -1384,9 +1326,22 @@
       </CLASSES>
       <JAVADOC>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-analyzers-common/4.0-SNAPSHOT/lucene-analyzers-common-4.0-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-analyzers-common/4.0-SNAPSHOT/lucene-analyzers-common-4.0-20120218.182113-1-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-analyzers-common/4.0-SNAPSHOT/lucene-analyzers-common-4.0-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-analyzers-common/4.0-SNAPSHOT/lucene-analyzers-common-4.0-20120218.182113-1-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: org.apache.lucene:lucene-analyzers-kuromoji:4.0-SNAPSHOT">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-analyzers-kuromoji/4.0-SNAPSHOT/lucene-analyzers-kuromoji-4.0-SNAPSHOT.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-analyzers-kuromoji/4.0-SNAPSHOT/lucene-analyzers-kuromoji-4.0-SNAPSHOT-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-analyzers-kuromoji/4.0-SNAPSHOT/lucene-analyzers-kuromoji-4.0-SNAPSHOT-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.apache.lucene:lucene-analyzers-phonetic:4.0-SNAPSHOT">
@@ -1417,9 +1372,11 @@
       </CLASSES>
       <JAVADOC>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-core/4.0-SNAPSHOT/lucene-core-4.0-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-core/4.0-SNAPSHOT/lucene-core-4.0-20120218.182006-1-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-core/4.0-SNAPSHOT/lucene-core-4.0-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-core/4.0-SNAPSHOT/lucene-core-4.0-20120218.182006-1-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.apache.lucene:lucene-facet:4.0-SNAPSHOT">
@@ -1539,10 +1496,12 @@
       <JAVADOC>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-test-framework/4.0-SNAPSHOT/lucene-test-framework-4.0-SNAPSHOT-javadoc.jar!/" />
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-test-framework/4.0-SNAPSHOT/lucene-test-framework-4.0-20111223.151855-1-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-test-framework/4.0-SNAPSHOT/lucene-test-framework-4.0-20120218.182012-1-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-test-framework/4.0-SNAPSHOT/lucene-test-framework-4.0-SNAPSHOT-sources.jar!/" />
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-test-framework/4.0-SNAPSHOT/lucene-test-framework-4.0-20111223.151855-1-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-test-framework/4.0-SNAPSHOT/lucene-test-framework-4.0-20120218.182012-1-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.apache.lucene:lucene-xercesImpl:4.0-SNAPSHOT">
@@ -1551,9 +1510,11 @@
       </CLASSES>
       <JAVADOC>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-xercesImpl/4.0-SNAPSHOT/lucene-xercesImpl-4.0-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-xercesImpl/4.0-SNAPSHOT/lucene-xercesImpl-4.0-20120218.182144-1-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-xercesImpl/4.0-SNAPSHOT/lucene-xercesImpl-4.0-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-xercesImpl/4.0-SNAPSHOT/lucene-xercesImpl-4.0-20120218.182144-1-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.apache.solr:solr-commons-csv:4.0-SNAPSHOT">
@@ -1636,15 +1597,15 @@
         <root url="jar://$MAVEN_REPOSITORY$/org/apache/wicket/wicket/1.4.17/wicket-1.4.17-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: org.apache.zookeeper:zookeeper:3.3.3">
+    <library name="Maven: org.apache.zookeeper:zookeeper:3.3.4">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/zookeeper/zookeeper/3.3.3/zookeeper-3.3.3.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/zookeeper/zookeeper/3.3.4/zookeeper-3.3.4.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/zookeeper/zookeeper/3.3.3/zookeeper-3.3.3-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/zookeeper/zookeeper/3.3.4/zookeeper-3.3.4-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/apache/zookeeper/zookeeper/3.3.3/zookeeper-3.3.3-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/apache/zookeeper/zookeeper/3.3.4/zookeeper-3.3.4-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.codehaus.woodstox:wstx-asl:3.2.7">
@@ -1656,6 +1617,17 @@
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/org/codehaus/woodstox/wstx-asl/3.2.7/wstx-asl-3.2.7-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: org.hamcrest:hamcrest-core:1.1">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.mortbay.jetty:jetty-management:6.1.25">

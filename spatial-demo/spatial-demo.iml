@@ -21,8 +21,9 @@
       <sourceFolder url="file://$MODULE_DIR$/target/generated-sources/annotations" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target/classes" />
       <excludeFolder url="file://$MODULE_DIR$/target/maven-archiver" />
-      <excludeFolder url="file://$MODULE_DIR$/target/spatial-demo-0.1-SNAPSHOT-r537" />
+      <excludeFolder url="file://$MODULE_DIR$/target/spatial-demo-0.1-SNAPSHOT-r577" />
       <excludeFolder url="file://$MODULE_DIR$/target/surefire" />
+      <excludeFolder url="file://$MODULE_DIR$/target/test-classes" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -35,7 +36,8 @@
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.6.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.solr:solr-core:4.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.solr:solr-solrj:4.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.zookeeper:zookeeper:3.3.3" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.solr:solr-noggit:4.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.zookeeper:zookeeper:3.3.4" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:log4j-over-slf4j:1.6.1" level="project" />
     <orderEntry type="library" name="Maven: commons-httpclient:commons-httpclient:3.1" level="project" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.6" level="project" />
@@ -43,7 +45,7 @@
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.codehaus.woodstox:wstx-asl:3.2.7" level="project" />
     <orderEntry type="library" name="Maven: org.apache.solr:solr-commons-csv:4.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.solr:solr-noggit:4.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-analyzers-kuromoji:4.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-analyzers-phonetic:4.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-highlighter:4.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-memory:4.0-SNAPSHOT" level="project" />
@@ -71,7 +73,8 @@
     <orderEntry type="library" name="Maven: org.mortbay.jetty:jetty-util:6.1.25" level="project" />
     <orderEntry type="library" name="Maven: org.mortbay.jetty:servlet-api:2.5-20081211" level="project" />
     <orderEntry type="library" name="Maven: org.mortbay.jetty:jetty-management:6.1.25" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.7" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.10" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.slf4j:slf4j-simple:1.6.1" level="project" />
   </component>
 </module>
