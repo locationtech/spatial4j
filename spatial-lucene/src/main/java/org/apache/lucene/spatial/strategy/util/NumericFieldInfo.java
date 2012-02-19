@@ -18,6 +18,7 @@
 package org.apache.lucene.spatial.strategy.util;
 
 import org.apache.lucene.analysis.NumericTokenStream;
+import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.IndexableField;
@@ -29,8 +30,6 @@ public class NumericFieldInfo {
   public int precisionStep = 8; // same as solr default
   public boolean store = true;
   public boolean index = true;
-  public boolean omitNorms = true;
-  public boolean omitTF = true;
 
   public void setPrecisionStep( int p ) {
     precisionStep = p;
@@ -39,29 +38,14 @@ public class NumericFieldInfo {
   }
 
   public IndexableField createDouble( String name, double v ) {
-    FieldType fieldType = new FieldType();
+    if (!store && !index)
+      throw new IllegalArgumentException("field must be indexed or stored");
+
+    FieldType fieldType = new FieldType(DoubleField.TYPE);
     fieldType.setStored(store);
-    fieldType.setOmitNorms(omitNorms);
     fieldType.setIndexed(index);
-    fieldType.setTokenized(index);
+    fieldType.setNumericPrecisionStep(precisionStep);
+    return new DoubleField(name,v,fieldType);
 
-    if(store) {
-      Field f = new Field(name, v, fieldType);
-      if(index) {
-        NumericTokenStream ts = new NumericTokenStream(precisionStep);
-        ts.setDoubleValue(v);
-        f.setTokenStream(ts);
-      }
-      
-      return f;
-    }
-    
-    if(index) {
-      NumericTokenStream ts = new NumericTokenStream(precisionStep);
-      ts.setDoubleValue(v);
-      return new Field(name,ts,fieldType);
-    }
-
-    throw new IllegalArgumentException("field must be indexed or stored");
   }
 }
