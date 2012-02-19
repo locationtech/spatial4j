@@ -45,13 +45,13 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
   }
 
   @Override
-  public Point pointOnBearingRAD(Point from, double dist, double bearingRAD, SpatialContext ctx) {
+  public Point pointOnBearing(Point from, double dist, double bearingDEG, SpatialContext ctx) {
     //TODO avoid unnecessary double[] intermediate object
     if (dist == 0)
       return from;
     double[] latLon = DistanceUtils.pointOnBearingRAD(
         toRadians(from.getY()), toRadians(from.getX()),
-        dist, bearingRAD, null, radius);
+        toRadians(dist), toRadians(bearingDEG), null);
     return ctx.makePoint(Math.toDegrees(latLon[1]), Math.toDegrees(latLon[0]));
   }
 

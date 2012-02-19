@@ -135,7 +135,7 @@ public abstract class AbstractTestShapes {
           }
         }
         //test point contains
-        assertRelation(null, SpatialRelation.CONTAINS, r, ctx.makePoint(left,Y));
+        assertRelation(null, SpatialRelation.CONTAINS, r, ctx.makePoint(left, Y));
 
         //test disjoint
         for(double left2 = right+INCR; left2 - left < 360; left2 += INCR) {
@@ -144,7 +144,7 @@ public abstract class AbstractTestShapes {
             assertRelation(null, SpatialRelation.DISJOINT, r, r2);
 
             //test point disjoint
-            assertRelation(null, SpatialRelation.DISJOINT, r, ctx.makePoint(left2,Y));
+            assertRelation(null, SpatialRelation.DISJOINT, r, ctx.makePoint(left2, Y));
           }
         }
         //test intersect
@@ -174,7 +174,7 @@ public abstract class AbstractTestShapes {
       assertEqualsRatio(msg, bbox.getHeight(), dist * 2);
       assertEqualsRatio(msg, bbox.getWidth(), dist * 2);
     }
-    assertRelation(msg, CONTAINS, c , c.getCenter());
+    assertRelation(msg, CONTAINS, c, c.getCenter());
     assertRelation(msg, CONTAINS, bbox, c);
   }
 
@@ -243,8 +243,8 @@ public abstract class AbstractTestShapes {
 
   private Point randomPointWithin(Random random, Circle c, SpatialContext ctx) {
     double d = c.getDistance() * random.nextDouble();
-    double angleRAD = Math.toRadians(360*random.nextDouble());
-    Point p = ctx.getDistCalc().pointOnBearingRAD(c.getCenter(),d,angleRAD,ctx);
+    double angleDEG = 360*random.nextDouble();
+    Point p = ctx.getDistCalc().pointOnBearing(c.getCenter(), d, angleDEG, ctx);
     assertEquals(CONTAINS,c.relate(p, ctx));
     return p;
   }

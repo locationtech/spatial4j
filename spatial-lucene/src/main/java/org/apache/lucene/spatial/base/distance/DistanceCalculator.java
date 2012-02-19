@@ -26,7 +26,7 @@ public interface DistanceCalculator {
   public double distance(Point from, Point to);
   public double distance(Point from, double toX, double toY);
 
-  public Point pointOnBearingRAD(Point from, double dist, double bearingRAD, SpatialContext ctx);
+  public Point pointOnBearing(Point from, double dist, double bearingDEG, SpatialContext ctx);
   
   /**
    * Converts a distance to radians (multiples of the radius). A spherical

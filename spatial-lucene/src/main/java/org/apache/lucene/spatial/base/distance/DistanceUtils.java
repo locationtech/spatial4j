@@ -23,7 +23,8 @@ import org.apache.lucene.spatial.base.shape.Rectangle;
 import static java.lang.Math.toRadians;
 
 /**
- * Originally from Lucene 3x's old spatial contrib module. It has been modified here.
+ * Various distance calculations and constants.
+ * Originally from Lucene 3x's old spatial module. It has been modified here.
  */
 public class DistanceUtils {
 
@@ -45,13 +46,13 @@ public class DistanceUtils {
    * [1] http://en.wikipedia.org/wiki/Earth_radius
    */
   public static final double EARTH_MEAN_RADIUS_KM = 6371.0087714;
-  public static final double EARTH_EQUITORIAL_RADIUS_KM = 6378.1370;
+  public static final double EARTH_EQUATORIAL_RADIUS_KM = 6378.1370;
 
   public static final double EARTH_MEAN_RADIUS_MI = EARTH_MEAN_RADIUS_KM * KM_TO_MILES;
-  public static final double EARTH_EQUATORIAL_RADIUS_MI = EARTH_EQUITORIAL_RADIUS_KM * KM_TO_MILES;
+  public static final double EARTH_EQUATORIAL_RADIUS_MI = EARTH_EQUATORIAL_RADIUS_KM * KM_TO_MILES;
 
   /**
-   * Calculate the p-norm (i.e. length) beteen two vectors
+   * Calculate the p-norm (i.e. length) between two vectors
    *
    * @param vec1  The first vector
    * @param vec2  The second vector
@@ -130,23 +131,24 @@ public class DistanceUtils {
 
   /**
    * Given a start point (startLat, startLon) and a bearing on a sphere of radius <i>sphereRadius</i>, return the destination point.
+   *
+   *
    * @param startLat The starting point latitude, in radians
    * @param startLon The starting point longitude, in radians
-   * @param distance The distance to travel along the bearing.  The units are assumed to be the same as the sphereRadius units, both of which is up to the caller to know
-   * @param bearingRAD The bearing, in radians.  North is a 0 deg. bearing, east is 90 deg, south is 180 deg, west is 270 deg.
+   * @param distanceRAD The distance to travel along the bearing in radians.
+   * @param bearingRAD The bearing, in radians.  North is a 0, moving clockwise till radians(360).
    * @param result A preallocated array to hold the results.  If null, a new one is constructed.
-   * @param sphereRadius The radius of the sphere to use for the calculation.
    * @return The destination point, in radians.  First entry is latitude, second is longitude
    */
-  public static double[] pointOnBearingRAD(double startLat, double startLon, double distance, double bearingRAD, double[] result, double sphereRadius) {
+  public static double[] pointOnBearingRAD(double startLat, double startLon, double distanceRAD, double bearingRAD, double[] result) {
     /*
  	lat2 = asin(sin(lat1)*cos(d/R) + cos(lat1)*sin(d/R)*cos(θ))
   	lon2 = lon1 + atan2(sin(θ)*sin(d/R)*cos(lat1), cos(d/R)−sin(lat1)*sin(lat2))
 
      */
-    double cosAngDist = Math.cos(distance / sphereRadius);
+    double cosAngDist = Math.cos(distanceRAD);
     double cosStartLat = Math.cos(startLat);
-    double sinAngDist = Math.sin(distance / sphereRadius);
+    double sinAngDist = Math.sin(distanceRAD);
     double sinStartLat = Math.sin(startLat);
     double lat2 = Math.asin(sinStartLat * cosAngDist +
             cosStartLat * sinAngDist * Math.cos(bearingRAD));
@@ -157,7 +159,7 @@ public class DistanceUtils {
     /*lat2 = (lat2*180)/Math.PI;
     lon2 = (lon2*180)/Math.PI;*/
     //From Lucene.  Move back to Lucene when synced
-    // normalize long first
+    // normalize lon first
     if (result == null || result.length != 2){
       result = new double[2];
     }
@@ -171,7 +173,7 @@ public class DistanceUtils {
   }
 
   /**
-   * @param latLng The lat/lon, in radians. lat in position 0, long in position 1
+   * @param latLng The lat/lon, in radians. lat in position 0, lon in position 1
    */
   public static void normLatRAD(double[] latLng) {
 
@@ -196,8 +198,9 @@ public class DistanceUtils {
   /**
    * Returns a normalized Lng rectangle shape for the bounding box
    *
-   * @param latLng The lat/lon, in radians, lat in position 0, long in position 1
+   * @param latLng The lat/lon, in radians, lat in position 0, lon in position 1
    */
+  @Deprecated
   public static void normLngRAD(double[] latLng) {
     if (latLng[1] > DEG_180_AS_RADS) {
       latLng[1] = -1.0 * (DEG_180_AS_RADS - (latLng[1] - DEG_180_AS_RADS));

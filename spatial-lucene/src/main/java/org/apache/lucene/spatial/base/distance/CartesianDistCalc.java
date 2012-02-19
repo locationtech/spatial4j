@@ -50,9 +50,10 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   }
 
   @Override
-  public Point pointOnBearingRAD(Point from, double dist, double bearingRAD, SpatialContext ctx) {
+  public Point pointOnBearing(Point from, double dist, double bearingDEG, SpatialContext ctx) {
     if (dist == 0)
       return from;
+    double bearingRAD = Math.toDegrees(bearingDEG);
     double x = Math.sin(bearingRAD) * dist;
     double y = Math.cos(bearingRAD) * dist;
     return ctx.makePoint(from.getX()+x, from.getY()+y);

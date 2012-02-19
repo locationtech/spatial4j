@@ -197,13 +197,12 @@ public class TestDistances {
   private void testDistCalcPointOnBearing(double dist) {
     for(int angDEG = 0; angDEG < 360; angDEG += random.nextInt(20)+1) {
       Point c = ctx.makePoint(random.nextInt(360),-90+random.nextInt(181));
-      double angRAD = Math.toRadians(angDEG);
 
       //0 distance means same point
-      Point p2 = dc().pointOnBearingRAD(c, 0, angRAD, ctx);
+      Point p2 = dc().pointOnBearing(c, 0, angDEG, ctx);
       assertEquals(c,p2);
 
-      p2 = dc().pointOnBearingRAD(c, dist, angRAD, ctx);
+      p2 = dc().pointOnBearing(c, dist, angDEG, ctx);
       double calcDist = dc().distance(c, p2);
       assertEqualsRatio(dist, calcDist);
     }
@@ -257,9 +256,10 @@ public class TestDistances {
   }
 
   private void assertDistToRadians(double dist) {
+    double radius = ctx.getUnits().earthRadius();
     assertEquals(
-        DistanceUtils.pointOnBearingRAD(0, 0, dist, DistanceUtils.DEG_90_AS_RADS, null, ctx.getUnits().earthRadius())[1],
-        DistanceUtils.dist2Radians(dist,ctx.getUnits().earthRadius()),10e-5);
+        DistanceUtils.pointOnBearingRAD(0, 0, DistanceUtils.dist2Radians(dist, radius), DistanceUtils.DEG_90_AS_RADS, null)[1],
+        DistanceUtils.dist2Radians(dist, radius),10e-5);
   }
 
   private Point pLL(double lat, double lon) {
