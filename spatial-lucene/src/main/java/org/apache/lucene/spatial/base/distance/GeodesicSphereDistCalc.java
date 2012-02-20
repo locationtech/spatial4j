@@ -51,7 +51,8 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
       return from;
     double[] latLon = DistanceUtils.pointOnBearingRAD(
         toRadians(from.getY()), toRadians(from.getX()),
-        toRadians(dist), toRadians(bearingDEG), null);
+        DistanceUtils.dist2Radians(dist,ctx.getUnits().earthRadius()),
+        toRadians(bearingDEG), null);
     return ctx.makePoint(Math.toDegrees(latLon[1]), Math.toDegrees(latLon[0]));
   }
 
