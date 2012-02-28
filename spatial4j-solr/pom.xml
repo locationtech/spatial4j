@@ -20,21 +20,21 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <artifactId>lucene-spatial-parent</artifactId>
-		<groupId>org.apache.lucene.spatial</groupId>
-		<version>0.1-SNAPSHOT</version>
+    <groupId>com.spatial4j</groupId>
+    <artifactId>spatial4j-parent</artifactId>
+    <version>0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   
-	<groupId>org.apache.lucene.spatial</groupId>
-  <artifactId>spatial-solr</artifactId>
-	<version>0.1-SNAPSHOT</version>
-	
+  <groupId>com.spatial4j</groupId>
+  <artifactId>spatial4j-solr</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  
   <name>Spatial - Solr</name>
   <description>
     Solr spatial stuff...
   </description>
-  <packaging>jar</packaging>  
+  <packaging>jar</packaging>
 
   <dependencies>
 
@@ -50,8 +50,8 @@
     </dependency>
 
 	  <dependency>
-		  <groupId>org.apache.lucene.spatial</groupId>
-	    <artifactId>lucene-spatial-strategy</artifactId>
+      <groupId>com.spatial4j</groupId>
+      <artifactId>lucene-spatial-module</artifactId>
 	    <version>${project.version}</version>
 	  </dependency>
 

@@ -20,20 +20,21 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <artifactId>lucene-spatial-parent</artifactId>
-    <groupId>org.apache.lucene.spatial</groupId>
+    <groupId>com.spatial4j</groupId>
+    <artifactId>spatial4j-parent</artifactId>
     <version>0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   
-  <groupId>org.apache.lucene.spatial</groupId>
-  <artifactId>lucene-spatial-strategy</artifactId>
+  <groupId>com.spatial4j</groupId>  
+  <artifactId>spatial4j</artifactId>
   <version>0.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
-  <name>Lucene Spatial Strategies</name>
-  <description>    
-  	Spatial Strategies for Apache Lucene
+  
+  <name>Spatial4J</name>
+  <description>
+    Core Spatial 
   </description>
+  <packaging>jar</packaging>
 
   <dependencies>
 
@@ -42,46 +43,11 @@
       <artifactId>commons-lang</artifactId>
       <version>2.5</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>lucene-spatial-base</artifactId>
-      <version>0.1-SNAPSHOT</version>
-    </dependency>
     
-    <!-- LUCENE -->
-    <!--
-    We must put lucene-test-framework before lucene-core.
-    https://issues.apache.org/jira/browse/SOLR-3048
-    -->
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-test-framework</artifactId>
-      <version>${lucene.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-core</artifactId>
-      <version>${lucene.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-queries</artifactId>
-      <version>${lucene.version}</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-analyzers-common</artifactId>
-      <version>${lucene.version}</version>
-    </dependency>
-
   </dependencies>
-
+  
   <build>
+    
     <plugins>
       
       <plugin>
@@ -99,13 +65,5 @@
       </plugin>
       
     </plugins>
-    
-    <sourceDirectory>src/java</sourceDirectory>
-    <testSourceDirectory>src/test</testSourceDirectory>
-    <testResources>
-      <testResource>
-        <directory>src/test-files</directory>
-      </testResource>
-    </testResources>
   </build>
 </project>

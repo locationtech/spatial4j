@@ -20,32 +20,56 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <artifactId>lucene-spatial-parent</artifactId>
-    <groupId>org.apache.lucene.spatial</groupId>
+    <groupId>com.spatial4j</groupId>
+    <artifactId>spatial4j-parent</artifactId>
     <version>0.1-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
   
-  <groupId>org.apache.lucene.spatial</groupId>
-  <artifactId>lucene-spatial-base</artifactId>
-  <version>0.1-SNAPSHOT</version>
-  
-  <name>Lucene Spatial Base</name>
-  <description>
-    Core Spatial 
-  </description>
-  <packaging>jar</packaging>
+  <groupId>com.spatial4j</groupId>
+  <artifactId>lucene-spatial-module</artifactId>
+  <name>The Lucene Stuff (will be at ASF)</name>
 
   <dependencies>
 
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.5</version>
+      <groupId>com.spatial4j</groupId>
+      <artifactId>spatial4j</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    
+    <!-- LUCENE -->
+    <!--
+    We must put lucene-test-framework before lucene-core.
+    https://issues.apache.org/jira/browse/SOLR-3048
+    -->
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-test-framework</artifactId>
+      <version>${lucene.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+      <version>${lucene.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-queries</artifactId>
+      <version>${lucene.version}</version>
     </dependency>
     
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-analyzers-common</artifactId>
+      <version>${lucene.version}</version>
+    </dependency>
+
   </dependencies>
-  
+
   <build>
     <sourceDirectory>src/java</sourceDirectory>
     <testSourceDirectory>src/test</testSourceDirectory>
@@ -54,23 +78,5 @@
         <directory>src/test-files</directory>
       </testResource>
     </testResources>
-    
-    <plugins>
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.3.1</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      
-    </plugins>
   </build>
 </project>
