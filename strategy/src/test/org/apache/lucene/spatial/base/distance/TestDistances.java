@@ -31,9 +31,7 @@ import java.util.Random;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author David Smiley - dsmiley@mitre.org
- */
+
 public class TestDistances {
 
   private final Random random = new Random(RandomSeed.seed());

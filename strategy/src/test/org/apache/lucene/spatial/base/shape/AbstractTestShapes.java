@@ -31,9 +31,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-/**
- * @author David Smiley - dsmiley@mitre.org
- */
+
 public abstract class AbstractTestShapes {
   protected Random random;
 
