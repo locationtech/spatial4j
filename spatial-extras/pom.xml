@@ -46,7 +46,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>spatial-lucene</artifactId>
+      <artifactId>lucene-spatial-strategy</artifactId>
       <type>test-jar</type>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -54,7 +54,7 @@
 
     <dependency>
       <groupId>org.apache.lucene.spatial</groupId>
-      <artifactId>spatial-lucene</artifactId>
+      <artifactId>lucene-spatial-strategy</artifactId>
       <version>${project.version}</version>
     </dependency>
 

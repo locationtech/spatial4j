@@ -6,7 +6,7 @@
 	<groupId>org.apache.lucene.spatial</groupId>
 	<version>0.1-SNAPSHOT</version>
 	
-  <name>Lucene Spatial</name>
+  <name>LSP - Lucene Spatial Playground</name>
   <description>
    Lucene Spatial Playground
   </description>
@@ -111,6 +111,7 @@
       <!-- Add SVN Revision To A JAR Manifest
        - http://maven.apache.org/plugin-developers/cookbook/add-svn-revision-to-manifest.html
       -->
+      <!--
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
@@ -128,7 +129,7 @@
           <doUpdate>false</doUpdate>
         </configuration>
       </plugin>
-      
+      -->
     </plugins>  
   </build>
 
@@ -296,7 +297,8 @@
   </profiles>
 
   <modules>
-    <module>spatial-lucene</module>
+    <module>base</module>
+    <module>strategy</module>
     <module>spatial-solr</module>
     <module>spatial-extras</module>
     <module>spatial-demo</module>
