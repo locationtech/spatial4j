@@ -46,6 +46,13 @@
     </dependency>
     <dependency>
       <groupId>org.apache.lucene.spatial</groupId>
+      <artifactId>lucene-spatial-base</artifactId>
+      <type>test-jar</type>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene.spatial</groupId>
       <artifactId>lucene-spatial-strategy</artifactId>
       <type>test-jar</type>
       <version>${project.version}</version>
