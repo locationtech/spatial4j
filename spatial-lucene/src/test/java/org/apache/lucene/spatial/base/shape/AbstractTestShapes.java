@@ -225,7 +225,7 @@ public abstract class AbstractTestShapes {
         default: fail(""+ic);
       }
     }
-    System.out.println("Laps: "+laps);
+    //System.out.println("Laps: "+laps);
 
     //TODO deliberately test INTERSECTS based on known intersection point
   }
