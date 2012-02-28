@@ -70,7 +70,7 @@
   </dependencies>
 
   <build>
-    <finalName>${project.artifactId}-${project.version}-r${buildNumber}</finalName>
+    <finalName>${project.artifactId}-${project.version}</finalName>
   
     <plugins>
       
@@ -108,28 +108,6 @@
         </configuration>
       </plugin>
 
-      <!-- Add SVN Revision To A JAR Manifest
-       - http://maven.apache.org/plugin-developers/cookbook/add-svn-revision-to-manifest.html
-      -->
-      <!--
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>1.0</version>
-        <executions>
-          <execution>
-            <phase>validate</phase>
-            <goals>
-              <goal>create</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <doCheck>false</doCheck>
-          <doUpdate>false</doUpdate>
-        </configuration>
-      </plugin>
-      -->
     </plugins>  
   </build>
 

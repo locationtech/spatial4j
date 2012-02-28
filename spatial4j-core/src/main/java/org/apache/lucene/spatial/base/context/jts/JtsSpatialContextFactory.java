@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.lucene.spatial.base.context;
+package org.apache.lucene.spatial.base.context.jts;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
 import org.apache.lucene.spatial.base.context.SpatialContextFactory;

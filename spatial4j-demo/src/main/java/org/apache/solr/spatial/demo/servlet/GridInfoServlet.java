@@ -1,8 +1,8 @@
 package org.apache.solr.spatial.demo.servlet;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.commons.io.IOUtils;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.io.sample.SampleData;
 import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;

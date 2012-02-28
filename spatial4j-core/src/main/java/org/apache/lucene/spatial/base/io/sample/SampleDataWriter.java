@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.lucene.spatial.base.io.sample;
+package org.apache.lucene.spatial.base.io.sample;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,9 +24,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.shape.Shape;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;

@@ -15,11 +15,8 @@
  * limitations under the License.
  */
 
-package com.googlecode.lucene.spatial.base.context;
+package org.apache.lucene.spatial.base.context.jts;
 
-import com.googlecode.lucene.spatial.base.shape.JtsEnvelope;
-import com.googlecode.lucene.spatial.base.shape.JtsGeometry;
-import com.googlecode.lucene.spatial.base.shape.JtsPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -37,6 +34,7 @@ import org.apache.lucene.spatial.base.shape.Shape;
 import org.apache.lucene.spatial.base.shape.simple.CircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.GeoCircleImpl;
 import org.apache.lucene.spatial.base.shape.simple.RectangleImpl;
+import org.apache.lucene.spatial.base.shape.jts.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

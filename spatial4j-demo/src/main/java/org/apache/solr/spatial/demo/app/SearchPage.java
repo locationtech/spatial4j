@@ -2,6 +2,7 @@ package org.apache.solr.spatial.demo.app;
 
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.prefix.Node;
 import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
 import org.apache.lucene.spatial.base.prefix.geohash.GeohashPrefixTree;
@@ -47,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Throwables;
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 
 import java.io.StringWriter;
 import java.net.MalformedURLException;

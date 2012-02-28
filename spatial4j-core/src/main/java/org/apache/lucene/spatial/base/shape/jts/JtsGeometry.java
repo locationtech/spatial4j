@@ -15,15 +15,16 @@
  * limitations under the License.
  */
 
-package com.googlecode.lucene.spatial.base.shape;
+package org.apache.lucene.spatial.base.shape.jts;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
+
+import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.SpatialRelation;
 import org.apache.lucene.spatial.base.context.SpatialContext;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
 import org.apache.lucene.spatial.base.shape.*;
-import org.apache.lucene.spatial.base.shape.Point;
 import org.apache.lucene.spatial.base.shape.simple.PointImpl;
 
 public class JtsGeometry implements Shape {

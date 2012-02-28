@@ -2,13 +2,12 @@ package org.apache.solr.spatial.demo;
 
 import java.io.File;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContextFactory;
+import org.apache.lucene.spatial.base.context.jts.JtsSpatialContextFactory;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
 
-import com.googlecode.lucene.spatial.base.context.JtsSpatialContext;
 
 public class StartDemo
 {

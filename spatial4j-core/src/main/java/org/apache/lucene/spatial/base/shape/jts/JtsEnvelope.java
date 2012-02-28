@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.lucene.spatial.base.shape;
+package org.apache.lucene.spatial.base.shape.jts;
 
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.lucene.spatial.base.shape.SpatialRelation;
