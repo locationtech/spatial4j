@@ -3,7 +3,7 @@ Overview
 
 h1. MODULES OVERVIEW
 
-* spatial4j-core
+h2. spatial4j-core
 The is the heart of the codebase. The code is broadly divided into 'base' and 'strategies'. It also contains benchmark
 code and a fair amount of tests.
 
@@ -14,9 +14,10 @@ Major pieces in 'base':
 ** Prefix/Grid/Tree interface and implementations.
 
 
-* Spatial-solr
+h2. Spatial-solr
 Ads Solr support on top of the Spatial-lucene module.
+This will eventually be included directly in lucene
 
-* Spatial-demo
+h2. Spatial-demo
 Contains a demo web application using Spatial-solr.  Consumes sample data and geonames.
 See the provided README.txt in there for instructions to try it out.
