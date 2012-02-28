@@ -2,15 +2,15 @@ package org.apache.solr.spatial.demo;
 
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 import de.micromata.opengis.kml.v_2_2_0.*;
-import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
-import org.apache.lucene.spatial.base.context.simple.SimpleSpatialContext;
-import org.apache.lucene.spatial.base.prefix.Node;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
-import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
-import org.apache.lucene.spatial.base.shape.Rectangle;
-import org.apache.lucene.spatial.base.shape.Shape;
-import org.apache.lucene.spatial.base.shape.jts.JtsGeometry;
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.context.simple.SimpleSpatialContext;
+import com.spatial4j.core.prefix.Node;
+import com.spatial4j.core.prefix.SpatialPrefixTree;
+import com.spatial4j.core.prefix.quad.QuadPrefixTree;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.jts.JtsGeometry;
 
 import java.io.File;
 import java.util.ArrayList;

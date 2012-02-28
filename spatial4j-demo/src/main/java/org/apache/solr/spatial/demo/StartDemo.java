@@ -2,7 +2,7 @@ package org.apache.solr.spatial.demo;
 
 import java.io.File;
 
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContextFactory;
+import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;

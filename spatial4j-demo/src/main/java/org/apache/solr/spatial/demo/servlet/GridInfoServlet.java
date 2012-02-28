@@ -2,14 +2,14 @@ package org.apache.solr.spatial.demo.servlet;
 
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.commons.io.IOUtils;
-import org.apache.lucene.spatial.base.context.jts.JtsSpatialContext;
-import org.apache.lucene.spatial.base.io.sample.SampleData;
-import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
-import org.apache.lucene.spatial.base.prefix.SpatialPrefixTree;
-import org.apache.lucene.spatial.base.prefix.geohash.GeohashPrefixTree;
-import org.apache.lucene.spatial.base.prefix.quad.QuadPrefixTree;
-import org.apache.lucene.spatial.base.query.SpatialArgs;
-import org.apache.lucene.spatial.base.shape.Shape;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.io.sample.SampleData;
+import com.spatial4j.core.io.sample.SampleDataReader;
+import com.spatial4j.core.prefix.SpatialPrefixTree;
+import com.spatial4j.core.prefix.geohash.GeohashPrefixTree;
+import com.spatial4j.core.prefix.quad.QuadPrefixTree;
+import com.spatial4j.core.query.SpatialArgs;
+import com.spatial4j.core.shape.Shape;
 import org.apache.solr.spatial.demo.KMLHelper;
 
 import javax.servlet.ServletConfig;

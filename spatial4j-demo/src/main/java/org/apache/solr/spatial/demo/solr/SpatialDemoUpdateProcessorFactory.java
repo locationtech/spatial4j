@@ -1,8 +1,8 @@
 package org.apache.solr.spatial.demo.solr;
 
-import org.apache.lucene.spatial.base.context.SpatialContext;
-import org.apache.lucene.spatial.base.context.SpatialContextFactory;
-import org.apache.lucene.spatial.base.shape.Shape;
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.shape.Shape;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.request.SolrQueryRequest;

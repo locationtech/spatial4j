@@ -4,8 +4,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.spatial.base.io.sample.SampleData;
-import org.apache.lucene.spatial.base.io.sample.SampleDataReader;
+import com.spatial4j.core.io.sample.SampleData;
+import com.spatial4j.core.io.sample.SampleDataReader;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
