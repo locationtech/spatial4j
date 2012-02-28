@@ -21,47 +21,38 @@
   
   <parent>
     <artifactId>lucene-spatial-parent</artifactId>
-		<groupId>org.apache.lucene.spatial</groupId>
-		<version>0.1-SNAPSHOT</version>
+    <groupId>org.apache.lucene.spatial</groupId>
+    <version>0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   
-	<groupId>org.apache.lucene.spatial</groupId>
-  <artifactId>spatial-solr</artifactId>
-	<version>0.1-SNAPSHOT</version>
-	
-  <name>Spatial - Solr</name>
+  <groupId>org.apache.lucene.spatial</groupId>
+  <artifactId>lucene-spatial-base</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  
+  <name>Lucene Spatial Base</name>
   <description>
-    Solr spatial stuff...
+    Core Spatial 
   </description>
-  <packaging>jar</packaging>  
+  <packaging>jar</packaging>
 
   <dependencies>
 
-    <!--
-    We must have *-test-framework before *-core on the classpath.
-    https://issues.apache.org/jira/browse/SOLR-3048
-    -->
     <dependency>
-      <groupId>org.apache.solr</groupId>
-      <artifactId>solr-test-framework</artifactId>
-      <version>${lucene.version}</version>
-      <scope>test</scope>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.5</version>
     </dependency>
-
-	  <dependency>
-		  <groupId>org.apache.lucene.spatial</groupId>
-	    <artifactId>lucene-spatial-strategy</artifactId>
-	    <version>${project.version}</version>
-	  </dependency>
-
-	  <dependency>
-		  <groupId>org.apache.solr</groupId>
-		  <artifactId>solr-core</artifactId>
-			<version>${lucene.version}</version>
-	  </dependency>
-
-    <!-- TESTING -->
+    
   </dependencies>
   
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <testSourceDirectory>src/test</testSourceDirectory>
+    <testResources>
+      <testResource>
+        <directory>src/test-files</directory>
+      </testResource>
+    </testResources>
+  </build>
 </project>
