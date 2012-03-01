@@ -2,6 +2,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+  
+  
   <artifactId>spatial4j-parent</artifactId>
   <groupId>com.spatial4j</groupId>
   <version>0.1-SNAPSHOT</version>
@@ -10,6 +17,21 @@
   <description>
    Java Spatial Library (Parent POM)
   </description>
+  
+  <url>http://spatial4j.com</url>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>    
+  	<connection>scm:git:git@github.com:spatial4j/spatial4j.git</connection>
+    <developerConnection>scm:git:git@github.com:spatial4j/spatial4j.git</developerConnection>
+    <url>git@github.com:spatial4j/spatial4j.git</url>
+  </scm>
+  
   <packaging>pom</packaging>
 
   <properties>
@@ -27,12 +49,6 @@
     <lucene.version>4.0-SNAPSHOT</lucene.version>
     
   </properties>
-
-  <scm>
-    <connection>scm:svn:https://lucene-spatial-playground.googlecode.com/svn/trunk</connection>
-    <developerConnection>scm:svn:https://lucene-spatial-playground.googlecode.com/svn/trunk</developerConnection>
-    <url>https://lucene-spatial-playground.googlecode.com/svn/trunk</url>
-  </scm>
 
   <dependencyManagement>
     <dependencies>
