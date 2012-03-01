@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.prefix.geohash;
+package com.spatial4j.core.util;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Rectangle;

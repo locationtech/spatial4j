@@ -3,12 +3,13 @@ package org.apache.solr.spatial.demo.app;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.prefix.Node;
-import com.spatial4j.core.prefix.SpatialPrefixTree;
-import com.spatial4j.core.prefix.geohash.GeohashPrefixTree;
 import com.spatial4j.core.query.SpatialArgs;
 import com.spatial4j.core.query.SpatialOperation;
 import com.spatial4j.core.shape.Shape;
+
+import org.apache.lucene.spatial.strategy.prefix.tree.GeohashPrefixTree;
+import org.apache.lucene.spatial.strategy.prefix.tree.Node;
+import org.apache.lucene.spatial.strategy.prefix.tree.SpatialPrefixTree;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;

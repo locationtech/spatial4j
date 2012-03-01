@@ -21,10 +21,11 @@ package org.apache.solr.spatial;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.simple.SimpleSpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.prefix.geohash.GeohashUtils;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.simple.PointImpl;
+import com.spatial4j.core.util.GeohashUtils;
+
 import org.apache.solr.SolrTestCaseJ4;
 import org.junit.BeforeClass;
 import org.junit.Test;

@@ -5,11 +5,12 @@ import org.apache.commons.io.IOUtils;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.io.sample.SampleData;
 import com.spatial4j.core.io.sample.SampleDataReader;
-import com.spatial4j.core.prefix.SpatialPrefixTree;
-import com.spatial4j.core.prefix.geohash.GeohashPrefixTree;
-import com.spatial4j.core.prefix.quad.QuadPrefixTree;
 import com.spatial4j.core.query.SpatialArgs;
 import com.spatial4j.core.shape.Shape;
+
+import org.apache.lucene.spatial.strategy.prefix.tree.GeohashPrefixTree;
+import org.apache.lucene.spatial.strategy.prefix.tree.QuadPrefixTree;
+import org.apache.lucene.spatial.strategy.prefix.tree.SpatialPrefixTree;
 import org.apache.solr.spatial.demo.KMLHelper;
 
 import javax.servlet.ServletConfig;

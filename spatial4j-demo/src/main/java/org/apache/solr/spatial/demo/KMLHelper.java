@@ -5,9 +5,6 @@ import de.micromata.opengis.kml.v_2_2_0.*;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.simple.SimpleSpatialContext;
-import com.spatial4j.core.prefix.Node;
-import com.spatial4j.core.prefix.SpatialPrefixTree;
-import com.spatial4j.core.prefix.quad.QuadPrefixTree;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
@@ -15,6 +12,10 @@ import com.spatial4j.core.shape.jts.JtsGeometry;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.lucene.spatial.strategy.prefix.tree.Node;
+import org.apache.lucene.spatial.strategy.prefix.tree.QuadPrefixTree;
+import org.apache.lucene.spatial.strategy.prefix.tree.SpatialPrefixTree;
 
 public class KMLHelper
 {

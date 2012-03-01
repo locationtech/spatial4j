@@ -17,10 +17,10 @@
 
 package org.apache.solr.spatial.prefix;
 
-import com.spatial4j.core.prefix.SpatialPrefixTree;
-import com.spatial4j.core.prefix.SpatialPrefixTreeFactory;
 import org.apache.lucene.spatial.strategy.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.strategy.prefix.PrefixTreeStrategy;
+import org.apache.lucene.spatial.strategy.prefix.tree.SpatialPrefixTree;
+import org.apache.lucene.spatial.strategy.prefix.tree.SpatialPrefixTreeFactory;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.MapListener;

@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.prefix.geohash;
+package com.spatial4j.core.util;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.simple.SimpleSpatialContext;
 import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.util.GeohashUtils;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
