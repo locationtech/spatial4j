@@ -7,18 +7,18 @@
     <artifactId>oss-parent</artifactId>
     <version>7</version>
   </parent>
-  
-  
-  <artifactId>spatial4j-parent</artifactId>
+
   <groupId>com.spatial4j</groupId>
+  <artifactId>spatial4j-parent</artifactId>
   <version>0.1-SNAPSHOT</version>
-  
+  <packaging>pom</packaging>
   <name>spatial4j-parent</name>
   <description>
    Java Spatial Library (Parent POM)
   </description>
-  
+
   <url>http://spatial4j.com</url>
+
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -26,13 +26,27 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  <scm>    
+
+  <scm>
   	<connection>scm:git:git@github.com:spatial4j/spatial4j.git</connection>
     <developerConnection>scm:git:git@github.com:spatial4j/spatial4j.git</developerConnection>
     <url>git@github.com:spatial4j/spatial4j.git</url>
   </scm>
-  
-  <packaging>pom</packaging>
+
+  <developers>
+    <developer>
+      <name>Ryan McKinley</name>
+      <email>ryantxu@gmail.com</email>
+    </developer>
+    <developer>
+      <name>David Smiley</name>
+      <email>dsmiley@apache.org</email>
+    </developer>
+    <developer>
+      <name>Chris Male</name>
+      <email>gento0nz@gmail.com</email>
+    </developer>
+  </developers>
 
   <properties>
     <!-- this magic system property is honored by many plugins: http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
@@ -184,7 +198,6 @@
         </configuration>
       </plugin>
 
-      <!-- TODO DWS: this doesn't belong in a project pom; it belongs in your settings.xml -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-eclipse-plugin</artifactId>
