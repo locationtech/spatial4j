@@ -18,7 +18,7 @@
 package org.apache.lucene.spatial;
 
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;

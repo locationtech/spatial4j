@@ -1,4 +1,4 @@
-package com.spatial4j.core.context;/*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,6 +14,7 @@ package com.spatial4j.core.context;/*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.spatial4j.core.context;
 
 import com.spatial4j.core.context.simple.SimpleSpatialContext;
 import com.spatial4j.core.distance.DistanceUnits;
@@ -26,7 +27,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 
 public class SpatialContextFactoryTest {
