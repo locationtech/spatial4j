@@ -17,8 +17,6 @@
 
 package com.spatial4j.core.shape.simple;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.*;
 
@@ -208,26 +206,27 @@ public class CircleImpl implements Circle {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj == null) { return false; }
-    if (obj == this) { return true; }
-    if (obj.getClass() != getClass()) {
-      return false;
-    }
-    CircleImpl rhs = (CircleImpl) obj;
-    return new EqualsBuilder()
-                  .append(point, rhs.point)
-                  .append(distance, rhs.distance)
-                  .append(ctx, rhs.ctx)
-                  .isEquals();
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    CircleImpl circle = (CircleImpl) o;
+
+    if (point != null ? !point.equals(circle.point) : circle.point != null) return false;
+    if (Double.compare(circle.distance, distance) != 0) return false;
+    if (ctx != null ? !ctx.equals(circle.ctx) : circle.ctx != null) return false;
+
+    return true;
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(11, 97).
-      append(point).
-      append(distance).
-      append(ctx).
-      toHashCode();
+    int result;
+    long temp;
+    result = point != null ? point.hashCode() : 0;
+    temp = distance != +0.0d ? Double.doubleToLongBits(distance) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    result = 31 * result + (ctx != null ? ctx.hashCode() : 0);
+    return result;
   }
 }

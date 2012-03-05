@@ -17,8 +17,6 @@
 
 package com.spatial4j.core.shape;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import com.spatial4j.core.context.SpatialContext;
 
 import java.util.Collection;
@@ -86,23 +84,20 @@ public class MultiShape implements Shape {
     return SpatialRelation.INTERSECTS;
   }
 
-
   @Override
-  public boolean equals(Object obj) {
-    if (obj == null) { return false; }
-    if (obj == this) { return true; }
-    if (obj.getClass() != getClass()) {
-      return false;
-    }
-    MultiShape rhs = (MultiShape) obj;
-    return new EqualsBuilder()
-                  .append(geoms, rhs.geoms)
-                  .isEquals();
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    MultiShape that = (MultiShape) o;
+
+    if (geoms != null ? !geoms.equals(that.geoms) : that.geoms != null) return false;
+
+    return true;
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(83, 29).append(geoms.hashCode()).
-      toHashCode();
+    return geoms != null ? geoms.hashCode() : 0;
   }
 }

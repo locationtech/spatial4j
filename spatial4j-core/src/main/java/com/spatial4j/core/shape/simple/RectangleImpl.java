@@ -17,8 +17,6 @@
 
 package com.spatial4j.core.shape.simple;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
@@ -223,26 +221,32 @@ public class RectangleImpl implements Rectangle {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj == null) { return false; }
-    if (obj == this) { return true; }
-    if (obj.getClass() != getClass()) {
-      return false;
-    }
-    RectangleImpl rhs = (RectangleImpl) obj;
-    return new EqualsBuilder()
-                  .append(minX, rhs.minX)
-                  .append(minY, rhs.minY)
-                  .append(maxX, rhs.maxX)
-                  .append(maxY, rhs.maxY)
-                  .isEquals();
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    RectangleImpl rectangle = (RectangleImpl) o;
+
+    if (Double.compare(rectangle.maxX, maxX) != 0) return false;
+    if (Double.compare(rectangle.maxY, maxY) != 0) return false;
+    if (Double.compare(rectangle.minX, minX) != 0) return false;
+    if (Double.compare(rectangle.minY, minY) != 0) return false;
+
+    return true;
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(41, 37).
-    append(minX).append(minY).
-    append(maxX).append(maxY).
-      toHashCode();
+    int result;
+    long temp;
+    temp = minX != +0.0d ? Double.doubleToLongBits(minX) : 0L;
+    result = (int) (temp ^ (temp >>> 32));
+    temp = maxX != +0.0d ? Double.doubleToLongBits(maxX) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    temp = minY != +0.0d ? Double.doubleToLongBits(minY) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    temp = maxY != +0.0d ? Double.doubleToLongBits(maxY) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    return result;
   }
 }

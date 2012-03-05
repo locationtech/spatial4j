@@ -17,8 +17,6 @@
 
 package com.spatial4j.core.shape.simple;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Rectangle;
@@ -73,24 +71,26 @@ public class PointImpl implements Point {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj == null) { return false; }
-    if (obj == this) { return true; }
-    if (obj.getClass() != getClass()) {
-      return false;
-    }
-    PointImpl rhs = (PointImpl) obj;
-    return new EqualsBuilder()
-                  .append(x, rhs.x)
-                  .append(y, rhs.y)
-                  .isEquals();
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    PointImpl point = (PointImpl) o;
+
+    if (Double.compare(point.x, x) != 0) return false;
+    if (Double.compare(point.y, y) != 0) return false;
+
+    return true;
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(5, 89).
-      append(x).
-      append(y).
-      toHashCode();
+    int result;
+    long temp;
+    temp = x != +0.0d ? Double.doubleToLongBits(x) : 0L;
+    result = (int) (temp ^ (temp >>> 32));
+    temp = y != +0.0d ? Double.doubleToLongBits(y) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    return result;
   }
 }
