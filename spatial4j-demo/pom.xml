@@ -6,13 +6,10 @@
     <groupId>com.spatial4j</groupId>
     <artifactId>spatial4j-parent</artifactId>
     <version>0.1-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
   
-  <groupId>com.spatial4j</groupId>
   <artifactId>spatial4j-demo</artifactId>
-  <version>0.1-SNAPSHOT</version>
-  
+
   <name>Spatial4j + lucene - Demo</name>
   <description>
     Show solr + KML stuff
@@ -22,7 +19,7 @@
   <dependencies>
     <!-- LUCENE -->
     <dependency>
-      <groupId>com.spatial4j</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>spatial4j-solr</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -39,8 +36,7 @@
       <artifactId>JavaAPIforKml</artifactId>
       <version>2.2.0-SNAPSHOT</version>
     </dependency>
-    
-    
+
     <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket</artifactId>

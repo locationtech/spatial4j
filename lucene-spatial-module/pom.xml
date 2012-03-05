@@ -25,14 +25,14 @@
     <version>0.1-SNAPSHOT</version>
   </parent>
   
-  <groupId>com.spatial4j</groupId>
   <artifactId>lucene-spatial-module</artifactId>
+
   <name>The Lucene Stuff (will be at ASF)</name>
 
   <dependencies>
 
     <dependency>
-      <groupId>com.spatial4j</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>spatial4j</artifactId>
       <version>${project.version}</version>
     </dependency>

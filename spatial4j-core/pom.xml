@@ -23,13 +23,10 @@
     <groupId>com.spatial4j</groupId>
     <artifactId>spatial4j-parent</artifactId>
     <version>0.1-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
   
-  <groupId>com.spatial4j</groupId>  
   <artifactId>spatial4j</artifactId>
-  <version>0.1-SNAPSHOT</version>
-  
+
   <name>Spatial4J</name>
   <description>
     Core Spatial 
@@ -43,15 +40,15 @@
       <artifactId>commons-lang</artifactId>
       <version>2.5</version>
     </dependency>
-    
+
     <dependency>
       <groupId>com.vividsolutions</groupId>
       <artifactId>jts</artifactId>
       <version>1.12</version>
       <exclusions>
         <exclusion>
-		  <groupId>xerces</groupId>
-		  <artifactId>xercesImpl</artifactId>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -59,6 +56,5 @@
   </dependencies>
   
   <build>
-    <finalName>spatial4j-${project.version}</finalName>
   </build>
 </project>
