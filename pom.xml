@@ -10,7 +10,7 @@
 
   <groupId>com.spatial4j</groupId>
   <artifactId>spatial4j-parent</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>spatial4j-parent</name>
   <description>
