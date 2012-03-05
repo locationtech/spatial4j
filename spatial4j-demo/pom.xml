@@ -29,8 +29,33 @@
       <artifactId>guava</artifactId>
       <version>r09</version>
     </dependency>
-    
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
     <!-- OTHER STUFF -->
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <version>${jts.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
     <dependency>
       <groupId>de.micromata.jak</groupId>
       <artifactId>JavaAPIforKml</artifactId>
@@ -60,7 +85,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <!--  JETTY DEPENDENCIES FOR TESTING  -->
     <!-- compile scope due to StartDemo.java -->
     <dependency>
@@ -81,7 +106,7 @@
       <version>${jetty.version}</version>
       <scope>compile</scope>
     </dependency>
-    
+
   </dependencies>
   
   
