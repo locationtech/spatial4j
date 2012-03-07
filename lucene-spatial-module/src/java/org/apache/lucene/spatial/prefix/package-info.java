@@ -15,19 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.prefix;
-
-import org.apache.lucene.spatial.prefix.TermQueryPrefixTreeStrategy;
-import org.apache.solr.schema.IndexSchema;
-
-import java.util.Map;
-
-public class TermQueryPrefixTreeFieldType extends PrefixTreeFieldType<TermQueryPrefixTreeStrategy> {
-
-  @Override
-  protected TermQueryPrefixTreeStrategy initStrategy(IndexSchema schema, Map<String, String> args) {
-    return new TermQueryPrefixTreeStrategy(grid);
-  }
-  
-}
+/**
+ * Prefix Tree Strategy
+ */
+package org.apache.lucene.spatial.prefix;
 

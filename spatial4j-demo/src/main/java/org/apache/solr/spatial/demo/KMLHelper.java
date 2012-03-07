@@ -13,9 +13,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.spatial.strategy.prefix.tree.Node;
-import org.apache.lucene.spatial.strategy.prefix.tree.QuadPrefixTree;
-import org.apache.lucene.spatial.strategy.prefix.tree.SpatialPrefixTree;
+import org.apache.lucene.spatial.prefix.tree.Node;
+import org.apache.lucene.spatial.prefix.tree.QuadPrefixTree;
+import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 
 public class KMLHelper
 {

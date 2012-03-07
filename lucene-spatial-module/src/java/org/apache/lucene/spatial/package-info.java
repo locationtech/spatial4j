@@ -15,19 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.prefix;
 
-import org.apache.lucene.spatial.prefix.TermQueryPrefixTreeStrategy;
-import org.apache.solr.schema.IndexSchema;
-
-import java.util.Map;
-
-public class TermQueryPrefixTreeFieldType extends PrefixTreeFieldType<TermQueryPrefixTreeStrategy> {
-
-  @Override
-  protected TermQueryPrefixTreeStrategy initStrategy(IndexSchema schema, Map<String, String> args) {
-    return new TermQueryPrefixTreeStrategy(grid);
-  }
-  
-}
+/**
+ * Lucene spatial search
+ *
+ * Check:
+ * http://blog.notdot.net/2009/11/Damn-Cool-Algorithms-Spatial-indexing-with-Quadtrees-and-Hilbert-Curves
+ */
+package org.apache.lucene.spatial;
 

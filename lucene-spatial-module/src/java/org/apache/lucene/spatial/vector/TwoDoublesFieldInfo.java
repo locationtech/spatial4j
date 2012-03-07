@@ -15,19 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.prefix;
+package org.apache.lucene.spatial.vector;
 
-import org.apache.lucene.spatial.prefix.TermQueryPrefixTreeStrategy;
-import org.apache.solr.schema.IndexSchema;
+import org.apache.lucene.spatial.SpatialFieldInfo;
 
-import java.util.Map;
+public class TwoDoublesFieldInfo implements SpatialFieldInfo {
 
-public class TermQueryPrefixTreeFieldType extends PrefixTreeFieldType<TermQueryPrefixTreeStrategy> {
+  public static final String SUFFIX_X = "__x";
+  public static final String SUFFIX_Y = "__y";
 
-  @Override
-  protected TermQueryPrefixTreeStrategy initStrategy(IndexSchema schema, Map<String, String> args) {
-    return new TermQueryPrefixTreeStrategy(grid);
+  private final String fieldName;
+  private final String fieldNameX;
+  private final String fieldNameY;
+
+  public TwoDoublesFieldInfo(String fieldNamePrefix) {
+    fieldName = fieldNamePrefix;
+    fieldNameX = fieldNamePrefix + SUFFIX_X;
+    fieldNameY = fieldNamePrefix + SUFFIX_Y;
   }
-  
-}
 
+  public String getFieldName() {
+    return fieldName;
+  }
+
+  public String getFieldNameX() {
+    return fieldNameX;
+  }
+
+  public String getFieldNameY() {
+    return fieldNameY;
+  }
+}

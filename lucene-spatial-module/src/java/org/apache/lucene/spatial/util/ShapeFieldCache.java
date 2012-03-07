@@ -15,19 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.prefix;
+package org.apache.lucene.spatial.util;
 
-import org.apache.lucene.spatial.prefix.TermQueryPrefixTreeStrategy;
-import org.apache.solr.schema.IndexSchema;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.Map;
+import com.spatial4j.core.shape.Shape;
 
-public class TermQueryPrefixTreeFieldType extends PrefixTreeFieldType<TermQueryPrefixTreeStrategy> {
+public class ShapeFieldCache<T extends Shape> {
+  private List<T>[] cache;
+  public int defaultLength;
 
-  @Override
-  protected TermQueryPrefixTreeStrategy initStrategy(IndexSchema schema, Map<String, String> args) {
-    return new TermQueryPrefixTreeStrategy(grid);
+  @SuppressWarnings({"unchecked"})
+  public ShapeFieldCache( int length, int defaultLength ) {
+    cache = new List[length];
+    this.defaultLength= defaultLength;
   }
-  
-}
 
+  public void add( int docid, T s ) {
+    List<T> list = cache[docid];
+    if( list == null ) {
+      list = cache[docid] = new ArrayList<T>(defaultLength);
+    }
+    list.add( s );
+  }
+
+  public List<T> getShapes( int docid ) {
+    return cache[docid];
+  }
+}

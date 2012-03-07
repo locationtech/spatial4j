@@ -15,19 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.prefix;
-
-import org.apache.lucene.spatial.prefix.TermQueryPrefixTreeStrategy;
-import org.apache.solr.schema.IndexSchema;
-
-import java.util.Map;
-
-public class TermQueryPrefixTreeFieldType extends PrefixTreeFieldType<TermQueryPrefixTreeStrategy> {
-
-  @Override
-  protected TermQueryPrefixTreeStrategy initStrategy(IndexSchema schema, Map<String, String> args) {
-    return new TermQueryPrefixTreeStrategy(grid);
-  }
-  
-}
+/**
+ * The Spatial Prefix package supports spatial indexing by index-time tokens
+ * where adding characters to a string gives greater resolution.
+ *
+ * Potential Implementations include:
+ *  * http://en.wikipedia.org/wiki/Quadtree
+ *  * http://en.wikipedia.org/wiki/Geohash
+ *  * http://healpix.jpl.nasa.gov/
+ */
+package org.apache.lucene.spatial.prefix.tree;
 

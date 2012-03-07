@@ -7,9 +7,9 @@ import com.spatial4j.core.query.SpatialArgs;
 import com.spatial4j.core.query.SpatialOperation;
 import com.spatial4j.core.shape.Shape;
 
-import org.apache.lucene.spatial.strategy.prefix.tree.GeohashPrefixTree;
-import org.apache.lucene.spatial.strategy.prefix.tree.Node;
-import org.apache.lucene.spatial.strategy.prefix.tree.SpatialPrefixTree;
+import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
+import org.apache.lucene.spatial.prefix.tree.Node;
+import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;

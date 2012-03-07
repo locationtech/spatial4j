@@ -15,19 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.prefix;
+package org.apache.lucene.spatial.util;
 
-import org.apache.lucene.spatial.prefix.TermQueryPrefixTreeStrategy;
-import org.apache.solr.schema.IndexSchema;
 
-import java.util.Map;
+import java.io.IOException;
 
-public class TermQueryPrefixTreeFieldType extends PrefixTreeFieldType<TermQueryPrefixTreeStrategy> {
+import org.apache.lucene.analysis.TokenFilter;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+
+public class TruncateFilter extends TokenFilter {
+
+  private final int maxTokenLength;
+
+  private final CharTermAttribute termAttr = addAttribute(CharTermAttribute.class);
+
+  public TruncateFilter(TokenStream in, int maxTokenLength) {
+    super(in);
+    this.maxTokenLength = maxTokenLength;
+  }
 
   @Override
-  protected TermQueryPrefixTreeStrategy initStrategy(IndexSchema schema, Map<String, String> args) {
-    return new TermQueryPrefixTreeStrategy(grid);
-  }
-  
-}
+  public final boolean incrementToken() throws IOException {
+    if (!input.incrementToken()) {
+      return false;
+    }
 
+    if (termAttr.length() > maxTokenLength) {
+      termAttr.setLength(maxTokenLength);
+    }
+    return true;
+  }
+}

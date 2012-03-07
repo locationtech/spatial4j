@@ -17,7 +17,7 @@
 
 package org.apache.solr.spatial.prefix;
 
-import org.apache.lucene.spatial.strategy.prefix.RecursivePrefixTreeStrategy;
+import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.solr.schema.IndexSchema;
 
 import java.util.Map;

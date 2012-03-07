@@ -15,19 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.prefix;
+package org.apache.lucene.spatial.vector;
 
-import org.apache.lucene.spatial.prefix.TermQueryPrefixTreeStrategy;
-import org.apache.solr.schema.IndexSchema;
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.simple.SimpleSpatialContext;
 
-import java.util.Map;
-
-public class TermQueryPrefixTreeFieldType extends PrefixTreeFieldType<TermQueryPrefixTreeStrategy> {
+public class TwoDoublesStrategyTestCase extends BaseTwoDoublesStrategyTestCase {
 
   @Override
-  protected TermQueryPrefixTreeStrategy initStrategy(IndexSchema schema, Map<String, String> args) {
-    return new TermQueryPrefixTreeStrategy(grid);
+  protected SpatialContext getSpatialContext() {
+    return SimpleSpatialContext.GEO_KM;
   }
-  
 }
-

@@ -18,9 +18,9 @@
 package org.apache.solr.spatial.vector;
 
 import org.apache.lucene.search.FieldCache;
-import org.apache.lucene.spatial.strategy.vector.TwoDoublesFieldInfo;
-import org.apache.lucene.spatial.strategy.vector.TwoDoublesStrategy;
-import org.apache.lucene.spatial.strategy.util.NumericFieldInfo;
+import org.apache.lucene.spatial.vector.TwoDoublesFieldInfo;
+import org.apache.lucene.spatial.vector.TwoDoublesStrategy;
+import org.apache.lucene.spatial.util.NumericFieldInfo;
 import org.apache.solr.schema.*;
 import org.apache.solr.spatial.SpatialFieldType;
 
