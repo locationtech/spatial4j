@@ -203,26 +203,28 @@
     </plugins>
   </reporting>
 
-  <repositories>
-    <!-- note: default: releases=true, snapshots=false -->
-
-    <!-- for Lucene -->
-    <repository>
-      <id>lucene-hudson-trunk</id>
-      <name>Lucene hudson trunk</name>
-      <url>https://builds.apache.org/job/Lucene-Solr-Maven-trunk/lastSuccessfulBuild/artifact/maven_artifacts/</url>
-      <layout>default</layout>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-
-  </repositories>
+  <!-- note: repositories default: releases=true, snapshots=false -->
 
   <profiles>
+    <profile>
+      <id>update</id>
+      <repositories>
+        <!-- for Lucene -->
+        <repository>
+          <id>lucene-hudson-trunk</id>
+          <name>Lucene hudson trunk</name>
+          <url>https://builds.apache.org/job/Lucene-Solr-Maven-trunk/lastSuccessfulBuild/artifact/maven_artifacts/</url>
+          <layout>default</layout>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
+
     <profile>
       <id>repos</id>
       <repositories>
