@@ -21,7 +21,7 @@
   <parent>
     <groupId>com.spatial4j</groupId>
     <artifactId>spatial4j-parent</artifactId>
-    <version>0.2</version>
+    <version>0.3-SNAPSHOT</version>
   </parent>
   
   <artifactId>spatial4j</artifactId>
