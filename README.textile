@@ -1,23 +1,52 @@
 h1. PROJECT OVERVIEW
 
-h2. spatial4j-core
+Spatial4j is a general purpose spatial / geospatial "ASL":http://www.apache.org/licenses/LICENSE-2.0.html licensed open-source Java library. It's core capabilities are 3-fold: to provide common geospatially-aware shapes, to provide distance calculations and other math, and to read and write the shapes to strings.
 
-The is the heart of the codebase. The code is broadly divided into 'base' and 'strategies'. It also contains benchmark
-code and a fair amount of tests.
+The most popular spatial library in Java is probably "JTS":https://sourceforge.net/projects/jts-topo-suite/. JTS is powerful but it is LGPL licensed, and it is not a geospatial library -- just spatial.  Surprisingly, there is no native circle shape in JTS either.  Nevertheless, JTS is very powerful and Spatial4J includes integration classes for it.
 
-Major pieces in 'base':
-* SpatialContext interface and simple implementation.
-* Distance math code.
-* Shapes interface and simple implementations.
-* Prefix/Grid/Tree interface and implementations.
+h3. Features
 
+* Shape classes that are geospatially[1] aware
+** Shapes: Point, Rectangle, Circle, Polygon (via JTS)
+** shape x shape intersection logic, yielding: disjoint, contains, within, intersects
+** bounding box
+* Distance math
+** Spherical: Law of Cosines, Haversine, Vincenty
+* Input and Output of shapes to strings using our dialect of "WKT":http://en.wikipedia.org/wiki/Well-known_text
+* Integration with JTS to adapt its shapes to Spatial4j's interfaces, including adding some geospatial awareness
+* No runtime dependencies unless JTS is needed
+
+In addition, the code is fairly well tested and it's monitored via continuous-integration software..
+
+fn1. Geospatial awareness means it is aware of the implications of the international dateline and poles.
+
+h3. Future Roadmap
+
+* Better and more standardized WKT support and potential use of CQL where it makes sense.
+* Dateline wrap support to the JTS polygon
+* Polygon support without JTS, maybe via java.awt.geom
+* Better support for other projections (not just WGS-84)
+* Elliptical earth model distance math
+
+h1. Other Modules
+
+Spatial4j includes some other modules aside from the core library:
+
+h2. lucene-spatial-module
+
+This is a proposed module to Apache Lucene (v4/trunk). See "LUCENE-3795":https://issues.apache.org/jira/browse/LUCENE-3795. If this comes to pass then this code will be removed from the project.
+
+Essentially, this adds fast spatial and geospatial search capabilities to Apache Lucene. Most of it is based on tree walking variable length PrefixTree/Trie strings.  The strings are "geohashes":http://en.wikipedia.org/wiki/Geohash.
 
 h2. spatial4j-solr
 
-Ads Solr support on top of the Spatial-lucene module.
-This will eventually be included directly in lucene
+Adds Apache Solr support using the lucene-spatial-module. It mostly consists of Field Types; all the real work is implemented in the lucene-spatial-module. If the lucene-spatial-module is officially merged into Apache Lucene then this module will be up for merge consideration next.
 
 h2. spatial4j-demo
 
-Contains a demo web application using Spatial-solr.  Consumes sample data and geonames.
+Contains a demo web application using spatial-solr.  Consumes sample data and "geonames":http://www.geonames.org/export/.
 See the provided README.txt in there for instructions to try it out.
+
+h1. History
+
+Spatial4j began life as "Lucene Spatial Playground":http://code.google.com/p/lucene-spatial-playground/ (LSP) and from this work a generic core spatial library emerged. The Lucene and Solr modules parts will hopefully merge into the Apache Lucene and Solr projects.
