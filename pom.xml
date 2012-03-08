@@ -32,21 +32,6 @@
     <url>git@github.com:spatial4j/spatial4j.git</url>
   </scm>
 
-  <developers>
-    <developer>
-      <name>Ryan McKinley</name>
-      <email>ryantxu@gmail.com</email>
-    </developer>
-    <developer>
-      <name>David Smiley</name>
-      <email>dsmiley@apache.org</email>
-    </developer>
-    <developer>
-      <name>Chris Male</name>
-      <email>gento0nz@gmail.com</email>
-    </developer>
-  </developers>
-
   <properties>
     <!-- this magic system property is honored by many plugins: http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
