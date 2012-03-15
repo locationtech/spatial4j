@@ -207,6 +207,26 @@
           </snapshots>
         </repository>
       </repositories>
+      
+		  <build>
+		    <plugins>
+		      <plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-eclipse-plugin</artifactId>       
+		        <version>2.5</version> <!-- NOTE 2.6 breaks the layout -->
+		        <configuration>
+		          <downloadSources>true</downloadSources>      
+		          <additionalProjectnatures>
+		            <projectnature>qwickie.qwickieNature</projectnature>
+		          </additionalProjectnatures>
+		          <additionalBuildcommands>
+		            <buildcommand>qwickie.qwickieBuilder</buildcommand>
+		          </additionalBuildcommands>
+		        </configuration>
+		      </plugin>
+		    </plugins>
+		  </build>
+      
     </profile>
 
   </profiles>

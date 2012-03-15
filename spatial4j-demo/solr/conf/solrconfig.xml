@@ -222,7 +222,7 @@
    -->
   <updateRequestProcessorChain name="spatial">
     <processor class="com.spatial4j.demo.solr.SpatialDemoUpdateProcessorFactory">
-      <str name="shapeField">quad</str>
+      <str name="shapeField">geo</str>
     </processor>
     <processor class="solr.LogUpdateProcessorFactory" />
     <processor class="solr.RunUpdateProcessorFactory" />
@@ -238,8 +238,6 @@
   <!-- analysis -->
   <requestHandler name="/analysis/document" class="solr.DocumentAnalysisRequestHandler" />
   <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" />
-
-
 
   <!-- admin -->
   <requestHandler name="/admin/" class="org.apache.solr.handler.admin.AdminHandlers" />

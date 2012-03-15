@@ -55,8 +55,9 @@
 
 
     <!-- Geometry Field Strategies -->
-    <fieldType name="vector2d"  class="org.apache.solr.spatial.vector.TwoDoublesFieldType"                  ignoreIncompatibleGeometry="true" />
-    <fieldType name="quad"      class="org.apache.solr.spatial.prefix.TermQueryPrefixTreeFieldType"     ignoreIncompatibleGeometry="true" />
+    <fieldType name="geo"       class="org.apache.lucene.spatial.pending.solr.GeometryFieldType"     ignoreIncompatibleGeometry="true" />
+    <fieldType name="vector2d"  class="org.apache.solr.spatial.vector.TwoDoublesFieldType"           ignoreIncompatibleGeometry="true" />
+    <fieldType name="quad"      class="org.apache.solr.spatial.prefix.TermQueryPrefixTreeFieldType"  ignoreIncompatibleGeometry="true" />
     <fieldType name="geohash"   class="org.apache.solr.spatial.prefix.RecursivePrefixTreeFieldType"  ignoreIncompatibleGeometry="true" />
 
  </types>
@@ -68,6 +69,7 @@
    <field name="source" type="string"  indexed="true" stored="true" />
    
    <!-- geometry -->
+   <field name="geo"      type="geo"      indexed="true" stored="true"  multiValued="false" />
    <field name="vector2d" type="vector2d" indexed="true" stored="true"  multiValued="false" />
    <field name="quad"     type="quad"     indexed="true" stored="true"  multiValued="false" />
    <field name="geohash"  type="geohash"  indexed="true" stored="true"  multiValued="true" />
@@ -80,8 +82,9 @@
  <uniqueKey>id</uniqueKey>
 
  <!-- Various index strategies -->
- <copyField source="quad" dest="vector2d"/>
- <copyField source="quad" dest="geohash"/>
+ <copyField source="geo" dest="quad"/>
+ <copyField source="geo" dest="vector2d"/>
+ <copyField source="geo" dest="geohash"/>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>name</defaultSearchField>
