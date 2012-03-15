@@ -255,6 +255,10 @@ public class SearchPage extends WebPage
               
               SolrServer sss = new StreamingUpdateSolrServer(
                   "http://localhost:8080/solr", 50, 3 );
+              
+              // single thread
+             // sss = new CommonsHttpSolrServer("http://localhost:8080/solr");
+              
               loader.loadSampleData( data, sss );
             }
             catch (Exception e) {

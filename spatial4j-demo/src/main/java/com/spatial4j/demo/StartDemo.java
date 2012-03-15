@@ -3,6 +3,11 @@ package com.spatial4j.demo;
 import java.io.File;
 
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
+
+import org.apache.lucene.spatial.pending.solr.GeometryFieldType;
+import org.apache.solr.spatial.SpatialFieldType;
+import org.apache.solr.spatial.prefix.PrefixTreeFieldType;
+import org.apache.solr.spatial.prefix.RecursivePrefixTreeFieldType;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
