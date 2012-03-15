@@ -263,5 +263,4 @@ public class TestDistances {
   private Point pLL(double lat, double lon) {
     return ctx.makePoint(lon,lat);
   }
-
 }

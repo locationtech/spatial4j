@@ -44,12 +44,18 @@
       <version>${lucene.version}</version>
       <scope>test</scope>
     </dependency>
+    
+	<dependency>
+	  <groupId>com.spatial4j</groupId>
+	  <artifactId>spatial4j</artifactId>
+	  <version>${project.version}</version>
+	</dependency>
 
-	  <dependency>
-		  <groupId>org.apache.solr</groupId>
-		  <artifactId>solr-core</artifactId>
-			<version>${lucene.version}</version>
-	  </dependency>
+	<dependency>
+	  <groupId>org.apache.solr</groupId>
+	  <artifactId>solr-core</artifactId>
+	  <version>${lucene.version}</version>
+	</dependency>
 
     <!-- TESTING -->
   </dependencies>

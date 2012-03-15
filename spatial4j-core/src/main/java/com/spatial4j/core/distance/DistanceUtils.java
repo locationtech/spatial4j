@@ -20,7 +20,6 @@ package com.spatial4j.core.distance;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Rectangle;
 
-import static java.lang.Math.toRadians;
 
 /**
  * Various distance calculations and constants.
@@ -35,6 +34,7 @@ public class DistanceUtils {
   public static final double DEG_180_AS_RADS = Math.PI;
   public static final double DEG_225_AS_RADS = 5 * DEG_45_AS_RADS;
   public static final double DEG_270_AS_RADS = 3 * DEG_90_AS_RADS;
+  public static final double DEGREES_TO_RADIANS =  Math.PI / 180.0;
 
 
   public static final double KM_TO_MILES = 0.621371192;
@@ -424,4 +424,10 @@ public class DistanceUtils {
     return radians * radius;
   }
 
+  /**
+   * Use this rather then Math.toRadians() -- it will perform better
+   */
+  public static double toRadians(double deg) {
+    return deg * DEGREES_TO_RADIANS;
+  }
 }

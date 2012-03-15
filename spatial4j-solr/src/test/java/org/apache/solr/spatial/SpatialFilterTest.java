@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
 /**
  * Based off of Solr's SpatialFilterTest.
  */
@@ -243,13 +244,13 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
 
   private double calcDist(Point p1, Point p2) {
     //TODO use ctx.calc?
-    return DistanceUtils.distHaversineRAD(Math.toRadians(p1.getY()), Math.toRadians(p1.getX()), Math.toRadians(p2.getY()), Math.toRadians(p2.getX())) * ctx.getUnits().earthRadius();
+    return DistanceUtils.distHaversineRAD(DistanceUtils.toRadians(p1.getY()), DistanceUtils.toRadians(p1.getX()), DistanceUtils.toRadians(p2.getY()), DistanceUtils.toRadians(p2.getX())) * ctx.getUnits().earthRadius();
   }
 
   /** Normalize x & y (put in lon-lat ranges) & ensure geohash round-trip for given precision. */
   private Point normPointXY(double x, double y) {
     //put x,y as degrees into double[] as radians
-    double[] latLon = {Math.toRadians(y), Math.toRadians(x)};
+    double[] latLon = {y*DistanceUtils.DEG_180_AS_RADS, DistanceUtils.toRadians(x)};
     DistanceUtils.normLatRAD(latLon);
     DistanceUtils.normLatRAD(latLon);
     double x2 = Math.toDegrees(latLon[1]);

@@ -21,7 +21,7 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 
-import static java.lang.Math.toRadians;
+import static com.spatial4j.core.distance.DistanceUtils.toRadians;
 
 /**
  * A base class for a Distance Calculator that assumes a spherical earth model.
