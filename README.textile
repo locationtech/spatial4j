@@ -32,15 +32,11 @@ h1. Other Modules
 
 Spatial4j includes some other modules aside from the core library:
 
-h2. lucene-spatial-module
-
-This is a proposed module to Apache Lucene (v4/trunk). See "LUCENE-3795":https://issues.apache.org/jira/browse/LUCENE-3795. If this comes to pass then this code will be removed from the project.
-
-Essentially, this adds fast spatial and geospatial search capabilities to Apache Lucene. Most of it is based on tree walking variable length PrefixTree/Trie strings.  The strings are "geohashes":http://en.wikipedia.org/wiki/Geohash.
-
 h2. spatial4j-solr
 
 Adds Apache Solr support using the lucene-spatial-module. It mostly consists of Field Types; all the real work is implemented in the lucene-spatial-module. If the lucene-spatial-module is officially merged into Apache Lucene then this module will be up for merge consideration next.
+
+(this will be moved to Apache lucene trunk soon)
 
 h2. spatial4j-demo
 
