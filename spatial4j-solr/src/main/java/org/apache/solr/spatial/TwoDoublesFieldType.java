@@ -44,6 +44,7 @@ public class TwoDoublesFieldType extends SpatialFieldType<TwoDoublesFieldInfo> i
     }
   }
 
+  @Override
   public void inform(IndexSchema schema)
   {
     FieldType doubleType = schema.getFieldTypeByName( doubleFieldName );

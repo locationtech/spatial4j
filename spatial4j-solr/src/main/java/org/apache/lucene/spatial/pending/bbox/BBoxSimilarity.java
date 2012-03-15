@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.spatial.pending.jts;
+package org.apache.lucene.spatial.pending.bbox;
 
-import com.vividsolutions.jts.geom.Geometry;
+import com.spatial4j.core.shape.Rectangle;
 
 
-public interface GeometryTest {
 
-  public boolean matches(Geometry geo);
+public interface BBoxSimilarity {
+
+  public double score(Rectangle extent);
 }
