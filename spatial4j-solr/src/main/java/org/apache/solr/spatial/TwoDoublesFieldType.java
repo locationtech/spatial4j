@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.vector;
+package org.apache.solr.spatial;
 
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.spatial.vector.TwoDoublesFieldInfo;
 import org.apache.lucene.spatial.vector.TwoDoublesStrategy;
 import org.apache.lucene.spatial.util.NumericFieldInfo;
 import org.apache.solr.schema.*;
-import org.apache.solr.spatial.SpatialFieldType;
 
 import java.util.ArrayList;
 import java.util.List;

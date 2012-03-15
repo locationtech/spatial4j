@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.pending;
+package org.apache.lucene.spatial.pending.jts;
 
 import com.vividsolutions.jts.geom.Geometry;
 

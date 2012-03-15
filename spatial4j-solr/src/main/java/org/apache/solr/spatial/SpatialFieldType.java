@@ -37,6 +37,7 @@ import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.QParser;
+import org.apache.solr.spatial.util.MapListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

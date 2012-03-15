@@ -1,9 +1,9 @@
-package org.apache.lucene.spatial.pending.solr;
+package org.apache.solr.spatial.pending;
 
 import java.util.Map;
 
 import org.apache.lucene.spatial.SimpleSpatialFieldInfo;
-import org.apache.lucene.spatial.pending.JtsGeoStrategy;
+import org.apache.lucene.spatial.pending.jts.JtsGeoStrategy;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.spatial.SpatialFieldType;

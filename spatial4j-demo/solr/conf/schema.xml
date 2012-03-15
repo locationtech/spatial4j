@@ -53,12 +53,12 @@
       </analyzer>
     </fieldType>
 
-
     <!-- Geometry Field Strategies -->
-    <fieldType name="geo"       class="org.apache.lucene.spatial.pending.solr.GeometryFieldType"     ignoreIncompatibleGeometry="true" />
-    <fieldType name="vector2d"  class="org.apache.solr.spatial.vector.TwoDoublesFieldType"           ignoreIncompatibleGeometry="true" />
-    <fieldType name="quad"      class="org.apache.solr.spatial.prefix.TermQueryPrefixTreeFieldType"  ignoreIncompatibleGeometry="true" />
-    <fieldType name="geohash"   class="org.apache.solr.spatial.prefix.RecursivePrefixTreeFieldType"  ignoreIncompatibleGeometry="true" />
+    <fieldType name="geo"       class="org.apache.solr.spatial.pending.GeometryFieldType"     ignoreIncompatibleGeometry="true" />
+    <fieldType name="bbox"      class="org.apache.solr.spatial.pending.BBoxFieldType"         ignoreIncompatibleGeometry="true" />
+    <fieldType name="vector2d"  class="org.apache.solr.spatial.TwoDoublesFieldType"           ignoreIncompatibleGeometry="true" />
+    <fieldType name="quad"      class="org.apache.solr.spatial.TermQueryPrefixTreeFieldType"  ignoreIncompatibleGeometry="true" />
+    <fieldType name="geohash"   class="org.apache.solr.spatial.RecursivePrefixTreeFieldType"  ignoreIncompatibleGeometry="true" />
 
  </types>
 
@@ -71,6 +71,7 @@
    <!-- geometry -->
    <field name="geo"      type="geo"      indexed="true" stored="true"  multiValued="false" />
    <field name="vector2d" type="vector2d" indexed="true" stored="true"  multiValued="false" />
+   <field name="bbox"     type="bbox"     indexed="true" stored="true"  multiValued="false" />
    <field name="quad"     type="quad"     indexed="true" stored="true"  multiValued="false" />
    <field name="geohash"  type="geohash"  indexed="true" stored="true"  multiValued="true" />
    
@@ -84,6 +85,7 @@
  <!-- Various index strategies -->
  <copyField source="geo" dest="quad"/>
  <copyField source="geo" dest="geohash"/>
+ <copyField source="geo" dest="bbox"/>
  <!-- 
  <copyField source="geo" dest="vector2d"/>
   -->

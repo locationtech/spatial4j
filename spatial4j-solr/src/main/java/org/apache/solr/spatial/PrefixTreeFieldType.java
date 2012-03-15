@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.solr.spatial.prefix;
+package org.apache.solr.spatial;
 
 import org.apache.lucene.spatial.SimpleSpatialFieldInfo;
 import org.apache.lucene.spatial.prefix.PrefixTreeStrategy;
@@ -23,8 +23,7 @@ import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTreeFactory;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.schema.SchemaField;
-import org.apache.solr.spatial.MapListener;
-import org.apache.solr.spatial.SpatialFieldType;
+import org.apache.solr.spatial.util.MapListener;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.pending;
+package org.apache.lucene.spatial.pending.jts;
 
 import java.io.IOException;
 import java.util.BitSet;

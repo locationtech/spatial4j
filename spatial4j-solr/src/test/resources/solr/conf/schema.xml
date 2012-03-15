@@ -26,11 +26,11 @@
 
     <fieldType name="string" class="solr.StrField" sortMissingLast="true"/>
 
-    <fieldType name="recursive" class="org.apache.solr.spatial.prefix.RecursivePrefixTreeFieldType" />
-    <fieldType name="queryQueryTrie" class="org.apache.solr.spatial.prefix.TermQueryPrefixTreeFieldType"
+    <fieldType name="recursive"      class="org.apache.solr.spatial.RecursivePrefixTreeFieldType" />
+    <fieldType name="queryQueryTrie" class="org.apache.solr.spatial.TermQueryPrefixTreeFieldType"
         units="u" distCalculator="cartesian^2" worldBounds="0 0 100 100"/>
 
-    <fieldType name="geohashRecursiveRandom" class="org.apache.solr.spatial.prefix.RecursivePrefixTreeFieldType" maxLevels="12" />
+    <fieldType name="geohashRecursiveRandom" class="org.apache.solr.spatial.RecursivePrefixTreeFieldType" maxLevels="12" />
 
   </types>
 

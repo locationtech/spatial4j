@@ -51,6 +51,19 @@
 	  <version>${project.version}</version>
 	</dependency>
 
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <version>${jts.version}</version>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
 	<dependency>
 	  <groupId>org.apache.solr</groupId>
 	  <artifactId>solr-core</artifactId>

@@ -1,4 +1,4 @@
-package org.apache.lucene.spatial.pending;
+package org.apache.lucene.spatial.pending.jts;
 
 import org.apache.lucene.document.DocValuesField;
 import org.apache.lucene.index.DocValues.Type;

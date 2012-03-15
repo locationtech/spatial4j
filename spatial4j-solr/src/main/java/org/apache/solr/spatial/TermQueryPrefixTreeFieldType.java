@@ -17,44 +17,17 @@
 
 package org.apache.solr.spatial;
 
-import com.google.common.collect.ForwardingMap;
+import org.apache.lucene.spatial.prefix.TermQueryPrefixTreeStrategy;
+import org.apache.solr.schema.IndexSchema;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-/**
- * Wraps another map, keeping track of each key that was seen via {@link #get(Object)} or {@link #remove(Object)}.
- * @author dsmiley
- */
-@SuppressWarnings("unchecked")
-public class MapListener<K, V> extends ForwardingMap<K, V> {
-  private final Map<K, V> target;
-  private final Set<K> seenKeys;
+public class TermQueryPrefixTreeFieldType extends PrefixTreeFieldType<TermQueryPrefixTreeStrategy> {
+
+  @Override
+  protected TermQueryPrefixTreeStrategy initStrategy(IndexSchema schema, Map<String, String> args) {
+    return new TermQueryPrefixTreeStrategy(grid);
+  }
   
-  public MapListener(Map<K, V> target) {
-    this.target = target;
-    seenKeys = new HashSet<K>(target.size());
-  }
-
-  public Set<K> getSeenKeys() {
-    return seenKeys;
-  }
-
-  @Override
-  public V get(Object key) {
-    seenKeys.add((K) key);
-    return super.get(key);
-  }
-
-  @Override
-  public V remove(Object key) {
-    seenKeys.add((K) key);
-    return super.remove(key);
-  }
-
-  @Override
-  protected Map<K, V> delegate() {
-    return target;
-  }
 }
+

@@ -106,7 +106,7 @@ public class SearchPage extends WebPage
             "states-bbox.txt" ) ));
     searchForm.add( new TextField<String>( "fq" ) );
     searchForm.add( new DropDownChoice<String>("field",
-        Arrays.asList( "geo", "vector2d", "geohash", "quad" ) ));
+        Arrays.asList( "geo", "vector2d", "geohash", "quad", "bbox" ) ));
     searchForm.add( new DropDownChoice<SpatialOperation>("op",
         SpatialOperation.values() ));
 

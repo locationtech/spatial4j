@@ -4,10 +4,10 @@ import java.io.File;
 
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 
-import org.apache.lucene.spatial.pending.solr.GeometryFieldType;
+import org.apache.solr.spatial.PrefixTreeFieldType;
+import org.apache.solr.spatial.RecursivePrefixTreeFieldType;
 import org.apache.solr.spatial.SpatialFieldType;
-import org.apache.solr.spatial.prefix.PrefixTreeFieldType;
-import org.apache.solr.spatial.prefix.RecursivePrefixTreeFieldType;
+import org.apache.solr.spatial.pending.GeometryFieldType;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
