@@ -1,5 +1,7 @@
-package org.apache.solr.spatial.demo;
+package com.spatial4j.demo;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +10,14 @@ import com.spatial4j.core.io.sample.SampleData;
 import com.spatial4j.core.io.sample.SampleDataReader;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrInputDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class SampleDataLoader
 {
+  static final Logger log = LoggerFactory.getLogger(SampleDataLoader.class);
+  
   public boolean running = false;
   public List<String> history = new ArrayList<String>();
   public String name = null;
@@ -38,7 +44,7 @@ public class SampleDataLoader
     this.status = "done.";
   }
 
-  public void loadSampleData( SolrServer solr ) throws Exception
+  public void loadSampleData( File directory, SolrServer solr ) throws Exception
   {
     status = "initalizing....";
     running = true;
@@ -51,11 +57,22 @@ public class SampleDataLoader
     };
 
     for( String[] d : names ) {
-      InputStream in =
-        getClass().getClassLoader().getResourceAsStream("data/" +d[0]);
-      index(solr, d[0], d[1], new SampleDataReader( in ) );
+      try {
+        File f = new File(directory,d[0]);
+        if(f.exists()) {
+          InputStream in = new FileInputStream(f);
+          index(solr, d[0], d[1], new SampleDataReader( in ) );
+        }
+        else {
+          status = "File not found: "+f.getAbsolutePath();
+          history.add(status);
+          log.error(status);
+        }
+      }
+      catch(Exception ex) {
+        ex.printStackTrace();
+      }
     }
-
 
     status = "done.";
     running = false;

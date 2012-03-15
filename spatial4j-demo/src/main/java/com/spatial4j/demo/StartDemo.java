@@ -1,12 +1,12 @@
-package org.apache.solr.spatial.demo;
+package com.spatial4j.demo;
 
 import java.io.File;
 
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 
 public class StartDemo
@@ -40,7 +40,7 @@ public class StartDemo
 		// server.getContainer().addEventListener(mBeanContainer);
 		// mBeanContainer.start();
 
-		server.addHandler(bb);
+		server.setHandler(bb);
 
 		try {
 			System.out.println(">>> STARTING EMBEDDED JETTY SERVER, PRESS ANY KEY TO STOP");

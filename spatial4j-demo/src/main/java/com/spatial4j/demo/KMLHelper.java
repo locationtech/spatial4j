@@ -1,4 +1,4 @@
-package org.apache.solr.spatial.demo;
+package com.spatial4j.demo;
 
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 import de.micromata.opengis.kml.v_2_2_0.*;

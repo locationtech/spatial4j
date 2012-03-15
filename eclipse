@@ -6,5 +6,5 @@ rm   */*/*/.classpath
 rm   */*/*/.project
 rm */*/*/*/.classpath
 rm */*/*/*/.project
-mvn eclipse:eclipse
+mvn eclipse:eclipse -P updateLucene
 

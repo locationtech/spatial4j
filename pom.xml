@@ -41,8 +41,8 @@
     <maven.compile.optimize>true</maven.compile.optimize>
     <maven.compile.deprecation>true</maven.compile.deprecation>
     
-    <wicket.version>1.4.17</wicket.version>
-    <jetty.version>6.1.25</jetty.version>
+    <wicket.version>1.4.20</wicket.version>
+    <jetty.version>8.1.2.v20120308</jetty.version>
     <slf4j.version>1.6.1</slf4j.version>
     <lucene.version>4.0-SNAPSHOT</lucene.version>
     <jts.version>1.12</jts.version>

@@ -1,4 +1,4 @@
-package org.apache.solr.spatial.demo.app;
+package com.spatial4j.demo.app;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;

@@ -1,4 +1,4 @@
-package org.apache.solr.spatial.demo.app;
+package com.spatial4j.demo.app;
 
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -20,8 +20,8 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.SolrParams;
-import org.apache.solr.spatial.demo.KMLHelper;
-import org.apache.solr.spatial.demo.SampleDataLoader;
+import com.spatial4j.demo.KMLHelper;
+import com.spatial4j.demo.SampleDataLoader;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
@@ -42,6 +42,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.*;
 import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
+import org.apache.wicket.util.file.File;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.StringResourceStream;
 import org.apache.wicket.util.time.Duration;
@@ -241,9 +242,15 @@ public class SearchPage extends WebPage
           @Override
           public void run() {
             try {
+              File data = new File("data");
+              String dir = System.getProperty("data.dir");
+              if(dir!=null) {
+                data = new File(dir);
+              }
+              
               SolrServer sss = new StreamingUpdateSolrServer(
                   "http://localhost:8080/solr", 50, 3 );
-              loader.loadSampleData( sss );
+              loader.loadSampleData( data, sss );
             }
             catch (Exception e) {
               e.printStackTrace();

@@ -1,4 +1,4 @@
-package org.apache.solr.spatial.demo.solr;
+package com.spatial4j.demo.solr;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;

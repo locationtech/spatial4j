@@ -221,7 +221,7 @@
     to other spatial fields in object form to avoid redundant/inefficient string to spatial object de-serialization.
    -->
   <updateRequestProcessorChain name="spatial">
-    <processor class="org.apache.solr.spatial.demo.solr.SpatialDemoUpdateProcessorFactory">
+    <processor class="com.spatial4j.demo.solr.SpatialDemoUpdateProcessorFactory">
       <str name="shapeField">quad</str>
     </processor>
     <processor class="solr.LogUpdateProcessorFactory" />

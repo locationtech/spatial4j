@@ -21,7 +21,7 @@
     <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
     <init-param>
       <param-name>applicationClassName</param-name>
-      <param-value>org.apache.solr.spatial.demo.app.WicketApplication</param-value>
+      <param-value>com.spatial4j.demo.app.WicketApplication</param-value>
     </init-param>
   </filter>
 
@@ -57,7 +57,7 @@
    
     <servlet>
       <servlet-name>GridServlet</servlet-name>
-      <servlet-class>org.apache.solr.spatial.demo.servlet.GridInfoServlet</servlet-class>
+      <servlet-class>com.spatial4j.demo.servlet.GridInfoServlet</servlet-class>
     </servlet>
    
     <servlet-mapping>

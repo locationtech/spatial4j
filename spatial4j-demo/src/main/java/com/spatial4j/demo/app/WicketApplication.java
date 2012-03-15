@@ -1,4 +1,4 @@
-package org.apache.solr.spatial.demo.app;
+package com.spatial4j.demo.app;
 
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.target.coding.HybridUrlCodingStrategy;
@@ -6,7 +6,7 @@ import org.apache.wicket.request.target.coding.HybridUrlCodingStrategy;
 /**
  * Application object for your web application. If you want to run this application without deploying, run the Start class.
  *
- * @see org.apache.solr.spatial.demo.StartDemo#main(String[])
+ * @see com.spatial4j.demo.StartDemo#main(String[])
  */
 public class WicketApplication extends WebApplication
 {

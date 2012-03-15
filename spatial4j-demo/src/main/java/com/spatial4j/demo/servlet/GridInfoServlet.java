@@ -1,4 +1,4 @@
-package org.apache.solr.spatial.demo.servlet;
+package com.spatial4j.demo.servlet;
 
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.commons.io.IOUtils;
@@ -11,7 +11,7 @@ import com.spatial4j.core.shape.Shape;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.QuadPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
-import org.apache.solr.spatial.demo.KMLHelper;
+import com.spatial4j.demo.KMLHelper;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
