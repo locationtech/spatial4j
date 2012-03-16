@@ -425,7 +425,7 @@ public class DistanceUtils {
   }
 
   /**
-   * Use this rather then Math.toRadians() -- it will perform better
+   * About 3x faster Math.toRadians().  See CompareRadiansSnippit
    */
   public static double toRadians(double deg) {
     return deg * DEGREES_TO_RADIANS;
