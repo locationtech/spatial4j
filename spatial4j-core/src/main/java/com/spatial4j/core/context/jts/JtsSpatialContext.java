@@ -31,8 +31,6 @@ import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.simple.CircleImpl;
-import com.spatial4j.core.shape.simple.GeoCircleImpl;
 import com.spatial4j.core.shape.simple.RectangleImpl;
 import com.spatial4j.core.shape.jts.*;
 
@@ -72,7 +70,8 @@ public class JtsSpatialContext extends SpatialContext {
         if (geo instanceof com.vividsolutions.jts.geom.Point) {
           return new JtsPoint((com.vividsolutions.jts.geom.Point)geo);
         } else if (geo.isRectangle()) {
-          return new JtsEnvelope(geo.getEnvelopeInternal());
+          Envelope env = geo.getEnvelopeInternal();
+          return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
         }
         return new JtsGeometry(geo);
       } catch(com.vividsolutions.jts.io.ParseException ex) {
@@ -121,7 +120,7 @@ public class JtsSpatialContext extends SpatialContext {
     if (type == TYPE_POINT) {
       return new JtsPoint(factory.createPoint(new Coordinate(bytes.getDouble(), bytes.getDouble())));
     } else if (type == TYPE_BBOX) {
-      return new JtsEnvelope(
+      return new RectangleImpl(
           bytes.getDouble(), bytes.getDouble(),
           bytes.getDouble(), bytes.getDouble());
     } else if (type == TYPE_GEO) {
@@ -184,8 +183,9 @@ public class JtsSpatialContext extends SpatialContext {
     if (JtsPoint.class.isInstance(shape)) {
       return ((JtsPoint) shape).getJtsPoint();
     }
-    if (JtsEnvelope.class.isInstance(shape)) {
-      return factory.toGeometry(((JtsEnvelope)shape).envelope);
+    if (Rectangle.class.isInstance(shape)) {
+      Rectangle env = (Rectangle)shape;
+      return factory.toGeometry(new Envelope(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY()));
     }
     if (Circle.class.isInstance(shape)) {
       // TODO, this should maybe pick a bunch of points
@@ -202,19 +202,7 @@ public class JtsSpatialContext extends SpatialContext {
     }
     throw new InvalidShapeException("can't make Geometry from: " + shape);
   }
-
-  @Override
-  public Circle makeCircle(Point point, double distance) {
-    if (isGeo())
-      return new GeoCircleImpl( point, Math.min(distance,maxCircleDistance), this );
-    else
-      return new CircleImpl( point, distance, this );  }
-
-  @Override
-  public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
-    return new JtsEnvelope(new Envelope(minX,maxX,minY,maxY));
-  }
-
+  
   @Override
   public Point makePoint(double x, double y) {
     return new JtsPoint(factory.createPoint(new Coordinate(x, y)));

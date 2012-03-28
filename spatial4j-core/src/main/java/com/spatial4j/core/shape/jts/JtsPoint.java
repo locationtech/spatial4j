@@ -19,9 +19,11 @@ package com.spatial4j.core.shape.jts;
 
 
 import com.vividsolutions.jts.geom.Point;
+import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.simple.RectangleImpl;
 
 public class JtsPoint implements com.spatial4j.core.shape.Point {
 
@@ -46,8 +48,10 @@ public class JtsPoint implements com.spatial4j.core.shape.Point {
   }
 
   @Override
-  public JtsEnvelope getBoundingBox() {
-    return new JtsEnvelope(point.getEnvelopeInternal());
+  public Rectangle getBoundingBox() {
+    double x = point.getX();
+    double y = point.getY();
+    return new RectangleImpl(x, x, y, y);
   }
 
   @Override

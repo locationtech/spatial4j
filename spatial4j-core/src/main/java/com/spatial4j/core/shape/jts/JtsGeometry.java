@@ -26,6 +26,7 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.simple.PointImpl;
+import com.spatial4j.core.shape.simple.RectangleImpl;
 
 public class JtsGeometry implements Shape {
   public final Geometry geo;
@@ -45,8 +46,9 @@ public class JtsGeometry implements Shape {
   }
 
   @Override
-  public JtsEnvelope getBoundingBox() {
-    return new JtsEnvelope(geo.getEnvelopeInternal());
+  public Rectangle getBoundingBox() {
+    Envelope env = geo.getEnvelopeInternal();
+    return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
   }
 
   @Override
@@ -106,13 +108,9 @@ public class JtsGeometry implements Shape {
     
     Polygon qGeo = null;
     if (other instanceof Rectangle) {
-      Envelope env;
-      if (other instanceof JtsEnvelope) {
-        env = ((JtsEnvelope)other).envelope;
-      } else {
-        Rectangle r = (Rectangle)other;
-        env = new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY());
-      }
+      Rectangle r = (Rectangle)other;
+      Envelope env = new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY());
+      
       qGeo = (Polygon) getGeometryFactory(ctx).toGeometry(env);
     } else if (other instanceof JtsGeometry) {
       qGeo = (Polygon)((JtsGeometry)other).geo;
