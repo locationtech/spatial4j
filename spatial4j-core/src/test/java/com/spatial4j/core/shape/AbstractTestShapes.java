@@ -234,7 +234,7 @@ public abstract class AbstractTestShapes {
     double r = random.nextDouble();
     final int BUCKETS = 91;
     int ir = (int) Math.round(r*(BUCKETS-1));//put into buckets
-    int result = (int)((double)((end - start) * ir) / (double)(BUCKETS-1) + (double)start);
+    int result = (int)((double)((end - start) * ir) / (double)(BUCKETS-1) + start);
     assert result >= start && result <= end;
     return result;
   }

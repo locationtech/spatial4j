@@ -20,15 +20,10 @@ package com.spatial4j.core.context;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.GeoCircle;
-import com.spatial4j.core.shape.ICircle;
 import com.spatial4j.core.shape.IPoint;
 import com.spatial4j.core.shape.IRectangle;
 import com.spatial4j.core.shape.IShape;
 import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-
 import java.text.NumberFormat;
 import java.util.Locale;
 

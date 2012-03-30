@@ -19,7 +19,6 @@ package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.*;
 
 /**
  * A simple Rectangle implementation that also supports a longitudinal wrap-around. When minX > maxX, this will assume
@@ -144,6 +143,7 @@ public class Rectangle implements IRectangle {
     return SpatialRelation.INTERSECTS;
   }
 
+  @Override
   public SpatialRelation relate_yRange(double ext_minY, double ext_maxY, SpatialContext ctx) {
     if (ext_minY > maxY || ext_maxY < minY) {
       return SpatialRelation.DISJOINT;

@@ -18,7 +18,6 @@
 package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.*;
 
 /**
  * A circle, also known as a point-radius, based on a
@@ -47,6 +46,7 @@ public class Circle implements ICircle {
     this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, distance, ctx);
   }
 
+  @Override
   public IPoint getCenter() {
     return point;
   }

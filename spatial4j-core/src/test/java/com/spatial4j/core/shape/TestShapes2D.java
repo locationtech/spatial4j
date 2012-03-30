@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import static com.spatial4j.core.shape.SpatialRelation.*;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 
 public class TestShapes2D extends AbstractTestShapes {
