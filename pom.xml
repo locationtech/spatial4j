@@ -233,8 +233,10 @@
 
   <modules>
     <module>spatial4j-core</module>
+    <!--
     <module>spatial4j-solr</module>
     <module>spatial4j-demo</module>
+    -->
   </modules>
   
 </project>
