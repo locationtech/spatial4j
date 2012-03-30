@@ -17,9 +17,7 @@
 
 package com.spatial4j.core.query;
 
-import com.spatial4j.core.context.CoreSpatialContext;
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.exception.InvalidSpatialArgument;
 import com.spatial4j.core.shape.IShape;
 
@@ -71,7 +69,7 @@ public class SpatialArgs {
   @Override
   public String toString()
   {
-    return toString( new CoreSpatialContext(DistanceUnits.KILOMETERS) );
+    return toString( SpatialContext.GEO_KM );
   }
 
   //------------------------------------------------

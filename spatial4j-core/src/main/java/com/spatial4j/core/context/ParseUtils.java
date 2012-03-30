@@ -21,7 +21,6 @@ import com.spatial4j.core.exception.InvalidShapeException;
 
 /**
  * Utility methods related to parsing shapes.
- * Methods here were formerly in DistanceUtils.
  */
 public class ParseUtils {
   private ParseUtils() {

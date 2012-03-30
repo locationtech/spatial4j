@@ -15,25 +15,18 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.shape;
+package com.spatial4j.core.context;
 
-import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.distance.DistanceUnits;
 
-public interface IRectangle extends IShape {
-  public double getWidth();
-  public double getHeight();
 
-  public double getMinX();
-  public double getMinY();
-  public double getMaxX();
-  public double getMaxY();
 
-  /** If {@link #hasArea()} then this returns the area, otherwise it returns 0. */
-  public double getArea();
-  /** Only meaningful for geospatial contexts. */
-  public boolean getCrossesDateLine();
-
-  /* There is no axis line shape, and this is more efficient then creating a flat Rectangle for intersect(). */
-  public SpatialRelation relate_yRange(double minY, double maxY, SpatialContext ctx);
-  public SpatialRelation relate_xRange(double minX, double maxX, SpatialContext ctx);
+/**
+ */
+public class SpatialContextJtsTestCase extends BaseSpatialContextTestCase {
+  @Override
+  protected SpatialContext getSpatialContext() {
+    return new JtsSpatialContext(DistanceUnits.KILOMETERS);
+  }
 }

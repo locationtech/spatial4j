@@ -17,7 +17,6 @@
 
 package com.spatial4j.core.shape;
 
-import com.spatial4j.core.context.CoreSpatialContext;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUnits;
 import org.junit.Test;
@@ -30,7 +29,7 @@ public class TestShapes2D extends AbstractTestShapes {
 
   @Override
   protected SpatialContext getContext() {
-    return new CoreSpatialContext(DistanceUnits.CARTESIAN);
+    return new SpatialContext(DistanceUnits.CARTESIAN);
   }
 
   @Test

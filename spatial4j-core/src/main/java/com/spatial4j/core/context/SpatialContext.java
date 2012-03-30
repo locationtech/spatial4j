@@ -25,6 +25,7 @@ import com.spatial4j.core.shape.ICircle;
 import com.spatial4j.core.shape.IPoint;
 import com.spatial4j.core.shape.IRectangle;
 import com.spatial4j.core.shape.IShape;
+import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 
 import java.text.NumberFormat;
@@ -35,22 +36,22 @@ import java.util.StringTokenizer;
  * This holds things like distance units, distance calculator, and world bounds.
  * Threadsafe & immutable.
  */
-public abstract class SpatialContext {
+public class SpatialContext {
 
   //These are non-null
   private final DistanceUnits units;
   private final DistanceCalculator calculator;
   private final IRectangle worldBounds;
-
-  public static Rectangle GEO_WORLDBOUNDS = new Rectangle(-180,180,-90,90);
-  public static Rectangle MAX_WORLDBOUNDS;
+  
+  public static final Rectangle GEO_WORLDBOUNDS = new Rectangle(-180,180,-90,90);
+  public static final Rectangle MAX_WORLDBOUNDS;
   static {
     double v = Double.MAX_VALUE;
     MAX_WORLDBOUNDS = new Rectangle(-v, v, -v, v);
   }
-  
+  public static final SpatialContext GEO_KM = new SpatialContext(DistanceUnits.KILOMETERS);
+
   protected final Double maxCircleDistance;//only for geo
-  protected final boolean NUDGE = false;//TODO document
 
   /**
    *
@@ -58,7 +59,7 @@ public abstract class SpatialContext {
    * @param calculator Optional; defaults to Haversine or cartesian depending on units.
    * @param worldBounds Optional; defaults to GEO_WORLDBOUNDS or MAX_WORLDBOUNDS depending on units.
    */
-  protected SpatialContext(DistanceUnits units, DistanceCalculator calculator, IRectangle worldBounds) {
+  public SpatialContext(DistanceUnits units, DistanceCalculator calculator, IRectangle worldBounds) {
     if (units == null)
       throw new IllegalArgumentException("units can't be null");
     this.units = units;
@@ -83,6 +84,10 @@ public abstract class SpatialContext {
     this.worldBounds = worldBounds;
     
     this.maxCircleDistance = isGeo() ? calculator.degreesToDistance(180) : null;
+  }
+
+  public SpatialContext(DistanceUnits units) {
+    this(units, null, null);
   }
 
   public DistanceUnits getUnits() {
@@ -133,17 +138,44 @@ public abstract class SpatialContext {
    *   http://en.wikipedia.org/wiki/Well-known_text
    *
    */
-  public abstract IShape readShape(String value) throws InvalidShapeException;
+  public IShape readShape(String value) throws InvalidShapeException {
+    IShape s = readStandardShape( value );
+    if( s == null ) {
+      throw new InvalidShapeException( "Unable to read: "+value );
+    }
+    return s;
+  }
 
+  public String toString(IShape shape) {
+    NumberFormat nf = NumberFormat.getInstance(Locale.US);
+    nf.setGroupingUsed(false);
+    nf.setMaximumFractionDigits(6);
+    nf.setMinimumFractionDigits(6);
+    
+    if (IPoint.class.isInstance(shape)) {
+      IPoint point = (IPoint) shape;
+      return nf.format(point.getX()) + " " + nf.format(point.getY());
+    } 
+    else if (IRectangle.class.isInstance(shape)) {
+      IRectangle rect = (IRectangle)shape;
+      return
+          nf.format(rect.getMinX()) + " " +
+          nf.format(rect.getMinY()) + " " +
+          nf.format(rect.getMaxX()) + " " +
+          nf.format(rect.getMaxY());
+    }
+    return shape.toString();
+  }
+
+  /** Construct a point. The parameters will be normalized. */
+  public IPoint makePoint(double x, double y) {
+    return new Point(normX(x),normY(y));
+  }
+  
   public IPoint readLatCommaLonPoint(String value) throws InvalidShapeException {
     double[] latLon = ParseUtils.parseLatitudeLongitude(value);
     return makePoint(latLon[1],latLon[0]);
   }
-
-  public abstract String toString(IShape shape);
-
-  /** Construct a point. The parameters will be normalized. */
-  public abstract IPoint makePoint( double x, double y );
 
   /** Construct a rectangle. The parameters will be normalized. */
   public IRectangle makeRect(double minX, double maxX, double minY, double maxY) {
@@ -280,19 +312,6 @@ public abstract class SpatialContext {
       return makeRect(p0, p2, p1, p3);
     }
     return makePoint(p0, p1);
-  }
-
-  public String writeRect(IRectangle rect) {
-    NumberFormat nf = NumberFormat.getInstance(Locale.US);
-    nf.setGroupingUsed(false);
-    nf.setMaximumFractionDigits(6);
-    nf.setMinimumFractionDigits(6);
-
-    return
-      nf.format(rect.getMinX()) + " " +
-      nf.format(rect.getMinY()) + " " +
-      nf.format(rect.getMaxX()) + " " +
-      nf.format(rect.getMaxY());
   }
 
   @Override

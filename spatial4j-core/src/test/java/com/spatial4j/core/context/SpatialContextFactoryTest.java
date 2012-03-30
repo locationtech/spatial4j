@@ -50,7 +50,7 @@ public class SpatialContextFactoryTest {
   
   @Test
   public void testDefault() {
-    SpatialContext s = CoreSpatialContext.GEO_KM;
+    SpatialContext s = SpatialContext.GEO_KM;
     SpatialContext t = call();//default
     assertEquals(s.getClass(),t.getClass());
     assertEquals(s.getUnits(),t.getUnits());
@@ -87,7 +87,7 @@ public class SpatialContextFactoryTest {
 
     @Override
     protected SpatialContext newSpatialContext() {
-      return new CoreSpatialContext(DistanceUnits.CARTESIAN);
+      return new SpatialContext(DistanceUnits.CARTESIAN);
     }
   }
 }

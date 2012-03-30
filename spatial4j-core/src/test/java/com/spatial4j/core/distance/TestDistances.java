@@ -18,7 +18,6 @@
 package com.spatial4j.core.distance;
 
 import com.spatial4j.core.RandomSeed;
-import com.spatial4j.core.context.CoreSpatialContext;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.shape.IPoint;
@@ -41,7 +40,7 @@ public class TestDistances {
 
   @Before
   public void beforeTest() {
-    ctx = new CoreSpatialContext(DistanceUnits.KILOMETERS);
+    ctx = new SpatialContext(DistanceUnits.KILOMETERS);
     EPS = 10e-4;//delta when doing double assertions. Geo eps is not that small.
   }
 
@@ -162,7 +161,7 @@ public class TestDistances {
 
   @Test
   public void testDistCalcPointOnBearing_cartesian() {
-    ctx = new CoreSpatialContext(DistanceUnits.CARTESIAN);
+    ctx = new SpatialContext(DistanceUnits.CARTESIAN);
     EPS = 10e-6;//tighter epsilon (aka delta)
     for(int i = 0; i < 1000; i++) {
       testDistCalcPointOnBearing(random.nextInt(100));

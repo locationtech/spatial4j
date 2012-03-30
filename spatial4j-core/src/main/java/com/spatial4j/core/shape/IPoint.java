@@ -18,7 +18,6 @@
 package com.spatial4j.core.shape;
 
 public interface IPoint extends IShape {
-
   public double getX();
   public double getY();
 }

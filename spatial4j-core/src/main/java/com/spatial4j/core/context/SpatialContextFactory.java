@@ -98,13 +98,14 @@ public class SpatialContextFactory {
     String worldBoundsStr = args.get("worldBounds");
     if (worldBoundsStr == null)
       return;
+    
     //kinda ugly we do this just to read a rectangle.  TODO refactor
-    CoreSpatialContext simpleCtx = new CoreSpatialContext(units, calculator, null);
+    SpatialContext simpleCtx = new SpatialContext(units, calculator, null);
     worldBounds = (IRectangle) simpleCtx.readShape(worldBoundsStr);
   }
 
   /** Subclasses should simply construct the instance from the initialized configuration. */
   protected SpatialContext newSpatialContext() {
-    return new CoreSpatialContext(units,calculator,worldBounds);
+    return new SpatialContext(units,calculator,worldBounds);
   }
 }

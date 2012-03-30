@@ -17,7 +17,6 @@
 
 package com.spatial4j.core.shape;
 
-import com.spatial4j.core.context.CoreSpatialContext;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUnits;
@@ -141,7 +140,7 @@ public class TestShapesGeo extends AbstractTestShapes {
         distCalc = new GeodesicSphereDistCalc.Vincenty(units.earthRadius());
         break;
     }
-    return new CoreSpatialContext(units,
+    return new SpatialContext(units,
         distCalc,
         SpatialContext.GEO_WORLDBOUNDS);
   }
