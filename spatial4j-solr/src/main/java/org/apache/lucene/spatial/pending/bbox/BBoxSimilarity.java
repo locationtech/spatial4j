@@ -16,11 +16,11 @@
  */
 package org.apache.lucene.spatial.pending.bbox;
 
-import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.IRectangle;
 
 
 
 public interface BBoxSimilarity {
 
-  public double score(Rectangle extent);
+  public double score(IRectangle extent);
 }

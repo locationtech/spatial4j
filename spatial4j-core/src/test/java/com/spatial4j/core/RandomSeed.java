@@ -19,7 +19,6 @@ package com.spatial4j.core;
 
 /**
  * Reads "tests.seed" system property to initialized a global final constant.
- * @author David Smiley - dsmiley@mitre.org
  */
 public class RandomSeed {
   private static final long _seed;

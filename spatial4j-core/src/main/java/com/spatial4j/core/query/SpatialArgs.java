@@ -17,18 +17,18 @@
 
 package com.spatial4j.core.query;
 
+import com.spatial4j.core.context.CoreSpatialContext;
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.simple.SimpleSpatialContext;
 import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.exception.InvalidSpatialArgument;
-import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.IShape;
 
 public class SpatialArgs {
 
   public static final double DEFAULT_DIST_PRECISION = 0.025d;
 
   private SpatialOperation operation;
-  private Shape shape;
+  private IShape shape;
   private double distPrecision = DEFAULT_DIST_PRECISION;
 
   // Useful for 'distance' calculations
@@ -39,7 +39,7 @@ public class SpatialArgs {
     this.operation = operation;
   }
 
-  public SpatialArgs(SpatialOperation operation, Shape shape) {
+  public SpatialArgs(SpatialOperation operation, IShape shape) {
     this.operation = operation;
     this.shape = shape;
   }
@@ -71,7 +71,7 @@ public class SpatialArgs {
   @Override
   public String toString()
   {
-    return toString( new SimpleSpatialContext(DistanceUnits.KILOMETERS) );
+    return toString( new CoreSpatialContext(DistanceUnits.KILOMETERS) );
   }
 
   //------------------------------------------------
@@ -89,13 +89,13 @@ public class SpatialArgs {
   /**
    * Considers {@link SpatialOperation#BBoxWithin} in returning the shape.
    */
-  public Shape getShape() {
+  public IShape getShape() {
     if (shape != null && (operation == SpatialOperation.BBoxWithin || operation == SpatialOperation.BBoxIntersects))
       return shape.getBoundingBox();
     return shape;
   }
 
-  public void setShape(Shape shape) {
+  public void setShape(IShape shape) {
     this.shape = shape;
   }
 

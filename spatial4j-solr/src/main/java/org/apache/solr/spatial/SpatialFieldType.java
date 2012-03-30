@@ -25,9 +25,9 @@ import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.query.SpatialArgs;
 import com.spatial4j.core.query.SpatialArgsParser;
 import com.spatial4j.core.query.SpatialOperation;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.IPoint;
+import com.spatial4j.core.shape.IRectangle;
+import com.spatial4j.core.shape.IShape;
 import org.apache.lucene.spatial.SpatialFieldInfo;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.solr.common.SolrException;
@@ -78,7 +78,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   @Override
   public final IndexableField createField(SchemaField field, Object val, float boost) {
-    Shape shape = (val instanceof Shape)?((Shape)val): ctx.readShape( val.toString() );
+    IShape shape = (val instanceof IShape)?((IShape)val): ctx.readShape( val.toString() );
     if( shape == null ) {
       log.warn( "Field {}: null shape for input: {}", field, val );
       return null;
@@ -88,7 +88,7 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
 
   @Override
   public final IndexableField[] createFields(SchemaField field, Object val, float boost) {
-    Shape shape = (val instanceof Shape)?((Shape)val): ctx.readShape( val.toString() );
+    IShape shape = (val instanceof IShape)?((IShape)val): ctx.readShape( val.toString() );
     if( shape == null ) {
       log.warn( "Field {}: null shape for input: {}", field, val );
       return null;
@@ -109,13 +109,13 @@ public abstract class SpatialFieldType<T extends SpatialFieldInfo> extends Field
   public Query getRangeQuery(QParser parser, SchemaField field, String part1, String part2, boolean minInclusive, boolean maxInclusive) {
     if (!minInclusive || !maxInclusive)
       throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "Both sides of range query must be inclusive: " + field.getName());
-    Shape shape1 = ctx.readShape(part1);
-    Shape shape2 = ctx.readShape(part2);
-    if (!(shape1 instanceof Point) || !(shape2 instanceof Point))
+    IShape shape1 = ctx.readShape(part1);
+    IShape shape2 = ctx.readShape(part2);
+    if (!(shape1 instanceof IPoint) || !(shape2 instanceof IPoint))
       throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "Both sides of range query must be points: " + field.getName());
-    Point p1 = (Point) shape1;
-    Point p2 = (Point) shape2;
-    Rectangle bbox = ctx.makeRect(p1.getX(),p2.getX(),p1.getY(),p2.getY());
+    IPoint p1 = (IPoint) shape1;
+    IPoint p2 = (IPoint) shape2;
+    IRectangle bbox = ctx.makeRect(p1.getX(),p2.getX(),p1.getY(),p2.getY());
     SpatialArgs spatialArgs = new SpatialArgs(SpatialOperation.Intersects,bbox);
     return getQueryFromSpatialArgs(parser, field, spatialArgs);
   }

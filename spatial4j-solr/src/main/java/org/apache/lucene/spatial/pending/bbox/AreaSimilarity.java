@@ -19,7 +19,7 @@ package org.apache.lucene.spatial.pending.bbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.IRectangle;
 
 /**
  * The algorithm is implemented as envelope on envelope overlays rather than
@@ -52,13 +52,13 @@ public class AreaSimilarity implements BBoxSimilarity {
   /**
    * Properties associated with the query envelope
    */
-  private final Rectangle queryExtent;
+  private final IRectangle queryExtent;
   private final double queryArea;
 
   private final double targetPower;
   private final double queryPower;
 
-  public AreaSimilarity(Rectangle queryExtent, double queryPower, double targetPower) {
+  public AreaSimilarity(IRectangle queryExtent, double queryPower, double targetPower) {
     this.queryExtent = queryExtent;
     this.queryArea = queryExtent.getArea();
 
@@ -73,7 +73,7 @@ public class AreaSimilarity implements BBoxSimilarity {
 //  }
   }
 
-  public AreaSimilarity(Rectangle queryExtent) {
+  public AreaSimilarity(IRectangle queryExtent) {
     this(queryExtent, 2.0, 0.5);
   }
 
@@ -83,7 +83,7 @@ public class AreaSimilarity implements BBoxSimilarity {
   }
 
   @Override
-  public double score(Rectangle target) {
+  public double score(IRectangle target) {
     if (target == null || queryArea <= 0) {
       return 0;
     }

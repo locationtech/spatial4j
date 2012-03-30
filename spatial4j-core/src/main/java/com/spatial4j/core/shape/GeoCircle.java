@@ -15,22 +15,18 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.shape.simple;
+package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.SpatialRelation;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
 
 /**
- * @author David Smiley - dsmiley@mitre.org
  */
-public class GeoCircleImpl extends CircleImpl {
+public class GeoCircle extends Circle {
   private final double distDEG;// [0 TO 180]
-  private final GeoCircleImpl inverseCircle;//when distance reaches > 1/2 way around the world, cache the inverse.
+  private final GeoCircle inverseCircle;//when distance reaches > 1/2 way around the world, cache the inverse.
   private final double horizAxisY;//see getYAxis
 
-  public GeoCircleImpl(Point p, double dist, SpatialContext ctx) {
+  public GeoCircle(IPoint p, double dist, SpatialContext ctx) {
     super(p, dist, ctx);
     assert ctx.isGeo();
 
@@ -42,8 +38,8 @@ public class GeoCircleImpl extends CircleImpl {
       double backDistDEG = 180 - distDEG;
       if (backDistDEG >= 0) {
         double backDistance = ctx.getDistCalc().degreesToDistance(backDistDEG);
-        Point backPoint = ctx.makePoint(getCenter().getX() + 180, getCenter().getY() + 180);
-        inverseCircle = new GeoCircleImpl(backPoint,backDistance,ctx);
+        IPoint backPoint = ctx.makePoint(getCenter().getX() + 180, getCenter().getY() + 180);
+        inverseCircle = new GeoCircle(backPoint,backDistance,ctx);
       } else
         inverseCircle = null;//whole globe
       horizAxisY = getCenter().getY();//although probably not used
@@ -74,7 +70,7 @@ public class GeoCircleImpl extends CircleImpl {
    * @return DISJOINT, CONTAINS, or INTERSECTS (not WITHIN)
    */
   @Override
-  protected SpatialRelation relateRectanglePhase2(Rectangle r, SpatialRelation bboxSect, SpatialContext ctx) {
+  protected SpatialRelation relateRectanglePhase2(IRectangle r, SpatialRelation bboxSect, SpatialContext ctx) {
 
     //Rectangle wraps around the world longitudinally creating a solid band; there are no corners to test intersection
     if (r.getWidth() == 360) {
@@ -130,7 +126,7 @@ public class GeoCircleImpl extends CircleImpl {
     return SpatialRelation.DISJOINT;
   }
 
-  private SpatialRelation relateRectangleCircleWrapsPole(Rectangle r, SpatialContext ctx) {
+  private SpatialRelation relateRectangleCircleWrapsPole(IRectangle r, SpatialContext ctx) {
     //This method handles the case where the circle wraps ONE pole, but not both.  For both,
     // there is the inverseCircle case handled before now.  The only exception is for the case where
     // the circle covers the entire globe, and we'll check that first.
@@ -183,7 +179,7 @@ public class GeoCircleImpl extends CircleImpl {
   }
 
   /** Returns either 0 for none, 1 for some, or 4 for all. */
-  private int numCornersIntersect(Rectangle r) {
+  private int numCornersIntersect(IRectangle r) {
     //We play some logic games to avoid calling contains() which can be expensive.
     boolean bool;//if true then all corners intersect, if false then no corners intersect
     // for partial, we exit early with 1 and ignore bool.

@@ -15,21 +15,10 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.distance;
+package com.spatial4j.core.shape;
 
-import com.spatial4j.core.shape.IPoint;
+public interface IPoint extends IShape {
 
-/**
- */
-public abstract class AbstractDistanceCalculator implements DistanceCalculator {
-
-  @Override
-  public double distance(IPoint from, IPoint to) {
-    return distance(from, to.getX(), to.getY());
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
+  public double getX();
+  public double getY();
 }

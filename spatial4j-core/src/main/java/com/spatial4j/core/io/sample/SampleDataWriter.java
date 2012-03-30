@@ -25,7 +25,7 @@ import java.io.PrintWriter;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.IShape;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -56,7 +56,7 @@ public class SampleDataWriter {
     out.flush();
   }
 
-  protected String toString( String name, Shape shape ) {
+  protected String toString( String name, IShape shape ) {
     String v = ctx.toString( shape );
     if( maxLength > 0 && v.length() > maxLength ) {
       Geometry g = ((JtsSpatialContext)ctx).getGeometryFrom(shape);
@@ -85,7 +85,7 @@ public class SampleDataWriter {
     this.write(id, name, ctx.makePoint(x, y) );
   }
 
-  public void write(String id, String name, Shape shape)  throws IOException {
+  public void write(String id, String name, IShape shape)  throws IOException {
 
     String geo = toString( name, bbox?shape.getBoundingBox():shape );
     out.print( id );

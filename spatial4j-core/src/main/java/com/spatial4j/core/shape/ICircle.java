@@ -15,17 +15,11 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.context.simple;
-
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
+package com.spatial4j.core.shape;
 
 /**
-* @author dsmiley
-*/
-public class SimpleSpatialContextFactory extends SpatialContextFactory {
-  @Override
-  protected SpatialContext newSpatialContext() {
-    return new SimpleSpatialContext(units,calculator,worldBounds);
-  }
+ * This is basically a circle.
+ */
+public interface ICircle extends IShape {
+  double getDistance();
 }

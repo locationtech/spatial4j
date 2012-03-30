@@ -25,7 +25,6 @@ import java.util.Set;
 
 /**
  * Wraps another map, keeping track of each key that was seen via {@link #get(Object)} or {@link #remove(Object)}.
- * @author dsmiley
  */
 @SuppressWarnings("unchecked")
 public class MapListener<K, V> extends ForwardingMap<K, V> {

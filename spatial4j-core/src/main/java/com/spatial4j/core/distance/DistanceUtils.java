@@ -18,7 +18,7 @@
 package com.spatial4j.core.distance;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.IRectangle;
 
 
 /**
@@ -229,7 +229,7 @@ public class DistanceUtils {
     return (off <= 180 ? off : 360-off) - 90;
   }
 
-  public static Rectangle calcBoxByDistFromPtDEG(double lat, double lon, double distance, SpatialContext ctx) {
+  public static IRectangle calcBoxByDistFromPtDEG(double lat, double lon, double distance, SpatialContext ctx) {
     //See http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates Section 3.1, 3.2 and 3.3
 
     double radius = ctx.getUnits().earthRadius();

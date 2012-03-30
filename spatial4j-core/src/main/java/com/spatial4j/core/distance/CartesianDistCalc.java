@@ -18,8 +18,8 @@
 package com.spatial4j.core.distance;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.IPoint;
+import com.spatial4j.core.shape.IRectangle;
 
 public class CartesianDistCalc extends AbstractDistanceCalculator {
 
@@ -34,7 +34,7 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   }
 
   @Override
-  public double distance(Point from, double toX, double toY) {
+  public double distance(IPoint from, double toX, double toY) {
     double result = 0;
 
     double v = from.getX() - toX;
@@ -50,7 +50,7 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   }
 
   @Override
-  public Point pointOnBearing(Point from, double dist, double bearingDEG, SpatialContext ctx) {
+  public IPoint pointOnBearing(IPoint from, double dist, double bearingDEG, SpatialContext ctx) {
     if (dist == 0)
       return from;
     double bearingRAD = Math.toDegrees(bearingDEG);
@@ -70,12 +70,12 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   }
 
   @Override
-  public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
+  public IRectangle calcBoxByDistFromPt(IPoint from, double distance, SpatialContext ctx) {
     return ctx.makeRect(from.getX()-distance,from.getX()+distance,from.getY()-distance,from.getY()+distance);
   }
 
   @Override
-  public double calcBoxByDistFromPtHorizAxis(Point from, double distance, SpatialContext ctx) {
+  public double calcBoxByDistFromPtHorizAxis(IPoint from, double distance, SpatialContext ctx) {
     return from.getY();
   }
 

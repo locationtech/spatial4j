@@ -19,13 +19,13 @@ package com.spatial4j.core.shape.jts;
 
 
 import com.vividsolutions.jts.geom.Point;
+import com.spatial4j.core.shape.IRectangle;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.simple.RectangleImpl;
+import com.spatial4j.core.shape.IShape;
 
-public class JtsPoint implements com.spatial4j.core.shape.Point {
+public class JtsPoint implements com.spatial4j.core.shape.IPoint {
 
   private Point point;
 
@@ -38,7 +38,7 @@ public class JtsPoint implements com.spatial4j.core.shape.Point {
   }
 
   @Override
-  public com.spatial4j.core.shape.Point getCenter() {
+  public com.spatial4j.core.shape.IPoint getCenter() {
     return this;
   }
 
@@ -48,16 +48,16 @@ public class JtsPoint implements com.spatial4j.core.shape.Point {
   }
 
   @Override
-  public Rectangle getBoundingBox() {
+  public IRectangle getBoundingBox() {
     double x = point.getX();
     double y = point.getY();
-    return new RectangleImpl(x, x, y, y);
+    return new Rectangle(x, x, y, y);
   }
 
   @Override
-  public SpatialRelation relate(Shape other, SpatialContext ctx) {
+  public SpatialRelation relate(IShape other, SpatialContext ctx) {
     // ** NOTE ** the overall order of logic is kept consistent here with simple.PointImpl.
-    if (other instanceof com.spatial4j.core.shape.Point)
+    if (other instanceof com.spatial4j.core.shape.IPoint)
       return this.equals(other) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
     return other.relate(this, ctx).transpose();
   }

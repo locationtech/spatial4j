@@ -21,7 +21,6 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
 
 /**
- * @author dsmiley
  */
 public class JtsSpatialContextFactory extends SpatialContextFactory {
   @Override

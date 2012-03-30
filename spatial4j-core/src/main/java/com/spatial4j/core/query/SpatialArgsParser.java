@@ -20,7 +20,7 @@ package com.spatial4j.core.query;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.exception.InvalidSpatialArgument;
-import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.IShape;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class SpatialArgsParser
       throw new InvalidSpatialArgument("missing body : " + v, null);
     }
 
-    Shape shape = ctx.readShape(body);
+    IShape shape = ctx.readShape(body);
     SpatialArgs args = new SpatialArgs(op,shape);
 
     if (v.length() > (edx + 1)) {

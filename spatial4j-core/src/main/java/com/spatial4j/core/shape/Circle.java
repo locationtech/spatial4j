@@ -17,9 +17,216 @@
 
 package com.spatial4j.core.shape;
 
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.*;
+
 /**
- * This is basically a circle.
+ * A circle, also known as a point-radius, based on a
+ * {@link com.spatial4j.core.distance.DistanceCalculator} which does all the work. This implementation
+ * should work for both cartesian 2D and geodetic sphere surfaces.
+ * Threadsafe & immutable.
  */
-public interface Circle extends Shape {
-  double getDistance();
+public class Circle implements ICircle {
+
+  protected final IPoint point;
+  protected final double distance;
+
+  protected final SpatialContext ctx;
+
+  /* below is calculated & cached: */
+  
+  protected final IRectangle enclosingBox;
+
+  //we don't have a line shape so we use a rectangle for these axis
+
+  public Circle(IPoint p, double dist, SpatialContext ctx) {
+    //We assume any normalization / validation of params already occurred (including bounding dist)
+    this.point = p;
+    this.distance = dist;
+    this.ctx = ctx;
+    this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, distance, ctx);
+  }
+
+  public IPoint getCenter() {
+    return point;
+  }
+
+  @Override
+  public double getDistance() {
+    return distance;
+  }
+
+  public boolean contains(double x, double y) {
+    return ctx.getDistCalc().distance(point, x, y) <= distance;
+  }
+
+  @Override
+  public boolean hasArea() {
+    return distance > 0;
+  }
+
+  /**
+   * Note that the bounding box might contain a minX that is > maxX, due to WGS84 dateline.
+   */
+  @Override
+  public IRectangle getBoundingBox() {
+    return enclosingBox;
+  }
+
+  @Override
+  public SpatialRelation relate(IShape other, SpatialContext ctx) {
+    assert this.ctx == ctx;
+//This shortcut was problematic in testing due to distinctions of CONTAINS/WITHIN for no-area shapes (lines, points).
+//    if (distance == 0) {
+//      return point.relate(other,ctx).intersects() ? SpatialRelation.WITHIN : SpatialRelation.DISJOINT;
+//    }
+
+    if (other instanceof IPoint) {
+      return relate((IPoint) other, ctx);
+    }
+    if (other instanceof IRectangle) {
+      return relate((IRectangle) other, ctx);
+    }
+    if (other instanceof ICircle) {
+      return relate((ICircle) other, ctx);
+    }
+    return other.relate(this, ctx).transpose();
+  }
+
+  public SpatialRelation relate(IPoint point, SpatialContext ctx) {
+    return contains(point.getX(),point.getY()) ? SpatialRelation.CONTAINS : SpatialRelation.DISJOINT;
+  }
+
+  public SpatialRelation relate(IRectangle r, SpatialContext ctx) {
+    //Note: Surprisingly complicated!
+
+    //--We start by leveraging the fact we have a calculated bbox that is "cheaper" than use of DistanceCalculator.
+    final SpatialRelation bboxSect = enclosingBox.relate(r, ctx);
+    if (bboxSect == SpatialRelation.DISJOINT || bboxSect == SpatialRelation.WITHIN)
+      return bboxSect;
+    else if (bboxSect == SpatialRelation.CONTAINS && enclosingBox.equals(r))//nasty identity edge-case
+      return SpatialRelation.WITHIN;
+    //bboxSect is INTERSECTS or CONTAINS
+    //The result can be DISJOINT, CONTAINS, or INTERSECTS (not WITHIN)
+
+    return relateRectanglePhase2(r, bboxSect, ctx);
+  }
+
+  protected SpatialRelation relateRectanglePhase2(final IRectangle r, SpatialRelation bboxSect, SpatialContext ctx) {
+    /*
+     !! DOES NOT WORK WITH GEO CROSSING DATELINE OR WORLD-WRAP.
+     TODO upgrade to handle crossing dateline, but not world-wrap; use some x-shifting code from RectangleImpl.
+     */
+
+    //At this point, the only thing we are certain of is that circle is *NOT* WITHIN r, since the bounding box of a
+    // circle MUST be within r for the circle to be within r.
+
+    //--Quickly determine if they are DISJOINT or not.
+    //see http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection/1879223#1879223
+    final double closestX;
+    double ctr_x = getXAxis();
+    if ( ctr_x < r.getMinX() )
+      closestX = r.getMinX();
+    else if (ctr_x > r.getMaxX())
+      closestX = r.getMaxX();
+    else
+      closestX = ctr_x;
+
+    final double closestY;
+    double ctr_y = getYAxis();
+    if ( ctr_y < r.getMinY() )
+      closestY = r.getMinY();
+    else if (ctr_y > r.getMaxY())
+      closestY = r.getMaxY();
+    else
+      closestY = ctr_y;
+
+    //Check if there is an intersection from this circle to closestXY
+    boolean didContainOnClosestXY = false;
+    if (ctr_x == closestX) {
+      double deltaY = Math.abs(ctr_y - closestY);
+      double distYCirc = (ctr_y < closestY ? enclosingBox.getMaxY() - ctr_y : ctr_y - enclosingBox.getMinY());
+      if (deltaY > distYCirc)
+        return SpatialRelation.DISJOINT;
+    } else if (ctr_y == closestY) {
+      double deltaX = Math.abs(ctr_x - closestX);
+      double distXCirc = (ctr_x < closestX ? enclosingBox.getMaxX() - ctr_x : ctr_x - enclosingBox.getMinX());
+      if (deltaX > distXCirc)
+        return SpatialRelation.DISJOINT;
+    } else {
+      //fallback on more expensive calculation
+      didContainOnClosestXY = true;
+      if(! contains(closestX,closestY) )
+        return SpatialRelation.DISJOINT;
+    }
+
+    //At this point we know that it's *NOT* DISJOINT, so there is some level of intersection. It's *NOT* WITHIN either.
+    // The only question left is whether circle CONTAINS r or simply intersects it.
+
+    //If circle contains r, then its bbox MUST also CONTAIN r.
+    if (bboxSect != SpatialRelation.CONTAINS)
+      return SpatialRelation.INTERSECTS;
+
+    //Find the farthest point of r away from the center of the circle. If that point is contained, then all of r is
+    // contained.
+    double farthestX = r.getMaxX() - ctr_x > ctr_x - r.getMinX() ? r.getMaxX() : r.getMinX();
+    double farthestY = r.getMaxY() - ctr_y > ctr_y - r.getMinY() ? r.getMaxY() : r.getMinY();
+    if (contains(farthestX,farthestY))
+      return SpatialRelation.CONTAINS;
+    return SpatialRelation.INTERSECTS;
+  }
+
+  /**
+   * The y axis horizontal of maximal left-right extent of the circle.
+   */
+  protected double getYAxis() {
+    return point.getY();
+  }
+
+  protected double getXAxis() {
+    return point.getX();
+  }
+
+  public SpatialRelation relate(ICircle circle, SpatialContext ctx) {
+    double crossDist = ctx.getDistCalc().distance(point, circle.getCenter());
+    double aDist = distance, bDist = circle.getDistance();
+    if (crossDist > aDist + bDist)
+      return SpatialRelation.DISJOINT;
+    if (crossDist < aDist && crossDist + bDist <= aDist)
+      return SpatialRelation.CONTAINS;
+    if (crossDist < bDist && crossDist + aDist <= bDist)
+      return SpatialRelation.WITHIN;
+
+    return SpatialRelation.INTERSECTS;
+  }
+
+  @Override
+  public String toString() {
+    return "Circle(" + point + ",d=" + distance + ')';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Circle circle = (Circle) o;
+
+    if (point != null ? !point.equals(circle.point) : circle.point != null) return false;
+    if (Double.compare(circle.distance, distance) != 0) return false;
+    if (ctx != null ? !ctx.equals(circle.ctx) : circle.ctx != null) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result;
+    long temp;
+    result = point != null ? point.hashCode() : 0;
+    temp = distance != +0.0d ? Double.doubleToLongBits(distance) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    result = 31 * result + (ctx != null ? ctx.hashCode() : 0);
+    return result;
+  }
 }

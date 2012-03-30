@@ -16,11 +16,11 @@
  */
 package com.spatial4j.core.context;
 
-import com.spatial4j.core.context.simple.SimpleSpatialContext;
 import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
-import com.spatial4j.core.shape.simple.RectangleImpl;
+import com.spatial4j.core.shape.Rectangle;
+
 import org.junit.After;
 import org.junit.Test;
 
@@ -50,7 +50,7 @@ public class SpatialContextFactoryTest {
   
   @Test
   public void testDefault() {
-    SpatialContext s = SimpleSpatialContext.GEO_KM;
+    SpatialContext s = CoreSpatialContext.GEO_KM;
     SpatialContext t = call();//default
     assertEquals(s.getClass(),t.getClass());
     assertEquals(s.getUnits(),t.getUnits());
@@ -68,7 +68,7 @@ public class SpatialContextFactoryTest {
         "distCalculator","cartesian^2",
         "worldBounds","-100 0 75 200");//West South East North
     assertEquals(new CartesianDistCalc(true),sc.getDistCalc());
-    assertEquals(new RectangleImpl(-100,75,0,200),sc.getWorldBounds());
+    assertEquals(new Rectangle(-100,75,0,200),sc.getWorldBounds());
 
     sc = call("units","miles",
         "distCalculator","lawOfCosines");
@@ -87,7 +87,7 @@ public class SpatialContextFactoryTest {
 
     @Override
     protected SpatialContext newSpatialContext() {
-      return new SimpleSpatialContext(DistanceUnits.CARTESIAN);
+      return new CoreSpatialContext(DistanceUnits.CARTESIAN);
     }
   }
 }

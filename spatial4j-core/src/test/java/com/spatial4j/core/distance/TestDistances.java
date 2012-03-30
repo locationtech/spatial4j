@@ -18,11 +18,11 @@
 package com.spatial4j.core.distance;
 
 import com.spatial4j.core.RandomSeed;
+import com.spatial4j.core.context.CoreSpatialContext;
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.simple.SimpleSpatialContext;
 import com.spatial4j.core.shape.SpatialRelation;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.IPoint;
+import com.spatial4j.core.shape.IRectangle;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,7 +41,7 @@ public class TestDistances {
 
   @Before
   public void beforeTest() {
-    ctx = new SimpleSpatialContext(DistanceUnits.KILOMETERS);
+    ctx = new CoreSpatialContext(DistanceUnits.KILOMETERS);
     EPS = 10e-4;//delta when doing double assertions. Geo eps is not that small.
   }
 
@@ -52,7 +52,7 @@ public class TestDistances {
   @Test
   public void testSomeDistances() {
     //See to verify: from http://www.movable-type.co.uk/scripts/latlong.html
-    Point ctr = pLL(0,100);
+    IPoint ctr = pLL(0,100);
     assertEquals(11100, dc().distance(ctr, pLL(10, 0)),3);
     assertEquals(11100, dc().distance(ctr, pLL(10, -160)),3);
 
@@ -64,11 +64,11 @@ public class TestDistances {
     //first test regression
     {
       double d = 6894.1;
-      Point pCtr = pLL(-20, 84);
-      Point pTgt = pLL(-42, 15);
+      IPoint pCtr = pLL(-20, 84);
+      IPoint pTgt = pLL(-42, 15);
       assertTrue(dc().distance(pCtr, pTgt) < d);
       //since the pairwise distance is less than d, a bounding box from ctr with d should contain pTgt.
-      Rectangle r = dc().calcBoxByDistFromPt(pCtr, d, ctx);
+      IRectangle r = dc().calcBoxByDistFromPt(pCtr, d, ctx);
       assertEquals(SpatialRelation.CONTAINS,r.relate(pTgt, ctx));
       checkBBox(pCtr,d);
     }
@@ -92,17 +92,17 @@ public class TestDistances {
     for (int T = 0; T < 100; T++) {
       double lat = -90 + random.nextDouble()*180;
       double lon = -180 + random.nextDouble()*360;
-      Point ctr = ctx.makePoint(lon, lat);
+      IPoint ctr = ctx.makePoint(lon, lat);
       double dist = MAXDIST*random.nextDouble();
       checkBBox(ctr, dist);
     }
 
   }
 
-  private void checkBBox(Point ctr, double dist) {
+  private void checkBBox(IPoint ctr, double dist) {
     String msg = "ctr: "+ctr+" dist: "+dist;
 
-    Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
+    IRectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
     double horizAxisLat = dc().calcBoxByDistFromPtHorizAxis(ctr,dist, ctx);
     if (!Double.isNaN(horizAxisLat))
       assertTrue(r.relate_yRange(horizAxisLat, horizAxisLat, ctx).intersects());
@@ -113,7 +113,7 @@ public class TestDistances {
       assertTrue(msg,calcDist <= dist+EPS);
       //horizAxisLat is meaningless in this context
     } else {
-      Point tPt = findClosestPointOnVertToPoint(r.getMinX(), r.getMinY(), r.getMaxY(), ctr);
+      IPoint tPt = findClosestPointOnVertToPoint(r.getMinX(), r.getMinY(), r.getMaxY(), ctr);
       double calcDist = dc().distance(ctr,tPt);
       assertEquals(msg,dist,calcDist,EPS);
       assertEquals(msg,tPt.getY(),horizAxisLat,EPS);
@@ -132,7 +132,7 @@ public class TestDistances {
       assertEquals(msg,dist,botDist,EPS);
   }
 
-  private Point findClosestPointOnVertToPoint(double lon, double lowLat, double highLat, Point ctr) {
+  private IPoint findClosestPointOnVertToPoint(double lon, double lowLat, double highLat, IPoint ctr) {
     //A binary search algorithm to find the point along the vertical lon between lowLat & highLat that is closest
     // to ctr, and returns the distance.
     double midLat = (highLat - lowLat)/2 + lowLat;
@@ -162,7 +162,7 @@ public class TestDistances {
 
   @Test
   public void testDistCalcPointOnBearing_cartesian() {
-    ctx = new SimpleSpatialContext(DistanceUnits.CARTESIAN);
+    ctx = new CoreSpatialContext(DistanceUnits.CARTESIAN);
     EPS = 10e-6;//tighter epsilon (aka delta)
     for(int i = 0; i < 1000; i++) {
       testDistCalcPointOnBearing(random.nextInt(100));
@@ -194,10 +194,10 @@ public class TestDistances {
 
   private void testDistCalcPointOnBearing(double dist) {
     for(int angDEG = 0; angDEG < 360; angDEG += random.nextInt(20)+1) {
-      Point c = ctx.makePoint(random.nextInt(360),-90+random.nextInt(181));
+      IPoint c = ctx.makePoint(random.nextInt(360),-90+random.nextInt(181));
 
       //0 distance means same point
-      Point p2 = dc().pointOnBearing(c, 0, angDEG, ctx);
+      IPoint p2 = dc().pointOnBearing(c, 0, angDEG, ctx);
       assertEquals(c,p2);
 
       p2 = dc().pointOnBearing(c, dist, angDEG, ctx);
@@ -260,7 +260,7 @@ public class TestDistances {
         DistanceUtils.dist2Radians(dist, radius),10e-5);
   }
 
-  private Point pLL(double lat, double lon) {
+  private IPoint pLL(double lat, double lon) {
     return ctx.makePoint(lon,lat);
   }
 }

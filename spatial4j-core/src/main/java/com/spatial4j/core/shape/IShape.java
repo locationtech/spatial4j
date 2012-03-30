@@ -15,21 +15,34 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.distance;
+package com.spatial4j.core.shape;
 
-import com.spatial4j.core.shape.IPoint;
+import com.spatial4j.core.context.SpatialContext;
 
-/**
- */
-public abstract class AbstractDistanceCalculator implements DistanceCalculator {
+public interface IShape {
 
-  @Override
-  public double distance(IPoint from, IPoint to) {
-    return distance(from, to.getX(), to.getY());
-  }
+  /**
+   * Describe the relationship between the two objects.  For example
+   *
+   *   this is WITHIN other
+   *   this CONTAINS other
+   *   this is DISJOINT other
+   *   this INTERSECTS other
+   *
+   * The context object is optional -- it may include spatial reference.
+   */
+  SpatialRelation relate(IShape other, SpatialContext ctx);
 
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
+  /**
+   * Get the bounding box for this Shape
+   */
+  IRectangle getBoundingBox();
+
+  /**
+   * @return true if the shape has area.  This will be false for points and lines
+   */
+  boolean hasArea();
+
+  IPoint getCenter();
 }
+

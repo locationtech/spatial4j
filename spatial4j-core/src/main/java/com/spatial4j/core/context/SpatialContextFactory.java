@@ -17,25 +17,21 @@
 
 package com.spatial4j.core.context;
 
-import com.spatial4j.core.context.simple.SimpleSpatialContext;
-import com.spatial4j.core.context.simple.SimpleSpatialContextFactory;
 import com.spatial4j.core.distance.*;
-import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.IRectangle;
 
 import java.util.Map;
 
 /**
  * Factory for a SpatialContext.
- * is 
- * @author dsmiley
  */
-public abstract class SpatialContextFactory {
+public class SpatialContextFactory {
   protected Map<String, String> args;
   protected ClassLoader classLoader;
   
   protected DistanceUnits units;
   protected DistanceCalculator calculator;
-  protected Rectangle worldBounds;
+  protected IRectangle worldBounds;
 
   /**
    * The factory class is lookuped up via "spatialContextFactory" in args
@@ -50,7 +46,7 @@ public abstract class SpatialContextFactory {
     if (cname == null)
       cname = System.getProperty("SpatialContextFactory");
     if (cname == null)
-      instance = new SimpleSpatialContextFactory();
+      instance = new SpatialContextFactory();
     else {
       try {
         Class c = classLoader.loadClass(cname);
@@ -103,11 +99,12 @@ public abstract class SpatialContextFactory {
     if (worldBoundsStr == null)
       return;
     //kinda ugly we do this just to read a rectangle.  TODO refactor
-    SimpleSpatialContext simpleCtx = new SimpleSpatialContext(units, calculator, null);
-    worldBounds = (Rectangle) simpleCtx.readShape(worldBoundsStr);
+    CoreSpatialContext simpleCtx = new CoreSpatialContext(units, calculator, null);
+    worldBounds = (IRectangle) simpleCtx.readShape(worldBoundsStr);
   }
 
   /** Subclasses should simply construct the instance from the initialized configuration. */
-  protected abstract SpatialContext newSpatialContext();
-
+  protected SpatialContext newSpatialContext() {
+    return new CoreSpatialContext(units,calculator,worldBounds);
+  }
 }

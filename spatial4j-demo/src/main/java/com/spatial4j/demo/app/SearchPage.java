@@ -5,7 +5,7 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.query.SpatialArgs;
 import com.spatial4j.core.query.SpatialOperation;
-import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.IShape;
 
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.Node;
@@ -355,7 +355,7 @@ public class SearchPage extends WebPage
         // for multi valued fields, just use the first...
         String shapeString = (String)docs.get(0).getFirstValue( field );
 
-        Shape shape = grid.getSpatialContext().readShape(shapeString);
+        IShape shape = grid.getSpatialContext().readShape(shapeString);
         int detailLevel = grid.getMaxLevelForPrecision(shape, SpatialArgs.DEFAULT_DIST_PRECISION);
         List<Node> cells = grid.getNodes(shape, detailLevel, false);//false = no intermediates
         List<String> tokens = SpatialPrefixTree.nodesToTokenStrings(cells);

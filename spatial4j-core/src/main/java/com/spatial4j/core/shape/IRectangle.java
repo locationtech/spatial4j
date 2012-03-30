@@ -19,30 +19,22 @@ package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
 
-public interface Shape {
+public interface IRectangle extends IShape {
 
-  /**
-   * Describe the relationship between the two objects.  For example
-   *
-   *   this is WITHIN other
-   *   this CONTAINS other
-   *   this is DISJOINT other
-   *   this INTERSECTS other
-   *
-   * The context object is optional -- it may include spatial reference.
-   */
-  SpatialRelation relate(Shape other, SpatialContext ctx);
+  public double getWidth();
+  public double getHeight();
 
-  /**
-   * Get the bounding box for this Shape
-   */
-  Rectangle getBoundingBox();
+  public double getMinX();
+  public double getMinY();
+  public double getMaxX();
+  public double getMaxY();
 
-  /**
-   * @return true if the shape has area.  This will be false for points and lines
-   */
-  boolean hasArea();
+  /** If {@link #hasArea()} then this returns the area, otherwise it returns 0. */
+  public double getArea();
+  /** Only meaningful for geospatial contexts. */
+  public boolean getCrossesDateLine();
 
-  Point getCenter();
+  /* There is no axis line shape, and this is more efficient then creating a flat Rectangle for intersect(). */
+  public SpatialRelation relate_yRange(double minY, double maxY, SpatialContext ctx);
+  public SpatialRelation relate_xRange(double minX, double maxX, SpatialContext ctx);
 }
-

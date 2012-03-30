@@ -27,11 +27,11 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.ICircle;
+import com.spatial4j.core.shape.IPoint;
+import com.spatial4j.core.shape.IRectangle;
+import com.spatial4j.core.shape.IShape;
 import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.simple.RectangleImpl;
 import com.spatial4j.core.shape.jts.*;
 
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class JtsSpatialContext extends SpatialContext {
     this( null, units, null, null);
   }
 
-  public JtsSpatialContext(GeometryFactory f, DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {
+  public JtsSpatialContext(GeometryFactory f, DistanceUnits units, DistanceCalculator calculator, IRectangle worldBounds) {
     super( units, calculator, worldBounds);
     if (f == null)
       f = new GeometryFactory();
@@ -61,8 +61,8 @@ public class JtsSpatialContext extends SpatialContext {
   }
 
   @Override
-  public Shape readShape(String str) throws InvalidShapeException {
-    Shape shape = super.readStandardShape(str);
+  public IShape readShape(String str) throws InvalidShapeException {
+    IShape shape = super.readStandardShape(str);
     if( shape == null ) {
       try {
         WKTReader reader = new WKTReader(factory);
@@ -71,7 +71,7 @@ public class JtsSpatialContext extends SpatialContext {
           return new JtsPoint((com.vividsolutions.jts.geom.Point)geo);
         } else if (geo.isRectangle()) {
           Envelope env = geo.getEnvelopeInternal();
-          return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
+          return new Rectangle(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
         }
         return new JtsGeometry(geo);
       } catch(com.vividsolutions.jts.io.ParseException ex) {
@@ -81,18 +81,18 @@ public class JtsSpatialContext extends SpatialContext {
     return shape;
   }
 
-  public byte[] toBytes(Shape shape) throws IOException {
-    if (Point.class.isInstance(shape)) {
+  public byte[] toBytes(IShape shape) throws IOException {
+    if (IPoint.class.isInstance(shape)) {
       ByteBuffer bytes = ByteBuffer.wrap(new byte[1 + (2 * 8)]);
-      Point p = (Point) shape;
+      IPoint p = (IPoint) shape;
       bytes.put(TYPE_POINT);
       bytes.putDouble(p.getX());
       bytes.putDouble(p.getY());
       return bytes.array();
     }
 
-    if (Rectangle.class.isInstance(shape)) {
-      Rectangle rect = (Rectangle) shape;
+    if (IRectangle.class.isInstance(shape)) {
+      IRectangle rect = (IRectangle) shape;
       ByteBuffer bytes = ByteBuffer.wrap(new byte[1 + (4 * 8)]);
       bytes.put(TYPE_BBOX);
       bytes.putDouble(rect.getMinX());
@@ -114,13 +114,13 @@ public class JtsSpatialContext extends SpatialContext {
     throw new IllegalArgumentException("unsuported shape:" + shape);
   }
 
-  public Shape readShape(final byte[] array, final int offset, final int length) throws InvalidShapeException {
+  public IShape readShape(final byte[] array, final int offset, final int length) throws InvalidShapeException {
     ByteBuffer bytes = ByteBuffer.wrap(array, offset, length);
     byte type = bytes.get();
     if (type == TYPE_POINT) {
       return new JtsPoint(factory.createPoint(new Coordinate(bytes.getDouble(), bytes.getDouble())));
     } else if (type == TYPE_BBOX) {
-      return new RectangleImpl(
+      return new Rectangle(
           bytes.getDouble(), bytes.getDouble(),
           bytes.getDouble(), bytes.getDouble());
     } else if (type == TYPE_GEO) {
@@ -150,16 +150,16 @@ public class JtsSpatialContext extends SpatialContext {
   }
 
   @Override
-  public String toString(Shape shape) {
-    if (Point.class.isInstance(shape)) {
+  public String toString(IShape shape) {
+    if (IPoint.class.isInstance(shape)) {
       NumberFormat nf = NumberFormat.getInstance(Locale.US);
       nf.setGroupingUsed(false);
       nf.setMaximumFractionDigits(6);
       nf.setMinimumFractionDigits(6);
-      Point point = (Point) shape;
+      IPoint point = (IPoint) shape;
       return nf.format(point.getX()) + " " + nf.format(point.getY());
-    } else if (Rectangle.class.isInstance(shape)) {
-      Rectangle rect = (Rectangle) shape;
+    } else if (IRectangle.class.isInstance(shape)) {
+      IRectangle rect = (IRectangle) shape;
       NumberFormat nf = NumberFormat.getInstance(Locale.US);
       nf.setGroupingUsed(false );
       nf.setMaximumFractionDigits(6);
@@ -176,24 +176,24 @@ public class JtsSpatialContext extends SpatialContext {
     return shape.toString();
   }
 
-  public Geometry getGeometryFrom(Shape shape) {
+  public Geometry getGeometryFrom(IShape shape) {
     if (JtsGeometry.class.isInstance(shape)) {
       return ((JtsGeometry)shape).geo;
     }
     if (JtsPoint.class.isInstance(shape)) {
       return ((JtsPoint) shape).getJtsPoint();
     }
-    if (Rectangle.class.isInstance(shape)) {
-      Rectangle env = (Rectangle)shape;
+    if (IRectangle.class.isInstance(shape)) {
+      IRectangle env = (IRectangle)shape;
       return factory.toGeometry(new Envelope(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY()));
     }
-    if (Circle.class.isInstance(shape)) {
+    if (ICircle.class.isInstance(shape)) {
       // TODO, this should maybe pick a bunch of points
       // and make a circle like:
       //  http://docs.codehaus.org/display/GEOTDOC/01+How+to+Create+a+Geometry#01HowtoCreateaGeometry-CreatingaCircle
       // If this crosses the dateline, it could make two parts
       // is there an existing utility that does this?
-      Circle circle = (Circle)shape;
+      ICircle circle = (ICircle)shape;
       GeometricShapeFactory gsf = new GeometricShapeFactory(factory);
       gsf.setSize(circle.getBoundingBox().getWidth()/2.0f);
       gsf.setNumPoints(100);
@@ -204,7 +204,7 @@ public class JtsSpatialContext extends SpatialContext {
   }
   
   @Override
-  public Point makePoint(double x, double y) {
+  public IPoint makePoint(double x, double y) {
     return new JtsPoint(factory.createPoint(new Coordinate(x, y)));
   }
 }

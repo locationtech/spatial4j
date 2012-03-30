@@ -15,39 +15,38 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.context.simple;
+package com.spatial4j.core.context;
 
-import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Circle;
+import com.spatial4j.core.shape.GeoCircle;
+import com.spatial4j.core.shape.ICircle;
+import com.spatial4j.core.shape.IPoint;
+import com.spatial4j.core.shape.IRectangle;
+import com.spatial4j.core.shape.IShape;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.simple.CircleImpl;
-import com.spatial4j.core.shape.simple.GeoCircleImpl;
-import com.spatial4j.core.shape.simple.PointImpl;
-import com.spatial4j.core.shape.simple.RectangleImpl;
 
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class SimpleSpatialContext extends SpatialContext {
+public class CoreSpatialContext extends SpatialContext {
 
-  public static SimpleSpatialContext GEO_KM = new SimpleSpatialContext(DistanceUnits.KILOMETERS);
+  public static CoreSpatialContext GEO_KM = new CoreSpatialContext(DistanceUnits.KILOMETERS);
 
-  public SimpleSpatialContext(DistanceUnits units) {
+  public CoreSpatialContext(DistanceUnits units) {
     this(units, null, null);
   }
 
-  public SimpleSpatialContext(DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {
+  public CoreSpatialContext(DistanceUnits units, DistanceCalculator calculator, IRectangle worldBounds) {
     super(units, calculator, worldBounds);
   }
 
   @Override
-  public Shape readShape(String value) throws InvalidShapeException {
-    Shape s = super.readStandardShape( value );
+  public IShape readShape(String value) throws InvalidShapeException {
+    IShape s = super.readStandardShape( value );
     if( s == null ) {
       throw new InvalidShapeException( "Unable to read: "+value );
     }
@@ -55,22 +54,22 @@ public class SimpleSpatialContext extends SpatialContext {
   }
 
   @Override
-  public String toString(Shape shape) {
-    if (Point.class.isInstance(shape)) {
+  public String toString(IShape shape) {
+    if (IPoint.class.isInstance(shape)) {
       NumberFormat nf = NumberFormat.getInstance(Locale.US);
       nf.setGroupingUsed(false);
       nf.setMaximumFractionDigits(6);
       nf.setMinimumFractionDigits(6);
-      Point point = (Point) shape;
+      IPoint point = (IPoint) shape;
       return nf.format(point.getX()) + " " + nf.format(point.getY());
-    } else if (Rectangle.class.isInstance(shape)) {
-      return writeRect((Rectangle) shape);
+    } else if (IRectangle.class.isInstance(shape)) {
+      return writeRect((IRectangle) shape);
     }
     return shape.toString();
   }
 
   @Override
-  public Point makePoint(double x, double y) {
-    return new PointImpl(normX(x),normY(y));
+  public IPoint makePoint(double x, double y) {
+    return new Point(normX(x),normY(y));
   }
 }

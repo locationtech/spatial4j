@@ -18,8 +18,8 @@
 package com.spatial4j.core.util;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.IRectangle;
+import com.spatial4j.core.shape.IPoint;
 
 import java.util.Arrays;
 
@@ -111,15 +111,15 @@ public class GeohashUtils {
    * @param geohash Geohash to deocde
    * @return Array with the latitude at index 0, and longitude at index 1
    */
-  public static Point decode(String geohash, SpatialContext ctx) {
-    Rectangle rect = decodeBoundary(geohash,ctx);
+  public static IPoint decode(String geohash, SpatialContext ctx) {
+    IRectangle rect = decodeBoundary(geohash,ctx);
     double latitude = (rect.getMinY() + rect.getMaxY()) / 2D;
     double longitude = (rect.getMinX() + rect.getMaxX()) / 2D;
     return ctx.makePoint(longitude,latitude);
 	}
 
   /** Returns min-max lat, min-max lon. */
-  public static Rectangle decodeBoundary(String geohash, SpatialContext ctx) {
+  public static IRectangle decodeBoundary(String geohash, SpatialContext ctx) {
     double minY = -90, maxY = 90, minX = -180, maxX = 180;
     boolean isEven = true;
 

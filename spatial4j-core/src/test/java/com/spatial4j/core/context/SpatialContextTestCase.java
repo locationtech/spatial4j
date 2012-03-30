@@ -17,7 +17,6 @@
 
 package com.spatial4j.core.context;
 
-import com.spatial4j.core.context.simple.SimpleSpatialContext;
 
 
 /**
@@ -26,6 +25,6 @@ public class SpatialContextTestCase extends BaseSpatialContextTestCase {
 
   @Override
   protected SpatialContext getSpatialContext() {
-    return SimpleSpatialContext.GEO_KM;
+    return CoreSpatialContext.GEO_KM;
   }
 }

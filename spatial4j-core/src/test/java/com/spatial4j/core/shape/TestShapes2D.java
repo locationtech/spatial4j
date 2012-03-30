@@ -17,8 +17,8 @@
 
 package com.spatial4j.core.shape;
 
+import com.spatial4j.core.context.CoreSpatialContext;
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.simple.SimpleSpatialContext;
 import com.spatial4j.core.distance.DistanceUnits;
 import org.junit.Test;
 
@@ -31,22 +31,22 @@ public class TestShapes2D extends AbstractTestShapes {
 
   @Override
   protected SpatialContext getContext() {
-    return new SimpleSpatialContext(DistanceUnits.CARTESIAN);
+    return new CoreSpatialContext(DistanceUnits.CARTESIAN);
   }
 
   @Test
   public void testSimplePoint() {
-    Point pt = ctx.makePoint(0,0);
+    IPoint pt = ctx.makePoint(0,0);
     String msg = pt.toString();
 
     //test equals & hashcode
-    Point pt2 = ctx.makePoint(0,0);
+    IPoint pt2 = ctx.makePoint(0,0);
     assertEquals(msg, pt, pt2);
     assertEquals(msg, pt.hashCode(), pt2.hashCode());
 
     assertFalse(msg,pt.hasArea());
     assertEquals(msg,pt.getCenter(),pt);
-    Rectangle bbox = pt.getBoundingBox();
+    IRectangle bbox = pt.getBoundingBox();
     assertFalse(msg,bbox.hasArea());
     assertEquals(msg,pt,bbox.getCenter());
 

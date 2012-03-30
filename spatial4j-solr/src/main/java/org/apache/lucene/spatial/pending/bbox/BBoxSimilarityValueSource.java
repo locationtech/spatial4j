@@ -26,7 +26,7 @@ import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.util.Bits;
 
-import com.spatial4j.core.shape.simple.RectangleImpl;
+import com.spatial4j.core.shape.Rectangle;
 
 /**
  * An implementation of the Lucene ValueSource model to support spatial relevance ranking.
@@ -81,7 +81,7 @@ public class BBoxSimilarityValueSource extends ValueSource {
       public float floatVal(int doc) {
         // make sure it has minX and area
         if (validMinX.get(doc) && validMaxX.get(doc)) {
-          RectangleImpl rect = new RectangleImpl(
+          Rectangle rect = new Rectangle(
               minX[doc], maxX[doc],
               minY[doc], maxY[doc]);
           return (float) similarity.score(rect);

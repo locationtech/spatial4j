@@ -17,8 +17,76 @@
 
 package com.spatial4j.core.shape;
 
-public interface Point extends Shape {
+import com.spatial4j.core.context.SpatialContext;
 
-  public double getX();
-  public double getY();
+
+public class Point implements IPoint {
+
+  private final double x;
+  private final double y;
+
+  public Point(double x, double y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  @Override
+  public double getX() {
+    return x;
+  }
+
+  @Override
+  public double getY() {
+    return y;
+  }
+  @Override
+  public IRectangle getBoundingBox() {
+    return new Rectangle(x, x, y, y);
+  }
+
+  @Override
+  public Point getCenter() {
+    return this;
+  }
+
+  @Override
+  public SpatialRelation relate(IShape other, SpatialContext ctx) {
+    if (other instanceof IPoint)
+      return this.equals(other) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
+    return other.relate(this, ctx).transpose();
+  }
+
+  @Override
+  public boolean hasArea() {
+    return false;
+  }
+
+  @Override
+  public String toString() {
+    return "Pt(x="+x+",y="+y+")";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Point point = (Point) o;
+
+    if (Double.compare(point.x, x) != 0) return false;
+    if (Double.compare(point.y, y) != 0) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result;
+    long temp;
+    temp = x != +0.0d ? Double.doubleToLongBits(x) : 0L;
+    result = (int) (temp ^ (temp >>> 32));
+    temp = y != +0.0d ? Double.doubleToLongBits(y) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
 }

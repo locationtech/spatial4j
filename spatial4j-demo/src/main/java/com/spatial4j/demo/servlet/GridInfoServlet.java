@@ -6,7 +6,7 @@ import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.io.sample.SampleData;
 import com.spatial4j.core.io.sample.SampleDataReader;
 import com.spatial4j.core.query.SpatialArgs;
-import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.IShape;
 
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.QuadPrefixTree;
@@ -56,7 +56,7 @@ public class GridInfoServlet extends HttpServlet
   public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException
   {
     String name = req.getParameter( "name" );
-    Shape shape = null;
+    IShape shape = null;
     String country = req.getParameter( "country" );
     if( country != null && country.length() == 3 ) {
       InputStream in = getClass().getClassLoader().getResourceAsStream("data/countries-poly.txt");
