@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.query.SpatialArgs;
-import com.spatial4j.core.shape.IShape;
+import com.spatial4j.core.shape.Shape;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKBWriter;
@@ -54,7 +54,7 @@ public class JtsGeoStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
   }
 
   @Override
-  public IndexableField createField(SimpleSpatialFieldInfo indexInfo, IShape shape, boolean index, boolean store) {
+  public IndexableField createField(SimpleSpatialFieldInfo indexInfo, Shape shape, boolean index, boolean store) {
     Geometry geo = shapeIO.getGeometryFrom(shape);
 
     WKBWriter writer = new WKBWriter();

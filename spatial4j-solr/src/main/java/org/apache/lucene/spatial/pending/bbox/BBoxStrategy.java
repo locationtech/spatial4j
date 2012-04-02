@@ -62,9 +62,9 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
 
   @Override
   public IndexableField[] createFields(BBoxFieldInfo fieldInfo,
-      IShape shape, boolean index, boolean store) {
+      Shape shape, boolean index, boolean store) {
 
-    IRectangle bbox = shape.getBoundingBox();
+    Rectangle bbox = shape.getBoundingBox();
     IndexableField[] fields = new IndexableField[store?6:5];
     fields[0] = finfo.createDouble(fieldInfo.minX, bbox.getMinX());
     fields[1] = finfo.createDouble(fieldInfo.maxX, bbox.getMaxX());
@@ -103,7 +103,7 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
   }
 
   @Override
-  public IndexableField createField(BBoxFieldInfo fieldInfo, IShape shape,
+  public IndexableField createField(BBoxFieldInfo fieldInfo, Shape shape,
       boolean index, boolean store) {
     throw new UnsupportedOperationException("BBOX is poly field");
   }
@@ -147,7 +147,7 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
 
 
   private Query makeSpatialQuery(SpatialArgs args, BBoxFieldInfo fieldInfo) {
-    IRectangle bbox = args.getShape().getBoundingBox();
+    Rectangle bbox = args.getShape().getBoundingBox();
     Query spatial = null;
 
     SpatialOperation op = args.getOperation();
@@ -175,7 +175,7 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
    *
    * @return the spatial query
    */
-  Query makeContains(IRectangle bbox, BBoxFieldInfo fieldInfo) {
+  Query makeContains(Rectangle bbox, BBoxFieldInfo fieldInfo) {
 
     // general case
     // docMinX <= queryExtent.getMinX() AND docMinY <= queryExtent.getMinY() AND docMaxX >= queryExtent.getMaxX() AND docMaxY >= queryExtent.getMaxY()
@@ -237,7 +237,7 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
    *
    * @return the spatial query
    */
-  Query makeDisjoint(IRectangle bbox, BBoxFieldInfo fieldInfo) {
+  Query makeDisjoint(Rectangle bbox, BBoxFieldInfo fieldInfo) {
 
     // general case
     // docMinX > queryExtent.getMaxX() OR docMaxX < queryExtent.getMinX() OR docMinY > queryExtent.getMaxY() OR docMaxY < queryExtent.getMinY()
@@ -305,7 +305,7 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
    *
    * @return the spatial query
    */
-  Query makeEquals(IRectangle bbox, BBoxFieldInfo fieldInfo) {
+  Query makeEquals(Rectangle bbox, BBoxFieldInfo fieldInfo) {
 
     // docMinX = queryExtent.getMinX() AND docMinY = queryExtent.getMinY() AND docMaxX = queryExtent.getMaxX() AND docMaxY = queryExtent.getMaxY()
     Query qMinX = NumericRangeQuery.newDoubleRange(fieldInfo.minX, finfo.precisionStep, bbox.getMinX(), bbox.getMinX(), true, true);
@@ -325,7 +325,7 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
    *
    * @return the spatial query
    */
-  Query makeIntersects(IRectangle bbox, BBoxFieldInfo fieldInfo) {
+  Query makeIntersects(Rectangle bbox, BBoxFieldInfo fieldInfo) {
 
     // the original intersects query does not work for envelopes that cross the date line,
     // switch to a NOT Disjoint query
@@ -369,7 +369,7 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
    *
    * @return the spatial query
    */
-  Query makeWithin(IRectangle bbox, BBoxFieldInfo fieldInfo) {
+  Query makeWithin(Rectangle bbox, BBoxFieldInfo fieldInfo) {
 
     // general case
     // docMinX >= queryExtent.getMinX() AND docMinY >= queryExtent.getMinY() AND docMaxX <= queryExtent.getMaxX() AND docMaxY <= queryExtent.getMaxY()

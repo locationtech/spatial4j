@@ -5,7 +5,7 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.query.SpatialArgs;
 import com.spatial4j.core.query.SpatialOperation;
-import com.spatial4j.core.shape.IShape;
+import com.spatial4j.core.shape.Shape;
 
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.Node;
@@ -13,8 +13,8 @@ import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
-import org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Throwables;
 
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -74,16 +73,7 @@ public class SearchPage extends WebPage
   static final SpatialPrefixTree grid = new GeohashPrefixTree(JtsSpatialContext.GEO_KM,GeohashPrefixTree.getMaxLevelsPossible());
   static final SolrServer solr;
   static {
-    SolrServer s = null;
-    try {
-      s = new CommonsHttpSolrServer( "http://localhost:8080/solr" );
-    }
-    catch (MalformedURLException e) {
-      e.printStackTrace();
-    }
-    finally {
-      solr = s;
-    }
+    solr = new HttpSolrServer( "http://localhost:8080/solr" );
   }
 
   final IModel<Query> query = new Model<Query>( new Query() );
@@ -253,7 +243,7 @@ public class SearchPage extends WebPage
                 data = new File(dir);
               }
               
-              SolrServer sss = new StreamingUpdateSolrServer(
+              SolrServer sss = new ConcurrentUpdateSolrServer(
                   "http://localhost:8080/solr", 50, 3 );
               
               // single thread
@@ -355,7 +345,7 @@ public class SearchPage extends WebPage
         // for multi valued fields, just use the first...
         String shapeString = (String)docs.get(0).getFirstValue( field );
 
-        IShape shape = grid.getSpatialContext().readShape(shapeString);
+        Shape shape = grid.getSpatialContext().readShape(shapeString);
         int detailLevel = grid.getMaxLevelForPrecision(shape, SpatialArgs.DEFAULT_DIST_PRECISION);
         List<Node> cells = grid.getNodes(shape, detailLevel, false);//false = no intermediates
         List<String> tokens = SpatialPrefixTree.nodesToTokenStrings(cells);

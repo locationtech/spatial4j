@@ -18,12 +18,11 @@
 package org.apache.solr.spatial;
 
 
-import com.spatial4j.core.context.CoreSpatialContext;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.IPoint;
-import com.spatial4j.core.shape.IRectangle;
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.util.GeohashUtils;
 
 import org.apache.solr.SolrTestCaseJ4;
@@ -148,18 +147,18 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
   
   //Needs to be <= what's used in the test schema.xml; best to use the same
   final int PRECISION = 12;//aka geohash length
-  final SpatialContext ctx = CoreSpatialContext.GEO_KM;//barely needed
+  final SpatialContext ctx = SpatialContext.GEO_KM;//barely needed
 
   @Test
   public void testBug1() {
     //AN ISSUE OF distPrec being 0 or the default
     clearIndex();
     final String fieldName = "geohashRecursiveRandom";
-    IPoint pt = ctx.makePoint(8.751008491963148,-6.406441060826182);
+    Point pt = ctx.makePoint(8.751008491963148,-6.406441060826182);
     final int ID = 2;
     assertU(adoc("id", ""+ID, fieldName, pt.getY()+","+pt.getX()));
     assertU(commit());
-    final IPoint centerPt = ctx.makePoint(19.99999998137355,20.00000006519258);
+    final Point centerPt = ctx.makePoint(19.99999998137355,20.00000006519258);
     final double queryDist = 3112.7;
     checkHits(fieldName, centerPt.getY()+","+centerPt.getX(), queryDist, 0);
   }
@@ -169,13 +168,13 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
     final String fieldName = "geohashRecursiveRandom";//has length 12
     
     //1. Iterate test with the cluster at some worldly point of interest
-    IPoint[] clusterCenters = new IPoint[]{new Point(0,0), new Point(0,90),new Point(0,-90)};
-    for (IPoint clusterCenter : clusterCenters) {
+    Point[] clusterCenters = new Point[]{new PointImpl(0,0), new PointImpl(0,90),new PointImpl(0,-90)};
+    for (Point clusterCenter : clusterCenters) {
       //2. Iterate on size of cluster (a really small one and a large one)
       String hashCenter = GeohashUtils.encodeLatLon(clusterCenter.getY(), clusterCenter.getX(), PRECISION);
       //calculate the number of degrees in the smallest grid box size (use for both lat & lon)
       String smallBox = hashCenter.substring(0,hashCenter.length()-1);//chop off leaf precision
-      IRectangle clusterDims = GeohashUtils.decodeBoundary(smallBox,ctx);
+      Rectangle clusterDims = GeohashUtils.decodeBoundary(smallBox,ctx);
       double smallDegrees = Math.max(clusterDims.getMaxX()-clusterDims.getMinX(),clusterDims.getMaxY()-clusterDims.getMinY());
       assert smallDegrees < 1;
       double largeDegrees = 20d;//good large size; don't use >=45 for this test code to work
@@ -183,11 +182,11 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
       for (double sideDegree : sideDegrees) {
         //3. Index random points in this cluster box
         clearIndex();
-        List<IPoint> points = new ArrayList<IPoint>();
+        List<Point> points = new ArrayList<Point>();
         for(int i = 0; i < 20; i++) {
           double x = random.nextDouble()*sideDegree - sideDegree/2 + clusterCenter.getX();
           double y = random.nextDouble()*sideDegree - sideDegree/2 + clusterCenter.getY();
-          final IPoint pt = normPointXY(x, y);
+          final Point pt = normPointXY(x, y);
           points.add(pt);
           assertU(adoc("id", ""+i, fieldName, pt.getY()+","+pt.getX()));
         }
@@ -196,7 +195,7 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
         //3. Use 4 query centers. Each is radially out from each corner of cluster box by twice distance to box edge.
         for(double qcXoff : new double[]{sideDegree,-sideDegree}) {//query-center X offset from cluster center
           for(double qcYoff : new double[]{sideDegree,-sideDegree}) {//query-center Y offset from cluster center
-            IPoint queryCenter = normPointXY(qcXoff + clusterCenter.getX(),
+            Point queryCenter = normPointXY(qcXoff + clusterCenter.getX(),
                 qcYoff + clusterCenter.getY());
             double[] distRange = calcDistRange(queryCenter,clusterCenter,sideDegree);
             //4.1 query a small box getting nothing
@@ -211,7 +210,7 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
             int[] ids = new int[points.size()];
             int ids_sz = 0;
             for (int i = 0; i < points.size(); i++) {
-              IPoint point = points.get(i);
+              Point point = points.get(i);
               if (calcDist(queryCenter,point) <= queryDist)
                 ids[ids_sz++] = i;
             }
@@ -228,12 +227,12 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
 
   }//randomTest()
 
-  private double[] calcDistRange(IPoint startPoint, IPoint targetCenter, double targetSideDegrees) {
+  private double[] calcDistRange(Point startPoint, Point targetCenter, double targetSideDegrees) {
     double min = Double.MAX_VALUE;
     double max = Double.MIN_VALUE;
     for(double xLen : new double[]{targetSideDegrees,-targetSideDegrees}) {
       for(double yLen : new double[]{targetSideDegrees,-targetSideDegrees}) {
-        IPoint p2 = normPointXY(targetCenter.getX() + xLen / 2, targetCenter.getY() + yLen / 2);
+        Point p2 = normPointXY(targetCenter.getX() + xLen / 2, targetCenter.getY() + yLen / 2);
         double d = calcDist(startPoint, p2);
         min = Math.min(min,d);
         max = Math.max(max,d);
@@ -242,13 +241,13 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
     return new double[]{min,max};
   }
 
-  private double calcDist(IPoint p1, IPoint p2) {
+  private double calcDist(Point p1, Point p2) {
     //TODO use ctx.calc?
     return DistanceUtils.distHaversineRAD(DistanceUtils.toRadians(p1.getY()), DistanceUtils.toRadians(p1.getX()), DistanceUtils.toRadians(p2.getY()), DistanceUtils.toRadians(p2.getX())) * ctx.getUnits().earthRadius();
   }
 
   /** Normalize x & y (put in lon-lat ranges) & ensure geohash round-trip for given precision. */
-  private IPoint normPointXY(double x, double y) {
+  private Point normPointXY(double x, double y) {
     //put x,y as degrees into double[] as radians
     double[] latLon = {y*DistanceUtils.DEG_180_AS_RADS, DistanceUtils.toRadians(x)};
     DistanceUtils.normLatRAD(latLon);

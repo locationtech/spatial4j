@@ -2,7 +2,7 @@ package com.spatial4j.demo.solr;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.shape.IShape;
+import com.spatial4j.core.shape.Shape;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.request.SolrQueryRequest;
@@ -51,8 +51,8 @@ public class SpatialDemoUpdateProcessorFactory extends UpdateRequestProcessorFac
         if( f.getValueCount() > 1 ) {
           throw new RuntimeException( "multiple values found for 'geometry' field: "+f.getValue() );
         }
-        if( !(f.getValue() instanceof IShape) ) {
-          IShape shape = ctx.readShape( f.getValue().toString() );
+        if( !(f.getValue() instanceof Shape) ) {
+          Shape shape = ctx.readShape( f.getValue().toString() );
           f.setValue( shape, f.getBoost() );
         }
       }

@@ -3,11 +3,10 @@ package com.spatial4j.demo;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 import de.micromata.opengis.kml.v_2_2_0.*;
 
-import com.spatial4j.core.context.CoreSpatialContext;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.shape.IRectangle;
-import com.spatial4j.core.shape.IShape;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 
 import java.io.File;
@@ -56,10 +55,10 @@ public class KMLHelper
     sm.createAndAddPair().withKey( StyleState.HIGHLIGHT ).withStyleUrl( "#MaxStyleHI" );
   }
 
-  private static List<Coordinate> getCoords( IShape s )
+  private static List<Coordinate> getCoords( Shape s )
   {
-    if( s instanceof IRectangle) {
-      IRectangle r = (IRectangle)s;
+    if( s instanceof Rectangle) {
+      Rectangle r = (Rectangle)s;
       List<Coordinate> coords = new ArrayList<Coordinate>(5);
       coords.add( new Coordinate( r.getMinX(),r.getMinY() ) );
       coords.add( new Coordinate( r.getMaxX(),r.getMinY() ) );
@@ -74,7 +73,7 @@ public class KMLHelper
   private static Placemark create( String key, String style, SpatialPrefixTree grid )
   {
     final Node cell = grid.getNode(key);
-    IShape r = cell.getShape();
+    Shape r = cell.getShape();
     List<Coordinate> coords = getCoords( r );
 
     Placemark p = new Placemark().withName( key )
@@ -111,7 +110,7 @@ public class KMLHelper
 
   public static void main( String[] args ) throws Exception
   {
-    SpatialContext ctx = CoreSpatialContext.GEO_KM;
+    SpatialContext ctx = SpatialContext.GEO_KM;
     QuadPrefixTree grid = new QuadPrefixTree(ctx, 16 ); // make it like WGS84
 
 
@@ -127,7 +126,7 @@ public class KMLHelper
     grid.printInfo();
 
 
-    IShape shape = null;
+    Shape shape = null;
 
 
 //    shape = new PointRadiusIndexible( 5,5, 5 );
