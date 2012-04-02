@@ -44,14 +44,14 @@ public abstract class AbstractTestShapes {
     ctx = getContext();
   }
 
-  protected void assertRelation(String msg, SpatialRelation expected, IShape a, IShape b) {
+  protected void assertRelation(String msg, SpatialRelation expected, Shape a, Shape b) {
     msg = a+" intersect "+b;//use different msg
     _assertIntersect(msg,expected,a,b);
     //check flipped a & b w/ transpose(), while we're at it
     _assertIntersect("(transposed) " + msg, expected.transpose(), b, a);
   }
 
-  private void _assertIntersect(String msg, SpatialRelation expected, IShape a, IShape b) {
+  private void _assertIntersect(String msg, SpatialRelation expected, Shape a, Shape b) {
     SpatialRelation sect = a.relate(b, ctx);
     if (sect == expected)
       return;
@@ -63,8 +63,8 @@ public abstract class AbstractTestShapes {
         assertTrue(msg,!a.hasArea());
         assertTrue(msg,!b.hasArea());
 
-        IRectangle aBBox = a.getBoundingBox();
-        IRectangle bBBox = b.getBoundingBox();
+        Rectangle aBBox = a.getBoundingBox();
+        Rectangle bBBox = b.getBoundingBox();
         if (aBBox.getHeight() == 0 && bBBox.getHeight() == 0
             && (aBBox.getMaxY() == 90 && bBBox.getMaxY() == 90
           || aBBox.getMinY() == -90 && bBBox.getMinY() == -90))
@@ -85,9 +85,9 @@ public abstract class AbstractTestShapes {
   }
 
   protected void testRectangle(double minX, double width, double minY, double height) {
-    IRectangle r = ctx.makeRect(minX, minX + width, minY, minY+height);
+    Rectangle r = ctx.makeRect(minX, minX + width, minY, minY+height);
     //test equals & hashcode of duplicate
-    IRectangle r2 = ctx.makeRect(minX, minX + width, minY, minY+height);
+    Rectangle r2 = ctx.makeRect(minX, minX + width, minY, minY+height);
     assertEquals(r,r2);
     assertEquals(r.hashCode(),r2.hashCode());
 
@@ -98,7 +98,7 @@ public abstract class AbstractTestShapes {
 
     assertEqualsRatio(msg, height, r.getHeight());
     assertEqualsRatio(msg, width, r.getWidth());
-    IPoint center = r.getCenter();
+    Point center = r.getCenter();
     msg += " ctr:"+center;
     //System.out.println(msg);
     assertRelation(msg, CONTAINS, r, center);
@@ -123,12 +123,12 @@ public abstract class AbstractTestShapes {
     final double Y = 10;
     for(double left = -180; left <= 180; left += INCR) {
       for(double right = left; right - left <= 360; right += INCR) {
-        IRectangle r = ctx.makeRect(left,right,-Y,Y);
+        Rectangle r = ctx.makeRect(left,right,-Y,Y);
 
         //test contains (which also tests within)
         for(double left2 = left; left2 <= right; left2 += INCR) {
           for(double right2 = left2; right2 <= right; right2 += INCR) {
-            IRectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
+            Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
             assertRelation(null, SpatialRelation.CONTAINS, r, r2);
           }
         }
@@ -138,7 +138,7 @@ public abstract class AbstractTestShapes {
         //test disjoint
         for(double left2 = right+INCR; left2 - left < 360; left2 += INCR) {
           for(double right2 = left2; right2 - left < 360; right2 += INCR) {
-            IRectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
+            Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
             assertRelation(null, SpatialRelation.DISJOINT, r, r2);
 
             //test point disjoint
@@ -148,7 +148,7 @@ public abstract class AbstractTestShapes {
         //test intersect
         for(double left2 = left+INCR; left2 <= right; left2 += INCR) {
           for(double right2 = right+INCR; right2 - left < 360; right2 += INCR) {
-            IRectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
+            Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
             assertRelation(null, SpatialRelation.INTERSECTS, r, r2);
           }
         }
@@ -158,14 +158,14 @@ public abstract class AbstractTestShapes {
   }
 
   protected void testCircle(double x, double y, double dist) {
-    ICircle c = ctx.makeCircle(x, y, dist);
+    Circle c = ctx.makeCircle(x, y, dist);
     String msg = c.toString();
-    final ICircle c2 = ctx.makeCircle(ctx.makePoint(x, y), dist);
+    final Circle c2 = ctx.makeCircle(ctx.makePoint(x, y), dist);
     assertEquals(c, c2);
     assertEquals(c.hashCode(),c2.hashCode());
 
     assertEquals(msg,dist > 0, c.hasArea());
-    final IRectangle bbox = c.getBoundingBox();
+    final Rectangle bbox = c.getBoundingBox();
     assertEquals(msg,dist > 0, bbox.getArea() > 0);
     if (!ctx.isGeo()) {
       //if not geo then units of dist == units of x,y
@@ -187,7 +187,7 @@ public abstract class AbstractTestShapes {
       double cY = randRange(-90,90);
       double cR = randRange(0, 180);
       double cR_dist = ctx.getDistCalc().distance(ctx.makePoint(0, 0), 0, cR);
-      ICircle c = ctx.makeCircle(cX, cY, cR_dist);
+      Circle c = ctx.makeCircle(cX, cY, cR_dist);
 
       double rX = randRange(-180,179);
       double rW = randRange(0,360);
@@ -195,11 +195,11 @@ public abstract class AbstractTestShapes {
       double rY2 = randRange(-90,90);
       double rYmin = Math.min(rY1,rY2);
       double rYmax = Math.max(rY1,rY2);
-      IRectangle r = ctx.makeRect(rX, rX+rW, rYmin, rYmax);
+      Rectangle r = ctx.makeRect(rX, rX+rW, rYmin, rYmax);
 
       SpatialRelation ic = c.relate(r, ctx);
 
-      IPoint p;
+      Point p;
       switch (ic) {
         case CONTAINS:
           i_C++;
@@ -239,18 +239,18 @@ public abstract class AbstractTestShapes {
     return result;
   }
 
-  private IPoint randomPointWithin(Random random, ICircle c, SpatialContext ctx) {
+  private Point randomPointWithin(Random random, Circle c, SpatialContext ctx) {
     double d = c.getDistance() * random.nextDouble();
     double angleDEG = 360*random.nextDouble();
-    IPoint p = ctx.getDistCalc().pointOnBearing(c.getCenter(), d, angleDEG, ctx);
+    Point p = ctx.getDistCalc().pointOnBearing(c.getCenter(), d, angleDEG, ctx);
     assertEquals(CONTAINS,c.relate(p, ctx));
     return p;
   }
 
-  private IPoint randomPointWithin(Random random, IRectangle r, SpatialContext ctx) {
+  private Point randomPointWithin(Random random, Rectangle r, SpatialContext ctx) {
     double x = r.getMinX() + random.nextDouble()*r.getWidth();
     double y = r.getMinY() + random.nextDouble()*r.getHeight();
-    IPoint p = ctx.makePoint(x,y);
+    Point p = ctx.makePoint(x,y);
     assertEquals(CONTAINS,r.relate(p, ctx));
     return p;
   }

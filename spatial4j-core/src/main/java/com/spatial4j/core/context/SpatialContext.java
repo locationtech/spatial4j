@@ -20,13 +20,13 @@ package com.spatial4j.core.context;
 import com.spatial4j.core.distance.*;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.GeoCircle;
-import com.spatial4j.core.shape.ICircle;
-import com.spatial4j.core.shape.IPoint;
-import com.spatial4j.core.shape.IRectangle;
-import com.spatial4j.core.shape.IShape;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.impl.CircleImpl;
+import com.spatial4j.core.shape.impl.GeoCircle;
+import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.shape.impl.RectangleImpl;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -41,13 +41,13 @@ public class SpatialContext {
   //These are non-null
   private final DistanceUnits units;
   private final DistanceCalculator calculator;
-  private final IRectangle worldBounds;
+  private final Rectangle worldBounds;
   
-  public static final Rectangle GEO_WORLDBOUNDS = new Rectangle(-180,180,-90,90);
-  public static final Rectangle MAX_WORLDBOUNDS;
+  public static final RectangleImpl GEO_WORLDBOUNDS = new RectangleImpl(-180,180,-90,90);
+  public static final RectangleImpl MAX_WORLDBOUNDS;
   static {
     double v = Double.MAX_VALUE;
-    MAX_WORLDBOUNDS = new Rectangle(-v, v, -v, v);
+    MAX_WORLDBOUNDS = new RectangleImpl(-v, v, -v, v);
   }
   public static final SpatialContext GEO_KM = new SpatialContext(DistanceUnits.KILOMETERS);
 
@@ -59,7 +59,7 @@ public class SpatialContext {
    * @param calculator Optional; defaults to Haversine or cartesian depending on units.
    * @param worldBounds Optional; defaults to GEO_WORLDBOUNDS or MAX_WORLDBOUNDS depending on units.
    */
-  public SpatialContext(DistanceUnits units, DistanceCalculator calculator, IRectangle worldBounds) {
+  public SpatialContext(DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {
     if (units == null)
       throw new IllegalArgumentException("units can't be null");
     this.units = units;
@@ -75,7 +75,7 @@ public class SpatialContext {
       worldBounds = isGeo() ? GEO_WORLDBOUNDS : MAX_WORLDBOUNDS;
     } else {
       if (isGeo())
-        assert new Rectangle(worldBounds).equals(GEO_WORLDBOUNDS);
+        assert new RectangleImpl(worldBounds).equals(GEO_WORLDBOUNDS);
       if (worldBounds.getCrossesDateLine())
         throw new IllegalArgumentException("worldBounds shouldn't cross dateline: "+worldBounds);
     }
@@ -98,7 +98,7 @@ public class SpatialContext {
     return calculator;
   }
 
-  public IRectangle getWorldBounds() {
+  public Rectangle getWorldBounds() {
     return worldBounds;
   }
 
@@ -138,26 +138,26 @@ public class SpatialContext {
    *   http://en.wikipedia.org/wiki/Well-known_text
    *
    */
-  public IShape readShape(String value) throws InvalidShapeException {
-    IShape s = readStandardShape( value );
+  public Shape readShape(String value) throws InvalidShapeException {
+    Shape s = readStandardShape( value );
     if( s == null ) {
       throw new InvalidShapeException( "Unable to read: "+value );
     }
     return s;
   }
 
-  public String toString(IShape shape) {
+  public String toString(Shape shape) {
     NumberFormat nf = NumberFormat.getInstance(Locale.US);
     nf.setGroupingUsed(false);
     nf.setMaximumFractionDigits(6);
     nf.setMinimumFractionDigits(6);
     
-    if (IPoint.class.isInstance(shape)) {
-      IPoint point = (IPoint) shape;
+    if (Point.class.isInstance(shape)) {
+      Point point = (Point) shape;
       return nf.format(point.getX()) + " " + nf.format(point.getY());
     } 
-    else if (IRectangle.class.isInstance(shape)) {
-      IRectangle rect = (IRectangle)shape;
+    else if (Rectangle.class.isInstance(shape)) {
+      Rectangle rect = (Rectangle)shape;
       return
           nf.format(rect.getMinX()) + " " +
           nf.format(rect.getMinY()) + " " +
@@ -168,17 +168,17 @@ public class SpatialContext {
   }
 
   /** Construct a point. The parameters will be normalized. */
-  public IPoint makePoint(double x, double y) {
-    return new Point(normX(x),normY(y));
+  public Point makePoint(double x, double y) {
+    return new PointImpl(normX(x),normY(y));
   }
   
-  public IPoint readLatCommaLonPoint(String value) throws InvalidShapeException {
+  public Point readLatCommaLonPoint(String value) throws InvalidShapeException {
     double[] latLon = ParseUtils.parseLatitudeLongitude(value);
     return makePoint(latLon[1],latLon[0]);
   }
 
   /** Construct a rectangle. The parameters will be normalized. */
-  public IRectangle makeRect(double minX, double maxX, double minY, double maxY) {
+  public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
     //--Normalize parameters
     if (isGeo()) {
       double delta = calcWidth(minX,maxX);
@@ -218,7 +218,7 @@ public class SpatialContext {
       minY = normY(minY);
       maxY = normY(maxY);
     }
-    return new Rectangle( minX, maxX, minY, maxY );
+    return new RectangleImpl( minX, maxX, minY, maxY );
   }
 
   private double calcWidth(double minX,double maxX) {
@@ -232,7 +232,7 @@ public class SpatialContext {
 
 
   /** Construct a circle. The parameters will be normalized. */
-  public ICircle makeCircle(double x, double y, double distance) {
+  public Circle makeCircle(double x, double y, double distance) {
     return makeCircle(makePoint(x,y),distance);
   }
 
@@ -240,17 +240,17 @@ public class SpatialContext {
    * @param point
    * @param distance The units of "distance" should be the same as {@link #getUnits()}.
    */
-  public ICircle makeCircle(IPoint point, double distance) {
+  public Circle makeCircle(Point point, double distance) {
     if (distance < 0)
       throw new InvalidShapeException("distance must be >= 0; got "+distance);
     if (isGeo())
       return new GeoCircle( point, Math.min(distance,maxCircleDistance), this );
     else
-      return new Circle( point, distance, this );
+      return new CircleImpl( point, distance, this );
   }
 
 
-  protected IShape readStandardShape(String str) {
+  protected Shape readStandardShape(String str) {
     if (str.length() < 1) {
       throw new InvalidShapeException(str);
     }
@@ -262,7 +262,7 @@ public class SpatialContext {
           String body = str.substring( "Circle(".length(), idx );
           StringTokenizer st = new StringTokenizer(body, " ");
           String token = st.nextToken();
-          IPoint pt;
+          Point pt;
           if (token.indexOf(',') != -1) {
             pt = readLatCommaLonPoint(token);
           } else {

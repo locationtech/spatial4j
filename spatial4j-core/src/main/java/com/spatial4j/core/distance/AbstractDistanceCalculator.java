@@ -17,14 +17,14 @@
 
 package com.spatial4j.core.distance;
 
-import com.spatial4j.core.shape.IPoint;
+import com.spatial4j.core.shape.Point;
 
 /**
  */
 public abstract class AbstractDistanceCalculator implements DistanceCalculator {
 
   @Override
-  public double distance(IPoint from, IPoint to) {
+  public double distance(Point from, Point to) {
     return distance(from, to.getX(), to.getY());
   }
 

@@ -19,7 +19,7 @@ package com.spatial4j.core.context;
 import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
-import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.impl.RectangleImpl;
 
 import org.junit.After;
 import org.junit.Test;
@@ -68,7 +68,7 @@ public class SpatialContextFactoryTest {
         "distCalculator","cartesian^2",
         "worldBounds","-100 0 75 200");//West South East North
     assertEquals(new CartesianDistCalc(true),sc.getDistCalc());
-    assertEquals(new Rectangle(-100,75,0,200),sc.getWorldBounds());
+    assertEquals(new RectangleImpl(-100,75,0,200),sc.getWorldBounds());
 
     sc = call("units","miles",
         "distCalculator","lawOfCosines");

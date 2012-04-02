@@ -24,18 +24,18 @@ import java.util.Collection;
 /**
  * A collection of Shape objects.
  */
-public class MultiShape implements IShape {
-  private final Collection<IShape> geoms;
-  private final IRectangle bbox;
+public class MultiShape implements Shape {
+  private final Collection<Shape> geoms;
+  private final Rectangle bbox;
 
-  public MultiShape(Collection<IShape> geoms, SpatialContext ctx) {
+  public MultiShape(Collection<Shape> geoms, SpatialContext ctx) {
     this.geoms = geoms;
     double minX = Double.MAX_VALUE;
     double minY = Double.MAX_VALUE;
     double maxX = Double.MIN_VALUE;
     double maxY = Double.MIN_VALUE;
-    for (IShape geom : geoms) {
-      IRectangle r = geom.getBoundingBox();
+    for (Shape geom : geoms) {
+      Rectangle r = geom.getBoundingBox();
       minX = Math.min(minX,r.getMinX());
       minY = Math.min(minY,r.getMinY());
       maxX = Math.max(maxX,r.getMaxX());
@@ -45,18 +45,18 @@ public class MultiShape implements IShape {
   }
 
   @Override
-  public IRectangle getBoundingBox() {
+  public Rectangle getBoundingBox() {
     return bbox;
   }
 
   @Override
-  public IPoint getCenter() {
+  public Point getCenter() {
     return bbox.getCenter();
   }
 
   @Override
   public boolean hasArea() {
-    for (IShape geom : geoms) {
+    for (Shape geom : geoms) {
       if( geom.hasArea() ) {
         return true;
       }
@@ -65,10 +65,10 @@ public class MultiShape implements IShape {
   }
 
   @Override
-  public SpatialRelation relate(IShape other, SpatialContext ctx) {
+  public SpatialRelation relate(Shape other, SpatialContext ctx) {
     boolean allOutside = true;
     boolean allContains = true;
-    for (IShape geom : geoms) {
+    for (Shape geom : geoms) {
       SpatialRelation sect = geom.relate(other, ctx);
       if (sect != SpatialRelation.DISJOINT)
         allOutside = false;

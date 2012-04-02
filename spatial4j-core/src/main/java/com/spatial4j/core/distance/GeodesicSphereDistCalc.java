@@ -18,8 +18,8 @@
 package com.spatial4j.core.distance;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.IPoint;
-import com.spatial4j.core.shape.IRectangle;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
 
 import static com.spatial4j.core.distance.DistanceUtils.toRadians;
 
@@ -44,7 +44,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
   }
 
   @Override
-  public IPoint pointOnBearing(IPoint from, double dist, double bearingDEG, SpatialContext ctx) {
+  public Point pointOnBearing(Point from, double dist, double bearingDEG, SpatialContext ctx) {
     //TODO avoid unnecessary double[] intermediate object
     if (dist == 0)
       return from;
@@ -56,7 +56,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
   }
 
   @Override
-  public IRectangle calcBoxByDistFromPt(IPoint from, double distance, SpatialContext ctx) {
+  public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
     assert radius == ctx.getUnits().earthRadius();
     if (distance == 0)
       return from.getBoundingBox();
@@ -64,7 +64,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
   }
 
   @Override
-  public double calcBoxByDistFromPtHorizAxis(IPoint from, double distance, SpatialContext ctx) {
+  public double calcBoxByDistFromPtHorizAxis(Point from, double distance, SpatialContext ctx) {
     return DistanceUtils.calcBoxByDistFromPtHorizAxisDEG(from.getY(), from.getX(), distance, radius);
   }
 
@@ -87,7 +87,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
   }
 
   @Override
-  public final double distance(IPoint from, double toX, double toY) {
+  public final double distance(Point from, double toX, double toY) {
     return distanceLatLonRAD(toRadians(from.getY()), toRadians(from.getX()), toRadians(toY), toRadians(toX)) * radius;
   }
 

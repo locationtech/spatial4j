@@ -20,13 +20,13 @@ package com.spatial4j.core.context;
 import com.spatial4j.core.query.SpatialArgs;
 import com.spatial4j.core.query.SpatialArgsParser;
 import com.spatial4j.core.query.SpatialOperation;
-import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.MultiShape;
-import com.spatial4j.core.shape.IPoint;
-import com.spatial4j.core.shape.IRectangle;
-import com.spatial4j.core.shape.IShape;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.impl.CircleImpl;
+import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.shape.impl.RectangleImpl;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public abstract class BaseSpatialContextTestCase {
     String arg = SpatialOperation.IsWithin + "(-10 -20 10 20)";
     SpatialArgs out = parser.parse(arg, ctx);
     assertEquals(SpatialOperation.IsWithin, out.getOperation());
-    IRectangle bounds = (IRectangle) out.getShape();
+    Rectangle bounds = (Rectangle) out.getShape();
     assertEquals(-10.0, bounds.getMinX(), 0D);
     assertEquals(10.0, bounds.getMaxX(), 0D);
 
@@ -91,31 +91,31 @@ public abstract class BaseSpatialContextTestCase {
   }
 
   public static interface WriteReader {
-    IShape writeThenRead( IShape s ) throws IOException;
+    Shape writeThenRead( Shape s ) throws IOException;
   }
 
   public static void checkBasicShapeIO( SpatialContext ctx, WriteReader help ) throws Exception {
 
     // Simple Point
-    IShape s = ctx.readShape("10 20");
+    Shape s = ctx.readShape("10 20");
     assertEquals(s,ctx.readShape("20,10"));//check comma for y,x format
     assertEquals(s,ctx.readShape("20, 10"));//test space
-    IPoint p = (IPoint) s;
+    Point p = (Point) s;
     assertEquals(10.0, p.getX(), 0D);
     assertEquals(20.0, p.getY(), 0D);
-    p = (IPoint) help.writeThenRead(s);
+    p = (Point) help.writeThenRead(s);
     assertEquals(10.0, p.getX(), 0D);
     assertEquals(20.0, p.getY(), 0D);
     Assert.assertFalse(s.hasArea());
 
     // BBOX
     s = ctx.readShape("-10 -20 10 20");
-    IRectangle b = (IRectangle) s;
+    Rectangle b = (Rectangle) s;
     assertEquals(-10.0, b.getMinX(), 0D);
     assertEquals(-20.0, b.getMinY(), 0D);
     assertEquals(10.0, b.getMaxX(), 0D);
     assertEquals(20.0, b.getMaxY(), 0D);
-    b = (IRectangle) help.writeThenRead(s);
+    b = (Rectangle) help.writeThenRead(s);
     assertEquals(-10.0, b.getMinX(), 0D);
     assertEquals(-20.0, b.getMinY(), 0D);
     assertEquals(10.0, b.getMaxX(), 0D);
@@ -124,13 +124,13 @@ public abstract class BaseSpatialContextTestCase {
 
     // Point/Distance
     s = ctx.readShape("Circle( 1.23 4.56 distance=7.89)");
-    Circle circle = (Circle)s;
+    CircleImpl circle = (CircleImpl)s;
     assertEquals(1.23, circle.getCenter().getX(), 0D);
     assertEquals(4.56, circle.getCenter().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
     Assert.assertTrue(s.hasArea());
 
-    IShape s2 = ctx.readShape("Circle( 4.56,1.23 d=7.89 )"); // use lat,lon and use 'd' abbreviation
+    Shape s2 = ctx.readShape("Circle( 4.56,1.23 d=7.89 )"); // use lat,lon and use 'd' abbreviation
     assertEquals(s,s2);
   }
 
@@ -146,9 +146,9 @@ public abstract class BaseSpatialContextTestCase {
   @Test
   public void testImplementsEqualsAndHash() throws Exception {
     checkShapesImplementEquals( new Class[] {
-      Point.class,
-      Circle.class,
-      Rectangle.class,
+      PointImpl.class,
+      CircleImpl.class,
+      RectangleImpl.class,
       MultiShape.class,
     });
   }
@@ -158,7 +158,7 @@ public abstract class BaseSpatialContextTestCase {
     final SpatialContext io =  getSpatialContext();
     checkBasicShapeIO( io, new WriteReader() {
       @Override
-      public IShape writeThenRead(IShape s) {
+      public Shape writeThenRead(Shape s) {
         String buff = io.toString( s );
         return io.readShape( buff );
       }

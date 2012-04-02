@@ -34,17 +34,17 @@ public class TestShapes2D extends AbstractTestShapes {
 
   @Test
   public void testSimplePoint() {
-    IPoint pt = ctx.makePoint(0,0);
+    Point pt = ctx.makePoint(0,0);
     String msg = pt.toString();
 
     //test equals & hashcode
-    IPoint pt2 = ctx.makePoint(0,0);
+    Point pt2 = ctx.makePoint(0,0);
     assertEquals(msg, pt, pt2);
     assertEquals(msg, pt.hashCode(), pt2.hashCode());
 
     assertFalse(msg,pt.hasArea());
     assertEquals(msg,pt.getCenter(),pt);
-    IRectangle bbox = pt.getBoundingBox();
+    Rectangle bbox = pt.getBoundingBox();
     assertFalse(msg,bbox.hasArea());
     assertEquals(msg,pt,bbox.getCenter());
 

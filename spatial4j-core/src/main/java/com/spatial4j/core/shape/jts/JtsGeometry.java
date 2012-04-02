@@ -20,15 +20,15 @@ package com.spatial4j.core.shape.jts;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
 
-import com.spatial4j.core.shape.IPoint;
 import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.shape.impl.RectangleImpl;
 
-public class JtsGeometry implements IShape {
+public class JtsGeometry implements Shape {
   public final Geometry geo;
   private final boolean hasArea;
 
@@ -46,9 +46,9 @@ public class JtsGeometry implements IShape {
   }
 
   @Override
-  public IRectangle getBoundingBox() {
+  public Rectangle getBoundingBox() {
     Envelope env = geo.getEnvelopeInternal();
-    return new Rectangle(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
+    return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
   }
 
   @Override
@@ -64,14 +64,14 @@ public class JtsGeometry implements IShape {
   }
 
   @Override
-  public SpatialRelation relate(IShape other, SpatialContext ctx) {
-    if (other instanceof IPoint) {
-      IPoint pt = (IPoint)other;
+  public SpatialRelation relate(Shape other, SpatialContext ctx) {
+    if (other instanceof Point) {
+      Point pt = (Point)other;
       JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : ctx.makePoint(pt.getX(), pt.getY()));
       return geo.contains(jtsPoint.getJtsPoint()) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
     }
 
-    IRectangle ext = other.getBoundingBox();
+    Rectangle ext = other.getBoundingBox();
     if (!ext.hasArea()) {//TODO revisit the soundness of this logic
       throw new IllegalArgumentException("the query shape must cover some area (not a line)");
     }
@@ -85,14 +85,14 @@ public class JtsGeometry implements IShape {
       return SpatialRelation.DISJOINT;
     }
 
-    if (other instanceof ICircle) {
+    if (other instanceof Circle) {
       //Test each point to see how many of them are outside of the circle.
       Coordinate[] coords = geo.getCoordinates();
       int outside = 0;
       int i = 0;
       for (Coordinate coord : coords) {
         i++;
-        SpatialRelation sect = other.relate(new Point(coord.x, coord.y), ctx);
+        SpatialRelation sect = other.relate(new PointImpl(coord.x, coord.y), ctx);
         if (sect == SpatialRelation.DISJOINT)
           outside++;
         if (i != outside && outside != 0)//short circuit: partially outside, partially inside
@@ -107,8 +107,8 @@ public class JtsGeometry implements IShape {
     }
     
     Polygon qGeo = null;
-    if (other instanceof IRectangle) {
-      IRectangle r = (IRectangle)other;
+    if (other instanceof Rectangle) {
+      Rectangle r = (Rectangle)other;
       Envelope env = new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY());
       
       qGeo = (Polygon) getGeometryFactory(ctx).toGeometry(env);

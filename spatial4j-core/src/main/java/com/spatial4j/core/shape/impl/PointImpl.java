@@ -15,31 +15,49 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.shape.jts;
+package com.spatial4j.core.shape.impl;
 
-
-import com.vividsolutions.jts.geom.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.impl.RectangleImpl;
+import com.spatial4j.core.shape.SpatialRelation;
 
-public class JtsPoint implements com.spatial4j.core.shape.Point {
 
-  private Point point;
+public class PointImpl implements Point {
 
-  public JtsPoint(Point point) {
-    this.point = point;
-  }
+  private final double x;
+  private final double y;
 
-  public Point getJtsPoint() {
-    return point;
+  public PointImpl(double x, double y) {
+    this.x = x;
+    this.y = y;
   }
 
   @Override
-  public com.spatial4j.core.shape.Point getCenter() {
+  public double getX() {
+    return x;
+  }
+
+  @Override
+  public double getY() {
+    return y;
+  }
+  @Override
+  public Rectangle getBoundingBox() {
+    return new RectangleImpl(x, x, y, y);
+  }
+
+  @Override
+  public PointImpl getCenter() {
     return this;
+  }
+
+  @Override
+  public SpatialRelation relate(Shape other, SpatialContext ctx) {
+    if (other instanceof Point)
+      return this.equals(other) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
+    return other.relate(this, ctx).transpose();
   }
 
   @Override
@@ -48,44 +66,31 @@ public class JtsPoint implements com.spatial4j.core.shape.Point {
   }
 
   @Override
-  public Rectangle getBoundingBox() {
-    double x = point.getX();
-    double y = point.getY();
-    return new RectangleImpl(x, x, y, y);
-  }
-
-  @Override
-  public SpatialRelation relate(Shape other, SpatialContext ctx) {
-    // ** NOTE ** the overall order of logic is kept consistent here with simple.PointImpl.
-    if (other instanceof com.spatial4j.core.shape.Point)
-      return this.equals(other) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
-    return other.relate(this, ctx).transpose();
-  }
-
-  @Override
-  public double getX() {
-    return point.getX();
-  }
-
-  @Override
-  public double getY() {
-    return point.getY();
-  }
-  @Override
   public String toString() {
-    return "Pt(x="+getX()+",y="+getY()+")";
+    return "Pt(x="+x+",y="+y+")";
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    JtsPoint that = (JtsPoint) o;
-    return point.equals(that.point);
+
+    PointImpl point = (PointImpl) o;
+
+    if (Double.compare(point.x, x) != 0) return false;
+    if (Double.compare(point.y, y) != 0) return false;
+
+    return true;
   }
 
   @Override
   public int hashCode() {
-    return point.hashCode();
+    int result;
+    long temp;
+    temp = x != +0.0d ? Double.doubleToLongBits(x) : 0L;
+    result = (int) (temp ^ (temp >>> 32));
+    temp = y != +0.0d ? Double.doubleToLongBits(y) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    return result;
   }
 }

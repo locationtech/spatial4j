@@ -18,15 +18,15 @@
 package com.spatial4j.core.distance;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.IPoint;
-import com.spatial4j.core.shape.IRectangle;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
 
 public interface DistanceCalculator {
 
-  public double distance(IPoint from, IPoint to);
-  public double distance(IPoint from, double toX, double toY);
+  public double distance(Point from, Point to);
+  public double distance(Point from, double toX, double toY);
 
-  public IPoint pointOnBearing(IPoint from, double dist, double bearingDEG, SpatialContext ctx);
+  public Point pointOnBearing(Point from, double dist, double bearingDEG, SpatialContext ctx);
   
   /**
    * Converts a distance to radians (multiples of the radius). A spherical
@@ -38,8 +38,8 @@ public interface DistanceCalculator {
 
   //public Point pointOnBearing(Point from, double angle);
 
-  public IRectangle calcBoxByDistFromPt(IPoint from, double distance, SpatialContext ctx);
+  public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx);
 
-  public double calcBoxByDistFromPtHorizAxis(IPoint from, double distance, SpatialContext ctx);
+  public double calcBoxByDistFromPtHorizAxis(Point from, double distance, SpatialContext ctx);
 
 }

@@ -18,7 +18,7 @@
 package com.spatial4j.core.util;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.IPoint;
+import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.util.GeohashUtils;
 
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class TestGeohashUtils {
   public void testDecodePreciseLongitudeLatitude() {
     String hash = GeohashUtils.encodeLatLon(52.3738007, 4.8909347);
 
-    IPoint point = GeohashUtils.decode(hash,ctx);
+    Point point = GeohashUtils.decode(hash,ctx);
 
     assertEquals(52.3738007, point.getY(), 0.00001D);
     assertEquals(4.8909347, point.getX(), 0.00001D);
@@ -66,7 +66,7 @@ public class TestGeohashUtils {
   public void testDecodeImpreciseLongitudeLatitude() {
     String hash = GeohashUtils.encodeLatLon(84.6, 10.5);
 
-    IPoint point = GeohashUtils.decode(hash, ctx);
+    Point point = GeohashUtils.decode(hash, ctx);
 
     assertEquals(84.6, point.getY(), 0.00001D);
     assertEquals(10.5, point.getX(), 0.00001D);
@@ -79,7 +79,7 @@ public class TestGeohashUtils {
   public void testDecodeEncode() {
     String geoHash = "u173zq37x014";
     assertEquals(geoHash, GeohashUtils.encodeLatLon(52.3738007, 4.8909347));
-    IPoint point = GeohashUtils.decode(geoHash,ctx);
+    Point point = GeohashUtils.decode(geoHash,ctx);
     assertEquals(52.37380061d, point.getY(), 0.000001d);
     assertEquals(4.8909343d, point.getX(), 0.000001d);
 
@@ -88,7 +88,7 @@ public class TestGeohashUtils {
     geoHash = "u173";
     point = GeohashUtils.decode("u173",ctx);
     geoHash = GeohashUtils.encodeLatLon(point.getY(), point.getX());
-    final IPoint point2 = GeohashUtils.decode(geoHash, ctx);
+    final Point point2 = GeohashUtils.decode(geoHash, ctx);
     assertEquals(point.getY(), point2.getY(), 0.000001d);
     assertEquals(point.getX(), point2.getX(), 0.000001d);
   }
