@@ -17,9 +17,9 @@
 
 
 /**
- * Lucene spatial Query options
+ * Spatial Query options
  * <ul>
- *  <li>useful for client side requets</li>
+ *  <li>useful for client side requests</li>
  * </ul>
  */
 package com.spatial4j.core.query;

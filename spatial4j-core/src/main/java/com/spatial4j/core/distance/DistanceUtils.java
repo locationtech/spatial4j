@@ -158,7 +158,7 @@ public class DistanceUtils {
 
     /*lat2 = (lat2*180)/Math.PI;
     lon2 = (lon2*180)/Math.PI;*/
-    //From Lucene.  Move back to Lucene when synced
+
     // normalize lon first
     if (result == null || result.length != 2){
       result = new double[2];
@@ -352,7 +352,7 @@ public class DistanceUtils {
   public static double distLawOfCosinesRAD(double lat1, double lon1, double lat2, double lon2) {
     //TODO validate formula
 
-    //(MIGRATED FROM org.apache.lucene.spatial.geometry.LatLng.arcDistance())
+    //(MIGRATED FROM org.apache.lucene.spatial.geometry.LatLng.arcDistance()) (Lucene 3x)
     // Imported from mq java client.  Variable references changed to match.
 
     // Check for same position

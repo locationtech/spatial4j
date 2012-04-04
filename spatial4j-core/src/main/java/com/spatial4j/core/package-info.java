@@ -16,8 +16,7 @@
  */
 
 /**
- * This package is spatal stuff without any lucene dependencies
- * Things implemented in this package could be calculated on the client side
+ * This is the base package for Spatial4j from which the rest of it is organized.
  */
 package com.spatial4j.core;
 
