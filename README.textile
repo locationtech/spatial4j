@@ -28,6 +28,10 @@ h3. Future Roadmap
 * Better support for other projections (not just WGS-84)
 * Elliptical earth model distance math
 
+h3. Discuss
+
+Discuss Spatial4j on our "mailing list":http://spatial4j.16575.n6.nabble.com/.
+
 h1. Other Modules
 
 Spatial4j includes some other modules aside from the core library:
