@@ -18,6 +18,7 @@
   -->
 
 <config>
+  <luceneMatchVersion>LUCENE_40</luceneMatchVersion>
 
   <jmx />
 
@@ -31,10 +32,8 @@
         solr.RAMDirectoryFactory is memory based and not persistent. -->
   <directoryFactory name="DirectoryFactory" class="${solr.directoryFactory:solr.RAMDirectoryFactory}"/>
   
-
-  <luceneMatchVersion>${tests.luceneMatchVersion:LUCENE_CURRENT}</luceneMatchVersion>
-
-  <indexDefaults>
+  
+  <indexConfig>
     <!-- Values here affect all index writers and act as a default
   unless overridden. -->
     <!-- Values here affect all index writers and act as a default unless overridden. -->
@@ -78,9 +77,8 @@
     <commitLockTimeout>10000</commitLockTimeout>
 
     <lockType>single</lockType>
-  </indexDefaults>
-
-  <mainIndex>
+    
+    
     <!-- lucene options specific to the main on-disk lucene index -->
     <useCompoundFile>false</useCompoundFile>
     <mergeFactor>8</mergeFactor>
@@ -93,7 +91,7 @@
     <mergePolicy class="org.apache.lucene.index.LogDocMergePolicy"/>
 
     <unlockOnStartup>true</unlockOnStartup>
-  </mainIndex>
+  </indexConfig> 
 
   <updateHandler class="solr.DirectUpdateHandler2">
 

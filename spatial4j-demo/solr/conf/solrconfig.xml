@@ -38,10 +38,7 @@
   <directoryFactory name="DirectoryFactory" class="${solr.directoryFactory:solr.StandardDirectoryFactory}"/>
 
 
-  <!-- WARNING: this <indexDefaults> section only provides defaults for index writers
-       in general. See also the <mainIndex> section after that when changing parameters
-       for Solr's main Lucene index. -->
-  <indexDefaults>
+  <indexConfig>
    <!-- Values here affect all index writers and act as a default unless overridden. -->
     <useCompoundFile>false</useCompoundFile>
 
@@ -59,9 +56,7 @@
     <writeLockTimeout>1000</writeLockTimeout>
     <commitLockTimeout>10000</commitLockTimeout>
     <lockType>native</lockType>
-  </indexDefaults>
-
-  <mainIndex>
+    
     <!-- options specific to the main on-disk lucene index -->
     <useCompoundFile>false</useCompoundFile>
     <ramBufferSizeMB>32</ramBufferSizeMB>
@@ -80,7 +75,7 @@
       will write its debug infostream to.  -->
      <infoStream file="INFOSTREAM.txt">false</infoStream> 
 
-  </mainIndex>
+  </indexConfig> 
 
   <jmx />
 
