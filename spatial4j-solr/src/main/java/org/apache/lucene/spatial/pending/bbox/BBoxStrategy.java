@@ -28,6 +28,7 @@ import org.apache.lucene.queries.function.FunctionQuery;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
@@ -74,6 +75,7 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
     FieldType ft = new FieldType();
     ft.setIndexed(index);
     ft.setStored(store);
+    ft.setTokenized(false);
     ft.setOmitNorms(true);
     ft.setIndexOptions(IndexOptions.DOCS_ONLY);
     ft.freeze();
@@ -132,17 +134,14 @@ public class BBoxStrategy extends SpatialStrategy<BBoxFieldInfo> {
 
   @Override
   public Query makeQuery(SpatialArgs args, BBoxFieldInfo fieldInfo) {
+    BooleanQuery bq = new BooleanQuery();
     Query spatial = makeSpatialQuery(args, fieldInfo);
-
-    if( true ) {
-      // TODO? figure out how to score based on size?
-      Query spatialRankingQuery = new FunctionQuery(makeValueSource(args, fieldInfo));
-      BooleanQuery bq = new BooleanQuery();
-      bq.add(spatial, BooleanClause.Occur.MUST);
-      bq.add(spatialRankingQuery, BooleanClause.Occur.MUST);
-      return bq;
-    }
-    return spatial;
+    bq.add(new ConstantScoreQuery(spatial), BooleanClause.Occur.MUST);
+    
+    // This part does the scoring
+    Query spatialRankingQuery = new FunctionQuery(makeValueSource(args, fieldInfo));
+    bq.add(spatialRankingQuery, BooleanClause.Occur.MUST);
+    return bq;
   }
 
 

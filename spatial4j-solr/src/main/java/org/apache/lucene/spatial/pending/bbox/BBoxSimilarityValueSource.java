@@ -23,6 +23,7 @@ import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
+import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.util.Bits;
 
@@ -56,7 +57,7 @@ public class BBoxSimilarityValueSource extends ValueSource {
    */
   @Override
   public String description() {
-    return "SpatialRankingValueSource(" + similarity + ")";
+    return "BBoxSimilarityValueSource(" + similarity + ")";
   }
 
 
@@ -85,9 +86,22 @@ public class BBoxSimilarityValueSource extends ValueSource {
           Rectangle rect = new RectangleImpl(
               minX[doc], maxX[doc],
               minY[doc], maxY[doc]);
-          return (float) similarity.score(rect);
+          return (float) similarity.score(rect, null);
         }
         return 0;
+      }
+
+      public Explanation explain(int doc) {
+        // make sure it has minX and area
+        if (validMinX.get(doc) && validMaxX.get(doc)) {
+          Rectangle rect = new RectangleImpl(
+              minX[doc], maxX[doc],
+              minY[doc], maxY[doc]);
+          Explanation exp = new Explanation();
+          similarity.score(rect, exp);
+          return exp;
+        }
+        return new Explanation(0, "No BBox");
       }
 
       @Override

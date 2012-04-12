@@ -45,17 +45,17 @@ public class JtsGeoStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   private static final Logger logger = LoggerFactory.getLogger(JtsGeoStrategy.class);
 
-  private final JtsSpatialContext shapeIO;
+  private final JtsSpatialContext context;
   private int max_wkb_length = 32000;
 
-  public JtsGeoStrategy(JtsSpatialContext shapeIO) {
-    super(shapeIO);
-    this.shapeIO = shapeIO;
+  public JtsGeoStrategy(JtsSpatialContext ctx) {
+    super(ctx);
+    this.context = ctx;
   }
 
   @Override
   public IndexableField createField(SimpleSpatialFieldInfo indexInfo, Shape shape, boolean index, boolean store) {
-    Geometry geo = shapeIO.getGeometryFrom(shape);
+    Geometry geo = context.getGeometryFrom(shape);
 
     WKBWriter writer = new WKBWriter();
     BytesRef wkb = new BytesRef(writer.write(geo));
@@ -100,8 +100,8 @@ public class JtsGeoStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
 
   @Override
   public Filter makeFilter(SpatialArgs args, SimpleSpatialFieldInfo field) {
-    Geometry geo = shapeIO.getGeometryFrom(args.getShape());
+    Geometry geo = context.getGeometryFrom(args.getShape());
     GeometryTest tester = GeometryTestFactory.get(args.getOperation(), geo);
-    return new GeometryOperationFilter(field.getFieldName(), tester, shapeIO);
+    return new GeometryOperationFilter(field.getFieldName(), tester, context);
   }
 }
