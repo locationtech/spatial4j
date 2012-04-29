@@ -44,9 +44,7 @@ public class BytesRefStream implements InStream {
     if ( buf.length > ref.length+off ) {
       throw new InvalidShapeException("Asking for too many bytes");
     }
-    for (int i = 0; i < buf.length; i++) {
-      buf[i] = ref.bytes[off + i];
-    }
+    System.arraycopy(ref.bytes, off, buf, 0, buf.length);
     off += buf.length;
   }
 }
