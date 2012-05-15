@@ -139,7 +139,9 @@
   			<artifactId>jetty-maven-plugin</artifactId>
         <configuration>
           <scanIntervalSeconds>0</scanIntervalSeconds>
-          <contextPath>/</contextPath>
+          <webAppConfig>
+            <contextPath>/</contextPath>
+          </webAppConfig>
           <systemProperties>
             <systemProperty>
               <name>SpatialContextFactory</name>
