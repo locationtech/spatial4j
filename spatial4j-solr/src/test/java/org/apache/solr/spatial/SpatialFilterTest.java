@@ -184,8 +184,8 @@ public class SpatialFilterTest extends SolrTestCaseJ4 {
         clearIndex();
         List<Point> points = new ArrayList<Point>();
         for(int i = 0; i < 20; i++) {
-          double x = random.nextDouble()*sideDegree - sideDegree/2 + clusterCenter.getX();
-          double y = random.nextDouble()*sideDegree - sideDegree/2 + clusterCenter.getY();
+          double x = random().nextDouble()*sideDegree - sideDegree/2 + clusterCenter.getX();
+          double y = random().nextDouble()*sideDegree - sideDegree/2 + clusterCenter.getY();
           final Point pt = normPointXY(x, y);
           points.add(pt);
           assertU(adoc("id", ""+i, fieldName, pt.getY()+","+pt.getX()));

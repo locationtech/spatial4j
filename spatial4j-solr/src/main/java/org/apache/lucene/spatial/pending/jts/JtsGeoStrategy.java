@@ -16,7 +16,7 @@
  */
 package org.apache.lucene.spatial.pending.jts;
 
-import org.apache.lucene.document.DocValuesField;
+import org.apache.lucene.document.DerefBytesDocValuesField;
 import org.apache.lucene.index.DocValues.Type;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queries.function.ValueSource;
@@ -83,7 +83,7 @@ public class JtsGeoStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
       }
     }
 
-    return new DocValuesField(indexInfo.getFieldName(), wkb, Type.BYTES_VAR_DEREF);
+    return new DerefBytesDocValuesField(indexInfo.getFieldName(), wkb);
   }
 
   @Override
