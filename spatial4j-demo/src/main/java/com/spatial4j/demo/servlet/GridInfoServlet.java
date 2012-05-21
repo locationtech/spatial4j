@@ -1,5 +1,6 @@
 package com.spatial4j.demo.servlet;
 
+import com.spatial4j.demo.app.WicketApplication;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.commons.io.IOUtils;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
@@ -18,9 +19,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.Date;
 import java.util.List;
 
@@ -59,7 +58,7 @@ public class GridInfoServlet extends HttpServlet
     Shape shape = null;
     String country = req.getParameter( "country" );
     if( country != null && country.length() == 3 ) {
-      InputStream in = getClass().getClassLoader().getResourceAsStream("data/countries-poly.txt");
+      InputStream in = WicketApplication.getStreamFromDataResource("countries-poly.txt");
       try {
         SampleDataReader reader = new SampleDataReader( in );
         while( reader.hasNext() ) {

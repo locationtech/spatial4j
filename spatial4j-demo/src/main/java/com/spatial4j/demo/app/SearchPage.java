@@ -237,11 +237,7 @@ public class SearchPage extends WebPage
           @Override
           public void run() {
             try {
-              File data = new File("data");
-              String dir = System.getProperty("data.dir");
-              if(dir!=null) {
-                data = new File(dir);
-              }
+              File data = WicketApplication.getDataDir();
               
               SolrServer sss = new ConcurrentUpdateSolrServer(
                   "http://localhost:8080/solr", 50, 3 );
@@ -305,7 +301,7 @@ public class SearchPage extends WebPage
     }));
     add( load );
   }
-  
+
   public Link<Void> addKmlLink( String id, final String docID, final String field ) {
     return new Link<Void>( "kml" ) {
       @Override
