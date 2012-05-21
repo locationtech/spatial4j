@@ -43,7 +43,7 @@
     
     <wicket.version>1.4.20</wicket.version>
     <jetty.version>8.1.2.v20120308</jetty.version>
-    <slf4j.version>1.6.1</slf4j.version>
+    <slf4j.version>1.6.4</slf4j.version>
     <lucene.version>4.0-SNAPSHOT</lucene.version>
     <jts.version>1.12</jts.version>
   </properties>
