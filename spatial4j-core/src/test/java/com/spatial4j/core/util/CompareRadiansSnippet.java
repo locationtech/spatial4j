@@ -25,7 +25,7 @@ import static java.lang.Math.toRadians;
  *  Math.toRadians: 2090
  *  DistanceUtils:   626
  */
-public class CompareRadiansSnippit {
+public class CompareRadiansSnippet {
   
   public static void main(String[] args) {
     long start = System.currentTimeMillis();
