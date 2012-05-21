@@ -17,31 +17,20 @@
 
 package com.spatial4j.core.shape;
 
-import com.spatial4j.core.RandomSeed;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
-import org.junit.Before;
 
-import java.util.Random;
-
-import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
-import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
-import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static com.spatial4j.core.shape.SpatialRelation.*;
 
 
-public abstract class AbstractTestShapes {
-  protected Random random;
+public abstract class AbstractTestShapes extends RandomizedTest {
 
   protected SpatialContext ctx;
   private static final double EPS = 10e-9;
 
-  @Before
-  public void beforeClass() {
-    random = new Random(RandomSeed.seed());
-    ctx = getContext();
+  public AbstractTestShapes(SpatialContext ctx) {
+    this.ctx = ctx;
   }
 
   protected void assertRelation(String msg, SpatialRelation expected, Shape a, Shape b) {
@@ -203,7 +192,7 @@ public abstract class AbstractTestShapes {
       switch (ic) {
         case CONTAINS:
           i_C++;
-          p = randomPointWithin(random,r,ctx);
+          p = randomPointWithin(r);
           assertEquals(CONTAINS,c.relate(p, ctx));
           break;
         case INTERSECTS:
@@ -212,12 +201,12 @@ public abstract class AbstractTestShapes {
           break;
         case WITHIN:
           i_W++;
-          p = randomPointWithin(random,c,ctx);
+          p = randomPointWithin(c);
           assertEquals(CONTAINS,r.relate(p, ctx));
           break;
         case DISJOINT:
           i_O++;
-          p = randomPointWithin(random,r,ctx);
+          p = randomPointWithin(r);
           assertEquals(DISJOINT,c.relate(p, ctx));
           break;
         default: fail(""+ic);
@@ -231,7 +220,7 @@ public abstract class AbstractTestShapes {
   /** Returns a random integer between [start, end] with a limited number of possibilities instead of end-start+1. */
   private int randRange(int start, int end) {
     //I tested this.
-    double r = random.nextDouble();
+    double r = randomDouble();
     final int BUCKETS = 91;
     int ir = (int) Math.round(r*(BUCKETS-1));//put into buckets
     int result = (int)((double)((end - start) * ir) / (double)(BUCKETS-1) + start);
@@ -239,21 +228,20 @@ public abstract class AbstractTestShapes {
     return result;
   }
 
-  private Point randomPointWithin(Random random, Circle c, SpatialContext ctx) {
-    double d = c.getDistance() * random.nextDouble();
-    double angleDEG = 360*random.nextDouble();
+  private Point randomPointWithin(Circle c) {
+    double d = c.getDistance() * randomDouble();
+    double angleDEG = 360 * randomDouble();
     Point p = ctx.getDistCalc().pointOnBearing(c.getCenter(), d, angleDEG, ctx);
     assertEquals(CONTAINS,c.relate(p, ctx));
     return p;
   }
 
-  private Point randomPointWithin(Random random, Rectangle r, SpatialContext ctx) {
-    double x = r.getMinX() + random.nextDouble()*r.getWidth();
-    double y = r.getMinY() + random.nextDouble()*r.getHeight();
+  private Point randomPointWithin(Rectangle r) {
+    double x = r.getMinX() + randomDouble()*r.getWidth();
+    double y = r.getMinY() + randomDouble()*r.getHeight();
     Point p = ctx.makePoint(x,y);
     assertEquals(CONTAINS,r.relate(p, ctx));
     return p;
   }
 
-  protected abstract SpatialContext getContext();
 }

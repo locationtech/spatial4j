@@ -27,9 +27,8 @@ import static org.junit.Assert.*;
 
 public class TestShapes2D extends AbstractTestShapes {
 
-  @Override
-  protected SpatialContext getContext() {
-    return new SpatialContext(DistanceUnits.CARTESIAN);
+  public TestShapes2D() {
+    super(new SpatialContext(DistanceUnits.CARTESIAN));
   }
 
   @Test

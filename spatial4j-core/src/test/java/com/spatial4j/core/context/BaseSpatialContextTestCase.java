@@ -17,6 +17,7 @@
 
 package com.spatial4j.core.context;
 
+import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.query.SpatialArgs;
 import com.spatial4j.core.query.SpatialArgsParser;
 import com.spatial4j.core.query.SpatialOperation;
@@ -27,20 +28,16 @@ import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.impl.CircleImpl;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 
 /**
  */
 @SuppressWarnings("unchecked")
-public abstract class BaseSpatialContextTestCase {
+public abstract class BaseSpatialContextTestCase extends RandomizedTest {
 
   protected abstract SpatialContext getSpatialContext();
 

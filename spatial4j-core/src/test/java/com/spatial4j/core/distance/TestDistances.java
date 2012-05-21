@@ -17,23 +17,17 @@
 
 package com.spatial4j.core.distance;
 
-import com.spatial4j.core.RandomSeed;
+import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.SpatialRelation;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+public class TestDistances extends RandomizedTest {
 
-
-public class TestDistances {
-
-  private final Random random = new Random(RandomSeed.seed());
   //NOTE!  These are sometimes modified by tests.
   private SpatialContext ctx;
   private double EPS;
@@ -89,10 +83,10 @@ public class TestDistances {
     }
 
     for (int T = 0; T < 100; T++) {
-      double lat = -90 + random.nextDouble()*180;
-      double lon = -180 + random.nextDouble()*360;
+      double lat = -90 + randomDouble()*180;
+      double lon = -180 + randomDouble()*360;
       Point ctr = ctx.makePoint(lon, lat);
-      double dist = MAXDIST*random.nextDouble();
+      double dist = MAXDIST*randomDouble();
       checkBBox(ctr, dist);
     }
 
@@ -164,7 +158,7 @@ public class TestDistances {
     ctx = new SpatialContext(DistanceUnits.CARTESIAN);
     EPS = 10e-6;//tighter epsilon (aka delta)
     for(int i = 0; i < 1000; i++) {
-      testDistCalcPointOnBearing(random.nextInt(100));
+      testDistCalcPointOnBearing(randomInt(100));
     }
   }
 
@@ -185,15 +179,15 @@ public class TestDistances {
 //    }
     double maxDist = ctx.getUnits().earthCircumference() / 2;
     for(int i = 0; i < 1000; i++) {
-      int dist = random.nextInt((int) maxDist);
+      int dist = randomInt((int) maxDist);
       EPS = (dist < maxDist*0.75 ? 10e-6 : 10e-3);
       testDistCalcPointOnBearing(dist);
     }
   }
 
   private void testDistCalcPointOnBearing(double dist) {
-    for(int angDEG = 0; angDEG < 360; angDEG += random.nextInt(20)+1) {
-      Point c = ctx.makePoint(random.nextInt(360),-90+random.nextInt(181));
+    for(int angDEG = 0; angDEG < 360; angDEG += randomIntBetween(1,20)) {
+      Point c = ctx.makePoint(randomInt(359),randomIntBetween(-90,90));
 
       //0 distance means same point
       Point p2 = dc().pointOnBearing(c, 0, angDEG, ctx);
@@ -222,8 +216,8 @@ public class TestDistances {
     for (double[] pair : lats) {
       assertEquals("input "+pair[0],pair[1],ctx.normY(pair[0]),0);
     }
-    Random random = new Random(RandomSeed.seed());
-    for(int i = -1000; i < 1000; i += random.nextInt(10)*10) {
+
+    for(int i = -1000; i < 1000; i += randomInt(9)*10) {
       double d = ctx.normY(i);
       assertTrue(i + " " + d, d >= -90 && d <= 90);
     }
@@ -238,8 +232,8 @@ public class TestDistances {
     for (double[] pair : lons) {
       assertEquals("input "+pair[0],pair[1],ctx.normX(pair[0]),0);
     }
-    Random random = new Random(RandomSeed.seed());
-    for(int i = -1000; i < 1000; i += random.nextInt(10)*10) {
+
+    for(int i = -1000; i < 1000; i += randomInt(9)*10) {
       double d = ctx.normX(i);
       assertTrue(i + " " + d, d >= -180 && d < 180);
     }

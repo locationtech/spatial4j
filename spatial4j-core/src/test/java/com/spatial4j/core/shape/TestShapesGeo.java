@@ -17,17 +17,23 @@
 
 package com.spatial4j.core.shape;
 
+import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static com.spatial4j.core.shape.SpatialRelation.*;
-import static org.junit.Assert.assertEquals;
 
 
 public class TestShapesGeo extends AbstractTestShapes {
+
+  public TestShapesGeo(SpatialContext ctx) {
+    super(ctx);
+  }
 
   @Test
   public void testGeoRectangle() {
@@ -45,7 +51,6 @@ public class TestShapesGeo extends AbstractTestShapes {
     //Test geo rectangle intersections
     testRectIntersect();
   }
-
 
   @Test
   public void testGeoCircle() {
@@ -127,22 +132,19 @@ public class TestShapesGeo extends AbstractTestShapes {
     return ctx.getDistCalc().degreesToDistance(deg);
   }
 
-  @Override
-  protected SpatialContext getContext() {
+  @ParametersFactory
+  public static Iterable<Object[]> parameters() {
     DistanceUnits units = DistanceUnits.KILOMETERS;
-    DistanceCalculator distCalc = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
-    switch(random.nextInt(3)) {
-      case 2:
-        //TODO ENABLE WHEN WORKING
-        //distCalc = new GeodesicSphereDistCalc.LawOfCosines(units.earthRadius());
-        break;
-      case 1:
-        distCalc = new GeodesicSphereDistCalc.Vincenty(units.earthRadius());
-        break;
-    }
-    return new SpatialContext(units,
-        distCalc,
-        SpatialContext.GEO_WORLDBOUNDS);
+
+    //TODO ENABLE LawOfCosines WHEN WORKING
+    //DistanceCalculator distCalcL = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
+
+    DistanceCalculator distCalcH = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
+    DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty(units.earthRadius());//default
+    return Arrays.asList($$(
+        $(new SpatialContext(units,distCalcH,SpatialContext.GEO_WORLDBOUNDS)),
+        $(new SpatialContext(units,distCalcV,SpatialContext.GEO_WORLDBOUNDS))
+    ));
   }
 
 }
