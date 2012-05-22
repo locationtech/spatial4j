@@ -37,7 +37,7 @@ import java.util.Arrays;
 
 
 @SuppressWarnings("unchecked")
-public class BaseSpatialContextTestCase extends RandomizedTest {
+public class SpatialContextTest extends RandomizedTest {
 
   @ParametersFactory
   public static Iterable<Object[]> parameters() {
@@ -49,7 +49,7 @@ public class BaseSpatialContextTestCase extends RandomizedTest {
 
   private final SpatialContext ctx;
 
-  public BaseSpatialContextTestCase(SpatialContext ctx) {
+  public SpatialContextTest(SpatialContext ctx) {
     this.ctx = ctx;
   }
 
