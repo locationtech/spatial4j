@@ -20,16 +20,10 @@ package com.spatial4j.core.context;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.query.SpatialArgs;
-import com.spatial4j.core.query.SpatialArgsParser;
-import com.spatial4j.core.query.SpatialOperation;
-import com.spatial4j.core.shape.MultiShape;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.impl.CircleImpl;
-import com.spatial4j.core.shape.impl.PointImpl;
-import com.spatial4j.core.shape.impl.RectangleImpl;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -53,52 +47,6 @@ public class SpatialContextTest extends RandomizedTest {
     this.ctx = ctx;
   }
 
-  @Test
-  public void testArgsParser() throws Exception {
-    SpatialArgsParser parser = new SpatialArgsParser();
-
-    String arg = SpatialOperation.IsWithin + "(-10 -20 10 20)";
-    SpatialArgs out = parser.parse(arg, ctx);
-    assertEquals(SpatialOperation.IsWithin, out.getOperation());
-    Rectangle bounds = (Rectangle) out.getShape();
-    assertEquals(-10.0, bounds.getMinX(), 0D);
-    assertEquals(10.0, bounds.getMaxX(), 0D);
-
-    // Disjoint should not be scored
-    arg = SpatialOperation.IsDisjointTo + " (-10 10 -20 20)";
-    out = parser.parse(arg, ctx);
-    assertEquals(SpatialOperation.IsDisjointTo, out.getOperation());
-
-    try {
-      parser.parse(SpatialOperation.IsDisjointTo + "[ ]", ctx);
-      fail("spatial operations need args");
-    }
-    catch (Exception ex) {//expected
-    }
-
-    try {
-      parser.parse("XXXX(-10 10 -20 20)", ctx);
-      fail("unknown operation!");
-    }
-    catch (Exception ex) {//expected
-    }
-  }
-
-  public static void checkShapesImplementEquals( Class[] classes ) {
-
-    for( Class clazz : classes ) {
-      try {
-        clazz.getDeclaredMethod( "equals", Object.class );
-      } catch (Exception e) {
-        fail("Shape needs to define 'equals' : " + clazz.getName());
-      }
-      try {
-        clazz.getDeclaredMethod( "hashCode" );
-      } catch (Exception e) {
-        fail("Shape needs to define 'hashCode' : " + clazz.getName());
-      }
-    }
-  }
 
   private <T extends Shape> T writeThenRead( T s ) throws IOException {
     String buff = ctx.toString( s );
@@ -138,16 +86,6 @@ public class SpatialContextTest extends RandomizedTest {
 
     Shape s2 = ctx.readShape("Circle( 4.56,1.23 d=7.89 )"); // use lat,lon and use 'd' abbreviation
     assertEquals(s,s2);
-  }
-
-  @Test
-  public void testImplementsEqualsAndHash() throws Exception {
-    checkShapesImplementEquals( new Class[] {
-      PointImpl.class,
-      CircleImpl.class,
-      RectangleImpl.class,
-      MultiShape.class,
-    });
   }
 
 

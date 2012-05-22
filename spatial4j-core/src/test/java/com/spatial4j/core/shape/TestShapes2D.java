@@ -19,6 +19,10 @@ package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUnits;
+import com.spatial4j.core.shape.impl.CircleImpl;
+import com.spatial4j.core.shape.impl.GeoCircle;
+import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.shape.impl.RectangleImpl;
 import org.junit.Test;
 
 import static com.spatial4j.core.shape.SpatialRelation.*;
@@ -85,5 +89,32 @@ public class TestShapes2D extends AbstractTestShapes {
     testCircleIntersect();
   }
 
+  /** We have this test here but we'll add geo shapes as needed. */
+  @Test
+  public void testImplementsEqualsAndHash() throws Exception {
+    checkShapesImplementEquals( new Class[] {
+            PointImpl.class,
+            CircleImpl.class,
+            //GeoCircle.class,
+            RectangleImpl.class,
+            MultiShape.class,
+    });
+  }
+
+  public static void checkShapesImplementEquals( Class[] classes ) {
+
+    for( Class clazz : classes ) {
+      try {
+        clazz.getDeclaredMethod( "equals", Object.class );
+      } catch (Exception e) {
+        fail("Shape needs to define 'equals' : " + clazz.getName());
+      }
+      try {
+        clazz.getDeclaredMethod( "hashCode" );
+      } catch (Exception e) {
+        fail("Shape needs to define 'hashCode' : " + clazz.getName());
+      }
+    }
+  }
 
 }
