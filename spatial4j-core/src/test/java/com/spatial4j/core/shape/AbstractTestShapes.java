@@ -170,7 +170,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     //Now do some randomized tests:
     int i_C = 0, i_I = 0, i_W = 0, i_O = 0;//counters for the different intersection cases
     int laps = 0;
-    int MINLAPSPERCASE = 20;
+    int MINLAPSPERCASE = 20 * (int)multiplier();
     while(i_C < MINLAPSPERCASE || i_I < MINLAPSPERCASE || i_W < MINLAPSPERCASE || i_O < MINLAPSPERCASE) {
       laps++;
       double cX = randRange(-180,179);
