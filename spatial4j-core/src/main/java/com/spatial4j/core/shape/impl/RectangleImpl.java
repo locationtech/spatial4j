@@ -147,20 +147,24 @@ public class RectangleImpl implements Rectangle {
     return SpatialRelation.INTERSECTS;
   }
 
-  @Override
-  public SpatialRelation relate_yRange(double ext_minY, double ext_maxY, SpatialContext ctx) {
-    if (ext_minY > maxY || ext_maxY < minY) {
+  private static SpatialRelation relate_range(double int_min, double int_max, double ext_min, double ext_max) {
+    if (ext_min > int_max || ext_max < int_min) {
       return SpatialRelation.DISJOINT;
     }
 
-    if (ext_minY >= minY && ext_maxY <= maxY) {
+    if (ext_min >= int_min && ext_max <= int_max) {
       return SpatialRelation.CONTAINS;
     }
 
-    if (ext_minY <= minY && ext_maxY >= maxY) {
+    if (ext_min <= int_min && ext_max >= int_max) {
       return SpatialRelation.WITHIN;
     }
     return SpatialRelation.INTERSECTS;
+  }
+
+  @Override
+  public SpatialRelation relate_yRange(double ext_minY, double ext_maxY, SpatialContext ctx) {
+    return relate_range(minY, maxY, ext_minY, ext_maxY);
   }
 
   @Override
@@ -195,18 +199,7 @@ public class RectangleImpl implements Rectangle {
       }
     }
 
-    if (ext_minX > maxX || ext_maxX < minX ) {
-      return SpatialRelation.DISJOINT;
-    }
-
-    if (ext_minX >= minX && ext_maxX <= maxX ) {
-      return SpatialRelation.CONTAINS;
-    }
-
-    if (ext_minX <= minX && ext_maxX >= maxX ) {
-      return SpatialRelation.WITHIN;
-    }
-    return SpatialRelation.INTERSECTS;
+    return relate_range(minX, maxX, ext_minX, ext_maxX);
   }
 
   @Override
