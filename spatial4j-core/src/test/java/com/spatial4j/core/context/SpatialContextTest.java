@@ -77,7 +77,7 @@ public class SpatialContextTest extends RandomizedTest {
 
     // Circle
     s = ctx.readShape("Circle(1.23 4.56 distance=7.89)");
-    //assertEquals(s,writeThenRead(s));
+    assertEquals(s,writeThenRead(s));
     CircleImpl circle = (CircleImpl)s;
     assertEquals(1.23, circle.getCenter().getX(), 0D);
     assertEquals(4.56, circle.getCenter().getY(), 0D);

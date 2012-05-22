@@ -152,17 +152,25 @@ public class SpatialContext {
     nf.setMaximumFractionDigits(6);
     nf.setMinimumFractionDigits(6);
     
-    if (Point.class.isInstance(shape)) {
+    if (shape instanceof Point) {
       Point point = (Point) shape;
       return nf.format(point.getX()) + " " + nf.format(point.getY());
-    } 
-    else if (Rectangle.class.isInstance(shape)) {
+    }
+    else if (shape instanceof Rectangle) {
       Rectangle rect = (Rectangle)shape;
       return
           nf.format(rect.getMinX()) + " " +
           nf.format(rect.getMinY()) + " " +
           nf.format(rect.getMaxX()) + " " +
           nf.format(rect.getMaxY());
+    }
+    else if (shape instanceof Circle) {
+      Circle c = (Circle) shape;
+      return "Circle(" +
+          nf.format(c.getCenter().getX()) + " " +
+          nf.format(c.getCenter().getY()) + " " +
+          "d=" + nf.format(c.getDistance()) +
+          ")";
     }
     return shape.toString();
   }

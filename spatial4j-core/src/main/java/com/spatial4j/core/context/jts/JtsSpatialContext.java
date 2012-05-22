@@ -151,29 +151,11 @@ public class JtsSpatialContext extends SpatialContext {
 
   @Override
   public String toString(Shape shape) {
-    if (Point.class.isInstance(shape)) {
-      NumberFormat nf = NumberFormat.getInstance(Locale.US);
-      nf.setGroupingUsed(false);
-      nf.setMaximumFractionDigits(6);
-      nf.setMinimumFractionDigits(6);
-      Point point = (Point) shape;
-      return nf.format(point.getX()) + " " + nf.format(point.getY());
-    } else if (Rectangle.class.isInstance(shape)) {
-      Rectangle rect = (Rectangle) shape;
-      NumberFormat nf = NumberFormat.getInstance(Locale.US);
-      nf.setGroupingUsed(false );
-      nf.setMaximumFractionDigits(6);
-      nf.setMinimumFractionDigits(6);
-      return
-        nf.format(rect.getMinX()) + " " +
-        nf.format(rect.getMinY()) + " " +
-        nf.format(rect.getMaxX()) + " " +
-        nf.format(rect.getMaxY());
-    } else if (JtsGeometry.class.isInstance(shape)) {
+    if (shape instanceof JtsGeometry) {
       JtsGeometry geo = (JtsGeometry) shape;
       return geo.geo.toText();
     }
-    return shape.toString();
+    return super.toString(shape);
   }
 
   public Geometry getGeometryFrom(Shape shape) {
