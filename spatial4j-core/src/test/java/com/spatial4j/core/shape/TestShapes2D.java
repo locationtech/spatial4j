@@ -17,26 +17,40 @@
 
 package com.spatial4j.core.shape;
 
+import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.shape.impl.CircleImpl;
-import com.spatial4j.core.shape.impl.GeoCircle;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.spatial4j.core.shape.SpatialRelation.*;
-import static org.junit.Assert.*;
 
 
 public class TestShapes2D extends AbstractTestShapes {
 
-  public TestShapes2D() {
-    super(new SpatialContext(DistanceUnits.CARTESIAN));
+  @ParametersFactory
+  public static Iterable<Object[]> parameters() {
+    DistanceUnits units = DistanceUnits.CARTESIAN;
+    List<Object[]> ctxs = new ArrayList<Object[]>();
+    ctxs.add($(new SpatialContext(units)));
+    ctxs.add($(new JtsSpatialContext(units)));
+    return ctxs;
+  }
+
+  public TestShapes2D(SpatialContext ctx) {
+    super(ctx);
   }
 
   @Test
   public void testSimplePoint() {
+    assumeFalse(ctx instanceof JtsSpatialContext); //TODO pending approach on point equality
+
     Point pt = ctx.makePoint(0,0);
     String msg = pt.toString();
 

@@ -32,6 +32,22 @@ import static com.spatial4j.core.shape.SpatialRelation.*;
 
 public class TestShapesGeo extends AbstractTestShapes {
 
+  @ParametersFactory
+  public static Iterable<Object[]> parameters() {
+    DistanceUnits units = DistanceUnits.KILOMETERS;
+
+    //TODO ENABLE LawOfCosines WHEN WORKING
+    //DistanceCalculator distCalcL = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
+
+    DistanceCalculator distCalcH = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
+    DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty(units.earthRadius());//default
+    return Arrays.asList($$(
+        $(new SpatialContext(units,distCalcH,SpatialContext.GEO_WORLDBOUNDS)),
+        $(new SpatialContext(units,distCalcV,SpatialContext.GEO_WORLDBOUNDS)),
+        $(JtsSpatialContext.GEO_KM))
+    );
+  }
+
   public TestShapesGeo(SpatialContext ctx) {
     super(ctx);
   }
@@ -131,22 +147,6 @@ public class TestShapesGeo extends AbstractTestShapes {
 
   private double degToDist(int deg) {
     return ctx.getDistCalc().degreesToDistance(deg);
-  }
-
-  @ParametersFactory
-  public static Iterable<Object[]> parameters() {
-    DistanceUnits units = DistanceUnits.KILOMETERS;
-
-    //TODO ENABLE LawOfCosines WHEN WORKING
-    //DistanceCalculator distCalcL = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
-
-    DistanceCalculator distCalcH = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
-    DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty(units.earthRadius());//default
-    return Arrays.asList($$(
-        $(new SpatialContext(units,distCalcH,SpatialContext.GEO_WORLDBOUNDS)),
-        $(new SpatialContext(units,distCalcV,SpatialContext.GEO_WORLDBOUNDS)),
-        $(JtsSpatialContext.GEO_KM))
-    );
   }
 
 }
