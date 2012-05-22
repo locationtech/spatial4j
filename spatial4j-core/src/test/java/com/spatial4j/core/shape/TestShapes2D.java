@@ -95,7 +95,7 @@ public class TestShapes2D extends AbstractTestShapes {
     checkShapesImplementEquals( new Class[] {
             PointImpl.class,
             CircleImpl.class,
-            //GeoCircle.class,
+            //GeoCircle.class  no: its fields are caches, not part of its identity
             RectangleImpl.class,
             MultiShape.class,
     });
