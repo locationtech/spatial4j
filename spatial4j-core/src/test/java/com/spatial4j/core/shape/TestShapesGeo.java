@@ -19,6 +19,7 @@ package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
@@ -143,8 +144,9 @@ public class TestShapesGeo extends AbstractTestShapes {
     DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty(units.earthRadius());//default
     return Arrays.asList($$(
         $(new SpatialContext(units,distCalcH,SpatialContext.GEO_WORLDBOUNDS)),
-        $(new SpatialContext(units,distCalcV,SpatialContext.GEO_WORLDBOUNDS))
-    ));
+        $(new SpatialContext(units,distCalcV,SpatialContext.GEO_WORLDBOUNDS)),
+        $(JtsSpatialContext.GEO_KM))
+    );
   }
 
 }

@@ -17,12 +17,6 @@
 
 package com.spatial4j.core.context.jts;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.*;
-import com.vividsolutions.jts.util.GeometricShapeFactory;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUnits;
@@ -32,12 +26,17 @@ import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.impl.RectangleImpl;
-import com.spatial4j.core.shape.jts.*;
+import com.spatial4j.core.shape.jts.JtsGeometry;
+import com.spatial4j.core.shape.jts.JtsPoint;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.*;
+import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.text.NumberFormat;
-import java.util.Locale;
 
 public class JtsSpatialContext extends SpatialContext {
 
@@ -187,6 +186,9 @@ public class JtsSpatialContext extends SpatialContext {
   
   @Override
   public Point makePoint(double x, double y) {
+    //A Jts Point is fairly heavyweight!  TODO could/should we optimize this?
+    x = normX(x);
+    y = normY(y);
     return new JtsPoint(factory.createPoint(new Coordinate(x, y)));
   }
 }

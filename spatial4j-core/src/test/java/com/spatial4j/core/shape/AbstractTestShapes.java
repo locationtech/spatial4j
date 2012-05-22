@@ -109,7 +109,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
 
   protected void testRectIntersect() {
     final double INCR = 45;
-    final double Y = 10;
+    final double Y = 20;
     for(double left = -180; left <= 180; left += INCR) {
       for(double right = left; right - left <= 360; right += INCR) {
         Rectangle r = ctx.makeRect(left,right,-Y,Y);
@@ -119,19 +119,20 @@ public abstract class AbstractTestShapes extends RandomizedTest {
           for(double right2 = left2; right2 <= right; right2 += INCR) {
             Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
             assertRelation(null, SpatialRelation.CONTAINS, r, r2);
+
+            //test point contains
+            assertRelation(null, SpatialRelation.CONTAINS, r, r2.getCenter());
           }
         }
-        //test point contains
-        assertRelation(null, SpatialRelation.CONTAINS, r, ctx.makePoint(left, Y));
 
         //test disjoint
         for(double left2 = right+INCR; left2 - left < 360; left2 += INCR) {
+          //test point disjoint
+          assertRelation(null, SpatialRelation.DISJOINT, r, ctx.makePoint(left2, randomIntBetween(-90,90)));
+
           for(double right2 = left2; right2 - left < 360; right2 += INCR) {
             Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
             assertRelation(null, SpatialRelation.DISJOINT, r, r2);
-
-            //test point disjoint
-            assertRelation(null, SpatialRelation.DISJOINT, r, ctx.makePoint(left2, Y));
           }
         }
         //test intersect
