@@ -28,10 +28,8 @@ import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.algorithm.CGAlgorithms;
+import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
@@ -69,8 +67,17 @@ public class JtsSpatialContext extends SpatialContext {
         if (geo instanceof com.vividsolutions.jts.geom.Point) {
           return new JtsPoint((com.vividsolutions.jts.geom.Point)geo);
         } else if (geo.isRectangle()) {
+          boolean crossesDateline = false;
+          if (isGeo()) {
+            //Polygon points are supposed to be counter-clockwise order. If JTS says it is clockwise, then
+            // it's actually a dateline crossing rectangle.
+            crossesDateline = ! CGAlgorithms.isCCW(geo.getCoordinates());
+          }
           Envelope env = geo.getEnvelopeInternal();
-          return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
+          if (crossesDateline)
+            return new RectangleImpl(env.getMaxX(),env.getMinX(),env.getMinY(),env.getMaxY());
+          else
+            return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
         }
         return new JtsGeometry(geo);
       } catch(com.vividsolutions.jts.io.ParseException ex) {
