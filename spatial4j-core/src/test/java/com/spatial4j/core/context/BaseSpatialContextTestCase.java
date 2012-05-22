@@ -18,6 +18,8 @@
 package com.spatial4j.core.context;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.query.SpatialArgs;
 import com.spatial4j.core.query.SpatialArgsParser;
 import com.spatial4j.core.query.SpatialOperation;
@@ -28,20 +30,31 @@ import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.impl.CircleImpl;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 
-/**
- */
 @SuppressWarnings("unchecked")
-public abstract class BaseSpatialContextTestCase extends RandomizedTest {
+public class BaseSpatialContextTestCase extends RandomizedTest {
 
-  protected abstract SpatialContext getSpatialContext();
+  @ParametersFactory
+  public static Iterable<Object[]> parameters() {
+    return Arrays.asList($$(
+            $(SpatialContext.GEO_KM),
+            $(JtsSpatialContext.GEO_KM)
+    ));
+  }
 
-  public static void checkArgParser(SpatialContext ctx) {
+  private final SpatialContext ctx;
+
+  public BaseSpatialContextTestCase(SpatialContext ctx) {
+    this.ctx = ctx;
+  }
+
+  @Test
+  public void testArgsParser() throws Exception {
     SpatialArgsParser parser = new SpatialArgsParser();
 
     String arg = SpatialOperation.IsWithin + "(-10 -20 10 20)";
@@ -77,67 +90,54 @@ public abstract class BaseSpatialContextTestCase extends RandomizedTest {
       try {
         clazz.getDeclaredMethod( "equals", Object.class );
       } catch (Exception e) {
-        Assert.fail( "Shape needs to define 'equals' : " + clazz.getName() );
+        fail("Shape needs to define 'equals' : " + clazz.getName());
       }
       try {
         clazz.getDeclaredMethod( "hashCode" );
       } catch (Exception e) {
-        Assert.fail( "Shape needs to define 'hashCode' : " + clazz.getName() );
+        fail("Shape needs to define 'hashCode' : " + clazz.getName());
       }
     }
   }
 
-  public static interface WriteReader {
-    Shape writeThenRead( Shape s ) throws IOException;
+  private <T extends Shape> T writeThenRead( T s ) throws IOException {
+    String buff = ctx.toString( s );
+    return (T) ctx.readShape( buff );
   }
 
-  public static void checkBasicShapeIO( SpatialContext ctx, WriteReader help ) throws Exception {
-
+  @Test
+  public void testSimpleShapeIO() throws Exception {
     // Simple Point
     Shape s = ctx.readShape("10 20");
+    assertEquals(s,writeThenRead(s));
     assertEquals(s,ctx.readShape("20,10"));//check comma for y,x format
     assertEquals(s,ctx.readShape("20, 10"));//test space
     Point p = (Point) s;
     assertEquals(10.0, p.getX(), 0D);
     assertEquals(20.0, p.getY(), 0D);
-    p = (Point) help.writeThenRead(s);
-    assertEquals(10.0, p.getX(), 0D);
-    assertEquals(20.0, p.getY(), 0D);
-    Assert.assertFalse(s.hasArea());
+    assertFalse(s.hasArea());
 
     // BBOX
     s = ctx.readShape("-10 -20 10 20");
+    assertEquals(s,writeThenRead(s));
     Rectangle b = (Rectangle) s;
     assertEquals(-10.0, b.getMinX(), 0D);
     assertEquals(-20.0, b.getMinY(), 0D);
     assertEquals(10.0, b.getMaxX(), 0D);
     assertEquals(20.0, b.getMaxY(), 0D);
-    b = (Rectangle) help.writeThenRead(s);
-    assertEquals(-10.0, b.getMinX(), 0D);
-    assertEquals(-20.0, b.getMinY(), 0D);
-    assertEquals(10.0, b.getMaxX(), 0D);
-    assertEquals(20.0, b.getMaxY(), 0D);
-    Assert.assertTrue(s.hasArea());
+    assertTrue(s.hasArea());
 
-    // Point/Distance
-    s = ctx.readShape("Circle( 1.23 4.56 distance=7.89)");
+    // Circle
+    s = ctx.readShape("Circle(1.23 4.56 distance=7.89)");
+    //assertEquals(s,writeThenRead(s));
     CircleImpl circle = (CircleImpl)s;
     assertEquals(1.23, circle.getCenter().getX(), 0D);
     assertEquals(4.56, circle.getCenter().getY(), 0D);
     assertEquals(7.89, circle.getDistance(), 0D);
-    Assert.assertTrue(s.hasArea());
+    assertTrue(s.hasArea());
 
     Shape s2 = ctx.readShape("Circle( 4.56,1.23 d=7.89 )"); // use lat,lon and use 'd' abbreviation
     assertEquals(s,s2);
-  }
-
-  //--------------------------------------------------------------
-  // Actual tests
-  //--------------------------------------------------------------
-
-  @Test
-  public void testArgsParser() throws Exception {
-    checkArgParser( getSpatialContext() );
   }
 
   @Test
@@ -150,18 +150,7 @@ public abstract class BaseSpatialContextTestCase extends RandomizedTest {
     });
   }
 
-  @Test
-  public void testSimpleShapeIO() throws Exception {
-    final SpatialContext io =  getSpatialContext();
-    checkBasicShapeIO( io, new WriteReader() {
-      @Override
-      public Shape writeThenRead(Shape s) {
-        String buff = io.toString( s );
-        return io.readShape( buff );
-      }
-    });
-  }
 
-  //Looking for more tests?  Shapes are tested in TestShapes2D.
+  //  Looking for more tests?  Shapes are tested in TestShapes2D.
 
 }
