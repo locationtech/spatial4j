@@ -211,27 +211,40 @@ public class CircleImpl implements Circle {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+  public boolean equals(Object obj) {
+    return equals(this,obj);
+  }
 
-    CircleImpl circle = (CircleImpl) o;
+  /**
+   * All {@link Circle} implementations should use this definition of {@link Object#equals(Object)}.
+   */
+  public static boolean equals(Circle thiz, Object o) {
+    assert thiz != null;
+    if (thiz == o) return true;
+    if (!(o instanceof Circle)) return false;
 
-    if (point != null ? !point.equals(circle.point) : circle.point != null) return false;
-    if (Double.compare(circle.distance, distance) != 0) return false;
-    if (ctx != null ? !ctx.equals(circle.ctx) : circle.ctx != null) return false;
+    Circle circle = (Circle) o;
+
+    if (!thiz.getCenter().equals(circle.getCenter())) return false;
+    if (Double.compare(circle.getDistance(), thiz.getDistance()) != 0) return false;
 
     return true;
   }
 
   @Override
   public int hashCode() {
+    return hashCode(this);
+  }
+
+  /**
+   * All {@link Circle} implementations should use this definition of {@link Object#hashCode()}.
+   */
+  public static int hashCode(Circle thiz) {
     int result;
     long temp;
-    result = point != null ? point.hashCode() : 0;
-    temp = distance != +0.0d ? Double.doubleToLongBits(distance) : 0L;
+    result = thiz.getCenter().hashCode();
+    temp = thiz.getDistance() != +0.0d ? Double.doubleToLongBits(thiz.getDistance()) : 0L;
     result = 31 * result + (int) (temp ^ (temp >>> 32));
-    result = 31 * result + (ctx != null ? ctx.hashCode() : 0);
     return result;
   }
 }

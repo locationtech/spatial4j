@@ -217,31 +217,46 @@ public class RectangleImpl implements Rectangle {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+  public boolean equals(Object obj) {
+    return equals(this,obj);
+  }
+
+  /**
+   * All {@link Rectangle} implementations should use this definition of {@link Object#equals(Object)}.
+   */
+  public static boolean equals(Rectangle thiz, Object o) {
+    assert thiz != null;
+    if (thiz == o) return true;
+    if (!(o instanceof Rectangle)) return false;
 
     RectangleImpl rectangle = (RectangleImpl) o;
 
-    if (Double.compare(rectangle.maxX, maxX) != 0) return false;
-    if (Double.compare(rectangle.maxY, maxY) != 0) return false;
-    if (Double.compare(rectangle.minX, minX) != 0) return false;
-    if (Double.compare(rectangle.minY, minY) != 0) return false;
+    if (Double.compare(rectangle.getMaxX(), thiz.getMaxX()) != 0) return false;
+    if (Double.compare(rectangle.getMaxY(), thiz.getMaxY()) != 0) return false;
+    if (Double.compare(rectangle.getMinX(), thiz.getMinX()) != 0) return false;
+    if (Double.compare(rectangle.getMinY(), thiz.getMinY()) != 0) return false;
 
     return true;
   }
 
   @Override
   public int hashCode() {
+    return hashCode(this);
+  }
+
+  /**
+   * All {@link Rectangle} implementations should use this definition of {@link Object#hashCode()}.
+   */
+  public static int hashCode(Rectangle thiz) {
     int result;
     long temp;
-    temp = minX != +0.0d ? Double.doubleToLongBits(minX) : 0L;
+    temp = thiz.getMinX() != +0.0d ? Double.doubleToLongBits(thiz.getMinX()) : 0L;
     result = (int) (temp ^ (temp >>> 32));
-    temp = maxX != +0.0d ? Double.doubleToLongBits(maxX) : 0L;
+    temp = thiz.getMaxX() != +0.0d ? Double.doubleToLongBits(thiz.getMaxX()) : 0L;
     result = 31 * result + (int) (temp ^ (temp >>> 32));
-    temp = minY != +0.0d ? Double.doubleToLongBits(minY) : 0L;
+    temp = thiz.getMinY() != +0.0d ? Double.doubleToLongBits(thiz.getMinY()) : 0L;
     result = 31 * result + (int) (temp ^ (temp >>> 32));
-    temp = maxY != +0.0d ? Double.doubleToLongBits(maxY) : 0L;
+    temp = thiz.getMaxY() != +0.0d ? Double.doubleToLongBits(thiz.getMaxY()) : 0L;
     result = 31 * result + (int) (temp ^ (temp >>> 32));
     return result;
   }

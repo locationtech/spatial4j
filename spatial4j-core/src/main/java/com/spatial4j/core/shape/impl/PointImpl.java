@@ -72,24 +72,39 @@ public class PointImpl implements Point {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    return equals(this,o);
+  }
 
-    PointImpl point = (PointImpl) o;
+  /**
+   * All {@link Point} implementations should use this definition of {@link Object#equals(Object)}.
+   */
+  public static boolean equals(Point thiz, Object o) {
+    assert thiz != null;
+    if (thiz == o) return true;
+    if (!(o instanceof Point)) return false;
 
-    if (Double.compare(point.x, x) != 0) return false;
-    if (Double.compare(point.y, y) != 0) return false;
+    Point point = (Point) o;
+
+    if (Double.compare(point.getX(), thiz.getX()) != 0) return false;
+    if (Double.compare(point.getY(), thiz.getY()) != 0) return false;
 
     return true;
   }
 
   @Override
   public int hashCode() {
+    return hashCode(this);
+  }
+
+  /**
+   * All {@link Point} implementations should use this definition of {@link Object#hashCode()}.
+   */
+  public static int hashCode(Point thiz) {
     int result;
     long temp;
-    temp = x != +0.0d ? Double.doubleToLongBits(x) : 0L;
+    temp = thiz.getX() != +0.0d ? Double.doubleToLongBits(thiz.getX()) : 0L;
     result = (int) (temp ^ (temp >>> 32));
-    temp = y != +0.0d ? Double.doubleToLongBits(y) : 0L;
+    temp = thiz.getY() != +0.0d ? Double.doubleToLongBits(thiz.getY()) : 0L;
     result = 31 * result + (int) (temp ^ (temp >>> 32));
     return result;
   }

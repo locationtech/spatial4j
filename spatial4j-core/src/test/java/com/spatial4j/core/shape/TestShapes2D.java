@@ -49,8 +49,6 @@ public class TestShapes2D extends AbstractTestShapes {
 
   @Test
   public void testSimplePoint() {
-    assumeFalse(ctx instanceof JtsSpatialContext); //TODO pending approach on point equality
-
     Point pt = ctx.makePoint(0,0);
     String msg = pt.toString();
 

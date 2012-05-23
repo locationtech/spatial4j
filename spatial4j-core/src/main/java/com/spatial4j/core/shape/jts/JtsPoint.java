@@ -18,6 +18,7 @@
 package com.spatial4j.core.shape.jts;
 
 
+import com.spatial4j.core.shape.impl.PointImpl;
 import com.vividsolutions.jts.geom.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.SpatialRelation;
@@ -78,14 +79,11 @@ public class JtsPoint implements com.spatial4j.core.shape.Point {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    JtsPoint that = (JtsPoint) o;
-    return point.equals(that.point);
+    return PointImpl.equals(this,o);
   }
 
   @Override
   public int hashCode() {
-    return point.hashCode();
+    return PointImpl.hashCode(this);
   }
 }

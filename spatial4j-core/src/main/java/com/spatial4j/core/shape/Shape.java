@@ -19,17 +19,23 @@ package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
 
+/**
+ * Shape instances are usually retrieved via one of the create* methods on a {@link SpatialContext}.
+ * Shapes are generally immutable and thread-safe.
+ * The sub-classes of Shape generally implement the same contract for {@link Object#equals(Object)}
+ * and {@link Object#hashCode()} amongst the same sub-interface type.  This means, for example, that
+ * multiple Point implementations of different classes are equal if they share the same x & y.
+ */
 public interface Shape {
 
   /**
    * Describe the relationship between the two objects.  For example
-   *
-   *   this is WITHIN other
-   *   this CONTAINS other
-   *   this is DISJOINT other
-   *   this INTERSECTS other
-   *
-   * The context object is optional -- it may include spatial reference.
+   * <ul>
+   *   <li>this is WITHIN other</li>
+   *   <li>this CONTAINS other</li>
+   *   <li>this is DISJOINT other</li>
+   *   <li>this INTERSECTS other</li>
+   * </ul>
    */
   SpatialRelation relate(Shape other, SpatialContext ctx);
 
