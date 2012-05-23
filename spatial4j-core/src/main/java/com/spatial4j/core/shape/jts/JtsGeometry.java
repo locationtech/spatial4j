@@ -17,24 +17,22 @@
 
 package com.spatial4j.core.shape.jts;
 
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
-
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
 
 public class JtsGeometry implements Shape {
-  public final Geometry geo;
+  public final Geometry geom;
   private final boolean hasArea;
 
-  public JtsGeometry(Geometry geo) {
-    this.geo = geo;
-    this.hasArea = !((Lineal.class.isInstance(geo)) || (Puntal.class.isInstance(geo)));
+  public JtsGeometry(Geometry geom) {
+    this.geom = geom;
+    this.hasArea = !((Lineal.class.isInstance(geom)) || (Puntal.class.isInstance(geom)));
   }
 
   //----------------------------------------
@@ -47,13 +45,13 @@ public class JtsGeometry implements Shape {
 
   @Override
   public Rectangle getBoundingBox() {
-    Envelope env = geo.getEnvelopeInternal();
+    Envelope env = geom.getEnvelopeInternal();
     return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
   }
 
   @Override
   public JtsPoint getCenter() {
-    return new JtsPoint(geo.getCentroid());
+    return new JtsPoint(geom.getCentroid());
   }
 
   private GeometryFactory getGeometryFactory(SpatialContext context) {
@@ -68,7 +66,7 @@ public class JtsGeometry implements Shape {
     if (other instanceof Point) {
       Point pt = (Point)other;
       JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : ctx.makePoint(pt.getX(), pt.getY()));
-      return geo.contains(jtsPoint.getJtsPoint()) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
+      return geom.contains(jtsPoint.getJtsPoint()) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
     }
 
     Rectangle ext = other.getBoundingBox();
@@ -77,7 +75,7 @@ public class JtsGeometry implements Shape {
     }
 
     // Quick test if this is disjoint
-    Envelope gEnv = geo.getEnvelopeInternal();
+    Envelope gEnv = geom.getEnvelopeInternal();
     if (ext.getMinX() > gEnv.getMaxX() ||
         ext.getMaxX() < gEnv.getMinX() ||
         ext.getMinY() > gEnv.getMaxY() ||
@@ -87,7 +85,7 @@ public class JtsGeometry implements Shape {
 
     if (other instanceof Circle) {
       //Test each point to see how many of them are outside of the circle.
-      Coordinate[] coords = geo.getCoordinates();
+      Coordinate[] coords = geom.getCoordinates();
       int outside = 0;
       int i = 0;
       for (Coordinate coord : coords) {
@@ -106,25 +104,25 @@ public class JtsGeometry implements Shape {
       return SpatialRelation.WITHIN;
     }
     
-    Polygon qGeo = null;
+    Polygon qGeom = null;
     if (other instanceof Rectangle) {
       Rectangle r = (Rectangle)other;
       Envelope env = new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY());
       
-      qGeo = (Polygon) getGeometryFactory(ctx).toGeometry(env);
+      qGeom = (Polygon) getGeometryFactory(ctx).toGeometry(env);
     } else if (other instanceof JtsGeometry) {
-      qGeo = (Polygon)((JtsGeometry)other).geo;
+      qGeom = (Polygon)((JtsGeometry)other).geom;
     } else {
       throw new IllegalArgumentException("Incompatible intersection of "+this+" with "+other);
     }
 
     //fast algorithm, short-circuit
-    if (!RectangleIntersects.intersects(qGeo, geo)) {
+    if (!RectangleIntersects.intersects(qGeom, geom)) {
       return SpatialRelation.DISJOINT;
     }
 
     //slower algorithm
-    IntersectionMatrix matrix = geo.relate(qGeo);
+    IntersectionMatrix matrix = geom.relate(qGeom);
     assert ! matrix.isDisjoint();//since rectangle intersection was true, shouldn't be disjoint
     if (matrix.isCovers()) {
       return SpatialRelation.CONTAINS;
@@ -140,7 +138,7 @@ public class JtsGeometry implements Shape {
 
   @Override
   public String toString() {
-    return geo.toString();
+    return geom.toString();
   }
 
   @Override
@@ -148,12 +146,12 @@ public class JtsGeometry implements Shape {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     JtsGeometry that = (JtsGeometry) o;
-    return geo.equalsExact(that.geo);//fast equality for normalized geometries
+    return geom.equalsExact(that.geom);//fast equality for normalized geometries
   }
 
   @Override
   public int hashCode() {
     //FYI if geometry.equalsExact(that.geometry), then their envelopes are the same.
-    return geo.getEnvelopeInternal().hashCode();
+    return geom.getEnvelopeInternal().hashCode();
   }
 }

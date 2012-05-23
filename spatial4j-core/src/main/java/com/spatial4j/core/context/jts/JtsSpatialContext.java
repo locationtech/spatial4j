@@ -29,7 +29,10 @@ import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
@@ -40,7 +43,7 @@ public class JtsSpatialContext extends SpatialContext {
 
   private static final byte TYPE_POINT = 0;
   private static final byte TYPE_BBOX = 1;
-  private static final byte TYPE_GEO = 2;
+  private static final byte TYPE_GEOM = 2;
 
   public GeometryFactory factory;
 
@@ -63,23 +66,23 @@ public class JtsSpatialContext extends SpatialContext {
     if( shape == null ) {
       try {
         WKTReader reader = new WKTReader(factory);
-        Geometry geo = reader.read(str);
-        if (geo instanceof com.vividsolutions.jts.geom.Point) {
-          return new JtsPoint((com.vividsolutions.jts.geom.Point)geo);
-        } else if (geo.isRectangle()) {
+        Geometry geom = reader.read(str);
+        if (geom instanceof com.vividsolutions.jts.geom.Point) {
+          return new JtsPoint((com.vividsolutions.jts.geom.Point)geom);
+        } else if (geom.isRectangle()) {
           boolean crossesDateline = false;
           if (isGeo()) {
             //Polygon points are supposed to be counter-clockwise order. If JTS says it is clockwise, then
             // it's actually a dateline crossing rectangle.
-            crossesDateline = ! CGAlgorithms.isCCW(geo.getCoordinates());
+            crossesDateline = ! CGAlgorithms.isCCW(geom.getCoordinates());
           }
-          Envelope env = geo.getEnvelopeInternal();
+          Envelope env = geom.getEnvelopeInternal();
           if (crossesDateline)
             return new RectangleImpl(env.getMaxX(),env.getMinX(),env.getMinY(),env.getMaxY());
           else
             return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
         }
-        return new JtsGeometry(geo);
+        return new JtsGeometry(geom);
       } catch(com.vividsolutions.jts.io.ParseException ex) {
         throw new InvalidShapeException("error reading WKT", ex);
       }
@@ -110,9 +113,9 @@ public class JtsSpatialContext extends SpatialContext {
 
     if (JtsGeometry.class.isInstance(shape)) {
       WKBWriter writer = new WKBWriter();
-      byte[] bb = writer.write(((JtsGeometry)shape).geo);
+      byte[] bb = writer.write(((JtsGeometry)shape).geom);
       ByteBuffer bytes = ByteBuffer.wrap(new byte[1 + bb.length]);
-      bytes.put(TYPE_GEO);
+      bytes.put(TYPE_GEOM);
       bytes.put(bb);
       return bytes.array();
     }
@@ -129,7 +132,7 @@ public class JtsSpatialContext extends SpatialContext {
       return new RectangleImpl(
           bytes.getDouble(), bytes.getDouble(),
           bytes.getDouble(), bytes.getDouble());
-    } else if (type == TYPE_GEO) {
+    } else if (type == TYPE_GEOM) {
       WKBReader reader = new WKBReader(factory);
       try {
         return new JtsGeometry(reader.read(new InStream() {
@@ -158,15 +161,15 @@ public class JtsSpatialContext extends SpatialContext {
   @Override
   public String toString(Shape shape) {
     if (shape instanceof JtsGeometry) {
-      JtsGeometry geo = (JtsGeometry) shape;
-      return geo.geo.toText();
+      JtsGeometry jtsGeom = (JtsGeometry) shape;
+      return jtsGeom.geom.toText();
     }
     return super.toString(shape);
   }
 
   public Geometry getGeometryFrom(Shape shape) {
     if (JtsGeometry.class.isInstance(shape)) {
-      return ((JtsGeometry)shape).geo;
+      return ((JtsGeometry)shape).geom;
     }
     if (JtsPoint.class.isInstance(shape)) {
       return ((JtsPoint) shape).getJtsPoint();
