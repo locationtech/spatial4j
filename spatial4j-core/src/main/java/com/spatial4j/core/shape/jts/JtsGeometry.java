@@ -64,65 +64,46 @@ public class JtsGeometry implements Shape {
   @Override
   public SpatialRelation relate(Shape other, SpatialContext ctx) {
     if (other instanceof Point) {
-      Point pt = (Point)other;
-      JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : ctx.makePoint(pt.getX(), pt.getY()));
-      return geom.contains(jtsPoint.getJtsPoint()) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
+      return relate((Point)other, ctx);
     }
 
-    Rectangle ext = other.getBoundingBox();
-    if (!ext.hasArea()) {//TODO revisit the soundness of this logic
+    // Quick bbox test if this is disjoint
+    Rectangle oBBox = other.getBoundingBox();
+    if (!oBBox.hasArea()) {//TODO revisit the soundness of this logic
       throw new IllegalArgumentException("the query shape must cover some area (not a line)");
     }
-
-    // Quick test if this is disjoint
-    Envelope gEnv = geom.getEnvelopeInternal();
-    if (ext.getMinX() > gEnv.getMaxX() ||
-        ext.getMaxX() < gEnv.getMinX() ||
-        ext.getMinY() > gEnv.getMaxY() ||
-        ext.getMaxY() < gEnv.getMinY()) {
+    Envelope geomEnv = geom.getEnvelopeInternal();
+    if (oBBox.getMinX() > geomEnv.getMaxX() ||
+        oBBox.getMaxX() < geomEnv.getMinX() ||
+        oBBox.getMinY() > geomEnv.getMaxY() ||
+        oBBox.getMaxY() < geomEnv.getMinY()) {
       return SpatialRelation.DISJOINT;
     }
 
     if (other instanceof Circle) {
-      //Test each point to see how many of them are outside of the circle.
-      Coordinate[] coords = geom.getCoordinates();
-      int outside = 0;
-      int i = 0;
-      for (Coordinate coord : coords) {
-        i++;
-        SpatialRelation sect = other.relate(new PointImpl(coord.x, coord.y), ctx);
-        if (sect == SpatialRelation.DISJOINT)
-          outside++;
-        if (i != outside && outside != 0)//short circuit: partially outside, partially inside
-          return SpatialRelation.INTERSECTS;
-      }
-      if (i == outside) {
-        return (relate(other.getCenter(), ctx) == SpatialRelation.DISJOINT)
-            ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
-      }
-      assert outside == 0;
-      return SpatialRelation.WITHIN;
+      return relate((Circle) other, ctx);
     }
     
-    Polygon qGeom = null;
+    Polygon oPoly = null;
     if (other instanceof Rectangle) {
       Rectangle r = (Rectangle)other;
       Envelope env = new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY());
       
-      qGeom = (Polygon) getGeometryFactory(ctx).toGeometry(env);
+      oPoly = (Polygon) getGeometryFactory(ctx).toGeometry(env);
+      //otherwise continue below
     } else if (other instanceof JtsGeometry) {
-      qGeom = (Polygon)((JtsGeometry)other).geom;
+      oPoly = (Polygon)((JtsGeometry)other).geom;
     } else {
       throw new IllegalArgumentException("Incompatible intersection of "+this+" with "+other);
     }
 
     //fast algorithm, short-circuit
-    if (!RectangleIntersects.intersects(qGeom, geom)) {
+    if (!RectangleIntersects.intersects(oPoly, geom)) {
       return SpatialRelation.DISJOINT;
     }
 
     //slower algorithm
-    IntersectionMatrix matrix = geom.relate(qGeom);
+    IntersectionMatrix matrix = geom.relate(oPoly);
     assert ! matrix.isDisjoint();//since rectangle intersection was true, shouldn't be disjoint
     if (matrix.isCovers()) {
       return SpatialRelation.CONTAINS;
@@ -134,6 +115,35 @@ public class JtsGeometry implements Shape {
 
     assert matrix.isIntersects();
     return SpatialRelation.INTERSECTS;
+  }
+
+  public SpatialRelation relate(Point pt, SpatialContext ctx) {
+    JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : ctx.makePoint(pt.getX(), pt.getY()));
+    return geom.contains(jtsPoint.getJtsPoint()) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
+  }
+
+  public SpatialRelation relate(Circle circle, SpatialContext ctx) {
+    //Note: a bbox quick test intersection may or may not have occurred before now but this logic should still work.
+
+    //Test each point to see how many of them are outside of the circle.
+    //TODO consider instead using geom.apply(CoordinateFilter) -- maybe faster since avoids Coordinate[] allocation
+    Coordinate[] coords = geom.getCoordinates();
+    int outside = 0;
+    int i = 0;
+    for (Coordinate coord : coords) {
+      i++;
+      SpatialRelation sect = circle.relate(new PointImpl(coord.x, coord.y), ctx);
+      if (sect == SpatialRelation.DISJOINT)
+        outside++;
+      if (i != outside && outside != 0)//short circuit: partially outside, partially inside
+        return SpatialRelation.INTERSECTS;
+    }
+    if (i == outside) {
+      return (relate(circle.getCenter(), ctx) == SpatialRelation.DISJOINT)
+          ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
+    }
+    assert outside == 0;
+    return SpatialRelation.WITHIN;
   }
 
   @Override
