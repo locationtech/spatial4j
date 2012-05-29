@@ -25,10 +25,10 @@ import java.util.Collection;
  * A collection of Shape objects.
  */
 public class MultiShape implements Shape {
-  private final Collection<Shape> geoms;
+  private final Collection<? extends Shape> geoms;
   private final Rectangle bbox;
 
-  public MultiShape(Collection<Shape> geoms, SpatialContext ctx) {
+  public MultiShape(Collection<? extends Shape> geoms, SpatialContext ctx) {
     this.geoms = geoms;
     double minX = Double.MAX_VALUE;
     double minY = Double.MAX_VALUE;
