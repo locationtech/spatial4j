@@ -18,8 +18,13 @@
 package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.spatial4j.core.shape.SpatialRelation.*;
 
@@ -180,13 +185,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
       double cR_dist = ctx.getDistCalc().distance(ctx.makePoint(0, 0), 0, cR);
       Circle c = ctx.makeCircle(cX, cY, cR_dist);
 
-      double rX = randomIntBetweenDivisible(-180, 179, TEST_DIVISIBLE);
-      double rW = randomIntBetweenDivisible(0, 360, TEST_DIVISIBLE);
-      double rY1 = randomIntBetweenDivisible(-90, 90, TEST_DIVISIBLE);
-      double rY2 = randomIntBetweenDivisible(-90, 90, TEST_DIVISIBLE);
-      double rYmin = Math.min(rY1,rY2);
-      double rYmax = Math.max(rY1,rY2);
-      Rectangle r = ctx.makeRect(rX, rX+rW, rYmin, rYmax);
+      Rectangle r = randomRectangle(TEST_DIVISIBLE);
 
       SpatialRelation ic = c.relate(r, ctx);
 
@@ -217,6 +216,43 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     //System.out.println("Laps: "+laps);
 
     //TODO deliberately test INTERSECTS based on known intersection point
+  }
+
+  private Rectangle randomRectangle(int divisible) {
+    double rX = randomIntBetweenDivisible(-180, 180, divisible);
+    double rW = randomIntBetweenDivisible(0, 360, divisible);
+    double rY1 = randomIntBetweenDivisible(-90, 90, divisible);
+    double rY2 = randomIntBetweenDivisible(-90, 90, divisible);
+    double rYmin = Math.min(rY1,rY2);
+    double rYmax = Math.max(rY1,rY2);
+    return ctx.makeRect(rX, rX+rW, rYmin, rYmax);
+  }
+
+  @Test
+  @Repeat(iterations = 20)
+  public void testMultiShape() {
+    assumeFalse(ctx.isGeo());//TODO not yet supported!
+
+    //come up with some random shapes
+    int NUM_SHAPES = randomIntBetween(1, 5);
+    List<Rectangle> shapes = new ArrayList<Rectangle>(NUM_SHAPES);
+    while (shapes.size() < NUM_SHAPES) {
+      shapes.add(randomRectangle(20));
+    }
+    MultiShape multiShape = new MultiShape(shapes,ctx);
+
+    //test multiShape.getBoundingBox();
+    Rectangle msBbox = multiShape.getBoundingBox();
+    if (shapes.size() == 1) {
+      assertEquals(shapes.get(0),msBbox.getBoundingBox());
+    } else {
+      for (Rectangle shape : shapes) {
+        assertRelation("bbox contains shape",CONTAINS, msBbox, shape);
+      }
+    }
+
+    //TODO test multiShape.relate()
+
   }
 
   /** Returns a random integer between [start, end]. Integers between must be divisible by the 3rd argument. */
