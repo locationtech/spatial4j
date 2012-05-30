@@ -29,10 +29,16 @@ import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
 public class JtsGeometry implements Shape {
   public final Geometry geom;
   private final boolean hasArea;
+  private final Rectangle bbox;
 
   public JtsGeometry(Geometry geom) {
     this.geom = geom;
-    this.hasArea = !((Lineal.class.isInstance(geom)) || (Puntal.class.isInstance(geom)));
+
+    this.hasArea = !((geom instanceof Lineal) || (geom instanceof Puntal));
+
+    //note: getEnvelopeInternal() is lazy cached, so fetching now helps make this Geometry instance thread-safe
+    Envelope env = geom.getEnvelopeInternal();
+    bbox = new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
   }
 
   //----------------------------------------
@@ -45,8 +51,7 @@ public class JtsGeometry implements Shape {
 
   @Override
   public Rectangle getBoundingBox() {
-    Envelope env = geom.getEnvelopeInternal();
-    return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
+    return bbox;
   }
 
   @Override
@@ -69,9 +74,6 @@ public class JtsGeometry implements Shape {
 
     // Quick bbox test if this is disjoint
     Rectangle oBBox = other.getBoundingBox();
-    if (!oBBox.hasArea()) {//TODO revisit the soundness of this logic
-      throw new IllegalArgumentException("the query shape must cover some area (not a line)");
-    }
     Envelope geomEnv = geom.getEnvelopeInternal();
     if (oBBox.getMinX() > geomEnv.getMaxX() ||
         oBBox.getMaxX() < geomEnv.getMinX() ||
@@ -84,26 +86,26 @@ public class JtsGeometry implements Shape {
       return relate((Circle) other, ctx);
     }
     
-    Polygon oPoly = null;
+    Geometry oGeom = null;
     if (other instanceof Rectangle) {
       Rectangle r = (Rectangle)other;
       Envelope env = new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY());
       
-      oPoly = (Polygon) getGeometryFactory(ctx).toGeometry(env);
+      oGeom = getGeometryFactory(ctx).toGeometry(env);
       //otherwise continue below
     } else if (other instanceof JtsGeometry) {
-      oPoly = (Polygon)((JtsGeometry)other).geom;
+      oGeom = ((JtsGeometry)other).geom;
     } else {
       throw new IllegalArgumentException("Incompatible intersection of "+this+" with "+other);
     }
 
     //fast algorithm, short-circuit
-    if (!RectangleIntersects.intersects(oPoly, geom)) {
+    if (oGeom instanceof Polygon && !RectangleIntersects.intersects((Polygon)oGeom, geom)) {
       return SpatialRelation.DISJOINT;
     }
 
     //slower algorithm
-    IntersectionMatrix matrix = geom.relate(oPoly);
+    IntersectionMatrix matrix = geom.relate(oGeom);
     assert ! matrix.isDisjoint();//since rectangle intersection was true, shouldn't be disjoint
     if (matrix.isCovers()) {
       return SpatialRelation.CONTAINS;

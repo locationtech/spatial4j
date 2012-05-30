@@ -218,7 +218,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     //TODO deliberately test INTERSECTS based on known intersection point
   }
 
-  private Rectangle randomRectangle(int divisible) {
+  protected Rectangle randomRectangle(int divisible) {
     double rX = randomIntBetweenDivisible(-180, 180, divisible);
     double rW = randomIntBetweenDivisible(0, 360, divisible);
     double rY1 = randomIntBetweenDivisible(-90, 90, divisible);
