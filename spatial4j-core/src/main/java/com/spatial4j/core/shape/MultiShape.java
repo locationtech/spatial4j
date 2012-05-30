@@ -25,15 +25,24 @@ import java.util.Collection;
  * A collection of Shape objects.
  */
 public class MultiShape implements Shape {
-  private final Collection<Shape> geoms;
+  private final Collection<? extends Shape> geoms;
   private final Rectangle bbox;
 
-  public MultiShape(Collection<Shape> geoms, SpatialContext ctx) {
+  /**
+   * WARNING: geoms is copied by reference.
+   * @param geoms
+   * @param ctx
+   */
+  public MultiShape(Collection<? extends Shape> geoms, SpatialContext ctx) {
+    if (geoms.isEmpty())
+      throw new IllegalArgumentException("must be given at least 1 shape");
     this.geoms = geoms;
-    double minX = Double.MAX_VALUE;
-    double minY = Double.MAX_VALUE;
-    double maxX = Double.MIN_VALUE;
-    double maxY = Double.MIN_VALUE;
+
+    //compute and cache bbox
+    double minX = Double.POSITIVE_INFINITY;
+    double minY = Double.POSITIVE_INFINITY;
+    double maxX = Double.NEGATIVE_INFINITY;
+    double maxY = Double.NEGATIVE_INFINITY;
     for (Shape geom : geoms) {
       Rectangle r = geom.getBoundingBox();
       minX = Math.min(minX,r.getMinX());

@@ -201,10 +201,11 @@ public class SpatialContext {
         assert Math.abs(delta - calcWidth(minX,maxX)) < 0.0001;//recompute delta; should be the same
       }
       if (minY > maxY) {
-        throw new IllegalArgumentException("maxY must be >= minY");
+        throw new IllegalArgumentException("maxY must be >= minY: "+minY+" to "+maxY);
       }
       if (minY < -90 || minY > 90 || maxY < -90 || maxY > 90)
-        throw new IllegalArgumentException("minY or maxY is outside of -90 to 90 bounds. What did you mean?");
+        throw new IllegalArgumentException(
+                "minY or maxY is outside of -90 to 90 bounds. What did you mean?: "+minY+" to "+maxY);
 //        debatable what to do in this situation.
 //        if (minY < -90) {
 //          minX = -180;

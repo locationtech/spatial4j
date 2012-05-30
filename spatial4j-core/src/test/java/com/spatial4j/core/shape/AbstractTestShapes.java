@@ -18,8 +18,13 @@
 package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.spatial4j.core.shape.SpatialRelation.*;
 
@@ -173,19 +178,14 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     int MINLAPSPERCASE = 20 * (int)multiplier();
     while(i_C < MINLAPSPERCASE || i_I < MINLAPSPERCASE || i_W < MINLAPSPERCASE || i_O < MINLAPSPERCASE) {
       laps++;
-      double cX = randRange(-180,179);
-      double cY = randRange(-90,90);
-      double cR = randRange(0, 180);
+      final int TEST_DIVISIBLE = 2;//just use even numbers in this test
+      double cX = randomIntBetweenDivisible(-180, 179, TEST_DIVISIBLE);
+      double cY = randomIntBetweenDivisible(-90, 90, TEST_DIVISIBLE);
+      double cR = randomIntBetweenDivisible(0, 180, TEST_DIVISIBLE);
       double cR_dist = ctx.getDistCalc().distance(ctx.makePoint(0, 0), 0, cR);
       Circle c = ctx.makeCircle(cX, cY, cR_dist);
 
-      double rX = randRange(-180,179);
-      double rW = randRange(0,360);
-      double rY1 = randRange(-90,90);
-      double rY2 = randRange(-90,90);
-      double rYmin = Math.min(rY1,rY2);
-      double rYmax = Math.max(rY1,rY2);
-      Rectangle r = ctx.makeRect(rX, rX+rW, rYmin, rYmax);
+      Rectangle r = randomRectangle(TEST_DIVISIBLE);
 
       SpatialRelation ic = c.relate(r, ctx);
 
@@ -218,15 +218,55 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     //TODO deliberately test INTERSECTS based on known intersection point
   }
 
-  /** Returns a random integer between [start, end] with a limited number of possibilities instead of end-start+1. */
-  private int randRange(int start, int end) {
-    //I tested this.
-    double r = randomDouble();
-    final int BUCKETS = 91;
-    int ir = (int) Math.round(r*(BUCKETS-1));//put into buckets
-    int result = (int)((double)((end - start) * ir) / (double)(BUCKETS-1) + start);
-    assert result >= start && result <= end;
-    return result;
+  private Rectangle randomRectangle(int divisible) {
+    double rX = randomIntBetweenDivisible(-180, 180, divisible);
+    double rW = randomIntBetweenDivisible(0, 360, divisible);
+    double rY1 = randomIntBetweenDivisible(-90, 90, divisible);
+    double rY2 = randomIntBetweenDivisible(-90, 90, divisible);
+    double rYmin = Math.min(rY1,rY2);
+    double rYmax = Math.max(rY1,rY2);
+    return ctx.makeRect(rX, rX+rW, rYmin, rYmax);
+  }
+
+  @Test
+  @Repeat(iterations = 20)
+  public void testMultiShape() {
+    assumeFalse(ctx.isGeo());//TODO not yet supported!
+
+    //come up with some random shapes
+    int NUM_SHAPES = randomIntBetween(1, 5);
+    List<Rectangle> shapes = new ArrayList<Rectangle>(NUM_SHAPES);
+    while (shapes.size() < NUM_SHAPES) {
+      shapes.add(randomRectangle(20));
+    }
+    MultiShape multiShape = new MultiShape(shapes,ctx);
+
+    //test multiShape.getBoundingBox();
+    Rectangle msBbox = multiShape.getBoundingBox();
+    if (shapes.size() == 1) {
+      assertEquals(shapes.get(0),msBbox.getBoundingBox());
+    } else {
+      for (Rectangle shape : shapes) {
+        assertRelation("bbox contains shape",CONTAINS, msBbox, shape);
+      }
+    }
+
+    //TODO test multiShape.relate()
+
+  }
+
+  /** Returns a random integer between [start, end]. Integers between must be divisible by the 3rd argument. */
+  private int randomIntBetweenDivisible(int start, int end, int divisible) {
+    // DWS: I tested this
+    int divisStart = (int) Math.ceil( (start+1) / (double)divisible );
+    int divisEnd = (int) Math.floor( (end-1) / (double)divisible );
+    int divisRange = Math.max(0,divisEnd - divisStart + 1);
+    int r = randomInt(1 + divisRange);//remember that '0' is counted
+    if (r == 0)
+      return start;
+    if (r == 1)
+      return end;
+    return (r-2 + divisStart)*divisible;
   }
 
   private Point randomPointWithin(Circle c) {
