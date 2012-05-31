@@ -18,24 +18,24 @@
 package com.spatial4j.core.shape.jts;
 
 
+import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
-import com.vividsolutions.jts.geom.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 
-public class JtsPoint implements com.spatial4j.core.shape.Point {
+public class JtsPoint implements Point {
 
-  private Point point;
+  private com.vividsolutions.jts.geom.Point pointGeom;
 
-  public JtsPoint(Point point) {
-    this.point = point;
+  public JtsPoint(com.vividsolutions.jts.geom.Point pointGeom) {
+    this.pointGeom = pointGeom;
   }
 
-  public Point getJtsPoint() {
-    return point;
+  public com.vividsolutions.jts.geom.Point getGeom() {
+    return pointGeom;
   }
 
   @Override
@@ -50,8 +50,8 @@ public class JtsPoint implements com.spatial4j.core.shape.Point {
 
   @Override
   public Rectangle getBoundingBox() {
-    double x = point.getX();
-    double y = point.getY();
+    double x = pointGeom.getX();
+    double y = pointGeom.getY();
     return new RectangleImpl(x, x, y, y);
   }
 
@@ -65,12 +65,12 @@ public class JtsPoint implements com.spatial4j.core.shape.Point {
 
   @Override
   public double getX() {
-    return point.getX();
+    return pointGeom.getX();
   }
 
   @Override
   public double getY() {
-    return point.getY();
+    return pointGeom.getY();
   }
   @Override
   public String toString() {

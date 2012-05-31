@@ -172,7 +172,7 @@ public class JtsSpatialContext extends SpatialContext {
       return ((JtsGeometry)shape).getGeom();
     }
     if (shape instanceof JtsPoint) {
-      return ((JtsPoint) shape).getJtsPoint();
+      return ((JtsPoint) shape).getGeom();
     }
     if (shape instanceof Point) {
       Point point = (Point) shape;

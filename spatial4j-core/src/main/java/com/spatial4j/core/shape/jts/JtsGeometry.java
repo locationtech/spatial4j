@@ -94,7 +94,7 @@ public class JtsGeometry implements Shape {
   public SpatialRelation relate(Point pt, SpatialContext ctx) {
     //TODO if not jtsPoint, test against bbox to avoid JTS if disjoint
     JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : ctx.makePoint(pt.getX(), pt.getY()));
-    return geom.disjoint(jtsPoint.getJtsPoint()) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
+    return geom.disjoint(jtsPoint.getGeom()) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
   }
 
   public SpatialRelation relate(Rectangle rectangle, SpatialContext ctx) {
