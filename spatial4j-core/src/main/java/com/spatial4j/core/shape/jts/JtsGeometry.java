@@ -32,6 +32,7 @@ public class JtsGeometry implements Shape {
 
   public JtsGeometry(Geometry geom) {
     this.geom = geom;
+    assert geom.isValid();
 
     this.hasArea = !((geom instanceof Lineal) || (geom instanceof Puntal));
 
