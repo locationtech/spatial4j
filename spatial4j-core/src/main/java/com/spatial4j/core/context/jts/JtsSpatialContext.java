@@ -168,17 +168,21 @@ public class JtsSpatialContext extends SpatialContext {
   }
 
   public Geometry getGeometryFrom(Shape shape) {
-    if (JtsGeometry.class.isInstance(shape)) {
+    if (shape instanceof JtsGeometry) {
       return ((JtsGeometry)shape).geom;
     }
-    if (JtsPoint.class.isInstance(shape)) {
+    if (shape instanceof JtsPoint) {
       return ((JtsPoint) shape).getJtsPoint();
     }
-    if (Rectangle.class.isInstance(shape)) {
+    if (shape instanceof Point) {
+      Point point = (Point) shape;
+      return factory.createPoint(new Coordinate(point.getX(),point.getY()));
+    }
+    if (shape instanceof Rectangle) {
       Rectangle env = (Rectangle)shape;
       return factory.toGeometry(new Envelope(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY()));
     }
-    if (Circle.class.isInstance(shape)) {
+    if (shape instanceof Circle) {
       // TODO, this should maybe pick a bunch of points
       // and make a circle like:
       //  http://docs.codehaus.org/display/GEOTDOC/01+How+to+Create+a+Geometry#01HowtoCreateaGeometry-CreatingaCircle

@@ -121,7 +121,7 @@ public class JtsGeometry implements Shape {
 
   public SpatialRelation relate(Point pt, SpatialContext ctx) {
     JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : ctx.makePoint(pt.getX(), pt.getY()));
-    return geom.contains(jtsPoint.getJtsPoint()) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
+    return geom.disjoint(jtsPoint.getJtsPoint()) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
   }
 
   public SpatialRelation relate(Circle circle, SpatialContext ctx) {
