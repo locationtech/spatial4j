@@ -24,10 +24,9 @@ import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.operation.predicate.RectangleIntersects;
 
 public class JtsGeometry implements Shape {
-  public final Geometry geom;
+  private final Geometry geom;
   private final boolean hasArea;
   private final Rectangle bbox;
 
@@ -37,8 +36,23 @@ public class JtsGeometry implements Shape {
     this.hasArea = !((geom instanceof Lineal) || (geom instanceof Puntal));
 
     //note: getEnvelopeInternal() is lazy cached, so fetching now helps make this Geometry instance thread-safe
+    //note: this bbox may be sub-optimal for dateline crossing as it may needlessly span the globe.
+    //    TODO so consider using MultiShape's bounding box algorithm once it's geo smart.
     Envelope env = geom.getEnvelopeInternal();
     bbox = new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
+  }
+
+  public static SpatialRelation intersectionMatrixToSpatialRelation(IntersectionMatrix matrix) {
+    SpatialRelation spatialRelation;
+    if (matrix.isContains())
+      spatialRelation = SpatialRelation.CONTAINS;
+    else if (matrix.isCoveredBy())
+      spatialRelation = SpatialRelation.WITHIN;
+    else if (matrix.isDisjoint())
+      spatialRelation = SpatialRelation.DISJOINT;
+    else
+      spatialRelation = SpatialRelation.INTERSECTS;
+    return spatialRelation;
   }
 
   //----------------------------------------
@@ -59,73 +73,41 @@ public class JtsGeometry implements Shape {
     return new JtsPoint(geom.getCentroid());
   }
 
-  private GeometryFactory getGeometryFactory(SpatialContext context) {
-    if(JtsSpatialContext.class.isInstance(context)) {
-      return ((JtsSpatialContext) context).factory;
-    }
-    return new GeometryFactory();
-  }
-
   @Override
   public SpatialRelation relate(Shape other, SpatialContext ctx) {
     if (other instanceof Point) {
       return relate((Point)other, ctx);
     }
-
-    // Quick bbox test if this is disjoint
-    Rectangle oBBox = other.getBoundingBox();
-    Envelope geomEnv = geom.getEnvelopeInternal();
-    if (oBBox.getMinX() > geomEnv.getMaxX() ||
-        oBBox.getMaxX() < geomEnv.getMinX() ||
-        oBBox.getMinY() > geomEnv.getMaxY() ||
-        oBBox.getMaxY() < geomEnv.getMinY()) {
-      return SpatialRelation.DISJOINT;
+    if (other instanceof Rectangle) {
+      return relate((Rectangle) other, ctx);
     }
-
     if (other instanceof Circle) {
       return relate((Circle) other, ctx);
     }
-    
-    Geometry oGeom = null;
-    if (other instanceof Rectangle) {
-      Rectangle r = (Rectangle)other;
-      Envelope env = new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY());
-      
-      oGeom = getGeometryFactory(ctx).toGeometry(env);
-      //otherwise continue below
-    } else if (other instanceof JtsGeometry) {
-      oGeom = ((JtsGeometry)other).geom;
-    } else {
-      throw new IllegalArgumentException("Incompatible intersection of "+this+" with "+other);
+    if (other instanceof JtsGeometry) {
+      return relate((JtsGeometry) other);
     }
-
-    //fast algorithm, short-circuit
-    if (oGeom instanceof Polygon && !RectangleIntersects.intersects((Polygon)oGeom, geom)) {
-      return SpatialRelation.DISJOINT;
-    }
-
-    //slower algorithm
-    IntersectionMatrix matrix = geom.relate(oGeom);
-    assert ! matrix.isDisjoint();//since rectangle intersection was true, shouldn't be disjoint
-    if (matrix.isCovers()) {
-      return SpatialRelation.CONTAINS;
-    }
-
-    if (matrix.isCoveredBy()) {
-      return SpatialRelation.WITHIN;
-    }
-
-    assert matrix.isIntersects();
-    return SpatialRelation.INTERSECTS;
+    return other.relate(this, ctx).transpose();
   }
 
   public SpatialRelation relate(Point pt, SpatialContext ctx) {
+    //TODO if not jtsPoint, test against bbox to avoid JTS if disjoint
     JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : ctx.makePoint(pt.getX(), pt.getY()));
     return geom.disjoint(jtsPoint.getJtsPoint()) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
   }
 
+  public SpatialRelation relate(Rectangle rectangle, SpatialContext ctx) {
+    SpatialRelation bboxR = bbox.relate(rectangle,ctx);
+    if (bboxR == SpatialRelation.WITHIN || bboxR == SpatialRelation.DISJOINT)
+      return bboxR;
+    Geometry oGeom = ((JtsSpatialContext)ctx).getGeometryFrom(rectangle);
+    return intersectionMatrixToSpatialRelation(geom.relate(oGeom));
+  }
+
   public SpatialRelation relate(Circle circle, SpatialContext ctx) {
-    //Note: a bbox quick test intersection may or may not have occurred before now but this logic should still work.
+    SpatialRelation bboxR = bbox.relate(circle,ctx);
+    if (bboxR == SpatialRelation.WITHIN || bboxR == SpatialRelation.DISJOINT)
+      return bboxR;
 
     //Test each point to see how many of them are outside of the circle.
     //TODO consider instead using geom.apply(CoordinateFilter) -- maybe faster since avoids Coordinate[] allocation
@@ -148,6 +130,12 @@ public class JtsGeometry implements Shape {
     return SpatialRelation.WITHIN;
   }
 
+  public SpatialRelation relate(JtsGeometry jtsGeometry) {
+    Geometry oGeom = jtsGeometry.geom;
+    //don't bother checking bbox since geom.relate() does this already
+    return intersectionMatrixToSpatialRelation(geom.relate(oGeom));
+  }
+
   @Override
   public String toString() {
     return geom.toString();
@@ -165,5 +153,9 @@ public class JtsGeometry implements Shape {
   public int hashCode() {
     //FYI if geometry.equalsExact(that.geometry), then their envelopes are the same.
     return geom.getEnvelopeInternal().hashCode();
+  }
+
+  public Geometry getGeom() {
+    return geom;
   }
 }

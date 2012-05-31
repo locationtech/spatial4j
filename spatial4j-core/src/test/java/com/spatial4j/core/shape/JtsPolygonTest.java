@@ -36,24 +36,12 @@ public class JtsPolygonTest extends AbstractTestShapes {
   }
 
   private void assertRelate(JtsGeometry s4jJtsGeom, Shape shape) {
-    IntersectionMatrix expectedM = s4jJtsGeom.geom.relate(((JtsSpatialContext) ctx).getGeometryFrom(shape));
-    SpatialRelation expectedSR = jtsIntersectionMatrixToS4jSpatialRelation(expectedM);
+    IntersectionMatrix expectedM = s4jJtsGeom.getGeom().relate(((JtsSpatialContext) ctx).getGeometryFrom(shape));
+    SpatialRelation expectedSR = JtsGeometry.intersectionMatrixToSpatialRelation(expectedM);
     //JTS considers a point on a boundary INTERSECTS, not CONTAINS
     if (expectedSR == SpatialRelation.INTERSECTS && shape instanceof Point)
       expectedSR = SpatialRelation.CONTAINS;
     assertRelation(null,expectedSR, s4jJtsGeom, shape);
   }
 
-  private SpatialRelation jtsIntersectionMatrixToS4jSpatialRelation(IntersectionMatrix matrix) {
-    SpatialRelation spatialRelation;
-    if (matrix.isContains())
-      spatialRelation = SpatialRelation.CONTAINS;
-    else if (matrix.isCoveredBy())
-      spatialRelation = SpatialRelation.WITHIN;
-    else if (matrix.isDisjoint())
-      spatialRelation = SpatialRelation.DISJOINT;
-    else
-      spatialRelation = SpatialRelation.INTERSECTS;
-    return spatialRelation;
-  }
 }

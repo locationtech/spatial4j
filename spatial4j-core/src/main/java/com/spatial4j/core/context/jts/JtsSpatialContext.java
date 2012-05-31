@@ -113,7 +113,7 @@ public class JtsSpatialContext extends SpatialContext {
 
     if (JtsGeometry.class.isInstance(shape)) {
       WKBWriter writer = new WKBWriter();
-      byte[] bb = writer.write(((JtsGeometry)shape).geom);
+      byte[] bb = writer.write(((JtsGeometry)shape).getGeom());
       ByteBuffer bytes = ByteBuffer.wrap(new byte[1 + bb.length]);
       bytes.put(TYPE_GEOM);
       bytes.put(bb);
@@ -162,14 +162,14 @@ public class JtsSpatialContext extends SpatialContext {
   public String toString(Shape shape) {
     if (shape instanceof JtsGeometry) {
       JtsGeometry jtsGeom = (JtsGeometry) shape;
-      return jtsGeom.geom.toText();
+      return jtsGeom.getGeom().toText();
     }
     return super.toString(shape);
   }
 
   public Geometry getGeometryFrom(Shape shape) {
     if (shape instanceof JtsGeometry) {
-      return ((JtsGeometry)shape).geom;
+      return ((JtsGeometry)shape).getGeom();
     }
     if (shape instanceof JtsPoint) {
       return ((JtsPoint) shape).getJtsPoint();
