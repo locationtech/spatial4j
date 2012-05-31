@@ -82,7 +82,7 @@ public class JtsSpatialContext extends SpatialContext {
           else
             return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
         }
-        return new JtsGeometry(geom);
+        return new JtsGeometry(geom,this);
       } catch(com.vividsolutions.jts.io.ParseException ex) {
         throw new InvalidShapeException("error reading WKT", ex);
       }
@@ -148,7 +148,7 @@ public class JtsSpatialContext extends SpatialContext {
             }
             off += buf.length;
           }
-        }));
+        }), this);
       } catch(ParseException ex) {
         throw new InvalidShapeException("error reading WKT", ex);
       } catch (IOException ex) {
@@ -179,8 +179,10 @@ public class JtsSpatialContext extends SpatialContext {
       return factory.createPoint(new Coordinate(point.getX(),point.getY()));
     }
     if (shape instanceof Rectangle) {
-      Rectangle env = (Rectangle)shape;
-      return factory.toGeometry(new Envelope(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY()));
+      Rectangle r = (Rectangle)shape;
+      if (r.getCrossesDateLine())
+        throw new IllegalArgumentException("Doesn't support dateline cross yet: "+r);//TODO
+      return factory.toGeometry(new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY()));
     }
     if (shape instanceof Circle) {
       // TODO, this should maybe pick a bunch of points

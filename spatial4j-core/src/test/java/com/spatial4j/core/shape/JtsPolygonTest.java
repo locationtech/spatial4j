@@ -17,8 +17,7 @@ public class JtsPolygonTest extends AbstractTestShapes {
   private final int DL_SHIFT = 180;//since POLY_SHAPE contains 0 0, I know a shift of 180 will make it cross the DL.
   private JtsGeometry POLY_SHAPE_DL;//POLY_SHAPE shifted by DL_SHIFT to cross the dateline
 
-  //TODO support poly crossing the dateline
-  private final boolean TEST_DL_POLY = false;
+  private final boolean TEST_DL_POLY = true;
   //TODO poly.relate(other) doesn't work when other crosses the dateline
   private final boolean TEST_DL_OTHER = false;
 
@@ -40,8 +39,9 @@ public class JtsPolygonTest extends AbstractTestShapes {
       pGeom.geometryChanged();
       assertFalse(pGeom.isValid());
       POLY_SHAPE_DL = (JtsGeometry) ctx.readShape(pGeom.toText());
-      //assertTrue(POLY_SHAPE_DL.getBoundingBox().getCrossesDateLine());//TODO this is better than 360
-      assertEquals(360.0,POLY_SHAPE_DL.getBoundingBox().getWidth(),0.0);//good enough for now
+      assertTrue(
+          POLY_SHAPE_DL.getBoundingBox().getCrossesDateLine() ||
+              360 == POLY_SHAPE_DL.getBoundingBox().getWidth());
     }
   }
 
