@@ -29,10 +29,7 @@ import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
@@ -67,6 +64,10 @@ public class JtsSpatialContext extends SpatialContext {
       try {
         WKTReader reader = new WKTReader(factory);
         Geometry geom = reader.read(str);
+
+        //Normalize coordinates to geo boundary
+        normalizeCoordinates(geom);
+
         if (geom instanceof com.vividsolutions.jts.geom.Point) {
           return new JtsPoint((com.vividsolutions.jts.geom.Point)geom);
         } else if (geom.isRectangle()) {
@@ -88,6 +89,36 @@ public class JtsSpatialContext extends SpatialContext {
       }
     }
     return shape;
+  }
+
+  private void normalizeCoordinates(Geometry geom) {
+    //TODO add configurable skip flag if input is in the right coordinates
+    if (!isGeo())
+      return;
+    geom.apply(new CoordinateSequenceFilter() {
+      boolean changed = false;
+      @Override
+      public void filter(CoordinateSequence seq, int i) {
+        double x = seq.getX(i);
+        double xNorm = normX(x);
+        if (x != xNorm) {
+          changed = true;
+          seq.setOrdinate(i,CoordinateSequence.X,xNorm);
+        }
+        double y = seq.getY(i);
+        double yNorm = normY(y);
+        if (y != yNorm) {
+          changed = true;
+          seq.setOrdinate(i,CoordinateSequence.Y,yNorm);
+        }
+      }
+
+      @Override
+      public boolean isDone() { return false; }
+
+      @Override
+      public boolean isGeometryChanged() { return changed; }
+    });
   }
 
   public byte[] toBytes(Shape shape) throws IOException {
@@ -135,20 +166,22 @@ public class JtsSpatialContext extends SpatialContext {
     } else if (type == TYPE_GEOM) {
       WKBReader reader = new WKBReader(factory);
       try {
-        return new JtsGeometry(reader.read(new InStream() {
-          int off = offset+1; // skip the type marker
+        Geometry geom = reader.read(new InStream() {
+          int off = offset + 1; // skip the type marker
 
           @Override
           public void read(byte[] buf) throws IOException {
-            if (off+buf.length > length) {
+            if (off + buf.length > length) {
               throw new InvalidShapeException("Asking for too many bytes");
             }
-            for (int i = 0;i < buf.length; i++) {
+            for (int i = 0; i < buf.length; i++) {
               buf[i] = array[off + i];
             }
             off += buf.length;
           }
-        }), this);
+        });
+        normalizeCoordinates(geom);
+        return new JtsGeometry(geom, this);
       } catch(ParseException ex) {
         throw new InvalidShapeException("error reading WKT", ex);
       } catch (IOException ex) {
