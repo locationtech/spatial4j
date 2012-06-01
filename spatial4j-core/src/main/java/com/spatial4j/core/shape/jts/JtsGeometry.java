@@ -19,27 +19,42 @@ package com.spatial4j.core.shape.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.util.GeometryTransformer;
+import com.vividsolutions.jts.operation.overlay.snap.GeometrySnapper;
+import com.vividsolutions.jts.operation.union.UnaryUnionOp;
+import com.vividsolutions.jts.operation.valid.IsValidOp;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 public class JtsGeometry implements Shape {
-  private final Geometry geom;
+  private final Geometry geom;//cannot be a direct instance of GeometryCollection as it doesn't support relate()
   private final boolean hasArea;
   private final Rectangle bbox;
 
   public JtsGeometry(Geometry geom, JtsSpatialContext ctx) {
+    //GeometryCollection isn't supported in relate()
+    if (geom.getClass().equals(GeometryCollection.class))
+      throw new IllegalArgumentException("JtsGeometry does not support GeometryCollection but does support its subclasses.");
+
+    //NOTE: All this logic is fairly expensive. There are some short-circuit checks though.
     if (ctx.isGeo()) {
       //Unwraps the geometry across the dateline so it exceeds the standard geo bounds (-180 to +180).
       unwrapDateline(geom);//potentially modifies geom
+      //If given multiple overlapping polygons, fix it by union
+      geom = unionGeometryCollection(geom);//returns same or new geom
       Envelope unwrappedEnv = geom.getEnvelopeInternal();
+
       //Cuts an unwrapped geometry back into overlaid pages in the standard geo bounds.
-      geom = cutUnwrappedGeomInto360(geom);//doesn't modify geom but potentially returns something different
+      geom = cutUnwrappedGeomInto360(geom);//returns same or new geom
+      assert geom.getEnvelopeInternal().getWidth() <= 360;
+      assert ! geom.getClass().equals(GeometryCollection.class) : "GeometryCollection unsupported";//double check
 
       //note: this bbox may be sub-optimal. If geom is a collection of things near the dateline on both sides then
       // the bbox will needlessly span most or all of the globe longitudinally.
@@ -52,9 +67,14 @@ public class JtsGeometry implements Shape {
       Envelope env = geom.getEnvelopeInternal();
       bbox = new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
     }
-    this.geom = geom;
     geom.getEnvelopeInternal();//ensure envelope is cached internally, which is lazy evaluated. Keeps this thread-safe.
-    assert geom.isValid();
+
+    //Check geom validity; use helpful error
+    // TODO add way to conditionally skip at your peril later
+    IsValidOp isValidOp = new IsValidOp(geom);
+    if (!isValidOp.isValid())
+      throw new InvalidShapeException(isValidOp.getValidationError().toString());
+    this.geom = geom;
 
     this.hasArea = !((geom instanceof Lineal) || (geom instanceof Puntal));
   }
@@ -180,26 +200,29 @@ public class JtsGeometry implements Shape {
    * @return The number of times the geometry spans the dateline.  >= 0
    */
   private static int unwrapDateline(Geometry geom) {
+    if (geom.getEnvelopeInternal().getWidth() < 180)
+      return 0;//can't possibly cross the dateline
     final int[] result = {0};//an array so that an inner class can modify it.
     geom.apply(new GeometryFilter() {
       @Override
       public void filter(Geometry geom) {
-        if (geom instanceof GeometryCollection)
-          return;
-        if (geom instanceof com.vividsolutions.jts.geom.Point)
-          return;
         int cross = 0;
         if (geom instanceof LineString) {//note: LinearRing extends LineString
+          if (geom.getEnvelopeInternal().getWidth() < 180)
+            return;//can't possibly cross the dateline
           cross = unwrapDateline((LineString) geom);
         } else if (geom instanceof Polygon) {
+          if (geom.getEnvelopeInternal().getWidth() < 180)
+            return;//can't possibly cross the dateline
           cross = unwrapDateline((Polygon) geom);
         } else
-          throw new IllegalStateException("Unknown geometry to unwrap: "+geom);
+          return;
         result[0] = Math.max(result[0],cross);
       }
     });//geom.apply()
-    assert geom.isValid();
-    return result[0];
+
+    int crossings = result[0];
+    return crossings;
   }
 
   /** See {@link #unwrapDateline(Geometry)}. */
@@ -207,8 +230,6 @@ public class JtsGeometry implements Shape {
     LineString exteriorRing = poly.getExteriorRing();
     int cross = unwrapDateline(exteriorRing);
     if (cross > 0) {
-//            if (poly.getNumInteriorRing() > 0)
-//              throw new IllegalArgumentException("TODO don't yet support interior rings");
       for(int i = 0; i < poly.getNumInteriorRing(); i++) {
         LineString innerLineString = poly.getInteriorRingN(i);
         unwrapDateline(innerLineString);
@@ -236,7 +257,9 @@ public class JtsGeometry implements Shape {
     int shiftXPageMin = 0/* <= 0 */, shiftXPageMax = 0; /* >= 0 */
     double prevX = cseq.getX(0);
     for(int i = 1; i < size; i++) {
-      double thisX = cseq.getX(i) + shiftX;
+      double thisX_orig = cseq.getX(i);
+      assert thisX_orig >= -180 && thisX_orig <= 180 : "X not in geo bounds";
+      double thisX = thisX_orig + shiftX;
       if (prevX - thisX > 180) {//cross dateline from left to right
         thisX += 360;
         shiftX += 360;
@@ -279,6 +302,13 @@ public class JtsGeometry implements Shape {
     });
   }
 
+  private static Geometry unionGeometryCollection(Geometry geom) {
+    if (geom instanceof GeometryCollection) {
+      return geom.union();
+    }
+    return geom;
+  }
+
   /** This "pages" through standard geo boundaries offset by multiples of 360 longitudinally that intersect
    * geom, and the intersecting results of a page and the geom are shifted into the standard -180 to +180 and added
    * to a new geometry that is returned.
@@ -287,18 +317,40 @@ public class JtsGeometry implements Shape {
     Envelope geomEnv = geom.getEnvelopeInternal();
     if (geomEnv.getMinX() >= -180 && geomEnv.getMaxX() <= 180)
       return geom;
+    assert geom.isValid() : "geom";
+
     //TODO support geom's that start at negative pages; will avoid need to previously shift in unwrapDateline(geom).
-    Collection<Geometry> resultGeoms = new ArrayList<Geometry>(3);
+    List<Geometry> geomList = new ArrayList<Geometry>();
     //page 0 is the standard -180 to 180 range
     for(int page = 0; true; page++) {
       double minX = -180 + page*360;
       if (geomEnv.getMaxX() <= minX)
         break;
       Geometry rect = geom.getFactory().toGeometry(new Envelope(minX,minX+360,-90,90));
+      assert rect.isValid() : "rect";
       Geometry pageGeom = rect.intersection(geom);//JTS is doing some hard work
+      assert pageGeom.isValid() : "pageGeom";
+
       shiftGeomByX(pageGeom,page*-360);
-      resultGeoms.add(pageGeom);
+      geomList.add(pageGeom);
     }
-    return geom.getFactory().buildGeometry(resultGeoms);
+    return UnaryUnionOp.union(geomList);
   }
+
+//  private static Geometry removePolyHoles(Geometry geom) {
+//    //TODO this does a deep copy of geom even if no changes needed; be smarter
+//    GeometryTransformer gTrans = new GeometryTransformer() {
+//      @Override
+//      protected Geometry transformPolygon(Polygon geom, Geometry parent) {
+//        if (geom.getNumInteriorRing() == 0)
+//          return geom;
+//        return factory.createPolygon((LinearRing) geom.getExteriorRing(),null);
+//      }
+//    };
+//    return gTrans.transform(geom);
+//  }
+//
+//  private static Geometry snapAndClean(Geometry geom) {
+//    return new GeometrySnapper(geom).snapToSelf(GeometrySnapper.computeOverlaySnapTolerance(geom), true);
+//  }
 }
