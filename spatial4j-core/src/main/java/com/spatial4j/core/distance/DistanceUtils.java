@@ -210,13 +210,18 @@ public class DistanceUtils {
   }
 
   /**
-   * Puts in range -180 <= lon_deg < +180.
+   * Puts in range -180 <= lon_deg <= +180.
    */
   public static double normLonDEG(double lon_deg) {
-    if (lon_deg >= -180 && lon_deg < 180)
+    if (lon_deg >= -180 && lon_deg <= 180)
       return lon_deg;//common case, and avoids slight double precision shifting
     double off = (lon_deg + 180) % 360;
-    return off < 0 ? 180 + off : -180 + off;
+    if (off < 0)
+      return 180 + off;
+    else if (off == 0 && lon_deg > 0)
+      return 180;
+    else
+      return -180 + off;
   }
 
   /**

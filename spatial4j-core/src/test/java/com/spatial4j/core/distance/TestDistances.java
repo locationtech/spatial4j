@@ -227,15 +227,16 @@ public class TestDistances extends RandomizedTest {
   public void testNormLon() {
     double[][] lons = new double[][] {
         {1.23,1.23},//1.23 might become 1.2299999 after some math and we want to ensure that doesn't happen
-        {-180,-180},{180,-180},{0,0}, {-190,170},
-        {-180-360,-180},{-180-720,-180},{180+360,-180},{180+720,-180}};
+        {-180,-180},{180,+180},{0,0}, {-190,170},{181,-179},
+        {-180-360,-180},{-180-720,-180},
+        {180+360,+180},{180+720,+180}};
     for (double[] pair : lons) {
       assertEquals("input "+pair[0],pair[1],ctx.normX(pair[0]),0);
     }
 
     for(int i = -1000; i < 1000; i += randomInt(9)*10) {
       double d = ctx.normX(i);
-      assertTrue(i + " " + d, d >= -180 && d < 180);
+      assertTrue(i + " " + d, d >= -180 && d <= 180);
     }
   }
 
