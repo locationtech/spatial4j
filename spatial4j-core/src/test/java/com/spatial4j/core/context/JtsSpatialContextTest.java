@@ -6,7 +6,10 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Note that {@link SpatialContextTest} already tests JTS but we want to exercise some JTS specifics here.
@@ -39,6 +42,23 @@ public class JtsSpatialContextTest extends RandomizedTest {
     assertTrue(expectedYesDL.getCrossesDateLine());
     assertEquals(expectedYesDL,sYesDL);
 
+  }
+
+  @Test
+  public void readRussiaWkt() throws IOException {
+    // Russia is a multiPolygon and it crosses the dateline
+    String wktStr = null;
+    InputStream is = getClass().getResourceAsStream("/russia.wkt.txt");
+    assertNotNull(is);
+    try {
+      BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+      wktStr = br.readLine();
+    } finally {
+      is.close();
+    }
+    //Error (! valid): Nested shells at or near point (137.2213092954354, 54.77371813483103, NaN)
+
+    ctx.readShape(wktStr);
   }
 
 }
