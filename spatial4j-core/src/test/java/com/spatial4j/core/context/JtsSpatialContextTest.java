@@ -44,21 +44,4 @@ public class JtsSpatialContextTest extends RandomizedTest {
 
   }
 
-  @Test
-  public void readRussiaWkt() throws IOException {
-    // Russia is a multiPolygon and it crosses the dateline
-    String wktStr = null;
-    InputStream is = getClass().getResourceAsStream("/russia.wkt.txt");
-    assertNotNull(is);
-    try {
-      BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-      wktStr = br.readLine();
-    } finally {
-      is.close();
-    }
-    //Error (! valid): Nested shells at or near point (137.2213092954354, 54.77371813483103, NaN)
-
-    ctx.readShape(wktStr);
-  }
-
 }

@@ -10,6 +10,11 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.IntersectionMatrix;
 import org.junit.Test;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 public class JtsPolygonTest extends AbstractTestShapes {
 
   private final String POLY_STR = "Polygon((-10 30, -40 40, -10 -20, 40 20, 0 0, -10 30))";
@@ -91,4 +96,49 @@ public class JtsPolygonTest extends AbstractTestShapes {
     }
   }
 
+
+  @Test
+  public void testRussia() throws IOException {
+    //TODO THE RUSSIA TEST DATA SET APPEARS CORRUPT
+    // But this test "works" anyhow, and exercises a ton.
+
+    //Russia exercises JtsGeometry fairly well because of these characteristics:
+    // * a MultiPolygon
+    // * crosses the dateline
+    // * has coordinates needing normalization (longitude +180.000xxx)
+    // * some geometries might(?) not be "valid" (requires union to overcome)
+    String wktStr = readFirstLineFromRsrc("/russia.wkt.txt");
+
+    JtsGeometry jtsGeom = (JtsGeometry)ctx.readShape(wktStr);
+
+    //Unexplained holes revealed via KML export:
+    // TODO Test contains: 64°12'44.82"N    61°29'5.20"E
+    //  64.21245  61.48475
+    // FAILS
+    //assertRelation(null,SpatialRelation.CONTAINS, jtsGeom, ctx.makePoint(61.48, 64.21));
+  }
+
+  @Test
+  public void testFiji() throws IOException {
+    //Fiji is a group of islands crossing the dateline.
+    String wktStr = readFirstLineFromRsrc("/fiji.wkt.txt");
+
+    JtsGeometry jtsGeom = (JtsGeometry)ctx.readShape(wktStr);
+
+    assertRelation(null,SpatialRelation.CONTAINS, jtsGeom,
+            ctx.makePoint(-179.99,-16.9));
+    assertRelation(null,SpatialRelation.CONTAINS, jtsGeom,
+            ctx.makePoint(+179.99,-16.9));
+  }
+
+  private String readFirstLineFromRsrc(String wktRsrcPath) throws IOException {
+    InputStream is = getClass().getResourceAsStream(wktRsrcPath);
+    assertNotNull(is);
+    try {
+      BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+      return br.readLine();
+    } finally {
+      is.close();
+    }
+  }
 }
