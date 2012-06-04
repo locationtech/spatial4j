@@ -75,7 +75,7 @@ public class SpatialContextTest extends RandomizedTest {
     Shape s = ctx.readShape("Circle(1.23 4.56 distance=7.89)");
     assertEquals(ctx.makeCircle(1.23, 4.56, 7.89),s);
     assertEquals(s,writeThenRead(s));
-    assertEquals(s,ctx.readShape("Circle( 4.56,1.23 d=7.89 )")); // use lat,lon and use 'd' abbreviation
+    assertEquals(s,ctx.readShape("CIRCLE( 4.56,1.23 d=7.89 )")); // use lat,lon and use 'd' abbreviation
     assertTrue(s.hasArea());
   }
 

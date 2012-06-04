@@ -265,7 +265,7 @@ public class SpatialContext {
     }
 
     if(Character.isLetter(str.charAt(0))) {
-      if( str.startsWith( "Circle(" ) ) {
+      if( str.startsWith( "Circle(" ) || str.startsWith("CIRCLE(") ) {
         int idx = str.lastIndexOf( ')' );
         if( idx > 0 ) {
           String body = str.substring( "Circle(".length(), idx );
