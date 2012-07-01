@@ -6,12 +6,13 @@ import org.apache.commons.io.IOUtils;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.io.sample.SampleData;
 import com.spatial4j.core.io.sample.SampleDataReader;
-import com.spatial4j.core.query.SpatialArgs;
 import com.spatial4j.core.shape.Shape;
 
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.QuadPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
+import org.apache.lucene.spatial.query.SpatialArgs;
+
 import com.spatial4j.demo.KMLHelper;
 
 import javax.servlet.ServletConfig;

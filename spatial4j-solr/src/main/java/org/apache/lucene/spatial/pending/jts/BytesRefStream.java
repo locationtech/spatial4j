@@ -26,11 +26,11 @@ import com.vividsolutions.jts.io.InStream;
 public class BytesRefStream implements InStream {
   protected BytesRef ref;
   protected int off;
-  
+
   public BytesRefStream(BytesRef ref) {
     setBytesRef(ref);
   }
-  
+
   public void setBytesRef(BytesRef ref) {
     this.ref= ref;
     this.off = ref.offset;
@@ -38,7 +38,7 @@ public class BytesRefStream implements InStream {
   public BytesRef getBytesRef() {
     return this.ref;
   }
-  
+
   @Override
   public void read(byte[] buf) throws IOException {
     if ( buf.length > ref.length+off ) {

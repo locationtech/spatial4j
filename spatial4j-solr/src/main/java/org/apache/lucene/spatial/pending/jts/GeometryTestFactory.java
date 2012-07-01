@@ -16,9 +16,10 @@
  */
 package org.apache.lucene.spatial.pending.jts;
 
-import com.spatial4j.core.exception.UnsupportedSpatialOperation;
-import com.spatial4j.core.query.SpatialOperation;
+import org.apache.lucene.spatial.query.SpatialOperation;
+
 import com.vividsolutions.jts.geom.Geometry;
+
 
 
 public class GeometryTestFactory {
@@ -49,7 +50,7 @@ public class GeometryTestFactory {
     if( op == SpatialOperation.Overlaps )
       return new OverlapsTester(geo);
 
-    throw new UnsupportedSpatialOperation(op);
+    throw new org.apache.lucene.spatial.query.UnsupportedSpatialOperation(op);
   }
 
   private abstract static class BaseTester implements GeometryTest {

@@ -17,7 +17,6 @@
 package org.apache.lucene.spatial.pending.jts;
 
 import org.apache.lucene.document.DerefBytesDocValuesField;
-import org.apache.lucene.index.DocValues.Type;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.search.ConstantScoreQuery;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.query.SpatialArgs;
 import com.spatial4j.core.shape.Shape;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -87,19 +85,23 @@ public class JtsGeoStrategy extends SpatialStrategy<SimpleSpatialFieldInfo> {
   }
 
   @Override
-  public ValueSource makeValueSource(SpatialArgs args, SimpleSpatialFieldInfo fieldInfo) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Query makeQuery(SpatialArgs args, SimpleSpatialFieldInfo field) {
-    Filter f = makeFilter(args, field);
+  public Query makeQuery(org.apache.lucene.spatial.query.SpatialArgs args,
+      SimpleSpatialFieldInfo fieldInfo) {
+    Filter f = makeFilter(args, fieldInfo);
     // TODO... could add in scoring here..
     return new ConstantScoreQuery( f );
   }
 
   @Override
-  public Filter makeFilter(SpatialArgs args, SimpleSpatialFieldInfo field) {
+  public ValueSource makeValueSource(
+      org.apache.lucene.spatial.query.SpatialArgs args,
+      SimpleSpatialFieldInfo fieldInfo) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Filter makeFilter(org.apache.lucene.spatial.query.SpatialArgs args,
+      SimpleSpatialFieldInfo field) {
     Geometry geo = context.getGeometryFrom(args.getShape());
     GeometryTest tester = GeometryTestFactory.get(args.getOperation(), geo);
     return new GeometryOperationFilter(field.getFieldName(), tester, context);
