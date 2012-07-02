@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.lucene.spatial.pending.bbox.BBoxFieldInfo;
-import org.apache.lucene.spatial.pending.bbox.BBoxStrategy;
+import org.apache.lucene.spatial.bbox.BBoxFieldInfo;
+import org.apache.lucene.spatial.bbox.BBoxStrategy;
 import org.apache.lucene.spatial.util.NumericFieldInfo;
 import org.apache.solr.schema.BoolField;
 import org.apache.solr.schema.FieldType;

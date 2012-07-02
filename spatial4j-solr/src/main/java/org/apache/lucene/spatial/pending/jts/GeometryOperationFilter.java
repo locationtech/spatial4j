@@ -51,7 +51,7 @@ public class GeometryOperationFilter extends Filter {
     this.ctx = ctx;
     this.tester = tester;
     this.reader = new WKBReader(ctx.factory);
-    
+
     BytesRef bytes = new BytesRef(10000);
     this.bstream = new BytesRefStream(bytes);
   }
@@ -63,7 +63,7 @@ public class GeometryOperationFilter extends Filter {
 
     DocValues vals = areader.docValues(fieldName);
     Source src = vals.getDirectSource(); // read off disk (not in RAM)
-    
+
     // TODO??? is this really the best way?  this checks *every* document -- even if some share the same value.  perhaps use sorted?
     BytesRef bytes = bstream.getBytesRef();
     for( int docID=0; docID<areader.maxDoc(); docID++ ) {
