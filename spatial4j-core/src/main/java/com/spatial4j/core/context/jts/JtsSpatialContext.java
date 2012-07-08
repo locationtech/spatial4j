@@ -21,6 +21,8 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.io.JtsShapeReadWriter;
+import com.spatial4j.core.io.ShapeReadWriter;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -47,10 +49,6 @@ public class JtsSpatialContext extends SpatialContext {
 
   public static JtsSpatialContext GEO_KM = new JtsSpatialContext(DistanceUnits.KILOMETERS);
 
-  private static final byte TYPE_POINT = 0;
-  private static final byte TYPE_BBOX = 1;
-  private static final byte TYPE_GEOM = 2;
-
   private final GeometryFactory geometryFactory;
 
   public JtsSpatialContext( DistanceUnits units ) {
@@ -67,148 +65,8 @@ public class JtsSpatialContext extends SpatialContext {
     this.geometryFactory = geometryFactory == null ? new GeometryFactory() : geometryFactory;
   }
 
-  /**
-   * Reads the standard shape format + WKT.
-   */
-  @Override
-  public Shape readShape(String str) throws InvalidShapeException {
-    Shape shape = super.readStandardShape(str);
-    if( shape == null ) {
-      try {
-        WKTReader reader = new WKTReader(geometryFactory);
-        Geometry geom = reader.read(str);
-
-        //Normalize coordinates to geo boundary
-        normalizeCoordinates(geom);
-
-        if (geom instanceof com.vividsolutions.jts.geom.Point) {
-          return new JtsPoint((com.vividsolutions.jts.geom.Point)geom);
-        } else if (geom.isRectangle()) {
-          boolean crossesDateline = false;
-          if (isGeo()) {
-            //Polygon points are supposed to be counter-clockwise order. If JTS says it is clockwise, then
-            // it's actually a dateline crossing rectangle.
-            crossesDateline = ! CGAlgorithms.isCCW(geom.getCoordinates());
-          }
-          Envelope env = geom.getEnvelopeInternal();
-          if (crossesDateline)
-            return new RectangleImpl(env.getMaxX(),env.getMinX(),env.getMinY(),env.getMaxY());
-          else
-            return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
-        }
-        return new JtsGeometry(geom,this);
-      } catch(com.vividsolutions.jts.io.ParseException ex) {
-        throw new InvalidShapeException("error reading WKT", ex);
-      }
-    }
-    return shape;
-  }
-
-  private void normalizeCoordinates(Geometry geom) {
-    //TODO add configurable skip flag if input is in the right coordinates
-    if (!isGeo())
-      return;
-    geom.apply(new CoordinateSequenceFilter() {
-      boolean changed = false;
-      @Override
-      public void filter(CoordinateSequence seq, int i) {
-        double x = seq.getX(i);
-        double xNorm = normX(x);
-        if (x != xNorm) {
-          changed = true;
-          seq.setOrdinate(i,CoordinateSequence.X,xNorm);
-        }
-        double y = seq.getY(i);
-        double yNorm = normY(y);
-        if (y != yNorm) {
-          changed = true;
-          seq.setOrdinate(i,CoordinateSequence.Y,yNorm);
-        }
-      }
-
-      @Override
-      public boolean isDone() { return false; }
-
-      @Override
-      public boolean isGeometryChanged() { return changed; }
-    });
-  }
-
-  public byte[] toBytes(Shape shape) throws IOException {
-    if (Point.class.isInstance(shape)) {
-      ByteBuffer bytes = ByteBuffer.wrap(new byte[1 + (2 * 8)]);
-      Point p = (Point) shape;
-      bytes.put(TYPE_POINT);
-      bytes.putDouble(p.getX());
-      bytes.putDouble(p.getY());
-      return bytes.array();
-    }
-
-    if (Rectangle.class.isInstance(shape)) {
-      Rectangle rect = (Rectangle) shape;
-      ByteBuffer bytes = ByteBuffer.wrap(new byte[1 + (4 * 8)]);
-      bytes.put(TYPE_BBOX);
-      bytes.putDouble(rect.getMinX());
-      bytes.putDouble(rect.getMaxX());
-      bytes.putDouble(rect.getMinY());
-      bytes.putDouble(rect.getMaxY());
-      return bytes.array();
-    }
-
-    if (JtsGeometry.class.isInstance(shape)) {
-      WKBWriter writer = new WKBWriter();
-      byte[] bb = writer.write(((JtsGeometry)shape).getGeom());
-      ByteBuffer bytes = ByteBuffer.wrap(new byte[1 + bb.length]);
-      bytes.put(TYPE_GEOM);
-      bytes.put(bb);
-      return bytes.array();
-    }
-
-    throw new IllegalArgumentException("unsuported shape:" + shape);
-  }
-
-  public Shape readShape(final byte[] array, final int offset, final int length) throws InvalidShapeException {
-    ByteBuffer bytes = ByteBuffer.wrap(array, offset, length);
-    byte type = bytes.get();
-    if (type == TYPE_POINT) {
-      return new JtsPoint(geometryFactory.createPoint(new Coordinate(bytes.getDouble(), bytes.getDouble())));
-    } else if (type == TYPE_BBOX) {
-      return new RectangleImpl(
-          bytes.getDouble(), bytes.getDouble(),
-          bytes.getDouble(), bytes.getDouble());
-    } else if (type == TYPE_GEOM) {
-      WKBReader reader = new WKBReader(geometryFactory);
-      try {
-        Geometry geom = reader.read(new InStream() {
-          int off = offset + 1; // skip the type marker
-
-          @Override
-          public void read(byte[] buf) throws IOException {
-            if (off + buf.length > length) {
-              throw new InvalidShapeException("Asking for too many bytes");
-            }
-            System.arraycopy(array, off, buf, 0, buf.length);
-            off += buf.length;
-          }
-        });
-        normalizeCoordinates(geom);
-        return new JtsGeometry(geom, this);
-      } catch(ParseException ex) {
-        throw new InvalidShapeException("error reading WKT", ex);
-      } catch (IOException ex) {
-        throw new InvalidShapeException("error reading WKT", ex);
-      }
-    }
-    throw new InvalidShapeException("shape not handled: " + type);
-  }
-
-  @Override
-  public String toString(Shape shape) {
-    if (shape instanceof JtsGeometry) {
-      JtsGeometry jtsGeom = (JtsGeometry) shape;
-      return jtsGeom.getGeom().toText();
-    }
-    return super.toString(shape);
+  protected ShapeReadWriter makeShapeReadWriter() {
+    return new JtsShapeReadWriter(this);
   }
 
   /**
