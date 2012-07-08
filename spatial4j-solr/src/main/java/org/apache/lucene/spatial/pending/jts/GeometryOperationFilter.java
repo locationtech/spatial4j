@@ -50,7 +50,7 @@ public class GeometryOperationFilter extends Filter {
     this.fieldName = fieldName;
     this.ctx = ctx;
     this.tester = tester;
-    this.reader = new WKBReader(ctx.factory);
+    this.reader = new WKBReader(ctx.getGeometryFactory());
 
     BytesRef bytes = new BytesRef(10000);
     this.bstream = new BytesRefStream(bytes);

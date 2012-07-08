@@ -19,6 +19,7 @@ package com.spatial4j.core.context;
 
 import com.spatial4j.core.distance.*;
 import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.io.ParseUtils;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -33,28 +34,38 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 /**
- * This holds things like distance units, distance calculator, and world bounds.
- * Threadsafe & immutable.
+ * This is a facade to most of Spatial4j, holding things like {@link
+ * DistanceUnits}, {@link DistanceCalculator}, and the coordinate world
+ * boundaries, and acting as a factory for the {@link Shape}s.
+ * <p/>
+ * A SpatialContext has public constructors, but note the convenience
+ * instance
+ * {@link
+ * #GEO_KM}.  Also, if you wish to construct one based on configuration
+ * information then consider using {@link SpatialContextFactory}.
+ * <p/>
+ * Thread-safe & immutable.
  */
 public class SpatialContext {
 
-  //These are non-null
-  private final DistanceUnits units;
-  private final DistanceCalculator calculator;
-  private final Rectangle worldBounds;
-  
   public static final RectangleImpl GEO_WORLDBOUNDS = new RectangleImpl(-180,180,-90,90);
   public static final RectangleImpl MAX_WORLDBOUNDS;
   static {
     double v = Double.MAX_VALUE;
     MAX_WORLDBOUNDS = new RectangleImpl(-v, v, -v, v);
   }
+
+  /** A popular default SpatialContext implementation based on kilometer distance. */
   public static final SpatialContext GEO_KM = new SpatialContext(DistanceUnits.KILOMETERS);
+
+  //These are non-null
+  private final DistanceUnits units;
+  private final DistanceCalculator calculator;
+  private final Rectangle worldBounds;
 
   protected final Double maxCircleDistance;//only for geo
 
   /**
-   *
    * @param units Required; and establishes geo vs cartesian.
    * @param calculator Optional; defaults to Haversine or cartesian depending on units.
    * @param worldBounds Optional; defaults to GEO_WORLDBOUNDS or MAX_WORLDBOUNDS depending on units.
@@ -102,6 +113,7 @@ public class SpatialContext {
     return worldBounds;
   }
 
+  /** If {@link #isGeo()} then calls {@link DistanceUtils#normLonDEG(double)}. */
   public double normX(double x) {
     if (isGeo()) {
       return DistanceUtils.normLonDEG(x);
@@ -110,6 +122,7 @@ public class SpatialContext {
     }
   }
 
+  /** If {@link #isGeo()} then calls {@link DistanceUtils#normLatDEG(double)}. */
   public double normY(double y) {
     if (isGeo()) {
       y = DistanceUtils.normLatDEG(y);
@@ -117,35 +130,44 @@ public class SpatialContext {
     return y;
   }
 
-  /**
-   * Is this a geospatial context (true) or simply 2d spatial (false)
-   */
+  /** Is this a geospatial context (true) or simply 2d spatial (false). */
   public boolean isGeo() {
     return getUnits().isGeo();
   }
 
   /**
-   * Read a shape from a given string (ie, X Y, XMin XMax... WKT)
+   * Reads a shape from a given string (ie, X Y, XMin XMax... WKT)
+   * <ul>
+   *   <li>Point: X Y
+   *   <br /> 1.23 4.56
+   *   </li>
+   *   <li>BOX: XMin YMin XMax YMax
+   *   <br /> 1.23 4.56 7.87 4.56</li>
+   *   <li><a href="http://en.wikipedia.org/wiki/Well-known_text">
+   *     WKT (Well Known Text)</a>
+   *   <br /> POLYGON( ... )
+   *   <br /> <b>Note:</b>Polygons and WKT might not be supported by this spatial context;
+   *   you'll have to use {@link com.spatial4j.core.context.jts.JtsSpatialContext}.
+   *   </li>
+   * </ul>
+   * @param value A string representation of the shape; not null.
+   * @return A Shape; not null.
    *
-   * (1) Point: X Y
-   *   1.23 4.56
-   *
-   * (2) BOX: XMin YMin XMax YMax
-   *   1.23 4.56 7.87 4.56
-   *
-   * (3) WKT
-   *   POLYGON( ... )
-   *   http://en.wikipedia.org/wiki/Well-known_text
-   *
+   * @see #toString(com.spatial4j.core.shape.Shape)
    */
   public Shape readShape(String value) throws InvalidShapeException {
     Shape s = readStandardShape( value );
     if( s == null ) {
-      throw new InvalidShapeException( "Unable to read: "+value );
+      throw new InvalidShapeException("Unable to read: "+value);
     }
     return s;
   }
 
+  /**
+   * Writes a shape to a String, in a format that can be read by {@link #readShape(String)}.
+   * @param shape Not null.
+   * @return Not null.
+   */
   public String toString(Shape shape) {
     NumberFormat nf = NumberFormat.getInstance(Locale.US);
     nf.setGroupingUsed(false);
@@ -179,7 +201,8 @@ public class SpatialContext {
   public Point makePoint(double x, double y) {
     return new PointImpl(normX(x),normY(y));
   }
-  
+
+  //TODO reconsider... seems Geo only
   public Point readLatCommaLonPoint(String value) throws InvalidShapeException {
     double[] latLon = ParseUtils.parseLatitudeLongitude(value);
     return makePoint(latLon[1],latLon[0]);
@@ -227,10 +250,10 @@ public class SpatialContext {
       minY = normY(minY);
       maxY = normY(maxY);
     }
-    return new RectangleImpl( minX, maxX, minY, maxY );
+    return new RectangleImpl(minX, maxX, minY, maxY);
   }
 
-  private double calcWidth(double minX,double maxX) {
+  private double calcWidth(double minX, double maxX) {
     double w = maxX - minX;
     if (w < 0) {//only true when minX > maxX (WGS84 assumed)
       w += 360;
@@ -239,15 +262,17 @@ public class SpatialContext {
     return w;
   }
 
-
-  /** Construct a circle. The parameters will be normalized. */
+  /**
+   * Construct a circle. The parameters will be normalized. The units of "distance" should
+   * be the same as {@link #getUnits()}.
+   */
   public Circle makeCircle(double x, double y, double distance) {
-    return makeCircle(makePoint(x,y),distance);
+    return makeCircle(makePoint(x, y), distance);
   }
 
   /**
-   * @param point
-   * @param distance The units of "distance" should be the same as {@link #getUnits()}.
+   * Construct a circle. The parameters will be normalized. The units of "distance" should
+   * be the same as {@link #getUnits()}.
    */
   public Circle makeCircle(Point point, double distance) {
     if (distance < 0)
@@ -258,17 +283,16 @@ public class SpatialContext {
       return new CircleImpl( point, distance, this );
   }
 
-
   protected Shape readStandardShape(String str) {
-    if (str.length() < 1) {
+    if (str == null || str.length() == 0) {
       throw new InvalidShapeException(str);
     }
 
-    if(Character.isLetter(str.charAt(0))) {
-      if( str.startsWith( "Circle(" ) || str.startsWith("CIRCLE(") ) {
-        int idx = str.lastIndexOf( ')' );
-        if( idx > 0 ) {
-          String body = str.substring( "Circle(".length(), idx );
+    if (Character.isLetter(str.charAt(0))) {
+      if (str.startsWith("Circle(") || str.startsWith("CIRCLE(")) {
+        int idx = str.lastIndexOf(')');
+        if (idx > 0) {
+          String body = str.substring("Circle(".length(), idx);
           StringTokenizer st = new StringTokenizer(body, " ");
           String token = st.nextToken();
           Point pt;
@@ -277,29 +301,27 @@ public class SpatialContext {
           } else {
             double x = Double.parseDouble(token);
             double y = Double.parseDouble(st.nextToken());
-            pt = makePoint(x,y);
+            pt = makePoint(x, y);
           }
           Double d = null;
 
           String arg = st.nextToken();
-          idx = arg.indexOf( '=' );
-          if( idx > 0 ) {
-            String k = arg.substring( 0,idx );
-            if( k.equals( "d" ) || k.equals( "distance" ) ) {
-              d = Double.parseDouble( arg.substring(idx+1));
+          idx = arg.indexOf('=');
+          if (idx > 0) {
+            String k = arg.substring(0, idx);
+            if (k.equals("d") || k.equals("distance")) {
+              d = Double.parseDouble(arg.substring(idx + 1));
+            } else {
+              throw new InvalidShapeException("unknown arg: " + k + " :: " + str);
             }
-            else {
-              throw new InvalidShapeException( "unknown arg: "+k+" :: " +str );
-            }
-          }
-          else {
+          } else {
             d = Double.parseDouble(arg);
           }
-          if( st.hasMoreTokens() ) {
-            throw new InvalidShapeException( "Extra arguments: "+st.nextToken()+" :: " +str );
+          if (st.hasMoreTokens()) {
+            throw new InvalidShapeException("Extra arguments: " + st.nextToken() + " :: " + str);
           }
-          if( d == null ) {
-            throw new InvalidShapeException( "Missing Distance: "+str );
+          if (d == null) {
+            throw new InvalidShapeException("Missing Distance: " + str);
           }
           //NOTE: we are assuming the units of 'd' is the same as that of the spatial context.
           return makeCircle(pt, d);
@@ -317,7 +339,7 @@ public class SpatialContext {
       double p2 = Double.parseDouble(st.nextToken());
       double p3 = Double.parseDouble(st.nextToken());
       if (st.hasMoreTokens())
-        throw new InvalidShapeException("Only 4 numbers supported (rect) but found more: "+str);
+        throw new InvalidShapeException("Only 4 numbers supported (rect) but found more: " + str);
       return makeRect(p0, p2, p1, p3);
     }
     return makePoint(p0, p1);
@@ -325,11 +347,15 @@ public class SpatialContext {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName()+"{" +
-        "units=" + units +
-        ", calculator=" + calculator +
-        ", worldBounds=" + worldBounds +
-        '}';
+    if (this.equals(GEO_KM)) {
+      return GEO_KM.getClass().getSimpleName()+".GEO_KM";
+    } else {
+      return getClass().getSimpleName()+"{" +
+          "units=" + units +
+          ", calculator=" + calculator +
+          ", worldBounds=" + worldBounds +
+          '}';
+    }
   }
 
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.context;
+package com.spatial4j.core.io;
 
 import com.spatial4j.core.exception.InvalidShapeException;
 

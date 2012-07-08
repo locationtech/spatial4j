@@ -36,33 +36,46 @@ import com.vividsolutions.jts.util.GeometricShapeFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+/**
+ * Enhances the default {@link SpatialContext} with support for Polygons (and
+ * other geometry) plus
+ * reading <a href="http://en.wikipedia.org/wiki/Well-known_text">WKT</a>. The
+ * popular <a href="https://sourceforge.net/projects/jts-topo-suite/">JTS</a>
+ * library does the heavy lifting.
+ */
 public class JtsSpatialContext extends SpatialContext {
+
+  public static JtsSpatialContext GEO_KM = new JtsSpatialContext(DistanceUnits.KILOMETERS);
 
   private static final byte TYPE_POINT = 0;
   private static final byte TYPE_BBOX = 1;
   private static final byte TYPE_GEOM = 2;
 
-  public GeometryFactory factory;
+  private final GeometryFactory geometryFactory;
 
-  public static JtsSpatialContext GEO_KM = new JtsSpatialContext(DistanceUnits.KILOMETERS);
-  
   public JtsSpatialContext( DistanceUnits units ) {
-    this( null, units, null, null);
+    this(null, units, null, null);
   }
 
-  public JtsSpatialContext(GeometryFactory f, DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {
-    super( units, calculator, worldBounds);
-    if (f == null)
-      f = new GeometryFactory();
-    factory = f;
+  /**
+   * See {@link SpatialContext#SpatialContext(com.spatial4j.core.distance.DistanceUnits, com.spatial4j.core.distance.DistanceCalculator, com.spatial4j.core.shape.Rectangle)}.
+   *
+   * @param geometryFactory optional
+   */
+  public JtsSpatialContext(GeometryFactory geometryFactory, DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {
+    super(units, calculator, worldBounds);
+    this.geometryFactory = geometryFactory == null ? new GeometryFactory() : geometryFactory;
   }
 
+  /**
+   * Reads the standard shape format + WKT.
+   */
   @Override
   public Shape readShape(String str) throws InvalidShapeException {
     Shape shape = super.readStandardShape(str);
     if( shape == null ) {
       try {
-        WKTReader reader = new WKTReader(factory);
+        WKTReader reader = new WKTReader(geometryFactory);
         Geometry geom = reader.read(str);
 
         //Normalize coordinates to geo boundary
@@ -158,13 +171,13 @@ public class JtsSpatialContext extends SpatialContext {
     ByteBuffer bytes = ByteBuffer.wrap(array, offset, length);
     byte type = bytes.get();
     if (type == TYPE_POINT) {
-      return new JtsPoint(factory.createPoint(new Coordinate(bytes.getDouble(), bytes.getDouble())));
+      return new JtsPoint(geometryFactory.createPoint(new Coordinate(bytes.getDouble(), bytes.getDouble())));
     } else if (type == TYPE_BBOX) {
       return new RectangleImpl(
           bytes.getDouble(), bytes.getDouble(),
           bytes.getDouble(), bytes.getDouble());
     } else if (type == TYPE_GEOM) {
-      WKBReader reader = new WKBReader(factory);
+      WKBReader reader = new WKBReader(geometryFactory);
       try {
         Geometry geom = reader.read(new InStream() {
           int off = offset + 1; // skip the type marker
@@ -174,9 +187,7 @@ public class JtsSpatialContext extends SpatialContext {
             if (off + buf.length > length) {
               throw new InvalidShapeException("Asking for too many bytes");
             }
-            for (int i = 0; i < buf.length; i++) {
-              buf[i] = array[off + i];
-            }
+            System.arraycopy(array, off, buf, 0, buf.length);
             off += buf.length;
           }
         });
@@ -200,6 +211,12 @@ public class JtsSpatialContext extends SpatialContext {
     return super.toString(shape);
   }
 
+  /**
+   * Gets a JTS {@link Geometry} for the given {@link Shape}. Some shapes hold a
+   * JTS geometry whereas new ones must be created for the rest.
+   * @param shape Not null
+   * @return Not null
+   */
   public Geometry getGeometryFrom(Shape shape) {
     if (shape instanceof JtsGeometry) {
       return ((JtsGeometry)shape).getGeom();
@@ -209,13 +226,13 @@ public class JtsSpatialContext extends SpatialContext {
     }
     if (shape instanceof Point) {
       Point point = (Point) shape;
-      return factory.createPoint(new Coordinate(point.getX(),point.getY()));
+      return geometryFactory.createPoint(new Coordinate(point.getX(),point.getY()));
     }
     if (shape instanceof Rectangle) {
       Rectangle r = (Rectangle)shape;
       if (r.getCrossesDateLine())
         throw new IllegalArgumentException("Doesn't support dateline cross yet: "+r);//TODO
-      return factory.toGeometry(new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY()));
+      return geometryFactory.toGeometry(new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY()));
     }
     if (shape instanceof Circle) {
       // TODO, this should maybe pick a bunch of points
@@ -224,9 +241,11 @@ public class JtsSpatialContext extends SpatialContext {
       // If this crosses the dateline, it could make two parts
       // is there an existing utility that does this?
       Circle circle = (Circle)shape;
-      GeometricShapeFactory gsf = new GeometricShapeFactory(factory);
+      if (circle.getBoundingBox().getCrossesDateLine())
+        throw new IllegalArgumentException("Doesn't support dateline cross yet: "+circle);//TODO
+      GeometricShapeFactory gsf = new GeometricShapeFactory(geometryFactory);
       gsf.setSize(circle.getBoundingBox().getWidth()/2.0f);
-      gsf.setNumPoints(100);
+      gsf.setNumPoints(4*25);//multiple of 4 is best
       gsf.setBase(new Coordinate(circle.getCenter().getX(),circle.getCenter().getY()));
       return gsf.createCircle();
     }
@@ -238,6 +257,19 @@ public class JtsSpatialContext extends SpatialContext {
     //A Jts Point is fairly heavyweight!  TODO could/should we optimize this?
     x = normX(x);
     y = normY(y);
-    return new JtsPoint(factory.createPoint(new Coordinate(x, y)));
+    return new JtsPoint(geometryFactory.createPoint(new Coordinate(x, y)));
+  }
+
+  public GeometryFactory getGeometryFactory() {
+    return geometryFactory;
+  }
+
+  @Override
+  public String toString() {
+    if (this.equals(GEO_KM)) {
+      return GEO_KM.getClass().getSimpleName()+".GEO_KM";
+    } else {
+      return super.toString();
+    }
   }
 }

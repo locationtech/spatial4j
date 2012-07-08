@@ -21,6 +21,8 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
 
 /**
+ * See {@link SpatialContextFactory#makeSpatialContext(java.util.Map,
+ * ClassLoader)}.
  */
 public class JtsSpatialContextFactory extends SpatialContextFactory {
   @Override

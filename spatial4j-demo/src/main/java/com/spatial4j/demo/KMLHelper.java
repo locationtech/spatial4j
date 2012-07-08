@@ -142,7 +142,7 @@ public class KMLHelper
     JtsSpatialContext jtsCtx = JtsSpatialContext.GEO_KM;
     ctx = jtsCtx;
     //TODO why not use jtsCtx.getGeometryFrom(circle) ?
-    GeometricShapeFactory gsf = new GeometricShapeFactory(jtsCtx.factory);
+    GeometricShapeFactory gsf = new GeometricShapeFactory(jtsCtx.getGeometryFactory());
     gsf.setCentre( new com.vividsolutions.jts.geom.Coordinate( 4,2 ) );
     gsf.setSize( 4 );
     shape = new JtsGeometry( gsf.createCircle(), jtsCtx);

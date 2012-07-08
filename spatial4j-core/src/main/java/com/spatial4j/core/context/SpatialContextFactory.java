@@ -23,9 +23,26 @@ import com.spatial4j.core.shape.Rectangle;
 import java.util.Map;
 
 /**
- * Factory for a SpatialContext.
+ * Factory for a {@link SpatialContext} based on configuration data.  Call
+ * {@link #makeSpatialContext(java.util.Map, ClassLoader)}.
+ * <p/>
+ * The following keys are looked up in the args map:
+ * <DL>
+ * <DT>spatialContextFactory</DT>
+ * <DD>com.spatial4j.core.context.SpatialContext or com.spatial4j.core
+ * .context.jts.JtsSpatialContext</DD>
+ * <DT>units</DT>
+ * <DD>km | mi | u | ... see {@link DistanceUnits}</DD>
+ * <DT>distCalculator</DT>
+ * <DD>haversine | lawOfCosines | vincentySphere | cartesian | cartesian^2
+ * -- see {@link DistanceCalculator}</DD>
+ * <DT>worldBounds</DT>
+ * <DD>-180,180,-90,90 -- the string form of a {@link Rectangle} read by
+ * {@link SpatialContext#readShape(String)}</DD>
+ * </DL>
  */
 public class SpatialContextFactory {
+
   protected Map<String, String> args;
   protected ClassLoader classLoader;
   
@@ -34,11 +51,16 @@ public class SpatialContextFactory {
   protected Rectangle worldBounds;
 
   /**
-   * The factory class is lookuped up via "spatialContextFactory" in args
+   * Creates a new {@link SpatialContext} based on configuration in
+   * <code>args</code>.  See the class definition for what keys are looked up
+   * in it.
+   * The factory class is looked up via "spatialContextFactory" in args
    * then falling back to a Java system property (with initial caps). If neither are specified
-   * then {@link SimpleSpatialContextFactory} is chosen.
-   * @param args
-   * @param classLoader
+   * then {@link SpatialContextFactory} is chosen.
+   *
+   * @param args Non-null map of name-value pairs.
+   * @param classLoader Optional, except when a class name is provided to an
+   *                    argument.
    */
   public static SpatialContext makeSpatialContext(Map<String,String> args, ClassLoader classLoader) {
     SpatialContextFactory instance;
@@ -57,6 +79,9 @@ public class SpatialContextFactory {
     }
     instance.init(args,classLoader);
     return instance.newSpatialContext();
+  }
+
+  protected SpatialContextFactory() {
   }
 
   protected void init(Map<String, String> args, ClassLoader classLoader) {
