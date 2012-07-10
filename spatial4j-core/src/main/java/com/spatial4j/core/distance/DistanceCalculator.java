@@ -21,25 +21,52 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 
+/**
+ * Performs calculations relating to distance, such as the distance between a
+ * pair of points.  A calculator might be based on Euclidean space, or a
+ * spherical model, or ellipsoid, or maybe even something else.
+ */
 public interface DistanceCalculator {
 
+  /** The distance between <code>from</code> and <code>to</code>. */
   public double distance(Point from, Point to);
+
+  /** The distance between <code>from</code> and <code>Point(toX,toY)</code>. */
   public double distance(Point from, double toX, double toY);
 
-  public Point pointOnBearing(Point from, double dist, double bearingDEG, SpatialContext ctx);
-  
   /**
-   * Converts a distance to radians (multiples of the radius). A spherical
-   * earth model is assumed for geospatial, and non-geospatial is the identity function.
+   * Calculates where a destination point is given an origin (<code>from</code>)
+   * distance, and bearing (given in degrees -- 0-360).
+   */
+  public Point pointOnBearing(Point from, double distance, double bearingDEG, SpatialContext ctx);
+
+  /**
+   * Converts a distance (in units of the sphere's radius, e.g. km) to degrees
+   * (0-360). A spherical earth model is assumed for geospatial.  This is not
+   * implemented for non-geospatial.
    */
   public double distanceToDegrees(double distance);
 
+  /**
+   * Converts distance-degrees (0-360, e.g. as a length around the sphere) to
+   * distance (in units of the sphere's radius, e.g. km). This is the opposite
+   * of {@link #distanceToDegrees(double)}.
+   */
   public double degreesToDistance(double degrees);
 
-  //public Point pointOnBearing(Point from, double angle);
-
+  /**
+   * Calculates the bounding box of a circle, as specified by its center point
+   * and distance.
+   */
   public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx);
 
-  public double calcBoxByDistFromPtHorizAxis(Point from, double distance, SpatialContext ctx);
+  /**
+   * The <code>Y</code> coordinate of the horizontal axis (e.g. left-right line)
+   * of a circle.  The horizontal axis of a circle passes through its furthest
+   * left-most and right-most edges. On a 2D plane, this result is always
+   * <code>from.getY()</code> but, perhaps surprisingly, on a sphere it is going
+   * to be slightly different.
+   */
+  public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distance, SpatialContext ctx);
 
 }

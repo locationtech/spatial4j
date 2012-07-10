@@ -34,8 +34,9 @@ public class DistanceUtils {
   public static final double DEG_180_AS_RADS = Math.PI;
   public static final double DEG_225_AS_RADS = 5 * DEG_45_AS_RADS;
   public static final double DEG_270_AS_RADS = 3 * DEG_90_AS_RADS;
-  public static final double DEGREES_TO_RADIANS =  Math.PI / 180.0;
 
+  public static final double DEGREES_TO_RADIANS =  Math.PI / 180.0;
+  public static final double RADIANS_TO_DEGREES =  1 / DEGREES_TO_RADIANS;
 
   public static final double KM_TO_MILES = 0.621371192;
   public static final double MILES_TO_KM = 1 / KM_TO_MILES;//1.609
@@ -50,6 +51,8 @@ public class DistanceUtils {
 
   public static final double EARTH_MEAN_RADIUS_MI = EARTH_MEAN_RADIUS_KM * KM_TO_MILES;
   public static final double EARTH_EQUATORIAL_RADIUS_MI = EARTH_EQUATORIAL_RADIUS_KM * KM_TO_MILES;
+
+  private DistanceUtils() {}
 
   /**
    * Calculate the p-norm (i.e. length) between two vectors
@@ -175,6 +178,7 @@ public class DistanceUtils {
   /**
    * @param latLng The lat/lon, in radians. lat in position 0, lon in position 1
    */
+  @Deprecated
   public static void normLatRAD(double[] latLng) {
 
     if (latLng[0] > DEG_90_AS_RADS) {
@@ -234,15 +238,21 @@ public class DistanceUtils {
     return (off <= 180 ? off : 360-off) - 90;
   }
 
+  /**
+   * Calculates the bounding box of a circle, as specified by its center point
+   * and distance.
+   * <p/>
+   * <code>distance</code> should be in the units of <code>ctx.getUnits()
+   * </code>.
+   */
   public static Rectangle calcBoxByDistFromPtDEG(double lat, double lon, double distance, SpatialContext ctx) {
     //See http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates Section 3.1, 3.2 and 3.3
 
     double radius = ctx.getUnits().earthRadius();
-    double dist_rad = distance / radius;
-    double dist_deg = Math.toDegrees(dist_rad);
+    double dist_deg = dist2Degrees(distance,radius);
 
     if (dist_deg == 0)
-      return ctx.makeRect(lon,lon,lat,lat);
+      return ctx.makeRect(lon,lon,lat,lat);//essentially a point
 
     if (dist_deg >= 180)//distance is >= opposite side of the globe
       return ctx.getWorldBounds();
@@ -266,7 +276,7 @@ public class DistanceUtils {
       return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);
     } else {
       //--calc longitude bounds
-      double lon_delta_deg = calcBoxByDistFromPtVertAxisOffsetDEG(lat, lon, distance, radius);
+      double lon_delta_deg = calcBoxByDistFromPt_deltaLonDEG(lat, lon, distance, radius);
 
       double lonW_deg = lon -lon_delta_deg;
       double lonE_deg = lon +lon_delta_deg;
@@ -275,29 +285,43 @@ public class DistanceUtils {
     }
   }
 
-  public static double calcBoxByDistFromPtVertAxisOffsetDEG(double lat, double lon, double distance, double radius) {
+  /**
+   * The delta longitude of a point-distance. In other words, half the width of
+   * the bounding box of a circle.
+   * <p/>
+   * <code>distance</code> and <code>radius</code> should be in the same units.
+   */
+  public static double calcBoxByDistFromPt_deltaLonDEG(double lat, double lon, double distance, double radius) {
     //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
     if (distance == 0)
       return 0;
     double lat_rad = toRadians(lat);
-    double dist_rad = distance / radius;
+    double dist_rad = dist2Radians(distance,radius);
     double result_rad = Math.asin(Math.sin(dist_rad) / Math.cos(lat_rad));
 
     if (!Double.isNaN(result_rad))
-      return Math.toDegrees(result_rad);
+      return toDegrees(result_rad);
     return 90;
   }
 
-  public static double calcBoxByDistFromPtHorizAxisDEG(double lat, double lon, double distance, double radius) {
+  /**
+   * The latitude of the horizontal axis (e.g. left-right line)
+   * of a circle.  The horizontal axis of a circle passes through its furthest
+   * left-most and right-most edges. On a 2D plane, this result is always
+   * <code>from.getY()</code> but, perhaps surprisingly, on a sphere it is going
+   * to be slightly different.
+   * <p/>
+   * <code>distance</code> and <code>radius</code> should be in the same units.
+   */
+  public static double calcBoxByDistFromPt_latHorizAxisDEG(double lat, double lon, double distance, double radius) {
     //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
     if (distance == 0)
       return lat;
     double lat_rad = toRadians(lat);
-    double dist_rad = distance / radius;
+    double dist_rad = dist2Radians(distance,radius);
     double result_rad = Math.asin( Math.sin(lat_rad) / Math.cos(dist_rad));
     if (!Double.isNaN(result_rad))
-      return Math.toDegrees(result_rad);
-    //TODO should we use use ctx.getBoundaryNudgeDegrees() offsets here or let caller?
+      return toDegrees(result_rad);
     if (lat > 0)
       return 90;
     if (lat < 0)
@@ -410,29 +434,42 @@ public class DistanceUtils {
   }
 
   /**
-   * Converts a distance in the units of the radius to degrees (360 degrees are in a circle). A spherical
-   * earth model is assumed.
+   * Converts a distance in the units of the radius to degrees (360 degrees are
+   * in a circle). A spherical earth model is assumed.
    */
   public static double dist2Degrees(double dist, double radius) {
-    return Math.toDegrees(dist2Radians(dist, radius));
+    return toDegrees(dist2Radians(dist, radius));
   }
 
   /**
-   * Converts a distance in the units of the radius to radians (multiples of the radius). A spherical
-   * earth model is assumed.
+   * Converts a distance in the units of <code>radius</code> (e.g. kilometers)
+   * to radians (multiples of the radius). A spherical earth model is assumed.
    */
   public static double dist2Radians(double dist, double radius) {
     return dist / radius;
   }
 
+  /**
+   * Converts <code>radians</code> (multiples of the <code>radius</code>) to
+   * distance in the units of the radius (e.g. kilometers).
+   */
   public static double radians2Dist(double radians, double radius) {
     return radians * radius;
   }
 
   /**
-   * About 3x faster Math.toRadians().  See CompareRadiansSnippet
+   * Same as {@link Math#toRadians(double)} but 3x faster (multiply vs. divide).
+   * See CompareRadiansSnippet.java in tests.
    */
-  public static double toRadians(double deg) {
-    return deg * DEGREES_TO_RADIANS;
+  public static double toRadians(double degrees) {
+    return degrees * DEGREES_TO_RADIANS;
+  }
+
+  /**
+   * Same as {@link Math#toDegrees(double)} but 3x faster (multiply vs. divide).
+   * See CompareRadiansSnippet.java in tests.
+   */
+  public static double toDegrees(double radians) {
+    return radians * RADIANS_TO_DEGREES;
   }
 }

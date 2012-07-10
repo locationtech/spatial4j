@@ -21,6 +21,9 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 
+/**
+ * Calculates based on Euclidean / Cartesian 2d plane.
+ */
 public class CartesianDistCalc extends AbstractDistanceCalculator {
 
   private final boolean squared;
@@ -29,6 +32,13 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
     this.squared = false;
   }
 
+  /**
+   * @param squared Set to true to have {@link #distance(com.spatial4j.core.shape.Point, com.spatial4j.core.shape.Point)}
+   *                return the square of the correct answer. This is a
+   *                performance optimization used when sorting in which the
+   *                actual distance doesn't matter so long as the sort order is
+   *                consistent.
+   */
   public CartesianDistCalc(boolean squared) {
     this.squared = squared;
   }
@@ -53,7 +63,7 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   public Point pointOnBearing(Point from, double dist, double bearingDEG, SpatialContext ctx) {
     if (dist == 0)
       return from;
-    double bearingRAD = Math.toDegrees(bearingDEG);
+    double bearingRAD = DistanceUtils.toRadians(bearingDEG);
     double x = Math.sin(bearingRAD) * dist;
     double y = Math.cos(bearingRAD) * dist;
     return ctx.makePoint(from.getX()+x, from.getY()+y);
@@ -75,7 +85,7 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   }
 
   @Override
-  public double calcBoxByDistFromPtHorizAxis(Point from, double distance, SpatialContext ctx) {
+  public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distance, SpatialContext ctx) {
     return from.getY();
   }
 

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spatial4j.core.util;
+package com.spatial4j.core.distance;
 
 
 //import static com.spatial4j.core.distance.DistanceUtils.toRadians;

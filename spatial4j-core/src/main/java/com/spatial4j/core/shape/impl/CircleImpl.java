@@ -182,12 +182,15 @@ public class CircleImpl implements Circle {
   }
 
   /**
-   * The y axis horizontal of maximal left-right extent of the circle.
+   * The <code>Y</code> coordinate of where the circle axis intersect.
    */
   protected double getYAxis() {
     return point.getY();
   }
 
+  /**
+   * The <code>X</code> coordinate of where the circle axis intersect.
+   */
   protected double getXAxis() {
     return point.getX();
   }

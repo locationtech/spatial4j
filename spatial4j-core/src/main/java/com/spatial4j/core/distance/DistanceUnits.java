@@ -112,7 +112,10 @@ public enum DistanceUnits {
   public double earthCircumference() {
     return earthCircumference;
   }
-  
+
+  /**
+   * If {@link #earthRadius()} > 0.
+   */
   public boolean isGeo() {
     return earthRadius > 0;
   }

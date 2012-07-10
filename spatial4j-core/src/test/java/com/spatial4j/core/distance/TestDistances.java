@@ -67,7 +67,7 @@ public class TestDistances extends RandomizedTest {
     }
 
     assertEquals("0 dist, horiz line",
-        -45,dc().calcBoxByDistFromPtHorizAxis(ctx.makePoint(-180,-45),0,ctx),0);
+        -45,dc().calcBoxByDistFromPt_yHorizAxisDEG(ctx.makePoint(-180, -45), 0, ctx),0);
 
     double MAXDIST = ctx.getUnits().earthCircumference() / 2;
     checkBBox(ctx.makePoint(0,0), MAXDIST);
@@ -96,7 +96,7 @@ public class TestDistances extends RandomizedTest {
     String msg = "ctr: "+ctr+" dist: "+dist;
 
     Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
-    double horizAxisLat = dc().calcBoxByDistFromPtHorizAxis(ctr,dist, ctx);
+    double horizAxisLat = dc().calcBoxByDistFromPt_yHorizAxisDEG(ctr, dist, ctx);
     if (!Double.isNaN(horizAxisLat))
       assertTrue(r.relate_yRange(horizAxisLat, horizAxisLat, ctx).intersects());
 

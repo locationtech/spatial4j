@@ -23,6 +23,7 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.SpatialRelation;
 
 /**
+ * A circle as it exists on the surface of a sphere.
  */
 public class GeoCircle extends CircleImpl {
   private final double distDEG;// [0 TO 180]
@@ -37,6 +38,7 @@ public class GeoCircle extends CircleImpl {
     distDEG = ctx.getDistCalc().distanceToDegrees(distance);
 
     if (distDEG > 90) {
+      //--spans more than half the globe
       assert enclosingBox.getWidth() == 360;
       double backDistDEG = 180 - distDEG;
       if (backDistDEG >= 0) {
@@ -48,7 +50,7 @@ public class GeoCircle extends CircleImpl {
       horizAxisY = getCenter().getY();//although probably not used
     } else {
       inverseCircle = null;
-      double _horizAxisY = ctx.getDistCalc().calcBoxByDistFromPtHorizAxis(getCenter(), distance, ctx);
+      double _horizAxisY = ctx.getDistCalc().calcBoxByDistFromPt_yHorizAxisDEG(getCenter(), distance, ctx);
       //some rare numeric conditioning cases can cause this to be barely beyond the box
       if (_horizAxisY > enclosingBox.getMaxY()) {
         horizAxisY = enclosingBox.getMaxY();

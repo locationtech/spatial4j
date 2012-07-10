@@ -21,6 +21,7 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 
+import static com.spatial4j.core.distance.DistanceUtils.toDegrees;
 import static com.spatial4j.core.distance.DistanceUtils.toRadians;
 
 /**
@@ -52,7 +53,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
         toRadians(from.getY()), toRadians(from.getX()),
         DistanceUtils.dist2Radians(dist,ctx.getUnits().earthRadius()),
         toRadians(bearingDEG), null);
-    return ctx.makePoint(Math.toDegrees(latLon[1]), Math.toDegrees(latLon[0]));
+    return ctx.makePoint(toDegrees(latLon[1]), toDegrees(latLon[0]));
   }
 
   @Override
@@ -64,8 +65,8 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
   }
 
   @Override
-  public double calcBoxByDistFromPtHorizAxis(Point from, double distance, SpatialContext ctx) {
-    return DistanceUtils.calcBoxByDistFromPtHorizAxisDEG(from.getY(), from.getX(), distance, radius);
+  public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distance, SpatialContext ctx) {
+    return DistanceUtils.calcBoxByDistFromPt_latHorizAxisDEG(from.getY(), from.getX(), distance, radius);
   }
 
   @Override
