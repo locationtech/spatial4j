@@ -56,12 +56,11 @@ public class ShapeReadWriter<CTX extends SpatialContext> {
    * @return Not null.
    */
   public String writeShape(Shape shape) {
-    NumberFormat nf = NumberFormat.getInstance(Locale.US);
-    nf.setGroupingUsed(false);
-    nf.setMaximumFractionDigits(6);
-    nf.setMinimumFractionDigits(6);
-    //TODO use StringBuffer optional args to NumberFormat
-    //TODO make decimal places configurable
+    return writeShape(shape,makeNumberFormat(6));
+  }
+
+  /** Overloaded to provide a number format. */
+  public String writeShape(Shape shape, NumberFormat nf) {
     if (shape instanceof Point) {
       Point point = (Point) shape;
       return nf.format(point.getX()) + " " + nf.format(point.getY());
@@ -83,6 +82,17 @@ public class ShapeReadWriter<CTX extends SpatialContext> {
               ")";
     }
     return shape.toString();
+  }
+
+  /**
+   * A convenience method to create a suitable NumberFormat for writing numbers.
+   */
+  public static NumberFormat makeNumberFormat(int fractionDigits) {
+    NumberFormat nf = NumberFormat.getInstance(Locale.ROOT);//not thread-safe
+    nf.setGroupingUsed(false);
+    nf.setMaximumFractionDigits(fractionDigits);
+    nf.setMinimumFractionDigits(fractionDigits);
+    return nf;
   }
 
   protected Shape readStandardShape(String str) {
