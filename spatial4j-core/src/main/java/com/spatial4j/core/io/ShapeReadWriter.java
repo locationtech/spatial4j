@@ -157,8 +157,8 @@ public class ShapeReadWriter<CTX extends SpatialContext> {
     return ctx.makePoint(p0, p1);
   }
 
-  //TODO reconsider... seems Geo only
-  public Point readLatCommaLonPoint(String value) throws InvalidShapeException {
+  /** Reads geospatial latitude then a comma then longitude. */
+  private Point readLatCommaLonPoint(String value) throws InvalidShapeException {
     double[] latLon = ParseUtils.parseLatitudeLongitude(value);
     return ctx.makePoint(latLon[1],latLon[0]);
   }
