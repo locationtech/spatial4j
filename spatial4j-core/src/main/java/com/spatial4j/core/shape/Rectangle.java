@@ -19,21 +19,56 @@ package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
 
+/**
+ * A rectangle aligned with the axis (i.e. it is not at an angle).
+ * <p/>
+ * In geospatial contexts, it may cross the international date line (-180
+ * longitude) if {@link #getCrossesDateLine()} however it cannot pass the poles
+ * although it may span the globe.  It spans the globe if the X coordinate
+ * (Longitude) goes from -180 to 180 as seen from {@link #getMinX()} and {@link
+ * #getMaxX()}.
+ */
 public interface Rectangle extends Shape {
+
+  /**
+   * The width. In geospatial contexts, this is generally in degrees longitude
+   * and is aware of the international dateline.  It will always be >= 0.
+   */
   public double getWidth();
+
+  /**
+   * The height. In geospatial contexts, this is in degrees latitude. It will
+   * always be >= 0.
+   */
   public double getHeight();
 
+  /** The left edge of the X coordinate. */
   public double getMinX();
+
+  /** The bottom edge of the Y coordinate. */
   public double getMinY();
+
+  /** The right edge of the X coordinate. */
   public double getMaxX();
+
+  /** The top edge of the Y coordinate. */
   public double getMaxY();
 
   /** If {@link #hasArea()} then this returns the area, otherwise it returns 0. */
   public double getArea();
+
   /** Only meaningful for geospatial contexts. */
   public boolean getCrossesDateLine();
 
-  /* There is no axis line shape, and this is more efficient then creating a flat Rectangle for intersect(). */
+  /**
+   * A specialization of {@link #relate(Shape, com.spatial4j.core.context.SpatialContext)}
+   * for a vertical line.
+   */
   public SpatialRelation relate_yRange(double minY, double maxY, SpatialContext ctx);
+
+  /**
+   * A specialization of {@link #relate(Shape, com.spatial4j.core.context.SpatialContext)}
+   * for a horizontal line.
+   */
   public SpatialRelation relate_xRange(double minX, double maxX, SpatialContext ctx);
 }

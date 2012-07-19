@@ -36,19 +36,37 @@ public interface Shape {
    *   <li>this is DISJOINT other</li>
    *   <li>this INTERSECTS other</li>
    * </ul>
+   * Note that a Shape implementation may choose to return INTERSECTS when the
+   * true answer is WITHIN or CONTAINS for performance reasons. If a shape does
+   * this then it <i>must</i> document when it does.  Ideally the shape will not
+   * do this approximation in all circumstances, just sometimes.
+   * <p />
+   * If the shapes are equal then the result is CONTAINS (preferred) or WITHIN.
    */
   SpatialRelation relate(Shape other, SpatialContext ctx);
 
   /**
-   * Get the bounding box for this Shape
+   * Get the bounding box for this Shape. This means the shape is within the
+   * bounding box and that it touches each side of the rectangle.
+   * <p />
+   * Postcondition: <code>this.getBoundingBox().relate(this) == CONTAINS</code>
    */
   Rectangle getBoundingBox();
 
   /**
-   * @return true if the shape has area.  This will be false for points and lines
+   * Does the shape have area?  This will be false for points and lines. It will
+   * also be false for shapes that normally have area but are constructed in a
+   * degenerate case as to not have area (e.g. a circle with 0 radius or
+   * rectangle with no height or no width).
    */
   boolean hasArea();
 
+  /**
+   * Returns the center point of this shape. This is usually the same as
+   * <code>getBoundingBox().getCenter()</code> but it doesn't have to be.
+   * <p />
+   * Postcondition: <code>this.relate(this.getCenter()) == CONTAINS</code>
+   */
   Point getCenter();
 }
 

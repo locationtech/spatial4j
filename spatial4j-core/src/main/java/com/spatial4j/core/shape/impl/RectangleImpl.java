@@ -25,9 +25,9 @@ import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.SpatialRelation;
 
 /**
- * A simple Rectangle implementation that also supports a longitudinal wrap-around. When minX > maxX, this will assume
- * it is world coordinates that cross the date line using degrees.
- * Immutable & threadsafe.
+ * A simple Rectangle implementation that also supports a longitudinal
+ * wrap-around. When minX > maxX, this will assume it is world coordinates that
+ * cross the date line using degrees. Immutable & threadsafe.
  */
 public class RectangleImpl implements Rectangle {
 

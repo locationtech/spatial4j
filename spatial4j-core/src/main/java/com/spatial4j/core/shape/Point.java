@@ -17,7 +17,14 @@
 
 package com.spatial4j.core.shape;
 
+/**
+ * A Point with X & Y coordinates.
+ */
 public interface Point extends Shape {
+
+  /** The X coordinate, or Longitude in geospatial contexts. */
   public double getX();
+
+  /** The Y coordinate, or Latitude in geospatial contexts. */
   public double getY();
 }

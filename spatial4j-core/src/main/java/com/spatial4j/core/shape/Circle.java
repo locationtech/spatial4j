@@ -18,8 +18,13 @@
 package com.spatial4j.core.shape;
 
 /**
- * This is basically a circle.
+ * A circle, also known as a point-radius since that is what it is comprised of.
  */
 public interface Circle extends Shape {
+
+  /**
+   * The distance from the point's center to its edge. Also known as its
+   * radius.
+   */
   double getDistance();
 }

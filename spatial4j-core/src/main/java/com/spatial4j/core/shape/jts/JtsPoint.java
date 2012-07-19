@@ -18,14 +18,15 @@
 package com.spatial4j.core.shape.jts;
 
 
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.impl.PointImpl;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.SpatialRelation;
+import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 
+/** Wraps a {@link com.vividsolutions.jts.geom.Point}. */
 public class JtsPoint implements Point {
 
   private com.vividsolutions.jts.geom.Point pointGeom;

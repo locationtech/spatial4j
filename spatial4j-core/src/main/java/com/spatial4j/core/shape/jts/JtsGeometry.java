@@ -25,14 +25,17 @@ import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.util.GeometryTransformer;
-import com.vividsolutions.jts.operation.overlay.snap.GeometrySnapper;
 import com.vividsolutions.jts.operation.union.UnaryUnionOp;
 import com.vividsolutions.jts.operation.valid.IsValidOp;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Wraps a JTS {@link Geometry} (i.e. may be a polygon or basically anything).
+ * JTS's does a great deal of the hard work, but there is work here in handling
+ * dateline wrap.
+ */
 public class JtsGeometry implements Shape {
   private final Geometry geom;//cannot be a direct instance of GeometryCollection as it doesn't support relate()
   private final boolean hasArea;
@@ -190,13 +193,12 @@ public class JtsGeometry implements Shape {
   }
 
   /**
-   * If <code>geom</code> spans the dateline, then this modifies it to be a valid JTS geometry that extends
-   * to the right of the standard -180 to +180 width such that some points are greater than +180
-   * but some remain less.
-   * Takes care to invoke
-   * {@link com.vividsolutions.jts.geom.Geometry#geometryChanged()} if needed.
+   * If <code>geom</code> spans the dateline, then this modifies it to be a
+   * valid JTS geometry that extends to the right of the standard -180 to +180
+   * width such that some points are greater than +180 but some remain less.
+   * Takes care to invoke {@link com.vividsolutions.jts.geom.Geometry#geometryChanged()}
+   * if needed.
    *
-   * @param geom
    * @return The number of times the geometry spans the dateline.  >= 0
    */
   private static int unwrapDateline(Geometry geom) {
@@ -217,7 +219,7 @@ public class JtsGeometry implements Shape {
           cross = unwrapDateline((Polygon) geom);
         } else
           return;
-        result[0] = Math.max(result[0],cross);
+        result[0] = Math.max(result[0], cross);
       }
     });//geom.apply()
 
@@ -272,7 +274,7 @@ public class JtsGeometry implements Shape {
         shiftXPageMin = Math.min(shiftXPageMin,shiftXPage);
       }
       if (shiftXPage != 0)
-        cseq.setOrdinate(i,0,thisX);
+        cseq.setOrdinate(i, CoordinateSequence.X, thisX);
     }
     if (lineString instanceof LinearRing) {
       assert cseq.getCoordinate(0).equals(cseq.getCoordinate(size-1));
@@ -293,7 +295,7 @@ public class JtsGeometry implements Shape {
     geom.apply(new CoordinateSequenceFilter() {
       @Override
       public void filter(CoordinateSequence seq, int i) {
-        seq.setOrdinate(i, 0, seq.getX(i) + xShift );
+        seq.setOrdinate(i, CoordinateSequence.X, seq.getX(i) + xShift );
       }
 
       @Override public boolean isDone() { return false; }
@@ -309,9 +311,11 @@ public class JtsGeometry implements Shape {
     return geom;
   }
 
-  /** This "pages" through standard geo boundaries offset by multiples of 360 longitudinally that intersect
-   * geom, and the intersecting results of a page and the geom are shifted into the standard -180 to +180 and added
-   * to a new geometry that is returned.
+  /**
+   * This "pages" through standard geo boundaries offset by multiples of 360
+   * longitudinally that intersect geom, and the intersecting results of a page
+   * and the geom are shifted into the standard -180 to +180 and added to a new
+   * geometry that is returned.
    */
   private static Geometry cutUnwrappedGeomInto360(Geometry geom) {
     Envelope geomEnv = geom.getEnvelopeInternal();
@@ -322,16 +326,16 @@ public class JtsGeometry implements Shape {
     //TODO support geom's that start at negative pages; will avoid need to previously shift in unwrapDateline(geom).
     List<Geometry> geomList = new ArrayList<Geometry>();
     //page 0 is the standard -180 to 180 range
-    for(int page = 0; true; page++) {
-      double minX = -180 + page*360;
+    for (int page = 0; true; page++) {
+      double minX = -180 + page * 360;
       if (geomEnv.getMaxX() <= minX)
         break;
-      Geometry rect = geom.getFactory().toGeometry(new Envelope(minX,minX+360,-90,90));
+      Geometry rect = geom.getFactory().toGeometry(new Envelope(minX, minX + 360, -90, 90));
       assert rect.isValid() : "rect";
       Geometry pageGeom = rect.intersection(geom);//JTS is doing some hard work
       assert pageGeom.isValid() : "pageGeom";
 
-      shiftGeomByX(pageGeom,page*-360);
+      shiftGeomByX(pageGeom, page * -360);
       geomList.add(pageGeom);
     }
     return UnaryUnionOp.union(geomList);

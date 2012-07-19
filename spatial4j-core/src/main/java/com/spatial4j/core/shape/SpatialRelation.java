@@ -18,11 +18,12 @@
 package com.spatial4j.core.shape;
 
 /**
- * The set of spatial relationships.  Naming is consistent with OGC spec conventions as seen in SQL/MM and others.
- * No equality case.  If two Shape instances are equal then the result might be CONTAINS or WITHIN, and
- * some logic might fail under this edge condition when it's not careful to check.
- * Client code must be written to detect this and act accordingly.  In RectangleImpl.relate(), it checks
- * for this explicitly, for example.  TestShapes2D.assertRelation() checks too.
+ * The set of spatial relationships.  Naming is consistent with OGC spec
+ * conventions as seen in SQL/MM and others.
+ * <p/>
+ * There is no equality case.  If two Shape instances are equal then the result
+ * might be CONTAINS (preferred) or WITHIN.  Client logic may have to be aware
+ * of this edge condition; Spatial4j testing certainly does.
  */
 public enum SpatialRelation {
   WITHIN,
@@ -31,6 +32,13 @@ public enum SpatialRelation {
   INTERSECTS;
   //Don't have these: TOUCHES, CROSSES, OVERLAPS
 
+  /**
+   * Given the result of <code>shapeA.relate(shapeB)</code>, transposing that
+   * result should yield the result of <code>shapeB.relate(shapeA)</code>. There
+   * is a corner case is when the shapes are equal, in which case actually
+   * flipping the relate() call will result in the same value -- either CONTAINS
+   * or WITHIN.
+   */
   public SpatialRelation transpose() {
     switch(this) {
       case CONTAINS: return SpatialRelation.WITHIN;
@@ -39,24 +47,33 @@ public enum SpatialRelation {
     }
   }
 
-  /**
-   * If you were to call aShape.relate(bShape) and aShape.relate(cShape), you could call
-   * this to merge the intersect results as if bShape & cShape were combined into {@link MultiShape}.
-   * @param other
-   */
-  public SpatialRelation combine(SpatialRelation other) {
-    if (this == other)
-      return this;
-    if (this == WITHIN || other == WITHIN)
-      return WITHIN;
-    return INTERSECTS;
-  }
+//  /**
+//   * If you were to call aShape.relate(bShape) and aShape.relate(cShape), you
+//   * could call this to merge the intersect results as if bShape & cShape were
+//   * combined into {@link MultiShape}.
+//   */
+//  SpatialRelation combine(SpatialRelation other) {
+//    if (this == other)
+//      return this;
+//    if (this == WITHIN || other == WITHIN)
+//      return WITHIN;
+//    return INTERSECTS;
+//  }
 
+  /** Not DISJOINT, i.e. there is some sort of intersection. */
   public boolean intersects() {
     return this != DISJOINT;
   }
 
-  /** Not commutative!  WITHIN.inverse().inverse() != WITHIN. */
+  /**
+   * If <code>aShape.relate(bShape)</code> is r, then <code>r.inverse()</code>
+   * is <code> inverse(aShape).relate(bShape)</code> whereas
+   * <code>inverse(shape)</code> is theoretically the opposite area covered by a
+   * shape, i.e. everywhere but where the shape is.
+   * <p/>
+   * Note that it's not commutative!  <code>WITHIN.inverse().inverse() !=
+   * WITHIN</code>.
+   */
   public SpatialRelation inverse() {
     switch(this) {
       case DISJOINT: return CONTAINS;

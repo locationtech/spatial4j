@@ -23,7 +23,7 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.SpatialRelation;
 
-
+/** A basic 2D implementation of a Point. */
 public class PointImpl implements Point {
 
   private final double x;

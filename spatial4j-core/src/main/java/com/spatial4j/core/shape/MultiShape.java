@@ -22,7 +22,7 @@ import com.spatial4j.core.context.SpatialContext;
 import java.util.Collection;
 
 /**
- * A collection of Shape objects.
+ * <b>IN PROGRESS</b> A collection of Shape objects.
  */
 public class MultiShape implements Shape {
   private final Collection<? extends Shape> geoms;
