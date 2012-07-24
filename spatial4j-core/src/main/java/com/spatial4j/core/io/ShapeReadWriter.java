@@ -78,7 +78,7 @@ public class ShapeReadWriter<CTX extends SpatialContext> {
       return "Circle(" +
               nf.format(c.getCenter().getX()) + " " +
               nf.format(c.getCenter().getY()) + " " +
-              "d=" + nf.format(c.getDistance()) +
+              "d=" + nf.format(c.getRadius()) +
               ")";
     }
     return shape.toString();

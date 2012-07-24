@@ -26,5 +26,5 @@ public interface Circle extends Shape {
    * The distance from the point's center to its edge. Also known as its
    * radius.
    */
-  double getDistance();
+  double getRadius();
 }

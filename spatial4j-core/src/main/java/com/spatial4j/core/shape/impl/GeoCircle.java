@@ -30,12 +30,12 @@ public class GeoCircle extends CircleImpl {
   private final GeoCircle inverseCircle;//when distance reaches > 1/2 way around the world, cache the inverse.
   private final double horizAxisY;//see getYAxis
 
-  public GeoCircle(Point p, double dist, SpatialContext ctx) {
-    super(p, dist, ctx);
+  public GeoCircle(Point p, double distRadius, SpatialContext ctx) {
+    super(p, distRadius, ctx);
     assert ctx.isGeo();
 
     //In the direction of latitude (N,S), distance is the same number of degrees.
-    distDEG = ctx.getDistCalc().distanceToDegrees(distance);
+    distDEG = ctx.getDistCalc().distanceToDegrees(distRadius);
 
     if (distDEG > 90) {
       //--spans more than half the globe
@@ -50,7 +50,7 @@ public class GeoCircle extends CircleImpl {
       horizAxisY = getCenter().getY();//although probably not used
     } else {
       inverseCircle = null;
-      double _horizAxisY = ctx.getDistCalc().calcBoxByDistFromPt_yHorizAxisDEG(getCenter(), distance, ctx);
+      double _horizAxisY = ctx.getDistCalc().calcBoxByDistFromPt_yHorizAxisDEG(getCenter(), distRadius, ctx);
       //some rare numeric conditioning cases can cause this to be barely beyond the box
       if (_horizAxisY > enclosingBox.getMaxY()) {
         horizAxisY = enclosingBox.getMaxY();
@@ -217,9 +217,9 @@ public class GeoCircle extends CircleImpl {
   public String toString() {
     //I'm deliberately making this look basic and not fully detailed with class name & misc fields.
     //Add distance in degrees, which is easier to recognize, and earth radius agnostic.
-    String dStr = String.format("%.1f",distance);
+    String dStr = String.format("%.1f", distRadius);
     if (ctx.isGeo()) {
-      double distDEG = ctx.getDistCalc().distanceToDegrees(distance);
+      double distDEG = ctx.getDistCalc().distanceToDegrees(distRadius);
       dStr += String.format("=%.1f\u00B0",distDEG);
     }
     return "Circle(" + point + ",d=" + dStr + ')';

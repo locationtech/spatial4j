@@ -270,7 +270,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
   }
 
   private Point randomPointWithin(Circle c) {
-    double d = c.getDistance() * randomDouble();
+    double d = c.getRadius() * randomDouble();
     double angleDEG = 360 * randomDouble();
     Point p = ctx.getDistCalc().pointOnBearing(c.getCenter(), d, angleDEG, ctx);
     assertEquals(CONTAINS,c.relate(p, ctx));

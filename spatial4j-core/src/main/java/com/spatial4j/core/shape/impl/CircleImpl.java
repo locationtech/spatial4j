@@ -29,7 +29,7 @@ import com.spatial4j.core.shape.*;
 public class CircleImpl implements Circle {
 
   protected final Point point;
-  protected final double distance;
+  protected final double distRadius;
 
   protected final SpatialContext ctx;
 
@@ -39,12 +39,12 @@ public class CircleImpl implements Circle {
 
   //we don't have a line shape so we use a rectangle for these axis
 
-  public CircleImpl(Point p, double dist, SpatialContext ctx) {
+  public CircleImpl(Point p, double distRadius, SpatialContext ctx) {
     //We assume any normalization / validation of params already occurred (including bounding dist)
     this.point = p;
-    this.distance = dist;
+    this.distRadius = distRadius;
     this.ctx = ctx;
-    this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, distance, ctx);
+    this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, this.distRadius, ctx);
   }
 
   @Override
@@ -53,17 +53,17 @@ public class CircleImpl implements Circle {
   }
 
   @Override
-  public double getDistance() {
-    return distance;
+  public double getRadius() {
+    return distRadius;
   }
 
   public boolean contains(double x, double y) {
-    return ctx.getDistCalc().distance(point, x, y) <= distance;
+    return ctx.getDistCalc().distance(point, x, y) <= distRadius;
   }
 
   @Override
   public boolean hasArea() {
-    return distance > 0;
+    return distRadius > 0;
   }
 
   /**
@@ -193,7 +193,7 @@ public class CircleImpl implements Circle {
 
   public SpatialRelation relate(Circle circle, SpatialContext ctx) {
     double crossDist = ctx.getDistCalc().distance(point, circle.getCenter());
-    double aDist = distance, bDist = circle.getDistance();
+    double aDist = distRadius, bDist = circle.getRadius();
     if (crossDist > aDist + bDist)
       return SpatialRelation.DISJOINT;
     if (crossDist < aDist && crossDist + bDist <= aDist)
@@ -206,7 +206,7 @@ public class CircleImpl implements Circle {
 
   @Override
   public String toString() {
-    return "Circle(" + point + ",d=" + distance + ')';
+    return "Circle(" + point + ",d=" + distRadius + ')';
   }
 
   @Override
@@ -225,7 +225,7 @@ public class CircleImpl implements Circle {
     Circle circle = (Circle) o;
 
     if (!thiz.getCenter().equals(circle.getCenter())) return false;
-    if (Double.compare(circle.getDistance(), thiz.getDistance()) != 0) return false;
+    if (Double.compare(circle.getRadius(), thiz.getRadius()) != 0) return false;
 
     return true;
   }
@@ -242,7 +242,7 @@ public class CircleImpl implements Circle {
     int result;
     long temp;
     result = thiz.getCenter().hashCode();
-    temp = thiz.getDistance() != +0.0d ? Double.doubleToLongBits(thiz.getDistance()) : 0L;
+    temp = thiz.getRadius() != +0.0d ? Double.doubleToLongBits(thiz.getRadius()) : 0L;
     result = 31 * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
