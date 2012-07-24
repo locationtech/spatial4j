@@ -100,7 +100,7 @@ public class GeoCircle extends CircleImpl {
     int cornersIntersect = numCornersIntersect(r);
     if (cornersIntersect == 4) {
       //ensure r's x axis is within c's.  If it doesn't, r sneaks around the globe to touch the other side (intersect).
-      SpatialRelation xIntersect = r.relate_xRange(enclosingBox.getMinX(), enclosingBox.getMaxX(), ctx);
+      SpatialRelation xIntersect = r.relateXRange(enclosingBox.getMinX(), enclosingBox.getMaxX(), ctx);
       if (xIntersect == SpatialRelation.WITHIN)
         return SpatialRelation.CONTAINS;
       return SpatialRelation.INTERSECTS;
@@ -114,17 +114,17 @@ public class GeoCircle extends CircleImpl {
     // intersection.
 
     /* x axis intersects  */
-    if ( r.relate_yRange(getYAxis(), getYAxis(), ctx).intersects() // at y vertical
-          && r.relate_xRange(enclosingBox.getMinX(), enclosingBox.getMaxX(), ctx).intersects() )
+    if ( r.relateYRange(getYAxis(), getYAxis(), ctx).intersects() // at y vertical
+          && r.relateXRange(enclosingBox.getMinX(), enclosingBox.getMaxX(), ctx).intersects() )
       return SpatialRelation.INTERSECTS;
 
     /* y axis intersects */
-    if (r.relate_xRange(getXAxis(), getXAxis(), ctx).intersects()) { // at x horizontal
+    if (r.relateXRange(getXAxis(), getXAxis(), ctx).intersects()) { // at x horizontal
       double yTop = getCenter().getY()+ distDEG;
       assert yTop <= 90;
       double yBot = getCenter().getY()- distDEG;
       assert yBot >= -90;
-      if (r.relate_yRange(yBot, yTop, ctx).intersects())//back bottom
+      if (r.relateYRange(yBot, yTop, ctx).intersects())//back bottom
         return SpatialRelation.INTERSECTS;
     }
 
@@ -169,13 +169,13 @@ public class GeoCircle extends CircleImpl {
     //  code is complicated enough as it is.)
     if (cornersIntersect == 4) {//all
       double backX = ctx.normX(getCenter().getX()+180);
-      if (r.relate_xRange(backX, backX, ctx).intersects())
+      if (r.relateXRange(backX, backX, ctx).intersects())
         return SpatialRelation.INTERSECTS;
       else
         return SpatialRelation.CONTAINS;
     } else if (cornersIntersect == 0) {//none
       double frontX = getCenter().getX();
-      if (r.relate_xRange(frontX, frontX, ctx).intersects())
+      if (r.relateXRange(frontX, frontX, ctx).intersects())
         return SpatialRelation.INTERSECTS;
       else
         return SpatialRelation.DISJOINT;

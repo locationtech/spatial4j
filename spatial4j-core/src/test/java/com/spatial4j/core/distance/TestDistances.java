@@ -98,7 +98,7 @@ public class TestDistances extends RandomizedTest {
     Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
     double horizAxisLat = dc().calcBoxByDistFromPt_yHorizAxisDEG(ctr, dist, ctx);
     if (!Double.isNaN(horizAxisLat))
-      assertTrue(r.relate_yRange(horizAxisLat, horizAxisLat, ctx).intersects());
+      assertTrue(r.relateYRange(horizAxisLat, horizAxisLat, ctx).intersects());
 
     //horizontal
     if (r.getWidth() >= 180) {

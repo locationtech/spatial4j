@@ -127,11 +127,11 @@ public class RectangleImpl implements Rectangle {
   }
 
   public SpatialRelation relate(Rectangle rect, SpatialContext ctx) {
-    SpatialRelation yIntersect = relate_yRange(rect.getMinY(), rect.getMaxY(), ctx);
+    SpatialRelation yIntersect = relateYRange(rect.getMinY(), rect.getMaxY(), ctx);
     if (yIntersect == SpatialRelation.DISJOINT)
       return SpatialRelation.DISJOINT;
 
-    SpatialRelation xIntersect = relate_xRange(rect.getMinX(), rect.getMaxX(), ctx);
+    SpatialRelation xIntersect = relateXRange(rect.getMinX(), rect.getMaxX(), ctx);
     if (xIntersect == SpatialRelation.DISJOINT)
       return SpatialRelation.DISJOINT;
 
@@ -163,12 +163,12 @@ public class RectangleImpl implements Rectangle {
   }
 
   @Override
-  public SpatialRelation relate_yRange(double ext_minY, double ext_maxY, SpatialContext ctx) {
+  public SpatialRelation relateYRange(double ext_minY, double ext_maxY, SpatialContext ctx) {
     return relate_range(minY, maxY, ext_minY, ext_maxY);
   }
 
   @Override
-  public SpatialRelation relate_xRange(double ext_minX, double ext_maxX, SpatialContext ctx) {
+  public SpatialRelation relateXRange(double ext_minX, double ext_maxX, SpatialContext ctx) {
     //For ext & this we have local minX and maxX variable pairs. We rotate them so that minX <= maxX
     double minX = this.minX;
     double maxX = this.maxX;

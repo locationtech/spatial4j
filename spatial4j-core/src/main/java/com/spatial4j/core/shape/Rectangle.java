@@ -64,11 +64,11 @@ public interface Rectangle extends Shape {
    * A specialization of {@link #relate(Shape, com.spatial4j.core.context.SpatialContext)}
    * for a vertical line.
    */
-  public SpatialRelation relate_yRange(double minY, double maxY, SpatialContext ctx);
+  public SpatialRelation relateYRange(double minY, double maxY, SpatialContext ctx);
 
   /**
    * A specialization of {@link #relate(Shape, com.spatial4j.core.context.SpatialContext)}
    * for a horizontal line.
    */
-  public SpatialRelation relate_xRange(double minX, double maxX, SpatialContext ctx);
+  public SpatialRelation relateXRange(double minX, double maxX, SpatialContext ctx);
 }
