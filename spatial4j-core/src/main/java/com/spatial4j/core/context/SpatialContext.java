@@ -144,6 +144,12 @@ public class SpatialContext {
   }
 
   /** Construct a rectangle. The parameters will be normalized. */
+  public Rectangle makeRect(Point lowerLeft, Point upperRight) {
+    return makeRect(lowerLeft.getX(), upperRight.getX(),
+        lowerLeft.getY(), upperRight.getY());
+  }
+
+  /** Construct a rectangle. The parameters will be normalized. */
   public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
     //--Normalize parameters
     if (isGeo()) {

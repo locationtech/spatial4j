@@ -46,6 +46,12 @@ public class RectangleImpl implements Rectangle {
     assert minY <= maxY;
   }
 
+  /** A convenience constructor which pulls out the coordinates. */
+  public RectangleImpl(Point lowerLeft, Point upperRight) {
+    this(lowerLeft.getX(), upperRight.getX(),
+        lowerLeft.getY(), upperRight.getY());
+  }
+
   /** Copy constructor. */
   public RectangleImpl(Rectangle r) {
     this(r.getMinX(),r.getMaxX(),r.getMinY(),r.getMaxY());

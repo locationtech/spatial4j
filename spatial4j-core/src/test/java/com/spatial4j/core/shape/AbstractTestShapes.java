@@ -21,6 +21,8 @@ import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
+import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.shape.impl.RectangleImpl;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -226,6 +228,17 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     double rYmin = Math.min(rY1,rY2);
     double rYmax = Math.max(rY1,rY2);
     return ctx.makeRect(rX, rX+rW, rYmin, rYmax);
+  }
+
+  @Test
+  public void testMakeRect() {
+    //test rectangle constructor
+    assertEquals(new RectangleImpl(1,3,2,4),
+        new RectangleImpl(new PointImpl(1,2),new PointImpl(3,4)));
+
+    //test ctx.makeRect
+    assertEquals(ctx.makeRect(1,3,2,4),
+        ctx.makeRect(ctx.makePoint(1,2),ctx.makePoint(3,4)));
   }
 
   @Test
