@@ -18,6 +18,7 @@
 package com.spatial4j.core.distance;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 
@@ -67,6 +68,23 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
   @Override
   public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distance, SpatialContext ctx) {
     return DistanceUtils.calcBoxByDistFromPt_latHorizAxisDEG(from.getY(), from.getX(), distance, radius);
+  }
+
+  @Override
+  public double area(Rectangle rect) {
+    //From http://mathforum.org/library/drmath/view/63767.html
+    double lat1 = toRadians(rect.getMinY());
+    double lat2 = toRadians(rect.getMaxY());
+    return Math.PI / 180 * radius * radius *
+            Math.abs(Math.sin(lat1) - Math.sin(lat2)) *
+            rect.getWidth();
+  }
+
+  @Override
+  public double area(Circle circle) {
+    //formula is a simplified case of area(rect).
+    double lat = toRadians(90 - distanceToDegrees(circle.getRadius()));
+    return 2 * Math.PI * radius * radius * (1 - Math.sin(lat));
   }
 
   @Override

@@ -50,6 +50,11 @@ public class JtsPoint implements Point {
   }
 
   @Override
+  public double getArea(SpatialContext ctx) {
+    return 0;
+  }
+
+  @Override
   public Rectangle getBoundingBox() {
     double x = pointGeom.getX();
     double y = pointGeom.getY();

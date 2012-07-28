@@ -62,6 +62,13 @@ public interface Shape {
   boolean hasArea();
 
   /**
+   * Calculates the area of the shape in the units of {@link
+   * com.spatial4j.core.distance.DistanceUnits}. If ctx is null then simple
+   * Euclidean calculations will be used.  This figure can be an estimate.
+   */
+  double getArea(SpatialContext ctx);
+
+  /**
    * Returns the center point of this shape. This is usually the same as
    * <code>getBoundingBox().getCenter()</code> but it doesn't have to be.
    * <p />

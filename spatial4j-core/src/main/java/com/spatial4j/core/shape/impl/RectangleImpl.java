@@ -63,8 +63,12 @@ public class RectangleImpl implements Rectangle {
   }
 
   @Override
-  public double getArea() {
-    return getWidth() * getHeight();
+  public double getArea(SpatialContext ctx) {
+    if (ctx == null) {
+      return getWidth() * getHeight();
+    } else {
+      return ctx.getDistCalc().area(this);
+    }
   }
 
   @Override
@@ -218,7 +222,7 @@ public class RectangleImpl implements Rectangle {
     final double y = getHeight() / 2 + minY;
     double x = getWidth() / 2 + minX;
     if (minX > maxX)//WGS84
-      x = DistanceUtils.normLonDEG(x);
+      x = DistanceUtils.normLonDEG(x);//in case falls outside the standard range
     return new PointImpl(x, y);
   }
 

@@ -94,6 +94,15 @@ public class MultiShape implements Shape {
   }
 
   @Override
+  public double getArea(SpatialContext ctx) {
+    double sum = 0;
+    for (Shape geom : geoms) {
+      sum += geom.getArea(ctx);
+    }
+    return sum;
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;

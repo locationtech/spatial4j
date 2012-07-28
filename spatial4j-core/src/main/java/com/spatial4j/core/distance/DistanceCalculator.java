@@ -18,6 +18,7 @@
 package com.spatial4j.core.distance;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 
@@ -68,5 +69,9 @@ public interface DistanceCalculator {
    * to be slightly different.
    */
   public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distance, SpatialContext ctx);
+
+  public double area(Rectangle rect);
+
+  public double area(Circle circle);
 
 }

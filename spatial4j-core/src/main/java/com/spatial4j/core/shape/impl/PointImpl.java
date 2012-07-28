@@ -66,6 +66,11 @@ public class PointImpl implements Point {
   }
 
   @Override
+  public double getArea(SpatialContext ctx) {
+    return 0;
+  }
+
+  @Override
   public String toString() {
     return "Pt(x="+x+",y="+y+")";
   }

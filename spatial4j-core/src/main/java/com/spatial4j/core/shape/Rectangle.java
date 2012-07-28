@@ -54,9 +54,6 @@ public interface Rectangle extends Shape {
   /** The top edge of the Y coordinate. */
   public double getMaxY();
 
-  /** If {@link #hasArea()} then this returns the area, otherwise it returns 0. */
-  public double getArea();
-
   /** Only meaningful for geospatial contexts. */
   public boolean getCrossesDateLine();
 

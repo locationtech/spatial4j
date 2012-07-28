@@ -18,6 +18,7 @@
 package com.spatial4j.core.distance;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 
@@ -87,6 +88,16 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   @Override
   public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distance, SpatialContext ctx) {
     return from.getY();
+  }
+
+  @Override
+  public double area(Rectangle rect) {
+    return rect.getArea(null);
+  }
+
+  @Override
+  public double area(Circle circle) {
+    return circle.getArea(null);
   }
 
   @Override

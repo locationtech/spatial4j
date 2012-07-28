@@ -19,6 +19,7 @@ package com.spatial4j.core.distance;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.SpatialRelation;
@@ -257,4 +258,32 @@ public class TestDistances extends RandomizedTest {
   private Point pLL(double lat, double lon) {
     return ctx.makePoint(lon,lat);
   }
+
+  @Test
+  public void testArea() {
+    //surface of a sphere is 4 * pi * r^2
+    final double earthArea = 4 * Math.PI * ctx.getUnits().earthRadius() * ctx.getUnits().earthRadius();
+
+    Circle c = ctx.makeCircle( randomIntBetween(-180,180), randomIntBetween(-90,90),
+            ctx.getDistCalc().degreesToDistance(180));//180 means whole earth
+    assertEquals(earthArea, c.getArea(ctx), 1.0);
+
+    //now check half earth
+    Circle cHalf = ctx.makeCircle(c.getCenter(), ctx.getDistCalc().degreesToDistance(90));
+    assertEquals(earthArea/2, cHalf.getArea(ctx), 1.0);
+
+    //picked out of the blue
+    Circle c2 = ctx.makeCircle(c.getCenter(), ctx.getDistCalc().degreesToDistance(30));
+    assertEquals(3.416E7, c2.getArea(ctx), 3.416E7*0.01);
+
+    //circle with same radius at +20 lat with one at -20 lat should have same area as well as bbox with same area
+    Circle c3 = ctx.makeCircle(c.getCenter().getX(), 20, ctx.getDistCalc().degreesToDistance(30));
+    assertEquals(c2.getArea(ctx), c3.getArea(ctx), 0.01);
+    Circle c3Opposite = ctx.makeCircle(c.getCenter().getX(), -20, ctx.getDistCalc().degreesToDistance(30));
+    assertEquals(c3.getArea(ctx), c3Opposite.getArea(ctx), 0.01);
+    assertEquals(c3.getBoundingBox().getArea(ctx), c3Opposite.getBoundingBox().getArea(ctx), 0.01);
+
+    assertEquals(earthArea, ctx.getWorldBounds().getArea(ctx), 1.0);
+  }
+
 }

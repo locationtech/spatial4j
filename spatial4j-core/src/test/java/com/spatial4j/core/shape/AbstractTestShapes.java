@@ -28,7 +28,9 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.spatial4j.core.shape.SpatialRelation.*;
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
 
 
 public abstract class AbstractTestShapes extends RandomizedTest {
@@ -90,7 +92,12 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     String msg = r.toString();
 
     assertEquals(msg, width != 0 && height != 0, r.hasArea());
-    assertEquals(msg, width != 0 && height != 0, r.getArea() > 0);
+    assertEquals(msg, width != 0 && height != 0, r.getArea(ctx) > 0);
+    if (ctx.isGeo() && r.getWidth() == 360 && r.getHeight() == 180) {
+      //whole globe
+      double earthRadius = ctx.getUnits().earthRadius();
+      assertEquals(4*Math.PI * earthRadius * earthRadius, r.getArea(ctx), 1.0);//1km err
+    }
 
     assertEqualsRatio(msg, height, r.getHeight());
     assertEqualsRatio(msg, width, r.getWidth());
@@ -161,14 +168,18 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     assertEquals(c, c2);
     assertEquals(c.hashCode(),c2.hashCode());
 
-    assertEquals(msg,dist > 0, c.hasArea());
+    assertEquals(msg, dist > 0, c.hasArea());
+    double area = c.getArea(ctx);
+    assertTrue(msg, c.hasArea() == (area > 0.0));
     final Rectangle bbox = c.getBoundingBox();
-    assertEquals(msg,dist > 0, bbox.getArea() > 0);
+    assertEquals(msg, dist > 0, bbox.getArea(ctx) > 0);
+    assertTrue(msg, area <= bbox.getArea(ctx));
     if (!ctx.isGeo()) {
       //if not geo then units of dist == units of x,y
       assertEqualsRatio(msg, bbox.getHeight(), dist * 2);
       assertEqualsRatio(msg, bbox.getWidth(), dist * 2);
     }
+
     assertRelation(msg, CONTAINS, c, c.getCenter());
     assertRelation(msg, CONTAINS, bbox, c);
   }

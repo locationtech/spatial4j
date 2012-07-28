@@ -20,11 +20,26 @@ package com.spatial4j.core.shape.jts;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFilter;
+import com.vividsolutions.jts.geom.IntersectionMatrix;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Lineal;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Puntal;
 import com.vividsolutions.jts.operation.union.UnaryUnionOp;
 import com.vividsolutions.jts.operation.valid.IsValidOp;
 
@@ -98,6 +113,20 @@ public class JtsGeometry implements Shape {
   @Override
   public boolean hasArea() {
     return hasArea;
+  }
+
+  @Override
+  public double getArea(SpatialContext ctx) {
+    double geomArea = geom.getArea();
+    if (ctx == null || geomArea == 0)
+      return geomArea;
+    //Use the area proportional to how filled the bbox is.
+    double bboxArea = getBoundingBox().getArea(null);//plain 2d area
+    assert bboxArea >= geomArea;
+    double filledRatio = geomArea / bboxArea;
+    return getBoundingBox().getArea(ctx) * filledRatio;
+    // (Future: if we know we use an equal-area projection then we don't need to
+    //  estimate)
   }
 
   @Override
