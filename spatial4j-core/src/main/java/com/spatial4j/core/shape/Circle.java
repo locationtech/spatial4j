@@ -23,8 +23,9 @@ package com.spatial4j.core.shape;
 public interface Circle extends Shape {
 
   /**
-   * The distance from the point's center to its edge. Also known as its
-   * radius.
+   * The distance from the point's center to its edge, measured in
+   * {@link com.spatial4j.core.distance.DistanceUnits}.
    */
   double getRadius();
+  //TODO strange that this isn't in degrees, like everything else?
 }
