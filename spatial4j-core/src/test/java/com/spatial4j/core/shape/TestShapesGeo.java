@@ -27,10 +27,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
-import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
-import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
-import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
+import static com.spatial4j.core.shape.SpatialRelation.*;
 
 
 public class TestShapesGeo extends AbstractTestShapes {
@@ -57,6 +54,13 @@ public class TestShapesGeo extends AbstractTestShapes {
 
   @Test
   public void testGeoRectangle() {
+    //First test some relateXRange
+    //    opposite +/- 180
+    assertEquals(INTERSECTS,  ctx.makeRect(170, 180, 0, 0).relateXRange(-180, -170, ctx));
+    assertEquals(INTERSECTS,  ctx.makeRect(-90, -45, 0, 0).relateXRange(-45, -135, ctx));
+    assertEquals(CONTAINS, ctx.getWorldBounds().relateXRange(-90, -135, ctx));
+    //point on edge at dateline using opposite +/- 180
+    assertEquals(CONTAINS, ctx.makeRect(170, 180, 0, 0).relate(ctx.makePoint(-180, 0), ctx));
 
     //test 180 becomes -180 for non-zero width rectangle
     assertEquals(ctx.makeRect(-180,-170,0,0),ctx.makeRect(180,-170,0,0));
