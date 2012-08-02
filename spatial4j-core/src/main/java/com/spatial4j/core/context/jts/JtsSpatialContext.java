@@ -27,16 +27,16 @@ import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
-import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.io.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Enhances the default {@link SpatialContext} with support for Polygons (and
@@ -88,9 +88,16 @@ public class JtsSpatialContext extends SpatialContext {
     }
     if (shape instanceof Rectangle) {
       Rectangle r = (Rectangle)shape;
-      if (r.getCrossesDateLine())
-        throw new IllegalArgumentException("Doesn't support dateline cross yet: "+r);//TODO
-      return geometryFactory.toGeometry(new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY()));
+      if (r.getCrossesDateLine()) {
+        Collection<Geometry> pair = new ArrayList<Geometry>(2);
+        pair.add(geometryFactory.toGeometry(new Envelope(
+                r.getMinX(), getWorldBounds().getMaxX(), r.getMinY(), r.getMaxY())));
+        pair.add(geometryFactory.toGeometry(new Envelope(
+                getWorldBounds().getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY())));
+        return geometryFactory.buildGeometry(pair);//a MultiPolygon or MultiLineString
+      } else {
+        return geometryFactory.toGeometry(new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY()));
+      }
     }
     if (shape instanceof Circle) {
       // TODO, this should maybe pick a bunch of points

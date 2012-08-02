@@ -23,8 +23,8 @@ public class JtsPolygonTest extends AbstractTestShapes {
   private JtsGeometry POLY_SHAPE_DL;//POLY_SHAPE shifted by DL_SHIFT to cross the dateline
 
   private final boolean TEST_DL_POLY = true;
-  //TODO poly.relate(other) doesn't work when other crosses the dateline
-  private final boolean TEST_DL_OTHER = false;
+  //TODO poly.relate(circle) doesn't work when other crosses the dateline
+  private final boolean TEST_DL_OTHER = true;
 
   public JtsPolygonTest() {
     super(JtsSpatialContext.GEO_KM);
@@ -48,6 +48,22 @@ public class JtsPolygonTest extends AbstractTestShapes {
           POLY_SHAPE_DL.getBoundingBox().getCrossesDateLine() ||
               360 == POLY_SHAPE_DL.getBoundingBox().getWidth());
     }
+  }
+
+  @Test
+  public void testArea() {
+    //simple bbox
+    Rectangle r = randomRectangle(20);
+    JtsSpatialContext ctxJts = (JtsSpatialContext) ctx;
+    JtsGeometry rPoly = new JtsGeometry(ctxJts.getGeometryFrom(r), ctxJts, false);
+    assertEquals(r.getArea(null), rPoly.getArea(null), 0.0);
+    assertEquals(r.getArea(ctx), rPoly.getArea(ctx), 0.000001);//same since fills 100%
+
+    assertEquals(1300, POLY_SHAPE.getArea(null), 0.0);
+
+    //fills 27%
+    assertEquals(0.27, POLY_SHAPE.getArea(ctx) / POLY_SHAPE.getBoundingBox().getArea(ctx), 0.009);
+    assertTrue(POLY_SHAPE.getBoundingBox().getArea(ctx) > POLY_SHAPE.getArea(ctx));
   }
 
   @Test

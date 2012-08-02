@@ -56,7 +56,7 @@ public class JtsGeometry implements Shape {
   private final boolean hasArea;
   private final Rectangle bbox;
 
-  public JtsGeometry(Geometry geom, JtsSpatialContext ctx) {
+  public JtsGeometry(Geometry geom, JtsSpatialContext ctx, boolean dateline180Check) {
     //GeometryCollection isn't supported in relate()
     if (geom.getClass().equals(GeometryCollection.class))
       throw new IllegalArgumentException("JtsGeometry does not support GeometryCollection but does support its subclasses.");
@@ -64,7 +64,8 @@ public class JtsGeometry implements Shape {
     //NOTE: All this logic is fairly expensive. There are some short-circuit checks though.
     if (ctx.isGeo()) {
       //Unwraps the geometry across the dateline so it exceeds the standard geo bounds (-180 to +180).
-      unwrapDateline(geom);//potentially modifies geom
+      if (dateline180Check)
+        unwrapDateline(geom);//potentially modifies geom
       //If given multiple overlapping polygons, fix it by union
       geom = unionGeometryCollection(geom);//returns same or new geom
       Envelope unwrappedEnv = geom.getEnvelopeInternal();
@@ -80,7 +81,7 @@ public class JtsGeometry implements Shape {
       double envWidth = unwrappedEnv.getWidth();
       //makeRect() will adjust minX and maxX considering the dateline and world wrap
       bbox = ctx.makeRect(unwrappedEnv.getMinX(),unwrappedEnv.getMinX() + envWidth,
-          unwrappedEnv.getMinY(),unwrappedEnv.getMaxY());
+              unwrappedEnv.getMinY(),unwrappedEnv.getMaxY());
     } else {//not geo
       Envelope env = geom.getEnvelopeInternal();
       bbox = new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());

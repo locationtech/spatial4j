@@ -92,7 +92,7 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
           else
             return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
         }
-        return new JtsGeometry(geom,ctx);
+        return new JtsGeometry(geom,ctx,true);
       } catch(com.vividsolutions.jts.io.ParseException ex) {
         throw new InvalidShapeException("error reading WKT", ex);
       }
@@ -138,7 +138,7 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
           }
         });
         normalizeCoordinates(geom);
-        return new JtsGeometry(geom, ctx);
+        return new JtsGeometry(geom, ctx, true);
       } catch(ParseException ex) {
         throw new InvalidShapeException("error reading WKT", ex);
       } catch (IOException ex) {
