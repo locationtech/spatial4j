@@ -27,7 +27,10 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static com.spatial4j.core.shape.SpatialRelation.*;
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
+import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
 
 
 public class TestShapesGeo extends AbstractTestShapes {
@@ -54,6 +57,11 @@ public class TestShapesGeo extends AbstractTestShapes {
 
   @Test
   public void testGeoRectangle() {
+
+    //test 180 becomes -180 for non-zero width rectangle
+    assertEquals(ctx.makeRect(-180,-170,0,0),ctx.makeRect(180,-170,0,0));
+    assertEquals(ctx.makeRect(170,180,0,0),ctx.makeRect(170, -180, 0, 0));
+
     double[] lons = new double[]{0,45,160,180,-45,-175, -180};//minX
     for (double lon : lons) {
       double[] lonWs = new double[]{0,20,180,200,355, 360};//width

@@ -124,7 +124,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
   protected void testRectIntersect() {
     final double INCR = 45;
     final double Y = 20;
-    for(double left = -180; left <= 180; left += INCR) {
+    for(double left = -180; left < 180; left += INCR) {
       for(double right = left; right - left <= 360; right += INCR) {
         Rectangle r = ctx.makeRect(left,right,-Y,Y);
 
@@ -238,6 +238,8 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     double rY2 = randomIntBetweenDivisible(-90, 90, divisible);
     double rYmin = Math.min(rY1,rY2);
     double rYmax = Math.max(rY1,rY2);
+    if (rW > 0 && rX == 180)
+      rX = -180;
     return ctx.makeRect(rX, rX+rW, rYmin, rYmax);
   }
 

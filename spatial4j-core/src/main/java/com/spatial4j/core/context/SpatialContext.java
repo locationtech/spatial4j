@@ -17,7 +17,11 @@
 
 package com.spatial4j.core.context;
 
-import com.spatial4j.core.distance.*;
+import com.spatial4j.core.distance.CartesianDistCalc;
+import com.spatial4j.core.distance.DistanceCalculator;
+import com.spatial4j.core.distance.DistanceUnits;
+import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReadWriter;
 import com.spatial4j.core.shape.Circle;
@@ -163,6 +167,16 @@ public class SpatialContext {
         minX = normX(minX);
         maxX = normX(maxX);
         assert Math.abs(delta - calcWidth(minX,maxX)) < 0.0001;//recompute delta; should be the same
+        //If an edge coincides with the dateline then don't make this rect cross it
+        if (delta > 0) {
+          if (minX == 180) {
+            minX = -180;
+            maxX = -180 + delta;
+          } else if (maxX == -180) {
+            maxX = 180;
+            minX = 180 - delta;
+          }
+        }
       }
       if (minY > maxY) {
         throw new IllegalArgumentException("maxY must be >= minY: "+minY+" to "+maxY);
