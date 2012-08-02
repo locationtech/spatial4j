@@ -145,6 +145,8 @@ public class RectangleImpl implements Rectangle {
         pX += 360;
       } else if (pX > maxX) {
         pX -= 360;
+      } else {
+        return SpatialRelation.CONTAINS;//short-circuit
       }
     }
     if (pX < minX || pX > maxX)
