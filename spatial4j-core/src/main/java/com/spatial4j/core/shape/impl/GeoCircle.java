@@ -43,6 +43,8 @@ public class GeoCircle extends CircleImpl {
       double backDistDEG = 180 - distDEG;
       if (backDistDEG >= 0) {
         double backDistance = ctx.getDistCalc().degreesToDistance(backDistDEG);
+        //shrink inverseCircle as small as possible to avoid accidental overlap
+        backDistance -= Math.ulp(backDistance);
         Point backPoint = ctx.makePoint(getCenter().getX() + 180, getCenter().getY() + 180);
         inverseCircle = new GeoCircle(backPoint,backDistance,ctx);
       } else

@@ -27,7 +27,10 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static com.spatial4j.core.shape.SpatialRelation.*;
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
+import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
 
 
 public class TestShapesGeo extends AbstractTestShapes {
@@ -107,6 +110,8 @@ public class TestShapesGeo extends AbstractTestShapes {
 //      assertEquals(INTERSECTS,c.getBoundingBox().relate(r, ctx));
 //      assertEquals("dist != xy space",INTERSECTS,c.relate(r,ctx));//once failed here
 //    }
+
+    assertEquals("nudge back circle", CONTAINS, ctx.makeCircle(-150, -90, degToDist(122)).relate(ctx.makeRect(0, -132, 32, 32), ctx));
 
     assertEquals("wrong estimate", DISJOINT,ctx.makeCircle(-166,59,5226.2).relate(ctx.makeRect(36, 66, 23, 23), ctx));
 
