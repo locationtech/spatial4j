@@ -24,15 +24,13 @@ package com.spatial4j.core.distance;
 public enum DistanceUnits {
 
   //TODO do we need circumference?
-  KILOMETERS("km", DistanceUtils.EARTH_MEAN_RADIUS_KM, 40076),
-  MILES("miles", DistanceUtils.EARTH_MEAN_RADIUS_MI, 24902),
-  RADIANS("radians", 1, Math.PI * 2),//experimental
-  CARTESIAN("u", -1, -1);
+  KILOMETERS("km", DistanceUtils.EARTH_MEAN_RADIUS_KM),
+  MILES("miles", DistanceUtils.EARTH_MEAN_RADIUS_MI),
+  RADIANS("radians", 1),//experimental
+  CARTESIAN("u", -1);
 
 
   private final String units;
-
-  private final double earthCircumference;
 
   private final double earthRadius;
 
@@ -41,11 +39,9 @@ public enum DistanceUnits {
    *
    * @param units Distance unit in String form
    * @param earthRadius Radius of the Earth in the specific distance unit
-   * @param earthCircumfence Circumference of the Earth in the specific distance unit
    */
-  DistanceUnits(String units, double earthRadius, double earthCircumfence) {
+  DistanceUnits(String units, double earthRadius) {
     this.units = units;
-    this.earthCircumference = earthCircumfence;
     this.earthRadius = earthRadius;
   }
 
@@ -102,15 +98,6 @@ public enum DistanceUnits {
    */
   public double earthRadius() {
     return earthRadius;
-  }
-
-  /**
-   * Returns the <a href="http://www.lyberty.com/encyc/articles/earth.html">circumference of the Earth</a>
-   *
-   * @return  the circumference of the Earth
-   */
-  public double earthCircumference() {
-    return earthCircumference;
   }
 
   /**
