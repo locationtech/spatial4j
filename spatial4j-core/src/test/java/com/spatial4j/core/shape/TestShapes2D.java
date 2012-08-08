@@ -20,7 +20,6 @@ package com.spatial4j.core.shape;
 import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.shape.impl.CircleImpl;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
@@ -29,17 +28,18 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.spatial4j.core.shape.SpatialRelation.*;
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 
 
 public class TestShapes2D extends AbstractTestShapes {
 
   @ParametersFactory
   public static Iterable<Object[]> parameters() {
-    DistanceUnits units = DistanceUnits.CARTESIAN;
     List<Object[]> ctxs = new ArrayList<Object[]>();
-    ctxs.add($(new SpatialContext(units)));
-    ctxs.add($(new JtsSpatialContext(units)));
+    ctxs.add($(new SpatialContext(false)));
+    ctxs.add($(new JtsSpatialContext(false)));
     return ctxs;
   }
 

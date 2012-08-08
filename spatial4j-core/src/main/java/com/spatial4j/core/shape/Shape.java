@@ -62,9 +62,9 @@ public interface Shape {
   boolean hasArea();
 
   /**
-   * Calculates the area of the shape in the units of {@link
-   * com.spatial4j.core.distance.DistanceUnits}. If ctx is null then simple
-   * Euclidean calculations will be used.  This figure can be an estimate.
+   * Calculates the area of the shape, in square-degrees. If ctx is null then
+   * simple Euclidean calculations will be used.  This figure can be an
+   * estimate.
    */
   double getArea(SpatialContext ctx);
 

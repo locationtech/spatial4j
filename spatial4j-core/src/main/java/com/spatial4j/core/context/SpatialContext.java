@@ -19,7 +19,6 @@ package com.spatial4j.core.context;
 
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.DistanceCalculator;
-import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
@@ -35,12 +34,12 @@ import com.spatial4j.core.shape.impl.RectangleImpl;
 
 /**
  * This is a facade to most of Spatial4j, holding things like {@link
- * DistanceUnits}, {@link DistanceCalculator}, and the coordinate world
- * boundaries, and acting as a factory for the {@link Shape}s.
+ * DistanceCalculator}, and the coordinate world boundaries, and acting as a
+ * factory for the {@link Shape}s.
  * <p/>
- * A SpatialContext has public constructors, but note the convenience
- * instance {@link #GEO_KM}.  Also, if you wish to construct one based on
- * configuration information then consider using {@link SpatialContextFactory}.
+ * A SpatialContext has public constructors, but note the convenience instance
+ * {@link #GEO}.  Also, if you wish to construct one based on configuration
+ * information then consider using {@link SpatialContextFactory}.
  * <p/>
  * Thread-safe & immutable.
  */
@@ -53,32 +52,28 @@ public class SpatialContext {
     MAX_WORLDBOUNDS = new RectangleImpl(-v, v, -v, v);
   }
 
-  /** A popular default SpatialContext implementation based on kilometer distance. */
-  public static final SpatialContext GEO_KM = new SpatialContext(DistanceUnits.KILOMETERS);
+  /** A popular default SpatialContext implementation for geospatial. */
+  public static final SpatialContext GEO = new SpatialContext(true);
   //note: any static convenience instances must be declared after the world bounds
 
   //These are non-null
-  private final DistanceUnits units;
+  private final boolean geo;
   private final DistanceCalculator calculator;
   private final Rectangle worldBounds;
 
   private final ShapeReadWriter shapeReadWriter;
 
-  protected final Double maxCircleDistance;//only for geo
-
   /**
-   * @param units Required; and establishes geo vs cartesian.
+   * @param geo Establishes geo vs cartesian / Euclidean.
    * @param calculator Optional; defaults to Haversine or cartesian depending on units.
    * @param worldBounds Optional; defaults to GEO_WORLDBOUNDS or MAX_WORLDBOUNDS depending on units.
    */
-  public SpatialContext(DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {
-    if (units == null)
-      throw new IllegalArgumentException("units can't be null");
-    this.units = units;
+  public SpatialContext(boolean geo, DistanceCalculator calculator, Rectangle worldBounds) {
+    this.geo = geo;
 
     if (calculator == null) {
       calculator = isGeo()
-          ? new GeodesicSphereDistCalc.Haversine(units.earthRadius())
+          ? new GeodesicSphereDistCalc.Haversine()
           : new CartesianDistCalc();
     }
     this.calculator = calculator;
@@ -96,20 +91,14 @@ public class SpatialContext {
     this.worldBounds = worldBounds;
 
     shapeReadWriter = makeShapeReadWriter();
-    
-    this.maxCircleDistance = isGeo() ? calculator.degreesToDistance(180) : null;
   }
 
-  public SpatialContext(DistanceUnits units) {
-    this(units, null, null);
+  public SpatialContext(boolean geo) {
+    this(geo, null, null);
   }
 
   protected ShapeReadWriter makeShapeReadWriter() {
     return new ShapeReadWriter(this);
-  }
-
-  public DistanceUnits getUnits() {
-    return units;
   }
 
   public DistanceCalculator getDistCalc() {
@@ -139,7 +128,7 @@ public class SpatialContext {
 
   /** Is this a geospatial context (true) or simply 2d spatial (false). */
   public boolean isGeo() {
-    return getUnits().isGeo();
+    return geo;
   }
 
   /** Construct a point. The parameters will be normalized. */
@@ -218,24 +207,24 @@ public class SpatialContext {
   }
 
   /**
-   * Construct a circle. The parameters will be normalized. The units of "distance" should
-   * be the same as {@link #getUnits()}.
+   * Construct a circle. The parameters will be normalized. The units of
+   * "distance" should be the same as x & y.
    */
   public Circle makeCircle(double x, double y, double distance) {
     return makeCircle(makePoint(x, y), distance);
   }
 
   /**
-   * Construct a circle. The parameters will be normalized. The units of "distance" should
-   * be the same as {@link #getUnits()}.
+   * Construct a circle. The parameters will be normalized. The units of
+   * "distance" should be the same as x & y.
    */
   public Circle makeCircle(Point point, double distance) {
     if (distance < 0)
-      throw new InvalidShapeException("distance must be >= 0; got "+distance);
+      throw new InvalidShapeException("distance must be >= 0; got " + distance);
     if (isGeo())
-      return new GeoCircle( point, Math.min(distance,maxCircleDistance), this );
+      return new GeoCircle(point, Math.min(distance, 180), this);
     else
-      return new CircleImpl( point, distance, this );
+      return new CircleImpl(point, distance, this);
   }
 
   @Deprecated
@@ -250,11 +239,11 @@ public class SpatialContext {
 
   @Override
   public String toString() {
-    if (this.equals(GEO_KM)) {
-      return GEO_KM.getClass().getSimpleName()+".GEO_KM";
+    if (this.equals(GEO)) {
+      return GEO.getClass().getSimpleName()+".GEO";
     } else {
       return getClass().getSimpleName()+"{" +
-          "units=" + units +
+          "geo=" + geo +
           ", calculator=" + calculator +
           ", worldBounds=" + worldBounds +
           '}';

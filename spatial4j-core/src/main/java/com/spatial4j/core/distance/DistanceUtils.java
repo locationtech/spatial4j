@@ -241,25 +241,19 @@ public class DistanceUtils {
   /**
    * Calculates the bounding box of a circle, as specified by its center point
    * and distance.
-   * <p/>
-   * <code>distance</code> should be in the units of <code>ctx.getUnits()
-   * </code>.
    */
-  public static Rectangle calcBoxByDistFromPtDEG(double lat, double lon, double distance, SpatialContext ctx) {
+  public static Rectangle calcBoxByDistFromPtDEG(double lat, double lon, double distDEG, SpatialContext ctx) {
     //See http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates Section 3.1, 3.2 and 3.3
 
-    double radius = ctx.getUnits().earthRadius();
-    double dist_deg = dist2Degrees(distance,radius);
-
-    if (dist_deg == 0)
+    if (distDEG == 0)
       return ctx.makeRect(lon,lon,lat,lat);//essentially a point
 
-    if (dist_deg >= 180)//distance is >= opposite side of the globe
+    if (distDEG >= 180)//distance is >= opposite side of the globe
       return ctx.getWorldBounds();
 
     //--calc latitude bounds
-    double latN_deg = lat + dist_deg;
-    double latS_deg = lat - dist_deg;
+    double latN_deg = lat + distDEG;
+    double latS_deg = lat - distDEG;
 
     if (latN_deg >= 90 || latS_deg <= -90) {//touches either pole
       //we have special logic for longitude
@@ -276,7 +270,7 @@ public class DistanceUtils {
       return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);
     } else {
       //--calc longitude bounds
-      double lon_delta_deg = calcBoxByDistFromPt_deltaLonDEG(lat, lon, distance, radius);
+      double lon_delta_deg = calcBoxByDistFromPt_deltaLonDEG(lat, lon, distDEG);
 
       double lonW_deg = lon -lon_delta_deg;
       double lonE_deg = lon +lon_delta_deg;
@@ -288,15 +282,13 @@ public class DistanceUtils {
   /**
    * The delta longitude of a point-distance. In other words, half the width of
    * the bounding box of a circle.
-   * <p/>
-   * <code>distance</code> and <code>radius</code> should be in the same units.
    */
-  public static double calcBoxByDistFromPt_deltaLonDEG(double lat, double lon, double distance, double radius) {
+  public static double calcBoxByDistFromPt_deltaLonDEG(double lat, double lon, double distDEG) {
     //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
-    if (distance == 0)
+    if (distDEG == 0)
       return 0;
     double lat_rad = toRadians(lat);
-    double dist_rad = dist2Radians(distance,radius);
+    double dist_rad = toRadians(distDEG);
     double result_rad = Math.asin(Math.sin(dist_rad) / Math.cos(lat_rad));
 
     if (!Double.isNaN(result_rad))
@@ -310,15 +302,13 @@ public class DistanceUtils {
    * left-most and right-most edges. On a 2D plane, this result is always
    * <code>from.getY()</code> but, perhaps surprisingly, on a sphere it is going
    * to be slightly different.
-   * <p/>
-   * <code>distance</code> and <code>radius</code> should be in the same units.
    */
-  public static double calcBoxByDistFromPt_latHorizAxisDEG(double lat, double lon, double distance, double radius) {
+  public static double calcBoxByDistFromPt_latHorizAxisDEG(double lat, double lon, double distDEG) {
     //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
-    if (distance == 0)
+    if (distDEG == 0)
       return lat;
     double lat_rad = toRadians(lat);
-    double dist_rad = dist2Radians(distance,radius);
+    double dist_rad = toRadians(distDEG);
     double result_rad = Math.asin( Math.sin(lat_rad) / Math.cos(dist_rad));
     if (!Double.isNaN(result_rad))
       return toDegrees(result_rad);

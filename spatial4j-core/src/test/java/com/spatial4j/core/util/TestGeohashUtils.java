@@ -19,8 +19,6 @@ package com.spatial4j.core.util;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.util.GeohashUtils;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -29,7 +27,7 @@ import static org.junit.Assert.assertEquals;
  * Tests for {@link GeohashUtils}
  */
 public class TestGeohashUtils {
-  SpatialContext ctx = SpatialContext.GEO_KM;
+  SpatialContext ctx = SpatialContext.GEO;
 
   /**
    * Pass condition: lat=42.6, lng=-5.6 should be encoded as "ezs42e44yx96",

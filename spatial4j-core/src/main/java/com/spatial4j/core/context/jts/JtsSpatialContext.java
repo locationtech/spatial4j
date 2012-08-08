@@ -19,7 +19,6 @@ package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
-import com.spatial4j.core.distance.DistanceUnits;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.JtsShapeReadWriter;
 import com.spatial4j.core.io.ShapeReadWriter;
@@ -47,21 +46,21 @@ import java.util.Collection;
  */
 public class JtsSpatialContext extends SpatialContext {
 
-  public static JtsSpatialContext GEO_KM = new JtsSpatialContext(DistanceUnits.KILOMETERS);
+  public static JtsSpatialContext GEO_KM = new JtsSpatialContext(true);
 
   private final GeometryFactory geometryFactory;
 
-  public JtsSpatialContext( DistanceUnits units ) {
-    this(null, units, null, null);
+  public JtsSpatialContext( boolean geo ) {
+    this(null, geo, null, null);
   }
 
   /**
-   * See {@link SpatialContext#SpatialContext(com.spatial4j.core.distance.DistanceUnits, com.spatial4j.core.distance.DistanceCalculator, com.spatial4j.core.shape.Rectangle)}.
+   * See {@link SpatialContext#SpatialContext(boolean, com.spatial4j.core.distance.DistanceCalculator, com.spatial4j.core.shape.Rectangle)}.
    *
    * @param geometryFactory optional
    */
-  public JtsSpatialContext(GeometryFactory geometryFactory, DistanceUnits units, DistanceCalculator calculator, Rectangle worldBounds) {
-    super(units, calculator, worldBounds);
+  public JtsSpatialContext(GeometryFactory geometryFactory, boolean geo, DistanceCalculator calculator, Rectangle worldBounds) {
+    super(geo, calculator, worldBounds);
     this.geometryFactory = geometryFactory == null ? new GeometryFactory() : geometryFactory;
   }
 

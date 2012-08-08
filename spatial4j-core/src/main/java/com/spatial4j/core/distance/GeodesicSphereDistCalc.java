@@ -29,45 +29,31 @@ import static com.spatial4j.core.distance.DistanceUtils.toRadians;
  * A base class for a Distance Calculator that assumes a spherical earth model.
  */
 public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator {
-  protected final double radius;
 
-  public GeodesicSphereDistCalc(double radius) {
-    this.radius = radius;
-  }
+  private static final double radiusDEG = DistanceUtils.toDegrees(1);//in degrees
 
   @Override
-  public double distanceToDegrees(double distance) {
-    return DistanceUtils.dist2Degrees(distance, radius);
-  }
-
-  @Override
-  public double degreesToDistance(double degrees) {
-    return DistanceUtils.radians2Dist(toRadians(degrees), radius);
-  }
-
-  @Override
-  public Point pointOnBearing(Point from, double dist, double bearingDEG, SpatialContext ctx) {
+  public Point pointOnBearing(Point from, double distDEG, double bearingDEG, SpatialContext ctx) {
     //TODO avoid unnecessary double[] intermediate object
-    if (dist == 0)
+    if (distDEG == 0)
       return from;
     double[] latLon = DistanceUtils.pointOnBearingRAD(
         toRadians(from.getY()), toRadians(from.getX()),
-        DistanceUtils.dist2Radians(dist,ctx.getUnits().earthRadius()),
+        toRadians(distDEG),
         toRadians(bearingDEG), null);
     return ctx.makePoint(toDegrees(latLon[1]), toDegrees(latLon[0]));
   }
 
   @Override
-  public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
-    assert radius == ctx.getUnits().earthRadius();
-    if (distance == 0)
+  public Rectangle calcBoxByDistFromPt(Point from, double distDEG, SpatialContext ctx) {
+    if (distDEG == 0)
       return from.getBoundingBox();
-    return DistanceUtils.calcBoxByDistFromPtDEG(from.getY(), from.getX(), distance, ctx);
+    return DistanceUtils.calcBoxByDistFromPtDEG(from.getY(), from.getX(), distDEG, ctx);
   }
 
   @Override
-  public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distance, SpatialContext ctx) {
-    return DistanceUtils.calcBoxByDistFromPt_latHorizAxisDEG(from.getY(), from.getX(), distance, radius);
+  public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distDEG, SpatialContext ctx) {
+    return DistanceUtils.calcBoxByDistFromPt_latHorizAxisDEG(from.getY(), from.getX(), distDEG);
   }
 
   @Override
@@ -75,7 +61,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
     //From http://mathforum.org/library/drmath/view/63767.html
     double lat1 = toRadians(rect.getMinY());
     double lat2 = toRadians(rect.getMaxY());
-    return Math.PI / 180 * radius * radius *
+    return Math.PI / 180 * radiusDEG * radiusDEG *
             Math.abs(Math.sin(lat1) - Math.sin(lat2)) *
             rect.getWidth();
   }
@@ -83,40 +69,30 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
   @Override
   public double area(Circle circle) {
     //formula is a simplified case of area(rect).
-    double lat = toRadians(90 - distanceToDegrees(circle.getRadius()));
-    return 2 * Math.PI * radius * radius * (1 - Math.sin(lat));
+    double lat = toRadians(90 - circle.getRadius());
+    return 2 * Math.PI * radiusDEG * radiusDEG * (1 - Math.sin(lat));
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    GeodesicSphereDistCalc that = (GeodesicSphereDistCalc) o;
-
-    if (Double.compare(that.radius, radius) != 0) return false;
-
-    return true;
+  public boolean equals(Object obj) {
+    if (obj == null)
+      return false;
+    return getClass().equals(obj.getClass());
   }
 
   @Override
   public int hashCode() {
-    long temp = radius != +0.0d ? Double.doubleToLongBits(radius) : 0L;
-    return (int) (temp ^ (temp >>> 32));
+    return getClass().hashCode();
   }
 
   @Override
   public final double distance(Point from, double toX, double toY) {
-    return distanceLatLonRAD(toRadians(from.getY()), toRadians(from.getX()), toRadians(toY), toRadians(toX)) * radius;
+    return toDegrees(distanceLatLonRAD(toRadians(from.getY()), toRadians(from.getX()), toRadians(toY), toRadians(toX)));
   }
 
   protected abstract double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2);
 
   public static class Haversine extends GeodesicSphereDistCalc {
-
-    public Haversine(double radius) {
-      super(radius);
-    }
 
     @Override
     protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {
@@ -127,10 +103,6 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
   public static class LawOfCosines extends GeodesicSphereDistCalc {
 
-    public LawOfCosines(double radius) {
-      super(radius);
-    }
-
     @Override
     protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {
       return DistanceUtils.distLawOfCosinesRAD(lat1, lon1, lat2, lon2);
@@ -139,9 +111,6 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
   }
 
   public static class Vincenty extends GeodesicSphereDistCalc {
-    public Vincenty(double radius) {
-      super(radius);
-    }
 
     @Override
     protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {

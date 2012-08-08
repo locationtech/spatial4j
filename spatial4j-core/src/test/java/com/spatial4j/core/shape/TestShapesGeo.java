@@ -21,7 +21,7 @@ import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
-import com.spatial4j.core.distance.DistanceUnits;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import org.junit.Test;
 
@@ -37,22 +37,29 @@ public class TestShapesGeo extends AbstractTestShapes {
 
   @ParametersFactory
   public static Iterable<Object[]> parameters() {
-    DistanceUnits units = DistanceUnits.KILOMETERS;
 
     //TODO ENABLE LawOfCosines WHEN WORKING
     //DistanceCalculator distCalcL = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
 
-    DistanceCalculator distCalcH = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
-    DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty(units.earthRadius());//default
+    DistanceCalculator distCalcH = new GeodesicSphereDistCalc.Haversine();//default
+    DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty();//default
     return Arrays.asList($$(
-        $(new SpatialContext(units,distCalcH,SpatialContext.GEO_WORLDBOUNDS)),
-        $(new SpatialContext(units,distCalcV,SpatialContext.GEO_WORLDBOUNDS)),
+        $(new SpatialContext(true,distCalcH,SpatialContext.GEO_WORLDBOUNDS)),
+        $(new SpatialContext(true,distCalcV,SpatialContext.GEO_WORLDBOUNDS)),
         $(JtsSpatialContext.GEO_KM))
     );
   }
 
   public TestShapesGeo(SpatialContext ctx) {
     super(ctx);
+  }
+
+  private static double degToKm(double deg) {
+    return DistanceUtils.toRadians(deg) * DistanceUtils.EARTH_MEAN_RADIUS_KM;
+  }
+
+  private static double kmToDeg(double km) {
+    return DistanceUtils.toDegrees(km / DistanceUtils.EARTH_MEAN_RADIUS_KM);
   }
 
   @Test
@@ -86,16 +93,17 @@ public class TestShapesGeo extends AbstractTestShapes {
 
   @Test
   public void testGeoCircle() {
+    assertEquals("Circle(Pt(x=10.0,y=20.0), d=30.0° 3335.85km)", ctx.makeCircle(10,20,30).toString());
+
     //--Start with some static tests that once failed:
 
     //Bug: numeric edge at pole, fails to init
-    ctx.makeCircle(
-        110,-12,ctx.getDistCalc().degreesToDistance(90 + 12));
+    ctx.makeCircle(110, -12, 90 + 12);
 
     //Bug: horizXAxis not in enclosing rectangle, assertion
-    ctx.makeCircle(-44,16,degToDist(106));
-    ctx.makeCircle(-36,-76,degToDist(14));
-    ctx.makeCircle(107,82,degToDist(172));
+    ctx.makeCircle(-44,16,106);
+    ctx.makeCircle(-36,-76,14);
+    ctx.makeCircle(107,82,172);
 
 // TODO need to update this test to be valid
 //    {
@@ -111,59 +119,53 @@ public class TestShapesGeo extends AbstractTestShapes {
 //      assertEquals("dist != xy space",INTERSECTS,c.relate(r,ctx));//once failed here
 //    }
 
-    assertEquals("nudge back circle", CONTAINS, ctx.makeCircle(-150, -90, degToDist(122)).relate(ctx.makeRect(0, -132, 32, 32), ctx));
+    assertEquals("nudge back circle", CONTAINS, ctx.makeCircle(-150, -90, 122).relate(ctx.makeRect(0, -132, 32, 32), ctx));
 
-    assertEquals("wrong estimate", DISJOINT,ctx.makeCircle(-166,59,5226.2).relate(ctx.makeRect(36, 66, 23, 23), ctx));
+    assertEquals("wrong estimate", DISJOINT,ctx.makeCircle(-166,59,kmToDeg(5226.2)).relate(ctx.makeRect(36, 66, 23, 23), ctx));
 
-    assertEquals("bad CONTAINS (dateline)",INTERSECTS,ctx.makeCircle(56,-50,12231.5).relate(ctx.makeRect(108, 26, 39, 48), ctx));
+    assertEquals("bad CONTAINS (dateline)",INTERSECTS,ctx.makeCircle(56,-50,kmToDeg(12231.5)).relate(ctx.makeRect(108, 26, 39, 48), ctx));
 
     assertEquals("bad CONTAINS (backwrap2)",INTERSECTS,
-        ctx.makeCircle(112,-3,degToDist(91)).relate(ctx.makeRect(-163, 29, -38, 10), ctx));
+        ctx.makeCircle(112,-3,91).relate(ctx.makeRect(-163, 29, -38, 10), ctx));
 
     assertEquals("bad CONTAINS (r x-wrap)",INTERSECTS,
-        ctx.makeCircle(-139,47,degToDist(80)).relate(ctx.makeRect(-180, 180, -3, 12), ctx));
+        ctx.makeCircle(-139,47,80).relate(ctx.makeRect(-180, 180, -3, 12), ctx));
 
     assertEquals("bad CONTAINS (pwrap)",INTERSECTS,
-        ctx.makeCircle(-139,47,degToDist(80)).relate(ctx.makeRect(-180, 179, -3, 12), ctx));
+        ctx.makeCircle(-139,47,80).relate(ctx.makeRect(-180, 179, -3, 12), ctx));
 
     assertEquals("no-dist 1",WITHIN,
         ctx.makeCircle(135,21,0).relate(ctx.makeRect(-103, -154, -47, 52), ctx));
 
     assertEquals("bbox <= >= -90 bug",CONTAINS,
-        ctx.makeCircle(-64,-84,degToDist(124)).relate(ctx.makeRect(-96, 96, -10, -10), ctx));
+        ctx.makeCircle(-64,-84,124).relate(ctx.makeRect(-96, 96, -10, -10), ctx));
 
     //The horizontal axis line of a geo circle doesn't necessarily pass through c's ctr.
     assertEquals("c's horiz axis doesn't pass through ctr",INTERSECTS,
-        ctx.makeCircle(71,-44,degToDist(40)).relate(ctx.makeRect(15, 27, -62, -34), ctx));
+        ctx.makeCircle(71,-44,40).relate(ctx.makeRect(15, 27, -62, -34), ctx));
 
     assertEquals("pole boundary",INTERSECTS,
-        ctx.makeCircle(-100,-12,degToDist(102)).relate(ctx.makeRect(143, 175, 4, 32), ctx));
+        ctx.makeCircle(-100,-12,102).relate(ctx.makeRect(143, 175, 4, 32), ctx));
 
     assertEquals("full circle assert",CONTAINS,
-        ctx.makeCircle(-64,32,degToDist(180)).relate(ctx.makeRect(47, 47, -14, 90), ctx));
+        ctx.makeCircle(-64,32,180).relate(ctx.makeRect(47, 47, -14, 90), ctx));
 
     //--Now proceed with systematic testing:
-
-    double distToOpposeSide = ctx.getUnits().earthRadius()*Math.PI;
-    assertEquals(ctx.getWorldBounds(),ctx.makeCircle(0,0,distToOpposeSide).getBoundingBox());
-    //assertEquals(ctx.makeCircle(0,0,distToOpposeSide/2 - 500).getBoundingBox());
+    assertEquals(ctx.getWorldBounds(), ctx.makeCircle(0,0,180).getBoundingBox());
+    //assertEquals(ctx.makeCircle(0,0,180/2 - 500).getBoundingBox());
 
     double[] theXs = new double[]{-180,-45,90};
     for (double x : theXs) {
       double[] theYs = new double[]{-90,-45,0,45,90};
       for (double y : theYs) {
         testCircle(x, y, 0);
-        testCircle(x, y, 500);
-        testCircle(x, y, degToDist(90));
-        testCircle(x, y, ctx.getUnits().earthRadius()*6);
+        testCircle(x, y, kmToDeg(500));
+        testCircle(x, y, 90);
+        testCircle(x, y, 400);
       }
     }
 
     testCircleIntersect();
-  }
-
-  private double degToDist(int deg) {
-    return ctx.getDistCalc().degreesToDistance(deg);
   }
 
 }

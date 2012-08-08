@@ -17,7 +17,9 @@
 
 package com.spatial4j.core.context;
 
-import com.spatial4j.core.distance.*;
+import com.spatial4j.core.distance.CartesianDistCalc;
+import com.spatial4j.core.distance.DistanceCalculator;
+import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.shape.Rectangle;
 
 import java.util.Map;
@@ -31,8 +33,8 @@ import java.util.Map;
  * <DT>spatialContextFactory</DT>
  * <DD>com.spatial4j.core.context.SpatialContext or com.spatial4j.core
  * .context.jts.JtsSpatialContext</DD>
- * <DT>units</DT>
- * <DD>km | mi | u | ... see {@link DistanceUnits}</DD>
+ * <DT>geo</DT>
+ * <DD>true | false</DD>
  * <DT>distCalculator</DT>
  * <DD>haversine | lawOfCosines | vincentySphere | cartesian | cartesian^2
  * -- see {@link DistanceCalculator}</DD>
@@ -46,7 +48,7 @@ public class SpatialContextFactory {
   protected Map<String, String> args;
   protected ClassLoader classLoader;
   
-  protected DistanceUnits units;
+  protected boolean geo = true;
   protected DistanceCalculator calculator;
   protected Rectangle worldBounds;
 
@@ -93,11 +95,9 @@ public class SpatialContextFactory {
   }
 
   protected void initUnits() {
-    String unitsStr = args.get("units");
-    if (unitsStr != null)
-      units = DistanceUnits.findDistanceUnit(unitsStr);
-    if (units == null)
-      units = DistanceUnits.KILOMETERS;
+    String geoStr = args.get("geo");
+    if (geoStr != null)
+      geo = Boolean.valueOf(geoStr);
   }
 
   protected void initCalculator() {
@@ -105,11 +105,11 @@ public class SpatialContextFactory {
     if (calcStr == null)
       return;
     if (calcStr.equalsIgnoreCase("haversine")) {
-      calculator = new GeodesicSphereDistCalc.Haversine(units.earthRadius());
+      calculator = new GeodesicSphereDistCalc.Haversine();
     } else if (calcStr.equalsIgnoreCase("lawOfCosines")) {
-      calculator = new GeodesicSphereDistCalc.LawOfCosines(units.earthRadius());
+      calculator = new GeodesicSphereDistCalc.LawOfCosines();
     } else if (calcStr.equalsIgnoreCase("vincentySphere")) {
-      calculator = new GeodesicSphereDistCalc.Vincenty(units.earthRadius());
+      calculator = new GeodesicSphereDistCalc.Vincenty();
     } else if (calcStr.equalsIgnoreCase("cartesian")) {
       calculator = new CartesianDistCalc();
     } else if (calcStr.equalsIgnoreCase("cartesian^2")) {
@@ -125,12 +125,12 @@ public class SpatialContextFactory {
       return;
     
     //kinda ugly we do this just to read a rectangle.  TODO refactor
-    SpatialContext simpleCtx = new SpatialContext(units, calculator, null);
+    SpatialContext simpleCtx = new SpatialContext(geo, calculator, null);
     worldBounds = (Rectangle) simpleCtx.readShape(worldBoundsStr);
   }
 
   /** Subclasses should simply construct the instance from the initialized configuration. */
   protected SpatialContext newSpatialContext() {
-    return new SpatialContext(units,calculator,worldBounds);
+    return new SpatialContext(geo,calculator,worldBounds);
   }
 }

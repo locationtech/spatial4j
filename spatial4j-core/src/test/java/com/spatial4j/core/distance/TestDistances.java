@@ -35,29 +35,37 @@ public class TestDistances extends RandomizedTest {
 
   @Before
   public void beforeTest() {
-    ctx = new SpatialContext(DistanceUnits.KILOMETERS);
+    ctx = SpatialContext.GEO;
     EPS = 10e-4;//delta when doing double assertions. Geo eps is not that small.
   }
 
   private DistanceCalculator dc() {
     return ctx.getDistCalc();
   }
-  
+
+  private static double degToKm(double deg) {
+    return DistanceUtils.toRadians(deg) * DistanceUtils.EARTH_MEAN_RADIUS_KM;
+  }
+
+  private static double kmToDeg(double km) {
+    return DistanceUtils.toDegrees(km / DistanceUtils.EARTH_MEAN_RADIUS_KM);
+  }
+
   @Test
   public void testSomeDistances() {
     //See to verify: from http://www.movable-type.co.uk/scripts/latlong.html
     Point ctr = pLL(0,100);
-    assertEquals(11100, dc().distance(ctr, pLL(10, 0)),3);
-    assertEquals(11100, dc().distance(ctr, pLL(10, -160)),3);
+    assertEquals(11100, degToKm(dc().distance(ctr, pLL(10, 0))), 3);
+    assertEquals(11100, degToKm(dc().distance(ctr, pLL(10, -160))), 3);
 
-    assertEquals(314.40338, dc().distance(pLL(1, 2), pLL(3, 4)),EPS);
+    assertEquals(314.40338, degToKm(dc().distance(pLL(1, 2), pLL(3, 4))), EPS);
   }
 
   @Test
   public void testCalcBoxByDistFromPt() {
     //first test regression
     {
-      double d = 6894.1;
+      double d = kmToDeg(6894.1);
       Point pCtr = pLL(-20, 84);
       Point pTgt = pLL(-42, 15);
       assertTrue(dc().distance(pCtr, pTgt) < d);
@@ -70,17 +78,17 @@ public class TestDistances extends RandomizedTest {
     assertEquals("0 dist, horiz line",
         -45,dc().calcBoxByDistFromPt_yHorizAxisDEG(ctx.makePoint(-180, -45), 0, ctx),0);
 
-    double MAXDIST = ctx.getUnits().earthCircumference() / 2;
+    double MAXDIST = degToKm(180);
     checkBBox(ctx.makePoint(0,0), MAXDIST);
     checkBBox(ctx.makePoint(0,0), MAXDIST *0.999999);
     checkBBox(ctx.makePoint(0,0),0);
     checkBBox(ctx.makePoint(0,0),0.000001);
     checkBBox(ctx.makePoint(0,90),0.000001);
     checkBBox(ctx.makePoint(-32.7,-5.42),9829);
-    checkBBox(ctx.makePoint(0,90-20),ctx.getDistCalc().degreesToDistance(20));
+    checkBBox(ctx.makePoint(0,90-20),degToKm(20));
     {
       double d = 0.010;//10m
-      checkBBox(ctx.makePoint(0,90-ctx.getDistCalc().distanceToDegrees(d+0.001)),d);
+      checkBBox(ctx.makePoint(0,90-kmToDeg(d+0.001)),d);
     }
 
     for (int T = 0; T < 100; T++) {
@@ -93,8 +101,9 @@ public class TestDistances extends RandomizedTest {
 
   }
 
-  private void checkBBox(Point ctr, double dist) {
-    String msg = "ctr: "+ctr+" dist: "+dist;
+  private void checkBBox(Point ctr, double distKm) {
+    String msg = "ctr: "+ctr+" distKm: "+distKm;
+    double dist = kmToDeg(distKm);
 
     Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
     double horizAxisLat = dc().calcBoxByDistFromPt_yHorizAxisDEG(ctr, dist, ctx);
@@ -103,27 +112,27 @@ public class TestDistances extends RandomizedTest {
 
     //horizontal
     if (r.getWidth() >= 180) {
-      double calcDist = dc().distance(ctr,r.getMinX(), r.getMaxY() == 90 ? 90 : -90 );
-      assertTrue(msg,calcDist <= dist+EPS);
+      double calcDistKm = degToKm(dc().distance(ctr, r.getMinX(), r.getMaxY() == 90 ? 90 : -90));
+      assertTrue(msg, calcDistKm <= distKm + EPS);
       //horizAxisLat is meaningless in this context
     } else {
       Point tPt = findClosestPointOnVertToPoint(r.getMinX(), r.getMinY(), r.getMaxY(), ctr);
-      double calcDist = dc().distance(ctr,tPt);
-      assertEquals(msg,dist,calcDist,EPS);
-      assertEquals(msg,tPt.getY(),horizAxisLat,EPS);
+      double calcDistKm = degToKm(dc().distance(ctr, tPt));
+      assertEquals(msg, distKm, calcDistKm, EPS);
+      assertEquals(msg, tPt.getY(), horizAxisLat, EPS);
     }
-    
+
     //vertical
-    double topDist = dc().distance(ctr,ctr.getX(),r.getMaxY());
+    double topDistKm = degToKm(dc().distance(ctr, ctr.getX(), r.getMaxY()));
     if (r.getMaxY() == 90)
-      assertTrue(msg,topDist <= dist+EPS);
+      assertTrue(msg, topDistKm <= distKm + EPS);
     else
-      assertEquals(msg,dist,topDist,EPS);
-    double botDist = dc().distance(ctr,ctr.getX(),r.getMinY());
+      assertEquals(msg, distKm, topDistKm, EPS);
+    double botDistKm = degToKm(dc().distance(ctr, ctr.getX(), r.getMinY()));
     if (r.getMinY() == -90)
-      assertTrue(msg,botDist <= dist+EPS);
+      assertTrue(msg, botDistKm <= distKm + EPS);
     else
-      assertEquals(msg,dist,botDist,EPS);
+      assertEquals(msg, distKm, botDistKm, EPS);
   }
 
   private Point findClosestPointOnVertToPoint(double lon, double lowLat, double highLat, Point ctr) {
@@ -156,7 +165,7 @@ public class TestDistances extends RandomizedTest {
 
   @Test
   public void testDistCalcPointOnBearing_cartesian() {
-    ctx = new SpatialContext(DistanceUnits.CARTESIAN);
+    ctx = new SpatialContext(false);
     EPS = 10e-6;//tighter epsilon (aka delta)
     for(int i = 0; i < 1000; i++) {
       testDistCalcPointOnBearing(randomInt(100));
@@ -178,15 +187,15 @@ public class TestDistances extends RandomizedTest {
 //      double calcDist = dc().distance(c, p2);
 //      assertEqualsRatio(dist, calcDist);
 //    }
-    double maxDist = ctx.getUnits().earthCircumference() / 2;
+    double maxDistKm = degToKm(180);
     for(int i = 0; i < 1000; i++) {
-      int dist = randomInt((int) maxDist);
-      EPS = (dist < maxDist*0.75 ? 10e-6 : 10e-3);
-      testDistCalcPointOnBearing(dist);
+      int distKm = randomInt((int) maxDistKm);
+      EPS = (distKm < maxDistKm*0.75 ? 10e-6 : 10e-3);
+      testDistCalcPointOnBearing(distKm);
     }
   }
 
-  private void testDistCalcPointOnBearing(double dist) {
+  private void testDistCalcPointOnBearing(double distKm) {
     for(int angDEG = 0; angDEG < 360; angDEG += randomIntBetween(1,20)) {
       Point c = ctx.makePoint(randomInt(359),randomIntBetween(-90,90));
 
@@ -194,9 +203,9 @@ public class TestDistances extends RandomizedTest {
       Point p2 = dc().pointOnBearing(c, 0, angDEG, ctx);
       assertEquals(c,p2);
 
-      p2 = dc().pointOnBearing(c, dist, angDEG, ctx);
-      double calcDist = dc().distance(c, p2);
-      assertEqualsRatio(dist, calcDist);
+      p2 = dc().pointOnBearing(c, kmToDeg(distKm), angDEG, ctx);
+      double calcDistKm = degToKm(dc().distance(c, p2));
+      assertEqualsRatio(distKm, calcDistKm);
     }
   }
 
@@ -245,11 +254,11 @@ public class TestDistances extends RandomizedTest {
   public void testDistToRadians() {
     assertDistToRadians(0);
     assertDistToRadians(500);
-    assertDistToRadians(ctx.getUnits().earthRadius());
+    assertDistToRadians(DistanceUtils.EARTH_MEAN_RADIUS_KM);
   }
 
   private void assertDistToRadians(double dist) {
-    double radius = ctx.getUnits().earthRadius();
+    double radius = DistanceUtils.EARTH_MEAN_RADIUS_KM;
     assertEquals(
         DistanceUtils.pointOnBearingRAD(0, 0, DistanceUtils.dist2Radians(dist, radius), DistanceUtils.DEG_90_AS_RADS, null)[1],
         DistanceUtils.dist2Radians(dist, radius),10e-5);
@@ -261,29 +270,41 @@ public class TestDistances extends RandomizedTest {
 
   @Test
   public void testArea() {
+    double radius = kmToDeg(DistanceUtils.EARTH_MEAN_RADIUS_KM);
     //surface of a sphere is 4 * pi * r^2
-    final double earthArea = 4 * Math.PI * ctx.getUnits().earthRadius() * ctx.getUnits().earthRadius();
+    final double earthArea = 4 * Math.PI * radius * radius;
 
-    Circle c = ctx.makeCircle( randomIntBetween(-180,180), randomIntBetween(-90,90),
-            ctx.getDistCalc().degreesToDistance(180));//180 means whole earth
+    Circle c = ctx.makeCircle(randomIntBetween(-180,180), randomIntBetween(-90,90),
+            180);//180 means whole earth
     assertEquals(earthArea, c.getArea(ctx), 1.0);
+    assertEquals(earthArea, ctx.getWorldBounds().getArea(ctx), 1.0);
 
     //now check half earth
-    Circle cHalf = ctx.makeCircle(c.getCenter(), ctx.getDistCalc().degreesToDistance(90));
+    Circle cHalf = ctx.makeCircle(c.getCenter(), 90);
     assertEquals(earthArea/2, cHalf.getArea(ctx), 1.0);
 
-    //picked out of the blue
-    Circle c2 = ctx.makeCircle(c.getCenter(), ctx.getDistCalc().degreesToDistance(30));
-    assertEquals(3.416E7, c2.getArea(ctx), 3.416E7*0.01);
-
     //circle with same radius at +20 lat with one at -20 lat should have same area as well as bbox with same area
-    Circle c3 = ctx.makeCircle(c.getCenter().getX(), 20, ctx.getDistCalc().degreesToDistance(30));
+    Circle c2 = ctx.makeCircle(c.getCenter(), 30);
+    Circle c3 = ctx.makeCircle(c.getCenter().getX(), 20, 30);
     assertEquals(c2.getArea(ctx), c3.getArea(ctx), 0.01);
-    Circle c3Opposite = ctx.makeCircle(c.getCenter().getX(), -20, ctx.getDistCalc().degreesToDistance(30));
+    Circle c3Opposite = ctx.makeCircle(c.getCenter().getX(), -20, 30);
     assertEquals(c3.getArea(ctx), c3Opposite.getArea(ctx), 0.01);
     assertEquals(c3.getBoundingBox().getArea(ctx), c3Opposite.getBoundingBox().getArea(ctx), 0.01);
 
-    assertEquals(earthArea, ctx.getWorldBounds().getArea(ctx), 1.0);
+    //small shapes near the equator should have similar areas to euclidean rectangle
+    Rectangle smallRect = ctx.makeRect(0,1,0,1);
+    assertEquals(1.0, smallRect.getArea(null), 0.0);
+    double smallDelta = smallRect.getArea(null) - smallRect.getArea(ctx);
+    assertTrue(smallDelta > 0 && smallDelta < 0.0001);
+
+    Circle smallCircle = ctx.makeCircle(0,0,1);
+    smallDelta = smallCircle.getArea(null) - smallCircle.getArea(ctx);
+    assertTrue(smallDelta > 0 && smallDelta < 0.0001);
+
+    //bigger, but still fairly similar
+    //c2 = ctx.makeCircle(c.getCenter(), 30);
+    double areaRatio = c2.getArea(null) / c2.getArea(ctx);
+    assertTrue(areaRatio > 1 && areaRatio < 1.1);
   }
 
 }

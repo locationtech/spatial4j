@@ -21,10 +21,7 @@ import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.impl.CircleImpl;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -37,7 +34,7 @@ public class ShapeReadWriterTest extends RandomizedTest {
   @ParametersFactory
   public static Iterable<Object[]> parameters() {
     return Arrays.asList($$(
-            $(SpatialContext.GEO_KM),
+            $(SpatialContext.GEO),
             $(JtsSpatialContext.GEO_KM)
     ));
   }

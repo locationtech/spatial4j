@@ -27,6 +27,6 @@ import com.spatial4j.core.context.SpatialContextFactory;
 public class JtsSpatialContextFactory extends SpatialContextFactory {
   @Override
   protected SpatialContext newSpatialContext() {
-    return new JtsSpatialContext(null,units,calculator,worldBounds);
+    return new JtsSpatialContext(null,geo,calculator,worldBounds);
   }
 }

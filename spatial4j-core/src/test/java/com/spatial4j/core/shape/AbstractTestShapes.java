@@ -21,6 +21,7 @@ import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import org.junit.Test;
@@ -95,7 +96,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     assertEquals(msg, width != 0 && height != 0, r.getArea(ctx) > 0);
     if (ctx.isGeo() && r.getWidth() == 360 && r.getHeight() == 180) {
       //whole globe
-      double earthRadius = ctx.getUnits().earthRadius();
+      double earthRadius = DistanceUtils.toDegrees(1);
       assertEquals(4*Math.PI * earthRadius * earthRadius, r.getArea(ctx), 1.0);//1km err
     }
 

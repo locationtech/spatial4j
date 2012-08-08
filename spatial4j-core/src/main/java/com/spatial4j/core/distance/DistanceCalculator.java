@@ -39,27 +39,13 @@ public interface DistanceCalculator {
    * Calculates where a destination point is given an origin (<code>from</code>)
    * distance, and bearing (given in degrees -- 0-360).
    */
-  public Point pointOnBearing(Point from, double distance, double bearingDEG, SpatialContext ctx);
-
-  /**
-   * Converts a distance (in units of the sphere's radius, e.g. km) to degrees
-   * (0-360). A spherical earth model is assumed for geospatial.  This is not
-   * implemented for non-geospatial.
-   */
-  public double distanceToDegrees(double distance);
-
-  /**
-   * Converts distance-degrees (0-360, e.g. as a length around the sphere) to
-   * distance (in units of the sphere's radius, e.g. km). This is the opposite
-   * of {@link #distanceToDegrees(double)}.
-   */
-  public double degreesToDistance(double degrees);
+  public Point pointOnBearing(Point from, double distDEG, double bearingDEG, SpatialContext ctx);
 
   /**
    * Calculates the bounding box of a circle, as specified by its center point
    * and distance.
    */
-  public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx);
+  public Rectangle calcBoxByDistFromPt(Point from, double distDEG, SpatialContext ctx);
 
   /**
    * The <code>Y</code> coordinate of the horizontal axis (e.g. left-right line)
@@ -68,7 +54,7 @@ public interface DistanceCalculator {
    * <code>from.getY()</code> but, perhaps surprisingly, on a sphere it is going
    * to be slightly different.
    */
-  public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distance, SpatialContext ctx);
+  public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distDEG, SpatialContext ctx);
 
   public double area(Rectangle rect);
 

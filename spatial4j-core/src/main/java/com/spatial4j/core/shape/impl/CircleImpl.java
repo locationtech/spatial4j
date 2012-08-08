@@ -33,7 +33,7 @@ import com.spatial4j.core.shape.SpatialRelation;
 public class CircleImpl implements Circle {
 
   protected final Point point;
-  protected final double distRadius;
+  protected final double radiusDEG;
 
   protected final SpatialContext ctx;
 
@@ -43,12 +43,12 @@ public class CircleImpl implements Circle {
 
   //we don't have a line shape so we use a rectangle for these axis
 
-  public CircleImpl(Point p, double distRadius, SpatialContext ctx) {
+  public CircleImpl(Point p, double radiusDEG, SpatialContext ctx) {
     //We assume any normalization / validation of params already occurred (including bounding dist)
     this.point = p;
-    this.distRadius = distRadius;
+    this.radiusDEG = radiusDEG;
     this.ctx = ctx;
-    this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, this.distRadius, ctx);
+    this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, this.radiusDEG, ctx);
   }
 
   @Override
@@ -58,25 +58,25 @@ public class CircleImpl implements Circle {
 
   @Override
   public double getRadius() {
-    return distRadius;
+    return radiusDEG;
   }
 
   @Override
   public double getArea(SpatialContext ctx) {
     if (ctx == null) {
-      return Math.PI * distRadius * distRadius;
+      return Math.PI * radiusDEG * radiusDEG;
     } else {
       return ctx.getDistCalc().area(this);
     }
   }
 
   public boolean contains(double x, double y) {
-    return ctx.getDistCalc().distance(point, x, y) <= distRadius;
+    return ctx.getDistCalc().distance(point, x, y) <= radiusDEG;
   }
 
   @Override
   public boolean hasArea() {
-    return distRadius > 0;
+    return radiusDEG > 0;
   }
 
   /**
@@ -206,7 +206,7 @@ public class CircleImpl implements Circle {
 
   public SpatialRelation relate(Circle circle, SpatialContext ctx) {
     double crossDist = ctx.getDistCalc().distance(point, circle.getCenter());
-    double aDist = distRadius, bDist = circle.getRadius();
+    double aDist = radiusDEG, bDist = circle.getRadius();
     if (crossDist > aDist + bDist)
       return SpatialRelation.DISJOINT;
     if (crossDist < aDist && crossDist + bDist <= aDist)
@@ -219,7 +219,7 @@ public class CircleImpl implements Circle {
 
   @Override
   public String toString() {
-    return "Circle(" + point + ",d=" + distRadius + ')';
+    return "Circle(" + point + ", d=" + radiusDEG + "°)";
   }
 
   @Override

@@ -61,32 +61,22 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   }
 
   @Override
-  public Point pointOnBearing(Point from, double dist, double bearingDEG, SpatialContext ctx) {
-    if (dist == 0)
+  public Point pointOnBearing(Point from, double distDEG, double bearingDEG, SpatialContext ctx) {
+    if (distDEG == 0)
       return from;
     double bearingRAD = DistanceUtils.toRadians(bearingDEG);
-    double x = Math.sin(bearingRAD) * dist;
-    double y = Math.cos(bearingRAD) * dist;
+    double x = Math.sin(bearingRAD) * distDEG;
+    double y = Math.cos(bearingRAD) * distDEG;
     return ctx.makePoint(from.getX()+x, from.getY()+y);
   }
 
   @Override
-  public double distanceToDegrees(double distance) {
-    throw new UnsupportedOperationException("no geo!");
+  public Rectangle calcBoxByDistFromPt(Point from, double distDEG, SpatialContext ctx) {
+    return ctx.makeRect(from.getX()- distDEG,from.getX()+ distDEG,from.getY()- distDEG,from.getY()+ distDEG);
   }
 
   @Override
-  public double degreesToDistance(double degrees) {
-    throw new UnsupportedOperationException("no geo!");
-  }
-
-  @Override
-  public Rectangle calcBoxByDistFromPt(Point from, double distance, SpatialContext ctx) {
-    return ctx.makeRect(from.getX()-distance,from.getX()+distance,from.getY()-distance,from.getY()+distance);
-  }
-
-  @Override
-  public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distance, SpatialContext ctx) {
+  public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distDEG, SpatialContext ctx) {
     return from.getY();
   }
 

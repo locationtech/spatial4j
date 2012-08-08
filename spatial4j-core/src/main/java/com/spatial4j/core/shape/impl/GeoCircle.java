@@ -18,6 +18,7 @@
 package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.SpatialRelation;
@@ -26,33 +27,29 @@ import com.spatial4j.core.shape.SpatialRelation;
  * A circle as it exists on the surface of a sphere.
  */
 public class GeoCircle extends CircleImpl {
-  private final double distDEG;// [0 TO 180]
   private final GeoCircle inverseCircle;//when distance reaches > 1/2 way around the world, cache the inverse.
   private final double horizAxisY;//see getYAxis
 
-  public GeoCircle(Point p, double distRadius, SpatialContext ctx) {
-    super(p, distRadius, ctx);
+  public GeoCircle(Point p, double radiusDEG, SpatialContext ctx) {
+    super(p, radiusDEG, ctx);
     assert ctx.isGeo();
 
-    //In the direction of latitude (N,S), distance is the same number of degrees.
-    distDEG = ctx.getDistCalc().distanceToDegrees(distRadius);
-
-    if (distDEG > 90) {
+    if (radiusDEG > 90) {
       //--spans more than half the globe
       assert enclosingBox.getWidth() == 360;
-      double backDistDEG = 180 - distDEG;
-      if (backDistDEG >= 0) {
-        double backDistance = ctx.getDistCalc().degreesToDistance(backDistDEG);
+      double backDistDEG = 180 - radiusDEG;
+      if (backDistDEG > 0) {
+        double backRadius = 180 - radiusDEG;
         //shrink inverseCircle as small as possible to avoid accidental overlap
-        backDistance -= Math.ulp(backDistance);
+        backRadius -= Math.ulp(backRadius);
         Point backPoint = ctx.makePoint(getCenter().getX() + 180, getCenter().getY() + 180);
-        inverseCircle = new GeoCircle(backPoint,backDistance,ctx);
+        inverseCircle = new GeoCircle(backPoint,backRadius,ctx);
       } else
         inverseCircle = null;//whole globe
       horizAxisY = getCenter().getY();//although probably not used
     } else {
       inverseCircle = null;
-      double _horizAxisY = ctx.getDistCalc().calcBoxByDistFromPt_yHorizAxisDEG(getCenter(), distRadius, ctx);
+      double _horizAxisY = ctx.getDistCalc().calcBoxByDistFromPt_yHorizAxisDEG(getCenter(), radiusDEG, ctx);
       //some rare numeric conditioning cases can cause this to be barely beyond the box
       if (_horizAxisY > enclosingBox.getMaxY()) {
         horizAxisY = enclosingBox.getMaxY();
@@ -122,9 +119,9 @@ public class GeoCircle extends CircleImpl {
 
     /* y axis intersects */
     if (r.relateXRange(getXAxis(), getXAxis(), ctx).intersects()) { // at x horizontal
-      double yTop = getCenter().getY()+ distDEG;
+      double yTop = getCenter().getY()+ radiusDEG;
       assert yTop <= 90;
-      double yBot = getCenter().getY()- distDEG;
+      double yBot = getCenter().getY()- radiusDEG;
       assert yBot >= -90;
       if (r.relateYRange(yBot, yTop, ctx).intersects())//back bottom
         return SpatialRelation.INTERSECTS;
@@ -137,18 +134,18 @@ public class GeoCircle extends CircleImpl {
     //This method handles the case where the circle wraps ONE pole, but not both.  For both,
     // there is the inverseCircle case handled before now.  The only exception is for the case where
     // the circle covers the entire globe, and we'll check that first.
-    if (distDEG == 180)//whole globe
+    if (radiusDEG == 180)//whole globe
       return SpatialRelation.CONTAINS;
 
     //Check if r is within the pole wrap region:
-    double yTop = getCenter().getY()+ distDEG;
+    double yTop = getCenter().getY()+ radiusDEG;
     if (yTop > 90) {
       double yTopOverlap = yTop - 90;
       assert yTopOverlap <= 90;
       if (r.getMinY() >= 90 - yTopOverlap)
         return SpatialRelation.CONTAINS;
     } else {
-      double yBot = point.getY() - distDEG;
+      double yBot = point.getY() - radiusDEG;
       if (yBot < -90) {
         double yBotOverlap = -90 - yBot;
         assert yBotOverlap <= 90;
@@ -218,12 +215,9 @@ public class GeoCircle extends CircleImpl {
   @Override
   public String toString() {
     //I'm deliberately making this look basic and not fully detailed with class name & misc fields.
-    //Add distance in degrees, which is easier to recognize, and earth radius agnostic.
-    String dStr = String.format("%.1f", distRadius);
-    if (ctx.isGeo()) {
-      double distDEG = ctx.getDistCalc().distanceToDegrees(distRadius);
-      dStr += String.format("=%.1f\u00B0",distDEG);
-    }
-    return "Circle(" + point + ",d=" + dStr + ')';
+    //Add distance in km, which may be easier to recognize.
+    double distKm = DistanceUtils.toRadians(radiusDEG) * DistanceUtils.EARTH_MEAN_RADIUS_KM;
+    String dStr = String.format("%.1f\u00B0 %.2fkm", radiusDEG, distKm);
+    return "Circle(" + point + ", d=" + dStr + ')';
   }
 }
