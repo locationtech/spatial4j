@@ -55,11 +55,11 @@ public class TestShapesGeo extends AbstractTestShapes {
   }
 
   private static double degToKm(double deg) {
-    return DistanceUtils.toRadians(deg) * DistanceUtils.EARTH_MEAN_RADIUS_KM;
+    return DistanceUtils.degrees2Dist(deg, DistanceUtils.EARTH_MEAN_RADIUS_KM);
   }
 
   private static double kmToDeg(double km) {
-    return DistanceUtils.toDegrees(km / DistanceUtils.EARTH_MEAN_RADIUS_KM);
+    return DistanceUtils.dist2Degrees(km, DistanceUtils.EARTH_MEAN_RADIUS_KM);
   }
 
   @Test

@@ -214,9 +214,8 @@ public class GeoCircle extends CircleImpl {
 
   @Override
   public String toString() {
-    //I'm deliberately making this look basic and not fully detailed with class name & misc fields.
     //Add distance in km, which may be easier to recognize.
-    double distKm = DistanceUtils.toRadians(radiusDEG) * DistanceUtils.EARTH_MEAN_RADIUS_KM;
+    double distKm = DistanceUtils.degrees2Dist(radiusDEG,  DistanceUtils.EARTH_MEAN_RADIUS_KM);
     String dStr = String.format("%.1f\u00B0 %.2fkm", radiusDEG, distKm);
     return "Circle(" + point + ", d=" + dStr + ')';
   }

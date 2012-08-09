@@ -44,11 +44,11 @@ public class TestDistances extends RandomizedTest {
   }
 
   private static double degToKm(double deg) {
-    return DistanceUtils.toRadians(deg) * DistanceUtils.EARTH_MEAN_RADIUS_KM;
+    return DistanceUtils.degrees2Dist(deg, DistanceUtils.EARTH_MEAN_RADIUS_KM);
   }
 
   private static double kmToDeg(double km) {
-    return DistanceUtils.toDegrees(km / DistanceUtils.EARTH_MEAN_RADIUS_KM);
+    return DistanceUtils.dist2Degrees(km, DistanceUtils.EARTH_MEAN_RADIUS_KM);
   }
 
   @Test
@@ -251,17 +251,25 @@ public class TestDistances extends RandomizedTest {
   }
 
   @Test
-  public void testDistToRadians() {
-    assertDistToRadians(0);
-    assertDistToRadians(500);
-    assertDistToRadians(DistanceUtils.EARTH_MEAN_RADIUS_KM);
+  public void assertDistanceConversion() {
+    assertDistanceConversion(0);
+    assertDistanceConversion(500);
+    assertDistanceConversion(DistanceUtils.EARTH_MEAN_RADIUS_KM);
   }
 
-  private void assertDistToRadians(double dist) {
+  private void assertDistanceConversion(double dist) {
     double radius = DistanceUtils.EARTH_MEAN_RADIUS_KM;
+    //test back & forth conversion for both
+    double distRAD = DistanceUtils.dist2Radians(dist, radius);
+    assertEquals(dist, DistanceUtils.radians2Dist(distRAD, radius), EPS);
+    double distDEG = DistanceUtils.dist2Degrees(dist, radius);
+    assertEquals(dist, DistanceUtils.degrees2Dist(distDEG, radius), EPS);
+    //test across rad & deg
+    assertEquals(distDEG,DistanceUtils.toDegrees(distRAD),EPS);
+    //test point on bearing
     assertEquals(
         DistanceUtils.pointOnBearingRAD(0, 0, DistanceUtils.dist2Radians(dist, radius), DistanceUtils.DEG_90_AS_RADS, null)[1],
-        DistanceUtils.dist2Radians(dist, radius),10e-5);
+        distRAD, 10e-5);
   }
 
   private Point pLL(double lat, double lon) {

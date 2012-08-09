@@ -432,6 +432,15 @@ public class DistanceUtils {
   }
 
   /**
+   * Converts <code>degrees</code> (1/360th of circumference of a circle) into a
+   * distance as measured by the units of the radius.  A spherical earth model
+   * is assumed.
+   */
+  public static double degrees2Dist(double degrees, double radius) {
+    return radians2Dist(toRadians(degrees), radius);
+  }
+
+  /**
    * Converts a distance in the units of <code>radius</code> (e.g. kilometers)
    * to radians (multiples of the radius). A spherical earth model is assumed.
    */
@@ -462,4 +471,5 @@ public class DistanceUtils {
   public static double toDegrees(double radians) {
     return radians * RADIANS_TO_DEGREES;
   }
+
 }
