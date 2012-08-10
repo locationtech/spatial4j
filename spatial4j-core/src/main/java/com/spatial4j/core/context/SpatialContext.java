@@ -136,6 +136,12 @@ public class SpatialContext {
     return new PointImpl(normX(x),normY(y));
   }
 
+  /** Resets a point. The parameters will be normalized. */
+  public Point makePoint(Point reuse, double x, double y) {
+    reuse.reset(normX(x),normY(y));
+    return reuse;
+  }
+
   /** Construct a rectangle. The parameters will be normalized. */
   public Rectangle makeRect(Point lowerLeft, Point upperRight) {
     return makeRect(lowerLeft.getX(), upperRight.getX(),

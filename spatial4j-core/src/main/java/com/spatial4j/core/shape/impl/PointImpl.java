@@ -26,10 +26,15 @@ import com.spatial4j.core.shape.SpatialRelation;
 /** A basic 2D implementation of a Point. */
 public class PointImpl implements Point {
 
-  private final double x;
-  private final double y;
+  private double x;
+  private double y;
 
   public PointImpl(double x, double y) {
+    reset(x, y);
+  }
+
+  @Override
+  public void reset(double x, double y) {
     this.x = x;
     this.y = y;
   }
@@ -43,8 +48,11 @@ public class PointImpl implements Point {
   public double getY() {
     return y;
   }
+
   @Override
   public Rectangle getBoundingBox() {
+    //Unfortunately we make an assumption to create a new RectangleImpl instead
+    // of using ctx.createRect() since we don't have access to a ctx here.
     return new RectangleImpl(x, x, y, y);
   }
 

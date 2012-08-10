@@ -25,6 +25,7 @@ import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
+import com.vividsolutions.jts.geom.CoordinateSequence;
 
 /** Wraps a {@link com.vividsolutions.jts.geom.Point}. */
 public class JtsPoint implements Point {
@@ -78,6 +79,14 @@ public class JtsPoint implements Point {
   public double getY() {
     return pointGeom.getY();
   }
+
+  @Override
+  public void reset(double x, double y) {
+    CoordinateSequence cSeq = pointGeom.getCoordinateSequence();
+    cSeq.setOrdinate(0, CoordinateSequence.X, x);
+    cSeq.setOrdinate(0, CoordinateSequence.Y, y);
+  }
+
   @Override
   public String toString() {
     return "Pt(x="+getX()+",y="+getY()+")";

@@ -27,4 +27,11 @@ public interface Point extends Shape {
 
   /** The Y coordinate, or Latitude in geospatial contexts. */
   public double getY();
+
+  /**
+   * Resets the state of this point given the arguments. This is a performance
+   * feature to avoid excessive Shape object allocation as well as some
+   * argument normalization & error checking.
+   */
+  public void reset(double x, double y);
 }

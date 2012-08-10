@@ -33,15 +33,17 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
   private static final double radiusDEG = DistanceUtils.toDegrees(1);//in degrees
 
   @Override
-  public Point pointOnBearing(Point from, double distDEG, double bearingDEG, SpatialContext ctx) {
-    //TODO avoid unnecessary double[] intermediate object
+  public Point pointOnBearing(Point from, double distDEG, double bearingDEG, SpatialContext ctx, Point reuse) {
     if (distDEG == 0)
       return from;
-    double[] latLon = DistanceUtils.pointOnBearingRAD(
+    if (reuse == null)
+      reuse = ctx.makePoint(0, 0);
+    Point result = DistanceUtils.pointOnBearingRAD(
         toRadians(from.getY()), toRadians(from.getX()),
         toRadians(distDEG),
-        toRadians(bearingDEG), null);
-    return ctx.makePoint(toDegrees(latLon[1]), toDegrees(latLon[0]));
+        toRadians(bearingDEG), reuse);//output result is in radians
+    result.reset(toDegrees(result.getX()), toDegrees(result.getY()));
+    return result;
   }
 
   @Override

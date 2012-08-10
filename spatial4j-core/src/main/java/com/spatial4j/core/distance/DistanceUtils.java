@@ -18,6 +18,7 @@
 package com.spatial4j.core.distance;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 
 
@@ -133,21 +134,19 @@ public class DistanceUtils {
   }
 
   /**
-   * Given a start point (startLat, startLon) and a bearing on a sphere of radius <i>sphereRadius</i>, return the destination point.
-   *
+   * Given a start point (startLat, startLon) and a bearing on a sphere, return the destination point.
    *
    * @param startLat The starting point latitude, in radians
    * @param startLon The starting point longitude, in radians
    * @param distanceRAD The distance to travel along the bearing in radians.
    * @param bearingRAD The bearing, in radians.  North is a 0, moving clockwise till radians(360).
-   * @param result A preallocated array to hold the results.  If null, a new one is constructed.
-   * @return The destination point, in radians.  First entry is latitude, second is longitude
+   * @param reuse A preallocated object to hold the results.  It is mandatory.
+   * @return The destination point, IN RADIANS.
    */
-  public static double[] pointOnBearingRAD(double startLat, double startLon, double distanceRAD, double bearingRAD, double[] result) {
+  public static Point pointOnBearingRAD(double startLat, double startLon, double distanceRAD, double bearingRAD, Point reuse) {
     /*
- 	lat2 = asin(sin(lat1)*cos(d/R) + cos(lat1)*sin(d/R)*cos(θ))
+ 	  lat2 = asin(sin(lat1)*cos(d/R) + cos(lat1)*sin(d/R)*cos(θ))
   	lon2 = lon1 + atan2(sin(θ)*sin(d/R)*cos(lat1), cos(d/R)−sin(lat1)*sin(lat2))
-
      */
     double cosAngDist = Math.cos(distanceRAD);
     double cosStartLat = Math.cos(startLat);
@@ -155,62 +154,35 @@ public class DistanceUtils {
     double sinStartLat = Math.sin(startLat);
     double lat2 = Math.asin(sinStartLat * cosAngDist +
             cosStartLat * sinAngDist * Math.cos(bearingRAD));
-
     double lon2 = startLon + Math.atan2(Math.sin(bearingRAD) * sinAngDist * cosStartLat,
             cosAngDist - sinStartLat * Math.sin(lat2));
-
-    /*lat2 = (lat2*180)/Math.PI;
-    lon2 = (lon2*180)/Math.PI;*/
-
+    
     // normalize lon first
-    if (result == null || result.length != 2){
-      result = new double[2];
+    if (lon2 > DEG_180_AS_RADS) {
+      lon2 = -1.0 * (DEG_180_AS_RADS - (lon2 - DEG_180_AS_RADS));
+    } else if (lon2 < -DEG_180_AS_RADS) {
+      lon2 = (lon2 + DEG_180_AS_RADS) + DEG_180_AS_RADS;
     }
-    result[0] = lat2;
-    result[1] = lon2;
-    normLngRAD(result);
 
     // normalize lat - could flip poles
-    normLatRAD(result);
-    return result;
-  }
-
-  /**
-   * @param latLng The lat/lon, in radians. lat in position 0, lon in position 1
-   */
-  @Deprecated
-  public static void normLatRAD(double[] latLng) {
-
-    if (latLng[0] > DEG_90_AS_RADS) {
-      latLng[0] = DEG_90_AS_RADS - (latLng[0] - DEG_90_AS_RADS);
-      if (latLng[1] < 0) {
-        latLng[1] = latLng[1] + DEG_180_AS_RADS;
+    if (lat2 > DEG_90_AS_RADS) {
+      lat2 = DEG_90_AS_RADS - (lat2 - DEG_90_AS_RADS);
+      if (lon2 < 0) {
+        lon2 = lon2 + DEG_180_AS_RADS;
       } else {
-        latLng[1] = latLng[1] - DEG_180_AS_RADS;
+        lon2 = lon2 - DEG_180_AS_RADS;
       }
-    } else if (latLng[0] < -DEG_90_AS_RADS) {
-      latLng[0] = -DEG_90_AS_RADS - (latLng[0] + DEG_90_AS_RADS);
-      if (latLng[1] < 0) {
-        latLng[1] = latLng[1] + DEG_180_AS_RADS;
+    } else if (lat2 < -DEG_90_AS_RADS) {
+      lat2 = -DEG_90_AS_RADS - (lat2 + DEG_90_AS_RADS);
+      if (lon2 < 0) {
+        lon2 = lon2 + DEG_180_AS_RADS;
       } else {
-        latLng[1] = latLng[1] - DEG_180_AS_RADS;
+        lon2 = lon2 - DEG_180_AS_RADS;
       }
     }
 
-  }
-
-  /**
-   * Returns a normalized Lng rectangle shape for the bounding box
-   *
-   * @param latLng The lat/lon, in radians, lat in position 0, lon in position 1
-   */
-  @Deprecated
-  public static void normLngRAD(double[] latLng) {
-    if (latLng[1] > DEG_180_AS_RADS) {
-      latLng[1] = -1.0 * (DEG_180_AS_RADS - (latLng[1] - DEG_180_AS_RADS));
-    } else if (latLng[1] < -DEG_180_AS_RADS) {
-      latLng[1] = (latLng[1] + DEG_180_AS_RADS) + DEG_180_AS_RADS;
-    }
+    reuse.reset(lon2, lat2);//x y
+    return reuse;
   }
 
   /**

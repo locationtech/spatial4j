@@ -23,6 +23,7 @@ import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.SpatialRelation;
+import com.spatial4j.core.shape.impl.PointImpl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -88,7 +89,7 @@ public class TestDistances extends RandomizedTest {
     checkBBox(ctx.makePoint(0,90-20),degToKm(20));
     {
       double d = 0.010;//10m
-      checkBBox(ctx.makePoint(0,90-kmToDeg(d+0.001)),d);
+      checkBBox(ctx.makePoint(0,90-kmToDeg(d + 0.001)),d);
     }
 
     for (int T = 0; T < 100; T++) {
@@ -200,10 +201,10 @@ public class TestDistances extends RandomizedTest {
       Point c = ctx.makePoint(randomInt(359),randomIntBetween(-90,90));
 
       //0 distance means same point
-      Point p2 = dc().pointOnBearing(c, 0, angDEG, ctx);
+      Point p2 = dc().pointOnBearing(c, 0, angDEG, ctx, null);
       assertEquals(c,p2);
 
-      p2 = dc().pointOnBearing(c, kmToDeg(distKm), angDEG, ctx);
+      p2 = dc().pointOnBearing(c, kmToDeg(distKm), angDEG, ctx, null);
       double calcDistKm = degToKm(dc().distance(c, p2));
       assertEqualsRatio(distKm, calcDistKm);
     }
@@ -268,7 +269,7 @@ public class TestDistances extends RandomizedTest {
     assertEquals(distDEG,DistanceUtils.toDegrees(distRAD),EPS);
     //test point on bearing
     assertEquals(
-        DistanceUtils.pointOnBearingRAD(0, 0, DistanceUtils.dist2Radians(dist, radius), DistanceUtils.DEG_90_AS_RADS, null)[1],
+        DistanceUtils.pointOnBearingRAD(0, 0, DistanceUtils.dist2Radians(dist, radius), DistanceUtils.DEG_90_AS_RADS, new PointImpl(0, 0)).getX(),
         distRAD, 10e-5);
   }
 

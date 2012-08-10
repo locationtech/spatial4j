@@ -37,9 +37,10 @@ public interface DistanceCalculator {
 
   /**
    * Calculates where a destination point is given an origin (<code>from</code>)
-   * distance, and bearing (given in degrees -- 0-360).
+   * distance, and bearing (given in degrees -- 0-360).  If reuse is given, then
+   * this method may reset() it and return it.
    */
-  public Point pointOnBearing(Point from, double distDEG, double bearingDEG, SpatialContext ctx);
+  public Point pointOnBearing(Point from, double distDEG, double bearingDEG, SpatialContext ctx, Point reuse);
 
   /**
    * Calculates the bounding box of a circle, as specified by its center point
