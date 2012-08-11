@@ -67,6 +67,9 @@ public class TestShapes2D extends AbstractTestShapes {
     assertRelation(msg, DISJOINT, pt, ctx.makePoint(0, 1));
     assertRelation(msg, DISJOINT, pt, ctx.makePoint(1, 0));
     assertRelation(msg, DISJOINT, pt, ctx.makePoint(1, 1));
+
+    pt.reset(1, 2);
+    assertEquals(ctx.makePoint(1, 2), pt);
   }
 
   @Test

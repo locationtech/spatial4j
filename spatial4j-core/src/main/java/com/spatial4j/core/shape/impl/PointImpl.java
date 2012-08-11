@@ -29,6 +29,7 @@ public class PointImpl implements Point {
   private double x;
   private double y;
 
+  /** A simple constructor without normalization / validation. */
   public PointImpl(double x, double y) {
     reset(x, y);
   }

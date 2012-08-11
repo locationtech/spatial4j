@@ -32,6 +32,7 @@ public class JtsPoint implements Point {
 
   private com.vividsolutions.jts.geom.Point pointGeom;
 
+  /** A simple constructor without normalization / validation. */
   public JtsPoint(com.vividsolutions.jts.geom.Point pointGeom) {
     this.pointGeom = pointGeom;
   }
