@@ -31,6 +31,13 @@ import com.spatial4j.core.context.SpatialContext;
 public interface Rectangle extends Shape {
 
   /**
+   * Resets the state of this point given the arguments. This is a performance
+   * feature to avoid excessive Shape object allocation as well as some
+   * argument normalization & error checking.
+   */
+  public void reset(double minX, double maxX, double minY, double maxY);
+
+  /**
    * The width. In geospatial contexts, this is generally in degrees longitude
    * and is aware of the international dateline.  It will always be >= 0.
    */

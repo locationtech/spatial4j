@@ -84,6 +84,10 @@ public class TestShapes2D extends AbstractTestShapes {
       }
     }
 
+    Rectangle r = ctx.makeRect(0,0,0,0);
+    r.reset(1,2,3,4);
+    assertEquals(ctx.makeRect(1,2,3,4), r);
+
     testRectIntersect();
   }
 

@@ -142,18 +142,57 @@ public class SpatialContext {
     return reuse;
   }
 
+  /**
+   * Normalizes the point's coordinates, using {@link #normX(double)} and
+   * {@link #normY(double)}.
+   */
+  public void normPoint(Point point) {
+    point.reset(normX(point.getX()), normY(point.getY()));
+  }
+
   /** Construct a rectangle. The parameters will be normalized. */
   public Rectangle makeRect(Point lowerLeft, Point upperRight) {
     return makeRect(lowerLeft.getX(), upperRight.getX(),
         lowerLeft.getY(), upperRight.getY());
   }
 
+  public Rectangle makeRect(Rectangle reuse, double minX, double maxX, double minY, double maxY) {
+    reuse.reset(minX, maxX, minY, maxY);
+    normRect(reuse);
+    return reuse;
+  }
+
   /** Construct a rectangle. The parameters will be normalized. */
   public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
+    Rectangle rect = new RectangleImpl(minX, maxX, minY, maxY);
+    normRect(rect);
+    return rect;
+  }
+
+  /**
+   * Normalizes the rectangle's coordinates.
+   * <P>
+   * For geospatial WGS84:<br/>
+   * Latitudes: Must be in the -90 to +90 range already.
+   * <br />
+   * Longitudes:
+   *  If the width is >= 360 then set longitudes to -180, +180 ; done.
+   *  Otherwise, first normalize both longitudes via {@link #normX(double)}.
+   *  If either longitude is on the dateline (+/- 180), and if the rect has a
+   *  non-zero width, then potentially adjust the sign of the dateline boundary
+   *  to ensure both longitudes have the same sign and thus don't appear to
+   *  cross the dateline.
+   */
+  public void normRect(Rectangle rect) {
+    double minX = rect.getMinX();
+    double maxX = rect.getMaxX();
+    double minY = rect.getMinY();
+    double maxY = rect.getMaxY();
+
     //--Normalize parameters
     if (isGeo()) {
-      double delta = calcWidth(minX,maxX);
-      if (delta >= 360) {
+      double width = calcWidth(minX, maxX);
+      if (width >= 360) {
         //The only way to officially support complete longitude wrap-around is via western longitude = -180. We can't
         // support any point because 0 is undifferentiated in sign.
         minX = -180;
@@ -161,24 +200,24 @@ public class SpatialContext {
       } else {
         minX = normX(minX);
         maxX = normX(maxX);
-        assert Math.abs(delta - calcWidth(minX,maxX)) < 0.0001;//recompute delta; should be the same
+        assert Math.abs(width - calcWidth(minX, maxX)) < 0.0001;//recompute delta; should be the same
         //If an edge coincides with the dateline then don't make this rect cross it
-        if (delta > 0) {
+        if (width > 0) {
           if (minX == 180) {
             minX = -180;
-            maxX = -180 + delta;
+            assert maxX == -180 + width;
           } else if (maxX == -180) {
             maxX = 180;
-            minX = 180 - delta;
+            assert minX == 180 - width;
           }
         }
       }
       if (minY > maxY) {
-        throw new IllegalArgumentException("maxY must be >= minY: "+minY+" to "+maxY);
+        throw new IllegalArgumentException("maxY must be >= minY: " + minY + " to " + maxY);
       }
       if (minY < -90 || minY > 90 || maxY < -90 || maxY > 90)
         throw new IllegalArgumentException(
-                "minY or maxY is outside of -90 to 90 bounds. What did you mean?: "+minY+" to "+maxY);
+                "minY or maxY is outside of -90 to 90 bounds. What did you mean?: " + minY + " to " + maxY);
 //        debatable what to do in this situation.
 //        if (minY < -90) {
 //          minX = -180;
@@ -200,7 +239,8 @@ public class SpatialContext {
       minY = normY(minY);
       maxY = normY(maxY);
     }
-    return new RectangleImpl(minX, maxX, minY, maxY);
+
+    rect.reset(minX, maxX, minY, maxY);
   }
 
   private double calcWidth(double minX, double maxX) {

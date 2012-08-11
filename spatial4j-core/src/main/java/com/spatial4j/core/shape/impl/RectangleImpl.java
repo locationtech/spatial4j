@@ -31,19 +31,15 @@ import com.spatial4j.core.shape.SpatialRelation;
  */
 public class RectangleImpl implements Rectangle {
 
-  private final double minX;
-  private final double maxX;
-  private final double minY;
-  private final double maxY;
+  private double minX;
+  private double maxX;
+  private double minY;
+  private double maxY;
 
-  //TODO change to West South East North to be more consistent with OGC?
+  /** A simple constructor without normalization / validation. */
   public RectangleImpl(double minX, double maxX, double minY, double maxY) {
-    //We assume any normalization / validation of params already occurred.
-    this.minX = minX;
-    this.maxX = maxX;
-    this.minY = minY;
-    this.maxY = maxY;
-    assert minY <= maxY;
+    //TODO change to West South East North to be more consistent with OGC?
+    reset(minX, maxX, minY, maxY);
   }
 
   /** A convenience constructor which pulls out the coordinates. */
@@ -55,6 +51,15 @@ public class RectangleImpl implements Rectangle {
   /** Copy constructor. */
   public RectangleImpl(Rectangle r) {
     this(r.getMinX(),r.getMaxX(),r.getMinY(),r.getMaxY());
+  }
+
+  @Override
+  public void reset(double minX, double maxX, double minY, double maxY) {
+    this.minX = minX;
+    this.maxX = maxX;
+    this.minY = minY;
+    this.maxY = maxY;
+    assert minY <= maxY;
   }
 
   @Override
