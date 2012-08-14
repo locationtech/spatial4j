@@ -60,7 +60,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
         maxX = DistanceUtils.normLonDEG(maxX);
       }
     }
-    return ctx.makeRect(minX, maxX, minY, maxY);
+    return ctx.makeRectangle(minX, maxX, minY, maxY);
   }
 
   protected void assertRelation(String msg, SpatialRelation expected, Shape a, Shape b) {
@@ -109,9 +109,9 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     minX = normX(minX);
     maxX = normX(maxX);
 
-    Rectangle r = ctx.makeRect(minX, maxX, minY, maxY);
+    Rectangle r = ctx.makeRectangle(minX, maxX, minY, maxY);
     //test equals & hashcode of duplicate
-    Rectangle r2 = ctx.makeRect(minX, maxX, minY, maxY);
+    Rectangle r2 = ctx.makeRectangle(minX, maxX, minY, maxY);
     assertEquals(r,r2);
     assertEquals(r.hashCode(),r2.hashCode());
 
@@ -267,7 +267,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     double rYmax = Math.max(rY1,rY2);
     if (rW > 0 && rX == 180)
       rX = -180;
-    return makeNormRect(rX, rX+rW, rYmin, rYmax);
+    return makeNormRect(rX, rX + rW, rYmin, rYmax);
   }
 
   @Test
@@ -277,8 +277,8 @@ public abstract class AbstractTestShapes extends RandomizedTest {
         new RectangleImpl(new PointImpl(1,2),new PointImpl(3,4)));
 
     //test ctx.makeRect
-    assertEquals(ctx.makeRect(1,3,2,4),
-        ctx.makeRect(ctx.makePoint(1,2),ctx.makePoint(3,4)));
+    assertEquals(ctx.makeRectangle(1, 3, 2, 4),
+        ctx.makeRectangle(ctx.makePoint(1, 2), ctx.makePoint(3, 4)));
   }
 
   @Test

@@ -31,12 +31,12 @@ public class JtsShapeReadWriterTest extends RandomizedTest {
     // order is counter-clockwise in both cases as it should be.
 
     Shape sNoDL = ctx.readShape("Polygon((-170 30, -170 15,  160 15,  160 30, -170 30))");
-    Rectangle expectedNoDL = ctx.makeRect(-170, 160, 15, 30);
+    Rectangle expectedNoDL = ctx.makeRectangle(-170, 160, 15, 30);
     assertTrue(!expectedNoDL.getCrossesDateLine());
     assertEquals(expectedNoDL,sNoDL);
 
     Shape sYesDL = ctx.readShape("Polygon(( 160 30,  160 15, -170 15, -170 30,  160 30))");
-    Rectangle expectedYesDL = ctx.makeRect(160, -170, 15, 30);
+    Rectangle expectedYesDL = ctx.makeRectangle(160, -170, 15, 30);
     assertTrue(expectedYesDL.getCrossesDateLine());
     assertEquals(expectedYesDL,sYesDL);
 

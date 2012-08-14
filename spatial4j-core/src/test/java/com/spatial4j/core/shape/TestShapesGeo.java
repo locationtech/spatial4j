@@ -66,15 +66,15 @@ public class TestShapesGeo extends AbstractTestShapes {
   public void testGeoRectangle() {
     //First test some relateXRange
     //    opposite +/- 180
-    assertEquals(INTERSECTS,  ctx.makeRect(170, 180, 0, 0).relateXRange(-180, -170, ctx));
-    assertEquals(INTERSECTS,  ctx.makeRect(-90, -45, 0, 0).relateXRange(-45, -135, ctx));
+    assertEquals(INTERSECTS,  ctx.makeRectangle(170, 180, 0, 0).relateXRange(-180, -170, ctx));
+    assertEquals(INTERSECTS,  ctx.makeRectangle(-90, -45, 0, 0).relateXRange(-45, -135, ctx));
     assertEquals(CONTAINS, ctx.getWorldBounds().relateXRange(-90, -135, ctx));
     //point on edge at dateline using opposite +/- 180
-    assertEquals(CONTAINS, ctx.makeRect(170, 180, 0, 0).relate(ctx.makePoint(-180, 0), ctx));
+    assertEquals(CONTAINS, ctx.makeRectangle(170, 180, 0, 0).relate(ctx.makePoint(-180, 0), ctx));
 
     //test 180 becomes -180 for non-zero width rectangle
-    assertEquals(ctx.makeRect(-180,-170,0,0),ctx.makeRect(180,-170,0,0));
-    assertEquals(ctx.makeRect(170,180,0,0),ctx.makeRect(170, -180, 0, 0));
+    assertEquals(ctx.makeRectangle(-180, -170, 0, 0),ctx.makeRectangle(180, -170, 0, 0));
+    assertEquals(ctx.makeRectangle(170, 180, 0, 0),ctx.makeRectangle(170, -180, 0, 0));
 
     double[] lons = new double[]{0,45,160,180,-45,-175, -180};//minX
     for (double lon : lons) {
@@ -121,36 +121,36 @@ public class TestShapesGeo extends AbstractTestShapes {
 //      assertEquals("dist != xy space",INTERSECTS,c.relate(r,ctx));//once failed here
 //    }
 
-    assertEquals("nudge back circle", CONTAINS, ctx.makeCircle(-150, -90, 122).relate(ctx.makeRect(0, -132, 32, 32), ctx));
+    assertEquals("nudge back circle", CONTAINS, ctx.makeCircle(-150, -90, 122).relate(ctx.makeRectangle(0, -132, 32, 32), ctx));
 
-    assertEquals("wrong estimate", DISJOINT,ctx.makeCircle(-166,59,kmToDeg(5226.2)).relate(ctx.makeRect(36, 66, 23, 23), ctx));
+    assertEquals("wrong estimate", DISJOINT,ctx.makeCircle(-166,59,kmToDeg(5226.2)).relate(ctx.makeRectangle(36, 66, 23, 23), ctx));
 
-    assertEquals("bad CONTAINS (dateline)",INTERSECTS,ctx.makeCircle(56,-50,kmToDeg(12231.5)).relate(ctx.makeRect(108, 26, 39, 48), ctx));
+    assertEquals("bad CONTAINS (dateline)",INTERSECTS,ctx.makeCircle(56,-50,kmToDeg(12231.5)).relate(ctx.makeRectangle(108, 26, 39, 48), ctx));
 
     assertEquals("bad CONTAINS (backwrap2)",INTERSECTS,
-        ctx.makeCircle(112,-3,91).relate(ctx.makeRect(-163, 29, -38, 10), ctx));
+        ctx.makeCircle(112,-3,91).relate(ctx.makeRectangle(-163, 29, -38, 10), ctx));
 
     assertEquals("bad CONTAINS (r x-wrap)",INTERSECTS,
-        ctx.makeCircle(-139,47,80).relate(ctx.makeRect(-180, 180, -3, 12), ctx));
+        ctx.makeCircle(-139,47,80).relate(ctx.makeRectangle(-180, 180, -3, 12), ctx));
 
     assertEquals("bad CONTAINS (pwrap)",INTERSECTS,
-        ctx.makeCircle(-139,47,80).relate(ctx.makeRect(-180, 179, -3, 12), ctx));
+        ctx.makeCircle(-139,47,80).relate(ctx.makeRectangle(-180, 179, -3, 12), ctx));
 
     assertEquals("no-dist 1",WITHIN,
-        ctx.makeCircle(135,21,0).relate(ctx.makeRect(-103, -154, -47, 52), ctx));
+        ctx.makeCircle(135,21,0).relate(ctx.makeRectangle(-103, -154, -47, 52), ctx));
 
     assertEquals("bbox <= >= -90 bug",CONTAINS,
-        ctx.makeCircle(-64,-84,124).relate(ctx.makeRect(-96, 96, -10, -10), ctx));
+        ctx.makeCircle(-64,-84,124).relate(ctx.makeRectangle(-96, 96, -10, -10), ctx));
 
     //The horizontal axis line of a geo circle doesn't necessarily pass through c's ctr.
     assertEquals("c's horiz axis doesn't pass through ctr",INTERSECTS,
-        ctx.makeCircle(71,-44,40).relate(ctx.makeRect(15, 27, -62, -34), ctx));
+        ctx.makeCircle(71,-44,40).relate(ctx.makeRectangle(15, 27, -62, -34), ctx));
 
     assertEquals("pole boundary",INTERSECTS,
-        ctx.makeCircle(-100,-12,102).relate(ctx.makeRect(143, 175, 4, 32), ctx));
+        ctx.makeCircle(-100,-12,102).relate(ctx.makeRectangle(143, 175, 4, 32), ctx));
 
     assertEquals("full circle assert",CONTAINS,
-        ctx.makeCircle(-64,32,180).relate(ctx.makeRect(47, 47, -14, 90), ctx));
+        ctx.makeCircle(-64,32,180).relate(ctx.makeRectangle(47, 47, -14, 90), ctx));
 
     //--Now proceed with systematic testing:
     assertEquals(ctx.getWorldBounds(), ctx.makeCircle(0,0,180).getBoundingBox());

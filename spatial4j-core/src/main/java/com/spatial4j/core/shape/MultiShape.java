@@ -50,7 +50,7 @@ public class MultiShape implements Shape {
       maxX = Math.max(maxX,r.getMaxX());
       maxY = Math.max(maxY,r.getMaxY());
     }
-    this.bbox = ctx.makeRect(minX, maxX, minY, maxY);
+    this.bbox = ctx.makeRectangle(minX, maxX, minY, maxY);
   }
 
   @Override

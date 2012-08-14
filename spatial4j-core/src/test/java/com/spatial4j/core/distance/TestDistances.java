@@ -302,7 +302,7 @@ public class TestDistances extends RandomizedTest {
     assertEquals(c3.getBoundingBox().getArea(ctx), c3Opposite.getBoundingBox().getArea(ctx), 0.01);
 
     //small shapes near the equator should have similar areas to euclidean rectangle
-    Rectangle smallRect = ctx.makeRect(0,1,0,1);
+    Rectangle smallRect = ctx.makeRectangle(0, 1, 0, 1);
     assertEquals(1.0, smallRect.getArea(null), 0.0);
     double smallDelta = smallRect.getArea(null) - smallRect.getArea(ctx);
     assertTrue(smallDelta > 0 && smallDelta < 0.0001);

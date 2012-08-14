@@ -218,7 +218,7 @@ public class DistanceUtils {
     //See http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates Section 3.1, 3.2 and 3.3
 
     if (distDEG == 0)
-      return ctx.makeRect(lon,lon,lat,lat);//essentially a point
+      return ctx.makeRectangle(lon, lon, lat, lat);//essentially a point
 
     if (distDEG >= 180)//distance is >= opposite side of the globe
       return ctx.getWorldBounds();
@@ -239,7 +239,7 @@ public class DistanceUtils {
       if (latS_deg < -90)
         latS_deg = -90;
 
-      return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);
+      return ctx.makeRectangle(lonW_deg, lonE_deg, latS_deg, latN_deg);
     } else {
       //--calc longitude bounds
       double lon_delta_deg = calcBoxByDistFromPt_deltaLonDEG(lat, lon, distDEG);
@@ -247,7 +247,7 @@ public class DistanceUtils {
       double lonW_deg = normLonDEG(lon - lon_delta_deg);
       double lonE_deg = normLonDEG(lon + lon_delta_deg);
 
-      return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);//ctx will normalize longitude
+      return ctx.makeRectangle(lonW_deg, lonE_deg, latS_deg, latN_deg);//ctx will normalize longitude
     }
   }
 

@@ -77,7 +77,7 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
 
   @Override
   public Rectangle calcBoxByDistFromPt(Point from, double distDEG, SpatialContext ctx) {
-    return ctx.makeRect(from.getX()- distDEG,from.getX()+ distDEG,from.getY()- distDEG,from.getY()+ distDEG);
+    return ctx.makeRectangle(from.getX() - distDEG, from.getX() + distDEG, from.getY() - distDEG, from.getY() + distDEG);
   }
 
   @Override

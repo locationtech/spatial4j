@@ -138,9 +138,9 @@ public class SpatialContext {
   }
 
   /** Construct a rectangle. */
-  public Rectangle makeRect(Point lowerLeft, Point upperRight) {
-    return makeRect(lowerLeft.getX(), upperRight.getX(),
-        lowerLeft.getY(), upperRight.getY());
+  public Rectangle makeRectangle(Point lowerLeft, Point upperRight) {
+    return makeRectangle(lowerLeft.getX(), upperRight.getX(),
+            lowerLeft.getY(), upperRight.getY());
   }
 
   /**
@@ -148,7 +148,7 @@ public class SpatialContext {
    * then potentially adjust its sign to ensure the rectangle does not cross the
    * dateline.
    */
-  public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
+  public Rectangle makeRectangle(double minX, double maxX, double minY, double maxY) {
     verifyX(minX);
     verifyX(maxX);
     verifyY(minY);

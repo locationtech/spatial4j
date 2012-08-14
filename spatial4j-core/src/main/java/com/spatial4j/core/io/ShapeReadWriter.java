@@ -152,7 +152,7 @@ public class ShapeReadWriter<CTX extends SpatialContext> {
       double p3 = Double.parseDouble(st.nextToken());
       if (st.hasMoreTokens())
         throw new InvalidShapeException("Only 4 numbers supported (rect) but found more: " + str);
-      return ctx.makeRect(p0, p2, p1, p3);
+      return ctx.makeRectangle(p0, p2, p1, p3);
     }
     return ctx.makePoint(p0, p1);
   }

@@ -63,7 +63,7 @@ public class ShapeReadWriterTest extends RandomizedTest {
   @Test
   public void testRectangle() throws IOException {
     Shape s = ctx.readShape("-10 -20 10 20");
-    assertEquals(ctx.makeRect(-10,10,-20,20),s);
+    assertEquals(ctx.makeRectangle(-10, 10, -20, 20),s);
     assertEquals(s,writeThenRead(s));
     assertTrue(s.hasArea());
   }

@@ -18,8 +18,8 @@
 package com.spatial4j.core.util;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
 
 import java.util.Arrays;
 
@@ -147,7 +147,7 @@ public class GeohashUtils {
       }
 
     }
-    return ctx.makeRect(minX, maxX, minY, maxY);
+    return ctx.makeRectangle(minX, maxX, minY, maxY);
   }
 
   /** Array of geohashes 1 level below the baseGeohash. Sorted. */
