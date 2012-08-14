@@ -231,8 +231,8 @@ public class DistanceUtils {
       //we have special logic for longitude
       double lonW_deg = -180, lonE_deg = 180;//world wrap: 360 deg
       if (latN_deg <= 90 && latS_deg >= -90) {//doesn't pass either pole: 180 deg
-        lonW_deg = lon -90;
-        lonE_deg = lon +90;
+        lonW_deg = normLonDEG(lon - 90);
+        lonE_deg = normLonDEG(lon + 90);
       }
       if (latN_deg > 90)
         latN_deg = 90;
@@ -244,8 +244,8 @@ public class DistanceUtils {
       //--calc longitude bounds
       double lon_delta_deg = calcBoxByDistFromPt_deltaLonDEG(lat, lon, distDEG);
 
-      double lonW_deg = lon -lon_delta_deg;
-      double lonE_deg = lon +lon_delta_deg;
+      double lonW_deg = normLonDEG(lon - lon_delta_deg);
+      double lonE_deg = normLonDEG(lon + lon_delta_deg);
 
       return ctx.makeRect(lonW_deg, lonE_deg, latS_deg, latN_deg);//ctx will normalize longitude
     }

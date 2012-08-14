@@ -35,7 +35,7 @@ public class ShapeReadWriterTest extends RandomizedTest {
   public static Iterable<Object[]> parameters() {
     return Arrays.asList($$(
             $(SpatialContext.GEO),
-            $(JtsSpatialContext.GEO_KM)
+            $(JtsSpatialContext.GEO)
     ));
   }
 

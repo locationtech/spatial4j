@@ -14,7 +14,7 @@ import java.io.IOException;
  */
 public class JtsShapeReadWriterTest extends RandomizedTest {
 
-  SpatialContext ctx = JtsSpatialContext.GEO_KM;
+  SpatialContext ctx = JtsSpatialContext.GEO;
 
   @Test
   public void wktGeoPt() throws IOException {

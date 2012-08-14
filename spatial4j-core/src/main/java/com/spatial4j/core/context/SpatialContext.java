@@ -19,7 +19,6 @@ package com.spatial4j.core.context;
 
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.DistanceCalculator;
-import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReadWriter;
@@ -86,8 +85,7 @@ public class SpatialContext {
       if (worldBounds.getCrossesDateLine())
         throw new IllegalArgumentException("worldBounds shouldn't cross dateline: "+worldBounds);
     }
-    //copy so we can ensure we have the right implementation
-    worldBounds = makeRect(worldBounds.getMinX(),worldBounds.getMaxX(),worldBounds.getMinY(),worldBounds.getMaxY());
+    //hopefully worldBounds' rect implementation is compatible
     this.worldBounds = worldBounds;
 
     shapeReadWriter = makeShapeReadWriter();
@@ -105,25 +103,12 @@ public class SpatialContext {
     return calculator;
   }
 
+  /**
+   * The extent of x & y coordinates should fit within the return'ed rectangle.
+   * Do *NOT* invoke reset() on this return type.
+   */
   public Rectangle getWorldBounds() {
     return worldBounds;
-  }
-
-  /** If {@link #isGeo()} then calls {@link DistanceUtils#normLonDEG(double)}. */
-  public double normX(double x) {
-    if (isGeo()) {
-      return DistanceUtils.normLonDEG(x);
-    } else {
-      return x;
-    }
-  }
-
-  /** If {@link #isGeo()} then calls {@link DistanceUtils#normLatDEG(double)}. */
-  public double normY(double y) {
-    if (isGeo()) {
-      y = DistanceUtils.normLatDEG(y);
-    }
-    return y;
   }
 
   /** Is this a geospatial context (true) or simply 2d spatial (false). */
@@ -131,146 +116,78 @@ public class SpatialContext {
     return geo;
   }
 
-  /** Construct a point. The parameters will be normalized. */
+  /** Ensure fits in {@link #getWorldBounds()} */
+  public void verifyX(double x) {
+    Rectangle bounds = getWorldBounds();
+    if (!(x >= bounds.getMinX() && x <= bounds.getMaxX()))//NaN will fail
+      throw new IllegalArgumentException("Bad X value "+x+" is not in boundary "+bounds);
+  }
+
+  /** Ensure fits in {@link #getWorldBounds()} */
+  public void verifyY(double y) {
+    Rectangle bounds = getWorldBounds();
+    if (!(y >= bounds.getMinY() && y <= bounds.getMaxY()))//NaN will fail
+      throw new IllegalArgumentException("Bad Y value "+y+" is not in boundary "+bounds);
+  }
+
+  /** Construct a point. */
   public Point makePoint(double x, double y) {
-    return new PointImpl(normX(x),normY(y));
+    verifyX(x);
+    verifyY(y);
+    return new PointImpl(x, y);
   }
 
-  /** Resets a point. The parameters will be normalized. */
-  public Point makePoint(Point reuse, double x, double y) {
-    reuse.reset(normX(x),normY(y));
-    return reuse;
-  }
-
-  /**
-   * Normalizes the point's coordinates, using {@link #normX(double)} and
-   * {@link #normY(double)}.
-   */
-  public void normPoint(Point point) {
-    point.reset(normX(point.getX()), normY(point.getY()));
-  }
-
-  /** Construct a rectangle. The parameters will be normalized. */
+  /** Construct a rectangle. */
   public Rectangle makeRect(Point lowerLeft, Point upperRight) {
     return makeRect(lowerLeft.getX(), upperRight.getX(),
         lowerLeft.getY(), upperRight.getY());
   }
 
-  public Rectangle makeRect(Rectangle reuse, double minX, double maxX, double minY, double maxY) {
-    reuse.reset(minX, maxX, minY, maxY);
-    normRect(reuse);
-    return reuse;
-  }
-
-  /** Construct a rectangle. The parameters will be normalized. */
-  public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
-    Rectangle rect = new RectangleImpl(minX, maxX, minY, maxY);
-    normRect(rect);
-    return rect;
-  }
-
   /**
-   * Normalizes the rectangle's coordinates.
-   * <P>
-   * For geospatial WGS84:<br/>
-   * Latitudes: Must be in the -90 to +90 range already.
-   * <br />
-   * Longitudes:
-   *  If the width is >= 360 then set longitudes to -180, +180 ; done.
-   *  Otherwise, first normalize both longitudes via {@link #normX(double)}.
-   *  If either longitude is on the dateline (+/- 180), and if the rect has a
-   *  non-zero width, then potentially adjust the sign of the dateline boundary
-   *  to ensure both longitudes have the same sign and thus don't appear to
-   *  cross the dateline.
+   * Construct a rectangle. If just one longitude is on the dateline (+/- 180)
+   * then potentially adjust its sign to ensure the rectangle does not cross the
+   * dateline.
    */
-  public void normRect(Rectangle rect) {
-    double minX = rect.getMinX();
-    double maxX = rect.getMaxX();
-    double minY = rect.getMinY();
-    double maxY = rect.getMaxY();
-
-    //--Normalize parameters
+  public Rectangle makeRect(double minX, double maxX, double minY, double maxY) {
+    verifyX(minX);
+    verifyX(maxX);
+    verifyY(minY);
+    verifyY(maxY);
+    if (minY > maxY)
+      throw new IllegalArgumentException("maxY must be >= minY: " + minY + " to " + maxY);
     if (isGeo()) {
-      double width = calcWidth(minX, maxX);
-      if (width >= 360) {
-        //The only way to officially support complete longitude wrap-around is via western longitude = -180. We can't
-        // support any point because 0 is undifferentiated in sign.
-        minX = -180;
-        maxX = 180;
-      } else {
-        minX = normX(minX);
-        maxX = normX(maxX);
-        assert Math.abs(width - calcWidth(minX, maxX)) < 0.0001;//recompute delta; should be the same
+      //TODO consider removing this logic so that there is no normalization here
+      if (minX != maxX) {
         //If an edge coincides with the dateline then don't make this rect cross it
-        if (width > 0) {
-          if (minX == 180) {
-            minX = -180;
-            assert maxX == -180 + width;
-          } else if (maxX == -180) {
-            maxX = 180;
-            assert minX == 180 - width;
-          }
+        if (minX == 180) {
+          minX = -180;
+        } else if (maxX == -180) {
+          maxX = 180;
         }
       }
-      if (minY > maxY) {
-        throw new IllegalArgumentException("maxY must be >= minY: " + minY + " to " + maxY);
-      }
-      if (minY < -90 || minY > 90 || maxY < -90 || maxY > 90)
-        throw new IllegalArgumentException(
-                "minY or maxY is outside of -90 to 90 bounds. What did you mean?: " + minY + " to " + maxY);
-//        debatable what to do in this situation.
-//        if (minY < -90) {
-//          minX = -180;
-//          maxX = 180;
-//          maxY = Math.min(90,Math.max(maxY,-90 + (-90 - minY)));
-//          minY = -90;
-//        }
-//        if (maxY > 90) {
-//          minX = -180;
-//          maxX = 180;
-//          minY = Math.max(-90,Math.min(minY,90 - (maxY - 90)));
-//          maxY = 90;
-//        }
-
     } else {
-      //these normalizations probably won't do anything since it's not geo but should probably call them any way.
-      minX = normX(minX);
-      maxX = normX(maxX);
-      minY = normY(minY);
-      maxY = normY(maxY);
+      if (minX > maxX)
+        throw new IllegalArgumentException("maxX must be >= minX: " + minX + " to " + maxX);
     }
-
-    rect.reset(minX, maxX, minY, maxY);
+    return new RectangleImpl(minX, maxX, minY, maxY);
   }
 
-  private double calcWidth(double minX, double maxX) {
-    double w = maxX - minX;
-    if (w < 0) {//only true when minX > maxX (WGS84 assumed)
-      w += 360;
-      assert w >= 0;
-    }
-    return w;
-  }
-
-  /**
-   * Construct a circle. The parameters will be normalized. The units of
-   * "distance" should be the same as x & y.
-   */
+  /** Construct a circle. The units of "distance" should be the same as x & y. */
   public Circle makeCircle(double x, double y, double distance) {
     return makeCircle(makePoint(x, y), distance);
   }
 
-  /**
-   * Construct a circle. The parameters will be normalized. The units of
-   * "distance" should be the same as x & y.
-   */
+  /** Construct a circle. The units of "distance" should be the same as x & y. */
   public Circle makeCircle(Point point, double distance) {
     if (distance < 0)
       throw new InvalidShapeException("distance must be >= 0; got " + distance);
-    if (isGeo())
-      return new GeoCircle(point, Math.min(distance, 180), this);
-    else
+    if (isGeo()) {
+      if (distance > 180)
+        throw new InvalidShapeException("distance must be <= 180; got " + distance);
+      return new GeoCircle(point, distance, this);
+    } else {
       return new CircleImpl(point, distance, this);
+    }
   }
 
   @Deprecated

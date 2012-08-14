@@ -67,7 +67,12 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
     double bearingRAD = DistanceUtils.toRadians(bearingDEG);
     double x = from.getX() + Math.sin(bearingRAD) * distDEG;
     double y = from.getY() + Math.cos(bearingRAD) * distDEG;
-    return (reuse == null) ? ctx.makePoint(x, y) : ctx.makePoint(reuse, x, y);
+    if (reuse == null) {
+      return ctx.makePoint(x, y);
+    } else {
+      reuse.reset(x, y);
+      return reuse;
+    }
   }
 
   @Override

@@ -27,7 +27,7 @@ public class JtsPolygonTest extends AbstractTestShapes {
   private final boolean TEST_DL_OTHER = true;
 
   public JtsPolygonTest() {
-    super(JtsSpatialContext.GEO_KM);
+    super(JtsSpatialContext.GEO);
     POLY_SHAPE = (JtsGeometry) ctx.readShape(POLY_STR);
 
     if (TEST_DL_POLY && ctx.isGeo()) {
@@ -38,7 +38,7 @@ public class JtsPolygonTest extends AbstractTestShapes {
       pGeom.apply(new CoordinateFilter() {
         @Override
         public void filter(Coordinate coord) {
-          coord.x = ctx.normX(coord.x+DL_SHIFT);
+          coord.x = normX(coord.x + DL_SHIFT);
         }
       });
       pGeom.geometryChanged();
@@ -98,12 +98,12 @@ public class JtsPolygonTest extends AbstractTestShapes {
       Shape shape2;
       if (shape instanceof Rectangle) {
         Rectangle r = (Rectangle) shape;
-        shape2 = ctx.makeRect(r.getMinX()+DL_SHIFT,r.getMaxX()+DL_SHIFT,r.getMinY(),r.getMaxY());
+        shape2 = makeNormRect(r.getMinX() + DL_SHIFT, r.getMaxX() + DL_SHIFT, r.getMinY(), r.getMaxY());
         if (!TEST_DL_OTHER && shape2.getBoundingBox().getCrossesDateLine())
           return;
       } else if (shape instanceof Point) {
         Point p = (Point) shape;
-        shape2 = ctx.makePoint(p.getX()+DL_SHIFT,p.getY());
+        shape2 = ctx.makePoint(normX(p.getX() + DL_SHIFT), p.getY());
       } else {
         throw new RuntimeException(""+shape);
       }

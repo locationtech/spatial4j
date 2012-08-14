@@ -46,7 +46,7 @@ import java.util.Collection;
  */
 public class JtsSpatialContext extends SpatialContext {
 
-  public static JtsSpatialContext GEO_KM = new JtsSpatialContext(true);
+  public static JtsSpatialContext GEO = new JtsSpatialContext(true);
 
   private final GeometryFactory geometryFactory;
 
@@ -119,8 +119,8 @@ public class JtsSpatialContext extends SpatialContext {
   @Override
   public Point makePoint(double x, double y) {
     //A Jts Point is fairly heavyweight!  TODO could/should we optimize this?
-    x = normX(x);
-    y = normY(y);
+    verifyX(x);
+    verifyY(y);
     return new JtsPoint(geometryFactory.createPoint(new Coordinate(x, y)));
   }
 
@@ -130,8 +130,8 @@ public class JtsSpatialContext extends SpatialContext {
 
   @Override
   public String toString() {
-    if (this.equals(GEO_KM)) {
-      return GEO_KM.getClass().getSimpleName()+".GEO_KM";
+    if (this.equals(GEO)) {
+      return GEO.getClass().getSimpleName()+".GEO";
     } else {
       return super.toString();
     }

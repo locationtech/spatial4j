@@ -46,7 +46,7 @@ public class TestShapesGeo extends AbstractTestShapes {
     return Arrays.asList($$(
         $(new SpatialContext(true,distCalcH,SpatialContext.GEO_WORLDBOUNDS)),
         $(new SpatialContext(true,distCalcV,SpatialContext.GEO_WORLDBOUNDS)),
-        $(JtsSpatialContext.GEO_KM))
+        $(JtsSpatialContext.GEO))
     );
   }
 
@@ -80,6 +80,8 @@ public class TestShapesGeo extends AbstractTestShapes {
     for (double lon : lons) {
       double[] lonWs = new double[]{0,20,180,200,355, 360};//width
       for (double lonW : lonWs) {
+        if (lonW == 360 && lon != -180)
+          continue;
         testRectangle(lon, lonW, 0, 0);
         testRectangle(lon, lonW, -10, 10);
         testRectangle(lon, lonW, 80, 10);//polar cap
@@ -161,7 +163,7 @@ public class TestShapesGeo extends AbstractTestShapes {
         testCircle(x, y, 0);
         testCircle(x, y, kmToDeg(500));
         testCircle(x, y, 90);
-        testCircle(x, y, 400);
+        testCircle(x, y, 180);
       }
     }
 

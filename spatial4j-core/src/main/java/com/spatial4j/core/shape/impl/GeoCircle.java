@@ -42,7 +42,9 @@ public class GeoCircle extends CircleImpl {
         double backRadius = 180 - radiusDEG;
         //shrink inverseCircle as small as possible to avoid accidental overlap
         backRadius -= Math.ulp(backRadius);
-        Point backPoint = ctx.makePoint(getCenter().getX() + 180, getCenter().getY() + 180);
+        Point backPoint = ctx.makePoint(
+                DistanceUtils.normLonDEG(getCenter().getX() + 180),
+                DistanceUtils.normLatDEG(getCenter().getY() + 180));
         inverseCircle = new GeoCircle(backPoint,backRadius,ctx);
       } else
         inverseCircle = null;//whole globe
@@ -166,14 +168,14 @@ public class GeoCircle extends CircleImpl {
     int cornersIntersect = numCornersIntersect(r);
     // (It might be possible to reduce contains() calls within nCI() to exactly two, but this intersection
     //  code is complicated enough as it is.)
+    double frontX = getCenter().getX();
     if (cornersIntersect == 4) {//all
-      double backX = ctx.normX(getCenter().getX()+180);
+      double backX = frontX <= 0 ? frontX + 180 : frontX - 180;
       if (r.relateXRange(backX, backX, ctx).intersects())
         return SpatialRelation.INTERSECTS;
       else
         return SpatialRelation.CONTAINS;
     } else if (cornersIntersect == 0) {//none
-      double frontX = getCenter().getX();
       if (r.relateXRange(frontX, frontX, ctx).intersects())
         return SpatialRelation.INTERSECTS;
       else

@@ -19,6 +19,7 @@ package com.spatial4j.core.shape.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
@@ -79,9 +80,16 @@ public class JtsGeometry implements Shape {
       // the bbox will needlessly span most or all of the globe longitudinally.
       // TODO so consider using MultiShape's planned minimal geo bounding box algorithm once implemented.
       double envWidth = unwrappedEnv.getWidth();
-      //makeRect() will adjust minX and maxX considering the dateline and world wrap
-      bbox = ctx.makeRect(unwrappedEnv.getMinX(),unwrappedEnv.getMinX() + envWidth,
-              unwrappedEnv.getMinY(),unwrappedEnv.getMaxY());
+      //adjust minX and maxX considering the dateline and world wrap
+      double minX, maxX;
+      if (envWidth >= 360) {
+        minX = -180;
+        maxX = 180;
+      } else {
+        minX = unwrappedEnv.getMinX();
+        maxX = DistanceUtils.normLonDEG(unwrappedEnv.getMinX() + envWidth);
+      }
+      bbox = new RectangleImpl(minX, maxX, unwrappedEnv.getMinY(), unwrappedEnv.getMaxY());
     } else {//not geo
       Envelope env = geom.getEnvelopeInternal();
       bbox = new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());

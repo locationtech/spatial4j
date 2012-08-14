@@ -28,7 +28,7 @@ import com.spatial4j.core.shape.SpatialRelation;
  * A circle, also known as a point-radius, based on a {@link
  * com.spatial4j.core.distance.DistanceCalculator} which does all the work. This
  * implementation should work for both cartesian 2D and geodetic sphere
- * surfaces. Threadsafe & immutable.
+ * surfaces.
  */
 public class CircleImpl implements Circle {
 

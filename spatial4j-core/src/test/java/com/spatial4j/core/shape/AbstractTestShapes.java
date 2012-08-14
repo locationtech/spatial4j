@@ -43,6 +43,26 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     this.ctx = ctx;
   }
 
+  protected double normX(double x) {
+    return ctx.isGeo() ? DistanceUtils.normLonDEG(x) : x;
+  }
+  protected double normY(double y) {
+    return ctx.isGeo() ? DistanceUtils.normLatDEG(y) : y;
+  }
+
+  protected Rectangle makeNormRect(double minX, double maxX, double minY, double maxY) {
+    if (ctx.isGeo()) {
+      if (Math.abs(maxX - minX) >= 360) {
+        minX = -180;
+        maxX = 180;
+      } else {
+        minX = DistanceUtils.normLonDEG(minX);
+        maxX = DistanceUtils.normLonDEG(maxX);
+      }
+    }
+    return ctx.makeRect(minX, maxX, minY, maxY);
+  }
+
   protected void assertRelation(String msg, SpatialRelation expected, Shape a, Shape b) {
     msg = a+" intersect "+b;//use different msg
     _assertIntersect(msg,expected,a,b);
@@ -84,9 +104,14 @@ public abstract class AbstractTestShapes extends RandomizedTest {
   }
 
   protected void testRectangle(double minX, double width, double minY, double height) {
-    Rectangle r = ctx.makeRect(minX, minX + width, minY, minY+height);
+    double maxX = minX + width;
+    double maxY = minY + height;
+    minX = normX(minX);
+    maxX = normX(maxX);
+
+    Rectangle r = ctx.makeRect(minX, maxX, minY, maxY);
     //test equals & hashcode of duplicate
-    Rectangle r2 = ctx.makeRect(minX, minX + width, minY, minY+height);
+    Rectangle r2 = ctx.makeRect(minX, maxX, minY, maxY);
     assertEquals(r,r2);
     assertEquals(r.hashCode(),r2.hashCode());
 
@@ -127,12 +152,12 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     final double Y = 20;
     for(double left = -180; left < 180; left += INCR) {
       for(double right = left; right - left <= 360; right += INCR) {
-        Rectangle r = ctx.makeRect(left,right,-Y,Y);
+        Rectangle r = makeNormRect(left, right, -Y, Y);
 
         //test contains (which also tests within)
         for(double left2 = left; left2 <= right; left2 += INCR) {
           for(double right2 = left2; right2 <= right; right2 += INCR) {
-            Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
+            Rectangle r2 = makeNormRect(left2, right2, -Y, Y);
             assertRelation(null, SpatialRelation.CONTAINS, r, r2);
 
             //test point contains
@@ -143,17 +168,18 @@ public abstract class AbstractTestShapes extends RandomizedTest {
         //test disjoint
         for(double left2 = right+INCR; left2 - left < 360; left2 += INCR) {
           //test point disjoint
-          assertRelation(null, SpatialRelation.DISJOINT, r, ctx.makePoint(left2, randomIntBetween(-90,90)));
+          assertRelation(null, SpatialRelation.DISJOINT, r, ctx.makePoint(
+                  normX(left2), randomIntBetween(-90, 90)));
 
           for(double right2 = left2; right2 - left < 360; right2 += INCR) {
-            Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
+            Rectangle r2 = makeNormRect(left2, right2, -Y, Y);
             assertRelation(null, SpatialRelation.DISJOINT, r, r2);
           }
         }
         //test intersect
         for(double left2 = left+INCR; left2 <= right; left2 += INCR) {
           for(double right2 = right+INCR; right2 - left < 360; right2 += INCR) {
-            Rectangle r2 = ctx.makeRect(left2,right2,-Y,Y);
+            Rectangle r2 = makeNormRect(left2, right2, -Y, Y);
             assertRelation(null, SpatialRelation.INTERSECTS, r, r2);
           }
         }
@@ -241,7 +267,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     double rYmax = Math.max(rY1,rY2);
     if (rW > 0 && rX == 180)
       rX = -180;
-    return ctx.makeRect(rX, rX+rW, rYmin, rYmax);
+    return makeNormRect(rX, rX+rW, rYmin, rYmax);
   }
 
   @Test
@@ -307,6 +333,8 @@ public abstract class AbstractTestShapes extends RandomizedTest {
   private Point randomPointWithin(Rectangle r) {
     double x = r.getMinX() + randomDouble()*r.getWidth();
     double y = r.getMinY() + randomDouble()*r.getHeight();
+    x = normX(x);
+    y = normY(y);
     Point p = ctx.makePoint(x,y);
     assertEquals(CONTAINS,r.relate(p, ctx));
     return p;

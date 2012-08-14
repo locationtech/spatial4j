@@ -1,6 +1,7 @@
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -29,29 +30,34 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
   private static final byte TYPE_BBOX = 1;
   private static final byte TYPE_GEOM = 2;
 
+  private boolean normalizeGeomCoords = true;//TODO make configurable
+
   public JtsShapeReadWriter(JtsSpatialContext ctx) {
     super(ctx);
   }
 
-  private void normalizeCoordinates(Geometry geom) {
-    //TODO add configurable skip flag if input is in the right coordinates
-    if (!ctx.isGeo())
-      return;
+  private void checkCoordinates(Geometry geom) {
     geom.apply(new CoordinateSequenceFilter() {
       boolean changed = false;
       @Override
       public void filter(CoordinateSequence seq, int i) {
         double x = seq.getX(i);
-        double xNorm = ctx.normX(x);
-        if (x != xNorm) {
-          changed = true;
-          seq.setOrdinate(i,CoordinateSequence.X,xNorm);
-        }
         double y = seq.getY(i);
-        double yNorm = ctx.normY(y);
-        if (y != yNorm) {
-          changed = true;
-          seq.setOrdinate(i,CoordinateSequence.Y,yNorm);
+
+        if (ctx.isGeo() && normalizeGeomCoords) {
+          double xNorm = DistanceUtils.normLonDEG(x);
+          if (x != xNorm) {
+            changed = true;
+            seq.setOrdinate(i,CoordinateSequence.X,xNorm);
+          }
+          double yNorm = DistanceUtils.normLatDEG(y);
+          if (y != yNorm) {
+            changed = true;
+            seq.setOrdinate(i,CoordinateSequence.Y,yNorm);
+          }
+        } else {
+          ctx.verifyX(x);
+          ctx.verifyY(y);
         }
       }
 
@@ -75,7 +81,7 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
         Geometry geom = reader.read(str);
 
         //Normalize coordinates to geo boundary
-        normalizeCoordinates(geom);
+        checkCoordinates(geom);
 
         if (geom instanceof com.vividsolutions.jts.geom.Point) {
           return new JtsPoint((com.vividsolutions.jts.geom.Point)geom);
@@ -137,7 +143,7 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
             off += buf.length;
           }
         });
-        normalizeCoordinates(geom);
+        checkCoordinates(geom);
         return new JtsGeometry(geom, ctx, true);
       } catch(ParseException ex) {
         throw new InvalidShapeException("error reading WKT", ex);
