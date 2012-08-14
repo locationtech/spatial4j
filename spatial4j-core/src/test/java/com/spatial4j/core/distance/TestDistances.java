@@ -70,7 +70,7 @@ public class TestDistances extends RandomizedTest {
       Point pTgt = pLL(-42, 15);
       assertTrue(dc().distance(pCtr, pTgt) < d);
       //since the pairwise distance is less than d, a bounding box from ctr with d should contain pTgt.
-      Rectangle r = dc().calcBoxByDistFromPt(pCtr, d, ctx);
+      Rectangle r = dc().calcBoxByDistFromPt(pCtr, d, ctx, null);
       assertEquals(SpatialRelation.CONTAINS,r.relate(pTgt, ctx));
       checkBBox(pCtr,d);
     }
@@ -105,7 +105,7 @@ public class TestDistances extends RandomizedTest {
     String msg = "ctr: "+ctr+" distKm: "+distKm;
     double dist = kmToDeg(distKm);
 
-    Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx);
+    Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx, null);
     double horizAxisLat = dc().calcBoxByDistFromPt_yHorizAxisDEG(ctr, dist, ctx);
     if (!Double.isNaN(horizAxisLat))
       assertTrue(r.relateYRange(horizAxisLat, horizAxisLat, ctx).intersects());
@@ -270,7 +270,7 @@ public class TestDistances extends RandomizedTest {
     assertEquals(distDEG,DistanceUtils.toDegrees(distRAD),EPS);
     //test point on bearing
     assertEquals(
-        DistanceUtils.pointOnBearingRAD(0, 0, DistanceUtils.dist2Radians(dist, radius), DistanceUtils.DEG_90_AS_RADS, new PointImpl(0, 0)).getX(),
+        DistanceUtils.pointOnBearingRAD(0, 0, DistanceUtils.dist2Radians(dist, radius), DistanceUtils.DEG_90_AS_RADS, ctx, new PointImpl(0, 0)).getX(),
         distRAD, 10e-5);
   }
 

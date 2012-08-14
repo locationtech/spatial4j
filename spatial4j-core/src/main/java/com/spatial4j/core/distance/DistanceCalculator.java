@@ -46,7 +46,7 @@ public interface DistanceCalculator {
    * Calculates the bounding box of a circle, as specified by its center point
    * and distance.
    */
-  public Rectangle calcBoxByDistFromPt(Point from, double distDEG, SpatialContext ctx);
+  public Rectangle calcBoxByDistFromPt(Point from, double distDEG, SpatialContext ctx, Rectangle reuse);
 
   /**
    * The <code>Y</code> coordinate of the horizontal axis (e.g. left-right line)

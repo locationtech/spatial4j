@@ -36,21 +36,19 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
   public Point pointOnBearing(Point from, double distDEG, double bearingDEG, SpatialContext ctx, Point reuse) {
     if (distDEG == 0)
       return from;
-    if (reuse == null)
-      reuse = ctx.makePoint(0, 0);
     Point result = DistanceUtils.pointOnBearingRAD(
         toRadians(from.getY()), toRadians(from.getX()),
         toRadians(distDEG),
-        toRadians(bearingDEG), reuse);//output result is in radians
+        toRadians(bearingDEG), ctx, reuse);//output result is in radians
     result.reset(toDegrees(result.getX()), toDegrees(result.getY()));
     return result;
   }
 
   @Override
-  public Rectangle calcBoxByDistFromPt(Point from, double distDEG, SpatialContext ctx) {
+  public Rectangle calcBoxByDistFromPt(Point from, double distDEG, SpatialContext ctx, Rectangle reuse) {
     if (distDEG == 0)
       return from.getBoundingBox();
-    return DistanceUtils.calcBoxByDistFromPtDEG(from.getY(), from.getX(), distDEG, ctx);
+    return DistanceUtils.calcBoxByDistFromPtDEG(from.getY(), from.getX(), distDEG, ctx, reuse);
   }
 
   @Override

@@ -38,7 +38,7 @@ public class CircleImpl implements Circle {
   protected final SpatialContext ctx;
 
   /* below is calculated & cached: */
-  
+
   protected final Rectangle enclosingBox;
 
   //we don't have a line shape so we use a rectangle for these axis
@@ -48,7 +48,7 @@ public class CircleImpl implements Circle {
     this.point = p;
     this.radiusDEG = radiusDEG;
     this.ctx = ctx;
-    this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, this.radiusDEG, ctx);
+    this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, this.radiusDEG, ctx, null);
   }
 
   @Override

@@ -136,14 +136,17 @@ public class DistanceUtils {
   /**
    * Given a start point (startLat, startLon) and a bearing on a sphere, return the destination point.
    *
+   *
+   *
    * @param startLat The starting point latitude, in radians
    * @param startLon The starting point longitude, in radians
    * @param distanceRAD The distance to travel along the bearing in radians.
    * @param bearingRAD The bearing, in radians.  North is a 0, moving clockwise till radians(360).
-   * @param reuse A preallocated object to hold the results.  It is mandatory.
+   * @param ctx
+   * @param reuse A preallocated object to hold the results.
    * @return The destination point, IN RADIANS.
    */
-  public static Point pointOnBearingRAD(double startLat, double startLon, double distanceRAD, double bearingRAD, Point reuse) {
+  public static Point pointOnBearingRAD(double startLat, double startLon, double distanceRAD, double bearingRAD, SpatialContext ctx, Point reuse) {
     /*
  	  lat2 = asin(sin(lat1)*cos(d/R) + cos(lat1)*sin(d/R)*cos(θ))
   	lon2 = lon1 + atan2(sin(θ)*sin(d/R)*cos(lat1), cos(d/R)−sin(lat1)*sin(lat2))
@@ -181,8 +184,12 @@ public class DistanceUtils {
       }
     }
 
-    reuse.reset(lon2, lat2);//x y
-    return reuse;
+    if (reuse == null) {
+      return ctx.makePoint(lon2, lat2);
+    } else {
+      reuse.reset(lon2, lat2);//x y
+      return reuse;
+    }
   }
 
   /**
@@ -212,42 +219,46 @@ public class DistanceUtils {
 
   /**
    * Calculates the bounding box of a circle, as specified by its center point
-   * and distance.
+   * and distance.  <code>reuse</code> is an optional argument to store the
+   * results to avoid object creation.
    */
-  public static Rectangle calcBoxByDistFromPtDEG(double lat, double lon, double distDEG, SpatialContext ctx) {
+  public static Rectangle calcBoxByDistFromPtDEG(double lat, double lon, double distDEG, SpatialContext ctx, Rectangle reuse) {
     //See http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates Section 3.1, 3.2 and 3.3
-
-    if (distDEG == 0)
-      return ctx.makeRectangle(lon, lon, lat, lat);//essentially a point
-
-    if (distDEG >= 180)//distance is >= opposite side of the globe
-      return ctx.getWorldBounds();
-
-    //--calc latitude bounds
-    double latN_deg = lat + distDEG;
-    double latS_deg = lat - distDEG;
-
-    if (latN_deg >= 90 || latS_deg <= -90) {//touches either pole
-      //we have special logic for longitude
-      double lonW_deg = -180, lonE_deg = 180;//world wrap: 360 deg
-      if (latN_deg <= 90 && latS_deg >= -90) {//doesn't pass either pole: 180 deg
-        lonW_deg = normLonDEG(lon - 90);
-        lonE_deg = normLonDEG(lon + 90);
-      }
-      if (latN_deg > 90)
-        latN_deg = 90;
-      if (latS_deg < -90)
-        latS_deg = -90;
-
-      return ctx.makeRectangle(lonW_deg, lonE_deg, latS_deg, latN_deg);
+    double minX; double maxX; double minY; double maxY;
+    if (distDEG == 0) {
+      minX = lon; maxX = lon; minY = lat; maxY = lat;
+    } else if (distDEG >= 180) {//distance is >= opposite side of the globe
+      minX = -180; maxX = 180; minY = -90; maxY = 90;
     } else {
-      //--calc longitude bounds
-      double lon_delta_deg = calcBoxByDistFromPt_deltaLonDEG(lat, lon, distDEG);
 
-      double lonW_deg = normLonDEG(lon - lon_delta_deg);
-      double lonE_deg = normLonDEG(lon + lon_delta_deg);
+      //--calc latitude bounds
+      maxY = lat + distDEG;
+      minY = lat - distDEG;
 
-      return ctx.makeRectangle(lonW_deg, lonE_deg, latS_deg, latN_deg);//ctx will normalize longitude
+      if (maxY >= 90 || minY <= -90) {//touches either pole
+        //we have special logic for longitude
+        minX = -180; maxX = 180;//world wrap: 360 deg
+        if (maxY <= 90 && minY >= -90) {//doesn't pass either pole: 180 deg
+          minX = normLonDEG(lon - 90);
+          maxX = normLonDEG(lon + 90);
+        }
+        if (maxY > 90)
+          maxY = 90;
+        if (minY < -90)
+          minY = -90;
+      } else {
+        //--calc longitude bounds
+        double lon_delta_deg = calcBoxByDistFromPt_deltaLonDEG(lat, lon, distDEG);
+
+        minX = normLonDEG(lon - lon_delta_deg);
+        maxX = normLonDEG(lon + lon_delta_deg);
+      }
+    }
+    if (reuse == null) {
+      return ctx.makeRectangle(minX, maxX, minY, maxY);
+    } else {
+      reuse.reset(minX, maxX, minY, maxY);
+      return reuse;
     }
   }
 
