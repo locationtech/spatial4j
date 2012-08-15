@@ -23,6 +23,7 @@ import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
+import com.spatial4j.core.exception.InvalidShapeException;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -64,7 +65,14 @@ public class TestShapesGeo extends AbstractTestShapes {
 
   @Test
   public void testGeoRectangle() {
-    //First test some relateXRange
+    double v = 200 * (randomBoolean() ? -1 : 1);
+    try { ctx.makeRectangle(v,0,0,0); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makeRectangle(0,v,0,0); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makeRectangle(0,0,v,0); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makeRectangle(0,0,0,v); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makeRectangle(0,0,10,-10); fail(); } catch (InvalidShapeException e) {}
+
+    //test some relateXRange
     //    opposite +/- 180
     assertEquals(INTERSECTS,  ctx.makeRectangle(170, 180, 0, 0).relateXRange(-180, -170, ctx));
     assertEquals(INTERSECTS,  ctx.makeRectangle(-90, -45, 0, 0).relateXRange(-45, -135, ctx));
@@ -96,6 +104,12 @@ public class TestShapesGeo extends AbstractTestShapes {
   @Test
   public void testGeoCircle() {
     assertEquals("Circle(Pt(x=10.0,y=20.0), d=30.0° 3335.85km)", ctx.makeCircle(10,20,30).toString());
+
+    double v = 200 * (randomBoolean() ? -1 : 1);
+    try { ctx.makeCircle(v,0,5); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makeCircle(0, v, 5); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makeCircle(randomIntBetween(-180,180), randomIntBetween(-90,90), v); fail(); }
+    catch (InvalidShapeException e) {}
 
     //--Start with some static tests that once failed:
 

@@ -20,6 +20,7 @@ package com.spatial4j.core.shape;
 import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.impl.CircleImpl;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
@@ -35,11 +36,13 @@ import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 
 public class TestShapes2D extends AbstractTestShapes {
 
+  private static final Rectangle WB = new RectangleImpl(-2000, 2000, -300, 300);//whatever
+
   @ParametersFactory
   public static Iterable<Object[]> parameters() {
     List<Object[]> ctxs = new ArrayList<Object[]>();
-    ctxs.add($(new SpatialContext(false)));
-    ctxs.add($(new JtsSpatialContext(false)));
+    ctxs.add($(new SpatialContext(false,null,WB)));
+    ctxs.add($(new JtsSpatialContext(null,false,null,WB)));
     return ctxs;
   }
 
@@ -49,6 +52,9 @@ public class TestShapes2D extends AbstractTestShapes {
 
   @Test
   public void testSimplePoint() {
+    try { ctx.makePoint(2001,0); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makePoint(0,-301); fail(); } catch (InvalidShapeException e) {}
+
     Point pt = ctx.makePoint(0,0);
     String msg = pt.toString();
 
@@ -74,6 +80,14 @@ public class TestShapes2D extends AbstractTestShapes {
 
   @Test
   public void testSimpleRectangle() {
+    double v = 2001 * (randomBoolean() ? -1 : 1);
+    try { ctx.makeRectangle(v,0,0,0); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makeRectangle(0,v,0,0); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makeRectangle(0,0,v,0); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makeRectangle(0,0,0,v); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makeRectangle(0,0,10,-10); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makeRectangle(10,-10,0,0); fail(); } catch (InvalidShapeException e) {}
+
     double[] minXs = new double[]{-1000,-360,-180,-20,0,20,180,1000};
     for (double minX : minXs) {
       double[] widths = new double[]{0,10,180,360,400};

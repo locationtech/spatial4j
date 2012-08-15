@@ -120,14 +120,14 @@ public class SpatialContext {
   public void verifyX(double x) {
     Rectangle bounds = getWorldBounds();
     if (!(x >= bounds.getMinX() && x <= bounds.getMaxX()))//NaN will fail
-      throw new IllegalArgumentException("Bad X value "+x+" is not in boundary "+bounds);
+      throw new InvalidShapeException("Bad X value "+x+" is not in boundary "+bounds);
   }
 
   /** Ensure fits in {@link #getWorldBounds()} */
   public void verifyY(double y) {
     Rectangle bounds = getWorldBounds();
     if (!(y >= bounds.getMinY() && y <= bounds.getMaxY()))//NaN will fail
-      throw new IllegalArgumentException("Bad Y value "+y+" is not in boundary "+bounds);
+      throw new InvalidShapeException("Bad Y value "+y+" is not in boundary "+bounds);
   }
 
   /** Construct a point. */
@@ -152,9 +152,9 @@ public class SpatialContext {
     Rectangle bounds = getWorldBounds();
     // Y
     if (!(minY >= bounds.getMinY() && maxY <= bounds.getMaxY()))//NaN will fail
-      throw new IllegalArgumentException("Y values ["+minY+" to "+maxY+"] not in boundary "+bounds);
+      throw new InvalidShapeException("Y values ["+minY+" to "+maxY+"] not in boundary "+bounds);
     if (minY > maxY)
-      throw new IllegalArgumentException("maxY must be >= minY: " + minY + " to " + maxY);
+      throw new InvalidShapeException("maxY must be >= minY: " + minY + " to " + maxY);
     // X
     if (isGeo()) {
       verifyX(minX);
@@ -170,9 +170,9 @@ public class SpatialContext {
       //}
     } else {
       if (!(minX >= bounds.getMinX() && maxX <= bounds.getMaxX()))//NaN will fail
-        throw new IllegalArgumentException("X values ["+minX+" to "+maxX+"] not in boundary "+bounds);
+        throw new InvalidShapeException("X values ["+minX+" to "+maxX+"] not in boundary "+bounds);
       if (minX > maxX)
-        throw new IllegalArgumentException("maxX must be >= minX: " + minX + " to " + maxX);
+        throw new InvalidShapeException("maxX must be >= minX: " + minX + " to " + maxX);
     }
     return new RectangleImpl(minX, maxX, minY, maxY);
   }
