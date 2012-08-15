@@ -149,23 +149,28 @@ public class SpatialContext {
    * dateline.
    */
   public Rectangle makeRectangle(double minX, double maxX, double minY, double maxY) {
-    verifyX(minX);
-    verifyX(maxX);
-    verifyY(minY);
-    verifyY(maxY);
+    Rectangle bounds = getWorldBounds();
+    // Y
+    if (!(minY >= bounds.getMinY() && maxY <= bounds.getMaxY()))//NaN will fail
+      throw new IllegalArgumentException("Y values ["+minY+" to "+maxY+"] not in boundary "+bounds);
     if (minY > maxY)
       throw new IllegalArgumentException("maxY must be >= minY: " + minY + " to " + maxY);
+    // X
     if (isGeo()) {
+      verifyX(minX);
+      verifyX(maxX);
       //TODO consider removing this logic so that there is no normalization here
-      if (minX != maxX) {
-        //If an edge coincides with the dateline then don't make this rect cross it
-        if (minX == 180) {
-          minX = -180;
-        } else if (maxX == -180) {
-          maxX = 180;
-        }
+      //if (minX != maxX) {   USUALLY TRUE, inline check below
+      //If an edge coincides with the dateline then don't make this rect cross it
+      if (minX == 180 && minX != maxX) {
+        minX = -180;
+      } else if (maxX == -180 && minX != maxX) {
+        maxX = 180;
       }
+      //}
     } else {
+      if (!(minX >= bounds.getMinX() && maxX <= bounds.getMaxX()))//NaN will fail
+        throw new IllegalArgumentException("X values ["+minX+" to "+maxX+"] not in boundary "+bounds);
       if (minX > maxX)
         throw new IllegalArgumentException("maxX must be >= minX: " + minX + " to " + maxX);
     }
