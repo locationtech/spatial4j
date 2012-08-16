@@ -43,6 +43,11 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     this.ctx = ctx;
   }
 
+  //These few norm methods normalize the arguments for creating a shape to
+  // account for the dateline. Some tests loop past the dateline or have offsets
+  // that go past it and it's easier to have them coded that way and correct for
+  // it here.  These norm methods should be used when needed, not frivolously.
+
   protected double normX(double x) {
     return ctx.isGeo() ? DistanceUtils.normLonDEG(x) : x;
   }
@@ -148,6 +153,8 @@ public abstract class AbstractTestShapes extends RandomizedTest {
   }
 
   protected void testRectIntersect() {
+    //This test loops past the dateline for some variables but the makeNormRect()
+    // method ensures the rect is valid.
     final double INCR = 45;
     final double Y = 20;
     for(double left = -180; left < 180; left += INCR) {
