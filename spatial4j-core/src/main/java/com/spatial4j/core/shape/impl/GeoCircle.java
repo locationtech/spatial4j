@@ -27,13 +27,22 @@ import com.spatial4j.core.shape.SpatialRelation;
  * A circle as it exists on the surface of a sphere.
  */
 public class GeoCircle extends CircleImpl {
-  private final GeoCircle inverseCircle;//when distance reaches > 1/2 way around the world, cache the inverse.
-  private final double horizAxisY;//see getYAxis
+  private GeoCircle inverseCircle;//when distance reaches > 1/2 way around the world, cache the inverse.
+  private double horizAxisY;//see getYAxis
 
   public GeoCircle(Point p, double radiusDEG, SpatialContext ctx) {
     super(p, radiusDEG, ctx);
     assert ctx.isGeo();
+    init();
+  }
 
+  @Override
+  public void reset(double x, double y, double radiusDEG) {
+    super.reset(x, y, radiusDEG);
+    init();
+  }
+
+  private void init() {
     if (radiusDEG > 90) {
       //--spans more than half the globe
       assert enclosingBox.getWidth() == 360;
@@ -42,12 +51,16 @@ public class GeoCircle extends CircleImpl {
         double backRadius = 180 - radiusDEG;
         //shrink inverseCircle as small as possible to avoid accidental overlap
         backRadius -= Math.ulp(backRadius);
-        Point backPoint = ctx.makePoint(
-                DistanceUtils.normLonDEG(getCenter().getX() + 180),
-                DistanceUtils.normLatDEG(getCenter().getY() + 180));
-        inverseCircle = new GeoCircle(backPoint,backRadius,ctx);
-      } else
+        double backX = DistanceUtils.normLonDEG(getCenter().getX() + 180);
+        double backY = DistanceUtils.normLatDEG(getCenter().getY() + 180);
+        if (inverseCircle != null) {
+          inverseCircle.reset(backX, backY, backRadius);
+        } else {
+          inverseCircle = new GeoCircle(ctx.makePoint(backX, backY), backRadius, ctx);
+        }
+      } else {
         inverseCircle = null;//whole globe
+      }
       horizAxisY = getCenter().getY();//although probably not used
     } else {
       inverseCircle = null;
@@ -62,7 +75,6 @@ public class GeoCircle extends CircleImpl {
       }
       //assert enclosingBox.relate_yRange(horizAxis,horizAxis,ctx).intersects();
     }
-
   }
 
   @Override

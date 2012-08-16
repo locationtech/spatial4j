@@ -97,6 +97,8 @@ public class TestShapesGeo extends AbstractTestShapes {
       }
     }
 
+    TestShapes2D.testCircleReset(ctx);
+
     //Test geo rectangle intersections
     testRectIntersect();
   }

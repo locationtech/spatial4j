@@ -32,23 +32,27 @@ import com.spatial4j.core.shape.SpatialRelation;
  */
 public class CircleImpl implements Circle {
 
-  protected final Point point;
-  protected final double radiusDEG;
-
   protected final SpatialContext ctx;
 
-  /* below is calculated & cached: */
+  protected final Point point;
+  protected double radiusDEG;
 
-  protected final Rectangle enclosingBox;
-
-  //we don't have a line shape so we use a rectangle for these axis
+  // calculated & cached
+  protected Rectangle enclosingBox;
 
   public CircleImpl(Point p, double radiusDEG, SpatialContext ctx) {
-    //We assume any normalization / validation of params already occurred (including bounding dist)
+    //We assume any validation of params already occurred (including bounding dist)
+    this.ctx = ctx;
     this.point = p;
     this.radiusDEG = radiusDEG;
-    this.ctx = ctx;
     this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, this.radiusDEG, ctx, null);
+  }
+
+  @Override
+  public void reset(double x, double y, double radiusDEG) {
+    point.reset(x, y);
+    this.radiusDEG = radiusDEG;
+    this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, this.radiusDEG, ctx, enclosingBox);
   }
 
   @Override

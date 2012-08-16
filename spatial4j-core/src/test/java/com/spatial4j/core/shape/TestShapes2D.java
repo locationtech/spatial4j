@@ -53,7 +53,7 @@ public class TestShapes2D extends AbstractTestShapes {
   @Test
   public void testSimplePoint() {
     try { ctx.makePoint(2001,0); fail(); } catch (InvalidShapeException e) {}
-    try { ctx.makePoint(0,-301); fail(); } catch (InvalidShapeException e) {}
+    try { ctx.makePoint(0, -301); fail(); } catch (InvalidShapeException e) {}
 
     Point pt = ctx.makePoint(0,0);
     String msg = pt.toString();
@@ -115,11 +115,22 @@ public class TestShapes2D extends AbstractTestShapes {
         testCircle(x, y, 5);
       }
     }
+
+    testCircleReset(ctx);
+
     //INTERSECTION:
     //Start with some static tests that have shown to cause failures at some point:
     assertEquals("getX not getY",INTERSECTS,ctx.makeCircle(107,-81,147).relate(ctx.makeRectangle(92, 121, -89, 74), ctx));
 
     testCircleIntersect();
+  }
+
+  static void testCircleReset(SpatialContext ctx) {
+    Circle c = ctx.makeCircle(3, 4, 5);
+    Circle c2 = ctx.makeCircle(5, 6, 7);
+    c2.reset(3,4,5);// to c1
+    assertEquals(c, c2);
+    assertEquals(c.getBoundingBox(), c2.getBoundingBox());
   }
 
   /** We have this test here but we'll add geo shapes as needed. */

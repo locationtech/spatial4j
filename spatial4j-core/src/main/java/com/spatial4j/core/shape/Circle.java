@@ -23,9 +23,17 @@ package com.spatial4j.core.shape;
 public interface Circle extends Shape {
 
   /**
-   * The distance from the point's center to its edge, measured in
-   * {@link com.spatial4j.core.distance.DistanceUnits}.
+   * Expert: Resets the state of this shape given the arguments. This is a
+   * performance feature to avoid excessive Shape object allocation as well as
+   * some argument error checking. Mutable shapes is error-prone so use with
+   * care.
+   */
+  void reset(double x, double y, double radiusDEG);
+
+  /**
+   * The distance from the point's center to its edge, measured in the same
+   * units as x & y (e.g. degrees if WGS84).
    */
   double getRadius();
-  //TODO strange that this isn't in degrees, like everything else?
+
 }
