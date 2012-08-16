@@ -34,8 +34,12 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
   @Override
   public Point pointOnBearing(Point from, double distDEG, double bearingDEG, SpatialContext ctx, Point reuse) {
-    if (distDEG == 0)
-      return from;
+    if (distDEG == 0) {
+      if (reuse == null)
+        return from;
+      reuse.reset(from.getX(), from.getY());
+      return reuse;
+    }
     Point result = DistanceUtils.pointOnBearingRAD(
         toRadians(from.getY()), toRadians(from.getX()),
         toRadians(distDEG),
@@ -46,8 +50,6 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
   @Override
   public Rectangle calcBoxByDistFromPt(Point from, double distDEG, SpatialContext ctx, Rectangle reuse) {
-    if (distDEG == 0)
-      return from.getBoundingBox();
     return DistanceUtils.calcBoxByDistFromPtDEG(from.getY(), from.getX(), distDEG, ctx, reuse);
   }
 
