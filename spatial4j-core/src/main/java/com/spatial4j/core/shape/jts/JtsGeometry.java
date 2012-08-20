@@ -56,8 +56,10 @@ public class JtsGeometry implements Shape {
   private final Geometry geom;//cannot be a direct instance of GeometryCollection as it doesn't support relate()
   private final boolean hasArea;
   private final Rectangle bbox;
+  private final JtsSpatialContext ctx;
 
   public JtsGeometry(Geometry geom, JtsSpatialContext ctx, boolean dateline180Check) {
+    this.ctx = ctx;
     //GeometryCollection isn't supported in relate()
     if (geom.getClass().equals(GeometryCollection.class))
       throw new IllegalArgumentException("JtsGeometry does not support GeometryCollection but does support its subclasses.");
@@ -89,10 +91,10 @@ public class JtsGeometry implements Shape {
         minX = unwrappedEnv.getMinX();
         maxX = DistanceUtils.normLonDEG(unwrappedEnv.getMinX() + envWidth);
       }
-      bbox = new RectangleImpl(minX, maxX, unwrappedEnv.getMinY(), unwrappedEnv.getMaxY());
+      bbox = new RectangleImpl(minX, maxX, unwrappedEnv.getMinY(), unwrappedEnv.getMaxY(), ctx);
     } else {//not geo
       Envelope env = geom.getEnvelopeInternal();
-      bbox = new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
+      bbox = new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY(), ctx);
     }
     geom.getEnvelopeInternal();//ensure envelope is cached internally, which is lazy evaluated. Keeps this thread-safe.
 
@@ -145,38 +147,38 @@ public class JtsGeometry implements Shape {
 
   @Override
   public JtsPoint getCenter() {
-    return new JtsPoint(geom.getCentroid());
+    return new JtsPoint(geom.getCentroid(), ctx);
   }
 
   @Override
-  public SpatialRelation relate(Shape other, SpatialContext ctx) {
+  public SpatialRelation relate(Shape other) {
     if (other instanceof Point)
-      return relate((Point)other, ctx);
+      return relate((Point)other);
     else if (other instanceof Rectangle)
-      return relate((Rectangle) other, ctx);
+      return relate((Rectangle) other);
     else if (other instanceof Circle)
-      return relate((Circle) other, ctx);
+      return relate((Circle) other);
     else if (other instanceof JtsGeometry)
       return relate((JtsGeometry) other);
-    return other.relate(this, ctx).transpose();
+    return other.relate(this).transpose();
   }
 
-  public SpatialRelation relate(Point pt, SpatialContext ctx) {
+  public SpatialRelation relate(Point pt) {
     //TODO if not jtsPoint, test against bbox to avoid JTS if disjoint
     JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : ctx.makePoint(pt.getX(), pt.getY()));
     return geom.disjoint(jtsPoint.getGeom()) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
   }
 
-  public SpatialRelation relate(Rectangle rectangle, SpatialContext ctx) {
-    SpatialRelation bboxR = bbox.relate(rectangle,ctx);
+  public SpatialRelation relate(Rectangle rectangle) {
+    SpatialRelation bboxR = bbox.relate(rectangle);
     if (bboxR == SpatialRelation.WITHIN || bboxR == SpatialRelation.DISJOINT)
       return bboxR;
-    Geometry oGeom = ((JtsSpatialContext)ctx).getGeometryFrom(rectangle);
+    Geometry oGeom = ctx.getGeometryFrom(rectangle);
     return intersectionMatrixToSpatialRelation(geom.relate(oGeom));
   }
 
-  public SpatialRelation relate(Circle circle, SpatialContext ctx) {
-    SpatialRelation bboxR = bbox.relate(circle,ctx);
+  public SpatialRelation relate(Circle circle) {
+    SpatialRelation bboxR = bbox.relate(circle);
     if (bboxR == SpatialRelation.WITHIN || bboxR == SpatialRelation.DISJOINT)
       return bboxR;
 
@@ -187,14 +189,14 @@ public class JtsGeometry implements Shape {
     int i = 0;
     for (Coordinate coord : coords) {
       i++;
-      SpatialRelation sect = circle.relate(new PointImpl(coord.x, coord.y), ctx);
+      SpatialRelation sect = circle.relate(new PointImpl(coord.x, coord.y, ctx));
       if (sect == SpatialRelation.DISJOINT)
         outside++;
       if (i != outside && outside != 0)//short circuit: partially outside, partially inside
         return SpatialRelation.INTERSECTS;
     }
     if (i == outside) {
-      return (relate(circle.getCenter(), ctx) == SpatialRelation.DISJOINT)
+      return (relate(circle.getCenter()) == SpatialRelation.DISJOINT)
           ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
     }
     assert outside == 0;

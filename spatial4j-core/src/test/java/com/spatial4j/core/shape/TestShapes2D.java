@@ -36,10 +36,11 @@ import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 
 public class TestShapes2D extends AbstractTestShapes {
 
-  private static final Rectangle WB = new RectangleImpl(-2000, 2000, -300, 300);//whatever
 
   @ParametersFactory
   public static Iterable<Object[]> parameters() {
+    Rectangle WB = new RectangleImpl(-2000, 2000, -300, 300, null);//whatever
+
     List<Object[]> ctxs = new ArrayList<Object[]>();
     ctxs.add($(new SpatialContext(false,null,WB)));
     ctxs.add($(new JtsSpatialContext(null,false,null,WB)));
@@ -99,7 +100,7 @@ public class TestShapes2D extends AbstractTestShapes {
     }
 
     Rectangle r = ctx.makeRectangle(0, 0, 0, 0);
-    r.reset(1,2,3,4);
+    r.reset(1, 2, 3, 4);
     assertEquals(ctx.makeRectangle(1, 2, 3, 4), r);
 
     testRectIntersect();
@@ -120,7 +121,7 @@ public class TestShapes2D extends AbstractTestShapes {
 
     //INTERSECTION:
     //Start with some static tests that have shown to cause failures at some point:
-    assertEquals("getX not getY",INTERSECTS,ctx.makeCircle(107,-81,147).relate(ctx.makeRectangle(92, 121, -89, 74), ctx));
+    assertEquals("getX not getY",INTERSECTS,ctx.makeCircle(107,-81,147).relate(ctx.makeRectangle(92, 121, -89, 74)));
 
     testCircleIntersect();
   }

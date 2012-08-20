@@ -24,16 +24,17 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.shape.impl.PointImpl;
-import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 
 /** Wraps a {@link com.vividsolutions.jts.geom.Point}. */
 public class JtsPoint implements Point {
 
+  private final SpatialContext ctx;
   private com.vividsolutions.jts.geom.Point pointGeom;
 
   /** A simple constructor without normalization / validation. */
-  public JtsPoint(com.vividsolutions.jts.geom.Point pointGeom) {
+  public JtsPoint(com.vividsolutions.jts.geom.Point pointGeom, SpatialContext ctx) {
+    this.ctx = ctx;
     this.pointGeom = pointGeom;
   }
 
@@ -58,17 +59,15 @@ public class JtsPoint implements Point {
 
   @Override
   public Rectangle getBoundingBox() {
-    double x = pointGeom.getX();
-    double y = pointGeom.getY();
-    return new RectangleImpl(x, x, y, y);
+    return ctx.makeRectangle(this, this);
   }
 
   @Override
-  public SpatialRelation relate(Shape other, SpatialContext ctx) {
+  public SpatialRelation relate(Shape other) {
     // ** NOTE ** the overall order of logic is kept consistent here with simple.PointImpl.
     if (other instanceof com.spatial4j.core.shape.Point)
       return this.equals(other) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
-    return other.relate(this, ctx).transpose();
+    return other.relate(this).transpose();
   }
 
   @Override

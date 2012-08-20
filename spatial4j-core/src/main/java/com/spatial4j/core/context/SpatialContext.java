@@ -44,16 +44,8 @@ import com.spatial4j.core.shape.impl.RectangleImpl;
  */
 public class SpatialContext {
 
-  public static final RectangleImpl GEO_WORLDBOUNDS = new RectangleImpl(-180,180,-90,90);
-  public static final RectangleImpl MAX_WORLDBOUNDS;
-  static {
-    double v = Double.MAX_VALUE;
-    MAX_WORLDBOUNDS = new RectangleImpl(-v, v, -v, v);
-  }
-
   /** A popular default SpatialContext implementation for geospatial. */
   public static final SpatialContext GEO = new SpatialContext(true);
-  //note: any static convenience instances must be declared after the world bounds
 
   //These are non-null
   private final boolean geo;
@@ -78,15 +70,18 @@ public class SpatialContext {
     this.calculator = calculator;
 
     if (worldBounds == null) {
-      worldBounds = isGeo() ? GEO_WORLDBOUNDS : MAX_WORLDBOUNDS;
+      worldBounds = isGeo()
+              ? new RectangleImpl(-180, 180, -90, 90, this)
+              : new RectangleImpl(-Double.MAX_VALUE, Double.MAX_VALUE,
+                  -Double.MAX_VALUE, Double.MAX_VALUE, this);
     } else {
       if (isGeo())
-        assert new RectangleImpl(worldBounds).equals(GEO_WORLDBOUNDS);
+        assert worldBounds.equals(new RectangleImpl(-180, 180, -90, 90, this));
       if (worldBounds.getCrossesDateLine())
         throw new IllegalArgumentException("worldBounds shouldn't cross dateline: "+worldBounds);
     }
     //hopefully worldBounds' rect implementation is compatible
-    this.worldBounds = worldBounds;
+    this.worldBounds = new RectangleImpl(worldBounds, this);
 
     shapeReadWriter = makeShapeReadWriter();
   }
@@ -134,7 +129,7 @@ public class SpatialContext {
   public Point makePoint(double x, double y) {
     verifyX(x);
     verifyY(y);
-    return new PointImpl(x, y);
+    return new PointImpl(x, y, this);
   }
 
   /** Construct a rectangle. */
@@ -174,7 +169,7 @@ public class SpatialContext {
       if (minX > maxX)
         throw new InvalidShapeException("maxX must be >= minX: " + minX + " to " + maxX);
     }
-    return new RectangleImpl(minX, maxX, minY, maxY);
+    return new RectangleImpl(minX, maxX, minY, maxY, this);
   }
 
   /** Construct a circle. The units of "distance" should be the same as x & y. */

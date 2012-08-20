@@ -92,34 +92,33 @@ public class CircleImpl implements Circle {
   }
 
   @Override
-  public SpatialRelation relate(Shape other, SpatialContext ctx) {
-    assert this.ctx == ctx;
+  public SpatialRelation relate(Shape other) {
 //This shortcut was problematic in testing due to distinctions of CONTAINS/WITHIN for no-area shapes (lines, points).
 //    if (distance == 0) {
 //      return point.relate(other,ctx).intersects() ? SpatialRelation.WITHIN : SpatialRelation.DISJOINT;
 //    }
 
     if (other instanceof Point) {
-      return relate((Point) other, ctx);
+      return relate((Point) other);
     }
     if (other instanceof Rectangle) {
-      return relate((Rectangle) other, ctx);
+      return relate((Rectangle) other);
     }
     if (other instanceof Circle) {
-      return relate((Circle) other, ctx);
+      return relate((Circle) other);
     }
-    return other.relate(this, ctx).transpose();
+    return other.relate(this).transpose();
   }
 
-  public SpatialRelation relate(Point point, SpatialContext ctx) {
+  public SpatialRelation relate(Point point) {
     return contains(point.getX(),point.getY()) ? SpatialRelation.CONTAINS : SpatialRelation.DISJOINT;
   }
 
-  public SpatialRelation relate(Rectangle r, SpatialContext ctx) {
+  public SpatialRelation relate(Rectangle r) {
     //Note: Surprisingly complicated!
 
     //--We start by leveraging the fact we have a calculated bbox that is "cheaper" than use of DistanceCalculator.
-    final SpatialRelation bboxSect = enclosingBox.relate(r, ctx);
+    final SpatialRelation bboxSect = enclosingBox.relate(r);
     if (bboxSect == SpatialRelation.DISJOINT || bboxSect == SpatialRelation.WITHIN)
       return bboxSect;
     else if (bboxSect == SpatialRelation.CONTAINS && enclosingBox.equals(r))//nasty identity edge-case
@@ -127,10 +126,10 @@ public class CircleImpl implements Circle {
     //bboxSect is INTERSECTS or CONTAINS
     //The result can be DISJOINT, CONTAINS, or INTERSECTS (not WITHIN)
 
-    return relateRectanglePhase2(r, bboxSect, ctx);
+    return relateRectanglePhase2(r, bboxSect);
   }
 
-  protected SpatialRelation relateRectanglePhase2(final Rectangle r, SpatialRelation bboxSect, SpatialContext ctx) {
+  protected SpatialRelation relateRectanglePhase2(final Rectangle r, SpatialRelation bboxSect) {
     /*
      !! DOES NOT WORK WITH GEO CROSSING DATELINE OR WORLD-WRAP.
      TODO upgrade to handle crossing dateline, but not world-wrap; use some x-shifting code from RectangleImpl.
@@ -208,7 +207,7 @@ public class CircleImpl implements Circle {
     return point.getX();
   }
 
-  public SpatialRelation relate(Circle circle, SpatialContext ctx) {
+  public SpatialRelation relate(Circle circle) {
     double crossDist = ctx.getDistCalc().distance(point, circle.getCenter());
     double aDist = radiusDEG, bDist = circle.getRadius();
     if (crossDist > aDist + bDist)

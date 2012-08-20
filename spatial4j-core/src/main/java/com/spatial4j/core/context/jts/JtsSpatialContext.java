@@ -121,7 +121,7 @@ public class JtsSpatialContext extends SpatialContext {
     //A Jts Point is fairly heavyweight!  TODO could/should we optimize this?
     verifyX(x);
     verifyY(y);
-    return new JtsPoint(geometryFactory.createPoint(new Coordinate(x, y)));
+    return new JtsPoint(geometryFactory.createPoint(new Coordinate(x, y)), null);
   }
 
   public GeometryFactory getGeometryFactory() {

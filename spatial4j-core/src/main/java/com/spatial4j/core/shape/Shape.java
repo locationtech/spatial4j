@@ -49,7 +49,7 @@ public interface Shape {
    * <p />
    * If the shapes are equal then the result is CONTAINS (preferred) or WITHIN.
    */
-  SpatialRelation relate(Shape other, SpatialContext ctx);
+  SpatialRelation relate(Shape other);
 
   /**
    * Get the bounding box for this Shape. This means the shape is within the

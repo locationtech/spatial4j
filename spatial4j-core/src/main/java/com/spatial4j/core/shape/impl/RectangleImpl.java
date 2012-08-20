@@ -31,26 +31,28 @@ import com.spatial4j.core.shape.SpatialRelation;
  */
 public class RectangleImpl implements Rectangle {
 
+  private final SpatialContext ctx;
   private double minX;
   private double maxX;
   private double minY;
   private double maxY;
 
   /** A simple constructor without normalization / validation. */
-  public RectangleImpl(double minX, double maxX, double minY, double maxY) {
+  public RectangleImpl(double minX, double maxX, double minY, double maxY, SpatialContext ctx) {
     //TODO change to West South East North to be more consistent with OGC?
+    this.ctx = ctx;
     reset(minX, maxX, minY, maxY);
   }
 
   /** A convenience constructor which pulls out the coordinates. */
-  public RectangleImpl(Point lowerLeft, Point upperRight) {
+  public RectangleImpl(Point lowerLeft, Point upperRight, SpatialContext ctx) {
     this(lowerLeft.getX(), upperRight.getX(),
-        lowerLeft.getY(), upperRight.getY());
+        lowerLeft.getY(), upperRight.getY(), ctx);
   }
 
   /** Copy constructor. */
-  public RectangleImpl(Rectangle r) {
-    this(r.getMinX(),r.getMaxX(),r.getMinY(),r.getMaxY());
+  public RectangleImpl(Rectangle r, SpatialContext ctx) {
+    this(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY(), ctx);
   }
 
   @Override
@@ -122,17 +124,17 @@ public class RectangleImpl implements Rectangle {
   }
 
   @Override
-  public SpatialRelation relate(Shape other, SpatialContext ctx) {
+  public SpatialRelation relate(Shape other) {
     if (other instanceof Point) {
-      return relate((Point) other, ctx);
+      return relate((Point) other);
     }
     if (other instanceof Rectangle) {
-      return relate((Rectangle) other, ctx);
+      return relate((Rectangle) other);
     }
-    return other.relate(this, ctx).transpose();
+    return other.relate(this).transpose();
   }
 
-  public SpatialRelation relate(Point point, SpatialContext ctx) {
+  public SpatialRelation relate(Point point) {
     if (point.getY() > getMaxY() || point.getY() < getMinY())
       return SpatialRelation.DISJOINT;
     //  all the below logic is rather unfortunate but some dateline cases demand it
@@ -159,12 +161,12 @@ public class RectangleImpl implements Rectangle {
     return SpatialRelation.CONTAINS;
   }
 
-  public SpatialRelation relate(Rectangle rect, SpatialContext ctx) {
-    SpatialRelation yIntersect = relateYRange(rect.getMinY(), rect.getMaxY(), ctx);
+  public SpatialRelation relate(Rectangle rect) {
+    SpatialRelation yIntersect = relateYRange(rect.getMinY(), rect.getMaxY());
     if (yIntersect == SpatialRelation.DISJOINT)
       return SpatialRelation.DISJOINT;
 
-    SpatialRelation xIntersect = relateXRange(rect.getMinX(), rect.getMaxX(), ctx);
+    SpatialRelation xIntersect = relateXRange(rect.getMinX(), rect.getMaxX());
     if (xIntersect == SpatialRelation.DISJOINT)
       return SpatialRelation.DISJOINT;
 
@@ -180,6 +182,7 @@ public class RectangleImpl implements Rectangle {
     return SpatialRelation.INTERSECTS;
   }
 
+  //TODO might this utility move to SpatialRelation ?
   private static SpatialRelation relate_range(double int_min, double int_max, double ext_min, double ext_max) {
     if (ext_min > int_max || ext_max < int_min) {
       return SpatialRelation.DISJOINT;
@@ -196,12 +199,12 @@ public class RectangleImpl implements Rectangle {
   }
 
   @Override
-  public SpatialRelation relateYRange(double ext_minY, double ext_maxY, SpatialContext ctx) {
+  public SpatialRelation relateYRange(double ext_minY, double ext_maxY) {
     return relate_range(minY, maxY, ext_minY, ext_maxY);
   }
 
   @Override
-  public SpatialRelation relateXRange(double ext_minX, double ext_maxX, SpatialContext ctx) {
+  public SpatialRelation relateXRange(double ext_minX, double ext_maxX) {
     //For ext & this we have local minX and maxX variable pairs. We rotate them so that minX <= maxX
     double minX = this.minX;
     double maxX = this.maxX;
@@ -243,7 +246,7 @@ public class RectangleImpl implements Rectangle {
     double x = getWidth() / 2 + minX;
     if (minX > maxX)//WGS84
       x = DistanceUtils.normLonDEG(x);//in case falls outside the standard range
-    return new PointImpl(x, y);
+    return new PointImpl(x, y, ctx);
   }
 
   @Override

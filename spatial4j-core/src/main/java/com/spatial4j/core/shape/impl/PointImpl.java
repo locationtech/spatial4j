@@ -26,11 +26,13 @@ import com.spatial4j.core.shape.SpatialRelation;
 /** A basic 2D implementation of a Point. */
 public class PointImpl implements Point {
 
+  private final SpatialContext ctx;
   private double x;
   private double y;
 
   /** A simple constructor without normalization / validation. */
-  public PointImpl(double x, double y) {
+  public PointImpl(double x, double y, SpatialContext ctx) {
+    this.ctx = ctx;
     reset(x, y);
   }
 
@@ -52,9 +54,7 @@ public class PointImpl implements Point {
 
   @Override
   public Rectangle getBoundingBox() {
-    //Unfortunately we make an assumption to create a new RectangleImpl instead
-    // of using ctx.createRect() since we don't have access to a ctx here.
-    return new RectangleImpl(x, x, y, y);
+    return ctx.makeRectangle(this, this);
   }
 
   @Override
@@ -63,10 +63,10 @@ public class PointImpl implements Point {
   }
 
   @Override
-  public SpatialRelation relate(Shape other, SpatialContext ctx) {
+  public SpatialRelation relate(Shape other) {
     if (other instanceof Point)
       return this.equals(other) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
-    return other.relate(this, ctx).transpose();
+    return other.relate(this).transpose();
   }
 
   @Override

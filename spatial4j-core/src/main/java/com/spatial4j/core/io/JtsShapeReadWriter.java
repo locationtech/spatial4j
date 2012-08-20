@@ -84,7 +84,7 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
         checkCoordinates(geom);
 
         if (geom instanceof com.vividsolutions.jts.geom.Point) {
-          return new JtsPoint((com.vividsolutions.jts.geom.Point)geom);
+          return new JtsPoint((com.vividsolutions.jts.geom.Point)geom, ctx);
         } else if (geom.isRectangle()) {
           boolean crossesDateline = false;
           if (ctx.isGeo()) {
@@ -94,9 +94,9 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
           }
           Envelope env = geom.getEnvelopeInternal();
           if (crossesDateline)
-            return new RectangleImpl(env.getMaxX(),env.getMinX(),env.getMinY(),env.getMaxY());
+            return new RectangleImpl(env.getMaxX(),env.getMinX(),env.getMinY(),env.getMaxY(), ctx);
           else
-            return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
+            return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY(), ctx);
         }
         return new JtsGeometry(geom,ctx,true);
       } catch(com.vividsolutions.jts.io.ParseException ex) {
@@ -123,11 +123,11 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
     ByteBuffer bytes = ByteBuffer.wrap(array, offset, length);
     byte type = bytes.get();
     if (type == TYPE_POINT) {
-      return new JtsPoint(ctx.getGeometryFactory().createPoint(new Coordinate(bytes.getDouble(), bytes.getDouble())));
+      return new JtsPoint(ctx.getGeometryFactory().createPoint(new Coordinate(bytes.getDouble(), bytes.getDouble())), ctx);
     } else if (type == TYPE_BBOX) {
       return new RectangleImpl(
               bytes.getDouble(), bytes.getDouble(),
-              bytes.getDouble(), bytes.getDouble());
+              bytes.getDouble(), bytes.getDouble(), ctx);
     } else if (type == TYPE_GEOM) {
       WKBReader reader = new WKBReader(ctx.getGeometryFactory());
       try {

@@ -67,7 +67,7 @@ public class SpatialContextFactoryTest {
         "distCalculator","cartesian^2",
         "worldBounds","-100 0 75 200");//West South East North
     assertEquals(new CartesianDistCalc(true),sc.getDistCalc());
-    assertEquals(new RectangleImpl(-100,75,0,200),sc.getWorldBounds());
+    assertEquals(new RectangleImpl(-100,75,0,200, sc),sc.getWorldBounds());
 
     sc = call("geo","true",
         "distCalculator","lawOfCosines");

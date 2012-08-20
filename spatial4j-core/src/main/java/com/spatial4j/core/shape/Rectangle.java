@@ -17,8 +17,6 @@
 
 package com.spatial4j.core.shape;
 
-import com.spatial4j.core.context.SpatialContext;
-
 /**
  * A rectangle aligned with the axis (i.e. it is not at an angle).
  * <p/>
@@ -66,14 +64,14 @@ public interface Rectangle extends Shape {
   public boolean getCrossesDateLine();
 
   /**
-   * A specialization of {@link #relate(Shape, com.spatial4j.core.context.SpatialContext)}
+   * A specialization of {@link Shape#relate(Shape)}
    * for a vertical line.
    */
-  public SpatialRelation relateYRange(double minY, double maxY, SpatialContext ctx);
+  public SpatialRelation relateYRange(double minY, double maxY);
 
   /**
-   * A specialization of {@link #relate(Shape, com.spatial4j.core.context.SpatialContext)}
+   * A specialization of {@link Shape#relate(Shape)}
    * for a horizontal line.
    */
-  public SpatialRelation relateXRange(double minX, double maxX, SpatialContext ctx);
+  public SpatialRelation relateXRange(double minX, double maxX);
 }

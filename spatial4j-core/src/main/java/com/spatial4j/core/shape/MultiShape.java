@@ -74,11 +74,11 @@ public class MultiShape implements Shape {
   }
 
   @Override
-  public SpatialRelation relate(Shape other, SpatialContext ctx) {
+  public SpatialRelation relate(Shape other) {
     boolean allOutside = true;
     boolean allContains = true;
     for (Shape geom : geoms) {
-      SpatialRelation sect = geom.relate(other, ctx);
+      SpatialRelation sect = geom.relate(other);
       if (sect != SpatialRelation.DISJOINT)
         allOutside = false;
       if (sect != SpatialRelation.CONTAINS)

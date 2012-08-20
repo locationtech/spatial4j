@@ -88,7 +88,7 @@ public class GeoCircle extends CircleImpl {
    * @return DISJOINT, CONTAINS, or INTERSECTS (not WITHIN)
    */
   @Override
-  protected SpatialRelation relateRectanglePhase2(Rectangle r, SpatialRelation bboxSect, SpatialContext ctx) {
+  protected SpatialRelation relateRectanglePhase2(Rectangle r, SpatialRelation bboxSect) {
 
     //Rectangle wraps around the world longitudinally creating a solid band; there are no corners to test intersection
     if (r.getWidth() == 360) {
@@ -96,7 +96,7 @@ public class GeoCircle extends CircleImpl {
     }
 
     if (inverseCircle != null) {
-      return inverseCircle.relate(r, ctx).inverse();
+      return inverseCircle.relate(r).inverse();
     }
 
     //if a pole is wrapped, we have a separate algorithm
@@ -106,14 +106,14 @@ public class GeoCircle extends CircleImpl {
 
     //This is an optimization path for when there are no dateline or pole issues.
     if (!enclosingBox.getCrossesDateLine() && !r.getCrossesDateLine()) {
-      return super.relateRectanglePhase2(r, bboxSect, ctx);
+      return super.relateRectanglePhase2(r, bboxSect);
     }
 
     //do quick check to see if all corners are within this circle for CONTAINS
     int cornersIntersect = numCornersIntersect(r);
     if (cornersIntersect == 4) {
       //ensure r's x axis is within c's.  If it doesn't, r sneaks around the globe to touch the other side (intersect).
-      SpatialRelation xIntersect = r.relateXRange(enclosingBox.getMinX(), enclosingBox.getMaxX(), ctx);
+      SpatialRelation xIntersect = r.relateXRange(enclosingBox.getMinX(), enclosingBox.getMaxX());
       if (xIntersect == SpatialRelation.WITHIN)
         return SpatialRelation.CONTAINS;
       return SpatialRelation.INTERSECTS;
@@ -127,17 +127,17 @@ public class GeoCircle extends CircleImpl {
     // intersection.
 
     /* x axis intersects  */
-    if ( r.relateYRange(getYAxis(), getYAxis(), ctx).intersects() // at y vertical
-          && r.relateXRange(enclosingBox.getMinX(), enclosingBox.getMaxX(), ctx).intersects() )
+    if ( r.relateYRange(getYAxis(), getYAxis()).intersects() // at y vertical
+          && r.relateXRange(enclosingBox.getMinX(), enclosingBox.getMaxX()).intersects() )
       return SpatialRelation.INTERSECTS;
 
     /* y axis intersects */
-    if (r.relateXRange(getXAxis(), getXAxis(), ctx).intersects()) { // at x horizontal
+    if (r.relateXRange(getXAxis(), getXAxis()).intersects()) { // at x horizontal
       double yTop = getCenter().getY()+ radiusDEG;
       assert yTop <= 90;
       double yBot = getCenter().getY()- radiusDEG;
       assert yBot >= -90;
-      if (r.relateYRange(yBot, yTop, ctx).intersects())//back bottom
+      if (r.relateYRange(yBot, yTop).intersects())//back bottom
         return SpatialRelation.INTERSECTS;
     }
 
@@ -183,12 +183,12 @@ public class GeoCircle extends CircleImpl {
     double frontX = getCenter().getX();
     if (cornersIntersect == 4) {//all
       double backX = frontX <= 0 ? frontX + 180 : frontX - 180;
-      if (r.relateXRange(backX, backX, ctx).intersects())
+      if (r.relateXRange(backX, backX).intersects())
         return SpatialRelation.INTERSECTS;
       else
         return SpatialRelation.CONTAINS;
     } else if (cornersIntersect == 0) {//none
-      if (r.relateXRange(frontX, frontX, ctx).intersects())
+      if (r.relateXRange(frontX, frontX).intersects())
         return SpatialRelation.INTERSECTS;
       else
         return SpatialRelation.DISJOINT;

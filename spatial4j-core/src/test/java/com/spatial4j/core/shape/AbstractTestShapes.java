@@ -76,7 +76,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
   }
 
   private void _assertIntersect(String msg, SpatialRelation expected, Shape a, Shape b) {
-    SpatialRelation sect = a.relate(b, ctx);
+    SpatialRelation sect = a.relate(b);
     if (sect == expected)
       return;
     if (expected == WITHIN || expected == CONTAINS) {
@@ -234,14 +234,14 @@ public abstract class AbstractTestShapes extends RandomizedTest {
 
       Rectangle r = randomRectangle(TEST_DIVISIBLE);
 
-      SpatialRelation ic = c.relate(r, ctx);
+      SpatialRelation ic = c.relate(r);
 
       Point p;
       switch (ic) {
         case CONTAINS:
           i_C++;
           p = randomPointWithin(r);
-          assertEquals(CONTAINS,c.relate(p, ctx));
+          assertEquals(CONTAINS,c.relate(p));
           break;
         case INTERSECTS:
           i_I++;
@@ -250,12 +250,12 @@ public abstract class AbstractTestShapes extends RandomizedTest {
         case WITHIN:
           i_W++;
           p = randomPointWithin(c);
-          assertEquals(CONTAINS,r.relate(p, ctx));
+          assertEquals(CONTAINS,r.relate(p));
           break;
         case DISJOINT:
           i_O++;
           p = randomPointWithin(r);
-          assertEquals(DISJOINT,c.relate(p, ctx));
+          assertEquals(DISJOINT,c.relate(p));
           break;
         default: fail(""+ic);
       }
@@ -280,8 +280,8 @@ public abstract class AbstractTestShapes extends RandomizedTest {
   @Test
   public void testMakeRect() {
     //test rectangle constructor
-    assertEquals(new RectangleImpl(1,3,2,4),
-        new RectangleImpl(new PointImpl(1,2),new PointImpl(3,4)));
+    assertEquals(new RectangleImpl(1,3,2,4, ctx),
+        new RectangleImpl(new PointImpl(1,2, ctx),new PointImpl(3,4, ctx), ctx));
 
     //test ctx.makeRect
     assertEquals(ctx.makeRectangle(1, 3, 2, 4),
@@ -333,7 +333,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     double d = c.getRadius() * randomDouble();
     double angleDEG = 360 * randomDouble();
     Point p = ctx.getDistCalc().pointOnBearing(c.getCenter(), d, angleDEG, ctx, null);
-    assertEquals(CONTAINS,c.relate(p, ctx));
+    assertEquals(CONTAINS,c.relate(p));
     return p;
   }
 
@@ -343,7 +343,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     x = normX(x);
     y = normY(y);
     Point p = ctx.makePoint(x,y);
-    assertEquals(CONTAINS,r.relate(p, ctx));
+    assertEquals(CONTAINS,r.relate(p));
     return p;
   }
 

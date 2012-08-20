@@ -80,8 +80,8 @@ public class JtsPolygonTest extends AbstractTestShapes {
 
   @Test
   public void testRegressions() {
-    assertJtsConsistentRelate(new PointImpl(-10, 4));//PointImpl not JtsPoint, and CONTAINS
-    assertJtsConsistentRelate(new PointImpl(-15, -10));//point on boundary
+    assertJtsConsistentRelate(new PointImpl(-10, 4, ctx));//PointImpl not JtsPoint, and CONTAINS
+    assertJtsConsistentRelate(new PointImpl(-15, -10, ctx));//point on boundary
     assertJtsConsistentRelate(ctx.makeRectangle(135, 180, -10, 10));//180 edge-case
   }
 
