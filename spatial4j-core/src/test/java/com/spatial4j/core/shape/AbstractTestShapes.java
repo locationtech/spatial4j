@@ -29,14 +29,12 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
-import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
-import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
+import static com.spatial4j.core.shape.SpatialRelation.*;
 
 
 public abstract class AbstractTestShapes extends RandomizedTest {
 
-  protected SpatialContext ctx;
+  protected final SpatialContext ctx;
   private static final double EPS = 10e-9;
 
   public AbstractTestShapes(SpatialContext ctx) {

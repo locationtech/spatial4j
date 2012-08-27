@@ -28,10 +28,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
-import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
-import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
-import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
+import static com.spatial4j.core.shape.SpatialRelation.*;
 
 
 public class TestShapesGeo extends AbstractTestShapes {
@@ -43,11 +40,11 @@ public class TestShapesGeo extends AbstractTestShapes {
     //DistanceCalculator distCalcL = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
 
     DistanceCalculator distCalcH = new GeodesicSphereDistCalc.Haversine();//default
-    DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty();//default
+    DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty();
     return Arrays.asList($$(
-        $(new SpatialContext(true,distCalcH,SpatialContext.GEO_WORLDBOUNDS)),
-        $(new SpatialContext(true,distCalcV,SpatialContext.GEO_WORLDBOUNDS)),
-        $(JtsSpatialContext.GEO))
+        $(new SpatialContext(true, new RoundingDistCalc(distCalcH), SpatialContext.GEO_WORLDBOUNDS)),
+        $(new SpatialContext(true, new RoundingDistCalc(distCalcV), SpatialContext.GEO_WORLDBOUNDS)),
+        $(new JtsSpatialContext(null, true, new RoundingDistCalc(distCalcH),SpatialContext.GEO_WORLDBOUNDS)))
     );
   }
 
@@ -136,6 +133,8 @@ public class TestShapesGeo extends AbstractTestShapes {
 //      assertEquals(INTERSECTS,c.getBoundingBox().relate(r, ctx));
 //      assertEquals("dist != xy space",INTERSECTS,c.relate(r,ctx));//once failed here
 //    }
+
+    assertEquals("edge rounding issue", CONTAINS, ctx.makeCircle(0, 66, 156).relate(ctx.makePoint(0, -90), ctx));
 
     assertEquals("nudge back circle", CONTAINS, ctx.makeCircle(-150, -90, 122).relate(ctx.makeRectangle(0, -132, 32, 32), ctx));
 
