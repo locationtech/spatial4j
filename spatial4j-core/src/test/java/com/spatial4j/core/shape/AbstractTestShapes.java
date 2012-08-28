@@ -36,7 +36,7 @@ import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
 
 public abstract class AbstractTestShapes extends RandomizedTest {
 
-  protected SpatialContext ctx;
+  protected final SpatialContext ctx;
   private static final double EPS = 10e-9;
 
   public AbstractTestShapes(SpatialContext ctx) {

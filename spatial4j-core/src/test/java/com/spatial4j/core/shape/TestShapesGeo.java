@@ -41,13 +41,13 @@ public class TestShapesGeo extends AbstractTestShapes {
 
     //TODO ENABLE LawOfCosines WHEN WORKING
     //DistanceCalculator distCalcL = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
-
     DistanceCalculator distCalcH = new GeodesicSphereDistCalc.Haversine();//default
-    DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty();//default
+    DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty();
+    Rectangle WB = SpatialContext.GEO.getWorldBounds();
     return Arrays.asList($$(
-        $(new SpatialContext(true,distCalcH,null)),
-        $(new SpatialContext(true,distCalcV,null)),
-        $(JtsSpatialContext.GEO))
+        $(new SpatialContext(true, new RoundingDistCalc(distCalcH), WB)),
+        $(new SpatialContext(true, new RoundingDistCalc(distCalcV), WB)),
+        $(new JtsSpatialContext(null, true, new RoundingDistCalc(distCalcH), WB)))
     );
   }
 
@@ -136,6 +136,8 @@ public class TestShapesGeo extends AbstractTestShapes {
 //      assertEquals(INTERSECTS,c.getBoundingBox().relate(r));
 //      assertEquals("dist != xy space",INTERSECTS,c.relate(r));//once failed here
 //    }
+
+    assertEquals("edge rounding issue", CONTAINS, ctx.makeCircle(0, 66, 156).relate(ctx.makePoint(0, -90)));
 
     assertEquals("nudge back circle", CONTAINS, ctx.makeCircle(-150, -90, 122).relate(ctx.makeRectangle(0, -132, 32, 32)));
 
