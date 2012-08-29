@@ -1,3 +1,20 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
@@ -6,14 +23,15 @@
     <artifactId>oss-parent</artifactId>
     <version>7</version>
   </parent>
-
+  
   <groupId>com.spatial4j</groupId>
-  <artifactId>spatial4j-parent</artifactId>
+  <artifactId>spatial4j</artifactId>
   <version>0.3-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>spatial4j-parent</name>
+  <packaging>jar</packaging>
+
+  <name>Spatial4J</name>
   <description>
-   Java Spatial Library (Parent POM)
+    Spatial4j is a general purpose spatial / geospatial ASL licensed open-source Java library. It's core capabilities are 3-fold: to provide common geospatially-aware shapes, to provide distance calculations and other math, and to read and write the shapes to strings.
   </description>
 
   <url>http://spatial4j.com</url>
@@ -35,50 +53,59 @@
   <properties>
     <!-- this magic system property is honored by many plugins: http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <!-- TODO do we really buy anything by putting these here instead of in maven-compiler-plugin ? -->
-    <maven.compile.source>1.6</maven.compile.source>
-    <maven.compile.target>1.6</maven.compile.target>
-    <maven.compile.optimize>true</maven.compile.optimize>
-    <maven.compile.deprecation>true</maven.compile.deprecation>
-    
-    <wicket.version>1.4.20</wicket.version>
-    <jetty.version>8.1.2.v20120308</jetty.version>
+
     <slf4j.version>1.6.4</slf4j.version>
-    <lucene.version>4.0-SNAPSHOT</lucene.version>
-    <jts.version>1.12</jts.version>
+
+    <!-- RandomizedTesting library system properties -->
+    <tests.iters>1</tests.iters>
+    <tests.seed/>
+    <tests.nightly/>
+    <tests.weekly/>
+    <tests.awaitsfix/>
+    <tests.slow/>
+
   </properties>
 
-  <dependencyManagement>
-    <dependencies>
-      <!-- v4.10 is what Lucene uses; good to keep in sync -->
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.10</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
-  <!-- inherited by all modules -->
   <dependencies>
 
-    <!-- TESTING -->
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <version>1.12</version>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <version>4.10</version>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
-  </dependencies>
 
-  <build>
-    <finalName>${project.artifactId}-${project.version}</finalName>
+    <dependency>
+      <groupId>com.carrotsearch.randomizedtesting</groupId>
+      <artifactId>randomizedtesting-runner</artifactId>
+      <version>2.0.0.rc5</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
   
+  <build>
+    
     <plugins>
       
       <plugin>
@@ -86,10 +113,10 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
         <configuration>
-          <source>${maven.compile.source}</source>
-          <target>${maven.compile.target}</target>
-          <optimize>${maven.compile.optimize}</optimize>
-          <showDeprecation>${maven.compile.deprecation}</showDeprecation>
+          <source>1.6</source>
+          <target>1.6</target>
+          <optimize>true</optimize>
+          <showDeprecation>true</showDeprecation>
         </configuration>
       </plugin>
 
@@ -99,29 +126,26 @@
         <version>2.9</version>
         <configuration>
           <systemPropertyVariables>
-            <!-- taken from Lucene's pom -->
-            <jetty.testMode>1</jetty.testMode>
-            <tests.verbose>${tests.verbose}</tests.verbose>
-            <tests.codec>${tests.codec}</tests.codec>
-            <tests.directory>${tests.directory}</tests.directory>
-            <tests.iter>${tests.iter}</tests.iter>
-            <tests.locale>${tests.locale}</tests.locale>
-            <tests.luceneMatchVersion>${tests.luceneMatchVersion}</tests.luceneMatchVersion>
-            <tests.multiplier>${tests.multiplier}</tests.multiplier>
-            <tests.nightly>${tests.nightly}</tests.nightly>
+            <!-- RandomizedTesting library system properties -->
+            <tests.iters>${tests.iters}</tests.iters>
             <tests.seed>${tests.seed}</tests.seed>
-            <tests.timezone>${tests.timezone}</tests.timezone>
+            <tests.nightly>${tests.nightly}</tests.nightly>
+            <tests.weekly>${tests.weekly}</tests.weekly>
+            <tests.awaitsfix>${tests.awaitsfix}</tests.awaitsfix>
+            <tests.slow>${tests.slow}</tests.slow>
           </systemPropertyVariables>
         </configuration>
       </plugin>
-
-    </plugins>  
+      
+    </plugins>
+    
   </build>
+
 
   <reporting>
     <!-- TODO support maven 3  (& 2?)-->
     <plugins>
-    
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
@@ -130,15 +154,6 @@
           <linkXRef>true</linkXRef>
           <minimumTokens>100</minimumTokens>
           <targetJdk>1.6</targetJdk>
-          <!--
-          <excludes>
-            <exclude>**/*Bean.java</exclude>
-            <exclude>**/generated/*.java</exclude>
-          </excludes>
-          <excludeRoots>
-            <excludeRoot>target/generated-sources/stubs</excludeRoot>
-          </excludeRoots>
-          -->
         </configuration>
       </plugin>
 
@@ -152,7 +167,7 @@
           <xmlOutput>true</xmlOutput>
         </configuration>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
@@ -175,66 +190,7 @@
         </configuration>
       </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <version>2.8</version>
-        <configuration>
-          <downloadSources>true</downloadSources>
-        </configuration>
-      </plugin>
-
     </plugins>
   </reporting>
 
-  <!-- note: repositories default: releases=true, snapshots=false -->
-
-  <profiles>
-    <profile>
-      <id>updateLucene</id>
-      <repositories>
-        <!-- for Lucene -->
-        <repository>
-          <id>org.apache.snapshots</id>
-          <name>Apache Snapshot Repository</name>
-          <url>http://repository.apache.org/snapshots</url>
-          <layout>default</layout>
-          <releases>
-            <enabled>false</enabled>
-          </releases>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-        </repository>
-      </repositories>
-      
-		  <build>
-		    <plugins>
-		      <plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-eclipse-plugin</artifactId>       
-		        <version>2.5</version> <!-- NOTE 2.6 breaks the layout -->
-		        <configuration>
-		          <downloadSources>true</downloadSources>      
-		          <additionalProjectnatures>
-		            <projectnature>qwickie.qwickieNature</projectnature>
-		          </additionalProjectnatures>
-		          <additionalBuildcommands>
-		            <buildcommand>qwickie.qwickieBuilder</buildcommand>
-		          </additionalBuildcommands>
-		        </configuration>
-		      </plugin>
-		    </plugins>
-		  </build>
-      
-    </profile>
-
-  </profiles>
-
-  <modules>
-    <module>spatial4j-core</module>
-    <!--<module>spatial4j-solr</module>-->
-    <!--<module>spatial4j-demo</module>-->
-  </modules>
-  
 </project>

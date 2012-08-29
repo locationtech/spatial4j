@@ -28,10 +28,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
-import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
-import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
-import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
+import static com.spatial4j.core.shape.SpatialRelation.*;
 
 
 public class TestShapesGeo extends AbstractTestShapes {

@@ -15,26 +15,31 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.io.geonames;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
+package com.spatial4j.core.io.sample;
 
 import com.spatial4j.core.io.LineReader;
 
-public class GeonamesReader extends LineReader<Geoname> {
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 
-  public GeonamesReader(Reader r) throws IOException {
+public class SampleDataReader extends LineReader<SampleData> {
+
+  public SampleDataReader(InputStream r) throws IOException {
     super( r );
   }
 
-  public GeonamesReader(File f) throws IOException {
+  public SampleDataReader(Reader r) throws IOException {
+    super( r );
+  }
+
+  public SampleDataReader(File f) throws IOException {
     super( f );
   }
 
   @Override
-  public Geoname parseLine(String line) {
-    return new Geoname( line );
+  public SampleData parseLine(String line) {
+    return new SampleData( line );
   }
 }
