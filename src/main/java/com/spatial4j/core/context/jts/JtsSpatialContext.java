@@ -46,7 +46,7 @@ import java.util.Collection;
  */
 public class JtsSpatialContext extends SpatialContext {
 
-  public static JtsSpatialContext GEO = new JtsSpatialContext(true);
+  public static final JtsSpatialContext GEO = new JtsSpatialContext(true);
 
   private final GeometryFactory geometryFactory;
 
