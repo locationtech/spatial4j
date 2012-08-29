@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-/**
- * Ways to calculate distance.
- */
-package com.spatial4j.core.distance;
-
+/** Serializing and deserializing (e.g. reading & writing) shapes in
+ * various forms. */
+package com.spatial4j.core.io;

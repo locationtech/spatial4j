@@ -15,8 +15,5 @@
  * limitations under the License.
  */
 
-/**
- * Ways to calculate distance.
- */
-package com.spatial4j.core.distance;
-
+/** Shapes are the core geometry objects that Spatial4j provides. */
+package com.spatial4j.core.shape;

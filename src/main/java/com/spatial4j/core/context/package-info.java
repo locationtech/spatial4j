@@ -15,8 +15,5 @@
  * limitations under the License.
  */
 
-/**
- * Ways to calculate distance.
- */
-package com.spatial4j.core.distance;
-
+/** SpatialContext implementations are the keystone to the Spatial4j API. */
+package com.spatial4j.core.context;
