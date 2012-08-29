@@ -56,14 +56,6 @@
 
     <slf4j.version>1.6.4</slf4j.version>
 
-    <!-- RandomizedTesting library system properties -->
-    <tests.iters>1</tests.iters>
-    <tests.seed/>
-    <tests.nightly/>
-    <tests.weekly/>
-    <tests.awaitsfix/>
-    <tests.slow/>
-
   </properties>
 
   <dependencies>
@@ -125,15 +117,10 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.9</version>
         <configuration>
-          <systemPropertyVariables>
-            <!-- RandomizedTesting library system properties -->
-            <tests.iters>${tests.iters}</tests.iters>
-            <tests.seed>${tests.seed}</tests.seed>
-            <tests.nightly>${tests.nightly}</tests.nightly>
-            <tests.weekly>${tests.weekly}</tests.weekly>
-            <tests.awaitsfix>${tests.awaitsfix}</tests.awaitsfix>
-            <tests.slow>${tests.slow}</tests.slow>
-          </systemPropertyVariables>
+          <!-- This is a small project that should have no problem with tests
+          running in the maven JVM. This also conveniently means system
+          properties pass through. -->
+          <forkMode>never</forkMode>
         </configuration>
       </plugin>
       

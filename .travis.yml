@@ -1,0 +1,7 @@
+language: java
+script: mvn -Drandomized.multiplier=10 clean verify
+jdk:
+  - openjdk6
+notifications:
+  email:
+    - dev@spatial4j.com

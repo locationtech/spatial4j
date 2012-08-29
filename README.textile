@@ -16,7 +16,7 @@ h3. Features
 * Integration with JTS to adapt its shapes to Spatial4j's interfaces, including adding some geospatial awareness
 * No runtime dependencies unless JTS is needed
 
-In addition, the code is well tested and it's monitored via continuous-integration software.
+In addition, the code is well tested and it's monitored via "Travis-CI":http://travis-ci.org/#!/spatial4j/spatial4j continuous integration.
 
 fn1. Geospatial awareness means it is aware of the implications of the international dateline and poles. It can't pretend the earth is flat and infinitely large.
 
