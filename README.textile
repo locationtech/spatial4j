@@ -32,21 +32,6 @@ h3. Discuss
 
 Discuss Spatial4j on our "mailing list":http://spatial4j.16575.n6.nabble.com/.
 
-h1. Other Modules
-
-Spatial4j includes some other modules aside from the core library:
-
-h2. spatial4j-solr
-
-Adds Apache Solr support using the lucene-spatial-module. It mostly consists of Field Types; all the real work is implemented in the lucene-spatial-module. If the lucene-spatial-module is officially merged into Apache Lucene then this module will be up for merge consideration next.
-
-(this will be moved to Apache lucene trunk soon)
-
-h2. spatial4j-demo
-
-Contains a demo web application using spatial-solr.  Consumes sample data and "geonames":http://www.geonames.org/export/.
-See the provided README.txt in there for instructions to try it out.
-
 h1. History
 
 Spatial4j began life as "Lucene Spatial Playground":http://code.google.com/p/lucene-spatial-playground/ (LSP) and from this work a generic core spatial library emerged. The Lucene and Solr modules parts will hopefully merge into the Apache Lucene and Solr projects.
