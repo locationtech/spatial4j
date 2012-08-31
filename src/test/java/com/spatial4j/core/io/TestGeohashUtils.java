@@ -94,8 +94,31 @@ public class TestGeohashUtils {
   /** see the table at http://en.wikipedia.org/wiki/Geohash */
   @Test
   public void testHashLenToWidth() {
-    double[] box = GeohashUtils.lookupDegreesSizeForHashLen(3);
-    assertEquals(1.40625,box[0],0.0001);
-    assertEquals(1.40625,box[1],0.0001);
+    //test odd & even len
+    double[] boxOdd = GeohashUtils.lookupDegreesSizeForHashLen(3);
+    assertEquals(1.40625,boxOdd[0],0.0001);
+    assertEquals(1.40625,boxOdd[1],0.0001);
+    double[] boxEven = GeohashUtils.lookupDegreesSizeForHashLen(4);
+    assertEquals(0.1757,boxEven[0],0.0001);
+    assertEquals(0.3515,boxEven[1],0.0001);
+  }
+
+  /** see the table at http://en.wikipedia.org/wiki/Geohash */
+  @Test
+  public void testLookupHashLenForWidthHeight() {
+    assertEquals(1, GeohashUtils.lookupHashLenForWidthHeight(999,999));
+
+    assertEquals(1, GeohashUtils.lookupHashLenForWidthHeight(999,46));
+    assertEquals(1, GeohashUtils.lookupHashLenForWidthHeight(46,999));
+
+    assertEquals(2, GeohashUtils.lookupHashLenForWidthHeight(44,999));
+    assertEquals(2, GeohashUtils.lookupHashLenForWidthHeight(999,44));
+    assertEquals(2, GeohashUtils.lookupHashLenForWidthHeight(999,5.7));
+    assertEquals(2, GeohashUtils.lookupHashLenForWidthHeight(11.3,999));
+
+    assertEquals(3, GeohashUtils.lookupHashLenForWidthHeight(999,5.5));
+    assertEquals(3, GeohashUtils.lookupHashLenForWidthHeight(11.1,999));
+
+    assertEquals(GeohashUtils.MAX_PRECISION, GeohashUtils.lookupHashLenForWidthHeight(10e-20,10e-20));
   }
 }

@@ -165,15 +165,15 @@ public class GeohashUtils {
   }
 
   /**
-   * Return the longest geohash length that will have a width & height >= specified arguments.
+   * Return the shortest geohash length that will have a width & height >= specified arguments.
    */
-  public static int lookupHashLenForWidthHeight(double width, double height) {
+  public static int lookupHashLenForWidthHeight(double lonErr, double latErr) {
     //loop through hash length arrays from beginning till we find one.
-    for(int len = 1; len <= MAX_PRECISION; len++) {
+    for(int len = 1; len < MAX_PRECISION; len++) {
       double latHeight = hashLenToLatHeight[len];
       double lonWidth = hashLenToLonWidth[len];
-      if (latHeight < height || lonWidth < width)
-        return len-1;//previous length is big enough to encompass specified width & height
+      if (latHeight < latErr && lonWidth < lonErr)
+        return len;
     }
     return MAX_PRECISION;
   }
