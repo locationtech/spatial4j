@@ -26,7 +26,7 @@
   
   <groupId>com.spatial4j</groupId>
   <artifactId>spatial4j</artifactId>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.3</version>
   <packaging>jar</packaging>
 
   <name>Spatial4J</name>
@@ -123,9 +123,23 @@
           <forkMode>never</forkMode>
         </configuration>
       </plugin>
+
+      <!-- so that the source jar gets deployed -->
+      <!--<plugin>-->
+        <!--<groupId>org.apache.maven.plugins</groupId>-->
+        <!--<artifactId>maven-source-plugin</artifactId>-->
+        <!--<version>2.2</version>-->
+        <!--<executions>-->
+          <!--<execution>-->
+            <!--<goals>-->
+              <!--<goal>jar</goal>-->
+            <!--</goals>-->
+          <!--</execution>-->
+        <!--</executions>-->
+      <!--</plugin>-->
       
     </plugins>
-    
+
   </build>
 
 
@@ -168,7 +182,6 @@
       </plugin>
 
       <plugin>
-        <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>2.8</version>
@@ -179,5 +192,12 @@
 
     </plugins>
   </reporting>
+
+  <distributionManagement>
+    <site>
+      <id>github-project-site</id>
+      <url>gitsite:git@github.com/spatial4j/spatial4j.git</url>
+    </site>
+  </distributionManagement>
 
 </project>
