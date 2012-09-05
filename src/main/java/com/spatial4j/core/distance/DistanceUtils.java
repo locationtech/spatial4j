@@ -29,14 +29,14 @@ import com.spatial4j.core.shape.Rectangle;
 public class DistanceUtils {
 
   //pre-compute some angles that are commonly used
-  public static final double DEG_45_AS_RADS = Math.PI / 4.0;
+  public static final double DEG_45_AS_RADS = Math.PI / 4;
   public static final double SIN_45_AS_RADS = Math.sin(DEG_45_AS_RADS);
   public static final double DEG_90_AS_RADS = Math.PI / 2;
   public static final double DEG_180_AS_RADS = Math.PI;
   public static final double DEG_225_AS_RADS = 5 * DEG_45_AS_RADS;
   public static final double DEG_270_AS_RADS = 3 * DEG_90_AS_RADS;
 
-  public static final double DEGREES_TO_RADIANS =  Math.PI / 180.0;
+  public static final double DEGREES_TO_RADIANS =  Math.PI / 180;
   public static final double RADIANS_TO_DEGREES =  1 / DEGREES_TO_RADIANS;
 
   public static final double KM_TO_MILES = 0.621371192;
@@ -49,6 +49,9 @@ public class DistanceUtils {
    */
   public static final double EARTH_MEAN_RADIUS_KM = 6371.0087714;
   public static final double EARTH_EQUATORIAL_RADIUS_KM = 6378.1370;
+
+  public static final double DEG_TO_KM = degrees2Dist(1, EARTH_MEAN_RADIUS_KM);
+  public static final double KM_TO_DEG = 1 / DEG_TO_KM;
 
   public static final double EARTH_MEAN_RADIUS_MI = EARTH_MEAN_RADIUS_KM * KM_TO_MILES;
   public static final double EARTH_EQUATORIAL_RADIUS_MI = EARTH_EQUATORIAL_RADIUS_KM * KM_TO_MILES;
@@ -135,8 +138,6 @@ public class DistanceUtils {
 
   /**
    * Given a start point (startLat, startLon) and a bearing on a sphere, return the destination point.
-   *
-   *
    *
    * @param startLat The starting point latitude, in radians
    * @param startLon The starting point longitude, in radians
@@ -341,7 +342,7 @@ public class DistanceUtils {
   }
 
   /**
-   * Calculates the distance between two lat/lng's using the Law of Cosines. Due to numeric conditioning
+   * Calculates the distance between two lat-lon's using the Law of Cosines. Due to numeric conditioning
    * errors, it is not as accurate as the Haversine formula for small distances.  But with
    * double precision, it isn't that bad -- <a href="http://www.movable-type.co.uk/scripts/latlong.html">
    *   allegedly 1 meter</a>.

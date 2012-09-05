@@ -123,20 +123,6 @@
           <forkMode>never</forkMode>
         </configuration>
       </plugin>
-
-      <!-- so that the source jar gets deployed -->
-      <!--<plugin>-->
-        <!--<groupId>org.apache.maven.plugins</groupId>-->
-        <!--<artifactId>maven-source-plugin</artifactId>-->
-        <!--<version>2.2</version>-->
-        <!--<executions>-->
-          <!--<execution>-->
-            <!--<goals>-->
-              <!--<goal>jar</goal>-->
-            <!--</goals>-->
-          <!--</execution>-->
-        <!--</executions>-->
-      <!--</plugin>-->
       
     </plugins>
 
@@ -192,12 +178,5 @@
 
     </plugins>
   </reporting>
-
-  <distributionManagement>
-    <site>
-      <id>github-project-site</id>
-      <url>gitsite:git@github.com/spatial4j/spatial4j.git</url>
-    </site>
-  </distributionManagement>
 
 </project>
