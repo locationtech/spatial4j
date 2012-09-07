@@ -134,6 +134,8 @@ public class TestShapesGeo extends AbstractTestShapes {
 //      assertEquals("dist != xy space",INTERSECTS,c.relate(r));//once failed here
 //    }
 
+    assertEquals("edge rounding issue 2", INTERSECTS, ctx.makeCircle(84, -40, 136).relate(ctx.makeRectangle(-150,-80,34,84)));
+
     assertEquals("edge rounding issue", CONTAINS, ctx.makeCircle(0, 66, 156).relate(ctx.makePoint(0, -90)));
 
     assertEquals("nudge back circle", CONTAINS, ctx.makeCircle(-150, -90, 122).relate(ctx.makeRectangle(0, -132, 32, 32)));

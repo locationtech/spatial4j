@@ -49,10 +49,12 @@ public class GeoCircle extends CircleImpl {
       double backDistDEG = 180 - radiusDEG;
       if (backDistDEG > 0) {
         double backRadius = 180 - radiusDEG;
-        //shrink inverseCircle as small as possible to avoid accidental overlap
-        backRadius -= Math.ulp(backRadius);
         double backX = DistanceUtils.normLonDEG(getCenter().getX() + 180);
         double backY = DistanceUtils.normLatDEG(getCenter().getY() + 180);
+        //Shrink inverseCircle as small as possible to avoid accidental overlap.
+        // Note that this is tricky business to come up with a value small enough
+        // but not too small or else numerical conditioning issues become a problem.
+        backRadius -= Math.max(Math.ulp(Math.abs(backY)+backRadius), Math.ulp(Math.abs(backX)+backRadius));
         if (inverseCircle != null) {
           inverseCircle.reset(backX, backY, backRadius);
         } else {
