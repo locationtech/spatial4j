@@ -6,10 +6,10 @@ import com.spatial4j.core.distance.DistanceCalculator;
 
 /** Ameliorates some random tests cases in which shapes barely tough or barely not
  * touch. */
-class RoundingDistCalc extends AbstractDistanceCalculator {
+class RoundingDistanceCalculator extends AbstractDistanceCalculator {
   DistanceCalculator delegate;
 
-  RoundingDistCalc(DistanceCalculator delegate) {
+  RoundingDistanceCalculator(DistanceCalculator delegate) {
     this.delegate = delegate;
   }
 

@@ -42,9 +42,9 @@ public class TestShapesGeo extends AbstractTestShapes {
     DistanceCalculator distCalcV = new GeodesicSphereDistanceCalculator.Vincenty();
     Rectangle WB = SpatialContext.GEO.getWorldBounds();
     return Arrays.asList($$(
-        $(new SpatialContext(true, new RoundingDistCalc(distCalcH), WB)),
-        $(new SpatialContext(true, new RoundingDistCalc(distCalcV), WB)),
-        $(new JtsSpatialContext(null, true, new RoundingDistCalc(distCalcH), WB)))
+        $(new SpatialContext(true, new RoundingDistanceCalculator(distCalcH), WB)),
+        $(new SpatialContext(true, new RoundingDistanceCalculator(distCalcV), WB)),
+        $(new JtsSpatialContext(null, true, new RoundingDistanceCalculator(distCalcH), WB)))
     );
   }
 
