@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.io;
+package com.spatial4j.core;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;

@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.io;
+package com.spatial4j.core;
 
+import com.spatial4j.core.GeohashUtils;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
 import org.junit.Test;
@@ -24,7 +25,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link GeohashUtils}
+ * Tests for {@link com.spatial4j.core.GeohashUtils}
  */
 public class TestGeohashUtils {
   SpatialContext ctx = SpatialContext.GEO;
