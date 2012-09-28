@@ -17,9 +17,9 @@
 
 package com.spatial4j.core.context;
 
-import com.spatial4j.core.distance.CartesianDistCalc;
+import com.spatial4j.core.distance.CartesianDistanceCalculator;
 import com.spatial4j.core.distance.DistanceCalculator;
-import com.spatial4j.core.distance.GeodesicSphereDistCalc;
+import com.spatial4j.core.distance.GeodesicSphereDistanceCalculator;
 import com.spatial4j.core.shape.Rectangle;
 
 import java.util.Map;
@@ -105,15 +105,15 @@ public class SpatialContextFactory {
     if (calcStr == null)
       return;
     if (calcStr.equalsIgnoreCase("haversine")) {
-      calculator = new GeodesicSphereDistCalc.Haversine();
+      calculator = new GeodesicSphereDistanceCalculator.Haversine();
     } else if (calcStr.equalsIgnoreCase("lawOfCosines")) {
-      calculator = new GeodesicSphereDistCalc.LawOfCosines();
+      calculator = new GeodesicSphereDistanceCalculator.LawOfCosines();
     } else if (calcStr.equalsIgnoreCase("vincentySphere")) {
-      calculator = new GeodesicSphereDistCalc.Vincenty();
+      calculator = new GeodesicSphereDistanceCalculator.Vincenty();
     } else if (calcStr.equalsIgnoreCase("cartesian")) {
-      calculator = new CartesianDistCalc();
+      calculator = new CartesianDistanceCalculator();
     } else if (calcStr.equalsIgnoreCase("cartesian^2")) {
-      calculator = new CartesianDistCalc(true);
+      calculator = new CartesianDistanceCalculator(true);
     } else {
       throw new RuntimeException("Unknown calculator: "+calcStr);
     }

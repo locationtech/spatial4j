@@ -22,7 +22,7 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.distance.GeodesicSphereDistCalc;
+import com.spatial4j.core.distance.GeodesicSphereDistanceCalculator;
 import com.spatial4j.core.InvalidShapeException;
 import org.junit.Test;
 
@@ -37,9 +37,9 @@ public class TestShapesGeo extends AbstractTestShapes {
   public static Iterable<Object[]> parameters() {
 
     //TODO ENABLE LawOfCosines WHEN WORKING
-    //DistanceCalculator distCalcL = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
-    DistanceCalculator distCalcH = new GeodesicSphereDistCalc.Haversine();//default
-    DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty();
+    //DistanceCalculator distCalcL = new GeodesicSphereDistanceCalculator.Haversine(units.earthRadius());//default
+    DistanceCalculator distCalcH = new GeodesicSphereDistanceCalculator.Haversine();//default
+    DistanceCalculator distCalcV = new GeodesicSphereDistanceCalculator.Vincenty();
     Rectangle WB = SpatialContext.GEO.getWorldBounds();
     return Arrays.asList($$(
         $(new SpatialContext(true, new RoundingDistCalc(distCalcH), WB)),

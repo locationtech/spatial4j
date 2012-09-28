@@ -16,8 +16,8 @@
  */
 package com.spatial4j.core.context;
 
-import com.spatial4j.core.distance.CartesianDistCalc;
-import com.spatial4j.core.distance.GeodesicSphereDistCalc;
+import com.spatial4j.core.distance.CartesianDistanceCalculator;
+import com.spatial4j.core.distance.GeodesicSphereDistanceCalculator;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import org.junit.After;
 import org.junit.Test;
@@ -61,18 +61,18 @@ public class SpatialContextFactoryTest {
   public void testCustom() {
     SpatialContext sc = call("geo","false");
     assertTrue(!sc.isGeo());
-    assertEquals(new CartesianDistCalc(),sc.getDistCalc());
+    assertEquals(new CartesianDistanceCalculator(),sc.getDistCalc());
 
     sc = call("geo","false",
         "distCalculator","cartesian^2",
         "worldBounds","-100 0 75 200");//West South East North
-    assertEquals(new CartesianDistCalc(true),sc.getDistCalc());
+    assertEquals(new CartesianDistanceCalculator(true),sc.getDistCalc());
     assertEquals(new RectangleImpl(-100,75,0,200, sc),sc.getWorldBounds());
 
     sc = call("geo","true",
         "distCalculator","lawOfCosines");
     assertTrue(sc.isGeo());
-    assertEquals(new GeodesicSphereDistCalc.LawOfCosines(),
+    assertEquals(new GeodesicSphereDistanceCalculator.LawOfCosines(),
         sc.getDistCalc());
   }
   

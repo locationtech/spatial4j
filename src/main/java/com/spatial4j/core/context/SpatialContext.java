@@ -17,9 +17,9 @@
 
 package com.spatial4j.core.context;
 
-import com.spatial4j.core.distance.CartesianDistCalc;
+import com.spatial4j.core.distance.CartesianDistanceCalculator;
 import com.spatial4j.core.distance.DistanceCalculator;
-import com.spatial4j.core.distance.GeodesicSphereDistCalc;
+import com.spatial4j.core.distance.GeodesicSphereDistanceCalculator;
 import com.spatial4j.core.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReadWriter;
 import com.spatial4j.core.shape.Circle;
@@ -64,8 +64,8 @@ public class SpatialContext {
 
     if (calculator == null) {
       calculator = isGeo()
-          ? new GeodesicSphereDistCalc.Haversine()
-          : new CartesianDistCalc();
+          ? new GeodesicSphereDistanceCalculator.Haversine()
+          : new CartesianDistanceCalculator();
     }
     this.calculator = calculator;
 

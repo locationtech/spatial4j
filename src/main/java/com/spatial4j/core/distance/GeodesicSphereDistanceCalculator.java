@@ -28,7 +28,7 @@ import static com.spatial4j.core.distance.DistanceUtils.toRadians;
 /**
  * A base class for a Distance Calculator that assumes a spherical earth model.
  */
-public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator {
+public abstract class GeodesicSphereDistanceCalculator extends AbstractDistanceCalculator {
 
   private static final double radiusDEG = DistanceUtils.toDegrees(1);//in degrees
 
@@ -94,7 +94,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
   protected abstract double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2);
 
-  public static class Haversine extends GeodesicSphereDistCalc {
+  public static class Haversine extends GeodesicSphereDistanceCalculator {
 
     @Override
     protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {
@@ -103,7 +103,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
   }
 
-  public static class LawOfCosines extends GeodesicSphereDistCalc {
+  public static class LawOfCosines extends GeodesicSphereDistanceCalculator {
 
     @Override
     protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {
@@ -112,7 +112,7 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
   }
 
-  public static class Vincenty extends GeodesicSphereDistCalc {
+  public static class Vincenty extends GeodesicSphereDistanceCalculator {
 
     @Override
     protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {

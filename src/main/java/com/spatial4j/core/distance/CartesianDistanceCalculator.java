@@ -25,11 +25,11 @@ import com.spatial4j.core.shape.Rectangle;
 /**
  * Calculates based on Euclidean / Cartesian 2d plane.
  */
-public class CartesianDistCalc extends AbstractDistanceCalculator {
+public class CartesianDistanceCalculator extends AbstractDistanceCalculator {
 
   private final boolean squared;
 
-  public CartesianDistCalc() {
+  public CartesianDistanceCalculator() {
     this.squared = false;
   }
 
@@ -40,7 +40,7 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
    *                actual distance doesn't matter so long as the sort order is
    *                consistent.
    */
-  public CartesianDistCalc(boolean squared) {
+  public CartesianDistanceCalculator(boolean squared) {
     this.squared = squared;
   }
 
@@ -113,7 +113,7 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    CartesianDistCalc that = (CartesianDistCalc) o;
+    CartesianDistanceCalculator that = (CartesianDistanceCalculator) o;
 
     if (squared != that.squared) return false;
 
