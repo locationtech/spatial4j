@@ -20,7 +20,7 @@ package com.spatial4j.core.shape.jts;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.InvalidShapeException;
 import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;

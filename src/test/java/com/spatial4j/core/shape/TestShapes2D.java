@@ -20,7 +20,7 @@ package com.spatial4j.core.shape;
 import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.InvalidShapeException;
 import com.spatial4j.core.shape.impl.CircleImpl;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;

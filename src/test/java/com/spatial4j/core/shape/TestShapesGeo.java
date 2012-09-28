@@ -23,7 +23,7 @@ import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
-import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.InvalidShapeException;
 import org.junit.Test;
 
 import java.util.Arrays;

@@ -19,7 +19,7 @@ package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
-import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.InvalidShapeException;
 import com.spatial4j.core.io.JtsShapeReadWriter;
 import com.spatial4j.core.io.ShapeReadWriter;
 import com.spatial4j.core.shape.Circle;

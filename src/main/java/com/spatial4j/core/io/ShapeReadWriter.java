@@ -1,7 +1,7 @@
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.InvalidShapeException;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;

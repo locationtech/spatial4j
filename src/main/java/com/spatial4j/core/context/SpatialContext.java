@@ -20,7 +20,7 @@ package com.spatial4j.core.context;
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
-import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReadWriter;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;

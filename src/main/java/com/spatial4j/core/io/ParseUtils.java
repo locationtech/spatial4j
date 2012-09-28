@@ -17,7 +17,7 @@
 
 package com.spatial4j.core.io;
 
-import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.InvalidShapeException;
 
 /**
  * Utility methods related to parsing shapes.
@@ -34,7 +34,7 @@ public class ParseUtils {
    * @param externalVal The value to parse
    * @param dimension   The expected number of values for the point
    * @return An array of the values that make up the point (aka vector)
-   * @throws com.spatial4j.core.exception.InvalidShapeException if the dimension specified does not match the number of values in the externalValue.
+   * @throws com.spatial4j.core.InvalidShapeException if the dimension specified does not match the number of values in the externalValue.
    */
   public static String[] parsePoint(String[] out, String externalVal, int dimension) throws InvalidShapeException {
     //TODO: Should we support sparse vectors?
@@ -78,7 +78,7 @@ public class ParseUtils {
    * @param externalVal The value to parse
    * @param dimension   The expected number of values for the point
    * @return An array of the values that make up the point (aka vector)
-   * @throws com.spatial4j.core.exception.InvalidShapeException if the dimension specified does not match the number of values in the externalValue.
+   * @throws com.spatial4j.core.InvalidShapeException if the dimension specified does not match the number of values in the externalValue.
    */
   public static double[] parsePointDouble(double[] out, String externalVal, int dimension) throws InvalidShapeException{
     if (out == null || out.length != dimension) out = new double[dimension];
@@ -127,7 +127,7 @@ public class ParseUtils {
    * @param latLon    A preallocated array to hold the result
    * @param latLonStr The string to parse.  Latitude is the first value, longitude is the second.
    * @return The lat long
-   * @throws com.spatial4j.core.exception.InvalidShapeException if there was an error parsing
+   * @throws com.spatial4j.core.InvalidShapeException if there was an error parsing
    */
   public static final double[] parseLatitudeLongitude(double[] latLon, String latLonStr) throws InvalidShapeException {
     if (latLon == null) {

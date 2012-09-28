@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.exception;
+package com.spatial4j.core;
 
 public class InvalidShapeException extends RuntimeException {
 
