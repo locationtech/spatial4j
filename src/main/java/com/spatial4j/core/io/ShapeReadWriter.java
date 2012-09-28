@@ -159,7 +159,10 @@ public class ShapeReadWriter<CTX extends SpatialContext> {
 
   /** Reads geospatial latitude then a comma then longitude. */
   private Point readLatCommaLonPoint(String value) throws InvalidShapeException {
-    double[] latLon = ParseUtils.parseLatitudeLongitude(value);
-    return ctx.makePoint(latLon[1],latLon[0]);
+    String[] parts = value.split(",");
+    if (parts.length != 2) {
+      throw new IllegalArgumentException("Found value [" + value + "] expected two comma separated elements");
+    }
+    return ctx.makePoint(Double.valueOf(parts[1]), Double.valueOf(parts[0]));
   }
 }
