@@ -66,7 +66,7 @@ public class GeoCircle extends CircleImpl {
       horizAxisY = getCenter().getY();//although probably not used
     } else {
       inverseCircle = null;
-      double _horizAxisY = ctx.getDistCalc().calcBoxByDistFromPtGetYHorizAxisDEG(getCenter(), radiusDEG, ctx);
+      double _horizAxisY = ctx.getDistanceCalculator().calcBoxByDistFromPtGetYHorizAxisDEG(getCenter(), radiusDEG, ctx);
       //some rare numeric conditioning cases can cause this to be barely beyond the box
       if (_horizAxisY > enclosingBox.getMaxY()) {
         horizAxisY = enclosingBox.getMaxY();

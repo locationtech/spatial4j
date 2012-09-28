@@ -135,7 +135,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
     //System.out.println(msg);
     assertRelation(msg, CONTAINS, r, center);
 
-    DistanceCalculator dc = ctx.getDistCalc();
+    DistanceCalculator dc = ctx.getDistanceCalculator();
     double dUR = dc.distance(center, r.getMaxX(), r.getMaxY());
     double dLR = dc.distance(center, r.getMaxX(), r.getMinY());
     double dUL = dc.distance(center, r.getMinX(), r.getMaxY());
@@ -227,7 +227,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
       double cX = randomIntBetweenDivisible(-180, 179, TEST_DIVISIBLE);
       double cY = randomIntBetweenDivisible(-90, 90, TEST_DIVISIBLE);
       double cR = randomIntBetweenDivisible(0, 180, TEST_DIVISIBLE);
-      double cR_dist = ctx.getDistCalc().distance(ctx.makePoint(0, 0), 0, cR);
+      double cR_dist = ctx.getDistanceCalculator().distance(ctx.makePoint(0, 0), 0, cR);
       Circle c = ctx.makeCircle(cX, cY, cR_dist);
 
       Rectangle r = randomRectangle(TEST_DIVISIBLE);
@@ -330,7 +330,7 @@ public abstract class AbstractTestShapes extends RandomizedTest {
   private Point randomPointWithin(Circle c) {
     double d = c.getRadius() * randomDouble();
     double angleDEG = 360 * randomDouble();
-    Point p = ctx.getDistCalc().pointOnBearing(c.getCenter(), d, angleDEG, ctx, null);
+    Point p = ctx.getDistanceCalculator().pointOnBearing(c.getCenter(), d, angleDEG, ctx, null);
     assertEquals(CONTAINS,c.relate(p));
     return p;
   }

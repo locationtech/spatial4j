@@ -94,7 +94,7 @@ public class SpatialContext {
     return new ShapeReadWriter(this);
   }
 
-  public DistanceCalculator getDistCalc() {
+  public DistanceCalculator getDistanceCalculator() {
     return calculator;
   }
 

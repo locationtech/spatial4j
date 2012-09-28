@@ -43,7 +43,7 @@ public class TestDistances extends RandomizedTest {
   }
 
   private DistanceCalculator dc() {
-    return ctx.getDistCalc();
+    return ctx.getDistanceCalculator();
   }
 
   @Test
@@ -136,11 +136,11 @@ public class TestDistances extends RandomizedTest {
     //A binary search algorithm to find the point along the vertical lon between lowLat & highLat that is closest
     // to ctr, and returns the distance.
     double midLat = (highLat - lowLat)/2 + lowLat;
-    double midLatDist = ctx.getDistCalc().distance(ctr,lon,midLat);
+    double midLatDist = ctx.getDistanceCalculator().distance(ctr,lon,midLat);
     for(int L = 0; L < 100 && (highLat - lowLat > 0.001|| L < 20); L++) {
       boolean bottom = (midLat - lowLat > highLat - midLat);
       double newMid = bottom ? (midLat - lowLat)/2 + lowLat : (highLat - midLat)/2 + midLat;
-      double newMidDist = ctx.getDistCalc().distance(ctr,lon,newMid);
+      double newMidDist = ctx.getDistanceCalculator().distance(ctr,lon,newMid);
       if (newMidDist < midLatDist) {
         if (bottom) {
           highLat = midLat;

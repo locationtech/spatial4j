@@ -124,9 +124,9 @@ public class TestShapesGeo extends AbstractTestShapes {
 //    {
 //      //Bug in which distance was being confused as being in the same coordinate system as x,y.
 //      double distDeltaToPole = 0.001;//1m
-//      double distDeltaToPoleDEG = ctx.getDistCalc().distanceToDegrees(distDeltaToPole);
+//      double distDeltaToPoleDEG = ctx.getDistanceCalculator().distanceToDegrees(distDeltaToPole);
 //      double dist = 1;//1km
-//      double distDEG = ctx.getDistCalc().distanceToDegrees(dist);
+//      double distDEG = ctx.getDistanceCalculator().distanceToDegrees(dist);
 //      Circle c = ctx.makeCircle(0,90-distDeltaToPoleDEG-distDEG,dist);
 //      Rectangle cBBox = c.getBoundingBox();
 //      Rectangle r = ctx.makeRect(cBBox.getMaxX()*0.99,cBBox.getMaxX()+1,c.getCenter().getY(),c.getCenter().getY());

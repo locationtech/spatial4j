@@ -74,7 +74,7 @@ public class RectangleImpl implements Rectangle {
     if (ctx == null) {
       return getWidth() * getHeight();
     } else {
-      return ctx.getDistCalc().area(this);
+      return ctx.getDistanceCalculator().area(this);
     }
   }
 

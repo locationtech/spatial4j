@@ -53,7 +53,7 @@ public class SpatialContextFactoryTest {
     SpatialContext t = call();//default
     assertEquals(s.getClass(),t.getClass());
     assertEquals(s.isGeo(),t.isGeo());
-    assertEquals(s.getDistCalc(),t.getDistCalc());
+    assertEquals(s.getDistanceCalculator(),t.getDistanceCalculator());
     assertEquals(s.getWorldBounds(),t.getWorldBounds());
   }
   
@@ -61,19 +61,19 @@ public class SpatialContextFactoryTest {
   public void testCustom() {
     SpatialContext sc = call("geo","false");
     assertTrue(!sc.isGeo());
-    assertEquals(new CartesianDistanceCalculator(),sc.getDistCalc());
+    assertEquals(new CartesianDistanceCalculator(),sc.getDistanceCalculator());
 
     sc = call("geo","false",
         "distCalculator","cartesian^2",
         "worldBounds","-100 0 75 200");//West South East North
-    assertEquals(new CartesianDistanceCalculator(true),sc.getDistCalc());
+    assertEquals(new CartesianDistanceCalculator(true),sc.getDistanceCalculator());
     assertEquals(new RectangleImpl(-100,75,0,200, sc),sc.getWorldBounds());
 
     sc = call("geo","true",
         "distCalculator","lawOfCosines");
     assertTrue(sc.isGeo());
     assertEquals(new GeodesicSphereDistanceCalculator.LawOfCosines(),
-        sc.getDistCalc());
+        sc.getDistanceCalculator());
   }
   
   @Test

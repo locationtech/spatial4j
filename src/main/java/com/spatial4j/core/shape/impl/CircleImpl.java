@@ -41,14 +41,14 @@ public class CircleImpl implements Circle {
     this.ctx = ctx;
     this.point = p;
     this.radiusDEG = radiusDEG;
-    this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, this.radiusDEG, ctx, null);
+    this.enclosingBox = ctx.getDistanceCalculator().calcBoxByDistFromPt(point, this.radiusDEG, ctx, null);
   }
 
   @Override
   public void reset(double x, double y, double radiusDEG) {
     point.reset(x, y);
     this.radiusDEG = radiusDEG;
-    this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, this.radiusDEG, ctx, enclosingBox);
+    this.enclosingBox = ctx.getDistanceCalculator().calcBoxByDistFromPt(point, this.radiusDEG, ctx, enclosingBox);
   }
 
   @Override
@@ -66,12 +66,12 @@ public class CircleImpl implements Circle {
     if (ctx == null) {
       return Math.PI * radiusDEG * radiusDEG;
     } else {
-      return ctx.getDistCalc().area(this);
+      return ctx.getDistanceCalculator().area(this);
     }
   }
 
   public boolean contains(double x, double y) {
-    return ctx.getDistCalc().distance(point, x, y) <= radiusDEG;
+    return ctx.getDistanceCalculator().distance(point, x, y) <= radiusDEG;
   }
 
   @Override
@@ -204,7 +204,7 @@ public class CircleImpl implements Circle {
   }
 
   public SpatialRelation relate(Circle circle) {
-    double crossDist = ctx.getDistCalc().distance(point, circle.getCenter());
+    double crossDist = ctx.getDistanceCalculator().distance(point, circle.getCenter());
     double aDist = radiusDEG, bDist = circle.getRadius();
     if (crossDist > aDist + bDist)
       return SpatialRelation.DISJOINT;
