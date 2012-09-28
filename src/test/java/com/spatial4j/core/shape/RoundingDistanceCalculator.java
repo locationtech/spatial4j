@@ -1,12 +1,11 @@
 package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.distance.AbstractDistanceCalculator;
 import com.spatial4j.core.distance.DistanceCalculator;
 
 /** Ameliorates some random tests cases in which shapes barely tough or barely not
  * touch. */
-class RoundingDistanceCalculator extends AbstractDistanceCalculator {
+class RoundingDistanceCalculator extends DistanceCalculator {
   DistanceCalculator delegate;
 
   RoundingDistanceCalculator(DistanceCalculator delegate) {

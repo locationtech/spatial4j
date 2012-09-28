@@ -28,7 +28,7 @@ import static com.spatial4j.core.distance.DistanceUtils.toRadians;
 /**
  * A base class for a Distance Calculator that assumes a spherical earth model.
  */
-public abstract class GeodesicSphereDistanceCalculator extends AbstractDistanceCalculator {
+public abstract class GeodesicSphereDistanceCalculator extends DistanceCalculator {
 
   private static final double radiusDEG = DistanceUtils.toDegrees(1);//in degrees
 

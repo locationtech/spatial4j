@@ -25,7 +25,7 @@ import com.spatial4j.core.shape.Rectangle;
 /**
  * Calculates based on Euclidean / Cartesian 2d plane.
  */
-public class CartesianDistanceCalculator extends AbstractDistanceCalculator {
+public class CartesianDistanceCalculator extends DistanceCalculator {
 
   private final boolean squared;
 
