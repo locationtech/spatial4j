@@ -17,24 +17,72 @@
 
 package com.spatial4j.core.io.geonames;
 
-import com.spatial4j.core.io.LineReader;
+import java.io.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
+public class GeonamesReader implements Iterator<Geoname> {
 
-public class GeonamesReader extends LineReader<Geoname> {
+  private BufferedReader reader;
+  private String nextLine;
 
-  public GeonamesReader(Reader r) throws IOException {
-    super( r );
+  public GeonamesReader(InputStream inputStream) throws IOException {
+    this.reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+    readNextLine();
   }
 
-  public GeonamesReader(File f) throws IOException {
-    super( f );
+  public GeonamesReader(Reader reader) throws IOException {
+    if (reader instanceof BufferedReader) {
+      this.reader = (BufferedReader) reader;
+    } else {
+      this.reader = new BufferedReader(reader);
+    }
+    readNextLine();
   }
 
   @Override
-  public Geoname parseLine(String line) {
-    return new Geoname( line );
+  public Geoname next() {
+    Geoname geoname;
+    if (nextLine != null) {
+      geoname = new Geoname(nextLine);
+    } else {
+      throw new NoSuchElementException();
+    }
+
+    readNextLine();
+    return geoname;
+  }
+
+  private void readNextLine() {
+    if (reader == null) {
+      return;
+    }
+
+    try {
+      while (reader != null) {
+        nextLine = reader.readLine();
+        if (nextLine == null) {
+          reader = null;
+          break;
+        } else if (!nextLine.startsWith("#")) {
+          nextLine = nextLine.trim();
+          if (nextLine.length() > 0) {
+            break;
+          }
+        }
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("IOException thrown while reading/closing reader", ioe);
+    }
+  }
+
+  @Override
+  public boolean hasNext() {
+    return nextLine != null;
+  }
+
+  @Override
+  public void remove() {
+    throw new UnsupportedOperationException("Read-only Iterator");
   }
 }
