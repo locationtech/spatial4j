@@ -16,7 +16,7 @@ import com.vividsolutions.jts.io.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
+public class JtsShapeCodec extends ShapeCodec<JtsSpatialContext> {
 
   private static final byte TYPE_POINT = 0;
   private static final byte TYPE_BBOX = 1;
@@ -24,7 +24,7 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
 
   private boolean normalizeGeomCoords = true;//TODO make configurable
 
-  public JtsShapeReadWriter(JtsSpatialContext ctx) {
+  public JtsShapeCodec(JtsSpatialContext ctx) {
     super(ctx);
   }
 

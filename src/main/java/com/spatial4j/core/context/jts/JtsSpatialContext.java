@@ -20,8 +20,8 @@ package com.spatial4j.core.context.jts;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.InvalidShapeException;
-import com.spatial4j.core.io.JtsShapeReadWriter;
-import com.spatial4j.core.io.ShapeReadWriter;
+import com.spatial4j.core.io.JtsShapeCodec;
+import com.spatial4j.core.io.ShapeCodec;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -64,8 +64,8 @@ public class JtsSpatialContext extends SpatialContext {
     this.geometryFactory = geometryFactory == null ? new GeometryFactory() : geometryFactory;
   }
 
-  protected ShapeReadWriter makeShapeReadWriter() {
-    return new JtsShapeReadWriter(this);
+  protected ShapeCodec makeShapeReadWriter() {
+    return new JtsShapeCodec(this);
   }
 
   /**

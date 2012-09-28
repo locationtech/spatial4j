@@ -14,11 +14,11 @@ import java.util.StringTokenizer;
 /**
  * Reads and writes {@link Shape}s to strings.
  */
-public class ShapeReadWriter<CTX extends SpatialContext> {
+public class ShapeCodec<CTX extends SpatialContext> {
   protected CTX ctx;
 
   @SuppressWarnings("unchecked")
-  public ShapeReadWriter(SpatialContext ctx) {
+  public ShapeCodec(SpatialContext ctx) {
     this.ctx = (CTX) ctx;
   }
 

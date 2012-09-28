@@ -29,7 +29,7 @@ import java.util.Arrays;
 
 
 @SuppressWarnings("unchecked")
-public class ShapeReadWriterTest extends RandomizedTest {
+public class ShapeCodecTest extends RandomizedTest {
 
   @ParametersFactory
   public static Iterable<Object[]> parameters() {
@@ -41,7 +41,7 @@ public class ShapeReadWriterTest extends RandomizedTest {
 
   private final SpatialContext ctx;
 
-  public ShapeReadWriterTest(SpatialContext ctx) {
+  public ShapeCodecTest(SpatialContext ctx) {
     this.ctx = ctx;
   }
 

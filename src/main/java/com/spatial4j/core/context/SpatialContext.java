@@ -21,7 +21,7 @@ import com.spatial4j.core.distance.CartesianDistanceCalculator;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistanceCalculator;
 import com.spatial4j.core.InvalidShapeException;
-import com.spatial4j.core.io.ShapeReadWriter;
+import com.spatial4j.core.io.ShapeCodec;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -52,7 +52,7 @@ public class SpatialContext {
   private final DistanceCalculator calculator;
   private final Rectangle worldBounds;
 
-  private final ShapeReadWriter shapeReadWriter;
+  private final ShapeCodec shapeCodec;
 
   /**
    * @param geo Establishes geo vs cartesian / Euclidean.
@@ -83,15 +83,15 @@ public class SpatialContext {
     //hopefully worldBounds' rect implementation is compatible
     this.worldBounds = new RectangleImpl(worldBounds, this);
 
-    shapeReadWriter = makeShapeReadWriter();
+    shapeCodec = makeShapeReadWriter();
   }
 
   public SpatialContext(boolean geo) {
     this(geo, null, null);
   }
 
-  protected ShapeReadWriter makeShapeReadWriter() {
-    return new ShapeReadWriter(this);
+  protected ShapeCodec makeShapeReadWriter() {
+    return new ShapeCodec(this);
   }
 
   public DistanceCalculator getDistanceCalculator() {
@@ -192,12 +192,12 @@ public class SpatialContext {
 
   @Deprecated
   public Shape readShape(String value) throws InvalidShapeException {
-    return shapeReadWriter.readShape(value);
+    return shapeCodec.readShape(value);
   }
 
   @Deprecated
   public String toString(Shape shape) {
-    return shapeReadWriter.writeShape(shape);
+    return shapeCodec.writeShape(shape);
   }
 
   @Override

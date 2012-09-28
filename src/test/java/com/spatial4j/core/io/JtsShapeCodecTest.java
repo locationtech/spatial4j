@@ -10,9 +10,9 @@ import org.junit.Test;
 import java.io.IOException;
 
 /**
- * Note that {@link com.spatial4j.core.io.ShapeReadWriterTest} already tests JTS but we want to exercise some JTS specifics here.
+ * Note that {@link ShapeCodecTest} already tests JTS but we want to exercise some JTS specifics here.
  */
-public class JtsShapeReadWriterTest extends RandomizedTest {
+public class JtsShapeCodecTest extends RandomizedTest {
 
   SpatialContext ctx = JtsSpatialContext.GEO;
 
