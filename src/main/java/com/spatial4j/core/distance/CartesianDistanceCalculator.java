@@ -94,7 +94,7 @@ public class CartesianDistanceCalculator extends AbstractDistanceCalculator {
   }
 
   @Override
-  public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distDEG, SpatialContext ctx) {
+  public double calcBoxByDistFromPtGetYHorizAxisDEG(Point from, double distDEG, SpatialContext ctx) {
     return from.getY();
   }
 

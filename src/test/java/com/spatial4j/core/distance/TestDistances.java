@@ -72,7 +72,7 @@ public class TestDistances extends RandomizedTest {
     }
 
     assertEquals("0 dist, horiz line",
-        -45,dc().calcBoxByDistFromPt_yHorizAxisDEG(ctx.makePoint(-180, -45), 0, ctx),0);
+        -45,dc().calcBoxByDistFromPtGetYHorizAxisDEG(ctx.makePoint(-180, -45), 0, ctx),0);
 
     double MAXDIST = (double) 180 * DEG_TO_KM;
     checkBBox(ctx.makePoint(0,0), MAXDIST);
@@ -102,7 +102,7 @@ public class TestDistances extends RandomizedTest {
     double dist = distKm * KM_TO_DEG;
 
     Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx, null);
-    double horizAxisLat = dc().calcBoxByDistFromPt_yHorizAxisDEG(ctr, dist, ctx);
+    double horizAxisLat = dc().calcBoxByDistFromPtGetYHorizAxisDEG(ctr, dist, ctx);
     if (!Double.isNaN(horizAxisLat))
       assertTrue(r.relateYRange(horizAxisLat, horizAxisLat).intersects());
 

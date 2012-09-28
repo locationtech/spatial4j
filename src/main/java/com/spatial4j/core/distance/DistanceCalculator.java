@@ -55,7 +55,7 @@ public interface DistanceCalculator {
    * <code>from.getY()</code> but, perhaps surprisingly, on a sphere it is going
    * to be slightly different.
    */
-  public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distDEG, SpatialContext ctx);
+  public double calcBoxByDistFromPtGetYHorizAxisDEG(Point from, double distDEG, SpatialContext ctx);
 
   public double area(Rectangle rect);
 

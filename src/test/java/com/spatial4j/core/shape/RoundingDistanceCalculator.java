@@ -34,8 +34,8 @@ class RoundingDistanceCalculator extends AbstractDistanceCalculator {
   }
 
   @Override
-  public double calcBoxByDistFromPt_yHorizAxisDEG(Point from, double distDEG, SpatialContext ctx) {
-    return delegate.calcBoxByDistFromPt_yHorizAxisDEG(from, distDEG, ctx);
+  public double calcBoxByDistFromPtGetYHorizAxisDEG(Point from, double distDEG, SpatialContext ctx) {
+    return delegate.calcBoxByDistFromPtGetYHorizAxisDEG(from, distDEG, ctx);
   }
 
   @Override
