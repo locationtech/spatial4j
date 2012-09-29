@@ -96,6 +96,8 @@ public abstract class GeodesicSphereDistanceCalculator extends DistanceCalculato
 
   public static class Haversine extends GeodesicSphereDistanceCalculator {
 
+    public static final Haversine INSTANCE = new Haversine();
+
     @Override
     protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {
       return DistanceUtils.distHaversineRAD(lat1,lon1,lat2,lon2);
@@ -105,6 +107,8 @@ public abstract class GeodesicSphereDistanceCalculator extends DistanceCalculato
 
   public static class LawOfCosines extends GeodesicSphereDistanceCalculator {
 
+    public static final LawOfCosines INSTANCE = new LawOfCosines();
+
     @Override
     protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {
       return DistanceUtils.distLawOfCosinesRAD(lat1, lon1, lat2, lon2);
@@ -113,6 +117,8 @@ public abstract class GeodesicSphereDistanceCalculator extends DistanceCalculato
   }
 
   public static class Vincenty extends GeodesicSphereDistanceCalculator {
+
+    public static final Vincenty INSTANCE = new Vincenty();
 
     @Override
     protected double distanceLatLonRAD(double lat1, double lon1, double lat2, double lon2) {

@@ -64,8 +64,8 @@ public class SpatialContext {
 
     if (calculator == null) {
       calculator = isGeo()
-          ? new GeodesicSphereDistanceCalculator.Haversine()
-          : new CartesianDistanceCalculator();
+          ? GeodesicSphereDistanceCalculator.Haversine.INSTANCE
+          : CartesianDistanceCalculator.INSTANCE;
     }
     this.calculator = calculator;
 

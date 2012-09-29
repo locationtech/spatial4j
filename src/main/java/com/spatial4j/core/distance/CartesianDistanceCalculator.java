@@ -27,6 +27,8 @@ import com.spatial4j.core.shape.Rectangle;
  */
 public class CartesianDistanceCalculator extends DistanceCalculator {
 
+  public static final CartesianDistanceCalculator INSTANCE = new CartesianDistanceCalculator();
+
   private final boolean squared;
 
   public CartesianDistanceCalculator() {
