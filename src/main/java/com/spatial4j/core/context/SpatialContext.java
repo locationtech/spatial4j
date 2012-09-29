@@ -21,7 +21,6 @@ import com.spatial4j.core.distance.CartesianDistanceCalculator;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistanceCalculator;
 import com.spatial4j.core.InvalidShapeException;
-import com.spatial4j.core.io.ShapeCodec;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
