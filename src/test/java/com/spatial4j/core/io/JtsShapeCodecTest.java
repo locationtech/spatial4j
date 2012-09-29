@@ -14,11 +14,12 @@ import java.io.IOException;
  */
 public class JtsShapeCodecTest extends RandomizedTest {
 
-  SpatialContext ctx = JtsSpatialContext.GEO;
+  JtsSpatialContext ctx = JtsSpatialContext.GEO;
+  ShapeCodec<JtsSpatialContext> codec = new JtsShapeCodec(ctx);
 
   @Test
   public void wktGeoPt() throws IOException {
-    Shape s = ctx.readShape("Point(-160 30)");
+    Shape s = codec.readShape("Point(-160 30)");
     assertEquals(ctx.makePoint(-160,30),s);
   }
 
@@ -30,16 +31,15 @@ public class JtsShapeCodecTest extends RandomizedTest {
     // In these two tests, we give the same set of points, one that does not cross the dateline, and the 2nd does. The
     // order is counter-clockwise in both cases as it should be.
 
-    Shape sNoDL = ctx.readShape("Polygon((-170 30, -170 15,  160 15,  160 30, -170 30))");
+    Shape sNoDL = codec.readShape("Polygon((-170 30, -170 15,  160 15,  160 30, -170 30))");
     Rectangle expectedNoDL = ctx.makeRectangle(-170, 160, 15, 30);
     assertTrue(!expectedNoDL.getCrossesDateLine());
     assertEquals(expectedNoDL,sNoDL);
 
-    Shape sYesDL = ctx.readShape("Polygon(( 160 30,  160 15, -170 15, -170 30,  160 30))");
+    Shape sYesDL = codec.readShape("Polygon(( 160 30,  160 15, -170 15, -170 30,  160 30))");
     Rectangle expectedYesDL = ctx.makeRectangle(160, -170, 15, 30);
     assertTrue(expectedYesDL.getCrossesDateLine());
     assertEquals(expectedYesDL,sYesDL);
-
   }
 
 }

@@ -20,6 +20,7 @@ package com.spatial4j.core.context;
 import com.spatial4j.core.distance.CartesianDistanceCalculator;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistanceCalculator;
+import com.spatial4j.core.io.ShapeCodec;
 import com.spatial4j.core.shape.Rectangle;
 
 import java.util.Map;
@@ -126,7 +127,8 @@ public class SpatialContextFactory {
     
     //kinda ugly we do this just to read a rectangle.  TODO refactor
     SpatialContext simpleCtx = new SpatialContext(geo, calculator, null);
-    worldBounds = (Rectangle) simpleCtx.readShape(worldBoundsStr);
+    ShapeCodec<SpatialContext> codec = new ShapeCodec<SpatialContext>(simpleCtx);
+    worldBounds = (Rectangle) codec.readShape(worldBoundsStr);
   }
 
   /** Subclasses should simply construct the instance from the initialized configuration. */

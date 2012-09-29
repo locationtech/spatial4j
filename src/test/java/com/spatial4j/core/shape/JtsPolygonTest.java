@@ -1,7 +1,10 @@
 package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
+import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.io.JtsShapeCodec;
+import com.spatial4j.core.io.ShapeCodec;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -26,9 +29,12 @@ public class JtsPolygonTest extends AbstractTestShapes {
   //TODO poly.relate(circle) doesn't work when other crosses the dateline
   private final boolean TEST_DL_OTHER = true;
 
+  private ShapeCodec<JtsSpatialContext> codec;
+
   public JtsPolygonTest() {
     super(JtsSpatialContext.GEO);
-    POLY_SHAPE = (JtsGeometry) ctx.readShape(POLY_STR);
+    codec = new JtsShapeCodec((JtsSpatialContext) super.ctx);
+    POLY_SHAPE = (JtsGeometry) codec.readShape(POLY_STR);
 
     if (TEST_DL_POLY && ctx.isGeo()) {
       Geometry pGeom = POLY_SHAPE.getGeom();
@@ -43,7 +49,7 @@ public class JtsPolygonTest extends AbstractTestShapes {
       });
       pGeom.geometryChanged();
       assertFalse(pGeom.isValid());
-      POLY_SHAPE_DL = (JtsGeometry) ctx.readShape(pGeom.toText());
+      POLY_SHAPE_DL = (JtsGeometry) codec.readShape(pGeom.toText());
       assertTrue(
           POLY_SHAPE_DL.getBoundingBox().getCrossesDateLine() ||
               360 == POLY_SHAPE_DL.getBoundingBox().getWidth());
@@ -125,7 +131,7 @@ public class JtsPolygonTest extends AbstractTestShapes {
     // * some geometries might(?) not be "valid" (requires union to overcome)
     String wktStr = readFirstLineFromRsrc("/russia.wkt.txt");
 
-    JtsGeometry jtsGeom = (JtsGeometry)ctx.readShape(wktStr);
+    JtsGeometry jtsGeom = (JtsGeometry)codec.readShape(wktStr);
 
     //Unexplained holes revealed via KML export:
     // TODO Test contains: 64°12'44.82"N    61°29'5.20"E
@@ -139,7 +145,7 @@ public class JtsPolygonTest extends AbstractTestShapes {
     //Fiji is a group of islands crossing the dateline.
     String wktStr = readFirstLineFromRsrc("/fiji.wkt.txt");
 
-    JtsGeometry jtsGeom = (JtsGeometry)ctx.readShape(wktStr);
+    JtsGeometry jtsGeom = (JtsGeometry)codec.readShape(wktStr);
 
     assertRelation(null,SpatialRelation.CONTAINS, jtsGeom,
             ctx.makePoint(-179.99,-16.9));

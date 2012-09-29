@@ -52,8 +52,6 @@ public class SpatialContext {
   private final DistanceCalculator calculator;
   private final Rectangle worldBounds;
 
-  private final ShapeCodec shapeCodec;
-
   /**
    * @param geo Establishes geo vs cartesian / Euclidean.
    * @param calculator Optional; defaults to Haversine or cartesian depending on units.
@@ -82,16 +80,10 @@ public class SpatialContext {
     }
     //hopefully worldBounds' rect implementation is compatible
     this.worldBounds = new RectangleImpl(worldBounds, this);
-
-    shapeCodec = makeShapeReadWriter();
   }
 
   public SpatialContext(boolean geo) {
     this(geo, null, null);
-  }
-
-  protected ShapeCodec makeShapeReadWriter() {
-    return new ShapeCodec(this);
   }
 
   public DistanceCalculator getDistanceCalculator() {
@@ -188,16 +180,6 @@ public class SpatialContext {
     } else {
       return new CircleImpl(point, distance, this);
     }
-  }
-
-  @Deprecated
-  public Shape readShape(String value) throws InvalidShapeException {
-    return shapeCodec.readShape(value);
-  }
-
-  @Deprecated
-  public String toString(Shape shape) {
-    return shapeCodec.writeShape(shape);
   }
 
   @Override

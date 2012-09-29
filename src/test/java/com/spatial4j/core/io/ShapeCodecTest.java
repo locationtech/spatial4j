@@ -40,40 +40,42 @@ public class ShapeCodecTest extends RandomizedTest {
   }
 
   private final SpatialContext ctx;
+  private final ShapeCodec<SpatialContext> codec;
 
   public ShapeCodecTest(SpatialContext ctx) {
     this.ctx = ctx;
+    this.codec = new ShapeCodec<SpatialContext>(ctx);
   }
 
-  private <T extends Shape> T writeThenRead( T s ) throws IOException {
-    String buff = ctx.toString( s );
-    return (T) ctx.readShape( buff );
+  private <T extends Shape> T writeThenRead(T s) throws IOException {
+    String buff = codec.writeShape(s);
+    return (T) codec.readShape(buff);
   }
 
   @Test
   public void testPoint() throws IOException {
-    Shape s = ctx.readShape("10 20");
-    assertEquals(ctx.makePoint(10,20),s);
-    assertEquals(s,writeThenRead(s));
-    assertEquals(s,ctx.readShape("20,10"));//check comma for y,x format
-    assertEquals(s,ctx.readShape("20, 10"));//test space
+    Shape s = codec.readShape("10 20");
+    assertEquals(ctx.makePoint(10, 20), s);
+    assertEquals(s, writeThenRead(s));
+    assertEquals(s, codec.readShape("20,10"));//check comma for y,x format
+    assertEquals(s, codec.readShape("20, 10"));//test space
     assertFalse(s.hasArea());
   }
 
   @Test
   public void testRectangle() throws IOException {
-    Shape s = ctx.readShape("-10 -20 10 20");
-    assertEquals(ctx.makeRectangle(-10, 10, -20, 20),s);
-    assertEquals(s,writeThenRead(s));
+    Shape s = codec.readShape("-10 -20 10 20");
+    assertEquals(ctx.makeRectangle(-10, 10, -20, 20), s);
+    assertEquals(s, writeThenRead(s));
     assertTrue(s.hasArea());
   }
 
   @Test
   public void testCircle() throws IOException {
-    Shape s = ctx.readShape("Circle(1.23 4.56 distance=7.89)");
-    assertEquals(ctx.makeCircle(1.23, 4.56, 7.89),s);
-    assertEquals(s,writeThenRead(s));
-    assertEquals(s,ctx.readShape("CIRCLE( 4.56,1.23 d=7.89 )")); // use lat,lon and use 'd' abbreviation
+    Shape s = codec.readShape("Circle(1.23 4.56 distance=7.89)");
+    assertEquals(ctx.makeCircle(1.23, 4.56, 7.89), s);
+    assertEquals(s, writeThenRead(s));
+    assertEquals(s, codec.readShape("CIRCLE( 4.56,1.23 d=7.89 )")); // use lat,lon and use 'd' abbreviation
     assertTrue(s.hasArea());
   }
 
