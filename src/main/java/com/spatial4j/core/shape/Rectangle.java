@@ -76,7 +76,7 @@ public abstract class Rectangle implements Shape {
   public abstract SpatialRelation relateXRange(double minX, double maxX);
 
   @Override
-  public boolean equals(Object obj) {
+  public final boolean equals(Object obj) {
     if (this == obj) {
       return true;
     } else if (!(obj instanceof Rectangle)) {
@@ -92,7 +92,7 @@ public abstract class Rectangle implements Shape {
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     long temp = this.getMinX() != +0.0d ? Double.doubleToLongBits(this.getMinX()) : 0L;
     int result = (int) (temp ^ (temp >>> 32));
     temp = this.getMaxX() != +0.0d ? Double.doubleToLongBits(this.getMaxX()) : 0L;
@@ -102,5 +102,10 @@ public abstract class Rectangle implements Shape {
     temp = this.getMaxY() != +0.0d ? Double.doubleToLongBits(this.getMaxY()) : 0L;
     result = 31 * result + (int) (temp ^ (temp >>> 32));
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "Rect(minX=" + getMinX() + ",maxX=" + getMaxX() + ",minY=" + getMinY() + ",maxY=" + getMaxY() + ")";
   }
 }

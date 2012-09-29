@@ -38,7 +38,7 @@ public abstract class Circle implements Shape {
 
 
   @Override
-  public boolean equals(Object obj) {
+  public final boolean equals(Object obj) {
     if (this == obj) {
       return true;
     } else if (!(obj instanceof Circle)) {
@@ -52,11 +52,15 @@ public abstract class Circle implements Shape {
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     int result = this.getCenter().hashCode();
     long temp = this.getRadius() != +0.0d ? Double.doubleToLongBits(this.getRadius()) : 0L;
     result = 31 * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
+  @Override
+  public String toString() {
+    return "Circle(" + getCenter() + ", d=" + getRadius() + "°)";
+  }
 }

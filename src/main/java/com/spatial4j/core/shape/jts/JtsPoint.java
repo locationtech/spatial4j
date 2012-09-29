@@ -86,9 +86,4 @@ public class JtsPoint extends Point {
     cSeq.setOrdinate(0, CoordinateSequence.X, x);
     cSeq.setOrdinate(0, CoordinateSequence.Y, y);
   }
-
-  @Override
-  public String toString() {
-    return "Pt(x=" + getX() + ",y=" + getY() + ")";
-  }
 }

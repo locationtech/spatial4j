@@ -215,9 +215,4 @@ public class CircleImpl extends Circle {
 
     return SpatialRelation.INTERSECTS;
   }
-
-  @Override
-  public String toString() {
-    return "Circle(" + point + ", d=" + radiusDEG + "°)";
-  }
 }

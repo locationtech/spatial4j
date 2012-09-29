@@ -78,9 +78,4 @@ public class PointImpl extends Point {
   public double getArea(SpatialContext ctx) {
     return 0;
   }
-
-  @Override
-  public String toString() {
-    return "Pt(x=" + x + ",y=" + y + ")";
-  }
 }

@@ -37,7 +37,7 @@ public abstract class Point implements Shape {
   public abstract double getY();
 
   @Override
-  public boolean equals(Object o) {
+  public final boolean equals(Object o) {
     if (this == o) {
       return true;
     } else if (!(o instanceof Point)) {
@@ -51,11 +51,16 @@ public abstract class Point implements Shape {
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     long temp = this.getX() != +0.0d ? Double.doubleToLongBits(this.getX()) : 0L;
     int result = (int) (temp ^ (temp >>> 32));
     temp = this.getY() != +0.0d ? Double.doubleToLongBits(this.getY()) : 0L;
     result = 31 * result + (int) (temp ^ (temp >>> 32));
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "Pt(x=" + getX() + ",y=" + getY() + ")";
   }
 }

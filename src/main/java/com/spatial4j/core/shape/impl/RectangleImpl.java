@@ -236,11 +236,6 @@ public class RectangleImpl extends Rectangle {
   }
 
   @Override
-  public String toString() {
-    return "Rect(minX=" + minX + ",maxX=" + maxX + ",minY=" + minY + ",maxY=" + maxY + ")";
-  }
-
-  @Override
   public Point getCenter() {
     final double y = getHeight() / 2 + minY;
     double x = getWidth() / 2 + minX;
