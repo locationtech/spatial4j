@@ -104,14 +104,15 @@ public class MultiShape implements Shape {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    } else if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     MultiShape that = (MultiShape) o;
 
-    if (geoms != null ? !geoms.equals(that.geoms) : that.geoms != null) return false;
-
-    return true;
+    return !(geoms != null ? !geoms.equals(that.geoms) : that.geoms != null);
   }
 
   @Override

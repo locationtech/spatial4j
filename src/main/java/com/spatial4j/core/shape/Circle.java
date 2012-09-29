@@ -20,7 +20,7 @@ package com.spatial4j.core.shape;
 /**
  * A circle, also known as a point-radius since that is what it is comprised of.
  */
-public interface Circle extends Shape {
+public abstract class Circle implements Shape {
 
   /**
    * Expert: Resets the state of this shape given the arguments. This is a
@@ -28,12 +28,35 @@ public interface Circle extends Shape {
    * some argument error checking. Mutable shapes is error-prone so use with
    * care.
    */
-  void reset(double x, double y, double radiusDEG);
+  public abstract void reset(double x, double y, double radiusDEG);
 
   /**
    * The distance from the point's center to its edge, measured in the same
    * units as x & y (e.g. degrees if WGS84).
    */
-  double getRadius();
+  public abstract double getRadius();
+
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    } else if (!(obj instanceof Circle)) {
+      return false;
+    }
+
+    Circle circle = (Circle) obj;
+
+    return this.getCenter().equals(circle.getCenter()) &&
+        Double.compare(circle.getRadius(), this.getRadius()) == 0;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = this.getCenter().hashCode();
+    long temp = this.getRadius() != +0.0d ? Double.doubleToLongBits(this.getRadius()) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
 
 }

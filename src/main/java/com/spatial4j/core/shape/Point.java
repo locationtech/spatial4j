@@ -20,7 +20,7 @@ package com.spatial4j.core.shape;
 /**
  * A Point with X & Y coordinates.
  */
-public interface Point extends Shape {
+public abstract class Point implements Shape {
 
   /**
    * Expert: Resets the state of this shape given the arguments. This is a
@@ -28,12 +28,34 @@ public interface Point extends Shape {
    * some argument error checking. Mutable shapes is error-prone so use with
    * care.
    */
-  public void reset(double x, double y);
+  public abstract void reset(double x, double y);
 
   /** The X coordinate, or Longitude in geospatial contexts. */
-  public double getX();
+  public abstract double getX();
 
   /** The Y coordinate, or Latitude in geospatial contexts. */
-  public double getY();
+  public abstract double getY();
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    } else if (!(o instanceof Point)) {
+      return false;
+    }
+
+    Point point = (Point) o;
+
+    return Double.compare(point.getX(), this.getX()) == 0 &&
+        Double.compare(point.getY(), this.getY()) == 0;
+  }
+
+  @Override
+  public int hashCode() {
+    long temp = this.getX() != +0.0d ? Double.doubleToLongBits(this.getX()) : 0L;
+    int result = (int) (temp ^ (temp >>> 32));
+    temp = this.getY() != +0.0d ? Double.doubleToLongBits(this.getY()) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
 }

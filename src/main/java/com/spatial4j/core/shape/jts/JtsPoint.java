@@ -27,7 +27,7 @@ import com.spatial4j.core.shape.impl.PointImpl;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 
 /** Wraps a {@link com.vividsolutions.jts.geom.Point}. */
-public class JtsPoint implements Point {
+public class JtsPoint extends Point {
 
   private final SpatialContext ctx;
   private com.vividsolutions.jts.geom.Point pointGeom;
@@ -89,16 +89,6 @@ public class JtsPoint implements Point {
 
   @Override
   public String toString() {
-    return "Pt(x="+getX()+",y="+getY()+")";
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    return PointImpl.equals(this,o);
-  }
-
-  @Override
-  public int hashCode() {
-    return PointImpl.hashCode(this);
+    return "Pt(x=" + getX() + ",y=" + getY() + ")";
   }
 }

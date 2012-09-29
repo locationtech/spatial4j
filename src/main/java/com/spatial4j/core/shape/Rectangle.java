@@ -26,7 +26,7 @@ package com.spatial4j.core.shape;
  * (Longitude) goes from -180 to 180 as seen from {@link #getMinX()} and {@link
  * #getMaxX()}.
  */
-public interface Rectangle extends Shape {
+public abstract class Rectangle implements Shape {
 
   /**
    * Expert: Resets the state of this shape given the arguments. This is a
@@ -34,44 +34,73 @@ public interface Rectangle extends Shape {
    * some argument error checking. Mutable shapes is error-prone so use with
    * care.
    */
-  public void reset(double minX, double maxX, double minY, double maxY);
+  public abstract void reset(double minX, double maxX, double minY, double maxY);
 
   /**
    * The width. In geospatial contexts, this is generally in degrees longitude
    * and is aware of the international dateline.  It will always be >= 0.
    */
-  public double getWidth();
+  public abstract double getWidth();
 
   /**
    * The height. In geospatial contexts, this is in degrees latitude. It will
    * always be >= 0.
    */
-  public double getHeight();
+  public abstract double getHeight();
 
   /** The left edge of the X coordinate. */
-  public double getMinX();
+  public abstract double getMinX();
 
   /** The bottom edge of the Y coordinate. */
-  public double getMinY();
+  public abstract double getMinY();
 
   /** The right edge of the X coordinate. */
-  public double getMaxX();
+  public abstract double getMaxX();
 
   /** The top edge of the Y coordinate. */
-  public double getMaxY();
+  public abstract double getMaxY();
 
   /** Only meaningful for geospatial contexts. */
-  public boolean getCrossesDateLine();
+  public abstract boolean getCrossesDateLine();
 
   /**
    * A specialization of {@link Shape#relate(Shape)}
    * for a vertical line.
    */
-  public SpatialRelation relateYRange(double minY, double maxY);
+  public abstract SpatialRelation relateYRange(double minY, double maxY);
 
   /**
    * A specialization of {@link Shape#relate(Shape)}
    * for a horizontal line.
    */
-  public SpatialRelation relateXRange(double minX, double maxX);
+  public abstract SpatialRelation relateXRange(double minX, double maxX);
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    } else if (!(obj instanceof Rectangle)) {
+      return false;
+    }
+
+    Rectangle rectangle = (Rectangle) obj;
+
+    return Double.compare(rectangle.getMaxX(), this.getMaxX()) == 0 &&
+        Double.compare(rectangle.getMaxY(), this.getMaxY()) == 0 &&
+        Double.compare(rectangle.getMinX(), this.getMinX()) == 0 &&
+        Double.compare(rectangle.getMinY(), this.getMinY()) == 0;
+  }
+
+  @Override
+  public int hashCode() {
+    long temp = this.getMinX() != +0.0d ? Double.doubleToLongBits(this.getMinX()) : 0L;
+    int result = (int) (temp ^ (temp >>> 32));
+    temp = this.getMaxX() != +0.0d ? Double.doubleToLongBits(this.getMaxX()) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    temp = this.getMinY() != +0.0d ? Double.doubleToLongBits(this.getMinY()) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    temp = this.getMaxY() != +0.0d ? Double.doubleToLongBits(this.getMaxY()) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
 }

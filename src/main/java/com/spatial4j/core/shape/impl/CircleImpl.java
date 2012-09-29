@@ -26,7 +26,7 @@ import com.spatial4j.core.shape.*;
  * implementation should work for both cartesian 2D and geodetic sphere
  * surfaces.
  */
-public class CircleImpl implements Circle {
+public class CircleImpl extends Circle {
 
   protected final SpatialContext ctx;
 
@@ -219,43 +219,5 @@ public class CircleImpl implements Circle {
   @Override
   public String toString() {
     return "Circle(" + point + ", d=" + radiusDEG + "°)";
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return equals(this,obj);
-  }
-
-  /**
-   * All {@link Circle} implementations should use this definition of {@link Object#equals(Object)}.
-   */
-  public static boolean equals(Circle thiz, Object o) {
-    assert thiz != null;
-    if (thiz == o) return true;
-    if (!(o instanceof Circle)) return false;
-
-    Circle circle = (Circle) o;
-
-    if (!thiz.getCenter().equals(circle.getCenter())) return false;
-    if (Double.compare(circle.getRadius(), thiz.getRadius()) != 0) return false;
-
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return hashCode(this);
-  }
-
-  /**
-   * All {@link Circle} implementations should use this definition of {@link Object#hashCode()}.
-   */
-  public static int hashCode(Circle thiz) {
-    int result;
-    long temp;
-    result = thiz.getCenter().hashCode();
-    temp = thiz.getRadius() != +0.0d ? Double.doubleToLongBits(thiz.getRadius()) : 0L;
-    result = 31 * result + (int) (temp ^ (temp >>> 32));
-    return result;
   }
 }

@@ -29,7 +29,7 @@ import com.spatial4j.core.shape.SpatialRelation;
  * wrap-around. When minX > maxX, this will assume it is world coordinates that
  * cross the date line using degrees. Immutable & threadsafe.
  */
-public class RectangleImpl implements Rectangle {
+public class RectangleImpl extends Rectangle {
 
   private final SpatialContext ctx;
   private double minX;
@@ -247,50 +247,5 @@ public class RectangleImpl implements Rectangle {
     if (minX > maxX)//WGS84
       x = DistanceUtils.normLonDEG(x);//in case falls outside the standard range
     return new PointImpl(x, y, ctx);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return equals(this,obj);
-  }
-
-  /**
-   * All {@link Rectangle} implementations should use this definition of {@link Object#equals(Object)}.
-   */
-  public static boolean equals(Rectangle thiz, Object o) {
-    assert thiz != null;
-    if (thiz == o) return true;
-    if (!(o instanceof Rectangle)) return false;
-
-    RectangleImpl rectangle = (RectangleImpl) o;
-
-    if (Double.compare(rectangle.getMaxX(), thiz.getMaxX()) != 0) return false;
-    if (Double.compare(rectangle.getMaxY(), thiz.getMaxY()) != 0) return false;
-    if (Double.compare(rectangle.getMinX(), thiz.getMinX()) != 0) return false;
-    if (Double.compare(rectangle.getMinY(), thiz.getMinY()) != 0) return false;
-
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return hashCode(this);
-  }
-
-  /**
-   * All {@link Rectangle} implementations should use this definition of {@link Object#hashCode()}.
-   */
-  public static int hashCode(Rectangle thiz) {
-    int result;
-    long temp;
-    temp = thiz.getMinX() != +0.0d ? Double.doubleToLongBits(thiz.getMinX()) : 0L;
-    result = (int) (temp ^ (temp >>> 32));
-    temp = thiz.getMaxX() != +0.0d ? Double.doubleToLongBits(thiz.getMaxX()) : 0L;
-    result = 31 * result + (int) (temp ^ (temp >>> 32));
-    temp = thiz.getMinY() != +0.0d ? Double.doubleToLongBits(thiz.getMinY()) : 0L;
-    result = 31 * result + (int) (temp ^ (temp >>> 32));
-    temp = thiz.getMaxY() != +0.0d ? Double.doubleToLongBits(thiz.getMaxY()) : 0L;
-    result = 31 * result + (int) (temp ^ (temp >>> 32));
-    return result;
   }
 }
