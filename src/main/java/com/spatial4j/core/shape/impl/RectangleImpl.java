@@ -183,28 +183,28 @@ public class RectangleImpl implements Rectangle {
   }
 
   //TODO might this utility move to SpatialRelation ?
-  private static SpatialRelation relate_range(double int_min, double int_max, double ext_min, double ext_max) {
-    if (ext_min > int_max || ext_max < int_min) {
+  private static SpatialRelation relateRange(double intMin, double intMax, double extMin, double extMax) {
+    if (extMin > intMax || extMax < intMin) {
       return SpatialRelation.DISJOINT;
     }
 
-    if (ext_min >= int_min && ext_max <= int_max) {
+    if (extMin >= intMin && extMax <= intMax) {
       return SpatialRelation.CONTAINS;
     }
 
-    if (ext_min <= int_min && ext_max >= int_max) {
+    if (extMin <= intMin && extMax >= intMax) {
       return SpatialRelation.WITHIN;
     }
     return SpatialRelation.INTERSECTS;
   }
 
   @Override
-  public SpatialRelation relateYRange(double ext_minY, double ext_maxY) {
-    return relate_range(minY, maxY, ext_minY, ext_maxY);
+  public SpatialRelation relateYRange(double extMinY, double extMaxY) {
+    return relateRange(minY, maxY, extMinY, extMaxY);
   }
 
   @Override
-  public SpatialRelation relateXRange(double ext_minX, double ext_maxX) {
+  public SpatialRelation relateXRange(double extMinX, double extMaxX) {
     //For ext & this we have local minX and maxX variable pairs. We rotate them so that minX <= maxX
     double minX = this.minX;
     double maxX = this.maxX;
@@ -216,23 +216,23 @@ public class RectangleImpl implements Rectangle {
       if (rawWidth < 0) {
         maxX = minX + (rawWidth + 360);
       }
-      double ext_rawWidth = ext_maxX - ext_minX;
-      if (ext_rawWidth == 360)
+      double extRawWidth = extMaxX - extMinX;
+      if (extRawWidth == 360)
         return SpatialRelation.WITHIN;
-      if (ext_rawWidth < 0) {
-        ext_maxX = ext_minX + (ext_rawWidth + 360);
+      if (extRawWidth < 0) {
+        extMaxX = extMinX + (extRawWidth + 360);
       }
       //shift to potentially overlap
-      if (maxX < ext_minX) {
+      if (maxX < extMinX) {
         minX += 360;
         maxX += 360;
-      } else if (ext_maxX < minX) {
-        ext_minX += 360;
-        ext_maxX += 360;
+      } else if (extMaxX < minX) {
+        extMinX += 360;
+        extMaxX += 360;
       }
     }
 
-    return relate_range(minX, maxX, ext_minX, ext_maxX);
+    return relateRange(minX, maxX, extMinX, extMaxX);
   }
 
   @Override
