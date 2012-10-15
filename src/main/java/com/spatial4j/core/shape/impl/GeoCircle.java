@@ -23,6 +23,9 @@ import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.SpatialRelation;
 
+import java.util.Formatter;
+import java.util.Locale;
+
 /**
  * A circle as it exists on the surface of a sphere.
  */
@@ -232,7 +235,8 @@ public class GeoCircle extends CircleImpl {
   public String toString() {
     //Add distance in km, which may be easier to recognize.
     double distKm = DistanceUtils.degrees2Dist(radiusDEG,  DistanceUtils.EARTH_MEAN_RADIUS_KM);
-    String dStr = String.format("%.1f\u00B0 %.2fkm", radiusDEG, distKm);
+    //instead of String.format() so that we get consistent output no matter the locale
+    String dStr = new Formatter(Locale.ROOT).format("%.1f\u00B0 %.2fkm", radiusDEG, distKm).toString();
     return "Circle(" + point + ", d=" + dStr + ')';
   }
 }
