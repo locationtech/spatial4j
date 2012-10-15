@@ -80,6 +80,7 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
         } else if (geom.isRectangle()) {
           boolean crossesDateline = false;
           if (ctx.isGeo()) {
+            // Says Counter-clockwise: see 6.1.11.1 in OGC Simple Features Specification v. 1.2.0
             //Polygon points are supposed to be counter-clockwise order. If JTS says it is clockwise, then
             // it's actually a dateline crossing rectangle.
             crossesDateline = ! CGAlgorithms.isCCW(geom.getCoordinates());
