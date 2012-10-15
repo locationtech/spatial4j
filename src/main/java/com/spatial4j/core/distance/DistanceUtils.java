@@ -50,7 +50,8 @@ public class DistanceUtils {
   public static final double EARTH_MEAN_RADIUS_KM = 6371.0087714;
   public static final double EARTH_EQUATORIAL_RADIUS_KM = 6378.1370;
 
-  public static final double DEG_TO_KM = degrees2Dist(1, EARTH_MEAN_RADIUS_KM);
+  /** Equivalent to degrees2Dist(1, EARTH_MEAN_RADIUS_KM) */
+  public static final double DEG_TO_KM = DEGREES_TO_RADIANS * EARTH_MEAN_RADIUS_KM;
   public static final double KM_TO_DEG = 1 / DEG_TO_KM;
 
   public static final double EARTH_MEAN_RADIUS_MI = EARTH_MEAN_RADIUS_KM * KM_TO_MILES;
