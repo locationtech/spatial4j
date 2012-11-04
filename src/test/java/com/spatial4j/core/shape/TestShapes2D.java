@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,6 @@ import static com.spatial4j.core.shape.SpatialRelation.*;
 
 
 public class TestShapes2D extends AbstractTestShapes {
-
 
   @ParametersFactory
   public static Iterable<Object[]> parameters() {
@@ -142,22 +141,6 @@ public class TestShapes2D extends AbstractTestShapes {
             RectangleImpl.class,
             MultiShape.class,
     });
-  }
-
-  public static void checkShapesImplementEquals( Class[] classes ) {
-
-    for( Class clazz : classes ) {
-      try {
-        clazz.getDeclaredMethod( "equals", Object.class );
-      } catch (Exception e) {
-        fail("Shape needs to define 'equals' : " + clazz.getName());
-      }
-      try {
-        clazz.getDeclaredMethod( "hashCode" );
-      } catch (Exception e) {
-        fail("Shape needs to define 'hashCode' : " + clazz.getName());
-      }
-    }
   }
 
 }
