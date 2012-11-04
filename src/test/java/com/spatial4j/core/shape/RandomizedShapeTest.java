@@ -33,13 +33,16 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
 
   protected static final double EPS = 10e-9;
 
-  protected final SpatialContext ctx;
+  protected SpatialContext ctx;
 
   /** Used to reduce the space of numbers to increase the likelihood that
    * random numbers become equivalent, and thus trigger different code paths.
    * Also makes some random shapes easier to manually examine.
    */
   protected final double DIVISIBLE = 2;// even coordinates; (not always used)
+
+  public RandomizedShapeTest() {
+  }
 
   public RandomizedShapeTest(SpatialContext ctx) {
     this.ctx = ctx;
@@ -68,7 +71,7 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
    *
    * @see #scaledRandomIntBetween(int, int)
    */
-  protected static int atLeast(int min) {
+  public static int atLeast(int min) {
     if (min < 0) throw new IllegalArgumentException("atLeast requires non-negative argument: " + min);
 
     min = (int) Math.min(min, (isNightly() ? 3 * min : min) * multiplier());
@@ -270,6 +273,17 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     y = normY(y);
     Point p = ctx.makePoint(x,y);
     assertEquals(CONTAINS,r.relate(p));
+    return p;
+  }
+
+  protected Point randomPointIn(Shape shape) {
+    if (!shape.hasArea())// or try the center?
+      throw new UnsupportedOperationException("Need area to define shape!");
+    Rectangle bbox = shape.getBoundingBox();
+    Point p;
+    do {
+      p = randomPointIn(bbox);
+    } while (!bbox.relate(p).intersects());
     return p;
   }
 }

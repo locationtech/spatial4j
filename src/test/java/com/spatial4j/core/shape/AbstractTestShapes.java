@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
-import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
 
 
 /**
@@ -153,50 +152,22 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
   }
 
   protected void testCircleIntersect() {
-    //Now do some randomized tests:
-    int i_C = 0, i_I = 0, i_W = 0, i_O = 0;//counters for the different intersection cases
-    int laps = 0;
-    int MINLAPSPERCASE = 20 * (int)multiplier();
-    while(i_C < MINLAPSPERCASE || i_I < MINLAPSPERCASE || i_W < MINLAPSPERCASE || i_O < MINLAPSPERCASE) {
-      laps++;
-      final int TEST_DIVISIBLE = 2;//just use even numbers in this test
-      double cX = randomIntBetweenDivisible(-180, 179, TEST_DIVISIBLE);
-      double cY = randomIntBetweenDivisible(-90, 90, TEST_DIVISIBLE);
-      double cR = randomIntBetweenDivisible(0, 180, TEST_DIVISIBLE);
-      double cR_dist = ctx.getDistCalc().distance(ctx.makePoint(0, 0), 0, cR);
-      Circle c = ctx.makeCircle(cX, cY, cR_dist);
-
-      Rectangle r = randomRectangle(TEST_DIVISIBLE);
-
-      SpatialRelation ic = c.relate(r);
-
-      Point p;
-      switch (ic) {
-        case CONTAINS:
-          i_C++;
-          p = randomPointIn(r);
-          assertEquals(CONTAINS,c.relate(p));
-          break;
-        case INTERSECTS:
-          i_I++;
-          //hard to test anything here; instead we'll test it separately
-          break;
-        case WITHIN:
-          i_W++;
-          p = randomPointIn(c);
-          assertEquals(CONTAINS,r.relate(p));
-          break;
-        case DISJOINT:
-          i_O++;
-          p = randomPointIn(r);
-          assertEquals(DISJOINT,c.relate(p));
-          break;
-        default: fail(""+ic);
+    new RectIntersectionTestHelper<Circle>(ctx) {
+      @Override
+      protected Circle generateRandomShape(Point nearP) {
+        final int TEST_DIVISIBLE = 2;//just use even numbers in this test
+        double cX = randomIntBetweenDivisible(-180, 179, TEST_DIVISIBLE);
+        double cY = randomIntBetweenDivisible(-90, 90, TEST_DIVISIBLE);
+        double cR = randomIntBetweenDivisible(0, 180, TEST_DIVISIBLE);
+        double cR_dist = ctx.getDistCalc().distance(ctx.makePoint(0, 0), 0, cR);
+        return ctx.makeCircle(cX, cY, cR_dist);
       }
-    }
-    //System.out.println("Laps: "+laps);
 
-    //TODO deliberately test INTERSECTS based on known intersection point
+      @Override
+      protected Point randomPointInEmptyShape(Circle shape) {
+        return shape.getCenter();
+      }
+    }.testRelateWithRectangle();
   }
 
   @Test
