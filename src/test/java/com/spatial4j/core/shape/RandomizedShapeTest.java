@@ -20,6 +20,7 @@ package com.spatial4j.core.shape;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.shape.impl.Range;
 
 import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
 import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
@@ -33,6 +34,12 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
   protected static final double EPS = 10e-9;
 
   protected final SpatialContext ctx;
+
+  /** Used to reduce the space of numbers to increase the likelihood that
+   * random numbers become equivalent, and thus trigger different code paths.
+   * Also makes some random shapes easier to manually examine.
+   */
+  protected final double DIVISIBLE = 2;// even coordinates; (not always used)
 
   public RandomizedShapeTest(SpatialContext ctx) {
     this.ctx = ctx;
@@ -51,6 +58,22 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
         fail("Shape needs to define 'hashCode' : " + clazz.getName());
       }
     }
+  }
+
+  /**
+   * BUG FIX: https://github.com/carrotsearch/randomizedtesting/issues/131
+   *
+   * Returns a random value greater or equal to <code>min</code>. The value
+   * picked is affected by {@link #isNightly()} and {@link #multiplier()}.
+   *
+   * @see #scaledRandomIntBetween(int, int)
+   */
+  protected static int atLeast(int min) {
+    if (min < 0) throw new IllegalArgumentException("atLeast requires non-negative argument: " + min);
+
+    min = (int) Math.min(min, (isNightly() ? 3 * min : min) * multiplier());
+    int max = (int) Math.min(Integer.MAX_VALUE, (long) min + (min / 2));
+    return randomIntBetween(min, max);
   }
 
   //These few norm methods normalize the arguments for creating a shape to
@@ -75,8 +98,57 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
         minX = DistanceUtils.normLonDEG(minX);
         maxX = DistanceUtils.normLonDEG(maxX);
       }
+
+    } else {
+      if (maxX < minX) {
+        double t = minX;
+        minX = maxX;
+        maxX = t;
+      }
+      minX = boundX(minX, ctx.getWorldBounds());
+      maxX = boundX(maxX, ctx.getWorldBounds());
     }
+    if (maxY < minY) {
+      double t = minY;
+      minY = maxY;
+      maxY = t;
+    }
+    minY = boundY(minY, ctx.getWorldBounds());
+    maxY = boundY(maxY, ctx.getWorldBounds());
     return ctx.makeRectangle(minX, maxX, minY, maxY);
+  }
+
+  public static double divisible(double v, double divisible) {
+    return (int) (Math.round(v / divisible) * divisible);
+  }
+
+  protected double divisible(double v) {
+    return divisible(v, DIVISIBLE);
+  }
+
+  /** reset()'s p, and confines to world bounds. Might not be divisible if
+   * the world bound isn't divisible too.
+   */
+  protected Point divisible(Point p) {
+    Rectangle bounds = ctx.getWorldBounds();
+    double newX = boundX( divisible(p.getX()), bounds );
+    double newY = boundY( divisible(p.getY()), bounds );
+    p.reset(newX, newY);
+    return p;
+  }
+
+  static double boundX(double i, Rectangle bounds) {
+    return bound(i, bounds.getMinX(), bounds.getMaxX());
+  }
+
+  static double boundY(double i, Rectangle bounds) {
+    return bound(i, bounds.getMinY(), bounds.getMaxY());
+  }
+
+  static double bound(double i, double min, double max) {
+    if (i < min) return min;
+    if (i > max) return max;
+    return i;
   }
 
   protected void assertRelation(String msg, SpatialRelation expected, Shape a, Shape b) {
@@ -133,6 +205,40 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     return (r-2 + divisStart)*divisible;
   }
 
+
+  protected Rectangle randomRectangle(Point nearP) {
+    Rectangle bounds = ctx.getWorldBounds();
+    if (nearP == null)
+      nearP = randomPointIn(bounds);
+
+    Range xRange = randomRange(nearP.getX(), Range.xRange(bounds, ctx));
+    Range yRange = randomRange(nearP.getY(), Range.yRange(bounds, ctx));
+
+    return makeNormRect(
+        divisible(xRange.getMin()),
+        divisible(xRange.getMax()),
+        divisible(yRange.getMin()),
+        divisible(yRange.getMax()) );
+  }
+
+
+  private Range randomRange(double near, Range bounds) {
+    double mid = near + randomGaussian() * bounds.getWidth() / 6;
+    double width = Math.abs(randomGaussian()) * bounds.getWidth() / 6;//1/3rd
+    return new Range(mid - width / 2, mid + width / 2);
+  }
+
+  private double randomGaussianZeroTo(double max) {
+    if (max == 0)
+      return max;
+    assert max > 0;
+    double r;
+    do {
+      r = Math.abs(randomGaussian()) * (max * 0.50);
+    } while (r > max);
+    return r;
+  }
+
   protected Rectangle randomRectangle(int divisible) {
     double rX = randomIntBetweenDivisible(-180, 180, divisible);
     double rW = randomIntBetweenDivisible(0, 360, divisible);
@@ -145,7 +251,11 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     return makeNormRect(rX, rX + rW, rYmin, rYmax);
   }
 
-  protected Point randomPointWithin(Circle c) {
+  protected Point randomPoint() {
+    return randomPointIn(ctx.getWorldBounds());
+  }
+
+  protected Point randomPointIn(Circle c) {
     double d = c.getRadius() * randomDouble();
     double angleDEG = 360 * randomDouble();
     Point p = ctx.getDistCalc().pointOnBearing(c.getCenter(), d, angleDEG, ctx, null);
@@ -153,7 +263,7 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     return p;
   }
 
-  protected Point randomPointWithin(Rectangle r) {
+  protected Point randomPointIn(Rectangle r) {
     double x = r.getMinX() + randomDouble()*r.getWidth();
     double y = r.getMinY() + randomDouble()*r.getHeight();
     x = normX(x);

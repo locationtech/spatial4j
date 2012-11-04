@@ -174,7 +174,7 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
       switch (ic) {
         case CONTAINS:
           i_C++;
-          p = randomPointWithin(r);
+          p = randomPointIn(r);
           assertEquals(CONTAINS,c.relate(p));
           break;
         case INTERSECTS:
@@ -183,12 +183,12 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
           break;
         case WITHIN:
           i_W++;
-          p = randomPointWithin(c);
+          p = randomPointIn(c);
           assertEquals(CONTAINS,r.relate(p));
           break;
         case DISJOINT:
           i_O++;
-          p = randomPointWithin(r);
+          p = randomPointIn(r);
           assertEquals(DISJOINT,c.relate(p));
           break;
         default: fail(""+ic);
