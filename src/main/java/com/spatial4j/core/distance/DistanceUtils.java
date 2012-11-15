@@ -157,10 +157,11 @@ public class DistanceUtils {
     double cosStartLat = Math.cos(startLat);
     double sinAngDist = Math.sin(distanceRAD);
     double sinStartLat = Math.sin(startLat);
-    double lat2 = Math.asin(sinStartLat * cosAngDist +
-            cosStartLat * sinAngDist * Math.cos(bearingRAD));
+    double sinLat2 = sinStartLat * cosAngDist +
+        cosStartLat * sinAngDist * Math.cos(bearingRAD);
+    double lat2 = Math.asin(sinLat2);
     double lon2 = startLon + Math.atan2(Math.sin(bearingRAD) * sinAngDist * cosStartLat,
-            cosAngDist - sinStartLat * Math.sin(lat2));
+            cosAngDist - sinStartLat * sinLat2);
     
     // normalize lon first
     if (lon2 > DEG_180_AS_RADS) {
