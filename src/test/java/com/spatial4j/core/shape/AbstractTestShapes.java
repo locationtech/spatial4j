@@ -187,7 +187,7 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
 
   @Test
   @Repeat(iterations = 20)
-  public void testMultiShape() {
+  public void testShapeCollection() {
     assumeFalse(ctx.isGeo());//TODO not yet supported!
 
     //come up with some random shapes
@@ -196,10 +196,10 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
     while (shapes.size() < NUM_SHAPES) {
       shapes.add(randomRectangle(20));
     }
-    MultiShape multiShape = new MultiShape(shapes,ctx);
+    ShapeCollection shapeCollection = new ShapeCollection(shapes,ctx);
 
-    //test multiShape.getBoundingBox();
-    Rectangle msBbox = multiShape.getBoundingBox();
+    //test shapeCollection.getBoundingBox();
+    Rectangle msBbox = shapeCollection.getBoundingBox();
     if (shapes.size() == 1) {
       assertEquals(shapes.get(0),msBbox.getBoundingBox());
     } else {
@@ -208,7 +208,7 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
       }
     }
 
-    //TODO test multiShape.relate()
+    //TODO test shapeCollection.relate()
 
   }
 

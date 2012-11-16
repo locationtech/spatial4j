@@ -139,7 +139,7 @@ public class TestShapes2D extends AbstractTestShapes {
             CircleImpl.class,
             //GeoCircle.class  no: its fields are caches, not part of its identity
             RectangleImpl.class,
-            MultiShape.class,
+            ShapeCollection.class,
     });
   }
 

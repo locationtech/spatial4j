@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,7 @@ import java.util.Collection;
 /**
  * <b>IN PROGRESS</b> A collection of Shape objects.
  */
-public class MultiShape implements Shape {
+public class ShapeCollection implements Shape {
   private final Collection<? extends Shape> geoms;
   private final Rectangle bbox;
 
@@ -33,7 +33,7 @@ public class MultiShape implements Shape {
    * @param geoms
    * @param ctx
    */
-  public MultiShape(Collection<? extends Shape> geoms, SpatialContext ctx) {
+  public ShapeCollection(Collection<? extends Shape> geoms, SpatialContext ctx) {
     if (geoms.isEmpty())
       throw new IllegalArgumentException("must be given at least 1 shape");
     this.geoms = geoms;
@@ -107,7 +107,7 @@ public class MultiShape implements Shape {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    MultiShape that = (MultiShape) o;
+    ShapeCollection that = (ShapeCollection) o;
 
     if (geoms != null ? !geoms.equals(that.geoms) : that.geoms != null) return false;
 

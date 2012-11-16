@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -65,7 +65,7 @@ public class JtsGeometry implements Shape {
 
       //note: this bbox may be sub-optimal. If geom is a collection of things near the dateline on both sides then
       // the bbox will needlessly span most or all of the globe longitudinally.
-      // TODO so consider using MultiShape's planned minimal geo bounding box algorithm once implemented.
+      // TODO so consider using ShapeCollection's planned minimal geo bounding box algorithm once implemented.
       double envWidth = unwrappedEnv.getWidth();
       //adjust minX and maxX considering the dateline and world wrap
       double minX, maxX;
