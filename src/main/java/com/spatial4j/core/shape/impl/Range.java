@@ -104,86 +104,86 @@ public class Range {
     return max3 - min3;
   }
 
+ public static class LongitudeRange extends Range {
+
+    public LongitudeRange(double min, double max) {
+      super(min, max);
+    }
+
+    public LongitudeRange(Rectangle r) {
+      super(r.getMinX(), r.getMaxX());
+    }
+
+    @Override
+    public double getWidth() {
+      double w = super.getWidth();
+      if (w < 0)
+        w += 360;
+      return w;
+    }
+
+    @Override
+    public boolean contains(double v) {
+      if (!crossesDateline())
+        return super.contains(v);
+      return v >= min || v <= max;// the OR is the distinction from non-dateline cross
+    }
+
+    public boolean crossesDateline() {
+      return min > max;
+    }
+
+    public double getCenter() {
+      double ctr = super.getCenter();
+      if (ctr > 180)
+        ctr -= 360;
+      return ctr;
+    }
+
+    public double compareTo(double v) {
+      double ctr = getCenter();
+      double diff = ctr - v;
+      if (diff <= 180) {
+        if (diff >= -180)
+          return diff;
+        return diff + 360;
+      } else {
+        return diff - 360;
+      }
+    }
+
+    @Override
+    public Range expandTo(Range other) {
+      return expandTo((LongitudeRange)other);
+    }
+
+    public LongitudeRange expandTo(LongitudeRange other) {
+      LongitudeRange a, b;//a is bigger
+      double width1 = getWidth();
+      double width2 = other.getWidth();
+      if (width1 >= width2) {
+        a = this;
+        b = other;
+      } else {
+        a = other;
+        b = this;
+      }
+      double bCtr = b.getCenter();
+      double diff = a.compareTo(bCtr);
+      if (diff == -180 || diff == 180) {//opposite sides of globe
+        if (width1 + width2 >= 360)
+          return new LongitudeRange(-180, 180);
+        return new LongitudeRange(b.min, a.max);//could have chosen flip side too
+      } else if (diff >= 0) {
+        if (a.contains(b.min))
+          return a;
+        return new LongitudeRange(b.min, a.max);
+      } else {
+        if (a.contains(b.max))
+          return a;
+        return new LongitudeRange(a.min, b.max);
+      }
+    }
+  }
 }
 
-class LongitudeRange extends Range {
-
-  public LongitudeRange(double min, double max) {
-    super(min, max);
-  }
-
-  public LongitudeRange(Rectangle r) {
-    super(r.getMinX(), r.getMaxX());
-  }
-
-  @Override
-  public double getWidth() {
-    double w = super.getWidth();
-    if (w < 0)
-      w += 360;
-    return w;
-  }
-
-  @Override
-  public boolean contains(double v) {
-    if (!crossesDateline())
-      return super.contains(v);
-    return v >= min || v <= max;// the OR is the distinction from non-dateline cross
-  }
-
-  public boolean crossesDateline() {
-    return min > max;
-  }
-
-  public double getCenter() {
-    double ctr = super.getCenter();
-    if (ctr > 180)
-      ctr -= 360;
-    return ctr;
-  }
-
-  public double compareTo(double v) {
-    double ctr = getCenter();
-    double diff = ctr - v;
-    if (diff <= 180) {
-      if (diff >= -180)
-        return diff;
-      return diff + 360;
-    } else {
-      return diff - 360;
-    }
-  }
-
-  @Override
-  public Range expandTo(Range other) {
-    return expandTo((LongitudeRange)other);
-  }
-
-  public LongitudeRange expandTo(LongitudeRange other) {
-    LongitudeRange a, b;//a is bigger
-    double width1 = getWidth();
-    double width2 = other.getWidth();
-    if (width1 >= width2) {
-      a = this;
-      b = other;
-    } else {
-      a = other;
-      b = this;
-    }
-    double bCtr = b.getCenter();
-    double diff = a.compareTo(bCtr);
-    if (diff == -180 || diff == 180) {//opposite sides of globe
-      if (width1 + width2 >= 360)
-        return new LongitudeRange(-180, 180);
-      return new LongitudeRange(b.min, a.max);//could have chosen flip side too
-    } else if (diff >= 0) {
-      if (a.contains(b.min))
-        return a;
-      return new LongitudeRange(b.min, a.max);
-    } else {
-      if (a.contains(b.max))
-        return a;
-      return new LongitudeRange(a.min, b.max);
-    }
-  }
-}

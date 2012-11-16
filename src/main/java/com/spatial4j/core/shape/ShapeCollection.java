@@ -18,39 +18,70 @@
 package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.impl.Range;
 
+import java.util.AbstractList;
 import java.util.Collection;
+import java.util.List;
+import java.util.RandomAccess;
+
+import static com.spatial4j.core.shape.SpatialRelation.*;
 
 /**
- * <b>IN PROGRESS</b> A collection of Shape objects.
+ * A collection of Shape objects.  Analogous to an OGC GeometryCollection.
+ *
+ * A random-access List (e.g. ArrayList) is used because the ordering is sometimes
+ * pertinent.
  */
-public class ShapeCollection implements Shape {
-  private final Collection<? extends Shape> geoms;
-  private final Rectangle bbox;
+public class ShapeCollection<S extends Shape> extends AbstractList<S> implements Shape {
+  protected final List<S> shapes;
+  protected final Rectangle bbox;
 
   /**
-   * WARNING: geoms is copied by reference.
-   * @param geoms
+   * WARNING: {@code shapes} is copied by reference.
+   * @param shapes Copied by reference! (make a defensive copy if caller modifies)
    * @param ctx
    */
-  public ShapeCollection(Collection<? extends Shape> geoms, SpatialContext ctx) {
-    if (geoms.isEmpty())
+  public ShapeCollection(List<S> shapes, SpatialContext ctx) {
+    if (shapes.isEmpty())
       throw new IllegalArgumentException("must be given at least 1 shape");
-    this.geoms = geoms;
+    if (!(shapes instanceof RandomAccess))
+      throw new IllegalArgumentException("Shapes arg must implement RandomAccess: "+shapes.getClass());
+    this.shapes = shapes;
+    this.bbox = computeBoundingBox(shapes, ctx);
+  }
 
-    //compute and cache bbox
-    double minX = Double.POSITIVE_INFINITY;
-    double minY = Double.POSITIVE_INFINITY;
-    double maxX = Double.NEGATIVE_INFINITY;
-    double maxY = Double.NEGATIVE_INFINITY;
-    for (Shape geom : geoms) {
+  protected Rectangle computeBoundingBox(Collection<? extends Shape> shapes, SpatialContext ctx) {
+    Range xRange = null;
+    Range yRange = null;
+    for (Shape geom : shapes) {
       Rectangle r = geom.getBoundingBox();
-      minX = Math.min(minX,r.getMinX());
-      minY = Math.min(minY,r.getMinY());
-      maxX = Math.max(maxX,r.getMaxX());
-      maxY = Math.max(maxY,r.getMaxY());
+
+      Range xRange2 = Range.xRange(r, ctx);
+      Range yRange2 = Range.yRange(r, ctx);
+      if (xRange == null) {
+        xRange = xRange2;
+        yRange = yRange2;
+      } else {
+        xRange = xRange.expandTo(xRange2);
+        yRange = yRange.expandTo(yRange2);
+      }
     }
-    this.bbox = ctx.makeRectangle(minX, maxX, minY, maxY);
+    return ctx.makeRectangle(xRange.getMin(), xRange.getMax(), yRange.getMin(), yRange.getMax());
+  }
+
+  public List<S> getShapes() {
+    return shapes;
+  }
+
+  @Override
+  public S get(int index) {
+    return shapes.get(index);
+  }
+
+  @Override
+  public int size() {
+    return shapes.size();
   }
 
   @Override
@@ -65,7 +96,7 @@ public class ShapeCollection implements Shape {
 
   @Override
   public boolean hasArea() {
-    for (Shape geom : geoms) {
+    for (Shape geom : shapes) {
       if( geom.hasArea() ) {
         return true;
       }
@@ -75,31 +106,64 @@ public class ShapeCollection implements Shape {
 
   @Override
   public SpatialRelation relate(Shape other) {
-    boolean allOutside = true;
-    boolean allContains = true;
-    for (Shape geom : geoms) {
-      SpatialRelation sect = geom.relate(other);
-      if (sect != SpatialRelation.DISJOINT)
-        allOutside = false;
-      if (sect != SpatialRelation.CONTAINS)
-        allContains = false;
-      if (!allContains && !allOutside)
-        return SpatialRelation.INTERSECTS;//short circuit
+    final SpatialRelation bboxSect = bbox.relate(other);
+    if (bboxSect == SpatialRelation.DISJOINT || bboxSect == SpatialRelation.WITHIN)
+      return bboxSect;
+
+    SpatialRelation accumulateSect = null;//CONTAINS, WITHIN, or DISJOINT
+    for (Shape shape : shapes) {
+      SpatialRelation sect = shape.relate(other);
+      if (sect == INTERSECTS)
+        return sect;//intersect poisons the loop
+      if (accumulateSect == null) {//first pass
+        accumulateSect = sect;
+      } else if (accumulateSect == DISJOINT) {
+        if (sect == WITHIN)
+          return INTERSECTS;
+        if (sect == CONTAINS)
+          accumulateSect = CONTAINS;//transition to CONTAINS
+      } else if (accumulateSect == WITHIN) {
+        if (sect == DISJOINT)
+          return INTERSECTS;
+        if (sect == CONTAINS)//unusual but maybe in equality case
+          return INTERSECTS;//behave same way as contains then within
+      } else { assert accumulateSect == CONTAINS;
+        if (sect == WITHIN)
+          return INTERSECTS;
+      }
     }
-    if (allOutside)
-      return SpatialRelation.DISJOINT;
-    if (allContains)
-      return SpatialRelation.CONTAINS;
-    return SpatialRelation.INTERSECTS;
+    return accumulateSect;
   }
 
   @Override
   public double getArea(SpatialContext ctx) {
+    double MAX_AREA = bbox.getArea(ctx);
     double sum = 0;
-    for (Shape geom : geoms) {
+    for (Shape geom : shapes) {
       sum += geom.getArea(ctx);
+      if (sum >= MAX_AREA)
+        return MAX_AREA;
     }
+
     return sum;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(100);
+    buf.append("ShapeCollection(");
+    int i = 0;
+    for (Shape shape : shapes) {
+      if (i++ > 0)
+        buf.append(", ");
+      buf.append(shape);
+      if (buf.length() > 150) {
+        buf.append(" ... ");
+        break;
+      }
+    }
+    buf.append(")");
+    return buf.toString();
   }
 
   @Override
@@ -109,13 +173,14 @@ public class ShapeCollection implements Shape {
 
     ShapeCollection that = (ShapeCollection) o;
 
-    if (geoms != null ? !geoms.equals(that.geoms) : that.geoms != null) return false;
+    if (!shapes.equals(that.shapes)) return false;
 
     return true;
   }
 
   @Override
   public int hashCode() {
-    return geoms != null ? geoms.hashCode() : 0;
+    return shapes.hashCode();
   }
+
 }

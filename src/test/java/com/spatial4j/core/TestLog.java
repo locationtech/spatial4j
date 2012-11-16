@@ -36,7 +36,7 @@ public class TestLog extends TestRuleAdapter {
 
   public static final TestLog instance = new TestLog();
 
-  private TestLog() {}
+  public TestLog() {}
 
   @Override
   protected void before() throws Throwable {
