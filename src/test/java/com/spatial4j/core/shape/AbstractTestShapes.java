@@ -18,11 +18,13 @@
 package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
+import com.spatial4j.core.TestLog;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -40,6 +42,9 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
   public AbstractTestShapes(SpatialContext ctx) {
     super(ctx);
   }
+
+  @Rule
+  public final TestLog testLog = TestLog.instance;
 
   protected void testRectangle(double minX, double width, double minY, double height) {
     double maxX = minX + width;
@@ -155,10 +160,9 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
     new RectIntersectionTestHelper<Circle>(ctx) {
       @Override
       protected Circle generateRandomShape(Point nearP) {
-        final int TEST_DIVISIBLE = 2;//just use even numbers in this test
-        double cX = randomIntBetweenDivisible(-180, 179, TEST_DIVISIBLE);
-        double cY = randomIntBetweenDivisible(-90, 90, TEST_DIVISIBLE);
-        double cR = randomIntBetweenDivisible(0, 180, TEST_DIVISIBLE);
+        double cX = randomIntBetweenDivisible(-180, 179);
+        double cY = randomIntBetweenDivisible(-90, 90);
+        double cR = randomIntBetweenDivisible(0, 180);
         double cR_dist = ctx.getDistCalc().distance(ctx.makePoint(0, 0), 0, cR);
         return ctx.makeCircle(cX, cY, cR_dist);
       }

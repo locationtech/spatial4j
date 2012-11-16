@@ -17,6 +17,7 @@
 
 package com.spatial4j.core.shape;
 
+import com.spatial4j.core.TestLog;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.impl.InfBufLine;
 import com.spatial4j.core.shape.impl.PointImpl;
@@ -51,7 +52,7 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
         || i_D < MINLAPSPERCASE || i_bboxD < MINLAPSPERCASE) {
       laps++;
 
-      //TestLogRule.clear();
+      TestLog.clear();
 
       Point nearP = randomPointIn(ctx.getWorldBounds());
 
@@ -61,14 +62,14 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
 
       SpatialRelation ic = s.relate(r);
 
-      //TestLogRule.testLog("S-R Rel: {}, Shape {}, Rectangle {}", ic, s, r);
+      TestLog.log("S-R Rel: {}, Shape {}, Rectangle {}", ic, s, r);
 
       switch (ic) {
         case CONTAINS:
           i_C++;
           for (int j = 0; j < atLeast(10); j++) {
             Point p = randomPointIn(r);
-            assertEquals(CONTAINS, s.relate(p));
+            assertRelation(null, CONTAINS, s, p);
           }
           break;
 
@@ -76,8 +77,7 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
           i_W++;
           for (int j = 0; j < atLeast(10); j++) {
             Point p = randomPointIn(s);
-            //TestLogRule.testLog("Point {}",p);
-            assertEquals(CONTAINS, r.relate(p));
+            assertRelation(null, CONTAINS, r, p);
           }
           break;
 
@@ -91,7 +91,7 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
           }
           for (int j = 0; j < atLeast(10); j++) {
             Point p = randomPointIn(r);
-            assertEquals(DISJOINT,s.relate(p));
+            assertRelation(null, DISJOINT, s, p);
           }
           break;
 

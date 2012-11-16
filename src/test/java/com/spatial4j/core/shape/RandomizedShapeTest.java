@@ -33,16 +33,13 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
 
   protected static final double EPS = 10e-9;
 
-  protected SpatialContext ctx;
+  protected final SpatialContext ctx;
 
   /** Used to reduce the space of numbers to increase the likelihood that
    * random numbers become equivalent, and thus trigger different code paths.
    * Also makes some random shapes easier to manually examine.
    */
   protected final double DIVISIBLE = 2;// even coordinates; (not always used)
-
-  public RandomizedShapeTest() {
-  }
 
   public RandomizedShapeTest(SpatialContext ctx) {
     this.ctx = ctx;
@@ -155,8 +152,8 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
   }
 
   protected void assertRelation(String msg, SpatialRelation expected, Shape a, Shape b) {
-    msg = a+" intersect "+b;//use different msg
-    _assertIntersect(msg,expected,a,b);
+    msg += "\ra"+" intersect "+b;//append msg
+    _assertIntersect(msg, expected, a, b);
     //check flipped a & b w/ transpose(), while we're at it
     _assertIntersect("(transposed) " + msg, expected.transpose(), b, a);
   }
@@ -194,7 +191,10 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     assertEquals(msg,0,deltaRatio, EPS);
   }
 
-  /** Returns a random integer between [start, end]. Integers between must be divisible by the 3rd argument. */
+  protected int randomIntBetweenDivisible(int start, int end) {
+    return randomIntBetweenDivisible(start, end, (int)DIVISIBLE);
+  }
+    /** Returns a random integer between [start, end]. Integers between must be divisible by the 3rd argument. */
   protected int randomIntBetweenDivisible(int start, int end, int divisible) {
     // DWS: I tested this
     int divisStart = (int) Math.ceil( (start+1) / (double)divisible );
@@ -207,7 +207,6 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
       return end;
     return (r-2 + divisStart)*divisible;
   }
-
 
   protected Rectangle randomRectangle(Point nearP) {
     Rectangle bounds = ctx.getWorldBounds();
@@ -223,7 +222,6 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
         divisible(yRange.getMin()),
         divisible(yRange.getMax()) );
   }
-
 
   private Range randomRange(double near, Range bounds) {
     double mid = near + randomGaussian() * bounds.getWidth() / 6;
