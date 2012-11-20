@@ -152,16 +152,16 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
   }
 
   protected void assertRelation(String msg, SpatialRelation expected, Shape a, Shape b) {
-    msg += "\ra"+" intersect "+b;//append msg
     _assertIntersect(msg, expected, a, b);
     //check flipped a & b w/ transpose(), while we're at it
-    _assertIntersect("(transposed) " + msg, expected.transpose(), b, a);
+    _assertIntersect(msg, expected.transpose(), b, a);
   }
 
   private void _assertIntersect(String msg, SpatialRelation expected, Shape a, Shape b) {
     SpatialRelation sect = a.relate(b);
     if (sect == expected)
       return;
+    msg = ((msg == null) ? "" : msg+"\r") + a +" intersect "+b;
     if (expected == WITHIN || expected == CONTAINS) {
       if (a.getClass().equals(b.getClass())) // they are the same shape type
         assertEquals(msg,a,b);
@@ -180,7 +180,7 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
           assertEquals(msg, aBBox, bBBox);
       }
     } else {
-      assertEquals(msg,expected,sect);
+      assertEquals(msg,expected,sect);//always fails
     }
   }
 
