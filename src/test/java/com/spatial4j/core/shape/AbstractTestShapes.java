@@ -162,8 +162,7 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
       protected Circle generateRandomShape(Point nearP) {
         double cX = randomIntBetweenDivisible(-180, 179);
         double cY = randomIntBetweenDivisible(-90, 90);
-        double cR = randomIntBetweenDivisible(0, 180);
-        double cR_dist = ctx.getDistCalc().distance(ctx.makePoint(0, 0), 0, cR);
+        double cR_dist = randomIntBetweenDivisible(0, 180);
         return ctx.makeCircle(cX, cY, cR_dist);
       }
 
