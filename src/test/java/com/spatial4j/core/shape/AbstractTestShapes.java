@@ -170,6 +170,23 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
       protected Point randomPointInEmptyShape(Circle shape) {
         return shape.getCenter();
       }
+
+      @Override
+      protected void onAssertFail(AssertionError e, Circle s, Rectangle r, SpatialRelation ic) {
+        //Check if the circle's edge appears to coincide with the shape.
+        final double radius = s.getRadius();
+        if (radius == 0 || radius == 180)
+          throw e;//if this ever happens, then consider something smarter
+        final double eps = 0.0000001;
+        s.reset(s.getCenter().getX(), s.getCenter().getY(), radius - eps);
+        SpatialRelation rel1 = s.relate(r);
+        s.reset(s.getCenter().getX(), s.getCenter().getY(), radius + eps);
+        SpatialRelation rel2 = s.relate(r);
+        if (rel1 == rel2)
+          throw e;
+        s.reset(s.getCenter().getX(), s.getCenter().getY(), radius);//reset
+        System.out.println("Seed "+getContext().getRunnerSeedAsString()+": Hid assertion due to ambiguous edge touch: "+s+" "+r);
+      }
     }.testRelateWithRectangle();
   }
 

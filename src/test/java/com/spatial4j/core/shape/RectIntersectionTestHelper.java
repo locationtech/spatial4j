@@ -64,71 +64,75 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
 
       TestLog.log("S-R Rel: {}, Shape {}, Rectangle {}", ic, s, r);
 
-      switch (ic) {
-        case CONTAINS:
-          i_C++;
-          for (int j = 0; j < atLeast(10); j++) {
-            Point p = randomPointIn(r);
-            assertRelation(null, CONTAINS, s, p);
-          }
-          break;
+      try {
+        switch (ic) {
+          case CONTAINS:
+            i_C++;
+            for (int j = 0; j < atLeast(10); j++) {
+              Point p = randomPointIn(r);
+              assertRelation(null, CONTAINS, s, p);
+            }
+            break;
 
-        case WITHIN:
-          i_W++;
-          for (int j = 0; j < atLeast(10); j++) {
-            Point p = randomPointIn(s);
-            assertRelation(null, CONTAINS, r, p);
-          }
-          break;
+          case WITHIN:
+            i_W++;
+            for (int j = 0; j < atLeast(10); j++) {
+              Point p = randomPointIn(s);
+              assertRelation(null, CONTAINS, r, p);
+            }
+            break;
 
-        case DISJOINT:
-          if (!s.getBoundingBox().relate(r).intersects()) {//bboxes are disjoint
-            i_bboxD++;
-            if (i_bboxD > MINLAPSPERCASE)
-              break;
-          } else {
-            i_D++;
-          }
-          for (int j = 0; j < atLeast(10); j++) {
-            Point p = randomPointIn(r);
-            assertRelation(null, DISJOINT, s, p);
-          }
-          break;
-
-        case INTERSECTS:
-          i_I++;
-          SpatialRelation pointR = null;//set once
-          Rectangle randomPointSpace = null;
-          int MAX_TRIES = 1000;
-          for (int j = 0; j < MAX_TRIES; j++) {
-            Point p;
-            if (j < 4) {
-              p = new PointImpl(0, 0, ctx);
-              InfBufLine.cornerByQuadrant(r, j + 1, p);
+          case DISJOINT:
+            if (!s.getBoundingBox().relate(r).intersects()) {//bboxes are disjoint
+              i_bboxD++;
+              if (i_bboxD > MINLAPSPERCASE)
+                break;
             } else {
-              if (randomPointSpace == null) {
-                if (pointR == DISJOINT) {
-                  randomPointSpace = intersectRects(r,s.getBoundingBox());
-                } else {//CONTAINS
-                  randomPointSpace = r;
+              i_D++;
+            }
+            for (int j = 0; j < atLeast(10); j++) {
+              Point p = randomPointIn(r);
+              assertRelation(null, DISJOINT, s, p);
+            }
+            break;
+
+          case INTERSECTS:
+            i_I++;
+            SpatialRelation pointR = null;//set once
+            Rectangle randomPointSpace = null;
+            int MAX_TRIES = 1000;
+            for (int j = 0; j < MAX_TRIES; j++) {
+              Point p;
+              if (j < 4) {
+                p = new PointImpl(0, 0, ctx);
+                InfBufLine.cornerByQuadrant(r, j + 1, p);
+              } else {
+                if (randomPointSpace == null) {
+                  if (pointR == DISJOINT) {
+                    randomPointSpace = intersectRects(r,s.getBoundingBox());
+                  } else {//CONTAINS
+                    randomPointSpace = r;
+                  }
                 }
+                p = randomPointIn(randomPointSpace);
               }
-              p = randomPointIn(randomPointSpace);
+              SpatialRelation pointRNew = s.relate(p);
+              if (pointR == null) {
+                pointR = pointRNew;
+              } else if (pointR != pointRNew) {
+                break;
+              } else if (j >= MAX_TRIES) {
+                //TODO consider logging instead of failing
+                fail("Tried intersection brute-force too many times without success");
+              }
             }
-            SpatialRelation pointRNew = s.relate(p);
-            if (pointR == null) {
-              pointR = pointRNew;
-            } else if (pointR != pointRNew) {
-              break;
-            } else if (j >= MAX_TRIES) {
-              //TODO consider logging instead of failing
-              fail("Tried intersection brute-force too many times without success");
-            }
-          }
 
-          break;
+            break;
 
-        default: fail(""+ic);
+          default: fail(""+ic);
+        }
+      } catch (AssertionError e) {
+        onAssertFail(e, s, r, ic);
       }
       if (laps > MINLAPSPERCASE * 1000)
         fail("Did not find enough intersection cases in a reasonable number" +
@@ -136,6 +140,10 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
             + "  Laps exceeded "+MINLAPSPERCASE * 1000);
     }
     System.out.println("Laps: "+laps + " CWIDbD: "+i_C+","+i_W+","+i_I+","+i_D+","+i_bboxD);
+  }
+
+  protected void onAssertFail(AssertionError e, S s, Rectangle r, SpatialRelation ic) {
+    throw e;
   }
 
   private Rectangle intersectRects(Rectangle r1, Rectangle r2) {

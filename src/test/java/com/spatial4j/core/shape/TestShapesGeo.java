@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -133,6 +133,11 @@ public class TestShapesGeo extends AbstractTestShapes {
 //      assertEquals(INTERSECTS,c.getBoundingBox().relate(r));
 //      assertEquals("dist != xy space",INTERSECTS,c.relate(r));//once failed here
 //    }
+
+    //These two are related to a circle being on-edge with another shape
+    //assertEquals("?", INTERSECTS, ctx.makeCircle(156, -70, 20).relate(ctx.makeRectangle(-62, -52, -90, -90)));
+    //Pt(x=-52.24150368914137,y=-90.0)
+    //assertEquals("?", DISJOINT, ctx.makeCircle(156, -70, 20).relate(ctx.makePoint(-52, -90)));//pt.x != c.x
 
     assertEquals("edge rounding issue 2", INTERSECTS, ctx.makeCircle(84, -40, 136).relate(ctx.makeRectangle(-150,-80,34,84)));
 
