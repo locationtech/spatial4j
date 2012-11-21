@@ -17,7 +17,6 @@
 
 package com.spatial4j.core.shape;
 
-import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.TestLog;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.impl.Range;
@@ -29,11 +28,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+
 /** @author David Smiley - dsmiley@mitre.org */
-public class ShapeCollectionTest extends RandomizedTest {
+public class ShapeCollectionTest extends RandomizedShapeTest {
 
   @Rule
-  public final TestLog testLog = new TestLog();
+  public final TestLog testLog = TestLog.instance;
 
   @Test
   public void testBbox() {
@@ -43,16 +44,16 @@ public class ShapeCollectionTest extends RandomizedTest {
   }
 
   private void validateWorld(double r1MinX, double r1MaxX, double r2MinX, double r2MaxX) {
-    SpatialContext ctx = SpatialContext.GEO;
+    ctx = SpatialContext.GEO;
     Rectangle r1 = ctx.makeRectangle(r1MinX, r1MaxX, -10, 10);
     Rectangle r2 = ctx.makeRectangle(r2MinX, r2MaxX, -10, 10);
 
     ShapeCollection<Rectangle> s = new ShapeCollection<Rectangle>(Arrays.asList(r1,r2), ctx);
-    assertEquals(new Range.LongitudeRange(-180,180), new Range.LongitudeRange(s.getBoundingBox()));
+    assertEquals(Range.LongitudeRange.WORLD_180E180W, new Range.LongitudeRange(s.getBoundingBox()));
 
     //flip r1, r2 order
     s = new ShapeCollection<Rectangle>(Arrays.asList(r2,r1), ctx);
-    assertEquals(new Range.LongitudeRange(-180,180), new Range.LongitudeRange(s.getBoundingBox()));
+    assertEquals(Range.LongitudeRange.WORLD_180E180W, new Range.LongitudeRange(s.getBoundingBox()));
   }
 
   @Test
@@ -63,11 +64,11 @@ public class ShapeCollectionTest extends RandomizedTest {
 
   @Test
   public void testGeoRectIntersect() {
-    SpatialContext ctx = SpatialContext.GEO;
+    ctx = SpatialContext.GEO;
     new ShapeCollectionRectIntersectionTestHelper(ctx).testRelateWithRectangle();
   }
 
-  private static class ShapeCollectionRectIntersectionTestHelper extends RectIntersectionTestHelper<ShapeCollection> {
+  private class ShapeCollectionRectIntersectionTestHelper extends RectIntersectionTestHelper<ShapeCollection> {
 
     private ShapeCollectionRectIntersectionTestHelper(SpatialContext ctx) {
       super(ctx);
@@ -75,13 +76,25 @@ public class ShapeCollectionTest extends RandomizedTest {
 
     @Override
     protected ShapeCollection generateRandomShape(Point nearP) {
+      testLog.log("Break on nearP.toString(): {}", nearP);
       List<Rectangle> shapes = new ArrayList<Rectangle>();
       int count = randomIntBetween(1,4);
       for(int i = 0; i < count; i++) {
         //1st 2 are near nearP, the others are anywhere
         shapes.add(randomRectangle( i < 2 ? nearP : null));
       }
-      return new ShapeCollection<Rectangle>(shapes, ctx);
+      ShapeCollection shapeCollection = new ShapeCollection<Rectangle>(shapes, ctx);
+
+      //test shapeCollection.getBoundingBox();
+      Rectangle msBbox = shapeCollection.getBoundingBox();
+      if (shapes.size() == 1) {
+        assertEquals(shapes.get(0), msBbox.getBoundingBox());
+      } else {
+        for (Rectangle shape : shapes) {
+          assertRelation("bbox contains shape", CONTAINS, msBbox, shape);
+        }
+      }
+      return shapeCollection;
     }
 
     protected Point randomPointInEmptyShape(ShapeCollection shape) {

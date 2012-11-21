@@ -106,7 +106,9 @@ public class Range {
 
  public static class LongitudeRange extends Range {
 
-    public LongitudeRange(double min, double max) {
+   public static final LongitudeRange WORLD_180E180W = new LongitudeRange(-180, 180);
+
+   public LongitudeRange(double min, double max) {
       super(min, max);
     }
 
@@ -140,50 +142,44 @@ public class Range {
       return ctr;
     }
 
-    public double compareTo(double v) {
-      double ctr = getCenter();
-      double diff = ctr - v;
-      if (diff <= 180) {
-        if (diff >= -180)
-          return diff;
-        return diff + 360;
-      } else {
-        return diff - 360;
-      }
+    public double compareTo(LongitudeRange b) {
+      return diff(getCenter(), b.getCenter());
     }
 
-    @Override
-    public Range expandTo(Range other) {
-      return expandTo((LongitudeRange)other);
-    }
+   /** a - b (compareTo order).  < 0 if a < b */
+   private static double diff(double a, double b) {
+     double diff = a - b;
+     if (diff <= 180) {
+       if (diff >= -180)
+         return diff;
+       return diff + 360;
+     } else {
+       return diff - 360;
+     }
+   }
 
-    public LongitudeRange expandTo(LongitudeRange other) {
-      LongitudeRange a, b;//a is bigger
-      double width1 = getWidth();
-      double width2 = other.getWidth();
-      if (width1 >= width2) {
-        a = this;
-        b = other;
-      } else {
-        a = other;
-        b = this;
-      }
-      double bCtr = b.getCenter();
-      double diff = a.compareTo(bCtr);
-      if (diff == -180 || diff == 180) {//opposite sides of globe
-        if (width1 + width2 >= 360)
-          return new LongitudeRange(-180, 180);
-        return new LongitudeRange(b.min, a.max);//could have chosen flip side too
-      } else if (diff >= 0) {
-        if (a.contains(b.min))
-          return a;
-        return new LongitudeRange(b.min, a.max);
-      } else {
-        if (a.contains(b.max))
-          return a;
-        return new LongitudeRange(a.min, b.max);
-      }
-    }
-  }
+   @Override
+   public Range expandTo(Range other) {
+     return expandTo((LongitudeRange) other);
+   }
+
+   public LongitudeRange expandTo(LongitudeRange other) {
+     LongitudeRange a, b;// a.ctr <= b.ctr
+     if (this.compareTo(other) <= 0) {
+       a = this;
+       b = other;
+     } else {
+       a = other;
+       b = this;
+     }
+     LongitudeRange newMin = b.contains(a.min) ? b : a;//usually 'a'
+     LongitudeRange newMax = a.contains(b.max) ? a : b;//usually 'b'
+     if (newMin == newMax)
+       return newMin;
+     if (newMin == b && newMax == a)
+       return WORLD_180E180W;
+     return new LongitudeRange(newMin.min, newMax.max);
+   }
+ }
 }
 

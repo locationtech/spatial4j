@@ -33,13 +33,16 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
 
   protected static final double EPS = 10e-9;
 
-  protected final SpatialContext ctx;
+  protected SpatialContext ctx;//needs to be set ASAP
 
   /** Used to reduce the space of numbers to increase the likelihood that
    * random numbers become equivalent, and thus trigger different code paths.
    * Also makes some random shapes easier to manually examine.
    */
   protected final double DIVISIBLE = 2;// even coordinates; (not always used)
+
+  protected RandomizedShapeTest() {
+  }
 
   public RandomizedShapeTest(SpatialContext ctx) {
     this.ctx = ctx;
@@ -213,8 +216,8 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     if (nearP == null)
       nearP = randomPointIn(bounds);
 
-    Range xRange = randomRange(nearP.getX(), Range.xRange(bounds, ctx));
-    Range yRange = randomRange(nearP.getY(), Range.yRange(bounds, ctx));
+    Range xRange = randomRange(rarely() ? 0 : nearP.getX(), Range.xRange(bounds, ctx));
+    Range yRange = randomRange(rarely() ? 0 : nearP.getY(), Range.yRange(bounds, ctx));
 
     return makeNormRect(
         divisible(xRange.getMin()),

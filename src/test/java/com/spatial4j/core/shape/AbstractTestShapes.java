@@ -17,7 +17,6 @@
 
 package com.spatial4j.core.shape;
 
-import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.spatial4j.core.TestLog;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceCalculator;
@@ -26,9 +25,6 @@ import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
 
@@ -199,33 +195,6 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
     //test ctx.makeRect
     assertEquals(ctx.makeRectangle(1, 3, 2, 4),
         ctx.makeRectangle(ctx.makePoint(1, 2), ctx.makePoint(3, 4)));
-  }
-
-  @Test
-  @Repeat(iterations = 20)
-  public void testShapeCollection() {
-    assumeFalse(ctx.isGeo());//TODO not yet supported!
-
-    //come up with some random shapes
-    int NUM_SHAPES = randomIntBetween(1, 5);
-    List<Rectangle> shapes = new ArrayList<Rectangle>(NUM_SHAPES);
-    while (shapes.size() < NUM_SHAPES) {
-      shapes.add(randomRectangle(20));
-    }
-    ShapeCollection shapeCollection = new ShapeCollection(shapes,ctx);
-
-    //test shapeCollection.getBoundingBox();
-    Rectangle msBbox = shapeCollection.getBoundingBox();
-    if (shapes.size() == 1) {
-      assertEquals(shapes.get(0),msBbox.getBoundingBox());
-    } else {
-      for (Rectangle shape : shapes) {
-        assertRelation("bbox contains shape",CONTAINS, msBbox, shape);
-      }
-    }
-
-    //TODO test shapeCollection.relate()
-
   }
 
 }
