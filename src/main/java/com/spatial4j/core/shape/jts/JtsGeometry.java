@@ -19,11 +19,11 @@ package com.spatial4j.core.shape.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.shape.impl.Range;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.operation.union.UnaryUnionOp;
@@ -56,27 +56,16 @@ public class JtsGeometry implements Shape {
         unwrapDateline(geom);//potentially modifies geom
       //If given multiple overlapping polygons, fix it by union
       geom = unionGeometryCollection(geom);//returns same or new geom
-      Envelope unwrappedEnv = geom.getEnvelopeInternal();
 
       //Cuts an unwrapped geometry back into overlaid pages in the standard geo bounds.
       geom = cutUnwrappedGeomInto360(geom);//returns same or new geom
       assert geom.getEnvelopeInternal().getWidth() <= 360;
       assert ! geom.getClass().equals(GeometryCollection.class) : "GeometryCollection unsupported";//double check
 
-      //note: this bbox may be sub-optimal. If geom is a collection of things near the dateline on both sides then
-      // the bbox will needlessly span most or all of the globe longitudinally.
-      // TODO so consider using ShapeCollection's planned minimal geo bounding box algorithm once implemented.
-      double envWidth = unwrappedEnv.getWidth();
-      //adjust minX and maxX considering the dateline and world wrap
-      double minX, maxX;
-      if (envWidth >= 360) {
-        minX = -180;
-        maxX = 180;
-      } else {
-        minX = unwrappedEnv.getMinX();
-        maxX = DistanceUtils.normLonDEG(unwrappedEnv.getMinX() + envWidth);
-      }
-      bbox = new RectangleImpl(minX, maxX, unwrappedEnv.getMinY(), unwrappedEnv.getMaxY(), ctx);
+      //Compute bbox
+      Range r = computeGeoLonRange(geom);//smart logic
+      final Envelope env = geom.getEnvelopeInternal();//for minY & maxY (simple)
+      bbox = new RectangleImpl(r.getMin(), r.getMax(), env.getMinY(), env.getMaxY(), ctx);
     } else {//not geo
       Envelope env = geom.getEnvelopeInternal();
       bbox = new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY(), ctx);
@@ -91,6 +80,24 @@ public class JtsGeometry implements Shape {
     this.geom = geom;
 
     this.hasArea = !((geom instanceof Lineal) || (geom instanceof Puntal));
+  }
+
+  /** Given {@code geoms} which has already been checked for being in world
+   * bounds, return the minimal longitude range of the bounding box.
+   */
+  protected static Range computeGeoLonRange(Geometry geoms) {
+    // This is ShapeCollection's bbox algorithm
+    Range xRange = null;
+    for (int i = 0; i < geoms.getNumGeometries(); i++ ) {
+      Envelope env = geoms.getGeometryN(i).getEnvelopeInternal();
+      Range xRange2 = new Range.LongitudeRange(env.getMinX(), env.getMaxX());
+      if (xRange == null) {
+        xRange = xRange2;
+      } else {
+        xRange = xRange.expandTo(xRange2);
+      }
+    }
+    return xRange;
   }
 
   public static SpatialRelation intersectionMatrixToSpatialRelation(IntersectionMatrix matrix) {
