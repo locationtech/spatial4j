@@ -104,11 +104,11 @@ public class Range {
     return max3 - min3;
   }
 
- public static class LongitudeRange extends Range {
+  public static class LongitudeRange extends Range {
 
-   public static final LongitudeRange WORLD_180E180W = new LongitudeRange(-180, 180);
+    public static final LongitudeRange WORLD_180E180W = new LongitudeRange(-180, 180);
 
-   public LongitudeRange(double min, double max) {
+    public LongitudeRange(double min, double max) {
       super(min, max);
     }
 
@@ -146,40 +146,40 @@ public class Range {
       return diff(getCenter(), b.getCenter());
     }
 
-   /** a - b (compareTo order).  < 0 if a < b */
-   private static double diff(double a, double b) {
-     double diff = a - b;
-     if (diff <= 180) {
-       if (diff >= -180)
-         return diff;
-       return diff + 360;
-     } else {
-       return diff - 360;
-     }
-   }
+    /** a - b (compareTo order).  < 0 if a < b */
+    private static double diff(double a, double b) {
+      double diff = a - b;
+      if (diff <= 180) {
+        if (diff >= -180)
+          return diff;
+        return diff + 360;
+      } else {
+        return diff - 360;
+      }
+    }
 
-   @Override
-   public Range expandTo(Range other) {
-     return expandTo((LongitudeRange) other);
-   }
+    @Override
+    public Range expandTo(Range other) {
+      return expandTo((LongitudeRange) other);
+    }
 
-   public LongitudeRange expandTo(LongitudeRange other) {
-     LongitudeRange a, b;// a.ctr <= b.ctr
-     if (this.compareTo(other) <= 0) {
-       a = this;
-       b = other;
-     } else {
-       a = other;
-       b = this;
-     }
-     LongitudeRange newMin = b.contains(a.min) ? b : a;//usually 'a'
-     LongitudeRange newMax = a.contains(b.max) ? a : b;//usually 'b'
-     if (newMin == newMax)
-       return newMin;
-     if (newMin == b && newMax == a)
-       return WORLD_180E180W;
-     return new LongitudeRange(newMin.min, newMax.max);
-   }
- }
+    public LongitudeRange expandTo(LongitudeRange other) {
+      LongitudeRange a, b;// a.ctr <= b.ctr
+      if (this.compareTo(other) <= 0) {
+        a = this;
+        b = other;
+      } else {
+        a = other;
+        b = this;
+      }
+      LongitudeRange newMin = b.contains(a.min) ? b : a;//usually 'a'
+      LongitudeRange newMax = a.contains(b.max) ? a : b;//usually 'b'
+      if (newMin == newMax)
+        return newMin;
+      if (newMin == b && newMax == a)
+        return WORLD_180E180W;
+      return new LongitudeRange(newMin.min, newMax.max);
+    }
+  }
 }
 
