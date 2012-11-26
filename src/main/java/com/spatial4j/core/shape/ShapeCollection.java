@@ -53,21 +53,21 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
 
   protected Rectangle computeBoundingBox(Collection<? extends Shape> shapes, SpatialContext ctx) {
     Range xRange = null;
-    Range yRange = null;
+    double minY = Double.POSITIVE_INFINITY;
+    double maxY = Double.NEGATIVE_INFINITY;
     for (Shape geom : shapes) {
       Rectangle r = geom.getBoundingBox();
 
       Range xRange2 = Range.xRange(r, ctx);
-      Range yRange2 = Range.yRange(r, ctx);
       if (xRange == null) {
         xRange = xRange2;
-        yRange = yRange2;
       } else {
         xRange = xRange.expandTo(xRange2);
-        yRange = yRange.expandTo(yRange2);
       }
+      minY = Math.min(minY, r.getMinY());
+      maxY = Math.max(maxY, r.getMaxY());
     }
-    return ctx.makeRectangle(xRange.getMin(), xRange.getMax(), yRange.getMin(), yRange.getMax());
+    return ctx.makeRectangle(xRange.getMin(), xRange.getMax(), minY, maxY);
   }
 
   public List<S> getShapes() {

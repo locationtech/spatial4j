@@ -63,12 +63,10 @@ public class JtsGeometry implements Shape {
       assert ! geom.getClass().equals(GeometryCollection.class) : "GeometryCollection unsupported";//double check
 
       //Compute bbox
-      Range r = computeGeoLonRange(geom);//smart logic
-      final Envelope env = geom.getEnvelopeInternal();//for minY & maxY (simple)
-      bbox = new RectangleImpl(r.getMin(), r.getMax(), env.getMinY(), env.getMaxY(), ctx);
+      bbox = computeGeoBBox(geom);
     } else {//not geo
       Envelope env = geom.getEnvelopeInternal();
-      bbox = new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY(), ctx);
+      bbox = new RectangleImpl(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY(), ctx);
     }
     geom.getEnvelopeInternal();//ensure envelope is cached internally, which is lazy evaluated. Keeps this thread-safe.
 
@@ -85,19 +83,26 @@ public class JtsGeometry implements Shape {
   /** Given {@code geoms} which has already been checked for being in world
    * bounds, return the minimal longitude range of the bounding box.
    */
-  protected static Range computeGeoLonRange(Geometry geoms) {
-    // This is ShapeCollection's bbox algorithm
-    Range xRange = null;
-    for (int i = 0; i < geoms.getNumGeometries(); i++ ) {
-      Envelope env = geoms.getGeometryN(i).getEnvelopeInternal();
-      Range xRange2 = new Range.LongitudeRange(env.getMinX(), env.getMaxX());
-      if (xRange == null) {
-        xRange = xRange2;
-      } else {
-        xRange = xRange.expandTo(xRange2);
+  protected Rectangle computeGeoBBox(Geometry geoms) {
+    final Envelope env = geoms.getEnvelopeInternal();//for minY & maxY (simple)
+    if (env.getWidth() > 180 && geoms.getNumGeometries() > 1)  {
+      // This is ShapeCollection's bbox algorithm
+      Range xRange = null;
+      for (int i = 0; i < geoms.getNumGeometries(); i++ ) {
+        Envelope envI = geoms.getGeometryN(i).getEnvelopeInternal();
+        Range xRange2 = new Range.LongitudeRange(envI.getMinX(), envI.getMaxX());
+        if (xRange == null) {
+          xRange = xRange2;
+        } else {
+          xRange = xRange.expandTo(xRange2);
+        }
+        if (xRange == Range.LongitudeRange.WORLD_180E180W)
+          break; // can't grow any bigger
       }
+      return new RectangleImpl(xRange.getMin(), xRange.getMax(), env.getMinY(), env.getMaxY(), ctx);
+    } else {
+      return new RectangleImpl(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY(), ctx);
     }
-    return xRange;
   }
 
   public static SpatialRelation intersectionMatrixToSpatialRelation(IntersectionMatrix matrix) {
