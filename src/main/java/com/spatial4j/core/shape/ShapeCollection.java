@@ -28,10 +28,14 @@ import java.util.RandomAccess;
 import static com.spatial4j.core.shape.SpatialRelation.*;
 
 /**
- * A collection of Shape objects.  Analogous to an OGC GeometryCollection.
- *
- * A random-access List (e.g. ArrayList) is used because the ordering is sometimes
- * pertinent.
+ * A collection of Shape objects, analogous to an OGC GeometryCollection. The
+ * implementation demands a List (with random access) so that the order can be
+ * retained if an application requires it, although logically it's treated as an
+ * unordered Set.  Consequently, {@link #relate(Shape)} should return the same
+ * result no matter what the shape order is. There is no restriction on whether
+ * the shapes overlap each other at all. As the Shape contract states; it may
+ * return intersects when the best answer is actually contains or within. If
+ * any shape intersects the provided shape then that is the answer.
  */
 public class ShapeCollection<S extends Shape> extends AbstractList<S> implements Shape {
   protected final List<S> shapes;
@@ -110,26 +114,44 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
     if (bboxSect == SpatialRelation.DISJOINT || bboxSect == SpatialRelation.WITHIN)
       return bboxSect;
 
+    // You can think of this algorithm as a state transition / automata.
+    // 1. The answer must be the same no matter what the order is.
+    // 2. If any INTERSECTS, then the result is INTERSECTS (done).
+    // 3. A DISJOINT + WITHIN == INTERSECTS (done).
+    // 4. A DISJOINT + CONTAINS == CONTAINS.
+    // 5. A CONTAINS + WITHIN == INTERSECTS (done). (weird scenario)
+    // 6. X + X == X.
+
+    //note: if we knew all shapes were mutually disjoint, then a CONTAINS would
+    // poison the loop just like INTERSECTS does.
+
     SpatialRelation accumulateSect = null;//CONTAINS, WITHIN, or DISJOINT
     for (Shape shape : shapes) {
       SpatialRelation sect = shape.relate(other);
+
       if (sect == INTERSECTS)
-        return sect;//intersect poisons the loop
+        return INTERSECTS;//intersect poisons the loop
+
       if (accumulateSect == null) {//first pass
         accumulateSect = sect;
+
       } else if (accumulateSect == DISJOINT) {
         if (sect == WITHIN)
           return INTERSECTS;
         if (sect == CONTAINS)
           accumulateSect = CONTAINS;//transition to CONTAINS
+
       } else if (accumulateSect == WITHIN) {
         if (sect == DISJOINT)
           return INTERSECTS;
-        if (sect == CONTAINS)//unusual but maybe in equality case
+        if (sect == CONTAINS)
           return INTERSECTS;//behave same way as contains then within
+
       } else { assert accumulateSect == CONTAINS;
         if (sect == WITHIN)
           return INTERSECTS;
+        //sect == DISJOINT, keep accumulateSect as CONTAINS
+
       }
     }
     return accumulateSect;
