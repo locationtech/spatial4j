@@ -47,18 +47,27 @@ public enum SpatialRelation {
     }
   }
 
-//  /**
-//   * If you were to call aShape.relate(bShape) and aShape.relate(cShape), you
-//   * could call this to merge the intersect results as if bShape & cShape were
-//   * combined into {@link ShapeCollection}.
-//   */
-//  SpatialRelation combine(SpatialRelation other) {
-//    if (this == other)
-//      return this;
-//    if (this == WITHIN || other == WITHIN)
-//      return WITHIN;
-//    return INTERSECTS;
-//  }
+  /**
+   * If you were to call aShape.relate(bShape) and aShape.relate(cShape), you
+   * could call this to merge the intersect results as if bShape & cShape were
+   * combined into {@link ShapeCollection}.
+   */
+  public SpatialRelation combine(SpatialRelation other) {
+    // You can think of this algorithm as a state transition / automata.
+    // 1. The answer must be the same no matter what the order is.
+    // 2. If any INTERSECTS, then the result is INTERSECTS (done).
+    // 3. A DISJOINT + WITHIN == INTERSECTS (done).
+    // 4. A DISJOINT + CONTAINS == CONTAINS.
+    // 5. A CONTAINS + WITHIN == INTERSECTS (done). (weird scenario)
+    // 6. X + X == X.
+
+    if (other == this)
+      return this;
+    if (this == DISJOINT && other == CONTAINS
+        || this == CONTAINS && other == DISJOINT)
+      return CONTAINS;
+    return INTERSECTS;
+  }
 
   /** Not DISJOINT, i.e. there is some sort of intersection. */
   public boolean intersects() {
@@ -82,4 +91,5 @@ public enum SpatialRelation {
     }
     return INTERSECTS;
   }
+
 }

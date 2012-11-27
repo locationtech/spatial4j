@@ -25,7 +25,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.RandomAccess;
 
-import static com.spatial4j.core.shape.SpatialRelation.*;
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 
 /**
  * A collection of Shape objects, analogous to an OGC GeometryCollection. The
@@ -38,6 +39,10 @@ import static com.spatial4j.core.shape.SpatialRelation.*;
  * any shape intersects the provided shape then that is the answer.
  */
 public class ShapeCollection<S extends Shape> extends AbstractList<S> implements Shape {
+
+  //TODO add option to detect that all shapes are mutually disjoint. If that is
+  // the case then relate() can return immediately if it finds a CONTAINS.
+
   protected final List<S> shapes;
   protected final Rectangle bbox;
 
@@ -114,47 +119,25 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
     if (bboxSect == SpatialRelation.DISJOINT || bboxSect == SpatialRelation.WITHIN)
       return bboxSect;
 
-    // You can think of this algorithm as a state transition / automata.
-    // 1. The answer must be the same no matter what the order is.
-    // 2. If any INTERSECTS, then the result is INTERSECTS (done).
-    // 3. A DISJOINT + WITHIN == INTERSECTS (done).
-    // 4. A DISJOINT + CONTAINS == CONTAINS.
-    // 5. A CONTAINS + WITHIN == INTERSECTS (done). (weird scenario)
-    // 6. X + X == X.
-
-    //note: if we knew all shapes were mutually disjoint, then a CONTAINS would
-    // poison the loop just like INTERSECTS does.
-
-    SpatialRelation accumulateSect = null;//CONTAINS, WITHIN, or DISJOINT
+    SpatialRelation sect = null;//CONTAINS, WITHIN, or DISJOINT
     for (Shape shape : shapes) {
-      SpatialRelation sect = shape.relate(other);
+      SpatialRelation nextSect = shape.relate(other);
+
+      if (sect == null) {//first pass
+        sect = nextSect;
+      } else {
+        sect = sect.combine(nextSect);
+      }
 
       if (sect == INTERSECTS)
-        return INTERSECTS;//intersect poisons the loop
-
-      if (accumulateSect == null) {//first pass
-        accumulateSect = sect;
-
-      } else if (accumulateSect == DISJOINT) {
-        if (sect == WITHIN)
-          return INTERSECTS;
-        if (sect == CONTAINS)
-          accumulateSect = CONTAINS;//transition to CONTAINS
-
-      } else if (accumulateSect == WITHIN) {
-        if (sect == DISJOINT)
-          return INTERSECTS;
-        if (sect == CONTAINS)
-          return INTERSECTS;//behave same way as contains then within
-
-      } else { assert accumulateSect == CONTAINS;
-        if (sect == WITHIN)
-          return INTERSECTS;
-        //sect == DISJOINT, keep accumulateSect as CONTAINS
-
+        return INTERSECTS;
+      if (sect == CONTAINS) {
+        if (other instanceof Point)
+          return CONTAINS;
+        //TODO if mutually disjoint (cached in a bool flag), return CONTAINS
       }
     }
-    return accumulateSect;
+    return sect;
   }
 
   @Override
@@ -180,7 +163,7 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
         buf.append(", ");
       buf.append(shape);
       if (buf.length() > 150) {
-        buf.append(" ... ");
+        buf.append(" ...").append(shapes.size());
         break;
       }
     }
