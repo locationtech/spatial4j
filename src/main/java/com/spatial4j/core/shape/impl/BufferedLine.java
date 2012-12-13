@@ -18,6 +18,7 @@
 package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
@@ -136,6 +137,25 @@ public class BufferedLine implements Shape {
         Math.min(bounds.getMaxX(), maxX),
         Math.max(bounds.getMinY(), minY),
         Math.min(bounds.getMaxY(), maxY));
+  }
+
+  /**
+   * Calls {@link DistanceUtils#calcLonDegreesAtLat(double,
+   * double)} given pA or pB's latitude; whichever is farthest. It's useful to
+   * expand a buffer of a line segment when used in a geospatial context to
+   * cover the desired area.
+   */
+  public static double expandBufForLongitudeSkew(Point pA, Point pB,
+                                                 double buf) {
+    double absA = Math.abs(pA.getY());
+    double absB = Math.abs(pB.getY());
+    double maxLat = Math.max(absA, absB);
+    double newBuf = DistanceUtils.calcLonDegreesAtLat(maxLat, buf);
+//    if (newBuf + maxLat >= 90) {
+//      //TODO substitute spherical cap ?
+//    }
+    assert newBuf >= buf;
+    return newBuf;
   }
 
   @Override

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -303,6 +303,46 @@ public class DistanceUtils {
     if (lat < 0)
       return -90;
     return lat;
+  }
+
+  /**
+   * Calculates the degrees longitude distance at latitude {@code lat} to cover
+   * a distance {@code dist}.
+   * <p/>
+   * Used to calculate a new expanded buffer distance to account for skewing
+   * effects for shapes that use the lat-lon space as a 2D plane instead of a
+   * sphere.  The expanded buffer will be sure to cover the intended area, but
+   * the shape is still skewed and so it will cover a larger area.  For latitude
+   * 0 (the equator) the result is the same buffer.  At 60 (or -60) degrees, the
+   * result is twice the buffer, meaning that a shape at 60 degrees is twice as
+   * high as it is wide when projected onto a lat-lon plane even if in the real
+   * world it's equal all around.
+   * <p/>
+   * If the result added to abs({@code lat}) is >= 90 degrees, then skewing is
+   * so severe that the caller should consider tossing the shape and
+   * substituting a spherical cap instead.
+   *
+   * @param lat  latitude in degrees
+   * @param dist distance in degrees
+   * @return longitudinal degrees (x delta) at input latitude that is >= dist
+   *         distance. Will be >= dist and <= 90.
+   */
+  public static double calcLonDegreesAtLat(double lat, double dist) {
+    //This code was pulled out of DistanceUtils.pointOnBearingRAD() and
+    // optimized
+    // for bearing = 90 degrees, and so we can get an intermediate calculation.
+    double distanceRAD = DistanceUtils.toRadians(dist);
+    double startLat = DistanceUtils.toRadians(lat);
+
+    double cosAngDist = Math.cos(distanceRAD);
+    double cosStartLat = Math.cos(startLat);
+    double sinAngDist = Math.sin(distanceRAD);
+    double sinStartLat = Math.sin(startLat);
+
+    double lonDelta = Math.atan2(sinAngDist * cosStartLat,
+        cosAngDist * (1 - sinStartLat * sinStartLat));
+
+    return DistanceUtils.toDegrees(lonDelta);
   }
 
   /**
