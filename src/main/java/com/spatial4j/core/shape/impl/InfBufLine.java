@@ -84,8 +84,8 @@ public class InfBufLine {
     return (distanceUnbuffered(p) <= buf);
   }
 
-  /** AKA lineToPointDistance */
-  double distanceUnbuffered(Point c) {
+  /** INTERNAL AKA lineToPointDistance */
+  public double distanceUnbuffered(Point c) {
     if (Double.isInfinite(slope))
       return Math.abs(c.getX() - intercept);
     // http://math.ucsd.edu/~wgarner/math4c/derivations/distance/distptline.htm
@@ -106,8 +106,8 @@ public class InfBufLine {
 //    return Math.sqrt(buf*buf + slopeDivBuf*slopeDivBuf);
 //  }
 
-  /** AKA lineToPointQuadrant */
-  int quadrant(Point c) {
+  /** INTERNAL: AKA lineToPointQuadrant */
+  public int quadrant(Point c) {
     //check vertical line case 1st
     if (Double.isInfinite(slope)) {
       //when slope is infinite, intercept is x intercept instead of y
