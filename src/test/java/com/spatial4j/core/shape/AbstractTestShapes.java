@@ -171,8 +171,16 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
       protected void onAssertFail(AssertionError e, Circle s, Rectangle r, SpatialRelation ic) {
         //Check if the circle's edge appears to coincide with the shape.
         final double radius = s.getRadius();
-        if (radius == 0 || radius == 180)
-          throw e;//if this ever happens, then consider something smarter
+        if (radius == 180)
+          throw e;//if this happens, then probably a bug
+        if (radius == 0) {
+          Point p = s.getCenter();
+          //if touches a side then don't throw
+          if (p.getX() == r.getMinX() || p.getX() == r.getMaxX()
+            || p.getY() == r.getMinY() || p.getY() == r.getMaxY())
+            return;
+          throw e;
+        }
         final double eps = 0.0000001;
         s.reset(s.getCenter().getX(), s.getCenter().getY(), radius - eps);
         SpatialRelation rel1 = s.relate(r);

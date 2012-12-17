@@ -139,6 +139,11 @@ public class TestShapesGeo extends AbstractTestShapes {
     //Pt(x=-52.24150368914137,y=-90.0)
     //assertEquals("?", DISJOINT, ctx.makeCircle(156, -70, 20).relate(ctx.makePoint(-52, -90)));//pt.x != c.x
 
+    //What is the "correct" result?  Add a DistUtils edge condition check to return a nibble
+    // when dist 0 and points not the same?  No; we cancel the assertion failure
+    // if the circle touches the rect edge in onAssertFail() instead.
+    //assertEquals("0 radius at pole", DISJOINT, ctx.makeCircle(-98, 90, 0).relate(ctx.makePoint(-144,90)));
+
     assertEquals("edge rounding issue 2", INTERSECTS, ctx.makeCircle(84, -40, 136).relate(ctx.makeRectangle(-150,-80,34,84)));
 
     assertEquals("edge rounding issue", CONTAINS, ctx.makeCircle(0, 66, 156).relate(ctx.makePoint(0, -90)));
