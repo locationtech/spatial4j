@@ -39,9 +39,9 @@ import java.util.Locale;
  */
 public class WKTShapeParser {
 
-  private String rawString;
-  private int offset;
-  private JtsSpatialContext ctx;
+  protected String rawString;// lower-cased
+  protected int offset;
+  protected JtsSpatialContext ctx;
 
   public WKTShapeParser(JtsSpatialContext ctx) {
     this.ctx = ctx;
@@ -53,23 +53,38 @@ public class WKTShapeParser {
    * @return Shape defined in the String
    * @throws ParseException Thrown if there is an error in the Shape definition
    */
-  public Shape parse(String wktString) throws ParseException {
-    this.rawString = wktString.toLowerCase(Locale.ENGLISH).trim();
-    if (rawString.startsWith("point")) {
-      offset = 5;
+  public Shape parse(String wktString)  throws ParseException {
+    Shape shape = parseIfSupported(wktString);
+    if (shape != null)
+      return shape;
+    throw new ParseException("Unknown Shape definition [" + rawString + "]", offset);
+  }
+
+  public Shape parseIfSupported(String wktString) throws ParseException {
+    wktString = wktString.trim();
+    if (wktString.length() == 0 || !Character.isLetter(wktString.charAt(0)))
+      return null;
+    this.rawString = wktString.toLowerCase(Locale.ROOT);
+    this.offset = 0;
+    String shapeType = nextWord();
+    Shape shape = parseExtendedShape(shapeType);
+    if (shape != null)
+      return shape;
+    if (shapeType.equals("point")) {
       return parsePoint();
-    } else if (rawString.startsWith("polygon")) {
-      offset = 7;
+    } else if (shapeType.equals("polygon")) {
       return new JtsGeometry(polygon(), ctx, true);
-    } else if (rawString.startsWith("multipolygon")) {
-      offset = 12;
+    } else if (shapeType.equals("multipolygon")) {
       return parseMulitPolygon();
-    } else if (rawString.startsWith("envelope")) {
-      offset = 8;
+    } else if (shapeType.equals("envelope")) {
       return parseEnvelope();
     }
+    offset = 0;//reset
+    return null;
+  }
 
-    throw new ParseException("Unknown Shape definition [" + rawString + "]", offset);
+  protected Shape parseExtendedShape(String shapeType) throws ParseException {
+    return null;
   }
 
   /**
@@ -143,7 +158,7 @@ public class WKTShapeParser {
    * @return Envelope Shape parsed from the raw String
    * @throws ParseException Thrown if the raw String doesn't represent the Envelope correctly
    */
-  private Shape parseEnvelope() throws ParseException {
+  protected Shape parseEnvelope() throws ParseException {
     Coordinate[] coordinateSequence = coordinateSequence();
     return new RectangleImpl(coordinateSequence[0].x, coordinateSequence[1].x,
         coordinateSequence[1].y, coordinateSequence[0].y, ctx);
@@ -155,9 +170,9 @@ public class WKTShapeParser {
    * CoordinateSequenceList: '(' coordinateSequence (',' coordinateSequence )* ')'
    *
    * @return CoordinateSequenceList read from the current position
-   * @throws ParseException Thrown if reading the CoordinateSequenceList was unsucessful
+   * @throws ParseException Thrown if reading the CoordinateSequenceList was unsuccessful
    */
-  private List<Coordinate[]> coordinateSequenceList() throws ParseException {
+  protected List<Coordinate[]> coordinateSequenceList() throws ParseException {
     List<Coordinate[]> sequenceList = new ArrayList<Coordinate[]>();
 
     expect('(');
@@ -180,7 +195,7 @@ public class WKTShapeParser {
    * @return CoordinateSequence read from the current position
    * @throws ParseException Thrown if reading the CoordinateSequence is unsuccessful
    */
-  private Coordinate[] coordinateSequence() throws ParseException {
+  protected Coordinate[] coordinateSequence() throws ParseException {
     List<Coordinate> sequence = new ArrayList<Coordinate>();
 
     expect('(');
@@ -203,15 +218,25 @@ public class WKTShapeParser {
    * @return Coordinate read from the current position
    * @throws ParseException Thrown if reading the Coordinate is unsuccessful
    */
-  private Coordinate coordinate() throws ParseException {
+  protected Coordinate coordinate() throws ParseException {
     // TODO: We need to validate the first character in the numbers
-    char c = nextCharNoWS();
-    double x = number();
+    nextCharNoWS();
+    double x = parseDouble();
 
-    c = nextCharNoWS();
-    double y = number();
+    nextCharNoWS();
+    double y = parseDouble();
 
     return new Coordinate(x, y);
+  }
+
+  protected String nextWord() throws ParseException {
+    int startOffset = offset;
+    while (Character.isLetter(rawString.charAt(offset))) {
+      offset++;
+    }
+    if (startOffset == offset)
+      throw new ParseException("Word expected", startOffset);
+    return rawString.substring(startOffset, offset);
   }
 
   /**
@@ -220,9 +245,9 @@ public class WKTShapeParser {
    * a delimiter is encountered, a {@link ParseException} will be thrown.
    *
    * @return Double value
-   * @throws ParseException Thrown if the String is exhausted before the number is delimted
+   * @throws ParseException Thrown if the String is exhausted before the number is delimited
    */
-  private double number() throws ParseException {
+  protected double parseDouble() throws ParseException {
     int startOffset = offset;
     try {
       for (char c = rawString.charAt(offset); offset < rawString.length(); c = rawString.charAt(++offset)) {
@@ -245,7 +270,7 @@ public class WKTShapeParser {
    * @throws ParseException Thrown if the next non-whitespace character is not
    *         the expected value
    */
-  private void expect(char expected) throws ParseException {
+  protected void expect(char expected) throws ParseException {
     char c = nextCharNoWS();
     if (c != expected) {
       throw new ParseException("Expected [" + expected + "] found [" + c + "]", offset);
@@ -260,7 +285,7 @@ public class WKTShapeParser {
    * @throws ParseException Thrown if we reach the end of the String before reaching
    *         a non-whitespace character
    */
-  private char nextCharNoWS() throws ParseException {
+  protected char nextCharNoWS() throws ParseException {
     while (offset < rawString.length()) {
       if (!Character.isWhitespace(rawString.charAt(offset))) {
         return rawString.charAt(offset);
