@@ -83,11 +83,15 @@ public class WKTShapeParser {
   }
 
   /**
-   * Called by {@link #parseIfSupported(String)} after it
-   * calls {@link #nextWord()}, passing it as the {@code shapeType}. The default
-   * implementation checks this against some predefined names and calls
-   * corresponding parse methods to handle the rest. This method is an excellent
-   * extension point for additional shape types.
+   * Parses the remainder of a shape definition following the shape's name
+   * given as {@code shapeType} already consumed via
+   * {@link #nextWord()}. If
+   * it's able to parse the shape, {@link #offset} should be advanced beyond
+   * it (e.g. to the ',' or ')' or EOF in general). The default implementation
+   * checks the name against some predefined names and calls corresponding
+   * parse methods to handle the rest. This method is an excellent extension
+   * point for additional shape types.
+   *
    * @param shapeType Non-Null string
    * @return The shape or null if not supported / unknown.
    * @throws ParseException
@@ -95,7 +99,8 @@ public class WKTShapeParser {
   protected Shape parseShapeByType(String shapeType) throws ParseException {
     if (shapeType.equals("point")) {
       return parsePoint();
-    } if (shapeType.equals("envelope")) {
+    }
+    if (shapeType.equals("envelope")) {
       return parseEnvelope();
     }
     return null;
@@ -246,5 +251,46 @@ public class WKTShapeParser {
     }
 
     throw new ParseException("EOF reached while expecting a non-whitespace character", offset);
+  }
+
+  /**
+   * Returns the next chunk of text till the next ',' or ')' (non-inclusive)
+   * or EOF. If a '(' is encountered, then it looks past its matching ')',
+   * taking care to handle nested matching parenthesis too. It's designed to be
+   * of use to subclasses that wish to get the entire subshape at the current
+   * position as a string so that it might be passed to other software that
+   * will parse it.
+   * <p/>
+   * Example:
+   * <pre>
+   *   OUTER(INNER(3, 5))
+   * </pre>
+   * If this is called when offset is at the first character, then it will
+   * return this whole string.  If called at the "I" then it will return
+   * "INNER(3, 5)".  If called at "3", then it will return "3".  In all cases,
+   * offset will be positioned at the next position following the returned
+   * substring.
+   *
+   * @return non-null substring.
+   */
+  protected String nextSubShapeString() throws ParseException {
+    int startOffset = offset;
+    int parenStack = 0;//how many parenthesis levels are we in?
+    for (; offset < rawString.length(); offset++) {
+      char c = rawString.charAt(offset);
+      if (c == ',') {
+        if (parenStack == 0)
+          break;
+      } else if (c == ')') {
+        if (parenStack == 0)
+          break;
+        parenStack--;
+      } else if (c == '(') {
+        parenStack++;
+      }
+    }
+    if (parenStack != 0)
+      throw new ParseException("Unbalanced parenthesis", startOffset);
+    return  rawString.substring(startOffset, offset);
   }
 }
