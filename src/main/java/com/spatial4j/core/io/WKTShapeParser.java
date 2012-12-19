@@ -18,14 +18,10 @@
 package com.spatial4j.core.io;
 
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
-import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -45,10 +41,14 @@ public class WKTShapeParser {
   /** Offset of the next char in {@link #rawString} to be read. */
   protected int offset;
 
-  protected JtsSpatialContext ctx;
+  protected SpatialContext ctx;
 
-  public WKTShapeParser(JtsSpatialContext ctx) {
+  public WKTShapeParser(SpatialContext ctx) {
     this.ctx = ctx;
+  }
+
+  public SpatialContext getCtx() {
+    return ctx;
   }
 
   /**
@@ -95,18 +95,14 @@ public class WKTShapeParser {
   protected Shape parseShapeByType(String shapeType) throws ParseException {
     if (shapeType.equals("point")) {
       return parsePoint();
-    } else if (shapeType.equals("polygon")) {
-      return parsePolygon();
-    } else if (shapeType.equals("multipolygon")) {
-      return parseMulitPolygon();
-    } else if (shapeType.equals("envelope")) {
+    } if (shapeType.equals("envelope")) {
       return parseEnvelope();
     }
     return null;
   }
 
   /**
-   * Parses a Point Shape from the raw String
+   * Parses a Point Shape from the raw String.
    *
    * Point: 'POINT' '(' coordinate ')'
    *
@@ -115,65 +111,13 @@ public class WKTShapeParser {
    */
   private Shape parsePoint() throws ParseException {
     expect('(');
-    Coordinate coordinate = coordinate();
+    Point coordinate = point();
     expect(')');
-    return new PointImpl(coordinate.x, coordinate.y, ctx);
-  }
-
-  protected JtsGeometry parsePolygon() throws ParseException {
-    return new JtsGeometry(polygon(), ctx, true);
+    return coordinate;
   }
 
   /**
-   * Parses a Polygon Shape from the raw String
-   *
-   * Polygon: 'POLYGON' coordinateSequenceList
-   *
-   * @return Polygon Shape parsed from the raw String
-   * @throws ParseException Thrown if the raw String doesn't represent the Polygon correctly
-   */
-  private Polygon polygon() throws ParseException {
-    List<Coordinate[]> coordinateSequenceList = coordinateSequenceList();
-
-    LinearRing shell = ctx.getGeometryFactory().createLinearRing(coordinateSequenceList.get(0));
-
-    LinearRing[] holes = null;
-    if (coordinateSequenceList.size() > 1) {
-      holes = new LinearRing[coordinateSequenceList.size() - 1];
-      for (int i = 1; i < coordinateSequenceList.size(); i++) {
-        holes[i - 1] = ctx.getGeometryFactory().createLinearRing(coordinateSequenceList.get(i));
-      }
-    }
-    return ctx.getGeometryFactory().createPolygon(shell, holes);
-  }
-
-  /**
-   * Parses a MultiPolygon Shape from the raw String
-   *
-   * MultiPolygon: 'MULTIPOLYGON' '(' coordinateSequenceList (',' coordinateSequenceList )* ')'
-   *
-   * @return MultiPolygon Shape parsed from the raw String
-   * @throws ParseException Thrown if the raw String doesn't represent the MultiPolygon correctly
-   */
-  private Shape parseMulitPolygon() throws ParseException {
-    List<Polygon> polygons = new ArrayList<Polygon>();
-
-    expect('(');
-    polygons.add(polygon());
-
-    while (nextCharNoWS() == ',') {
-      offset++;
-      polygons.add(polygon());
-    }
-
-    expect(')');
-    return new JtsGeometry(
-        ctx.getGeometryFactory().createMultiPolygon(polygons.toArray(new Polygon[polygons.size()])),
-        ctx, true);
-  }
-
-  /**
-   * Parses an Envelope Shape from the raw String
+   * Parses an Envelope Shape from the raw String.
    *
    * Envelope: 'ENVELOPE' coordinateSequence
    *
@@ -181,66 +125,42 @@ public class WKTShapeParser {
    * @throws ParseException Thrown if the raw String doesn't represent the Envelope correctly
    */
   protected Shape parseEnvelope() throws ParseException {
-    Coordinate[] coordinateSequence = coordinateSequence();
-    return new RectangleImpl(coordinateSequence[0].x, coordinateSequence[1].x,
-        coordinateSequence[1].y, coordinateSequence[0].y, ctx);
+    List<Point> pointList = pointList();
+    return new RectangleImpl(pointList.get(0), pointList.get(1), ctx);
   }
 
   /**
-   * Reads a CoordinateSequenceList from the current position
-   *
-   * CoordinateSequenceList: '(' coordinateSequence (',' coordinateSequence )* ')'
-   *
-   * @return CoordinateSequenceList read from the current position
-   * @throws ParseException Thrown if reading the CoordinateSequenceList was unsuccessful
-   */
-  protected List<Coordinate[]> coordinateSequenceList() throws ParseException {
-    List<Coordinate[]> sequenceList = new ArrayList<Coordinate[]>();
-
-    expect('(');
-    sequenceList.add(coordinateSequence());
-
-    while (nextCharNoWS() == ',') {
-      offset++;
-      sequenceList.add(coordinateSequence());
-    }
-
-    expect(')');
-    return sequenceList;
-  }
-
-  /**
-   * Reads a CoordinateSequence from the current position
+   * Reads a list of Points (AKA CoordinateSequence) from the current position.
    *
    * CoordinateSequence: '(' coordinate (',' coordinate )* ')'
    *
-   * @return CoordinateSequence read from the current position
-   * @throws ParseException Thrown if reading the CoordinateSequence is unsuccessful
+   * @return Points read from the current position. Non-null, non-empty.
+   * @throws java.text.ParseException Thrown if reading the CoordinateSequence is unsuccessful
    */
-  protected Coordinate[] coordinateSequence() throws ParseException {
-    List<Coordinate> sequence = new ArrayList<Coordinate>();
+  protected List<Point> pointList() throws ParseException {
+    List<Point> sequence = new ArrayList<Point>();
 
     expect('(');
-    sequence.add(coordinate());
+    sequence.add(point());
 
     while (nextCharNoWS() == ',') {
       offset++;
-      sequence.add(coordinate());
+      sequence.add(point());
     }
 
     expect(')');
-    return sequence.toArray(new Coordinate[sequence.size()]);
+    return sequence;
   }
 
   /**
-   * Reads a {@link Coordinate} from the current position.
+   * Reads a Point (AKA Coordinate) from the current position.
    *
    * Coordinate: number number
    *
-   * @return Coordinate read from the current position
-   * @throws ParseException Thrown if reading the Coordinate is unsuccessful
+   * @return The point read from the current position.
+   * @throws java.text.ParseException Thrown if reading the Coordinate is unsuccessful
    */
-  protected Coordinate coordinate() throws ParseException {
+  protected Point point() throws ParseException {
     // TODO: We need to validate the first character in the numbers
     nextCharNoWS();
     double x = parseDouble();
@@ -248,12 +168,20 @@ public class WKTShapeParser {
     nextCharNoWS();
     double y = parseDouble();
 
-    return new Coordinate(x, y);
+    return ctx.makePoint(x, y);
   }
 
+  /**
+   * Reads the word starting at the current character position. The word
+   * terminates once {@link Character#isLetter(char)} returns false.
+   *
+   * @return Non-null non-empty String.
+   * @throws ParseException if the word would otherwise be empty.
+   */
   protected String nextWord() throws ParseException {
     int startOffset = offset;
-    while (Character.isLetter(rawString.charAt(offset))) {
+    while (offset < rawString.length() && Character.isLetter(rawString.charAt
+        (offset))) {
       offset++;
     }
     if (startOffset == offset)
@@ -301,7 +229,9 @@ public class WKTShapeParser {
   }
 
   /**
-   * Returns the new character in the String which isn't whitespace
+   * Returns the new character in the String which isn't whitespace. Does not
+   * consume that character. This method is useful to position {@link #offset}
+   * at the next non-whitespace.
    *
    * @return Next non-whitespace character
    * @throws ParseException Thrown if we reach the end of the String before reaching
