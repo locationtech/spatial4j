@@ -33,14 +33,18 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Parser for WKT (http://en.wikipedia.org/wiki/Well-known_text).
- *
+ * An extensible parser for <a href="http://en.wikipedia.org/wiki/Well-known_text">
+ *   Well Known Text (WKT)</a>.
+ * <p />
  * Note, instances are not threadsafe but are reusable.
  */
 public class WKTShapeParser {
 
-  protected String rawString;// lower-cased
+  /** Lower-cased and trim()'ed; set in {@link #parseIfSupported(String)}. */
+  protected String rawString;
+  /** Offset of the next char in {@link #rawString} to be read. */
   protected int offset;
+
   protected JtsSpatialContext ctx;
 
   public WKTShapeParser(JtsSpatialContext ctx) {
@@ -48,9 +52,9 @@ public class WKTShapeParser {
   }
 
   /**
-   * Parses the rawString, returning the defined Shape
+   * Parses the wktString, returning the defined Shape.
    *
-   * @return Shape defined in the String
+   * @return Non-null Shape defined in the String
    * @throws ParseException Thrown if there is an error in the Shape definition
    */
   public Shape parse(String wktString)  throws ParseException {
@@ -60,6 +64,14 @@ public class WKTShapeParser {
     throw new ParseException("Unknown Shape definition [" + rawString + "]", offset);
   }
 
+  /**
+   * Parses the wktString, returning the defined Shape. If it can't because the
+   * shape name is unknown, then it returns null.
+   *
+   * @param wktString non-null
+   * @return Shape, null if unknown / unsupported type.
+   * @throws ParseException Thrown if there is an error in the Shape definition.
+   */
   public Shape parseIfSupported(String wktString) throws ParseException {
     wktString = wktString.trim();
     if (wktString.length() == 0 || !Character.isLetter(wktString.charAt(0)))
@@ -67,23 +79,29 @@ public class WKTShapeParser {
     this.rawString = wktString.toLowerCase(Locale.ROOT);
     this.offset = 0;
     String shapeType = nextWord();
-    Shape shape = parseExtendedShape(shapeType);
-    if (shape != null)
-      return shape;
+    return parseShapeByType(shapeType);
+  }
+
+  /**
+   * Called by {@link #parseIfSupported(String)} after it
+   * calls {@link #nextWord()}, passing it as the {@code shapeType}. The default
+   * implementation checks this against some predefined names and calls
+   * corresponding parse methods to handle the rest. This method is an excellent
+   * extension point for additional shape types.
+   * @param shapeType Non-Null string
+   * @return The shape or null if not supported / unknown.
+   * @throws ParseException
+   */
+  protected Shape parseShapeByType(String shapeType) throws ParseException {
     if (shapeType.equals("point")) {
       return parsePoint();
     } else if (shapeType.equals("polygon")) {
-      return new JtsGeometry(polygon(), ctx, true);
+      return parsePolygon();
     } else if (shapeType.equals("multipolygon")) {
       return parseMulitPolygon();
     } else if (shapeType.equals("envelope")) {
       return parseEnvelope();
     }
-    offset = 0;//reset
-    return null;
-  }
-
-  protected Shape parseExtendedShape(String shapeType) throws ParseException {
     return null;
   }
 
@@ -100,6 +118,10 @@ public class WKTShapeParser {
     Coordinate coordinate = coordinate();
     expect(')');
     return new PointImpl(coordinate.x, coordinate.y, ctx);
+  }
+
+  protected JtsGeometry parsePolygon() throws ParseException {
+    return new JtsGeometry(polygon(), ctx, true);
   }
 
   /**
