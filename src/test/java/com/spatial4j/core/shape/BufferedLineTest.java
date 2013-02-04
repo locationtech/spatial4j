@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 
 public class BufferedLineTest extends RandomizedTest {
 
@@ -105,17 +106,17 @@ public class BufferedLineTest extends RandomizedTest {
     //compute closest corner brute force
     ArrayList<Point> corners = quadrantCorners(rect);
     // a collection instead of 1 value due to ties
-    Collection<Integer> farthestDistanceQuads = new ArrayList<Integer>();
+    Collection<Integer> farthestDistanceQuads = new LinkedList<Integer>();
     double farthestDistance = -1;
     int quad = 1;
     for (Point corner : corners) {
       double d = line.getLinePrimary().distanceUnbuffered(corner);
-      if (d > farthestDistance) {
+      if (Math.abs(d - farthestDistance) < 0.000001) {//about equal
+        farthestDistanceQuads.add(quad);
+      } else if (d > farthestDistance) {
         farthestDistanceQuads.clear();
         farthestDistanceQuads.add(quad);
         farthestDistance = d;
-      } else if (d == farthestDistance) {
-        farthestDistanceQuads.add(quad);
       }
       quad++;
     }
