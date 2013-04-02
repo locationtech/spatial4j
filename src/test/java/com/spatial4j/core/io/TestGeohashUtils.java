@@ -18,10 +18,12 @@
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for {@link GeohashUtils}
@@ -120,5 +122,45 @@ public class TestGeohashUtils {
     assertEquals(3, GeohashUtils.lookupHashLenForWidthHeight(11.1,999));
 
     assertEquals(GeohashUtils.MAX_PRECISION, GeohashUtils.lookupHashLenForWidthHeight(10e-20,10e-20));
+  }
+
+  @Test
+  public void testEncodeWithPrecision() {
+    // Precision 200m
+    double precision = 200 / (1000 * DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
+
+    Point guinea = ctx.makePoint(10.488, 1.607);
+    Point antarctica = ctx.makePoint(0, -90.0);
+    Point northpole = ctx.makePoint(0, 90);
+    Point us = ctx.makePoint(-160.027, -0.385);
+
+    String guineaHash = GeohashUtils.encodeLatLon(guinea.getY(), guinea.getX(), precision, GeohashUtils.MAX_PRECISION);
+    String antarcticaHash = GeohashUtils.encodeLatLon(antarctica.getY(), antarctica.getX(), precision, GeohashUtils.MAX_PRECISION);
+    String northHash = GeohashUtils.encodeLatLon(northpole.getY(), northpole.getX(), precision, GeohashUtils.MAX_PRECISION);
+    String usHash = GeohashUtils.encodeLatLon(us.getY(), us.getX(), precision, GeohashUtils.MAX_PRECISION);
+
+    assertTrue(guineaHash.length() > antarcticaHash.length());
+    assertTrue(guineaHash.length() == usHash.length());
+    assertTrue(northHash.length() == antarcticaHash.length());
+
+    double precisionInMeter = precision * DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM * 1000;
+    assertTrue(distance(guinea, GeohashUtils.decode(guineaHash, ctx)) <= precisionInMeter);
+    assertTrue(distance(us, GeohashUtils.decode(usHash, ctx)) <= precisionInMeter);
+    assertTrue(distance(antarctica, GeohashUtils.decode(antarcticaHash, ctx)) <= precisionInMeter);
+    assertTrue(distance(northpole, GeohashUtils.decode(northHash, ctx)) <= precisionInMeter);
+  }
+
+  private double distance(Point p1, Point p2) {
+    double[] latlon1 = pointToRadians(p1);
+    double[] latlon2 = pointToRadians(p2); 
+    return distance(latlon1, latlon2);
+  }
+
+  private double distance(double[] latlon1, double[] latlon2) {
+    return DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM * 1000 * DistanceUtils.distHaversineRAD(latlon1[0], latlon1[1], latlon2[0], latlon2[1]);
+  }
+
+  private double[] pointToRadians(Point p) {
+    return new double[] {DistanceUtils.toRadians(p.getY()), DistanceUtils.toRadians(p.getX())};
   }
 }

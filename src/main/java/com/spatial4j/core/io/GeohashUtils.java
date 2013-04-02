@@ -18,6 +18,7 @@
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 
@@ -52,27 +53,65 @@ public class GeohashUtils {
 
   /**
    * Encodes the given latitude and longitude into a geohash
+   * the precision is set to maxPrecision (0) and the default
+   * level is set to 12.
    *
    * @param latitude Latitude to encode
    * @param longitude Longitude to encode
    * @return Geohash encoding of the longitude and latitude
    */
   public static String encodeLatLon(double latitude, double longitude) {
-    return encodeLatLon(latitude, longitude, 12);
+    return encodeLatLon(latitude, longitude, 0d, 12);
   }
 
+  /**
+   * Encodes the given latitude and longitude into a geohash with the given length.
+   * The precision is given by the level. 
+   *
+   * @param latitude Latitude to encode
+   * @param longitude Longitude to encode
+   * @param level length of the generated hash code
+   * @return Geohash encoding of the longitude and latitude
+   */
   public static String encodeLatLon(double latitude, double longitude, int precision) {
-    double[] latInterval = {-90.0, 90.0};
-    double[] lngInterval = {-180.0, 180.0};
+    return encodeLatLon(latitude, longitude, 0d, precision);
+  }
 
-    final StringBuilder geohash = new StringBuilder(precision);
+  /**
+   * Encodes the given latitude and longitude to a geohash. The length of the geohash
+   * is limited by <code>maxLevels</code> and the <code>precision</code>. If the accuracy
+   * of a geohash cell is less than the given <code>precision</code> then the geohash will
+   * no longer be adjusted.
+   * 
+   * @param latitude latitude to encode
+   * @param longitude longitude to encode
+   * @param precision required precision in fractions of circumference  
+   * @param maxlevels maximum length of the generated geohash. If set to 0
+   *        {@value GeohashUtils.MAX_PRECISION} will be used
+   * @return geohash for the given latitude and longitude
+   */
+  public static String encodeLatLon(final double latitudeDeg, final double longitudeDeg, final double precision, final int maxlevels) {
+    assert precision>=0;
+
+    final int levels = maxlevels<=0 ?MAX_PRECISION :maxlevels;
+    final double latitude = DistanceUtils.toRadians(latitudeDeg);
+    final double longitude = DistanceUtils.toRadians(longitudeDeg);
+
+    double[] latInterval = {-DistanceUtils.DEG_90_AS_RADS, DistanceUtils.DEG_90_AS_RADS};
+    double[] lngInterval = {-DistanceUtils.DEG_180_AS_RADS, DistanceUtils.DEG_180_AS_RADS};
+    double size = 1;
+
+    final StringBuilder geohash = new StringBuilder(maxlevels);
     boolean isEven = true;
 
     int bit = 0;
     int ch = 0;
 
-    while (geohash.length() < precision) {
-      double mid = 0.0;
+    /* While cell size is below precision
+     *       the geohash is to short
+     */
+    while ((size > precision && geohash.length()<levels)) {
+      double mid;
       if (isEven) {
         mid = (lngInterval[0] + lngInterval[1]) / 2D;
         if (longitude > mid) {
@@ -96,6 +135,9 @@ public class GeohashUtils {
       if (bit < 4) {
         bit++;
       } else {
+        if(precision>0) {
+          size = DistanceUtils.distHaversineRAD(latInterval[0], lngInterval[0], latInterval[1], lngInterval[1]);
+        }
         geohash.append(BASE_32[ch]);
         bit = 0;
         ch = 0;
