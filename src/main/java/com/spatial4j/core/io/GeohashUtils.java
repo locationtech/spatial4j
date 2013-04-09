@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,9 +52,7 @@ public class GeohashUtils {
   }
 
   /**
-   * Encodes the given latitude and longitude into a geohash
-   * the precision is set to maxPrecision (0) and the default
-   * level is set to 12.
+   * Encodes the given latitude and longitude into a geohash of length 12.
    *
    * @param latitude Latitude to encode
    * @param longitude Longitude to encode
@@ -66,67 +64,71 @@ public class GeohashUtils {
 
   /**
    * Encodes the given latitude and longitude into a geohash with the given length.
-   * The precision is given by the level. 
    *
    * @param latitude Latitude to encode
    * @param longitude Longitude to encode
-   * @param level length of the generated hash code
+   * @param length length of the generated geohash string
    * @return Geohash encoding of the longitude and latitude
    */
-  public static String encodeLatLon(double latitude, double longitude, int precision) {
-    return encodeLatLon(latitude, longitude, 0d, precision);
+  public static String encodeLatLon(double latitude, double longitude, int length) {
+    return encodeLatLon(latitude, longitude, 0d, length);
   }
 
   /**
    * Encodes the given latitude and longitude to a geohash. The length of the geohash
-   * is limited by <code>maxLevels</code> and the <code>precision</code>. If the accuracy
-   * of a geohash cell is less than the given <code>precision</code> then the geohash will
-   * no longer be adjusted.
+   * is limited by <code>maxLength</code> and the <code>precisionDeg</code>, which ever is
+   * satisfied first (least precise).  Observe that a precisionDeg of 0 effectively
+   * disables that.
    * 
-   * @param latitude latitude to encode
-   * @param longitude longitude to encode
-   * @param precision required precision in fractions of circumference  
-   * @param maxlevels maximum length of the generated geohash. If set to 0
-   *        {@value GeohashUtils.MAX_PRECISION} will be used
+   * @param latitudeDeg latitude to encode in degrees
+   * @param longitudeDeg longitude to encode in degrees
+   * @param precisionDeg minimum precision of the geohash in degrees (0-180)
+   *                     as measured from opposite corners using the Haversine algorithm
+   * @param maxLength maximum length of the generated geohash.
    * @return geohash for the given latitude and longitude
    */
-  public static String encodeLatLon(final double latitudeDeg, final double longitudeDeg, final double precision, final int maxlevels) {
-    assert precision>=0;
+  public static String encodeLatLon(final double latitudeDeg, final double longitudeDeg,
+                                    final double precisionDeg, final int maxLength) {
+    if (precisionDeg < 0)
+      throw new IllegalArgumentException("precisionDeg must be >= 0");
 
-    final int levels = maxlevels<=0 ?MAX_PRECISION :maxlevels;
-    final double latitude = DistanceUtils.toRadians(latitudeDeg);
-    final double longitude = DistanceUtils.toRadians(longitudeDeg);
+    final double latRad = DistanceUtils.toRadians(latitudeDeg);
+    final double lonRad = DistanceUtils.toRadians(longitudeDeg);
+    final double precisionRad = DistanceUtils.toRadians(precisionDeg);
 
-    double[] latInterval = {-DistanceUtils.DEG_90_AS_RADS, DistanceUtils.DEG_90_AS_RADS};
-    double[] lngInterval = {-DistanceUtils.DEG_180_AS_RADS, DistanceUtils.DEG_180_AS_RADS};
-    double size = 1;
+    double latMinRad = -DistanceUtils.DEG_90_AS_RADS;
+    double latMaxRad = DistanceUtils.DEG_90_AS_RADS;
+    double lonMinRad = -DistanceUtils.DEG_180_AS_RADS;
+    double lonMaxRad = DistanceUtils.DEG_180_AS_RADS;
 
-    final StringBuilder geohash = new StringBuilder(maxlevels);
+    double curPrecisionRad = 1;//initial value doesn't matter; only used when precisionRad > 0
+
+    final StringBuilder geohash = new StringBuilder(maxLength);
     boolean isEven = true;
 
     int bit = 0;
     int ch = 0;
 
-    /* While cell size is below precision
+    /* While cell size is below precisionDeg
      *       the geohash is to short
      */
-    while ((size > precision && geohash.length()<levels)) {
-      double mid;
+    while ((curPrecisionRad > precisionRad && geohash.length()<maxLength)) {
+      double midRad;
       if (isEven) {
-        mid = (lngInterval[0] + lngInterval[1]) / 2D;
-        if (longitude > mid) {
+        midRad = (lonMinRad + lonMaxRad) / 2D;
+        if (lonRad > midRad) {
           ch |= BITS[bit];
-          lngInterval[0] = mid;
+          lonMinRad = midRad;
         } else {
-          lngInterval[1] = mid;
+          lonMaxRad = midRad;
         }
       } else {
-        mid = (latInterval[0] + latInterval[1]) / 2D;
-        if (latitude > mid) {
+        midRad = (latMinRad + latMaxRad) / 2D;
+        if (latRad > midRad) {
           ch |= BITS[bit];
-          latInterval[0] = mid;
+          latMinRad = midRad;
         } else {
-          latInterval[1] = mid;
+          latMaxRad = midRad;
         }
       }
 
@@ -135,8 +137,8 @@ public class GeohashUtils {
       if (bit < 4) {
         bit++;
       } else {
-        if(precision>0) {
-          size = DistanceUtils.distHaversineRAD(latInterval[0], lngInterval[0], latInterval[1], lngInterval[1]);
+        if (precisionRad > 0) {
+          curPrecisionRad = DistanceUtils.distHaversineRAD(latMinRad, lonMinRad, latMaxRad, lonMaxRad);
         }
         geohash.append(BASE_32[ch]);
         bit = 0;

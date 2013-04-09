@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,9 @@
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.shape.Point;
 import org.junit.Test;
 
@@ -127,40 +129,33 @@ public class TestGeohashUtils {
   @Test
   public void testEncodeWithPrecision() {
     // Precision 200m
-    double precision = 200 / (1000 * DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
+    double precisionDeg = 200.0 / 1000.0 * DistanceUtils.KM_TO_DEG;
 
     Point guinea = ctx.makePoint(10.488, 1.607);
     Point antarctica = ctx.makePoint(0, -90.0);
     Point northpole = ctx.makePoint(0, 90);
     Point us = ctx.makePoint(-160.027, -0.385);
 
-    String guineaHash = GeohashUtils.encodeLatLon(guinea.getY(), guinea.getX(), precision, GeohashUtils.MAX_PRECISION);
-    String antarcticaHash = GeohashUtils.encodeLatLon(antarctica.getY(), antarctica.getX(), precision, GeohashUtils.MAX_PRECISION);
-    String northHash = GeohashUtils.encodeLatLon(northpole.getY(), northpole.getX(), precision, GeohashUtils.MAX_PRECISION);
-    String usHash = GeohashUtils.encodeLatLon(us.getY(), us.getX(), precision, GeohashUtils.MAX_PRECISION);
+    String guineaHash = GeohashUtils.encodeLatLon(guinea.getY(), guinea.getX(), precisionDeg, GeohashUtils.MAX_PRECISION);
+    String antarcticaHash = GeohashUtils.encodeLatLon(antarctica.getY(), antarctica.getX(), precisionDeg, GeohashUtils.MAX_PRECISION);
+    String northHash = GeohashUtils.encodeLatLon(northpole.getY(), northpole.getX(), precisionDeg, GeohashUtils.MAX_PRECISION);
+    String usHash = GeohashUtils.encodeLatLon(us.getY(), us.getX(), precisionDeg, GeohashUtils.MAX_PRECISION);
 
     assertTrue(guineaHash.length() > antarcticaHash.length());
     assertTrue(guineaHash.length() == usHash.length());
     assertTrue(northHash.length() == antarcticaHash.length());
 
-    double precisionInMeter = precision * DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM * 1000;
-    assertTrue(distance(guinea, GeohashUtils.decode(guineaHash, ctx)) <= precisionInMeter);
-    assertTrue(distance(us, GeohashUtils.decode(usHash, ctx)) <= precisionInMeter);
-    assertTrue(distance(antarctica, GeohashUtils.decode(antarcticaHash, ctx)) <= precisionInMeter);
-    assertTrue(distance(northpole, GeohashUtils.decode(northHash, ctx)) <= precisionInMeter);
+    double precisionInMeter = precisionDeg * DistanceUtils.DEG_TO_KM * 1000.0;
+    assertTrue(distanceMeter(guinea, GeohashUtils.decode(guineaHash, ctx)) <= precisionInMeter);
+    assertTrue(distanceMeter(us, GeohashUtils.decode(usHash, ctx)) <= precisionInMeter);
+    assertTrue(distanceMeter(antarctica, GeohashUtils.decode(antarcticaHash,
+        ctx)) <= precisionInMeter);
+    assertTrue(distanceMeter(northpole, GeohashUtils.decode(northHash, ctx)) <= precisionInMeter);
   }
 
-  private double distance(Point p1, Point p2) {
-    double[] latlon1 = pointToRadians(p1);
-    double[] latlon2 = pointToRadians(p2); 
-    return distance(latlon1, latlon2);
+  private static DistanceCalculator haversineDistCalc = new GeodesicSphereDistCalc.Haversine();
+  private double distanceMeter(Point p1, Point p2) {
+    return haversineDistCalc.distance(p1, p2) * DistanceUtils.DEG_TO_KM * 1000.0;
   }
 
-  private double distance(double[] latlon1, double[] latlon2) {
-    return DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM * 1000 * DistanceUtils.distHaversineRAD(latlon1[0], latlon1[1], latlon2[0], latlon2[1]);
-  }
-
-  private double[] pointToRadians(Point p) {
-    return new double[] {DistanceUtils.toRadians(p.getY()), DistanceUtils.toRadians(p.getX())};
-  }
 }
