@@ -312,6 +312,7 @@ public class JtsGeometry implements Shape {
       }
       if (shiftXPage != 0)
         cseq.setOrdinate(i, CoordinateSequence.X, thisX);
+      prevX = thisX;
     }
     if (lineString instanceof LinearRing) {
       assert cseq.getCoordinate(0).equals(cseq.getCoordinate(size-1));

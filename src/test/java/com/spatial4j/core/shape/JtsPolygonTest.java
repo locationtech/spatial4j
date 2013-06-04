@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
@@ -31,23 +48,27 @@ public class JtsPolygonTest extends AbstractTestShapes {
     POLY_SHAPE = (JtsGeometry) ctx.readShape(POLY_STR);
 
     if (TEST_DL_POLY && ctx.isGeo()) {
-      Geometry pGeom = POLY_SHAPE.getGeom();
-      assertTrue(pGeom.isValid());
-      //shift 180 to the right
-      pGeom = (Geometry) pGeom.clone();
-      pGeom.apply(new CoordinateFilter() {
-        @Override
-        public void filter(Coordinate coord) {
-          coord.x = normX(coord.x + DL_SHIFT);
-        }
-      });
-      pGeom.geometryChanged();
-      assertFalse(pGeom.isValid());
-      POLY_SHAPE_DL = (JtsGeometry) ctx.readShape(pGeom.toText());
+      POLY_SHAPE_DL = shiftPoly(POLY_SHAPE, DL_SHIFT);
       assertTrue(
           POLY_SHAPE_DL.getBoundingBox().getCrossesDateLine() ||
               360 == POLY_SHAPE_DL.getBoundingBox().getWidth());
     }
+  }
+
+  private JtsGeometry shiftPoly(JtsGeometry poly, final int lon_shift) {
+    Geometry pGeom = poly.getGeom();
+    assertTrue(pGeom.isValid());
+    //shift 180 to the right
+    pGeom = (Geometry) pGeom.clone();
+    pGeom.apply(new CoordinateFilter() {
+      @Override
+      public void filter(Coordinate coord) {
+        coord.x = normX(coord.x + lon_shift);
+      }
+    });
+    pGeom.geometryChanged();
+    assertFalse(pGeom.isValid());
+    return (JtsGeometry) ctx.readShape(pGeom.toText());
   }
 
   @Test
@@ -83,6 +104,17 @@ public class JtsPolygonTest extends AbstractTestShapes {
     assertJtsConsistentRelate(new PointImpl(-10, 4, ctx));//PointImpl not JtsPoint, and CONTAINS
     assertJtsConsistentRelate(new PointImpl(-15, -10, ctx));//point on boundary
     assertJtsConsistentRelate(ctx.makeRectangle(135, 180, -10, 10));//180 edge-case
+  }
+
+  @Test
+  public void testWidthGreaterThan180() {
+    //does NOT cross the dateline but if a wide shape >180
+    JtsGeometry jtsGeo = (JtsGeometry) ctx.readShape("POLYGON((-161 49, 0 49, 20 49, 20 89.1, 0 89.1, -161 89.2, -161 49))");
+    assertEquals(161+20,jtsGeo.getBoundingBox().getWidth(), 0.001);
+
+    //shift it to cross the dateline and check that it's still good
+    jtsGeo = shiftPoly(jtsGeo, 180);
+    assertEquals(161+20,jtsGeo.getBoundingBox().getWidth(), 0.001);
   }
 
   private void assertJtsConsistentRelate(Shape shape) {
