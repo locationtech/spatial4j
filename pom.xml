@@ -22,6 +22,7 @@
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
     <version>7</version>
+    <relativePath />
   </parent>
   
   <groupId>com.spatial4j</groupId>
@@ -121,6 +122,33 @@
           running in the maven JVM. This also conveniently means system
           properties pass through. -->
           <forkMode>never</forkMode>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>de.thetaphi</groupId>
+        <artifactId>forbiddenapis</artifactId>
+        <version>1.3</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <!-- disallow undocumented classes like sun.misc.Unsafe: -->
+          <internalRuntimeForbidden>true</internalRuntimeForbidden>
+          <bundledSignatures>
+            <bundledSignature>jdk-unsafe</bundledSignature>
+            <bundledSignature>jdk-deprecated</bundledSignature>
+          </bundledSignatures>
+          <!--
+            This is the default setting, we don't support too new Java versions.
+            The checker simply passes by default and only prints a warning.
+           -->
+          <failOnUnsupportedJava>false</failOnUnsupportedJava>
+          <targetVersion>1.6</targetVersion>
         </configuration>
       </plugin>
 
