@@ -19,6 +19,7 @@ package com.spatial4j.core.io;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import org.junit.Test;
@@ -56,7 +57,10 @@ public class WKTShapeParserTest extends RandomizedTest {
     assertParses("POINT ( 100 90 )", ctx.makePoint(100, 90));//inner spaces
     assertParses("POINT(100 90)", ctx.makePoint(100, 90));
     assertParses("POINT (-45 90 )", ctx.makePoint(-45, 90));
-    assertParses("POINT (-45.3 80.4 )", ctx.makePoint(-45.3, 80.4));
+    Point expected = ctx.makePoint(-45.3, 80.4);
+    assertParses("POINT (-45.3 80.4 )", expected);
+    assertParses("POINT (-45.3 +80.4 )", expected);
+    assertParses("POINT (-45.3 8.04e1 )", expected);
   }
 
   @Test

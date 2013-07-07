@@ -209,26 +209,26 @@ public class WKTShapeParser {
   }
 
   /**
-   * Reads in a double from the String.  Note, this method expects that the number
-   * is delimited by some character.  Therefore if the String is exhausted before
-   * a delimiter is encountered, a {@link ParseException} will be thrown.
+   * Reads in a double from the String. Digits,
    *
    * @return Double value
    * @throws ParseException Thrown if the String is exhausted before the number is delimited
    */
   protected double parseDouble() throws ParseException {
     int startOffset = offset;
-    try {
-      for (char c = rawString.charAt(offset); offset < rawString.length(); c = rawString.charAt(++offset)) {
-        if (!(Character.isDigit(c) || c == '.' || c == '-')) {
-          return Double.parseDouble(rawString.substring(startOffset, offset));
-        }
+    for (; offset < rawString.length(); offset++ ) {
+      char c = rawString.charAt(offset);
+      if (!(Character.isDigit(c) || c == '.' || c == '-' || c == '+' || c == 'e')) {
+        break;
       }
+    }
+    if (startOffset == offset)
+      throw new ParseException("Expected a number", offset);
+    try {
+      return Double.parseDouble(rawString.substring(startOffset, offset));
     } catch (Exception e) {
       throw new ParseException(e.toString(), offset);
     }
-
-    throw new ParseException("EOF reached before delimiter for the number was found", offset);
   }
 
   /**
