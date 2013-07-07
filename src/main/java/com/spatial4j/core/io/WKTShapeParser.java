@@ -21,7 +21,6 @@ package com.spatial4j.core.io;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.impl.RectangleImpl;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -123,15 +122,30 @@ public class WKTShapeParser {
 
   /**
    * Parses an Envelope Shape from the raw String.
+   * Source: OGC "Catalogue Services Specification", the "CQL" (Common Query Language) sub-spec
    *
-   * Envelope: 'ENVELOPE' coordinateSequence
+   * Envelope: 'ENVELOPE' '(' x1 ',' x2 ',' y2 ',' y1 ')'
    *
    * @return Envelope Shape parsed from the raw String
    * @throws ParseException Thrown if the raw String doesn't represent the Envelope correctly
    */
   protected Shape parseEnvelope() throws ParseException {
-    List<Point> pointList = pointList();
-    return new RectangleImpl(pointList.get(0), pointList.get(1), ctx);
+    expect('(');
+
+    nextCharNoWS();
+    double x1 = parseDouble();
+    expect(',');
+    nextCharNoWS();
+    double x2 = parseDouble();
+    expect(',');
+    nextCharNoWS();
+    double y2 = parseDouble();
+    expect(',');
+    nextCharNoWS();
+    double y1 = parseDouble();
+
+    expect(')');
+    return ctx.makeRectangle(x1, x2, y1, y2);
   }
 
   /**
