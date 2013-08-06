@@ -99,18 +99,16 @@ public class JtsSpatialContext extends SpatialContext {
       }
     }
     if (shape instanceof Circle) {
-      // TODO, this should maybe pick a bunch of points
-      // and make a circle like:
+      // FYI Some interesting code for this is here:
       //  http://docs.codehaus.org/display/GEOTDOC/01+How+to+Create+a+Geometry#01HowtoCreateaGeometry-CreatingaCircle
-      // If this crosses the dateline, it could make two parts
-      // is there an existing utility that does this?
+      //TODO This should ideally have a geodetic version
       Circle circle = (Circle)shape;
       if (circle.getBoundingBox().getCrossesDateLine())
         throw new IllegalArgumentException("Doesn't support dateline cross yet: "+circle);//TODO
       GeometricShapeFactory gsf = new GeometricShapeFactory(geometryFactory);
-      gsf.setSize(circle.getBoundingBox().getWidth()/2.0f);
+      gsf.setSize(circle.getBoundingBox().getWidth());
       gsf.setNumPoints(4*25);//multiple of 4 is best
-      gsf.setBase(new Coordinate(circle.getCenter().getX(),circle.getCenter().getY()));
+      gsf.setCentre(new Coordinate(circle.getCenter().getX(), circle.getCenter().getY()));
       return gsf.createCircle();
     }
     throw new InvalidShapeException("can't make Geometry from: " + shape);
@@ -135,5 +133,9 @@ public class JtsSpatialContext extends SpatialContext {
     } else {
       return super.toString();
     }
+  }
+
+  public static void main(String[] args) {
+    System.out.println(GEO.getGeometryFrom(GEO.makeCircle(0, 0, 1)));
   }
 }
