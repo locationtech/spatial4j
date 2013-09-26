@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -136,6 +136,7 @@ public class CircleImpl implements Circle {
 
     //--Quickly determine if they are DISJOINT or not.
     //see http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection/1879223#1879223
+    // Find the closest point to the circle within the rectangle
     final double closestX;
     double ctr_x = getXAxis();
     if ( ctr_x < r.getMinX() )
@@ -155,7 +156,6 @@ public class CircleImpl implements Circle {
       closestY = ctr_y;
 
     //Check if there is an intersection from this circle to closestXY
-    boolean didContainOnClosestXY = false;
     if (ctr_x == closestX) {
       double deltaY = Math.abs(ctr_y - closestY);
       double distYCirc = (ctr_y < closestY ? enclosingBox.getMaxY() - ctr_y : ctr_y - enclosingBox.getMinY());
@@ -168,7 +168,6 @@ public class CircleImpl implements Circle {
         return SpatialRelation.DISJOINT;
     } else {
       //fallback on more expensive calculation
-      didContainOnClosestXY = true;
       if(! contains(closestX,closestY) )
         return SpatialRelation.DISJOINT;
     }
@@ -183,7 +182,10 @@ public class CircleImpl implements Circle {
     //Find the farthest point of r away from the center of the circle. If that point is contained, then all of r is
     // contained.
     double farthestX = r.getMaxX() - ctr_x > ctr_x - r.getMinX() ? r.getMaxX() : r.getMinX();
-    double farthestY = r.getMaxY() - ctr_y > ctr_y - r.getMinY() ? r.getMaxY() : r.getMinY();
+    //   farthestY is a little trickier than farthestX because of potential getYAxis offset; so we need to
+    //     scale how close the corner is to the edge
+    double farthestY = (r.getMaxY() - ctr_y) / (enclosingBox.getMaxY() - ctr_y) > (ctr_y - r.getMinY()) / (ctr_y - enclosingBox.getMinY())
+        ? r.getMaxY() : r.getMinY();
     if (contains(farthestX,farthestY))
       return SpatialRelation.CONTAINS;
     return SpatialRelation.INTERSECTS;

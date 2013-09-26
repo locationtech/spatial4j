@@ -120,7 +120,7 @@ public class TestShapesGeo extends AbstractTestShapes {
     ctx.makeCircle(-36,-76,14);
     ctx.makeCircle(107,82,172);
 
-// TODO need to update this test to be valid
+//TODO need to update this test to be valid
 //    {
 //      //Bug in which distance was being confused as being in the same coordinate system as x,y.
 //      double distDeltaToPole = 0.001;//1m
@@ -144,7 +144,9 @@ public class TestShapesGeo extends AbstractTestShapes {
     // if the circle touches the rect edge in onAssertFail() instead.
     //assertEquals("0 radius at pole", DISJOINT, ctx.makeCircle(-98, 90, 0).relate(ctx.makePoint(-144,90)));
 
-    assertEquals("edge rounding issue 2", INTERSECTS, ctx.makeCircle(84, -40, 136).relate(ctx.makeRectangle(-150,-80,34,84)));
+    assertEquals("wrong farthest opp corner", INTERSECTS, ctx.makeCircle(92, 36, 46).relate(ctx.makeRectangle(134,136,32,80)));
+
+    assertEquals("edge rounding issue 2", INTERSECTS, ctx.makeCircle(84, -40, 136).relate(ctx.makeRectangle(-150, -80, 34, 84)));
 
     assertEquals("edge rounding issue", CONTAINS, ctx.makeCircle(0, 66, 156).relate(ctx.makePoint(0, -90)));
 
