@@ -99,15 +99,10 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    */
   private Shape parseMulitPolygon() throws ParseException {
     List<Polygon> polygons = new ArrayList<Polygon>();
-
     expect('(');
-    polygons.add(polygon());
-
-    while (nextCharNoWS() == ',') {
-      offset++;
+    do {
       polygons.add(polygon());
-    }
-
+    } while (consumeIfAt(','));
     expect(')');
     return new JtsGeometry(
         getGeometryFactory().createMultiPolygon(polygons.toArray(new
@@ -125,15 +120,10 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    */
   protected List<Coordinate[]> coordinateSequenceList() throws ParseException {
     List<Coordinate[]> sequenceList = new ArrayList<Coordinate[]>();
-
     expect('(');
-    sequenceList.add(coordinateSequence());
-
-    while (nextCharNoWS() == ',') {
-      offset++;
+    do {
       sequenceList.add(coordinateSequence());
-    }
-
+    } while (consumeIfAt(','));
     expect(')');
     return sequenceList;
   }
@@ -148,15 +138,10 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    */
   protected Coordinate[] coordinateSequence() throws ParseException {
     List<Coordinate> sequence = new ArrayList<Coordinate>();
-
     expect('(');
-    sequence.add(coordinate());
-
-    while (nextCharNoWS() == ',') {
-      offset++;
+    do {
       sequence.add(coordinate());
-    }
-
+    } while (consumeIfAt(','));
     expect(')');
     return sequence.toArray(new Coordinate[sequence.size()]);
   }
@@ -170,13 +155,8 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * @throws java.text.ParseException Thrown if reading the Coordinate is unsuccessful
    */
   protected Coordinate coordinate() throws ParseException {
-    // TODO: We need to validate the first character in the numbers
-    nextCharNoWS();
     double x = parseDouble();
-
-    nextCharNoWS();
     double y = parseDouble();
-
     return new Coordinate(x, y);
   }
 }
