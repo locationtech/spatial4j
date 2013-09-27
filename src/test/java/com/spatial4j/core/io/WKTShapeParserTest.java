@@ -44,9 +44,9 @@ public class WKTShapeParserTest extends RandomizedTest {
 
   @Test
   public void testNoOp() throws ParseException {
-    assertEquals(null, SHAPE_PARSER.parseIfSupported(""));
-    assertEquals(null, SHAPE_PARSER.parseIfSupported("  "));
-    assertEquals(null, SHAPE_PARSER.parseIfSupported("TestShape()"));
+    assertNull(SHAPE_PARSER.parseIfSupported(""));
+    assertNull(SHAPE_PARSER.parseIfSupported("  "));
+    assertNull(SHAPE_PARSER.parseIfSupported("TestShape()"));
   }
 
   @Test
@@ -61,21 +61,27 @@ public class WKTShapeParserTest extends RandomizedTest {
     assertParses("POINT (-45.3 80.4 )", expected);
     assertParses("POINT (-45.3 +80.4 )", expected);
     assertParses("POINT (-45.3 8.04e1 )", expected);
+
   }
 
   @Test
   public void testParseEnvelope() throws ParseException {
     Rectangle r = ctx.makeRectangle(ctx.makePoint(10, 25), ctx.makePoint(30, 45));
-    assertParses("ENVELOPE (10, 30, 45, 25)", r);
+    assertParses( " ENVELOPE ( 10 , 30 , 45 , 25 ) ", r);
+    assertParses("ENVELOPE(10,30,45,25) ", r);
+    assertFails("ENVELOPE (10 30 45 25)");
   }
 
   @Test
   public void testParsePoint_invalidDefinitions() {
     assertFails("POINT 100 90");
     assertFails("POINT (100 90");
+    assertFails("POINT (100, 90)");
     assertFails("POINT 100 90)");
     assertFails("POINT (100)");
     assertFails("POINT (10f0 90)");
+
+    assertFails("POINT (1 2), POINT (2 3)");
   }
 
   @Test

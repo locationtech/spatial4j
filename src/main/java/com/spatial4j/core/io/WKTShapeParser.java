@@ -35,8 +35,18 @@ import java.util.Locale;
  */
 public class WKTShapeParser {
 
+  //TODO
+  // * EMPTY shapes  (new EmptyShape with name?)
+  // * avoid toLowerCase ?
+  // * avoid trim ?
+  // * shape: multipoint (both syntax's)
+  // * shape: geometrycollection
+  // * ensure could eventually support: POINT ZM (1 1 5 60)
+  //      via parse till ',' or '('
+
   /** Lower-cased and trim()'ed; set in {@link #parseIfSupported(String)}. */
   protected String rawString;
+
   /** Offset of the next char in {@link #rawString} to be read. */
   protected int offset;
 
@@ -60,12 +70,13 @@ public class WKTShapeParser {
     Shape shape = parseIfSupported(wktString);
     if (shape != null)
       return shape;
-    throw new ParseException("Unknown Shape definition [" + rawString + "]", offset);
+    String shortennedString = (wktString.length() <= 128 ? wktString : wktString.substring(0, 128-3)+"...");
+    throw new ParseException("Unknown Shape definition [" + shortennedString + "]", offset);
   }
 
   /**
    * Parses the wktString, returning the defined Shape. If it can't because the
-   * shape name is unknown, then it returns null.
+   * shape name is unknown or an empty or blank string was passed, then it returns null.
    *
    * @param wktString non-null
    * @return Shape, null if unknown / unsupported type.
@@ -78,7 +89,12 @@ public class WKTShapeParser {
     this.rawString = wktString.toLowerCase(Locale.ROOT);
     this.offset = 0;
     String shapeType = nextWord();
-    return parseShapeByType(shapeType);
+    Shape result = parseShapeByType(shapeType);
+    if (result != null) {
+      if (offset != wktString.length())
+        throw new ParseException("end of shape expected", offset);
+    }
+    return result;
   }
 
   /**
@@ -180,7 +196,6 @@ public class WKTShapeParser {
    * @throws java.text.ParseException Thrown if reading the Coordinate is unsuccessful
    */
   protected Point point() throws ParseException {
-    // TODO: We need to validate the first character in the numbers
     nextCharNoWS();
     double x = parseDouble();
 
@@ -209,7 +224,7 @@ public class WKTShapeParser {
   }
 
   /**
-   * Reads in a double from the String. Digits,
+   * Reads in a double from the String. Parses digits with an optional decimal, sign, or exponent.
    *
    * @return Double value
    * @throws ParseException Thrown if the String is exhausted before the number is delimited
