@@ -52,15 +52,15 @@ public class JtsWKTShapeParser extends WKTShapeParser {
 
   @Override
   protected Shape parseShapeByType(String shapeType) throws ParseException {
-    if (shapeType.equals("polygon")) {
-      return parsePolygon();
-    } else if (shapeType.equals("multipolygon")) {
-      return parseMulitPolygon();
+    if (shapeType.equalsIgnoreCase("polygon")) {
+      return parsePolygonShape();
+    } else if (shapeType.equalsIgnoreCase("multipolygon")) {
+      return parseMulitPolygonShape();
     }
     return super.parseShapeByType(shapeType);
   }
 
-  protected JtsGeometry parsePolygon() throws ParseException {
+  protected JtsGeometry parsePolygonShape() throws ParseException {
     return new JtsGeometry(polygon(), getCtx(), dateline180Check);
   }
 
@@ -72,7 +72,7 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * @return Polygon Shape parsed from the raw String
    * @throws java.text.ParseException Thrown if the raw String doesn't represent the Polygon correctly
    */
-  private Polygon polygon() throws ParseException {
+  protected Polygon polygon() throws ParseException {
     List<Coordinate[]> coordinateSequenceList = coordinateSequenceList();
 
     LinearRing shell = getGeometryFactory().createLinearRing
@@ -97,7 +97,7 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * @return MultiPolygon Shape parsed from the raw String
    * @throws java.text.ParseException Thrown if the raw String doesn't represent the MultiPolygon correctly
    */
-  private Shape parseMulitPolygon() throws ParseException {
+  protected Shape parseMulitPolygonShape() throws ParseException {
     List<Polygon> polygons = new ArrayList<Polygon>();
     expect('(');
     do {
@@ -155,8 +155,8 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * @throws java.text.ParseException Thrown if reading the Coordinate is unsuccessful
    */
   protected Coordinate coordinate() throws ParseException {
-    double x = parseDouble();
-    double y = parseDouble();
+    double x = nextDouble();
+    double y = nextDouble();
     return new Coordinate(x, y);
   }
 }
