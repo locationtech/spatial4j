@@ -184,8 +184,20 @@ public class CircleImpl implements Circle {
     double farthestX = r.getMaxX() - ctr_x > ctr_x - r.getMinX() ? r.getMaxX() : r.getMinX();
     //   farthestY is a little trickier than farthestX because of potential getYAxis offset; so we need to
     //     scale how close the corner is to the edge
-    double farthestY = (r.getMaxY() - ctr_y) / (enclosingBox.getMaxY() - ctr_y) > (ctr_y - r.getMinY()) / (ctr_y - enclosingBox.getMinY())
-        ? r.getMaxY() : r.getMinY();
+    double farthestY;
+    if (point.getY() == getYAxis()) {
+      farthestY = r.getMaxY() - ctr_y > ctr_y - r.getMinY() ? r.getMaxY() : r.getMinY();
+    } else {
+      if (enclosingBox.getMaxY() == ctr_y) {
+        farthestY = r.getMinY();
+      } else if (enclosingBox.getMinY() == ctr_y) {
+        farthestY = r.getMaxY();
+      } else {
+        farthestY = (r.getMaxY() - ctr_y) / (enclosingBox.getMaxY() - ctr_y) > (ctr_y - r.getMinY()) / (ctr_y - enclosingBox.getMinY())
+            ? r.getMaxY() : r.getMinY();
+      }
+    }
+   
     if (contains(farthestX,farthestY))
       return SpatialRelation.CONTAINS;
     return SpatialRelation.INTERSECTS;
