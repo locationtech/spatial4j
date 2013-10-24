@@ -28,6 +28,7 @@ import java.text.ParseException;
 
 public class WKTShapeParserTest extends RandomizedTest {
   SpatialContext ctx = SpatialContext.GEO;
+
   WKTShapeParser SHAPE_PARSER = new WKTShapeParser(ctx);
 
   protected void assertParses(String wkt, Shape expected) throws ParseException {
@@ -46,7 +47,8 @@ public class WKTShapeParserTest extends RandomizedTest {
   public void testNoOp() throws ParseException {
     assertNull(SHAPE_PARSER.parseIfSupported(""));
     assertNull(SHAPE_PARSER.parseIfSupported("  "));
-    assertNull(SHAPE_PARSER.parseIfSupported("TestShape()"));
+    assertNull(SHAPE_PARSER.parseIfSupported("BogusShape()"));
+    assertNull(SHAPE_PARSER.parseIfSupported("BogusShape"));
   }
 
   @Test
@@ -61,7 +63,6 @@ public class WKTShapeParserTest extends RandomizedTest {
     assertParses("POINT (-45.3 80.4 )", expected);
     assertParses("POINT (-45.3 +80.4 )", expected);
     assertParses("POINT (-45.3 8.04e1 )", expected);
-
   }
 
   @Test

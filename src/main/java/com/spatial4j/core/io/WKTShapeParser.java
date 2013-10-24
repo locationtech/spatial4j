@@ -28,7 +28,14 @@ import java.util.List;
 
 /**
  * An extensible parser for <a href="http://en.wikipedia.org/wiki/Well-known_text">
- *   Well Known Text (WKT)</a>.
+ * Well Known Text (WKT)</a>.
+ * The shapes supported by this class are:
+ * <ul>
+ *   <li>POINT</li>
+ *   <li>ENVELOPE</li>
+ * </ul>
+ * <p />
+ * To support more shapes, extend this class and override {@link #parseShapeByType(String)}.
  * <p />
  * Note, instances are not threadsafe but are reusable.
  */
@@ -38,8 +45,6 @@ public class WKTShapeParser {
   // * EMPTY shapes  (new EmptyShape with name?)
   // * shape: multipoint (both syntax's)
   // * shape: geometrycollection
-  // * ensure could eventually support: POINT ZM (1 1 5 60)
-  //      via parse till ',' or '('
 
   /** Set in {@link #parseIfSupported(String)}. */
   protected String rawString;
@@ -106,10 +111,10 @@ public class WKTShapeParser {
    * it's able to parse the shape, {@link #offset} should be advanced beyond
    * it (e.g. to the ',' or ')' or EOF in general). The default implementation
    * checks the name against some predefined names and calls corresponding
-   * parse methods to handle the rest. This method is an excellent extension
-   * point for additional shape types.
+   * parse methods to handle the rest. This overriding this method is an
+   * excellent extension point for additional shape types.
    *
-   * @param shapeType Non-Null string; could have mixed case
+   * @param shapeType Non-Null string; could have mixed case. The first character is a letter.
    * @return The shape or null if not supported / unknown.
    * @throws ParseException
    */
@@ -195,7 +200,7 @@ public class WKTShapeParser {
 
   /**
    * Reads the word starting at the current character position. The word
-   * terminates once {@link Character#isLetter(char)} returns false.
+   * terminates once {@link Character#isJavaIdentifierPart(char)} returns false (or EOF).
    * {@link #offset} is advanced past whitespace.
    *
    * @return Non-null non-empty String.
@@ -203,7 +208,8 @@ public class WKTShapeParser {
    */
   protected String nextWord() throws ParseException {
     int startOffset = offset;
-    while (offset < rawString.length() && Character.isLetter(rawString.charAt(offset))) {
+    while (offset < rawString.length() &&
+        Character.isJavaIdentifierPart(rawString.charAt(offset))) {
       offset++;
     }
     if (startOffset == offset)
@@ -215,6 +221,7 @@ public class WKTShapeParser {
 
   /**
    * Reads in a double from the String. Parses digits with an optional decimal, sign, or exponent.
+   * NaN and Infinity are not supported.
    * {@link #offset} is advanced past whitespace.
    *
    * @return Double value
