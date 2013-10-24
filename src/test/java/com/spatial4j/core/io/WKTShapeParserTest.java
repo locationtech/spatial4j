@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class WKTShapeParserTest extends RandomizedTest {
   SpatialContext ctx = SpatialContext.GEO;
@@ -67,14 +68,6 @@ public class WKTShapeParserTest extends RandomizedTest {
   }
 
   @Test
-  public void testParseEnvelope() throws ParseException {
-    Rectangle r = ctx.makeRectangle(ctx.makePoint(10, 25), ctx.makePoint(30, 45));
-    assertParses( " ENVELOPE ( 10 , 30 , 45 , 25 ) ", r);
-    assertParses("ENVELOPE(10,30,45,25) ", r);
-    assertFails("ENVELOPE (10 30 45 25)");
-  }
-
-  @Test
   public void testParsePoint_invalidDefinitions() {
     assertFails("POINT 100 90");
     assertFails("POINT (100 90");
@@ -84,6 +77,26 @@ public class WKTShapeParserTest extends RandomizedTest {
     assertFails("POINT (10f0 90)");
 
     assertFails("POINT (1 2), POINT (2 3)");
+  }
+
+  @Test
+  public void testParseMultiPoint() throws ParseException {
+    Shape s1 = ctx.makeCollection(Collections.singletonList(ctx.makePoint(10, 40)));
+    assertParses("MULTIPOINT (10 40)", s1);
+
+    Shape s4 = ctx.makeCollection(Arrays.asList(
+        ctx.makePoint(10, 40), ctx.makePoint(40, 30),
+        ctx.makePoint(20, 20), ctx.makePoint(30, 10)));
+    assertParses("MULTIPOINT ((10 40), (40 30), (20 20), (30 10))", s4);
+    assertParses("MULTIPOINT (10 40, 40 30, 20 20, 30 10)", s4);
+  }
+
+  @Test
+  public void testParseEnvelope() throws ParseException {
+    Rectangle r = ctx.makeRectangle(ctx.makePoint(10, 25), ctx.makePoint(30, 45));
+    assertParses(" ENVELOPE ( 10 , 30 , 45 , 25 ) ", r);
+    assertParses("ENVELOPE(10,30,45,25) ", r);
+    assertFails("ENVELOPE (10 30 45 25)");
   }
 
   @Test

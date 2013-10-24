@@ -32,6 +32,7 @@ import java.util.List;
  * The shapes supported by this class are:
  * <ul>
  *   <li>POINT</li>
+ *   <li>MULTIPOINT</li>
  *   <li>ENVELOPE</li>
  *   <li>GEOMETRYCOLLECTION</li>
  * </ul>
@@ -44,7 +45,8 @@ public class WKTShapeParser {
 
   //TODO
   // * EMPTY shapes  (new EmptyShape with name?)
-  // * shape: multipoint (both syntax's)
+  // * SRID:    "SRID=4326;pointPOINT(1,2)
+  // * ZM, M, Z, other-dimensions?
 
   /** Set in {@link #parseIfSupported(String)}. */
   protected String rawString;
@@ -121,6 +123,8 @@ public class WKTShapeParser {
   protected Shape parseShapeByType(String shapeType) throws ParseException {
     if (shapeType.equalsIgnoreCase("POINT")) {
       return parsePointShape();
+    } else if (shapeType.equalsIgnoreCase("MULTIPOINT")) {
+      return parseMultiPointShape();
     } else if (shapeType.equalsIgnoreCase("ENVELOPE")) {
       return parseEnvelopeShape();
     } else if (shapeType.equalsIgnoreCase("GEOMETRYCOLLECTION")) {
@@ -143,6 +147,27 @@ public class WKTShapeParser {
     Point coordinate = point();
     expect(')');
     return coordinate;
+  }
+
+  /**
+   * Parses a MULTIPOINT shape -- a collection of points.
+   * <pre>
+   * 'MULTIPOINT' '(' point (',' point )* ')'
+   * </pre>
+   * Whereas 'point' is either <code>'(' x y ')'</code> or just <code>x y</code>.
+   */
+  protected Shape parseMultiPointShape() throws ParseException {
+    List<Point> shapes = new ArrayList<Point>();
+    expect('(');
+    do {
+      boolean openParen = consumeIfAt('(');
+      Point coordinate = point();
+      if (openParen)
+        expect(')');
+      shapes.add(coordinate);
+    } while (consumeIfAt(','));
+    expect(')');
+    return ctx.makeCollection(shapes);
   }
 
   /**
@@ -172,8 +197,6 @@ public class WKTShapeParser {
    * Reads a ShapeCollection (AKA GeometryCollection) from the raw string.
    * <p />
    * GeometryCollection: '(' shape (',' shape )* ')'
-   *
-   * @throws ParseException
    */
   protected Shape parseGeometryCollectionShape() throws ParseException {
     List<Shape> shapes = new ArrayList<Shape>();
