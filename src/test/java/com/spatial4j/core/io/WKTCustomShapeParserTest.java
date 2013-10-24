@@ -43,8 +43,8 @@ public class WKTCustomShapeParserTest extends WKTShapeParserTest {
     protected Shape parseShapeByType(String shapeType) throws ParseException {
       Shape result = super.parseShapeByType(shapeType);
       if (result == null && shapeType.contains("custom")) {
-        expect('(');
-        expect(')');
+        nextExpect('(');
+        nextExpect(')');
         return new CustomShape(shapeType);
       }
       return result;

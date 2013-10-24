@@ -52,9 +52,9 @@ public class JtsWKTShapeParser extends WKTShapeParser {
 
   @Override
   protected Shape parseShapeByType(String shapeType) throws ParseException {
-    if (shapeType.equalsIgnoreCase("polygon")) {
+    if (shapeType.equalsIgnoreCase("POLYGON")) {
       return parsePolygonShape();
-    } else if (shapeType.equalsIgnoreCase("multipolygon")) {
+    } else if (shapeType.equalsIgnoreCase("MULTIPOLYGON")) {
       return parseMulitPolygonShape();
     }
     return super.parseShapeByType(shapeType);
@@ -68,9 +68,6 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * Parses a Polygon Shape from the raw String
    *
    * Polygon: 'POLYGON' coordinateSequenceList
-   *
-   * @return Polygon Shape parsed from the raw String
-   * @throws java.text.ParseException Thrown if the raw String doesn't represent the Polygon correctly
    */
   protected Polygon polygon() throws ParseException {
     List<Coordinate[]> coordinateSequenceList = coordinateSequenceList();
@@ -93,17 +90,14 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * Parses a MultiPolygon Shape from the raw String
    *
    * MultiPolygon: 'MULTIPOLYGON' '(' coordinateSequenceList (',' coordinateSequenceList )* ')'
-   *
-   * @return MultiPolygon Shape parsed from the raw String
-   * @throws java.text.ParseException Thrown if the raw String doesn't represent the MultiPolygon correctly
    */
   protected Shape parseMulitPolygonShape() throws ParseException {
     List<Polygon> polygons = new ArrayList<Polygon>();
-    expect('(');
+    nextExpect('(');
     do {
       polygons.add(polygon());
-    } while (consumeIfAt(','));
-    expect(')');
+    } while (nextIf(','));
+    nextExpect(')');
     return new JtsGeometry(
         getGeometryFactory().createMultiPolygon(polygons.toArray(new
             Polygon[polygons.size()])),
@@ -114,17 +108,14 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * Reads a CoordinateSequenceList from the current position
    *
    * CoordinateSequenceList: '(' coordinateSequence (',' coordinateSequence )* ')'
-   *
-   * @return CoordinateSequenceList read from the current position
-   * @throws java.text.ParseException Thrown if reading the CoordinateSequenceList was unsuccessful
    */
   protected List<Coordinate[]> coordinateSequenceList() throws ParseException {
     List<Coordinate[]> sequenceList = new ArrayList<Coordinate[]>();
-    expect('(');
+    nextExpect('(');
     do {
       sequenceList.add(coordinateSequence());
-    } while (consumeIfAt(','));
-    expect(')');
+    } while (nextIf(','));
+    nextExpect(')');
     return sequenceList;
   }
 
@@ -132,17 +123,14 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * Reads a CoordinateSequence from the current position
    *
    * CoordinateSequence: '(' coordinate (',' coordinate )* ')'
-   *
-   * @return CoordinateSequence read from the current position
-   * @throws java.text.ParseException Thrown if reading the CoordinateSequence is unsuccessful
    */
   protected Coordinate[] coordinateSequence() throws ParseException {
     List<Coordinate> sequence = new ArrayList<Coordinate>();
-    expect('(');
+    nextExpect('(');
     do {
       sequence.add(coordinate());
-    } while (consumeIfAt(','));
-    expect(')');
+    } while (nextIf(','));
+    nextExpect(')');
     return sequence.toArray(new Coordinate[sequence.size()]);
   }
 
@@ -150,9 +138,6 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * Reads a {@link com.vividsolutions.jts.geom.Coordinate} from the current position.
    *
    * Coordinate: number number
-   *
-   * @return Coordinate read from the current position
-   * @throws java.text.ParseException Thrown if reading the Coordinate is unsuccessful
    */
   protected Coordinate coordinate() throws ParseException {
     double x = nextDouble();

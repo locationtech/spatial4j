@@ -86,12 +86,12 @@ public class WKTShapeParser {
    *
    * @param wktString non-null, can be empty or have surrounding whitespace
    * @return Shape, null if unknown / unsupported shape.
-   * @throws ParseException Thrown if there is an error in the Shape definition.
+   * @throws ParseException Thrown if there is an error in the Shape definition
    */
   public Shape parseIfSupported(String wktString) throws ParseException {
     this.rawString = wktString;
     this.offset = 0;
-    consumeWhitespace();//leading
+    nextIfWhitespace();//leading
     if (offset >= rawString.length())
       return null;
     if (!Character.isLetter(wktString.charAt(offset)))//optimization short-circuit
@@ -118,7 +118,6 @@ public class WKTShapeParser {
    *
    * @param shapeType Non-Null string; could have mixed case. The first character is a letter.
    * @return The shape or null if not supported / unknown.
-   * @throws ParseException
    */
   protected Shape parseShapeByType(String shapeType) throws ParseException {
     if (shapeType.equalsIgnoreCase("POINT")) {
@@ -136,37 +135,39 @@ public class WKTShapeParser {
 
   /**
    * Parses a Point Shape from the raw String.
-   * <p />
-   * Point: 'POINT' '(' coordinate ')'
+   * <pre>
+   * 'POINT' '(' coordinate ')'
+   * </pre>
    *
-   * @return Point Shape parsed from the raw String
-   * @throws ParseException Thrown if the raw String doesn't represent the Point correctly
+   * @see #point()
    */
   protected Shape parsePointShape() throws ParseException {
-    expect('(');
+    nextExpect('(');
     Point coordinate = point();
-    expect(')');
+    nextExpect(')');
     return coordinate;
   }
 
   /**
    * Parses a MULTIPOINT shape -- a collection of points.
    * <pre>
-   * 'MULTIPOINT' '(' point (',' point )* ')'
+   * 'MULTIPOINT' '(' coordinate (',' coordinate )* ')'
    * </pre>
-   * Whereas 'point' is either <code>'(' x y ')'</code> or just <code>x y</code>.
+   * Furthermore, coordinate can optionally be wrapped in parenthesis.
+   *
+   * @see #point()
    */
   protected Shape parseMultiPointShape() throws ParseException {
     List<Point> shapes = new ArrayList<Point>();
-    expect('(');
+    nextExpect('(');
     do {
-      boolean openParen = consumeIfAt('(');
+      boolean openParen = nextIf('(');
       Point coordinate = point();
       if (openParen)
-        expect(')');
+        nextExpect(')');
       shapes.add(coordinate);
-    } while (consumeIfAt(','));
-    expect(')');
+    } while (nextIf(','));
+    nextExpect(')');
     return ctx.makeCollection(shapes);
   }
 
@@ -174,42 +175,42 @@ public class WKTShapeParser {
    * Parses an Envelope (Rectangle) Shape from the raw String.
    * <p />
    * Source: OGC "Catalogue Services Specification", the "CQL" (Common Query Language) sub-spec.
-   * <p />
-   * Envelope: 'ENVELOPE' '(' x1 ',' x2 ',' y2 ',' y1 ')'
-   *
-   * @return Envelope Shape parsed from the raw String
-   * @throws ParseException Thrown if the raw String doesn't represent the Envelope correctly
+   * <em>Note the inconsistent order of the min & max values between x & y!</em>
+   * <pre>
+   * 'ENVELOPE' '(' x1 ',' x2 ',' y2 ',' y1 ')'
+   * </pre>
    */
   protected Shape parseEnvelopeShape() throws ParseException {
-    expect('(');
+    nextExpect('(');
     double x1 = nextDouble();
-    expect(',');
+    nextExpect(',');
     double x2 = nextDouble();
-    expect(',');
+    nextExpect(',');
     double y2 = nextDouble();
-    expect(',');
+    nextExpect(',');
     double y1 = nextDouble();
-    expect(')');
+    nextExpect(')');
     return ctx.makeRectangle(x1, x2, y1, y2);
   }
 
   /**
    * Reads a ShapeCollection (AKA GeometryCollection) from the raw string.
-   * <p />
-   * GeometryCollection: '(' shape (',' shape )* ')'
+   * <pre>
+   * 'GEOMETRYCOLLECTION' '(' shape (',' shape )* ')'
+   * </pre>
    */
   protected Shape parseGeometryCollectionShape() throws ParseException {
     List<Shape> shapes = new ArrayList<Shape>();
-    expect('(');
+    nextExpect('(');
     do {
       Shape shape = shape();
       shapes.add(shape);
-    } while (consumeIfAt(','));
-    expect(')');
+    } while (nextIf(','));
+    nextExpect(')');
     return ctx.makeCollection(shapes);
   }
 
-  /** Reads a shape from the current position. */
+  /** Reads a shape from the current position, starting with the name of the shape. */
   protected Shape shape() throws ParseException {
     String type = nextWord();
     Shape shape = parseShapeByType(type);
@@ -220,29 +221,27 @@ public class WKTShapeParser {
 
   /**
    * Reads a list of Points (AKA CoordinateSequence) from the current position.
-   * <p />
-   * CoordinateSequence: '(' coordinate (',' coordinate )* ')'
+   * <pre>
+   * '(' coordinate (',' coordinate )* ')'
+   * </pre>
    *
-   * @return Points read from the current position. Non-null, non-empty.
-   * @throws ParseException Thrown if reading the CoordinateSequence is unsuccessful
+   * @see #point()
    */
   protected List<Point> pointList() throws ParseException {
     List<Point> sequence = new ArrayList<Point>();
-    expect('(');
+    nextExpect('(');
     do {
       sequence.add(point());
-    } while (consumeIfAt(','));
-    expect(')');
+    } while (nextIf(','));
+    nextExpect(')');
     return sequence;
   }
 
   /**
    * Reads a raw Point (AKA Coordinate) from the current position.
-   * <p />
-   * Coordinate: number number
-   *
-   * @return The point read from the current position.
-   * @throws ParseException Thrown if reading the Coordinate is unsuccessful
+   * <pre>
+   * number number
+   * </pre>
    */
   protected Point point() throws ParseException {
     double x = nextDouble();
@@ -256,7 +255,6 @@ public class WKTShapeParser {
    * {@link #offset} is advanced past whitespace.
    *
    * @return Non-null non-empty String.
-   * @throws ParseException if the word would otherwise be empty.
    */
   protected String nextWord() throws ParseException {
     int startOffset = offset;
@@ -267,7 +265,7 @@ public class WKTShapeParser {
     if (startOffset == offset)
       throw new ParseException("Word expected", startOffset);
     String result = rawString.substring(startOffset, offset);
-    consumeWhitespace();
+    nextIfWhitespace();
     return result;
   }
 
@@ -277,7 +275,6 @@ public class WKTShapeParser {
    * {@link #offset} is advanced past whitespace.
    *
    * @return Double value
-   * @throws ParseException Thrown if the String is exhausted before the number is delimited
    */
   protected double nextDouble() throws ParseException {
     int startOffset = offset;
@@ -295,7 +292,7 @@ public class WKTShapeParser {
     } catch (Exception e) {
       throw new ParseException(e.toString(), offset);
     }
-    consumeWhitespace();
+    nextIfWhitespace();
     return result;
   }
 
@@ -304,31 +301,29 @@ public class WKTShapeParser {
    * If the character is the expected value, then it is consumed and
    * {@link #offset} is advanced past whitespace.
    *
-   * @param expected Value that the next non-whitespace character should be
-   * @throws ParseException Thrown if the next non-whitespace character is not
-   *         the expected value
+   * @param expected The expected char.
    */
-  protected void expect(char expected) throws ParseException {
+  protected void nextExpect(char expected) throws ParseException {
     if (offset >= rawString.length())
       throw new ParseException("Expected [" + expected + "] found EOF", offset);
     char c = rawString.charAt(offset);
     if (c != expected)
       throw new ParseException("Expected [" + expected + "] found [" + c + "]", offset);
     offset++;
-    consumeWhitespace();
+    nextIfWhitespace();
   }
 
   /**
    * If the current character is {@code expected}, then offset is advanced after it and any
-   * subsequent whitespace.
+   * subsequent whitespace. Otherwise, false is returned.
    *
-   * @param expected The expected char.
+   * @param expected The expected char
    * @return true if consumed
    */
-  protected boolean consumeIfAt(char expected) {
+  protected boolean nextIf(char expected) {
     if (offset < rawString.length() && rawString.charAt(offset) == expected) {
       offset++;
-      consumeWhitespace();
+      nextIfWhitespace();
       return true;
     }
     return false;
@@ -336,9 +331,10 @@ public class WKTShapeParser {
 
   /**
    * Moves offset to next non-whitespace character. Doesn't move if the offset is already at
-   * non-whitespace.
+   * non-whitespace. <em>There is very little reason for subclasses to call this because
+   * most other parsing methods call it.</em>
    */
-  protected void consumeWhitespace() {
+  protected void nextIfWhitespace() {
     for (; offset < rawString.length(); offset++) {
       if (!Character.isWhitespace(rawString.charAt(offset))) {
         return;
