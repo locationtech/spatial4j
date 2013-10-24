@@ -100,6 +100,15 @@ public class WKTShapeParserTest extends RandomizedTest {
   }
 
   @Test
+  public void testLineStringShape() throws ParseException {
+    Point p1 = ctx.makePoint(1, 10);
+    Point p2 = ctx.makePoint(2, 20);
+    Point p3 = ctx.makePoint(3, 30);
+    Shape ls = ctx.makeLineString(Arrays.asList(p1, p2, p3));
+    assertParses("LINESTRING (1 10, 2 20, 3 30)", ls);
+  }
+
+  @Test
   public void testGeomCollection() throws ParseException {
     Shape s1 = ctx.makeCollection(Arrays.asList(ctx.makePoint(1, 2)));
     Shape s2 = ctx.makeCollection(

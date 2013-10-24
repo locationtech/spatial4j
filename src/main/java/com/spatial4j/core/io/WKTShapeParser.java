@@ -126,6 +126,8 @@ public class WKTShapeParser {
       return parseMultiPointShape();
     } else if (shapeType.equalsIgnoreCase("ENVELOPE")) {
       return parseEnvelopeShape();
+    } else if (shapeType.equalsIgnoreCase("LINESTRING")) {
+      return parseLineStringShape();
     } else if (shapeType.equalsIgnoreCase("GEOMETRYCOLLECTION")) {
       return parseGeometryCollectionShape();
     }
@@ -191,6 +193,19 @@ public class WKTShapeParser {
     double y1 = nextDouble();
     nextExpect(')');
     return ctx.makeRectangle(x1, x2, y1, y2);
+  }
+
+  /**
+   * Parses a LINESTRING shape -- an ordered sequence of points.
+   * <pre>
+   *   'LINESTRING' coordinateSequence
+   * </pre>
+   *
+   * @see #pointList()
+   */
+  protected Shape parseLineStringShape() throws ParseException {
+    List<Point> points = pointList();
+    return ctx.makeLineString(points);
   }
 
   /**

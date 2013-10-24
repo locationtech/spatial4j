@@ -23,10 +23,7 @@ import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReadWriter;
 import com.spatial4j.core.shape.*;
-import com.spatial4j.core.shape.impl.CircleImpl;
-import com.spatial4j.core.shape.impl.GeoCircle;
-import com.spatial4j.core.shape.impl.PointImpl;
-import com.spatial4j.core.shape.impl.RectangleImpl;
+import com.spatial4j.core.shape.impl.*;
 
 import java.util.List;
 
@@ -187,6 +184,12 @@ public class SpatialContext {
     } else {
       return new CircleImpl(point, distance, this);
     }
+  }
+
+  /** Constructs a line string. It's an ordered sequence of connected vertexes. */
+  public Shape makeLineString(List<Point> points) {
+    //no "proper" LineString interface yet so we declare to return Shape
+    return new BufferedLineString(points, 0, false, this);
   }
 
   /** Construct a ShapeCollection, analogous to an OGC GeometryCollection. */
