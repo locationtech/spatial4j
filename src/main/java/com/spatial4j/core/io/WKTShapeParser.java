@@ -128,6 +128,8 @@ public class WKTShapeParser {
       return parseEnvelopeShape();
     } else if (shapeType.equalsIgnoreCase("LINESTRING")) {
       return parseLineStringShape();
+    } else if (shapeType.equalsIgnoreCase("MULTILINESTRING")) {
+      return parseMultiLineStringShape();
     } else if (shapeType.equalsIgnoreCase("GEOMETRYCOLLECTION")) {
       return parseGeometryCollectionShape();
     }
@@ -206,6 +208,26 @@ public class WKTShapeParser {
   protected Shape parseLineStringShape() throws ParseException {
     List<Point> points = pointList();
     return ctx.makeLineString(points);
+  }
+
+  /**
+   * Reads a ShapeCollection (AKA GeometryCollection) from the raw string.
+   * <pre>
+   * 'MULTILINESTRING' '(' coordinateSequence (',' coordinateSequence )* ')'
+   * </pre>
+   *
+   * @see #pointList()
+   */
+  protected Shape parseMultiLineStringShape() throws ParseException {
+    List<Shape> shapes = new ArrayList<Shape>();
+    nextExpect('(');
+    do {
+      List<Point> points = pointList();
+      Shape shape = ctx.makeLineString(points);
+      shapes.add(shape);
+    } while (nextIf(','));
+    nextExpect(')');
+    return ctx.makeCollection(shapes);
   }
 
   /**

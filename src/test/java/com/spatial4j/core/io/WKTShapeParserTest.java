@@ -109,6 +109,18 @@ public class WKTShapeParserTest extends RandomizedTest {
   }
 
   @Test
+  public void testMultiLineStringShape() throws ParseException {
+    Shape s = ctx.makeCollection(Arrays.asList(
+       ctx.makeLineString(Arrays.asList(
+            ctx.makePoint(10, 10), ctx.makePoint(20, 20), ctx.makePoint(10, 40))),
+        ctx.makeLineString(Arrays.asList(
+            ctx.makePoint(40, 40), ctx.makePoint(30, 30), ctx.makePoint(40, 20), ctx.makePoint(30, 10)))
+    ));
+    assertParses("MULTILINESTRING ((10 10, 20 20, 10 40),\n" +
+        "(40 40, 30 30, 40 20, 30 10))", s);
+  }
+
+  @Test
   public void testGeomCollection() throws ParseException {
     Shape s1 = ctx.makeCollection(Arrays.asList(ctx.makePoint(1, 2)));
     Shape s2 = ctx.makeCollection(
