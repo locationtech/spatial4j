@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,14 +22,13 @@ import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReadWriter;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.impl.CircleImpl;
 import com.spatial4j.core.shape.impl.GeoCircle;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
+
+import java.util.List;
 
 /**
  * This is a facade to most of Spatial4j, holding things like {@link
@@ -91,7 +90,7 @@ public class SpatialContext {
   }
 
   protected ShapeReadWriter makeShapeReadWriter() {
-    return new ShapeReadWriter(this);
+    return new ShapeReadWriter<SpatialContext>(this);
   }
 
   public DistanceCalculator getDistCalc() {
@@ -188,6 +187,11 @@ public class SpatialContext {
     } else {
       return new CircleImpl(point, distance, this);
     }
+  }
+
+  /** Construct a ShapeCollection, analogous to an OGC GeometryCollection. */
+  public <S extends Shape> ShapeCollection<S> makeCollection(List<S> coll) {
+    return new ShapeCollection<S>(coll, this);
   }
 
   @Deprecated

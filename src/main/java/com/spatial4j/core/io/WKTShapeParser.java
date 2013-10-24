@@ -33,6 +33,7 @@ import java.util.List;
  * <ul>
  *   <li>POINT</li>
  *   <li>ENVELOPE</li>
+ *   <li>GEOMETRYCOLLECTION</li>
  * </ul>
  * <p />
  * To support more shapes, extend this class and override {@link #parseShapeByType(String)}.
@@ -44,7 +45,6 @@ public class WKTShapeParser {
   //TODO
   // * EMPTY shapes  (new EmptyShape with name?)
   // * shape: multipoint (both syntax's)
-  // * shape: geometrycollection
 
   /** Set in {@link #parseIfSupported(String)}. */
   protected String rawString;
@@ -89,7 +89,7 @@ public class WKTShapeParser {
   public Shape parseIfSupported(String wktString) throws ParseException {
     this.rawString = wktString;
     this.offset = 0;
-    consumeWhitespace();
+    consumeWhitespace();//leading
     if (offset >= rawString.length())
       return null;
     if (!Character.isLetter(wktString.charAt(offset)))//optimization short-circuit
@@ -111,7 +111,7 @@ public class WKTShapeParser {
    * it's able to parse the shape, {@link #offset} should be advanced beyond
    * it (e.g. to the ',' or ')' or EOF in general). The default implementation
    * checks the name against some predefined names and calls corresponding
-   * parse methods to handle the rest. This overriding this method is an
+   * parse methods to handle the rest. Overriding this method is an
    * excellent extension point for additional shape types.
    *
    * @param shapeType Non-Null string; could have mixed case. The first character is a letter.
@@ -119,12 +119,14 @@ public class WKTShapeParser {
    * @throws ParseException
    */
   protected Shape parseShapeByType(String shapeType) throws ParseException {
-    if (shapeType.equalsIgnoreCase("point")) {
+    if (shapeType.equalsIgnoreCase("POINT")) {
       return parsePointShape();
-    }
-    if (shapeType.equalsIgnoreCase("envelope")) {
+    } else if (shapeType.equalsIgnoreCase("ENVELOPE")) {
       return parseEnvelopeShape();
+    } else if (shapeType.equalsIgnoreCase("GEOMETRYCOLLECTION")) {
+      return parseGeometryCollectionShape();
     }
+    assert Character.isLetter(shapeType.charAt(0)) : "Shape must start with letter: "+shapeType;
     return null;
   }
 
@@ -164,6 +166,33 @@ public class WKTShapeParser {
     double y1 = nextDouble();
     expect(')');
     return ctx.makeRectangle(x1, x2, y1, y2);
+  }
+
+  /**
+   * Reads a ShapeCollection (AKA GeometryCollection) from the raw string.
+   * <p />
+   * GeometryCollection: '(' shape (',' shape )* ')'
+   *
+   * @throws ParseException
+   */
+  protected Shape parseGeometryCollectionShape() throws ParseException {
+    List<Shape> shapes = new ArrayList<Shape>();
+    expect('(');
+    do {
+      Shape shape = shape();
+      shapes.add(shape);
+    } while (consumeIfAt(','));
+    expect(')');
+    return ctx.makeCollection(shapes);
+  }
+
+  /** Reads a shape from the current position. */
+  protected Shape shape() throws ParseException {
+    String type = nextWord();
+    Shape shape = parseShapeByType(type);
+    if (shape == null)
+      throw new ParseException("Shape of type "+type+" is unknown", offset);
+    return shape;
   }
 
   /**
@@ -260,13 +289,10 @@ public class WKTShapeParser {
     if (offset >= rawString.length())
       throw new ParseException("Expected [" + expected + "] found EOF", offset);
     char c = rawString.charAt(offset);
-    if (c == expected) {
-      offset++;
-      consumeWhitespace();
-      return;
-    } else {
+    if (c != expected)
       throw new ParseException("Expected [" + expected + "] found [" + c + "]", offset);
-    }
+    offset++;
+    consumeWhitespace();
   }
 
   /**
@@ -335,6 +361,6 @@ public class WKTShapeParser {
     }
     if (parenStack != 0)
       throw new ParseException("Unbalanced parenthesis", startOffset);
-    return  rawString.substring(startOffset, offset);
+    return rawString.substring(startOffset, offset);
   }
 }

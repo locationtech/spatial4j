@@ -25,6 +25,7 @@ import com.spatial4j.core.shape.Shape;
 import org.junit.Test;
 
 import java.text.ParseException;
+import java.util.Arrays;
 
 public class WKTShapeParserTest extends RandomizedTest {
   SpatialContext ctx = SpatialContext.GEO;
@@ -83,6 +84,16 @@ public class WKTShapeParserTest extends RandomizedTest {
     assertFails("POINT (10f0 90)");
 
     assertFails("POINT (1 2), POINT (2 3)");
+  }
+
+  @Test
+  public void testGeomCollection() throws ParseException {
+    Shape s1 = ctx.makeCollection(Arrays.asList(ctx.makePoint(1, 2)));
+    Shape s2 = ctx.makeCollection(
+        Arrays.asList(ctx.makeRectangle(1, 2, 3, 4),
+            ctx.makePoint(-1, -2)) );
+    assertParses("GEOMETRYCOLLECTION (POINT (1 2) )", s1);
+    assertParses("GEOMETRYCOLLECTION ( ENVELOPE(1,2,4,3), POINT(-1 -2)) ", s2);
   }
 
   @Test
