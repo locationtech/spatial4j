@@ -130,21 +130,6 @@ public class WKTShapeParserTest extends RandomizedTest {
     assertParses("GEOMETRYCOLLECTION ( ENVELOPE(1,2,4,3), POINT(-1 -2)) ", s2);
   }
 
-  @Test
-  public void testNextSubShapeString() throws ParseException {
-    SHAPE_PARSER.rawString = "OUTER(INNER(3, 5))";
-    SHAPE_PARSER.offset = 0;
 
-    assertEquals("OUTER(INNER(3, 5))", SHAPE_PARSER.nextSubShapeString());
-    assertEquals("OUTER(INNER(3, 5))".length(), SHAPE_PARSER.offset);
-
-    SHAPE_PARSER.offset = "OUTER(".length();
-    assertEquals("INNER(3, 5)", SHAPE_PARSER.nextSubShapeString());
-    assertEquals("OUTER(INNER(3, 5)".length(),  SHAPE_PARSER.offset);
-
-    SHAPE_PARSER.offset = "OUTER(INNER(".length();
-    assertEquals("3", SHAPE_PARSER.nextSubShapeString());
-    assertEquals("OUTER(INNER(3".length(),  SHAPE_PARSER.offset);
-  }
 
 }

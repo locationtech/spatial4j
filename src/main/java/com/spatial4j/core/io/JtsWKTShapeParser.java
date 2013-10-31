@@ -51,26 +51,27 @@ public class JtsWKTShapeParser extends WKTShapeParser {
   }
 
   @Override
-  protected Shape parseShapeByType(String shapeType) throws ParseException {
+  protected Shape parseShapeByType(State state, String shapeType) throws ParseException {
     if (shapeType.equalsIgnoreCase("POLYGON")) {
-      return parsePolygonShape();
+      return parsePolygonShape(state);
     } else if (shapeType.equalsIgnoreCase("MULTIPOLYGON")) {
-      return parseMulitPolygonShape();
+      return parseMulitPolygonShape(state);
     }
-    return super.parseShapeByType(shapeType);
+    return super.parseShapeByType(state, shapeType);
   }
 
-  protected JtsGeometry parsePolygonShape() throws ParseException {
-    return new JtsGeometry(polygon(), getCtx(), dateline180Check);
+  protected JtsGeometry parsePolygonShape(State state) throws ParseException {
+    return new JtsGeometry(polygon(state), getCtx(), dateline180Check);
   }
 
   /**
    * Parses a Polygon Shape from the raw String
    *
    * Polygon: 'POLYGON' coordinateSequenceList
+   * @param state
    */
-  protected Polygon polygon() throws ParseException {
-    List<Coordinate[]> coordinateSequenceList = coordinateSequenceList();
+  protected Polygon polygon(State state) throws ParseException {
+    List<Coordinate[]> coordinateSequenceList = coordinateSequenceList(state);
 
     LinearRing shell = getGeometryFactory().createLinearRing
         (coordinateSequenceList.get(0));
@@ -90,14 +91,15 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * Parses a MultiPolygon Shape from the raw String
    *
    * MultiPolygon: 'MULTIPOLYGON' '(' coordinateSequenceList (',' coordinateSequenceList )* ')'
+   * @param state
    */
-  protected Shape parseMulitPolygonShape() throws ParseException {
+  protected Shape parseMulitPolygonShape(State state) throws ParseException {
     List<Polygon> polygons = new ArrayList<Polygon>();
-    nextExpect('(');
+    state.nextExpect('(');
     do {
-      polygons.add(polygon());
-    } while (nextIf(','));
-    nextExpect(')');
+      polygons.add(polygon(state));
+    } while (state.nextIf(','));
+    state.nextExpect(')');
     return new JtsGeometry(
         getGeometryFactory().createMultiPolygon(polygons.toArray(new
             Polygon[polygons.size()])),
@@ -108,14 +110,15 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * Reads a CoordinateSequenceList from the current position
    *
    * CoordinateSequenceList: '(' coordinateSequence (',' coordinateSequence )* ')'
+   * @param state
    */
-  protected List<Coordinate[]> coordinateSequenceList() throws ParseException {
+  protected List<Coordinate[]> coordinateSequenceList(State state) throws ParseException {
     List<Coordinate[]> sequenceList = new ArrayList<Coordinate[]>();
-    nextExpect('(');
+    state.nextExpect('(');
     do {
-      sequenceList.add(coordinateSequence());
-    } while (nextIf(','));
-    nextExpect(')');
+      sequenceList.add(coordinateSequence(state));
+    } while (state.nextIf(','));
+    state.nextExpect(')');
     return sequenceList;
   }
 
@@ -123,14 +126,15 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * Reads a CoordinateSequence from the current position
    *
    * CoordinateSequence: '(' coordinate (',' coordinate )* ')'
+   * @param state
    */
-  protected Coordinate[] coordinateSequence() throws ParseException {
+  protected Coordinate[] coordinateSequence(State state) throws ParseException {
     List<Coordinate> sequence = new ArrayList<Coordinate>();
-    nextExpect('(');
+    state.nextExpect('(');
     do {
-      sequence.add(coordinate());
-    } while (nextIf(','));
-    nextExpect(')');
+      sequence.add(coordinate(state));
+    } while (state.nextIf(','));
+    state.nextExpect(')');
     return sequence.toArray(new Coordinate[sequence.size()]);
   }
 
@@ -138,10 +142,11 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * Reads a {@link com.vividsolutions.jts.geom.Coordinate} from the current position.
    *
    * Coordinate: number number
+   * @param state
    */
-  protected Coordinate coordinate() throws ParseException {
-    double x = nextDouble();
-    double y = nextDouble();
+  protected Coordinate coordinate(State state) throws ParseException {
+    double x = state.nextDouble();
+    double y = state.nextDouble();
     return new Coordinate(x, y);
   }
 }

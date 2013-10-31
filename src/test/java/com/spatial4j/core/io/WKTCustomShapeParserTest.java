@@ -38,22 +38,50 @@ public class WKTCustomShapeParserTest extends WKTShapeParserTest {
     }
   }
 
-  WKTShapeParser SHAPE_PARSER = new WKTShapeParser(ctx) {
-    @Override
-    protected Shape parseShapeByType(String shapeType) throws ParseException {
-      Shape result = super.parseShapeByType(shapeType);
-      if (result == null && shapeType.contains("custom")) {
-        nextExpect('(');
-        nextExpect(')');
-        return new CustomShape(shapeType);
-      }
-      return result;
-    }
-  };
+  MyWKTShapeParser SHAPE_PARSER = new MyWKTShapeParser();
 
   @Test
   public void testCustomShape() throws ParseException {
     assertEquals("customShape", ((CustomShape)SHAPE_PARSER.parse("customShape()")).name);
     assertEquals("custom3d", ((CustomShape)SHAPE_PARSER.parse("custom3d ()")).name);//number supported
+  }
+
+  @Test
+  public void testNextSubShapeString() throws ParseException {
+
+    WKTShapeParser.State state = SHAPE_PARSER.newState("OUTER(INNER(3, 5))");
+    state.offset = 0;
+
+    assertEquals("OUTER(INNER(3, 5))", state.nextSubShapeString());
+    assertEquals("OUTER(INNER(3, 5))".length(), state.offset);
+
+    state.offset = "OUTER(".length();
+    assertEquals("INNER(3, 5)", state.nextSubShapeString());
+    assertEquals("OUTER(INNER(3, 5)".length(), state.offset);
+
+    state.offset = "OUTER(INNER(".length();
+    assertEquals("3", state.nextSubShapeString());
+    assertEquals("OUTER(INNER(3".length(), state.offset);
+  }
+
+  private class MyWKTShapeParser extends WKTShapeParser {
+    public MyWKTShapeParser() {
+      super(WKTCustomShapeParserTest.this.ctx);
+    }
+
+    public State newState(String wkt) {
+      return new State(wkt);
+    }
+
+    @Override
+    protected Shape parseShapeByType(State state, String shapeType) throws ParseException {
+      Shape result = super.parseShapeByType(state, shapeType);
+      if (result == null && shapeType.contains("custom")) {
+        state.nextExpect('(');
+        state.nextExpect(')');
+        return new CustomShape(shapeType);
+      }
+      return result;
+    }
   }
 }

@@ -37,9 +37,9 @@ import java.util.List;
  *   <li>GEOMETRYCOLLECTION</li>
  * </ul>
  * <p />
- * To support more shapes, extend this class and override {@link #parseShapeByType(String)}.
+ * To support more shapes, extend this class and override {@link #parseShapeByType(com.spatial4j.core.io.WKTShapeParser.State, String)}.
  * <p />
- * Note, instances are not threadsafe but are reusable.
+ * Note, instances are threadsafe.
  */
 public class WKTShapeParser {
 
@@ -47,12 +47,6 @@ public class WKTShapeParser {
   // * EMPTY shapes  (new EmptyShape with name?)
   // * SRID:    "SRID=4326;pointPOINT(1,2)
   // * ZM, M, Z, other-dimensions?
-
-  /** Set in {@link #parseIfSupported(String)}. */
-  protected String rawString;
-
-  /** Offset of the next char in {@link #rawString} to be read. */
-  protected int offset;
 
   protected final SpatialContext ctx;
 
@@ -75,7 +69,7 @@ public class WKTShapeParser {
     if (shape != null)
       return shape;
     String shortenedString = (wktString.length() <= 128 ? wktString : wktString.substring(0, 128-3)+"...");
-    throw new ParseException("Unknown Shape definition [" + shortenedString + "]", offset);
+    throw new ParseException("Unknown Shape definition [" + shortenedString + "]", 0);
   }
 
   /**
@@ -89,49 +83,55 @@ public class WKTShapeParser {
    * @throws ParseException Thrown if there is an error in the Shape definition
    */
   public Shape parseIfSupported(String wktString) throws ParseException {
-    this.rawString = wktString;
-    this.offset = 0;
-    nextIfWhitespace();//leading
-    if (offset >= rawString.length())
+    State state = newState(wktString);
+    state.nextIfWhitespace();//leading
+    if (state.offset >= state.rawString.length())
       return null;
-    if (!Character.isLetter(wktString.charAt(offset)))//optimization short-circuit
+    if (!Character.isLetter(wktString.charAt(state.offset)))//optimization short-circuit
       return null;
 
-    String shapeType = nextWord();
-    Shape result = parseShapeByType(shapeType);
+    String shapeType = state.nextWord();
+    Shape result = parseShapeByType(state, shapeType);
     if (result != null) {
-      if (offset != wktString.length())
-        throw new ParseException("end of shape expected", offset);
+      if (state.offset != wktString.length())
+        throw new ParseException("end of shape expected", state.offset);
     }
     return result;
+  }
+
+  /** Creates a new State with the given String. This is an extension point for subclassing. */
+  protected State newState(String wktString) {
+    return new State(wktString);
   }
 
   /**
    * Parses the remainder of a shape definition following the shape's name
    * given as {@code shapeType} already consumed via
    * {@link #nextWord()}. If
-   * it's able to parse the shape, {@link #offset} should be advanced beyond
+   * it's able to parse the shape, {@link com.spatial4j.core.io.WKTShapeParser.State#offset}
+   * should be advanced beyond
    * it (e.g. to the ',' or ')' or EOF in general). The default implementation
    * checks the name against some predefined names and calls corresponding
    * parse methods to handle the rest. Overriding this method is an
    * excellent extension point for additional shape types.
    *
+   * @param state
    * @param shapeType Non-Null string; could have mixed case. The first character is a letter.
    * @return The shape or null if not supported / unknown.
    */
-  protected Shape parseShapeByType(String shapeType) throws ParseException {
+  protected Shape parseShapeByType(State state, String shapeType) throws ParseException {
     if (shapeType.equalsIgnoreCase("POINT")) {
-      return parsePointShape();
+      return parsePointShape(state);
     } else if (shapeType.equalsIgnoreCase("MULTIPOINT")) {
-      return parseMultiPointShape();
+      return parseMultiPointShape(state);
     } else if (shapeType.equalsIgnoreCase("ENVELOPE")) {
-      return parseEnvelopeShape();
+      return parseEnvelopeShape(state);
     } else if (shapeType.equalsIgnoreCase("LINESTRING")) {
-      return parseLineStringShape();
+      return parseLineStringShape(state);
     } else if (shapeType.equalsIgnoreCase("MULTILINESTRING")) {
-      return parseMultiLineStringShape();
+      return parseMultiLineStringShape(state);
     } else if (shapeType.equalsIgnoreCase("GEOMETRYCOLLECTION")) {
-      return parseGeometryCollectionShape();
+      return parseGeometryCollectionShape(state);
     }
     assert Character.isLetter(shapeType.charAt(0)) : "Shape must start with letter: "+shapeType;
     return null;
@@ -143,12 +143,12 @@ public class WKTShapeParser {
    * 'POINT' '(' coordinate ')'
    * </pre>
    *
-   * @see #point()
+   * @see #point(com.spatial4j.core.io.WKTShapeParser.State)
    */
-  protected Shape parsePointShape() throws ParseException {
-    nextExpect('(');
-    Point coordinate = point();
-    nextExpect(')');
+  protected Shape parsePointShape(State state) throws ParseException {
+    state.nextExpect('(');
+    Point coordinate = point(state);
+    state.nextExpect(')');
     return coordinate;
   }
 
@@ -159,19 +159,19 @@ public class WKTShapeParser {
    * </pre>
    * Furthermore, coordinate can optionally be wrapped in parenthesis.
    *
-   * @see #point()
+   * @see #point(com.spatial4j.core.io.WKTShapeParser.State)
    */
-  protected Shape parseMultiPointShape() throws ParseException {
+  protected Shape parseMultiPointShape(State state) throws ParseException {
     List<Point> shapes = new ArrayList<Point>();
-    nextExpect('(');
+    state.nextExpect('(');
     do {
-      boolean openParen = nextIf('(');
-      Point coordinate = point();
+      boolean openParen = state.nextIf('(');
+      Point coordinate = point(state);
       if (openParen)
-        nextExpect(')');
+        state.nextExpect(')');
       shapes.add(coordinate);
-    } while (nextIf(','));
-    nextExpect(')');
+    } while (state.nextIf(','));
+    state.nextExpect(')');
     return ctx.makeCollection(shapes);
   }
 
@@ -184,16 +184,16 @@ public class WKTShapeParser {
    * 'ENVELOPE' '(' x1 ',' x2 ',' y2 ',' y1 ')'
    * </pre>
    */
-  protected Shape parseEnvelopeShape() throws ParseException {
-    nextExpect('(');
-    double x1 = nextDouble();
-    nextExpect(',');
-    double x2 = nextDouble();
-    nextExpect(',');
-    double y2 = nextDouble();
-    nextExpect(',');
-    double y1 = nextDouble();
-    nextExpect(')');
+  protected Shape parseEnvelopeShape(State state) throws ParseException {
+    state.nextExpect('(');
+    double x1 = state.nextDouble();
+    state.nextExpect(',');
+    double x2 = state.nextDouble();
+    state.nextExpect(',');
+    double y2 = state.nextDouble();
+    state.nextExpect(',');
+    double y1 = state.nextDouble();
+    state.nextExpect(')');
     return ctx.makeRectangle(x1, x2, y1, y2);
   }
 
@@ -203,10 +203,10 @@ public class WKTShapeParser {
    *   'LINESTRING' coordinateSequence
    * </pre>
    *
-   * @see #pointList()
+   * @see #pointList(com.spatial4j.core.io.WKTShapeParser.State)
    */
-  protected Shape parseLineStringShape() throws ParseException {
-    List<Point> points = pointList();
+  protected Shape parseLineStringShape(State state) throws ParseException {
+    List<Point> points = pointList(state);
     return ctx.makeLineString(points);
   }
 
@@ -216,17 +216,17 @@ public class WKTShapeParser {
    * 'MULTILINESTRING' '(' coordinateSequence (',' coordinateSequence )* ')'
    * </pre>
    *
-   * @see #pointList()
+   * @see #pointList(com.spatial4j.core.io.WKTShapeParser.State)
    */
-  protected Shape parseMultiLineStringShape() throws ParseException {
+  protected Shape parseMultiLineStringShape(State state) throws ParseException {
     List<Shape> shapes = new ArrayList<Shape>();
-    nextExpect('(');
+    state.nextExpect('(');
     do {
-      List<Point> points = pointList();
+      List<Point> points = pointList(state);
       Shape shape = ctx.makeLineString(points);
       shapes.add(shape);
-    } while (nextIf(','));
-    nextExpect(')');
+    } while (state.nextIf(','));
+    state.nextExpect(')');
     return ctx.makeCollection(shapes);
   }
 
@@ -236,23 +236,23 @@ public class WKTShapeParser {
    * 'GEOMETRYCOLLECTION' '(' shape (',' shape )* ')'
    * </pre>
    */
-  protected Shape parseGeometryCollectionShape() throws ParseException {
+  protected Shape parseGeometryCollectionShape(State state) throws ParseException {
     List<Shape> shapes = new ArrayList<Shape>();
-    nextExpect('(');
+    state.nextExpect('(');
     do {
-      Shape shape = shape();
+      Shape shape = shape(state);
       shapes.add(shape);
-    } while (nextIf(','));
-    nextExpect(')');
+    } while (state.nextIf(','));
+    state.nextExpect(')');
     return ctx.makeCollection(shapes);
   }
 
   /** Reads a shape from the current position, starting with the name of the shape. */
-  protected Shape shape() throws ParseException {
-    String type = nextWord();
-    Shape shape = parseShapeByType(type);
+  protected Shape shape(State state) throws ParseException {
+    String type = state.nextWord();
+    Shape shape = parseShapeByType(state, type);
     if (shape == null)
-      throw new ParseException("Shape of type "+type+" is unknown", offset);
+      throw new ParseException("Shape of type "+type+" is unknown", state.offset);
     return shape;
   }
 
@@ -262,15 +262,15 @@ public class WKTShapeParser {
    * '(' coordinate (',' coordinate )* ')'
    * </pre>
    *
-   * @see #point()
+   * @see #point(com.spatial4j.core.io.WKTShapeParser.State)
    */
-  protected List<Point> pointList() throws ParseException {
+  protected List<Point> pointList(State state) throws ParseException {
     List<Point> sequence = new ArrayList<Point>();
-    nextExpect('(');
+    state.nextExpect('(');
     do {
-      sequence.add(point());
-    } while (nextIf(','));
-    nextExpect(')');
+      sequence.add(point(state));
+    } while (state.nextIf(','));
+    state.nextExpect(')');
     return sequence;
   }
 
@@ -280,143 +280,159 @@ public class WKTShapeParser {
    * number number
    * </pre>
    */
-  protected Point point() throws ParseException {
-    double x = nextDouble();
-    double y = nextDouble();
+  protected Point point(State state) throws ParseException {
+    double x = state.nextDouble();
+    double y = state.nextDouble();
     return ctx.makePoint(x, y);
   }
 
-  /**
-   * Reads the word starting at the current character position. The word
-   * terminates once {@link Character#isJavaIdentifierPart(char)} returns false (or EOF).
-   * {@link #offset} is advanced past whitespace.
-   *
-   * @return Non-null non-empty String.
-   */
-  protected String nextWord() throws ParseException {
-    int startOffset = offset;
-    while (offset < rawString.length() &&
-        Character.isJavaIdentifierPart(rawString.charAt(offset))) {
-      offset++;
-    }
-    if (startOffset == offset)
-      throw new ParseException("Word expected", startOffset);
-    String result = rawString.substring(startOffset, offset);
-    nextIfWhitespace();
-    return result;
-  }
+  /** The parse state. */
+  public class State {
+    /**
+     * Set in {@link #parseIfSupported(String)}.
+     */
+    public String rawString;
+    /**
+     * Offset of the next char in {@link #rawString} to be read.
+     */
+    public int offset;
 
-  /**
-   * Reads in a double from the String. Parses digits with an optional decimal, sign, or exponent.
-   * NaN and Infinity are not supported.
-   * {@link #offset} is advanced past whitespace.
-   *
-   * @return Double value
-   */
-  protected double nextDouble() throws ParseException {
-    int startOffset = offset;
-    for (; offset < rawString.length(); offset++ ) {
-      char c = rawString.charAt(offset);
-      if (!(Character.isDigit(c) || c == '.' || c == '-' || c == '+' || c == 'e' || c == 'E')) {
-        break;
+    public State(String rawString) {
+      this.rawString = rawString;
+    }
+
+    /**
+     * Reads the word starting at the current character position. The word
+     * terminates once {@link Character#isJavaIdentifierPart(char)} returns false (or EOF).
+     * {@link #offset} is advanced past whitespace.
+     *
+     * @return Non-null non-empty String.
+     */
+    public String nextWord() throws ParseException {
+      int startOffset = offset;
+      while (offset < rawString.length() &&
+          Character.isJavaIdentifierPart(rawString.charAt(offset))) {
+        offset++;
       }
+      if (startOffset == offset)
+        throw new ParseException("Word expected", startOffset);
+      String result = rawString.substring(startOffset, offset);
+      nextIfWhitespace();
+      return result;
     }
-    if (startOffset == offset)
-      throw new ParseException("Expected a number", offset);
-    double result;
-    try {
-      result = Double.parseDouble(rawString.substring(startOffset, offset));
-    } catch (Exception e) {
-      throw new ParseException(e.toString(), offset);
+
+    /**
+     * Reads in a double from the String. Parses digits with an optional decimal, sign, or exponent.
+     * NaN and Infinity are not supported.
+     * {@link #offset} is advanced past whitespace.
+     *
+     * @return Double value
+     */
+    public double nextDouble() throws ParseException {
+      int startOffset = offset;
+      for (; offset < rawString.length(); offset++) {
+        char c = rawString.charAt(offset);
+        if (!(Character.isDigit(c) || c == '.' || c == '-' || c == '+' || c == 'e' || c == 'E')) {
+          break;
+        }
+      }
+      if (startOffset == offset)
+        throw new ParseException("Expected a number", offset);
+      double result;
+      try {
+        result = Double.parseDouble(rawString.substring(startOffset, offset));
+      } catch (Exception e) {
+        throw new ParseException(e.toString(), offset);
+      }
+      nextIfWhitespace();
+      return result;
     }
-    nextIfWhitespace();
-    return result;
-  }
 
-  /**
-   * Verifies that the current character is of the expected value.
-   * If the character is the expected value, then it is consumed and
-   * {@link #offset} is advanced past whitespace.
-   *
-   * @param expected The expected char.
-   */
-  protected void nextExpect(char expected) throws ParseException {
-    if (offset >= rawString.length())
-      throw new ParseException("Expected [" + expected + "] found EOF", offset);
-    char c = rawString.charAt(offset);
-    if (c != expected)
-      throw new ParseException("Expected [" + expected + "] found [" + c + "]", offset);
-    offset++;
-    nextIfWhitespace();
-  }
-
-  /**
-   * If the current character is {@code expected}, then offset is advanced after it and any
-   * subsequent whitespace. Otherwise, false is returned.
-   *
-   * @param expected The expected char
-   * @return true if consumed
-   */
-  protected boolean nextIf(char expected) {
-    if (offset < rawString.length() && rawString.charAt(offset) == expected) {
+    /**
+     * Verifies that the current character is of the expected value.
+     * If the character is the expected value, then it is consumed and
+     * {@link #offset} is advanced past whitespace.
+     *
+     * @param expected The expected char.
+     */
+    public void nextExpect(char expected) throws ParseException {
+      if (offset >= rawString.length())
+        throw new ParseException("Expected [" + expected + "] found EOF", offset);
+      char c = rawString.charAt(offset);
+      if (c != expected)
+        throw new ParseException("Expected [" + expected + "] found [" + c + "]", offset);
       offset++;
       nextIfWhitespace();
-      return true;
     }
-    return false;
-  }
 
-  /**
-   * Moves offset to next non-whitespace character. Doesn't move if the offset is already at
-   * non-whitespace. <em>There is very little reason for subclasses to call this because
-   * most other parsing methods call it.</em>
-   */
-  protected void nextIfWhitespace() {
-    for (; offset < rawString.length(); offset++) {
-      if (!Character.isWhitespace(rawString.charAt(offset))) {
-        return;
+    /**
+     * If the current character is {@code expected}, then offset is advanced after it and any
+     * subsequent whitespace. Otherwise, false is returned.
+     *
+     * @param expected The expected char
+     * @return true if consumed
+     */
+    public boolean nextIf(char expected) {
+      if (offset < rawString.length() && rawString.charAt(offset) == expected) {
+        offset++;
+        nextIfWhitespace();
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Moves offset to next non-whitespace character. Doesn't move if the offset is already at
+     * non-whitespace. <em>There is very little reason for subclasses to call this because
+     * most other parsing methods call it.</em>
+     */
+    public void nextIfWhitespace() {
+      for (; offset < rawString.length(); offset++) {
+        if (!Character.isWhitespace(rawString.charAt(offset))) {
+          return;
+        }
       }
     }
-  }
 
-  /**
-   * Returns the next chunk of text till the next ',' or ')' (non-inclusive)
-   * or EOF. If a '(' is encountered, then it looks past its matching ')',
-   * taking care to handle nested matching parenthesis too. It's designed to be
-   * of use to subclasses that wish to get the entire subshape at the current
-   * position as a string so that it might be passed to other software that
-   * will parse it.
-   * <p/>
-   * Example:
-   * <pre>
-   *   OUTER(INNER(3, 5))
-   * </pre>
-   * If this is called when offset is at the first character, then it will
-   * return this whole string.  If called at the "I" then it will return
-   * "INNER(3, 5)".  If called at "3", then it will return "3".  In all cases,
-   * offset will be positioned at the next position following the returned
-   * substring.
-   *
-   * @return non-null substring.
-   */
-  protected String nextSubShapeString() throws ParseException {
-    int startOffset = offset;
-    int parenStack = 0;//how many parenthesis levels are we in?
-    for (; offset < rawString.length(); offset++) {
-      char c = rawString.charAt(offset);
-      if (c == ',') {
-        if (parenStack == 0)
-          break;
-      } else if (c == ')') {
-        if (parenStack == 0)
-          break;
-        parenStack--;
-      } else if (c == '(') {
-        parenStack++;
+    /**
+     * Returns the next chunk of text till the next ',' or ')' (non-inclusive)
+     * or EOF. If a '(' is encountered, then it looks past its matching ')',
+     * taking care to handle nested matching parenthesis too. It's designed to be
+     * of use to subclasses that wish to get the entire subshape at the current
+     * position as a string so that it might be passed to other software that
+     * will parse it.
+     * <p/>
+     * Example:
+     * <pre>
+     *   OUTER(INNER(3, 5))
+     * </pre>
+     * If this is called when offset is at the first character, then it will
+     * return this whole string.  If called at the "I" then it will return
+     * "INNER(3, 5)".  If called at "3", then it will return "3".  In all cases,
+     * offset will be positioned at the next position following the returned
+     * substring.
+     *
+     * @return non-null substring.
+     */
+    public String nextSubShapeString() throws ParseException {
+      int startOffset = offset;
+      int parenStack = 0;//how many parenthesis levels are we in?
+      for (; offset < rawString.length(); offset++) {
+        char c = rawString.charAt(offset);
+        if (c == ',') {
+          if (parenStack == 0)
+            break;
+        } else if (c == ')') {
+          if (parenStack == 0)
+            break;
+          parenStack--;
+        } else if (c == '(') {
+          parenStack++;
+        }
       }
+      if (parenStack != 0)
+        throw new ParseException("Unbalanced parenthesis", startOffset);
+      return rawString.substring(startOffset, offset);
     }
-    if (parenStack != 0)
-      throw new ParseException("Unbalanced parenthesis", startOffset);
-    return rawString.substring(startOffset, offset);
-  }
+  }//class State
 }
