@@ -20,38 +20,26 @@ package com.spatial4j.core.io;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.*;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Extends the default parser to add support for polygons.
+ * Extends {@link WKTShapeParser} adding support for polygons, using JTS.
  */
 public class JtsWKTShapeParser extends WKTShapeParser {
 
-  /** See {@link JtsGeometry} */
-  protected boolean dateline180Check = true;
+  protected final JtsSpatialContext ctx;
 
   public JtsWKTShapeParser(JtsSpatialContext ctx) {
     super(ctx);
+    this.ctx = ctx;
   }
 
   @Override
-  public JtsSpatialContext getCtx() {
-    return (JtsSpatialContext) super.getCtx();
-  }
-
-  private GeometryFactory getGeometryFactory() {
-    return getCtx().getGeometryFactory();
-  }
-
-  @Override
-  protected Shape parseShapeByType(State state, String shapeType) throws ParseException {
+  public Shape parseShapeByType(WKTShapeParser.State state, String shapeType) throws ParseException {
     if (shapeType.equalsIgnoreCase("POLYGON")) {
       return parsePolygonShape(state);
     } else if (shapeType.equalsIgnoreCase("MULTIPOLYGON")) {
@@ -60,8 +48,21 @@ public class JtsWKTShapeParser extends WKTShapeParser {
     return super.parseShapeByType(state, shapeType);
   }
 
-  protected JtsGeometry parsePolygonShape(State state) throws ParseException {
-    return new JtsGeometry(polygon(state), getCtx(), dateline180Check);
+  /** Bypasses {@link JtsSpatialContext#makeLineString(java.util.List)} so that we can more
+   * efficiently get the LineString without creating a {@code List<Point>}.
+   */
+  @Override
+  protected Shape parseLineStringShape(WKTShapeParser.State state) throws ParseException {
+    if (!ctx.useJtsLineString())
+      return super.parseLineStringShape(state);
+    GeometryFactory geometryFactory = ctx.getGeometryFactory();
+
+    Coordinate[] coordinates = coordinateSequence(state);
+    return ctx.makeShape(geometryFactory.createLineString(coordinates));
+  }
+
+  protected JtsGeometry parsePolygonShape(WKTShapeParser.State state) throws ParseException {
+    return ctx.makeShape(polygon(state));
   }
 
   /**
@@ -70,41 +71,40 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * Polygon: 'POLYGON' coordinateSequenceList
    * @param state
    */
-  protected Polygon polygon(State state) throws ParseException {
+  protected Polygon polygon(WKTShapeParser.State state) throws ParseException {
+    GeometryFactory geometryFactory = ctx.getGeometryFactory();
+
     List<Coordinate[]> coordinateSequenceList = coordinateSequenceList(state);
 
-    LinearRing shell = getGeometryFactory().createLinearRing
+    LinearRing shell = geometryFactory.createLinearRing
         (coordinateSequenceList.get(0));
 
     LinearRing[] holes = null;
     if (coordinateSequenceList.size() > 1) {
       holes = new LinearRing[coordinateSequenceList.size() - 1];
       for (int i = 1; i < coordinateSequenceList.size(); i++) {
-        holes[i - 1] = getGeometryFactory().createLinearRing(coordinateSequenceList.get(i));
+        holes[i - 1] = geometryFactory.createLinearRing(coordinateSequenceList.get(i));
       }
     }
-    return getGeometryFactory().createPolygon(shell, holes);
+    return geometryFactory.createPolygon(shell, holes);
   }
-
 
   /**
    * Parses a MultiPolygon Shape from the raw String
    *
    * MultiPolygon: 'MULTIPOLYGON' '(' coordinateSequenceList (',' coordinateSequenceList )* ')'
-   * @param state
    */
-  protected Shape parseMulitPolygonShape(State state) throws ParseException {
-    List<Polygon> polygons = new ArrayList<Polygon>();
+  protected Shape parseMulitPolygonShape(WKTShapeParser.State state) throws ParseException {
+    List<Shape> polygons = new ArrayList<Shape>();
     state.nextExpect('(');
     do {
-      polygons.add(polygon(state));
+      polygons.add(parsePolygonShape(state));
     } while (state.nextIf(','));
     state.nextExpect(')');
-    return new JtsGeometry(
-        getGeometryFactory().createMultiPolygon(polygons.toArray(new
-            Polygon[polygons.size()])),
-        getCtx(), dateline180Check);
+
+    return ctx.makeCollection(polygons);
   }
+
 
   /**
    * Reads a CoordinateSequenceList from the current position
@@ -112,7 +112,7 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * CoordinateSequenceList: '(' coordinateSequence (',' coordinateSequence )* ')'
    * @param state
    */
-  protected List<Coordinate[]> coordinateSequenceList(State state) throws ParseException {
+  protected List<Coordinate[]> coordinateSequenceList(WKTShapeParser.State state) throws ParseException {
     List<Coordinate[]> sequenceList = new ArrayList<Coordinate[]>();
     state.nextExpect('(');
     do {
@@ -128,7 +128,8 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * CoordinateSequence: '(' coordinate (',' coordinate )* ')'
    * @param state
    */
-  protected Coordinate[] coordinateSequence(State state) throws ParseException {
+  protected Coordinate[] coordinateSequence(WKTShapeParser.State state) throws ParseException {
+    //TODO consider implementing a custom CoordinateSequence to reduce object allocation
     List<Coordinate> sequence = new ArrayList<Coordinate>();
     state.nextExpect('(');
     do {
@@ -144,7 +145,7 @@ public class JtsWKTShapeParser extends WKTShapeParser {
    * Coordinate: number number
    * @param state
    */
-  protected Coordinate coordinate(State state) throws ParseException {
+  protected Coordinate coordinate(WKTShapeParser.State state) throws ParseException {
     double x = state.nextDouble();
     double y = state.nextDouble();
     return new Coordinate(x, y);

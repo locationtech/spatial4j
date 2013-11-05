@@ -22,6 +22,7 @@ import com.spatial4j.core.shape.Shape;
 import org.junit.Test;
 
 import java.text.ParseException;
+import java.util.Arrays;
 
 public class JtsWKTShapeParserTest extends WKTShapeParserTest {
 
@@ -64,6 +65,31 @@ public class JtsWKTShapeParserTest extends WKTShapeParserTest {
         .endHole()
         .build();
     assertParses("POLYGON ((100 0, 101 0, 101 1, 100 1, 100 0), (100.2 0.2, 100.8 0.2, 100.8 0.8, 100.2 0.8, 100.2 0.2))", polygonWithHoles);
+  }
+
+  @Test
+  public void testParseMultiPolygon() throws ParseException {
+    Shape p1 = new PolygonBuilder(ctx)
+        .point(100, 0)
+        .point(101, 0)
+        .point(101, 1)
+        .point(100, 1)
+        .point(100, 0)
+        .build();
+    Shape p2 = new PolygonBuilder(ctx)
+        .point(100, 0)
+        .point(102, 0)//2
+        .point(102, 1)//2
+        .point(100, 1)
+        .point(100, 0)
+        .build();
+    Shape s = ctx.makeCollection(
+        Arrays.asList(p1, p2)
+    );
+    assertParses("MULTIPOLYGON(" +
+        "((100 0, 101 0, 101 1, 100 1, 100 0))" + ',' +
+        "((100 0, 102 0, 102 1, 100 1, 100 0))" +
+        ")", s);
   }
 
 }

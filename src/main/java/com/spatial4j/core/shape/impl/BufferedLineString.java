@@ -26,13 +26,13 @@ import java.util.List;
 
 /**
  * A BufferedLineString is a collection of {@link BufferedLine} shapes,
- * resulting in what some call a "Track" or "Polyline". It's buffered.
+ * resulting in what some call a "Track" or "Polyline" (ESRI terminology).
+ * The buffer can be 0.
  */
 public class BufferedLineString implements Shape {
 
   //TODO add some geospatial awareness like:
-  // varying bufs based on latitude (do in BufferedLine)
-  // segment that spans the dateline (split it at DL).
+  // segment that spans at the dateline (split it at DL?).
 
   private final ShapeCollection<BufferedLine> segments;
   private final double buf;

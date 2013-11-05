@@ -28,14 +28,12 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Enhances the default {@link SpatialContext} with support for Polygons (and
@@ -113,13 +111,51 @@ public class JtsSpatialContext extends SpatialContext {
     }
     throw new InvalidShapeException("can't make Geometry from: " + shape);
   }
-  
+
+  public boolean useJtsPoint() {
+    return true;
+  }
+
   @Override
   public Point makePoint(double x, double y) {
-    //A Jts Point is fairly heavyweight!  TODO could/should we optimize this?
+    if (!useJtsPoint())
+      return super.makePoint(x, y);
+    //A Jts Point is fairly heavyweight!  TODO could/should we optimize this? SingleCoordinateSequence
     verifyX(x);
     verifyY(y);
     return new JtsPoint(geometryFactory.createPoint(new Coordinate(x, y)), this);
+  }
+
+  public boolean useJtsLineString() {
+    return isGeo();//because BufferedLineString doesn't yet support dateline cross
+  }
+
+  @Override
+  public Shape makeLineString(List<Point> points) {
+    if (!useJtsLineString())
+      return super.makeLineString(points);
+    //convert List<Point> to Coordinate[]
+    Coordinate[] coords = new Coordinate[points.size()];
+    for (int i = 0; i < coords.length; i++) {
+      Point p = points.get(i);
+      if (p instanceof JtsPoint) {
+        JtsPoint jtsPoint = (JtsPoint) p;
+        coords[i] = jtsPoint.getGeom().getCoordinate();
+      } else {
+        coords[i] = new Coordinate(p.getX(), p.getY());
+      }
+    }
+    LineString lineString = geometryFactory.createLineString(coords);
+    return makeShape(lineString);
+  }
+
+  /**
+   * Creates a {@link Shape} from a JTS {@link Geometry}.
+   * @param geometry Non-null
+   * @return Non-null.
+   */
+  public JtsGeometry makeShape(Geometry geometry) {
+    return new JtsGeometry(geometry, this, true);
   }
 
   public GeometryFactory getGeometryFactory() {
@@ -135,7 +171,4 @@ public class JtsSpatialContext extends SpatialContext {
     }
   }
 
-  public static void main(String[] args) {
-    System.out.println(GEO.getGeometryFrom(GEO.makeCircle(0, 0, 1)));
-  }
 }

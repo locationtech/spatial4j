@@ -74,7 +74,7 @@ public class WKTCustomShapeParserTest extends WKTShapeParserTest {
     }
 
     @Override
-    protected Shape parseShapeByType(State state, String shapeType) throws ParseException {
+    public Shape parseShapeByType(State state, String shapeType) throws ParseException {
       Shape result = super.parseShapeByType(state, shapeType);
       if (result == null && shapeType.contains("custom")) {
         state.nextExpect('(');

@@ -19,6 +19,7 @@ package com.spatial4j.core.io;
 
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 
@@ -47,7 +48,10 @@ public class WKTShapeParser {
   // * EMPTY shapes  (new EmptyShape with name?)
   // * SRID:    "SRID=4326;pointPOINT(1,2)
   // * ZM, M, Z, other-dimensions?
+  //  ex: POINT Z (3,2)      POINT Z EMPTY      POINT EMPTY      POINT M (3,2)     POINT ZM (3,2)
 
+  //TODO should reference proposed ShapeFactory instead of ctx, which is a point of indirection that
+  // might optionally do data validation & normalization
   protected final SpatialContext ctx;
 
   public WKTShapeParser(SpatialContext ctx) {
@@ -113,27 +117,29 @@ public class WKTShapeParser {
    * it (e.g. to the ',' or ')' or EOF in general). The default implementation
    * checks the name against some predefined names and calls corresponding
    * parse methods to handle the rest. Overriding this method is an
-   * excellent extension point for additional shape types.
+   * excellent extension point for additional shape types. Or use this class by delegation to this
+   * method.
    *
    * @param state
    * @param shapeType Non-Null string; could have mixed case. The first character is a letter.
    * @return The shape or null if not supported / unknown.
    */
-  protected Shape parseShapeByType(State state, String shapeType) throws ParseException {
+  public Shape parseShapeByType(State state, String shapeType) throws ParseException {
+    assert Character.isLetter(shapeType.charAt(0)) : "Shape must start with letter: "+shapeType;
+
     if (shapeType.equalsIgnoreCase("POINT")) {
       return parsePointShape(state);
     } else if (shapeType.equalsIgnoreCase("MULTIPOINT")) {
       return parseMultiPointShape(state);
     } else if (shapeType.equalsIgnoreCase("ENVELOPE")) {
       return parseEnvelopeShape(state);
+    } else if (shapeType.equalsIgnoreCase("GEOMETRYCOLLECTION")) {
+      return parseGeometryCollectionShape(state);
     } else if (shapeType.equalsIgnoreCase("LINESTRING")) {
       return parseLineStringShape(state);
     } else if (shapeType.equalsIgnoreCase("MULTILINESTRING")) {
       return parseMultiLineStringShape(state);
-    } else if (shapeType.equalsIgnoreCase("GEOMETRYCOLLECTION")) {
-      return parseGeometryCollectionShape(state);
     }
-    assert Character.isLetter(shapeType.charAt(0)) : "Shape must start with letter: "+shapeType;
     return null;
   }
 
@@ -222,9 +228,7 @@ public class WKTShapeParser {
     List<Shape> shapes = new ArrayList<Shape>();
     state.nextExpect('(');
     do {
-      List<Point> points = pointList(state);
-      Shape shape = ctx.makeLineString(points);
-      shapes.add(shape);
+      shapes.add(parseLineStringShape(state));
     } while (state.nextIf(','));
     state.nextExpect(')');
     return ctx.makeCollection(shapes);
@@ -240,8 +244,7 @@ public class WKTShapeParser {
     List<Shape> shapes = new ArrayList<Shape>();
     state.nextExpect('(');
     do {
-      Shape shape = shape(state);
-      shapes.add(shape);
+      shapes.add(shape(state));
     } while (state.nextIf(','));
     state.nextExpect(')');
     return ctx.makeCollection(shapes);
@@ -300,6 +303,10 @@ public class WKTShapeParser {
     public State(String rawString) {
       this.rawString = rawString;
     }
+
+    public SpatialContext getCtx() { return ctx; }
+
+    public WKTShapeParser getParser() { return WKTShapeParser.this; }
 
     /**
      * Reads the word starting at the current character position. The word

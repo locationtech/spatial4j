@@ -46,9 +46,9 @@
   </licenses>
 
   <scm>
-  	<connection>scm:git:git@github.com:spatial4j/spatial4j.git</connection>
+    <connection>scm:git:git@github.com:spatial4j/spatial4j.git</connection>
     <developerConnection>scm:git:git@github.com:spatial4j/spatial4j.git</developerConnection>
-    <url>git@github.com:spatial4j/spatial4j.git</url>
+    <url>https://github.com/spatial4j/spatial4j</url>
   </scm>
 
   <properties>
@@ -126,7 +126,7 @@
           <!-- This is a small project that should have no problem with tests
           running in the maven JVM. This also conveniently means system
           properties pass through. -->
-          <forkMode>never</forkMode>
+          <forkCount>0</forkCount>
         </configuration>
       </plugin>
 
