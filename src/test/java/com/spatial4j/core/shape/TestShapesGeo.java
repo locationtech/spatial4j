@@ -144,6 +144,9 @@ public class TestShapesGeo extends AbstractTestShapes {
     // if the circle touches the rect edge in onAssertFail() instead.
     //assertEquals("0 radius at pole", DISJOINT, ctx.makeCircle(-98, 90, 0).relate(ctx.makePoint(-144,90)));
 
+    assertEquals("Spherical cap should contain enclosed band", CONTAINS,
+        ctx.makeCircle(0, -90, 30).relate(ctx.makeRectangle(-180, 180, -90, -80)));
+
     assertEquals("touches pole", INTERSECTS, ctx.makeCircle(0, -88, 2).relate(ctx.makeRectangle(40,60,-90,-86)));
 
     assertEquals("wrong farthest opp corner", INTERSECTS, ctx.makeCircle(92, 36, 46).relate(ctx.makeRectangle(134,136,32,80)));

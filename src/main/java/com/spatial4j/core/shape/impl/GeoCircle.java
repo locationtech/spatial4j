@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -95,11 +95,6 @@ public class GeoCircle extends CircleImpl {
   @Override
   protected SpatialRelation relateRectanglePhase2(Rectangle r, SpatialRelation bboxSect) {
 
-    //Rectangle wraps around the world longitudinally creating a solid band; there are no corners to test intersection
-    if (r.getWidth() == 360) {
-      return SpatialRelation.INTERSECTS;
-    }
-
     if (inverseCircle != null) {
       return inverseCircle.relate(r).inverse();
     }
@@ -112,6 +107,11 @@ public class GeoCircle extends CircleImpl {
     //This is an optimization path for when there are no dateline or pole issues.
     if (!enclosingBox.getCrossesDateLine() && !r.getCrossesDateLine()) {
       return super.relateRectanglePhase2(r, bboxSect);
+    }
+
+    //Rectangle wraps around the world longitudinally creating a solid band; there are no corners to test intersection
+    if (r.getWidth() == 360) {
+      return SpatialRelation.INTERSECTS;
     }
 
     //do quick check to see if all corners are within this circle for CONTAINS
@@ -157,7 +157,7 @@ public class GeoCircle extends CircleImpl {
       return SpatialRelation.CONTAINS;
 
     //Check if r is within the pole wrap region:
-    double yTop = getCenter().getY()+ radiusDEG;
+    double yTop = getCenter().getY() + radiusDEG;
     if (yTop > 90) {
       double yTopOverlap = yTop - 90;
       assert yTopOverlap <= 90;
