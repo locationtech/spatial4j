@@ -168,7 +168,7 @@ public class CircleImpl implements Circle {
         return SpatialRelation.DISJOINT;
     } else {
       //fallback on more expensive calculation
-      if(! contains(closestX,closestY) )
+      if (! contains(closestX,closestY) )
         return SpatialRelation.DISJOINT;
     }
 
@@ -185,12 +185,17 @@ public class CircleImpl implements Circle {
     //   farthestY is a little trickier than farthestX because of potential getYAxis offset; so we need to
     //     scale how close the corner is to the edge
     double farthestY;
-    if (point.getY() == getYAxis()) {
+    if (point.getY() == getYAxis()) {//Euclidean or by circumstance on the equator
       farthestY = r.getMaxY() - ctr_y > ctr_y - r.getMinY() ? r.getMaxY() : r.getMinY();
     } else {
+      //geodetic
       if (enclosingBox.getMaxY() == ctr_y) {
+        if (ctr_y == 90)
+          return SpatialRelation.INTERSECTS;//mutually touch a pole, don't consider this a CONTAINS
         farthestY = r.getMinY();
       } else if (enclosingBox.getMinY() == ctr_y) {
+        if (ctr_y == -90)
+          return SpatialRelation.INTERSECTS;//mutually touch a pole, don't consider this a CONTAINS
         farthestY = r.getMaxY();
       } else {
         farthestY = (r.getMaxY() - ctr_y) / (enclosingBox.getMaxY() - ctr_y) > (ctr_y - r.getMinY()) / (ctr_y - enclosingBox.getMinY())

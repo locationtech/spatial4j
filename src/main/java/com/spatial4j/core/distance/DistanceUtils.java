@@ -297,16 +297,24 @@ public class DistanceUtils {
     //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
     if (distDEG == 0)
       return lat;
+    // if we don't do this when == 90 or -90, computed result can be (+/-)89.9999 when at pole.
+    //     No biggie but more accurate.
+    else if (lat + distDEG >= 90)
+      return 90;
+    else if (lat - distDEG <= -90)
+      return -90;
+
     double lat_rad = toRadians(lat);
     double dist_rad = toRadians(distDEG);
     double result_rad = Math.asin( Math.sin(lat_rad) / Math.cos(dist_rad));
     if (!Double.isNaN(result_rad))
       return toDegrees(result_rad);
+    //handle NaN (shouldn't happen due to checks earlier)
     if (lat > 0)
       return 90;
     if (lat < 0)
       return -90;
-    return lat;
+    return lat;//0
   }
 
   /**
