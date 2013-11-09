@@ -36,7 +36,12 @@ import java.util.List;
  *   <li>MULTIPOINT</li>
  *   <li>ENVELOPE</li>
  *   <li>GEOMETRYCOLLECTION</li>
+ *   <li>LINESTRING</li>
+ *   <li>MULTILINESTRING</li>
  * </ul>
+ * 'EMPTY' is supported. Specifying 'Z', 'M', or any other dimensionality in the WKT is effectively
+ * ignored.  Thus, you can specify any number of numbers in the coordinate points but only the first
+ * two take effect.
  * <p />
  * To support more shapes, extend this class and override {@link #parseShapeByType(WktShapeParser.State, String)}.
  * <p />
@@ -44,11 +49,7 @@ import java.util.List;
  */
 public class WktShapeParser {
 
-  //TODO
-  // * EMPTY shapes  (new EmptyShape with name?)
-  // * SRID:    "SRID=4326;pointPOINT(1,2)
-  // * ZM, M, Z, other-dimensions?
-  //  ex: POINT Z (3,2)      POINT Z EMPTY      POINT EMPTY      POINT M (3,2)     POINT ZM (3,2)
+  //TODO support SRID:  "SRID=4326;pointPOINT(1,2)
 
   //TODO should reference proposed ShapeFactory instead of ctx, which is a point of indirection that
   // might optionally do data validation & normalization
@@ -138,6 +139,7 @@ public class WktShapeParser {
     } else if (shapeType.equalsIgnoreCase("MULTILINESTRING")) {
       return parseMultiLineStringShape(state);
     }
+    // HEY! Update class Javadocs if add more shapes
     return null;
   }
 
@@ -295,20 +297,16 @@ public class WktShapeParser {
   protected Point point(State state) throws ParseException {
     double x = state.nextDouble();
     double y = state.nextDouble();
+    state.skipNextDoubles();
     return ctx.makePoint(x, y);
   }
 
   /** The parse state. */
   public class State {
-    /**
-     * Set in {@link #parseIfSupported(String)}.
-     */
+    /** Set in {@link #parseIfSupported(String)}. */
     public String rawString;
-    /**
-     * Offset of the next char in {@link #rawString} to be read.
-     */
+    /** Offset of the next char in {@link #rawString} to be read. */
     public int offset;
-
     /** Dimensionality specifier (e.g. 'Z', or 'M') following a shape type name. */
     public String dimension;
 
@@ -340,6 +338,12 @@ public class WktShapeParser {
       return result;
     }
 
+    /**
+     * Skips over a dimensionality token (e.g. 'Z' or 'M') if found, storing in
+     * {@link #dimension}, and then looks for EMPTY, consuming that and whitespace.
+     *
+     * @return True if EMPTY was found.
+     */
     public boolean nextIfEmptyAndSkipZM() throws ParseException {
       if (eof())
         return false;
@@ -373,12 +377,7 @@ public class WktShapeParser {
      */
     public double nextDouble() throws ParseException {
       int startOffset = offset;
-      for (; offset < rawString.length(); offset++) {
-        char c = rawString.charAt(offset);
-        if (!(Character.isDigit(c) || c == '.' || c == '-' || c == '+' || c == 'e' || c == 'E')) {
-          break;
-        }
-      }
+      skipDouble();
       if (startOffset == offset)
         throw new ParseException("Expected a number", offset);
       double result;
@@ -389,6 +388,31 @@ public class WktShapeParser {
       }
       nextIfWhitespace();
       return result;
+    }
+
+    /** Advances offset forward until the it points to a character that isn't part of a number. */
+    public void skipDouble() {
+      int startOffset = offset;
+      for (; offset < rawString.length(); offset++) {
+        char c = rawString.charAt(offset);
+        if (!(Character.isDigit(c) || c == '.' || c == '-' || c == '+')) {
+          //'e' is okay as long as it isn't first
+          if (offset != startOffset && (c == 'e' || c == 'E'))
+            continue;
+          break;
+        }
+      }
+    }
+
+    /** Advances past as many doubles as there are, with intervening whitespace. */
+    public void skipNextDoubles() {
+      while (!eof()) {
+        int startOffset = offset;
+        skipDouble();
+        if (startOffset == offset)
+          return;
+        nextIfWhitespace();
+      }
     }
 
     /**
@@ -409,7 +433,7 @@ public class WktShapeParser {
     }
 
     /** If the string is consumed, i.e. at end-of-file. */
-    public boolean eof() {
+    public final boolean eof() {
       return offset >= rawString.length();
     }
 
@@ -421,7 +445,7 @@ public class WktShapeParser {
      * @return true if consumed
      */
     public boolean nextIf(char expected) {
-      if (offset < rawString.length() && rawString.charAt(offset) == expected) {
+      if (!eof() && rawString.charAt(offset) == expected) {
         offset++;
         nextIfWhitespace();
         return true;
@@ -482,5 +506,6 @@ public class WktShapeParser {
         throw new ParseException("Unbalanced parenthesis", startOffset);
       return rawString.substring(startOffset, offset);
     }
+
   }//class State
 }

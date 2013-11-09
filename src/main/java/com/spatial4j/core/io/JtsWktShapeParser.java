@@ -165,6 +165,7 @@ public class JtsWktShapeParser extends WktShapeParser {
   protected Coordinate coordinate(WktShapeParser.State state) throws ParseException {
     double x = state.nextDouble();
     double y = state.nextDouble();
+    state.skipNextDoubles();
     return new Coordinate(x, y);
   }
 }

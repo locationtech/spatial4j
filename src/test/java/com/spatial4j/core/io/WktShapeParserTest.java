@@ -67,6 +67,10 @@ public class WktShapeParserTest extends RandomizedTest {
     assertParses("POINT (-45.3 8.04e1 )", expected);
 
     assertParses("POINT EMPTY", ctx.makePoint(Double.NaN, Double.NaN));
+
+    //other dimensions are skipped
+    assertParses("POINT (100 90 2)", ctx.makePoint(100, 90));
+    assertParses("POINT (100 90 2 3)", ctx.makePoint(100, 90));
   }
 
   @Test
