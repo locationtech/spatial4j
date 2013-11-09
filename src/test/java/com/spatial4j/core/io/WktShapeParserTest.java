@@ -65,6 +65,8 @@ public class WktShapeParserTest extends RandomizedTest {
     assertParses("POINT (-45.3 80.4 )", expected);
     assertParses("POINT (-45.3 +80.4 )", expected);
     assertParses("POINT (-45.3 8.04e1 )", expected);
+
+    assertParses("POINT EMPTY", ctx.makePoint(Double.NaN, Double.NaN));
   }
 
   @Test
@@ -75,8 +77,12 @@ public class WktShapeParserTest extends RandomizedTest {
     assertFails("POINT 100 90)");
     assertFails("POINT (100)");
     assertFails("POINT (10f0 90)");
+    assertFails("POINT (EMPTY)");
 
     assertFails("POINT (1 2), POINT (2 3)");
+    assertFails("POINT EMPTY (1 2)");
+    assertFails("POINT ZM EMPTY (1 2)");
+    assertFails("POINT ZM EMPTY 1");
   }
 
   @Test
@@ -89,6 +95,8 @@ public class WktShapeParserTest extends RandomizedTest {
         ctx.makePoint(20, 20), ctx.makePoint(30, 10)));
     assertParses("MULTIPOINT ((10 40), (40 30), (20 20), (30 10))", s4);
     assertParses("MULTIPOINT (10 40, 40 30, 20 20, 30 10)", s4);
+
+    assertParses("MULTIPOINT Z EMPTY", ctx.makeCollection(Collections.EMPTY_LIST));
   }
 
   @Test
@@ -106,6 +114,8 @@ public class WktShapeParserTest extends RandomizedTest {
     Point p3 = ctx.makePoint(3, 30);
     Shape ls = ctx.makeLineString(Arrays.asList(p1, p2, p3));
     assertParses("LINESTRING (1 10, 2 20, 3 30)", ls);
+
+    assertParses("LINESTRING EMPTY", ctx.makeLineString(Collections.<Point>emptyList()));
   }
 
   @Test
@@ -118,6 +128,8 @@ public class WktShapeParserTest extends RandomizedTest {
     ));
     assertParses("MULTILINESTRING ((10 10, 20 20, 10 40),\n" +
         "(40 40, 30 30, 40 20, 30 10))", s);
+
+    assertParses("MULTILINESTRING M EMPTY", ctx.makeCollection(Collections.EMPTY_LIST));
   }
 
   @Test
@@ -128,6 +140,11 @@ public class WktShapeParserTest extends RandomizedTest {
             ctx.makePoint(-1, -2)) );
     assertParses("GEOMETRYCOLLECTION (POINT (1 2) )", s1);
     assertParses("GEOMETRYCOLLECTION ( ENVELOPE(1,2,4,3), POINT(-1 -2)) ", s2);
+
+    assertParses("GEOMETRYCOLLECTION EMPTY", ctx.makeCollection(Collections.EMPTY_LIST));
+
+    assertParses("GEOMETRYCOLLECTION ( POINT EMPTY )",
+        ctx.makeCollection(Arrays.asList(ctx.makePoint(Double.NaN, Double.NaN))));
   }
 
 

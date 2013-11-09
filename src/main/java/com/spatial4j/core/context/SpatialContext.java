@@ -110,14 +110,14 @@ public class SpatialContext {
   /** Ensure fits in {@link #getWorldBounds()} */
   public void verifyX(double x) {
     Rectangle bounds = getWorldBounds();
-    if (!(x >= bounds.getMinX() && x <= bounds.getMaxX()))//NaN will fail
+    if (x < bounds.getMinX() || x > bounds.getMaxX())//NaN will pass
       throw new InvalidShapeException("Bad X value "+x+" is not in boundary "+bounds);
   }
 
   /** Ensure fits in {@link #getWorldBounds()} */
   public void verifyY(double y) {
     Rectangle bounds = getWorldBounds();
-    if (!(y >= bounds.getMinY() && y <= bounds.getMaxY()))//NaN will fail
+    if (y < bounds.getMinY() || y > bounds.getMaxY())//NaN will pass
       throw new InvalidShapeException("Bad Y value "+y+" is not in boundary "+bounds);
   }
 
@@ -142,7 +142,7 @@ public class SpatialContext {
   public Rectangle makeRectangle(double minX, double maxX, double minY, double maxY) {
     Rectangle bounds = getWorldBounds();
     // Y
-    if (!(minY >= bounds.getMinY() && maxY <= bounds.getMaxY()))//NaN will fail
+    if (minY < bounds.getMinY() || maxY > bounds.getMaxY())//NaN will pass
       throw new InvalidShapeException("Y values ["+minY+" to "+maxY+"] not in boundary "+bounds);
     if (minY > maxY)
       throw new InvalidShapeException("maxY must be >= minY: " + minY + " to " + maxY);
@@ -160,7 +160,7 @@ public class SpatialContext {
       }
       //}
     } else {
-      if (!(minX >= bounds.getMinX() && maxX <= bounds.getMaxX()))//NaN will fail
+      if (minX < bounds.getMinX() || maxX > bounds.getMaxX())//NaN will pass
         throw new InvalidShapeException("X values ["+minX+" to "+maxX+"] not in boundary "+bounds);
       if (minX > maxX)
         throw new InvalidShapeException("maxX must be >= minX: " + minX + " to " + maxX);

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -61,7 +61,7 @@ public class RectangleImpl implements Rectangle {
     this.maxX = maxX;
     this.minY = minY;
     this.maxY = maxY;
-    assert minY <= maxY;
+    assert minY <= maxY || Double.isNaN(minY) : "minY, maxY: "+minY+", "+maxY;
   }
 
   @Override
@@ -242,6 +242,8 @@ public class RectangleImpl implements Rectangle {
 
   @Override
   public Point getCenter() {
+    if (Double.isNaN(minX))
+      return ctx.makePoint(Double.NaN, Double.NaN);
     final double y = getHeight() / 2 + minY;
     double x = getWidth() / 2 + minX;
     if (minX > maxX)//WGS84

@@ -58,8 +58,6 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
    * @param ctx
    */
   public ShapeCollection(List<S> shapes, SpatialContext ctx) {
-    if (shapes.isEmpty())
-      throw new IllegalArgumentException("must be given at least 1 shape");
     if (!(shapes instanceof RandomAccess))
       throw new IllegalArgumentException("Shapes arg must implement RandomAccess: "+shapes.getClass());
     this.shapes = shapes;
@@ -67,6 +65,8 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
   }
 
   protected Rectangle computeBoundingBox(Collection<? extends Shape> shapes, SpatialContext ctx) {
+    if (shapes.isEmpty())
+      return ctx.makeRectangle(Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     Range xRange = null;
     double minY = Double.POSITIVE_INFINITY;
     double maxY = Double.NEGATIVE_INFINITY;

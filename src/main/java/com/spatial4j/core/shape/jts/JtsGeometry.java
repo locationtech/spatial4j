@@ -84,6 +84,8 @@ public class JtsGeometry implements Shape {
    * bounds, return the minimal longitude range of the bounding box.
    */
   protected Rectangle computeGeoBBox(Geometry geoms) {
+    if (geoms.isEmpty())
+      return new RectangleImpl(Double.NaN, Double.NaN, Double.NaN, Double.NaN, ctx);
     final Envelope env = geoms.getEnvelopeInternal();//for minY & maxY (simple)
     if (env.getWidth() > 180 && geoms.getNumGeometries() > 1)  {
       // This is ShapeCollection's bbox algorithm

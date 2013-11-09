@@ -24,6 +24,7 @@ import com.spatial4j.core.shape.Shape;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -88,17 +89,15 @@ public class WktShapeParser {
   public Shape parseIfSupported(String wktString) throws ParseException {
     State state = newState(wktString);
     state.nextIfWhitespace();//leading
-    if (state.offset >= state.rawString.length())
+    if (state.eof())
       return null;
     if (!Character.isLetter(wktString.charAt(state.offset)))//optimization short-circuit
       return null;
 
     String shapeType = state.nextWord();
     Shape result = parseShapeByType(state, shapeType);
-    if (result != null) {
-      if (state.offset != wktString.length())
-        throw new ParseException("end of shape expected", state.offset);
-    }
+    if (result != null && !state.eof())
+      throw new ParseException("end of shape expected", state.offset);
     return result;
   }
 
@@ -151,6 +150,8 @@ public class WktShapeParser {
    * @see #point(WktShapeParser.State)
    */
   protected Shape parsePointShape(State state) throws ParseException {
+    if (state.nextIfEmptyAndSkipZM())
+      return ctx.makePoint(Double.NaN, Double.NaN);
     state.nextExpect('(');
     Point coordinate = point(state);
     state.nextExpect(')');
@@ -167,6 +168,8 @@ public class WktShapeParser {
    * @see #point(WktShapeParser.State)
    */
   protected Shape parseMultiPointShape(State state) throws ParseException {
+    if (state.nextIfEmptyAndSkipZM())
+      return ctx.makeCollection(Collections.EMPTY_LIST);
     List<Point> shapes = new ArrayList<Point>();
     state.nextExpect('(');
     do {
@@ -190,6 +193,7 @@ public class WktShapeParser {
    * </pre>
    */
   protected Shape parseEnvelopeShape(State state) throws ParseException {
+    //FYI no dimension or EMPTY
     state.nextExpect('(');
     double x1 = state.nextDouble();
     state.nextExpect(',');
@@ -211,6 +215,8 @@ public class WktShapeParser {
    * @see #pointList(WktShapeParser.State)
    */
   protected Shape parseLineStringShape(State state) throws ParseException {
+    if (state.nextIfEmptyAndSkipZM())
+      return ctx.makeLineString(Collections.<Point>emptyList());
     List<Point> points = pointList(state);
     return ctx.makeLineString(points);
   }
@@ -224,6 +230,8 @@ public class WktShapeParser {
    * @see #pointList(WktShapeParser.State)
    */
   protected Shape parseMultiLineStringShape(State state) throws ParseException {
+    if (state.nextIfEmptyAndSkipZM())
+      return ctx.makeCollection(Collections.EMPTY_LIST);
     List<Shape> shapes = new ArrayList<Shape>();
     state.nextExpect('(');
     do {
@@ -240,6 +248,8 @@ public class WktShapeParser {
    * </pre>
    */
   protected Shape parseGeometryCollectionShape(State state) throws ParseException {
+    if (state.nextIfEmptyAndSkipZM())
+      return ctx.makeCollection(Collections.EMPTY_LIST);
     List<Shape> shapes = new ArrayList<Shape>();
     state.nextExpect('(');
     do {
@@ -299,6 +309,9 @@ public class WktShapeParser {
      */
     public int offset;
 
+    /** Dimensionality specifier (e.g. 'Z', or 'M') following a shape type name. */
+    public String dimension;
+
     public State(String rawString) {
       this.rawString = rawString;
     }
@@ -325,6 +338,30 @@ public class WktShapeParser {
       String result = rawString.substring(startOffset, offset);
       nextIfWhitespace();
       return result;
+    }
+
+    public boolean nextIfEmptyAndSkipZM() throws ParseException {
+      if (eof())
+        return false;
+      char c = rawString.charAt(offset);
+      if (c == '(' || !Character.isJavaIdentifierPart(c))
+        return false;
+      String word = nextWord();
+      if (word.equalsIgnoreCase("EMPTY"))
+        return true;
+      //we figure this word is Z or ZM or some other dimensionality signifier. We skip it.
+      this.dimension = word;
+
+      if (eof())
+        return false;
+      c = rawString.charAt(offset);
+      if (c == '(' || !Character.isJavaIdentifierPart(c))
+        return false;
+      word = nextWord();
+      if (word.equalsIgnoreCase("EMPTY"))
+        return true;
+      throw new ParseException("Expected EMPTY because found dimension; but got ["+word+"]",
+          offset);
     }
 
     /**
@@ -362,13 +399,18 @@ public class WktShapeParser {
      * @param expected The expected char.
      */
     public void nextExpect(char expected) throws ParseException {
-      if (offset >= rawString.length())
+      if (eof())
         throw new ParseException("Expected [" + expected + "] found EOF", offset);
       char c = rawString.charAt(offset);
       if (c != expected)
         throw new ParseException("Expected [" + expected + "] found [" + c + "]", offset);
       offset++;
       nextIfWhitespace();
+    }
+
+    /** If the string is consumed, i.e. at end-of-file. */
+    public boolean eof() {
+      return offset >= rawString.length();
     }
 
     /**

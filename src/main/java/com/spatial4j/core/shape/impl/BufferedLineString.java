@@ -22,6 +22,7 @@ import com.spatial4j.core.shape.*;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -57,26 +58,29 @@ public class BufferedLineString implements Shape {
    */
   public BufferedLineString(List<Point> points, double buf, boolean expandBufForLongitudeSkew,
                             SpatialContext ctx) {
-    if (points.isEmpty())
-      throw new IllegalArgumentException("Need at least 1 point.");
-    List<BufferedLine> segments = new ArrayList<BufferedLine>(points.size() - 1);
-
-    Point prevPoint = null;
-    for (Point point : points) {
-      if (prevPoint != null) {
-        double segBuf = buf;
-        if (expandBufForLongitudeSkew) {
-          segBuf = BufferedLine.expandBufForLongitudeSkew(prevPoint, point, buf);
-        }
-        segments.add(new BufferedLine(prevPoint, point, segBuf, ctx));
-      }
-      prevPoint = point;
-    }
-    if (segments.isEmpty()) {
-      segments.add(new BufferedLine(prevPoint, prevPoint, buf, ctx));
-    }
-    this.segments = new ShapeCollection<BufferedLine>(segments, ctx);
     this.buf = buf;
+
+    if (points.isEmpty()) {
+      this.segments = ctx.makeCollection(Collections.<BufferedLine>emptyList());
+    } else {
+      List<BufferedLine> segments = new ArrayList<BufferedLine>(points.size() - 1);
+
+      Point prevPoint = null;
+      for (Point point : points) {
+        if (prevPoint != null) {
+          double segBuf = buf;
+          if (expandBufForLongitudeSkew) {
+            segBuf = BufferedLine.expandBufForLongitudeSkew(prevPoint, point, buf);
+          }
+          segments.add(new BufferedLine(prevPoint, point, segBuf, ctx));
+        }
+        prevPoint = point;
+      }
+      if (segments.isEmpty()) {//TODO throw exception instead?
+        segments.add(new BufferedLine(prevPoint, prevPoint, buf, ctx));
+      }
+      this.segments = ctx.makeCollection(segments);
+    }
   }
 
   public ShapeCollection<BufferedLine> getSegments() {
@@ -130,6 +134,8 @@ public class BufferedLineString implements Shape {
   }
 
   public List<Point> getPoints() {
+    if (segments.isEmpty())
+      return Collections.emptyList();
     final List<BufferedLine> lines = segments.getShapes();
     return new AbstractList<Point>() {
       @Override

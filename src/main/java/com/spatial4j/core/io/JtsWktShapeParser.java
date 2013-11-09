@@ -18,15 +18,14 @@
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.*;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -58,6 +57,10 @@ public class JtsWktShapeParser extends WktShapeParser {
   protected Shape parseLineStringShape(WktShapeParser.State state) throws ParseException {
     if (!ctx.useJtsLineString())
       return super.parseLineStringShape(state);
+
+    if (state.nextIfEmptyAndSkipZM())
+      return ctx.makeLineString(Collections.<Point>emptyList());
+
     GeometryFactory geometryFactory = ctx.getGeometryFactory();
 
     Coordinate[] coordinates = coordinateSequence(state);
@@ -65,7 +68,15 @@ public class JtsWktShapeParser extends WktShapeParser {
   }
 
   protected JtsGeometry parsePolygonShape(WktShapeParser.State state) throws ParseException {
-    return ctx.makeShape(polygon(state));
+    Geometry geometry;
+    if (state.nextIfEmptyAndSkipZM()) {
+      GeometryFactory geometryFactory = ctx.getGeometryFactory();
+      geometry = geometryFactory.createPolygon(geometryFactory.createLinearRing(
+          new Coordinate[]{}), null);
+    } else {
+      geometry = polygon(state);
+    }
+    return ctx.makeShape(geometry);
   }
 
   /**
@@ -98,6 +109,9 @@ public class JtsWktShapeParser extends WktShapeParser {
    * MultiPolygon: 'MULTIPOLYGON' '(' coordinateSequenceList (',' coordinateSequenceList )* ')'
    */
   protected Shape parseMulitPolygonShape(WktShapeParser.State state) throws ParseException {
+    if (state.nextIfEmptyAndSkipZM())
+      return ctx.makeCollection(Collections.EMPTY_LIST);
+
     List<Shape> polygons = new ArrayList<Shape>();
     state.nextExpect('(');
     do {

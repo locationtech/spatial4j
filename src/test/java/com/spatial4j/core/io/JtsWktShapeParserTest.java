@@ -19,24 +19,25 @@ package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.Shape;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import org.junit.Test;
 
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class JtsWktShapeParserTest extends WktShapeParserTest {
 
   //By extending WktShapeParserTest we inherit its test too
 
-
-  JtsSpatialContext ctx;//note masks superclass
+  JtsSpatialContext ctx;//note: masks superclass
 
   public JtsWktShapeParserTest() {
     this.ctx = JtsSpatialContext.GEO;
     super.ctx = ctx;
     SHAPE_PARSER = new JtsWktShapeParser(ctx);
   }
-
 
   @Test
   public void testParsePolygon() throws ParseException {
@@ -47,8 +48,12 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
         .point(100, 1)
         .point(100, 0)
         .build();
-    assertParses("POLYGON ((100 0, 101 0, 101 1, 100 1, 100 0))", polygonNoHoles);
+    String polygonNoHolesSTR = "POLYGON ((100 0, 101 0, 101 1, 100 1, 100 0))";
+    assertParses(polygonNoHolesSTR, polygonNoHoles);
     assertParses("POLYGON((100 0,101 0,101 1,100 1,100 0))", polygonNoHoles);
+
+    assertParses("GEOMETRYCOLLECTION ( "+polygonNoHolesSTR+")",
+        ctx.makeCollection(Arrays.asList(polygonNoHoles)));
 
     Shape polygonWithHoles = new PolygonBuilder(ctx)
         .point(100, 0)
@@ -65,6 +70,11 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
         .endHole()
         .build();
     assertParses("POLYGON ((100 0, 101 0, 101 1, 100 1, 100 0), (100.2 0.2, 100.8 0.2, 100.8 0.8, 100.2 0.8, 100.2 0.2))", polygonWithHoles);
+
+    GeometryFactory gf = ctx.getGeometryFactory();
+    assertParses("POLYGON EMPTY", ctx.makeShape(
+        gf.createPolygon(gf.createLinearRing(new Coordinate[]{}), null)
+    ));
   }
 
   @Test
@@ -90,6 +100,8 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
         "((100 0, 101 0, 101 1, 100 1, 100 0))" + ',' +
         "((100 0, 102 0, 102 1, 100 1, 100 0))" +
         ")", s);
+
+    assertParses("MULTIPOLYGON EMPTY", ctx.makeCollection(Collections.EMPTY_LIST));
   }
 
 }
