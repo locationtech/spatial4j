@@ -42,10 +42,18 @@ import java.util.List;
  * 'EMPTY' is supported. Specifying 'Z', 'M', or any other dimensionality in the WKT is effectively
  * ignored.  Thus, you can specify any number of numbers in the coordinate points but only the first
  * two take effect.
+ *
  * <p />
- * To support more shapes, extend this class and override {@link #parseShapeByType(WktShapeParser.State, String)}.
+ * Most users of this class will call just one method: {@link #parse(String)}, or
+ * {@link #parseIfSupported(String)} to not fail if it isn't parse-able.
+ *
  * <p />
- * Note, instances are threadsafe.
+ * To support more shapes, extend this class and override
+ * {@link #parseShapeByType(WktShapeParser.State, String)}. It's also possible to delegate to
+ * a WKTParser by also delegating {@link #newState(String)}.
+ *
+ * <p />
+ * Note, instances of this base class are threadsafe.
  */
 public class WktShapeParser {
 
@@ -92,9 +100,9 @@ public class WktShapeParser {
     state.nextIfWhitespace();//leading
     if (state.eof())
       return null;
-    if (!Character.isLetter(wktString.charAt(state.offset)))//optimization short-circuit
+    //shape types must start with a letter
+    if (!Character.isLetter(state.rawString.charAt(state.offset)))
       return null;
-
     String shapeType = state.nextWord();
     Shape result = parseShapeByType(state, shapeType);
     if (result != null && !state.eof())
@@ -102,28 +110,36 @@ public class WktShapeParser {
     return result;
   }
 
-  /** Creates a new State with the given String. This is an extension point for subclassing. */
+  /** (internal) Creates a new State with the given String. It's only called by
+   * {@link #parseIfSupported(String)}. This is an extension point for subclassing. */
   protected State newState(String wktString) {
+    //NOTE: if we wanted to re-use old States to reduce object allocation, we might do that
+    // here. But in the scheme of things, it doesn't seem worth the bother as it complicates the
+    // thread-safety story of the API for too little of a gain.
     return new State(wktString);
   }
 
   /**
-   * Parses the remainder of a shape definition following the shape's name
+   * (internal) Parses the remainder of a shape definition following the shape's name
    * given as {@code shapeType} already consumed via
-   * {@link #nextWord()}. If
+   * {@link State#nextWord()}. If
    * it's able to parse the shape, {@link WktShapeParser.State#offset}
    * should be advanced beyond
    * it (e.g. to the ',' or ')' or EOF in general). The default implementation
    * checks the name against some predefined names and calls corresponding
    * parse methods to handle the rest. Overriding this method is an
-   * excellent extension point for additional shape types. Or use this class by delegation to this
+   * excellent extension point for additional shape types. Or, use this class by delegation to this
    * method.
+   * <p />
+   * When writing a parse method that reacts to a specific shape type, remember to handle the
+   * dimension and EMPTY token via
+   * {@link com.spatial4j.core.io.WktShapeParser.State#nextIfEmptyAndSkipZM()}.
    *
    * @param state
    * @param shapeType Non-Null string; could have mixed case. The first character is a letter.
    * @return The shape or null if not supported / unknown.
    */
-  public Shape parseShapeByType(State state, String shapeType) throws ParseException {
+  protected Shape parseShapeByType(State state, String shapeType) throws ParseException {
     assert Character.isLetter(shapeType.charAt(0)) : "Shape must start with letter: "+shapeType;
 
     if (shapeType.equalsIgnoreCase("POINT")) {
@@ -144,9 +160,9 @@ public class WktShapeParser {
   }
 
   /**
-   * Parses a Point Shape from the raw String.
+   * Parses a POINT shape from the raw string.
    * <pre>
-   * 'POINT' '(' coordinate ')'
+   *   '(' coordinate ')'
    * </pre>
    *
    * @see #point(WktShapeParser.State)
@@ -161,9 +177,9 @@ public class WktShapeParser {
   }
 
   /**
-   * Parses a MULTIPOINT shape -- a collection of points.
+   * Parses a MULTIPOINT shape from the raw string -- a collection of points.
    * <pre>
-   * 'MULTIPOINT' '(' coordinate (',' coordinate )* ')'
+   *   '(' coordinate (',' coordinate )* ')'
    * </pre>
    * Furthermore, coordinate can optionally be wrapped in parenthesis.
    *
@@ -186,12 +202,12 @@ public class WktShapeParser {
   }
 
   /**
-   * Parses an Envelope (Rectangle) Shape from the raw String.
+   * Parses an ENVELOPE (aka Rectangle) shape from the raw string.
    * <p />
    * Source: OGC "Catalogue Services Specification", the "CQL" (Common Query Language) sub-spec.
    * <em>Note the inconsistent order of the min & max values between x & y!</em>
    * <pre>
-   * 'ENVELOPE' '(' x1 ',' x2 ',' y2 ',' y1 ')'
+   *   '(' x1 ',' x2 ',' y2 ',' y1 ')'
    * </pre>
    */
   protected Shape parseEnvelopeShape(State state) throws ParseException {
@@ -209,9 +225,9 @@ public class WktShapeParser {
   }
 
   /**
-   * Parses a LINESTRING shape -- an ordered sequence of points.
+   * Parses a LINESTRING shape from the raw string -- an ordered sequence of points.
    * <pre>
-   *   'LINESTRING' coordinateSequence
+   *   coordinateSequence
    * </pre>
    *
    * @see #pointList(WktShapeParser.State)
@@ -224,12 +240,12 @@ public class WktShapeParser {
   }
 
   /**
-   * Reads a ShapeCollection (AKA GeometryCollection) from the raw string.
+   * Parses a MULTILINESTRING shape from the raw string -- a collection of line strings.
    * <pre>
-   * 'MULTILINESTRING' '(' coordinateSequence (',' coordinateSequence )* ')'
+   *   '(' coordinateSequence (',' coordinateSequence )* ')'
    * </pre>
    *
-   * @see #pointList(WktShapeParser.State)
+   * @see #parseLineStringShape(com.spatial4j.core.io.WktShapeParser.State)
    */
   protected Shape parseMultiLineStringShape(State state) throws ParseException {
     if (state.nextIfEmptyAndSkipZM())
@@ -244,9 +260,9 @@ public class WktShapeParser {
   }
 
   /**
-   * Reads a ShapeCollection (AKA GeometryCollection) from the raw string.
+   * Parses a GEOMETRYCOLLECTION shape from the raw string.
    * <pre>
-   * 'GEOMETRYCOLLECTION' '(' shape (',' shape )* ')'
+   *   '(' shape (',' shape )* ')'
    * </pre>
    */
   protected Shape parseGeometryCollectionShape(State state) throws ParseException {
@@ -261,7 +277,9 @@ public class WktShapeParser {
     return ctx.makeCollection(shapes);
   }
 
-  /** Reads a shape from the current position, starting with the name of the shape. */
+  /** Reads a shape from the current position, starting with the name of the shape. It
+   * calls {@link #parseShapeByType(com.spatial4j.core.io.WktShapeParser.State, String)}
+   * and throws an exception if the shape wasn't supported. */
   protected Shape shape(State state) throws ParseException {
     String type = state.nextWord();
     Shape shape = parseShapeByType(state, type);
@@ -273,7 +291,7 @@ public class WktShapeParser {
   /**
    * Reads a list of Points (AKA CoordinateSequence) from the current position.
    * <pre>
-   * '(' coordinate (',' coordinate )* ')'
+   *   '(' coordinate (',' coordinate )* ')'
    * </pre>
    *
    * @see #point(WktShapeParser.State)
@@ -289,9 +307,10 @@ public class WktShapeParser {
   }
 
   /**
-   * Reads a raw Point (AKA Coordinate) from the current position.
+   * Reads a raw Point (AKA Coordinate) from the current position. Only the first 2 numbers are
+   * used.
    * <pre>
-   * number number
+   *   number number number*
    * </pre>
    */
   protected Point point(State state) throws ParseException {
@@ -341,7 +360,9 @@ public class WktShapeParser {
     /**
      * Skips over a dimensionality token (e.g. 'Z' or 'M') if found, storing in
      * {@link #dimension}, and then looks for EMPTY, consuming that and whitespace.
-     *
+     * <pre>
+     *   dimensionToken? 'EMPTY'?
+     * </pre>
      * @return True if EMPTY was found.
      */
     public boolean nextIfEmptyAndSkipZM() throws ParseException {
@@ -390,7 +411,7 @@ public class WktShapeParser {
       return result;
     }
 
-    /** Advances offset forward until the it points to a character that isn't part of a number. */
+    /** Advances offset forward until it points to a character that isn't part of a number. */
     public void skipDouble() {
       int startOffset = offset;
       for (; offset < rawString.length(); offset++) {

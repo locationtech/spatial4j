@@ -41,7 +41,7 @@ public class JtsWktShapeParser extends WktShapeParser {
   }
 
   @Override
-  public Shape parseShapeByType(WktShapeParser.State state, String shapeType) throws ParseException {
+  protected Shape parseShapeByType(WktShapeParser.State state, String shapeType) throws ParseException {
     if (shapeType.equalsIgnoreCase("POLYGON")) {
       return parsePolygonShape(state);
     } else if (shapeType.equalsIgnoreCase("MULTIPOLYGON")) {
@@ -67,6 +67,12 @@ public class JtsWktShapeParser extends WktShapeParser {
     return ctx.makeShape(geometryFactory.createLineString(coordinates));
   }
 
+  /**
+   * Parses a POLYGON shape from the raw string.
+   * <pre>
+   *   coordinateSequenceList
+   * </pre>
+   */
   protected JtsGeometry parsePolygonShape(WktShapeParser.State state) throws ParseException {
     Geometry geometry;
     if (state.nextIfEmptyAndSkipZM()) {
@@ -80,10 +86,7 @@ public class JtsWktShapeParser extends WktShapeParser {
   }
 
   /**
-   * Parses a Polygon Shape from the raw String
-   *
-   * Polygon: 'POLYGON' coordinateSequenceList
-   * @param state
+   * Reads a polygon, returning a JTS polygon.
    */
   protected Polygon polygon(WktShapeParser.State state) throws ParseException {
     GeometryFactory geometryFactory = ctx.getGeometryFactory();
@@ -104,9 +107,10 @@ public class JtsWktShapeParser extends WktShapeParser {
   }
 
   /**
-   * Parses a MultiPolygon Shape from the raw String
-   *
-   * MultiPolygon: 'MULTIPOLYGON' '(' coordinateSequenceList (',' coordinateSequenceList )* ')'
+   * Parses a MULTIPOLYGON shape from the raw string.
+   * <pre>
+   *   '(' polygon (',' polygon )* ')'
+   * </pre>
    */
   protected Shape parseMulitPolygonShape(WktShapeParser.State state) throws ParseException {
     if (state.nextIfEmptyAndSkipZM())
@@ -124,10 +128,10 @@ public class JtsWktShapeParser extends WktShapeParser {
 
 
   /**
-   * Reads a CoordinateSequenceList from the current position
-   *
-   * CoordinateSequenceList: '(' coordinateSequence (',' coordinateSequence )* ')'
-   * @param state
+   * Reads a list of JTS Coordinate sequences from the current position.
+   * <pre>
+   *   '(' coordinateSequence (',' coordinateSequence )* ')'
+   * </pre>
    */
   protected List<Coordinate[]> coordinateSequenceList(WktShapeParser.State state) throws ParseException {
     List<Coordinate[]> sequenceList = new ArrayList<Coordinate[]>();
@@ -140,13 +144,12 @@ public class JtsWktShapeParser extends WktShapeParser {
   }
 
   /**
-   * Reads a CoordinateSequence from the current position
-   *
-   * CoordinateSequence: '(' coordinate (',' coordinate )* ')'
-   * @param state
+   * Reads a JTS Coordinate sequence from the current position.
+   * <pre>
+   *   '(' coordinate (',' coordinate )* ')'
+   * </pre>
    */
   protected Coordinate[] coordinateSequence(WktShapeParser.State state) throws ParseException {
-    //TODO consider implementing a custom CoordinateSequence to reduce object allocation
     List<Coordinate> sequence = new ArrayList<Coordinate>();
     state.nextExpect('(');
     do {
@@ -158,9 +161,8 @@ public class JtsWktShapeParser extends WktShapeParser {
 
   /**
    * Reads a {@link com.vividsolutions.jts.geom.Coordinate} from the current position.
-   *
-   * Coordinate: number number
-   * @param state
+   * It's akin to {@link #point(com.spatial4j.core.io.WktShapeParser.State)} but for
+   * a JTS Coordinate.  Only the first 2 numbers are parsed; any remaining are ignored.
    */
   protected Coordinate coordinate(WktShapeParser.State state) throws ParseException {
     double x = state.nextDouble();

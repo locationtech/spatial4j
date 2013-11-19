@@ -69,7 +69,12 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
       super(WktCustomShapeParserTest.this.ctx);
     }
 
-    public State newState(String wkt) {
+    protected State newState(String wkt) {
+      //First few lines compile, despite newState() being protected. Just proving extensibility.
+      WktShapeParser other = null;
+      if (false)
+        other.newState(wkt);
+
       return new State(wkt);
     }
 

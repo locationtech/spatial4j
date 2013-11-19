@@ -71,6 +71,8 @@ public class WktShapeParserTest extends RandomizedTest {
     //other dimensions are skipped
     assertParses("POINT (100 90 2)", ctx.makePoint(100, 90));
     assertParses("POINT (100 90 2 3)", ctx.makePoint(100, 90));
+    assertParses("POINT ZM ( 100 90 )", ctx.makePoint(100, 90));//ignore dimension
+    assertParses("POINT ZM ( 100 90 -3 -4)", ctx.makePoint(100, 90));//ignore dimension
   }
 
   @Test
