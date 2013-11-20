@@ -153,6 +153,8 @@ public class WktShapeParserTest extends RandomizedTest {
         ctx.makeCollection(Arrays.asList(ctx.makePoint(Double.NaN, Double.NaN))));
   }
 
-
-
+  @Test
+  public void testBuffer() throws ParseException {
+    assertParses("BUFFER(POINT(1 2), 3)", ctx.makePoint(1, 2).getBuffered(ctx, 3));
+  }
 }

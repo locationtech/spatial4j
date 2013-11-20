@@ -83,6 +83,11 @@ public class BufferedLineString implements Shape {
     }
   }
 
+  @Override
+  public Shape getBuffered(SpatialContext ctx, double distance) {
+    return ctx.makeBufferedLineString(getPoints(), buf + distance);
+  }
+
   public ShapeCollection<BufferedLine> getSegments() {
     return segments;
   }

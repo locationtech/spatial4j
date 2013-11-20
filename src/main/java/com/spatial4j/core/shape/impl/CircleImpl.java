@@ -70,6 +70,11 @@ public class CircleImpl implements Circle {
     }
   }
 
+  @Override
+  public Circle getBuffered(SpatialContext ctx, double distance) {
+    return ctx.makeCircle(point, distance + radiusDEG);
+  }
+
   public boolean contains(double x, double y) {
     return ctx.getDistCalc().distance(point, x, y) <= radiusDEG;
   }

@@ -98,6 +98,22 @@ public class TestShapesGeo extends AbstractTestShapes {
 
     //Test geo rectangle intersections
     testRectIntersect();
+
+    //Test buffer
+    assertEquals(ctx.makeRectangle(-10, 10, -10, 10), ctx.makeRectangle(0, 0, 0, 0).getBuffered(ctx, 10));
+    for (int i = 0; i < atLeast(100); i++) {
+      Rectangle r = randomRectangle(1);
+      int buf = randomIntBetween(0, 90);
+      Rectangle br = (Rectangle) r.getBuffered(ctx, buf);
+      assertRelation(null, CONTAINS, br, r);
+      if (r.getWidth() + 2 * buf >= 360)
+        assertEquals(360, br.getWidth(), 0.0);
+      else
+        assertTrue(br.getWidth() - r.getWidth() >= 2 * buf);
+      //TODO test more thoroughly; we don't check that we over-buf
+    }
+    assertTrue(ctx.makeRectangle(0, 10, 0, 89).getBuffered(ctx, 0.5).getBoundingBox().getWidth()
+        > 11);
   }
 
   @Test
@@ -107,8 +123,8 @@ public class TestShapesGeo extends AbstractTestShapes {
     double v = 200 * (randomBoolean() ? -1 : 1);
     try { ctx.makeCircle(v,0,5); fail(); } catch (InvalidShapeException e) {}
     try { ctx.makeCircle(0, v, 5); fail(); } catch (InvalidShapeException e) {}
-    try { ctx.makeCircle(randomIntBetween(-180,180), randomIntBetween(-90,90), v); fail(); }
-    catch (InvalidShapeException e) {}
+//    try { ctx.makeCircle(randomIntBetween(-180,180), randomIntBetween(-90,90), v); fail(); }
+//    catch (InvalidShapeException e) {}
 
     //--Start with some static tests that once failed:
 

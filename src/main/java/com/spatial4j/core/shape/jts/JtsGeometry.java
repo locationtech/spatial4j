@@ -117,8 +117,10 @@ public class JtsGeometry implements Shape {
     return SpatialRelation.INTERSECTS;
   }
 
-  //----------------------------------------
-  //----------------------------------------
+  @Override
+  public JtsGeometry getBuffered(SpatialContext ctx, double distance) {
+    return this.ctx.makeShape(geom.buffer(distance));
+  }
 
   @Override
   public boolean hasArea() {

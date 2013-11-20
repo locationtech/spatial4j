@@ -65,6 +65,38 @@ public class RectangleImpl implements Rectangle {
   }
 
   @Override
+  public Rectangle getBuffered(SpatialContext ctx, double distance) {
+    if (ctx.isGeo()) {
+      //first check pole touching, triggering a world-wrap rect
+      if (maxY + distance >= 90) {
+        return ctx.makeRectangle(-180, 180, Math.max(-90, minY - distance), 90);
+      } else if (minY - distance <= -90) {
+        return ctx.makeRectangle(-180, 180, -90, Math.min(90, maxY + distance));
+      } else {
+        //doesn't touch pole
+        double latDistance = distance;
+        double closestToPoleY = (maxY - minY > 0) ? maxY : minY;
+        double lonDistance = DistanceUtils.calcBoxByDistFromPt_deltaLonDEG(
+            closestToPoleY, minX, distance);//lat,lon order
+        //could still wrap the world though...
+        if (lonDistance * 2 + getWidth() >= 360)
+          return ctx.makeRectangle(-180, 180, minY - latDistance, maxY + latDistance);
+        return ctx.makeRectangle(
+            DistanceUtils.normLonDEG(minX - lonDistance),
+            DistanceUtils.normLonDEG(maxX + lonDistance),
+            minY - latDistance, maxY + latDistance);
+      }
+    } else {
+      Rectangle worldBounds = ctx.getWorldBounds();
+      double newMinX = Math.max(worldBounds.getMinX(), minX - distance);
+      double newMaxX = Math.min(worldBounds.getMaxX(), maxX + distance);
+      double newMinY = Math.max(worldBounds.getMinY(), minY - distance);
+      double newMaxY = Math.min(worldBounds.getMaxY(), maxY + distance);
+      return ctx.makeRectangle(newMinX, newMaxX, newMinY, newMaxY);
+    }
+  }
+
+  @Override
   public boolean hasArea() {
     return maxX != minX && maxY != minY;
   }

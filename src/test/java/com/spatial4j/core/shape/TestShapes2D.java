@@ -74,6 +74,8 @@ public class TestShapes2D extends AbstractTestShapes {
 
     pt.reset(1, 2);
     assertEquals(ctx.makePoint(1, 2), pt);
+
+    assertEquals(ctx.makeCircle(pt, 3), pt.getBuffered(ctx, 3));
   }
 
   @Test
@@ -101,6 +103,9 @@ public class TestShapes2D extends AbstractTestShapes {
     assertEquals(ctx.makeRectangle(1, 2, 3, 4), r);
 
     testRectIntersect();
+
+    if (!ctx.isGeo())
+      assertEquals(ctx.makeRectangle(0.9, 2.1, 2.9, 4.1), ctx.makeRectangle(1, 2, 3, 4).getBuffered(ctx, 0.1));
   }
 
   @Test
@@ -121,6 +126,8 @@ public class TestShapes2D extends AbstractTestShapes {
     assertEquals("getX not getY",INTERSECTS,ctx.makeCircle(107,-81,147).relate(ctx.makeRectangle(92, 121, -89, 74)));
 
     testCircleIntersect();
+
+    assertEquals(ctx.makeCircle(1, 2, 10), ctx.makeCircle(1, 2, 6).getBuffered(ctx, 4));
   }
 
   static void testCircleReset(SpatialContext ctx) {

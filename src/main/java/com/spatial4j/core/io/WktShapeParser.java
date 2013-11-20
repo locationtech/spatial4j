@@ -38,6 +38,7 @@ import java.util.List;
  *   <li>GEOMETRYCOLLECTION</li>
  *   <li>LINESTRING</li>
  *   <li>MULTILINESTRING</li>
+ *   <li>BUFFER</li> (non-standard Spatial4j operation)
  * </ul>
  * 'EMPTY' is supported. Specifying 'Z', 'M', or any other dimensionality in the WKT is effectively
  * ignored.  Thus, you can specify any number of numbers in the coordinate points but only the first
@@ -155,8 +156,29 @@ public class WktShapeParser {
     } else if (shapeType.equalsIgnoreCase("MULTILINESTRING")) {
       return parseMultiLineStringShape(state);
     }
+    //extension
+    if (shapeType.equalsIgnoreCase("BUFFER")) {
+      return parseBufferShape(state);
+    }
+
     // HEY! Update class Javadocs if add more shapes
     return null;
+  }
+
+  /**
+   * Parses the BUFFER operation applied to a parsed shape.
+   * <pre>
+   *   '(' shape ',' number ')'
+   * </pre>
+   * Whereas 'number' is the distance to buffer the shape by.
+   */
+  protected Shape parseBufferShape(State state) throws ParseException {
+    state.nextExpect('(');
+    Shape shape = shape(state);
+    state.nextExpect(',');
+    double distance = state.nextDouble();
+    state.nextExpect(')');
+    return shape.getBuffered(ctx, distance);
   }
 
   /**

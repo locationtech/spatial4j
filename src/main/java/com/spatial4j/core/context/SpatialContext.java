@@ -178,8 +178,11 @@ public class SpatialContext {
     if (distance < 0)
       throw new InvalidShapeException("distance must be >= 0; got " + distance);
     if (isGeo()) {
-      if (distance > 180)
-        throw new InvalidShapeException("distance must be <= 180; got " + distance);
+      if (distance > 180) {
+        // (it's debatable whether to error or not)
+        //throw new InvalidShapeException("distance must be <= 180; got " + distance);
+        distance = 180;
+      }
       return new GeoCircle(point, distance, this);
     } else {
       return new CircleImpl(point, distance, this);
@@ -190,6 +193,10 @@ public class SpatialContext {
   public Shape makeLineString(List<Point> points) {
     //no "proper" LineString interface yet so we declare to return Shape
     return new BufferedLineString(points, 0, false, this);
+  }
+
+  public Shape makeBufferedLineString(List<Point> points, double buf) {
+    return new BufferedLineString(points, buf, isGeo(), this);
   }
 
   /** Construct a ShapeCollection, analogous to an OGC GeometryCollection. */

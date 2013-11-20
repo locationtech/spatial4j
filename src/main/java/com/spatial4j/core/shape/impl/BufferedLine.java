@@ -139,6 +139,11 @@ public class BufferedLine implements Shape {
         Math.min(bounds.getMaxY(), maxY));
   }
 
+  @Override
+  public Shape getBuffered(SpatialContext ctx, double distance) {
+    return new BufferedLine(pA, pB, buf + distance, ctx);
+  }
+
   /**
    * Calls {@link DistanceUtils#calcLonDegreesAtLat(double,
    * double)} given pA or pB's latitude; whichever is farthest. It's useful to

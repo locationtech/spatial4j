@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,7 @@ package com.spatial4j.core.shape.jts;
 
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.SpatialRelation;
+import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 
@@ -60,6 +57,11 @@ public class JtsPoint implements Point {
   @Override
   public Rectangle getBoundingBox() {
     return ctx.makeRectangle(this, this);
+  }
+
+  @Override
+  public Circle getBuffered(SpatialContext ctx, double distance) {
+    return ctx.makeCircle(this, distance);
   }
 
   @Override
