@@ -20,12 +20,27 @@ package com.spatial4j.core.shape.jts;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.Range;
 import com.spatial4j.core.shape.impl.RectangleImpl;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFilter;
+import com.vividsolutions.jts.geom.IntersectionMatrix;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Lineal;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Puntal;
 import com.vividsolutions.jts.operation.union.UnaryUnionOp;
 import com.vividsolutions.jts.operation.valid.IsValidOp;
 
@@ -273,6 +288,7 @@ public class JtsGeometry implements Shape {
     LineString exteriorRing = poly.getExteriorRing();
     int cross = unwrapDateline(exteriorRing);
     if (cross > 0) {
+      //TODO TEST THIS! Maybe bug if doesn't cross but is in another page?
       for(int i = 0; i < poly.getNumInteriorRing(); i++) {
         LineString innerLineString = poly.getInteriorRingN(i);
         unwrapDateline(innerLineString);
@@ -365,7 +381,8 @@ public class JtsGeometry implements Shape {
       return geom;
     assert geom.isValid() : "geom";
 
-    //TODO support geom's that start at negative pages; will avoid need to previously shift in unwrapDateline(geom).
+    //TODO opt: support geom's that start at negative pages --
+    // ... will avoid need to previously shift in unwrapDateline(geom).
     List<Geometry> geomList = new ArrayList<Geometry>();
     //page 0 is the standard -180 to 180 range
     for (int page = 0; true; page++) {
