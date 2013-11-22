@@ -143,86 +143,68 @@ public class CircleImpl implements Circle {
   }
 
   protected SpatialRelation relateRectanglePhase2(final Rectangle r, SpatialRelation bboxSect) {
-    /*
-     !! DOES NOT WORK WITH GEO CROSSING DATELINE OR WORLD-WRAP.
-     TODO upgrade to handle crossing dateline, but not world-wrap; use some x-shifting code from RectangleImpl.
-     */
+    // DOES NOT WORK WITH GEO CROSSING DATELINE OR WORLD-WRAP. Other methods handle such cases.
 
-    //At this point, the only thing we are certain of is that circle is *NOT* WITHIN r, since the bounding box of a
-    // circle MUST be within r for the circle to be within r.
+    //At this point, the only thing we are certain of is that circle is *NOT* WITHIN r, since the
+    // bounding box of a circle MUST be within r for the circle to be within r.
 
-    //--Quickly determine if they are DISJOINT or not.
-    //see http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection/1879223#1879223
-    // Find the closest point to the circle within the rectangle
-    final double closestX;
-    double ctr_x = getXAxis();
-    if ( ctr_x < r.getMinX() )
+    //Quickly determine if they are DISJOINT or not.
+    // Find the closest & farthest point to the circle within the rectangle
+    final double closestX, farthestX;
+    final double xAxis = getXAxis();
+    if (xAxis < r.getMinX()) {
       closestX = r.getMinX();
-    else if (ctr_x > r.getMaxX())
+      farthestX = r.getMaxX();
+    } else if (xAxis > r.getMaxX()) {
       closestX = r.getMaxX();
-    else
-      closestX = ctr_x;
-
-    final double closestY;
-    double ctr_y = getYAxis();
-    if ( ctr_y < r.getMinY() )
-      closestY = r.getMinY();
-    else if (ctr_y > r.getMaxY())
-      closestY = r.getMaxY();
-    else
-      closestY = ctr_y;
-
-    //Check if there is an intersection from this circle to closestXY
-    if (ctr_x == closestX) {
-      double deltaY = Math.abs(ctr_y - closestY);
-      double distYCirc = (ctr_y < closestY ? enclosingBox.getMaxY() - ctr_y : ctr_y - enclosingBox.getMinY());
-      if (deltaY > distYCirc)
-        return SpatialRelation.DISJOINT;
-    } else if (ctr_y == closestY) {
-      double deltaX = Math.abs(ctr_x - closestX);
-      double distXCirc = (ctr_x < closestX ? enclosingBox.getMaxX() - ctr_x : ctr_x - enclosingBox.getMinX());
-      if (deltaX > distXCirc)
-        return SpatialRelation.DISJOINT;
+      farthestX = r.getMinX();
     } else {
-      //fallback on more expensive calculation
-      if (! contains(closestX,closestY) )
-        return SpatialRelation.DISJOINT;
+      closestX = xAxis; //we don't really use this value but to check this condition
+      farthestX = r.getMaxX() - xAxis > xAxis - r.getMinX() ? r.getMaxX() : r.getMinX();
     }
 
-    //At this point we know that it's *NOT* DISJOINT, so there is some level of intersection. It's *NOT* WITHIN either.
-    // The only question left is whether circle CONTAINS r or simply intersects it.
+    final double closestY, farthestY;
+    final double yAxis = getYAxis();
+    if (yAxis < r.getMinY()) {
+      closestY = r.getMinY();
+      farthestY = r.getMaxY();
+    } else if (yAxis > r.getMaxY()) {
+      closestY = r.getMaxY();
+      farthestY = r.getMinY();
+    } else {
+      closestY = yAxis; //we don't really use this value but to check this condition
+      farthestY = r.getMaxY() - yAxis > yAxis - r.getMinY() ? r.getMaxY() : r.getMinY();
+    }
+
+    //If r doesn't overlap an axis, then could be disjoint. Test closestXY
+    if (xAxis != closestX && yAxis != closestY) {
+      if (!contains(closestX, closestY))
+        return SpatialRelation.DISJOINT;
+    } // else CAN'T be disjoint if spans axis because earlier bbox check ruled that out
+
+    //Now, we know it's *NOT* DISJOINT and it's *NOT* WITHIN either.
+    // Does circle CONTAINS r or simply intersect it?
 
     //If circle contains r, then its bbox MUST also CONTAIN r.
     if (bboxSect != SpatialRelation.CONTAINS)
       return SpatialRelation.INTERSECTS;
 
-    //Find the farthest point of r away from the center of the circle. If that point is contained, then all of r is
+    //If the farthest point of r away from the center of the circle is contained, then all of r is
     // contained.
-    double farthestX = r.getMaxX() - ctr_x > ctr_x - r.getMinX() ? r.getMaxX() : r.getMinX();
-    //   farthestY is a little trickier than farthestX because of potential getYAxis offset; so we need to
-    //     scale how close the corner is to the edge
-    double farthestY;
-    if (point.getY() == getYAxis()) {//Euclidean or by circumstance on the equator
-      farthestY = r.getMaxY() - ctr_y > ctr_y - r.getMinY() ? r.getMaxY() : r.getMinY();
-    } else {
-      //geodetic
-      if (enclosingBox.getMaxY() == ctr_y) {
-        if (ctr_y == 90)
-          return SpatialRelation.INTERSECTS;//mutually touch a pole, don't consider this a CONTAINS
-        farthestY = r.getMinY();
-      } else if (enclosingBox.getMinY() == ctr_y) {
-        if (ctr_y == -90)
-          return SpatialRelation.INTERSECTS;//mutually touch a pole, don't consider this a CONTAINS
-        farthestY = r.getMaxY();
-      } else {
-        farthestY = (r.getMaxY() - ctr_y) / (enclosingBox.getMaxY() - ctr_y) > (ctr_y - r.getMinY()) / (ctr_y - enclosingBox.getMinY())
-            ? r.getMaxY() : r.getMinY();
+    if (!contains(farthestX, farthestY))
+      return SpatialRelation.INTERSECTS;
+
+    //geodetic detection of farthest Y when rect crosses x axis can't be reliably determined, so
+    // check other corner too, which might actually be farthest
+    if (point.getY() != getYAxis()) {//geodetic
+      if (yAxis == closestY) {//r crosses north to south over x axis (confusing)
+        double otherY = (farthestY == r.getMaxY() ? r.getMinY() : r.getMaxY());
+        if (!contains(farthestX, otherY))
+          return SpatialRelation.INTERSECTS;
       }
     }
    
-    if (contains(farthestX,farthestY))
-      return SpatialRelation.CONTAINS;
-    return SpatialRelation.INTERSECTS;
+    return SpatialRelation.CONTAINS;
   }
 
   /**

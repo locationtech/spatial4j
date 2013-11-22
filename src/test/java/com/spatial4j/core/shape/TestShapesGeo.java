@@ -28,7 +28,10 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static com.spatial4j.core.shape.SpatialRelation.*;
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
+import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
 
 
 public class TestShapesGeo extends AbstractTestShapes {
@@ -159,6 +162,9 @@ public class TestShapesGeo extends AbstractTestShapes {
     // when dist 0 and points not the same?  No; we cancel the assertion failure
     // if the circle touches the rect edge in onAssertFail() instead.
     //assertEquals("0 radius at pole", DISJOINT, ctx.makeCircle(-98, 90, 0).relate(ctx.makePoint(-144,90)));
+
+
+    assertEquals("bad proportion logic", INTERSECTS, ctx.makeCircle(64, -70, 18).relate(ctx.makeRectangle(46, 116, -86, -62)));
 
     assertEquals("Both touch pole", INTERSECTS, ctx.makeCircle(-90, 30, 60).relate(ctx.makeRectangle(-24, -16, 14, 90)));
 
