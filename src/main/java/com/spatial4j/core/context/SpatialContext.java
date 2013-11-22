@@ -22,8 +22,16 @@ import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReadWriter;
-import com.spatial4j.core.shape.*;
-import com.spatial4j.core.shape.impl.*;
+import com.spatial4j.core.shape.Circle;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.ShapeCollection;
+import com.spatial4j.core.shape.impl.BufferedLineString;
+import com.spatial4j.core.shape.impl.CircleImpl;
+import com.spatial4j.core.shape.impl.GeoCircle;
+import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.shape.impl.RectangleImpl;
 
 import java.util.List;
 
@@ -189,12 +197,16 @@ public class SpatialContext {
     }
   }
 
-  /** Constructs a line string. It's an ordered sequence of connected vertexes. */
+  /** Constructs a line string. It's an ordered sequence of connected vertexes. There
+   * is no official shape/interface for it so we just return Shape. */
   public Shape makeLineString(List<Point> points) {
     //no "proper" LineString interface yet so we declare to return Shape
     return new BufferedLineString(points, 0, false, this);
   }
 
+  /** Constructs a buffered line string. It's an ordered sequence of connected vertexes,
+   * with a buffer distance along the line in all directions. There
+   * is no official shape/interface for it so we just return Shape. */
   public Shape makeBufferedLineString(List<Point> points, double buf) {
     return new BufferedLineString(points, buf, isGeo(), this);
   }

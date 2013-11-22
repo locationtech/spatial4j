@@ -30,7 +30,7 @@ import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
 
 /**
- * A line between two points with a buffer distance extending in every
+ * INTERNAL: A line between two points with a buffer distance extending in every
  * direction. By contrast, an un-buffered line covers no area and as such
  * is extremely unlikely to intersect with a point.
  */

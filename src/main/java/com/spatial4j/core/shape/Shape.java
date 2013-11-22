@@ -20,17 +20,14 @@ package com.spatial4j.core.shape;
 import com.spatial4j.core.context.SpatialContext;
 
 /**
- * The base interface defining a geometric shape. Shape instances are usually
- * retrieved via one of the create* methods on a {@link SpatialContext}. Shapes
- * are generally immutable(*). The sub-classes of Shape generally implement the
- * same contract for {@link Object#equals(Object)} and {@link Object#hashCode()}
- * amongst the same sub-interface type.  This means, for example, that multiple
- * Point implementations of different classes are equal if they share the same x
- * & y.
+ * The base interface defining a geometric shape. Shape instances should be
+ * instantiated via one of the create* methods on a {@link SpatialContext} or
+ * by reading WKT which calls those methods; they should <em>not</em> be
+ * created directly.
  * <p/>
- * (*): If a particular shape has a <code>reset(...)</code> method then its use
- * means the shape is actually mutable. Mutating shape state is considered
- * expert and should be done with care.
+ * Shapes are generally immutable. If a particular shape has a
+ * <code>reset(...)</code> method then its use means the shape is actually
+ * mutable. Mutating shape state is considered expert and should be done with care.
  */
 public interface Shape {
 
@@ -97,5 +94,13 @@ public interface Shape {
    * typically NaN.
    */
   boolean isEmpty();
+
+  /** The sub-classes of Shape generally implement the
+   * same contract for {@link Object#equals(Object)} and {@link Object#hashCode()}
+   * amongst the same sub-interface type.  This means, for example, that multiple
+   * Point implementations of different classes are equal if they share the same x
+   * & y. */
+  @Override
+  public boolean equals(Object other);
 }
 

@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A BufferedLineString is a collection of {@link BufferedLine} shapes,
+ * A BufferedLineString is a collection of {@link com.spatial4j.core.shape.impl.BufferedLine} shapes,
  * resulting in what some call a "Track" or "Polyline" (ESRI terminology).
  * The buffer can be 0.
  */
@@ -51,8 +51,8 @@ public class BufferedLineString implements Shape {
   }
 
   /**
-   * @param points
-   * @param buf
+   * @param points ordered control points. If empty then this shape is empty.
+   * @param buf Buffer >= 0
    * @param expandBufForLongitudeSkew See {@link BufferedLine
    * #expandBufForLongitudeSkew(com.spatial4j.core.shape.Point,
    * com.spatial4j.core.shape.Point, double)}.
