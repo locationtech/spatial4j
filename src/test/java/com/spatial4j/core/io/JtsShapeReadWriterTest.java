@@ -3,6 +3,7 @@ package com.spatial4j.core.io;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import org.junit.Test;
@@ -40,6 +41,24 @@ public class JtsShapeReadWriterTest extends RandomizedTest {
     assertTrue(expectedYesDL.getCrossesDateLine());
     assertEquals(expectedYesDL,sYesDL);
 
+  }
+
+
+  @Test
+  public void testWrapTopologyException() {
+    try {
+      ctx.readShape("POLYGON((0 0, 10 0, 10 20))");//doesn't connect around
+      fail();
+    } catch (InvalidShapeException e) {
+      //expected
+    }
+
+    try {
+      ctx.readShape("POLYGON((0 0, 10 0, 10 20, 5 -5, 0 20, 0 0))");//Topology self-intersect
+      fail();
+    } catch (InvalidShapeException e) {
+      //expected
+    }
   }
 
 }

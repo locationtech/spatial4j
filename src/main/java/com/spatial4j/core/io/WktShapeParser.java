@@ -105,7 +105,14 @@ public class WktShapeParser {
     if (!Character.isLetter(state.rawString.charAt(state.offset)))
       return null;
     String shapeType = state.nextWord();
-    Shape result = parseShapeByType(state, shapeType);
+    Shape result = null;
+    try {
+      result = parseShapeByType(state, shapeType);
+    } catch (ParseException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new ParseException(e.toString(), state.offset);
+    }
     if (result != null && !state.eof())
       throw new ParseException("end of shape expected", state.offset);
     return result;

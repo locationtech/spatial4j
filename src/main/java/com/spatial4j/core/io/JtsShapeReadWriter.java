@@ -10,8 +10,16 @@ import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.io.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.InStream;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBReader;
+import com.vividsolutions.jts.io.WKBWriter;
+import com.vividsolutions.jts.io.WKTReader;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -92,8 +100,10 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
             return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY(), ctx);
         }
         return new JtsGeometry(geom,ctx,true);
-      } catch(com.vividsolutions.jts.io.ParseException ex) {
-        throw new InvalidShapeException("error reading WKT", ex);
+      } catch (InvalidShapeException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new InvalidShapeException("error reading WKT: "+e.toString(), e);
       }
     }
     return shape;

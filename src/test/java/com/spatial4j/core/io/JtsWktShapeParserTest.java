@@ -104,4 +104,21 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
     assertParses("MULTIPOLYGON EMPTY", ctx.makeCollection(Collections.EMPTY_LIST));
   }
 
+  @Test
+  public void testWrapTopologyException() {
+    try {
+      SHAPE_PARSER.parse("POLYGON((0 0, 10 0, 10 20))");//doesn't connect around
+      fail();
+    } catch (ParseException e) {
+      //expected
+    }
+
+    try {
+      SHAPE_PARSER.parse("POLYGON((0 0, 10 0, 10 20, 5 -5, 0 20, 0 0))");//Topology self-intersect
+      fail();
+    } catch (ParseException e) {
+      //expected
+    }
+  }
+
 }
