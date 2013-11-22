@@ -32,6 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+
 public class JtsPolygonTest extends AbstractTestShapes {
 
   private final String POLY_STR = "Polygon((-10 30, -40 40, -10 -20, 40 20, 0 0, -10 30))";
@@ -69,6 +71,13 @@ public class JtsPolygonTest extends AbstractTestShapes {
     pGeom.geometryChanged();
     assertFalse(pGeom.isValid());
     return (JtsGeometry) ctx.readShape(pGeom.toText());
+  }
+
+  @Test
+  public void testEmpty() {
+    Shape emptyGeom = ctx.readShape("POLYGON EMPTY");
+    testEmptiness(emptyGeom);
+    assertRelation("EMPTY", DISJOINT, emptyGeom, POLY_SHAPE);
   }
 
   @Test

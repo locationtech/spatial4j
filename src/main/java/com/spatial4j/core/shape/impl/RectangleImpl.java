@@ -57,11 +57,17 @@ public class RectangleImpl implements Rectangle {
 
   @Override
   public void reset(double minX, double maxX, double minY, double maxY) {
+    assert ! isEmpty();
     this.minX = minX;
     this.maxX = maxX;
     this.minY = minY;
     this.maxY = maxY;
     assert minY <= maxY || Double.isNaN(minY) : "minY, maxY: "+minY+", "+maxY;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return Double.isNaN(minX);
   }
 
   @Override
@@ -157,6 +163,8 @@ public class RectangleImpl implements Rectangle {
 
   @Override
   public SpatialRelation relate(Shape other) {
+    if (isEmpty() || other.isEmpty())
+      return SpatialRelation.DISJOINT;
     if (other instanceof Point) {
       return relate((Point) other);
     }

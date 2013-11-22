@@ -88,8 +88,14 @@ public interface Shape {
    * is an optional operation.
    *
    * @param distance
-   * @return
+   * @return Not null, and the returned shape should contain the current shape.
    */
   Shape getBuffered(SpatialContext ctx, double distance);
+
+  /**
+   * Shapes can be "empty", which is to say it exists nowhere. The underlying coordinates are
+   * typically NaN.
+   */
+  boolean isEmpty();
 }
 

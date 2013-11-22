@@ -24,7 +24,10 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.SpatialRelation;
 
-import static com.spatial4j.core.shape.SpatialRelation.*;
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
+import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
 
 /**
  * A line between two points with a buffer distance extending in every
@@ -137,6 +140,11 @@ public class BufferedLine implements Shape {
         Math.min(bounds.getMaxX(), maxX),
         Math.max(bounds.getMinY(), minY),
         Math.min(bounds.getMaxY(), maxY));
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return pA.isEmpty();
   }
 
   @Override

@@ -18,7 +18,11 @@
 package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.ShapeCollection;
+import com.spatial4j.core.shape.SpatialRelation;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -81,6 +85,11 @@ public class BufferedLineString implements Shape {
       }
       this.segments = ctx.makeCollection(segments);
     }
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return segments.isEmpty();
   }
 
   @Override

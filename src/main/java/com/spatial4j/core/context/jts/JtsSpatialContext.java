@@ -28,7 +28,11 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import java.util.ArrayList;
@@ -123,7 +127,8 @@ public class JtsSpatialContext extends SpatialContext {
     //A Jts Point is fairly heavyweight!  TODO could/should we optimize this? SingleCoordinateSequence
     verifyX(x);
     verifyY(y);
-    return new JtsPoint(geometryFactory.createPoint(new Coordinate(x, y)), this);
+    Coordinate coord = Double.isNaN(x) ? null : new Coordinate(x, y);
+    return new JtsPoint(geometryFactory.createPoint(coord), this);
   }
 
   public boolean useJtsLineString() {

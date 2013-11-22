@@ -18,7 +18,11 @@
 package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.Circle;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.SpatialRelation;
 
 /** A basic 2D implementation of a Point. */
 public class PointImpl implements Point {
@@ -34,7 +38,13 @@ public class PointImpl implements Point {
   }
 
   @Override
+  public boolean isEmpty() {
+    return Double.isNaN(x);
+  }
+
+  @Override
   public void reset(double x, double y) {
+    assert ! isEmpty();
     this.x = x;
     this.y = y;
   }
@@ -66,6 +76,8 @@ public class PointImpl implements Point {
 
   @Override
   public SpatialRelation relate(Shape other) {
+    if (isEmpty() || other.isEmpty())
+      return SpatialRelation.DISJOINT;
     if (other instanceof Point)
       return this.equals(other) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
     return other.relate(this).transpose();

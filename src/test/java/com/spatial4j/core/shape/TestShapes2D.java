@@ -21,15 +21,20 @@ import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.shape.impl.BufferedLine;
+import com.spatial4j.core.shape.impl.BufferedLineString;
 import com.spatial4j.core.shape.impl.CircleImpl;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import static com.spatial4j.core.shape.SpatialRelation.*;
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 
 
 public class TestShapes2D extends AbstractTestShapes {
@@ -76,6 +81,8 @@ public class TestShapes2D extends AbstractTestShapes {
     assertEquals(ctx.makePoint(1, 2), pt);
 
     assertEquals(ctx.makeCircle(pt, 3), pt.getBuffered(ctx, 3));
+
+    testEmptiness(ctx.makePoint(Double.NaN, Double.NaN));
   }
 
   @Test
@@ -106,6 +113,8 @@ public class TestShapes2D extends AbstractTestShapes {
 
     if (!ctx.isGeo())
       assertEquals(ctx.makeRectangle(0.9, 2.1, 2.9, 4.1), ctx.makeRectangle(1, 2, 3, 4).getBuffered(ctx, 0.1));
+
+    testEmptiness(ctx.makeRectangle(Double.NaN, Double.NaN, Double.NaN, Double.NaN));
   }
 
   @Test
@@ -128,6 +137,8 @@ public class TestShapes2D extends AbstractTestShapes {
     testCircleIntersect();
 
     assertEquals(ctx.makeCircle(1, 2, 10), ctx.makeCircle(1, 2, 6).getBuffered(ctx, 4));
+
+    testEmptiness(ctx.makeCircle(Double.NaN, Double.NaN, randomBoolean() ? 0 : Double.NaN));
   }
 
   static void testCircleReset(SpatialContext ctx) {
@@ -136,6 +147,13 @@ public class TestShapes2D extends AbstractTestShapes {
     c2.reset(3,4,5);// to c1
     assertEquals(c, c2);
     assertEquals(c.getBoundingBox(), c2.getBoundingBox());
+  }
+
+  @Test
+  public void testBufferedLineString() {
+    //see BufferedLineStringTest & BufferedLineTest for more
+
+    testEmptiness(ctx.makeBufferedLineString(Collections.<Point>emptyList(), randomInt(3)));
   }
 
   /** We have this test here but we'll add geo shapes as needed. */
@@ -147,6 +165,8 @@ public class TestShapes2D extends AbstractTestShapes {
             //GeoCircle.class  no: its fields are caches, not part of its identity
             RectangleImpl.class,
             ShapeCollection.class,
+            BufferedLineString.class,
+            BufferedLine.class
     });
   }
 

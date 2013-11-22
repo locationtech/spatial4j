@@ -95,6 +95,11 @@ public class JtsGeometry implements Shape {
     this.hasArea = !((geom instanceof Lineal) || (geom instanceof Puntal));
   }
 
+  @Override
+  public boolean isEmpty() {
+    return geom.isEmpty();
+  }
+
   /** Given {@code geoms} which has already been checked for being in world
    * bounds, return the minimal longitude range of the bounding box.
    */
@@ -163,6 +168,8 @@ public class JtsGeometry implements Shape {
 
   @Override
   public JtsPoint getCenter() {
+    if (isEmpty()) //geom.getCentroid == null
+      return new JtsPoint(ctx.getGeometryFactory().createPoint((Coordinate)null), ctx);
     return new JtsPoint(geom.getCentroid(), ctx);
   }
 

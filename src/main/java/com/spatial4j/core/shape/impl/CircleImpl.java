@@ -18,7 +18,11 @@
 package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.Circle;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.SpatialRelation;
 
 /**
  * A circle, also known as a point-radius, based on a {@link
@@ -40,15 +44,22 @@ public class CircleImpl implements Circle {
     //We assume any validation of params already occurred (including bounding dist)
     this.ctx = ctx;
     this.point = p;
-    this.radiusDEG = radiusDEG;
-    this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, this.radiusDEG, ctx, null);
+    this.radiusDEG = point.isEmpty() ? Double.NaN : radiusDEG;
+    this.enclosingBox = point.isEmpty() ? ctx.makeRectangle(Double.NaN, Double.NaN, Double.NaN, Double.NaN) :
+      ctx.getDistCalc().calcBoxByDistFromPt(point, this.radiusDEG, ctx, null);
   }
 
   @Override
   public void reset(double x, double y, double radiusDEG) {
+    assert ! isEmpty();
     point.reset(x, y);
     this.radiusDEG = radiusDEG;
     this.enclosingBox = ctx.getDistCalc().calcBoxByDistFromPt(point, this.radiusDEG, ctx, enclosingBox);
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return point.isEmpty();
   }
 
   @Override
@@ -98,7 +109,8 @@ public class CircleImpl implements Circle {
 //    if (distance == 0) {
 //      return point.relate(other,ctx).intersects() ? SpatialRelation.WITHIN : SpatialRelation.DISJOINT;
 //    }
-
+    if (isEmpty() || other.isEmpty())
+      return SpatialRelation.DISJOINT;
     if (other instanceof Point) {
       return relate((Point) other);
     }

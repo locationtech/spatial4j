@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
 
 
 /**
@@ -205,4 +206,18 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
         ctx.makeRectangle(ctx.makePoint(1, 2), ctx.makePoint(3, 4)));
   }
 
+  protected void testEmptiness(Shape emptyShape) {
+    assertTrue(emptyShape.isEmpty());
+    Point emptyPt = emptyShape.getCenter();
+    assertTrue(emptyPt.isEmpty());
+    Rectangle emptyRect = emptyShape.getBoundingBox();
+    assertTrue(emptyRect.isEmpty());
+    assertEquals(emptyRect, emptyShape.getBoundingBox());
+    assertEquals(emptyPt, emptyShape.getCenter());
+    assertRelation("EMPTY", DISJOINT, emptyShape, emptyPt);
+    assertRelation("EMPTY", DISJOINT, emptyShape, randomPoint());
+    assertRelation("EMPTY", DISJOINT, emptyShape, emptyRect);
+    assertRelation("EMPTY", DISJOINT, emptyShape, randomRectangle(10));
+    assertTrue(emptyShape.getBuffered(ctx, randomInt(4)).isEmpty());
+  }
 }
