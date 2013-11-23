@@ -20,13 +20,26 @@ package com.spatial4j.core.context.jts;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
 
+import java.util.Map;
+
 /**
  * See {@link SpatialContextFactory#makeSpatialContext(java.util.Map,
  * ClassLoader)}.
  */
 public class JtsSpatialContextFactory extends SpatialContextFactory {
+
+  private boolean autoPrepare;
+
+  @Override
+  protected void init(Map<String, String> args, ClassLoader classLoader) {
+    super.init(args, classLoader);
+    String autoPrepareStr = args.get("autoPrepare");
+    if (autoPrepareStr != null)
+      this.autoPrepare = Boolean.parseBoolean(autoPrepareStr);
+  }
+
   @Override
   protected SpatialContext newSpatialContext() {
-    return new JtsSpatialContext(null,geo,calculator,worldBounds);
+    return new JtsSpatialContext(null,geo,calculator,worldBounds, autoPrepare);
   }
 }

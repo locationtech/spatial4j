@@ -50,10 +50,11 @@ public class JtsSpatialContext extends SpatialContext {
 
   public static final JtsSpatialContext GEO = new JtsSpatialContext(true);
 
-  private final GeometryFactory geometryFactory;
+  protected final GeometryFactory geometryFactory;
+  protected final boolean autoPrepare;//automatically prepare JtsGeometry
 
   public JtsSpatialContext( boolean geo ) {
-    this(null, geo, null, null);
+    this(null, geo, null, null, false);
   }
 
   /**
@@ -61,9 +62,12 @@ public class JtsSpatialContext extends SpatialContext {
    *
    * @param geometryFactory optional
    */
-  public JtsSpatialContext(GeometryFactory geometryFactory, boolean geo, DistanceCalculator calculator, Rectangle worldBounds) {
+  public JtsSpatialContext(GeometryFactory geometryFactory, boolean geo,
+                           DistanceCalculator calculator, Rectangle worldBounds,
+                           boolean autoPrepare) {
     super(geo, calculator, worldBounds);
     this.geometryFactory = geometryFactory == null ? new GeometryFactory() : geometryFactory;
+    this.autoPrepare = autoPrepare;
   }
 
   protected ShapeReadWriter makeShapeReadWriter() {
@@ -160,7 +164,9 @@ public class JtsSpatialContext extends SpatialContext {
    * @return Non-null.
    */
   public JtsGeometry makeShape(Geometry geometry) {
-    return new JtsGeometry(geometry, this, true);
+    JtsGeometry jtsGeom = new JtsGeometry(geometry, this, isGeo());
+    if (autoPrepare) jtsGeom.prepare();
+    return jtsGeom;
   }
 
   public GeometryFactory getGeometryFactory() {
