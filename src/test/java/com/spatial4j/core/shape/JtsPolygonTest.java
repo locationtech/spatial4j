@@ -32,7 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
 import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 
 public class JtsPolygonTest extends AbstractTestShapes {
 
@@ -71,6 +73,37 @@ public class JtsPolygonTest extends AbstractTestShapes {
     pGeom.geometryChanged();
     assertFalse(pGeom.isValid());
     return (JtsGeometry) ctx.readShape(pGeom.toText());
+  }
+
+  @Test
+  public void testRelations() {
+    testRelations(false);
+    testRelations(true);
+  }
+  public void testRelations(boolean prepare) {
+    //base polygon
+    JtsGeometry base = (JtsGeometry) ctx.readShape("POLYGON((0 0, 10 0, 5 5, 0 0))");
+    //shares only "10 0" with base
+    JtsGeometry polyI = (JtsGeometry) ctx.readShape("POLYGON((10 0, 20 0, 15 5, 10 0))");
+    //within base: differs from base by one point is within
+    JtsGeometry polyW = (JtsGeometry) ctx.readShape("POLYGON((0 0, 9 0, 5 5, 0 0))");
+    //a boundary point of base
+    Point pointB = ctx.makePoint(0, 0);
+    //a shared boundary line of base
+    JtsGeometry lineB = (JtsGeometry) ctx.readShape("LINESTRING(0 0, 10 0)");
+    //a line sharing only one point with base
+    JtsGeometry lineI = (JtsGeometry) ctx.readShape("LINESTRING(10 0, 20 0)");
+
+    if (prepare) base.prepare();
+    assertRelation(CONTAINS, base, base);//preferred result as there is no EQUALS
+    assertRelation(INTERSECTS, base, polyI);
+    assertRelation(CONTAINS, base, polyW);
+    assertRelation(CONTAINS, base, pointB);
+    assertRelation(CONTAINS, base, lineB);
+    assertRelation(INTERSECTS, base, lineI);
+    if (prepare) lineB.prepare();
+    assertRelation(CONTAINS, lineB, lineB);//line contains itself
+    assertRelation(CONTAINS, lineB, pointB);
   }
 
   @Test
@@ -186,6 +219,7 @@ public class JtsPolygonTest extends AbstractTestShapes {
             ctx.makePoint(-179.99,-16.9));
     assertRelation(null,SpatialRelation.CONTAINS, jtsGeom,
             ctx.makePoint(+179.99,-16.9));
+    assertTrue(jtsGeom.getBoundingBox().getWidth() < 5);//smart bbox
   }
 
   private String readFirstLineFromRsrc(String wktRsrcPath) throws IOException {

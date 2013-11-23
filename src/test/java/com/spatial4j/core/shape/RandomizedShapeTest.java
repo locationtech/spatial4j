@@ -154,6 +154,10 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     return i;
   }
 
+  protected void assertRelation(SpatialRelation expected, Shape a, Shape b) {
+    assertRelation(null, expected, a, b);
+  }
+
   protected void assertRelation(String msg, SpatialRelation expected, Shape a, Shape b) {
     _assertIntersect(msg, expected, a, b);
     //check flipped a & b w/ transpose(), while we're at it

@@ -25,6 +25,7 @@ import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.SpatialRelation;
+import com.spatial4j.core.shape.impl.BufferedLineString;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.Range;
 import com.spatial4j.core.shape.impl.RectangleImpl;
@@ -41,6 +42,8 @@ import com.vividsolutions.jts.geom.Lineal;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.Puntal;
+import com.vividsolutions.jts.geom.prep.PreparedGeometry;
+import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.union.UnaryUnionOp;
 import com.vividsolutions.jts.operation.valid.IsValidOp;
 
@@ -56,7 +59,8 @@ public class JtsGeometry implements Shape {
   private final Geometry geom;//cannot be a direct instance of GeometryCollection as it doesn't support relate()
   private final boolean hasArea;
   private final Rectangle bbox;
-  private final JtsSpatialContext ctx;
+  protected final JtsSpatialContext ctx;
+  protected PreparedGeometry preparedGeometry;
 
   public JtsGeometry(Geometry geom, JtsSpatialContext ctx, boolean dateline180Check) {
     this.ctx = ctx;
@@ -95,6 +99,16 @@ public class JtsGeometry implements Shape {
     this.hasArea = !((geom instanceof Lineal) || (geom instanceof Puntal));
   }
 
+  /**
+   * Adds an index to this class internally to compute spatial relations faster. This
+   * isn't done by default because it takes some time to do the optimization, and it uses more
+   * memory.  Calling this method isn't thread-safe so be careful when this is done.
+   */
+  public void prepare() {
+    if (preparedGeometry == null)
+      preparedGeometry = PreparedGeometryFactory.prepare(geom);
+  }
+
   @Override
   public boolean isEmpty() {
     return geom.isEmpty();
@@ -125,16 +139,6 @@ public class JtsGeometry implements Shape {
     } else {
       return new RectangleImpl(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY(), ctx);
     }
-  }
-
-  public static SpatialRelation intersectionMatrixToSpatialRelation(IntersectionMatrix matrix) {
-    if (matrix.isContains())
-      return SpatialRelation.CONTAINS;
-    else if (matrix.isCoveredBy())
-      return SpatialRelation.WITHIN;
-    else if (matrix.isDisjoint())
-      return SpatialRelation.DISJOINT;
-    return SpatialRelation.INTERSECTS;
   }
 
   @Override
@@ -183,21 +187,28 @@ public class JtsGeometry implements Shape {
       return relate((Circle) other);
     else if (other instanceof JtsGeometry)
       return relate((JtsGeometry) other);
+    else if (other instanceof BufferedLineString)
+      throw new UnsupportedOperationException("Can't use BufferedLineString with JtsGeometry");
     return other.relate(this).transpose();
   }
 
   public SpatialRelation relate(Point pt) {
-    //TODO if not jtsPoint, test against bbox to avoid JTS if disjoint
-    JtsPoint jtsPoint = (JtsPoint) (pt instanceof JtsPoint ? pt : ctx.makePoint(pt.getX(), pt.getY()));
-    return geom.disjoint(jtsPoint.getGeom()) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
+    if (!getBoundingBox().relate(pt).intersects())
+      return SpatialRelation.DISJOINT;
+    Geometry ptGeom;
+    if (pt instanceof JtsPoint)
+      ptGeom = ((JtsPoint)pt).getGeom();
+    else
+      ptGeom = ctx.getGeometryFactory().createPoint(new Coordinate(pt.getX(), pt.getY()));
+    return relate(ptGeom);//is point-optimized
   }
 
   public SpatialRelation relate(Rectangle rectangle) {
     SpatialRelation bboxR = bbox.relate(rectangle);
     if (bboxR == SpatialRelation.WITHIN || bboxR == SpatialRelation.DISJOINT)
       return bboxR;
-    Geometry oGeom = ctx.getGeometryFrom(rectangle);
-    return intersectionMatrixToSpatialRelation(geom.relate(oGeom));
+    // FYI, the right answer could still be DISJOINT or WITHIN, but we don't know yet.
+    return relate(ctx.getGeometryFrom(rectangle));
   }
 
   public SpatialRelation relate(Circle circle) {
@@ -227,9 +238,38 @@ public class JtsGeometry implements Shape {
   }
 
   public SpatialRelation relate(JtsGeometry jtsGeometry) {
-    Geometry oGeom = jtsGeometry.geom;
     //don't bother checking bbox since geom.relate() does this already
-    return intersectionMatrixToSpatialRelation(geom.relate(oGeom));
+    return relate(jtsGeometry.geom);
+  }
+
+  protected SpatialRelation relate(Geometry oGeom) {
+    //see http://docs.geotools.org/latest/userguide/library/jts/dim9.html#preparedgeometry
+    if (oGeom instanceof com.vividsolutions.jts.geom.Point) {
+      if (preparedGeometry != null)
+        return preparedGeometry.disjoint(oGeom) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
+      return geom.disjoint(oGeom) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
+    }
+    if (preparedGeometry == null)
+      return intersectionMatrixToSpatialRelation(geom.relate(oGeom));
+    else if (preparedGeometry.covers(oGeom))
+      return SpatialRelation.CONTAINS;
+    else if (preparedGeometry.coveredBy(oGeom))
+      return SpatialRelation.WITHIN;
+    else if (preparedGeometry.intersects(oGeom))
+      return SpatialRelation.INTERSECTS;
+    return SpatialRelation.DISJOINT;
+  }
+
+  public static SpatialRelation intersectionMatrixToSpatialRelation(IntersectionMatrix matrix) {
+    //As indicated in SpatialRelation javadocs, Spatial4j CONTAINS & WITHIN are
+    // OGC's COVERS & COVEREDBY
+    if (matrix.isCovers())
+      return SpatialRelation.CONTAINS;
+    else if (matrix.isCoveredBy())
+      return SpatialRelation.WITHIN;
+    else if (matrix.isDisjoint())
+      return SpatialRelation.DISJOINT;
+    return SpatialRelation.INTERSECTS;
   }
 
   @Override
