@@ -18,26 +18,54 @@
 package com.spatial4j.core.shape;
 
 /**
- * The set of spatial relationships.  Naming is consistent with OGC spec
+ * The set of spatial relationships.  Naming is somewhat consistent with OGC spec
  * conventions as seen in SQL/MM and others.
  * <p/>
  * There is no equality case.  If two Shape instances are equal then the result
  * might be CONTAINS (preferred) or WITHIN.  Client logic may have to be aware
  * of this edge condition; Spatial4j testing certainly does.
+ * <p />
+ * The "CONTAINS" and "WITHIN" wording here is inconsistent with OGC; these here map to OGC
+ * "COVERS" and "COVERED BY", respectively. The distinction is in the boundaries; in Spatial4j
+ * there is no boundary distinction -- boundaries are part of the shape as if it was an "interior",
+ * with respect to OGC's terminology.
  */
 public enum SpatialRelation {
+  //see http://docs.geotools.org/latest/userguide/library/jts/dim9.html#preparedgeometry
+
+  /**
+   * The shape is within the target geometry. It's the converse of {@link #CONTAINS}.
+   * Boundaries of shapes count too.  OGC specs refer to this relation as "COVERED BY";
+   * WITHIN is differentiated there by not including boundaries.
+   */
   WITHIN,
+
+  /**
+   * The shape contains the target geometry. It's the converse of {@link #WITHIN}.
+   * Boundaries of shapes count too.  OGC specs refer to this relation as "COVERS";
+   * CONTAINS is differentiated there by not including boundaries.
+   */
   CONTAINS,
+
+  /**
+   * The shape shares no point in common with the target shape.
+   */
   DISJOINT,
+
+  /**
+   * The shape shares some points/overlap with the target shape, and the relation is
+   * not more specifically {@link #WITHIN} or {@link #CONTAINS}.
+   */
   INTERSECTS;
-  //Don't have these: TOUCHES, CROSSES, OVERLAPS
+  //Don't have these: TOUCHES, CROSSES, OVERLAPS, nor distinction between CONTAINS/COVERS
 
   /**
    * Given the result of <code>shapeA.relate(shapeB)</code>, transposing that
    * result should yield the result of <code>shapeB.relate(shapeA)</code>. There
    * is a corner case is when the shapes are equal, in which case actually
    * flipping the relate() call will result in the same value -- either CONTAINS
-   * or WITHIN.
+   * or WITHIN; this method can't possible check for that so the caller might
+   * have to.
    */
   public SpatialRelation transpose() {
     switch(this) {
