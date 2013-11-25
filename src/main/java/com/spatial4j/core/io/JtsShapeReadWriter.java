@@ -10,7 +10,6 @@ import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
 import com.vividsolutions.jts.geom.Envelope;
@@ -75,38 +74,37 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
   @Override
   public Shape readShape(String str) throws InvalidShapeException {
     Shape shape = super.readStandardShape(str);
-    if( shape == null ) {
-      try {
-        WKTReader reader = new WKTReader(ctx.getGeometryFactory());
-        Geometry geom = reader.read(str);
+    if (shape != null)
+      return shape;
+    try {
+      WKTReader reader = new WKTReader(ctx.getGeometryFactory());
+      Geometry geom = reader.read(str);
 
-        //Normalize coordinates to geo boundary
-        checkCoordinates(geom);
+      //Normalize coordinates to geo boundary
+      checkCoordinates(geom);
 
-        if (geom instanceof com.vividsolutions.jts.geom.Point) {
-          return new JtsPoint((com.vividsolutions.jts.geom.Point)geom, ctx);
-        } else if (geom.isRectangle()) {
-          boolean crossesDateline = false;
-          if (ctx.isGeo()) {
-            // Says Counter-clockwise: see 6.1.11.1 in OGC Simple Features Specification v. 1.2.0
-            //Polygon points are supposed to be counter-clockwise order. If JTS says it is clockwise, then
-            // it's actually a dateline crossing rectangle.
-            crossesDateline = ! CGAlgorithms.isCCW(geom.getCoordinates());
-          }
-          Envelope env = geom.getEnvelopeInternal();
-          if (crossesDateline)
-            return new RectangleImpl(env.getMaxX(),env.getMinX(),env.getMinY(),env.getMaxY(), ctx);
-          else
-            return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY(), ctx);
+      if (geom instanceof com.vividsolutions.jts.geom.Point) {
+        return new JtsPoint((com.vividsolutions.jts.geom.Point)geom, ctx);
+      } else if (geom.isRectangle()) {
+        boolean crossesDateline = false;
+        if (ctx.isGeo()) {
+          // Says Counter-clockwise: see 6.1.11.1 in OGC Simple Features Specification v. 1.2.0
+          //Polygon points are supposed to be counter-clockwise order. If JTS says it is clockwise, then
+          // it's actually a dateline crossing rectangle.
+          crossesDateline = ! CGAlgorithms.isCCW(geom.getCoordinates());
         }
-        return new JtsGeometry(geom,ctx,true);
-      } catch (InvalidShapeException e) {
-        throw e;
-      } catch (Exception e) {
-        throw new InvalidShapeException("error reading WKT: "+e.toString(), e);
-      }
+        Envelope env = geom.getEnvelopeInternal();
+        if (crossesDateline)
+          return new RectangleImpl(env.getMaxX(),env.getMinX(),env.getMinY(),env.getMaxY(), ctx);
+        else
+          return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY(), ctx);
+      } else
+        return ctx.makeShape(geom);
+    } catch (InvalidShapeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new InvalidShapeException("error reading WKT: "+e.toString(), e);
     }
-    return shape;
   }
 
   @Override
@@ -126,11 +124,10 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
     ByteBuffer bytes = ByteBuffer.wrap(array, offset, length);
     byte type = bytes.get();
     if (type == TYPE_POINT) {
-      return new JtsPoint(ctx.getGeometryFactory().createPoint(new Coordinate(bytes.getDouble(), bytes.getDouble())), ctx);
+      return ctx.makePoint(bytes.getDouble(), bytes.getDouble());
     } else if (type == TYPE_BBOX) {
-      return new RectangleImpl(
-              bytes.getDouble(), bytes.getDouble(),
-              bytes.getDouble(), bytes.getDouble(), ctx);
+      return ctx.makeRectangle(bytes.getDouble(), bytes.getDouble(),
+              bytes.getDouble(), bytes.getDouble());
     } else if (type == TYPE_GEOM) {
       WKBReader reader = new WKBReader(ctx.getGeometryFactory());
       try {
@@ -147,8 +144,8 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
           }
         });
         checkCoordinates(geom);
-        return new JtsGeometry(geom, ctx, true);
-      } catch(ParseException ex) {
+        return ctx.makeShape(geom);
+      } catch (ParseException ex) {
         throw new InvalidShapeException("error reading WKT", ex);
       } catch (IOException ex) {
         throw new InvalidShapeException("error reading WKT", ex);
