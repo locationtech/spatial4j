@@ -117,6 +117,7 @@ public class JtsSpatialContext extends SpatialContext {
       gsf.setCentre(new Coordinate(circle.getCenter().getX(), circle.getCenter().getY()));
       return gsf.createCircle();
     }
+    //TODO add BufferedLineString
     throw new InvalidShapeException("can't make Geometry from: " + shape);
   }
 
@@ -136,7 +137,9 @@ public class JtsSpatialContext extends SpatialContext {
   }
 
   public boolean useJtsLineString() {
-    return isGeo();//because BufferedLineString doesn't yet support dateline cross
+    //BufferedLineString doesn't yet do dateline cross, and can't yet be relate()'ed with a
+    // JTS geometry
+    return true;
   }
 
   @Override
