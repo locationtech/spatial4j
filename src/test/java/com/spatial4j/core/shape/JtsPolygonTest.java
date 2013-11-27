@@ -150,7 +150,7 @@ public class JtsPolygonTest extends AbstractTestShapes {
 
   @Test
   public void testWidthGreaterThan180() {
-    //does NOT cross the dateline but if a wide shape >180
+    //does NOT cross the dateline but is a wide shape >180
     JtsGeometry jtsGeo = (JtsGeometry) ctx.readShape("POLYGON((-161 49, 0 49, 20 49, 20 89.1, 0 89.1, -161 89.2, -161 49))");
     assertEquals(161+20,jtsGeo.getBoundingBox().getWidth(), 0.001);
 

@@ -22,6 +22,7 @@ import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
@@ -72,12 +73,13 @@ public class JtsWktShapeParser extends WktShapeParser {
   }
 
   /**
-   * Parses a POLYGON shape from the raw string.
+   * Parses a POLYGON shape from the raw string. It might return a {@link com.spatial4j.core.shape.Rectangle}
+   * if the polygon is one.
    * <pre>
    *   coordinateSequenceList
    * </pre>
    */
-  protected JtsGeometry parsePolygonShape(WktShapeParser.State state) throws ParseException {
+  protected Shape parsePolygonShape(WktShapeParser.State state) throws ParseException {
     Geometry geometry;
     if (state.nextIfEmptyAndSkipZM()) {
       GeometryFactory geometryFactory = ctx.getGeometryFactory();
@@ -85,6 +87,14 @@ public class JtsWktShapeParser extends WktShapeParser {
           new Coordinate[]{}), null);
     } else {
       geometry = polygon(state);
+      //return a Rectangle instead
+      if (geometry.isRectangle()) {
+        Envelope env = geometry.getEnvelopeInternal();
+        if (ctx.isGeo() && env.getWidth() > 180)
+          return ctx.makeRectangle(env.getMaxX(), env.getMinX(), env.getMinY(), env.getMaxY());
+        else
+          return ctx.makeRectangle(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
+      }
     }
     return makeShapeAndMaybeValidate(geometry);
   }

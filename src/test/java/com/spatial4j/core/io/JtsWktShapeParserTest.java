@@ -18,6 +18,7 @@
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -45,12 +46,12 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
         .point(100, 0)
         .point(101, 0)
         .point(101, 1)
-        .point(100, 1)
+        .point(100, 2)
         .point(100, 0)
         .build();
-    String polygonNoHolesSTR = "POLYGON ((100 0, 101 0, 101 1, 100 1, 100 0))";
+    String polygonNoHolesSTR = "POLYGON ((100 0, 101 0, 101 1, 100 2, 100 0))";
     assertParses(polygonNoHolesSTR, polygonNoHoles);
-    assertParses("POLYGON((100 0,101 0,101 1,100 1,100 0))", polygonNoHoles);
+    assertParses("POLYGON((100 0,101 0,101 1,100 2,100 0))", polygonNoHoles);
 
     assertParses("GEOMETRYCOLLECTION ( "+polygonNoHolesSTR+")",
         ctx.makeCollection(Arrays.asList(polygonNoHoles)));
@@ -78,18 +79,31 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   }
 
   @Test
+  public void testPolyToEnvelope() throws ParseException {
+    //poly is envelope
+    assertParses("POLYGON((0 5, 10 5, 10 20, 0 20, 0 5))", ctx.makeRectangle(0, 10, 5, 20));
+
+    //crosses dateline
+    Rectangle expected = ctx.makeRectangle(160, -170, 0, 10);
+    //counter-clockwise
+    assertParses("POLYGON((160 0, -170 0, -170 10, 160 10, 160 0))", expected);
+    //clockwise
+    assertParses("POLYGON((160 10, -170 10, -170 0, 160 0, 160 10))", expected);
+  }
+
+  @Test
   public void testParseMultiPolygon() throws ParseException {
     Shape p1 = new PolygonBuilder(ctx)
         .point(100, 0)
-        .point(101, 0)
-        .point(101, 1)
+        .point(101, 0)//101
+        .point(101, 2)//101
         .point(100, 1)
         .point(100, 0)
         .build();
     Shape p2 = new PolygonBuilder(ctx)
         .point(100, 0)
-        .point(102, 0)//2
-        .point(102, 1)//2
+        .point(102, 0)//102
+        .point(102, 2)//102
         .point(100, 1)
         .point(100, 0)
         .build();
@@ -97,8 +111,8 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
         Arrays.asList(p1, p2)
     );
     assertParses("MULTIPOLYGON(" +
-        "((100 0, 101 0, 101 1, 100 1, 100 0))" + ',' +
-        "((100 0, 102 0, 102 1, 100 1, 100 0))" +
+        "((100 0, 101 0, 101 2, 100 1, 100 0))" + ',' +
+        "((100 0, 102 0, 102 2, 100 1, 100 0))" +
         ")", s);
 
     assertParses("MULTIPOLYGON EMPTY", ctx.makeCollection(Collections.EMPTY_LIST));
@@ -106,6 +120,7 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
 
   @Test
   public void testWrapTopologyException() {
+    //test that we can catch ParseException without having to detect TopologyException too
     try {
       SHAPE_PARSER.parse("POLYGON((0 0, 10 0, 10 20))");//doesn't connect around
       fail();
