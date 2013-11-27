@@ -98,8 +98,14 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
           return new RectangleImpl(env.getMaxX(),env.getMinX(),env.getMinY(),env.getMaxY(), ctx);
         else
           return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY(), ctx);
-      } else
-        return ctx.makeShape(geom);
+      } else {
+        JtsGeometry jtsShape = ctx.makeShape(geom);
+        if (ctx.isAutoValidate())
+          jtsShape.validate();
+        if (ctx.isAutoPrepare())
+          jtsShape.prepare();
+        return jtsShape;
+      }
     } catch (InvalidShapeException e) {
       throw e;
     } catch (Exception e) {
@@ -121,6 +127,8 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
    * {@link #writeShapeToBytes(com.spatial4j.core.shape.Shape)}.
    */
   public Shape readShapeFromBytes(final byte[] array, final int offset, final int length) throws InvalidShapeException {
+    //NOTE: NO NEED TO VALIDATE/NORMALIZE GEOM AS IT SHOULD HAVE BEEN BEFORE WRITTEN
+
     ByteBuffer bytes = ByteBuffer.wrap(array, offset, length);
     byte type = bytes.get();
     if (type == TYPE_POINT) {
@@ -143,7 +151,6 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
             off += buf.length;
           }
         });
-        checkCoordinates(geom);
         return ctx.makeShape(geom);
       } catch (ParseException ex) {
         throw new InvalidShapeException("error reading WKT", ex);

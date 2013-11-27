@@ -45,7 +45,7 @@ public class TestShapes2D extends AbstractTestShapes {
 
     List<Object[]> ctxs = new ArrayList<Object[]>();
     ctxs.add($(new SpatialContext(false,null,WB)));
-    ctxs.add($(new JtsSpatialContext(null,false,null,WB)));
+    ctxs.add($(new JtsSpatialContext(null,false,null,WB, true, false)));
     return ctxs;
   }
 

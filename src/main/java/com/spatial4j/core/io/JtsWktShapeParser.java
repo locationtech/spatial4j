@@ -21,7 +21,11 @@ import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -64,7 +68,7 @@ public class JtsWktShapeParser extends WktShapeParser {
     GeometryFactory geometryFactory = ctx.getGeometryFactory();
 
     Coordinate[] coordinates = coordinateSequence(state);
-    return ctx.makeShape(geometryFactory.createLineString(coordinates));
+    return makeShapeAndMaybeValidate(geometryFactory.createLineString(coordinates));
   }
 
   /**
@@ -82,7 +86,7 @@ public class JtsWktShapeParser extends WktShapeParser {
     } else {
       geometry = polygon(state);
     }
-    return ctx.makeShape(geometry);
+    return makeShapeAndMaybeValidate(geometry);
   }
 
   /**
@@ -169,5 +173,12 @@ public class JtsWktShapeParser extends WktShapeParser {
     double y = state.nextDouble();
     state.skipNextDoubles();
     return new Coordinate(x, y);
+  }
+
+  protected JtsGeometry makeShapeAndMaybeValidate(Geometry geometry) {
+    JtsGeometry jtsGeom = ctx.makeShape(geometry);
+    if (ctx.isAutoValidate()) jtsGeom.validate();
+    if (ctx.isAutoPrepare()) jtsGeom.prepare();
+    return jtsGeom;
   }
 }

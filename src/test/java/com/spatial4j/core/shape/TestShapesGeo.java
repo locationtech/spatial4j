@@ -47,7 +47,7 @@ public class TestShapesGeo extends AbstractTestShapes {
     return Arrays.asList($$(
         $(new SpatialContext(true, new RoundingDistCalc(distCalcH), WB)),
         $(new SpatialContext(true, new RoundingDistCalc(distCalcV), WB)),
-        $(new JtsSpatialContext(null, true, new RoundingDistCalc(distCalcH), WB)))
+        $(new JtsSpatialContext(null, true, new RoundingDistCalc(distCalcH), WB, true, false)))
     );
   }
 

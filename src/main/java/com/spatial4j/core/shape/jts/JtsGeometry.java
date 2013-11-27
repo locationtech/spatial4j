@@ -61,6 +61,7 @@ public class JtsGeometry implements Shape {
   private final Rectangle bbox;
   protected final JtsSpatialContext ctx;
   protected PreparedGeometry preparedGeometry;
+  protected boolean validated = false;
 
   public JtsGeometry(Geometry geom, JtsSpatialContext ctx, boolean dateline180Check) {
     this.ctx = ctx;
@@ -89,14 +90,27 @@ public class JtsGeometry implements Shape {
     }
     geom.getEnvelopeInternal();//ensure envelope is cached internally, which is lazy evaluated. Keeps this thread-safe.
 
-    //Check geom validity; use helpful error
-    // TODO add way to conditionally skip at your peril later
-    IsValidOp isValidOp = new IsValidOp(geom);
-    if (!isValidOp.isValid())
-      throw new InvalidShapeException(isValidOp.getValidationError().toString());
     this.geom = geom;
+    assert validate();//kinda expensive but caches valid state
 
     this.hasArea = !((geom instanceof Lineal) || (geom instanceof Puntal));
+  }
+
+  /**
+   * Validates the shape, throwing a descriptive error if it isn't valid. Note that this
+   * is usually called automatically by default, but that can be disabled.
+   *
+   * @throws InvalidShapeException with descriptive error if the shape isn't valid
+   * @return Always returns true, so it's easy to use with an assert statement
+   */
+  public boolean validate() throws InvalidShapeException {
+    if (!validated) {
+      IsValidOp isValidOp = new IsValidOp(geom);
+      if (!isValidOp.isValid())
+        throw new InvalidShapeException(isValidOp.getValidationError().toString());
+      validated = true;
+    }
+    return true;
   }
 
   /**
@@ -143,6 +157,8 @@ public class JtsGeometry implements Shape {
 
   @Override
   public JtsGeometry getBuffered(SpatialContext ctx, double distance) {
+    //TODO doesn't work correctly across the dateline. The buffering needs to happen
+    // when it's transiently unrolled, prior to being sliced.
     return this.ctx.makeShape(geom.buffer(distance));
   }
 

@@ -28,11 +28,17 @@ import java.util.Map;
  */
 public class JtsSpatialContextFactory extends SpatialContextFactory {
 
-  private boolean autoPrepare;
+  private boolean autoValidate = true;
+  private boolean autoPrepare = false;
 
   @Override
   protected void init(Map<String, String> args, ClassLoader classLoader) {
     super.init(args, classLoader);
+
+    String autoValidateStr = args.get("autoValidate");
+    if (autoValidateStr != null)
+      this.autoValidate = Boolean.parseBoolean(autoValidateStr);
+
     String autoPrepareStr = args.get("autoPrepare");
     if (autoPrepareStr != null)
       this.autoPrepare = Boolean.parseBoolean(autoPrepareStr);
@@ -40,6 +46,6 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
 
   @Override
   protected SpatialContext newSpatialContext() {
-    return new JtsSpatialContext(null,geo,calculator,worldBounds, autoPrepare);
+    return new JtsSpatialContext(null, geo, calculator, worldBounds, autoValidate, autoPrepare);
   }
 }

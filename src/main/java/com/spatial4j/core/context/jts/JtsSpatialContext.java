@@ -41,33 +41,53 @@ import java.util.List;
 
 /**
  * Enhances the default {@link SpatialContext} with support for Polygons (and
- * other geometry) plus
- * reading <a href="http://en.wikipedia.org/wiki/Well-known_text">WKT</a>. The
- * popular <a href="https://sourceforge.net/projects/jts-topo-suite/">JTS</a>
- * library does the heavy lifting.
+ * other geometries) using <a href="https://sourceforge.net/projects/jts-topo-suite/">JTS</a>.
+ * To the extent possible, our {@link JtsGeometry} adds some amount of geodetic support over
+ * vanilla JTS which only has a Euclidean (flat plane) model.
  */
 public class JtsSpatialContext extends SpatialContext {
 
   public static final JtsSpatialContext GEO = new JtsSpatialContext(true);
 
   protected final GeometryFactory geometryFactory;
-  protected final boolean autoPrepare;//automatically prepare JtsGeometry
 
-  public JtsSpatialContext( boolean geo ) {
-    this(null, geo, null, null, false);
+  protected final boolean autoValidate;
+
+  protected final boolean autoPrepare;
+
+  public JtsSpatialContext(boolean geo) {
+    this(null, geo, null, null, true, false);
   }
 
   /**
    * See {@link SpatialContext#SpatialContext(boolean, com.spatial4j.core.distance.DistanceCalculator, com.spatial4j.core.shape.Rectangle)}.
    *
    * @param geometryFactory optional
+   * @param autoValidate
    */
   public JtsSpatialContext(GeometryFactory geometryFactory, boolean geo,
                            DistanceCalculator calculator, Rectangle worldBounds,
-                           boolean autoPrepare) {
+                           boolean autoValidate, boolean autoPrepare) {
     super(geo, calculator, worldBounds);
+    this.autoValidate = autoValidate;
     this.geometryFactory = geometryFactory == null ? new GeometryFactory() : geometryFactory;
     this.autoPrepare = autoPrepare;
+  }
+
+  /**
+   * If JtsGeometry shapes should be automatically validated when read via WKT.
+   * @see com.spatial4j.core.shape.jts.JtsGeometry#validate()
+   */
+  public boolean isAutoValidate() {
+    return autoValidate;
+  }
+
+  /**
+   * If JtsGeometry shapes should be automatically prepared (i.e. optimized) when read via WKT.
+   * @see com.spatial4j.core.shape.jts.JtsGeometry#prepare()
+   */
+  public boolean isAutoPrepare() {
+    return autoPrepare;
   }
 
   protected ShapeReadWriter makeShapeReadWriter() {
@@ -162,13 +182,15 @@ public class JtsSpatialContext extends SpatialContext {
   }
 
   /**
-   * Creates a {@link Shape} from a JTS {@link Geometry}.
-   * @param geometry Non-null
+   * INTERNAL: Creates a {@link Shape} from a JTS {@link Geometry}. Generally, this shouldn't be
+   * called when one of the other factory methods are available, such as for points. The caller
+   * needs to have done some verification/normalization of the coordinates by now.
+   *
+   * @param geom Non-null
    * @return Non-null.
    */
-  public JtsGeometry makeShape(Geometry geometry) {
-    JtsGeometry jtsGeom = new JtsGeometry(geometry, this, isGeo());
-    if (autoPrepare) jtsGeom.prepare();
+  public JtsGeometry makeShape(Geometry geom) {
+    JtsGeometry jtsGeom = new JtsGeometry(geom, this, isGeo());
     return jtsGeom;
   }
 
