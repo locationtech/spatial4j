@@ -19,6 +19,7 @@ package com.spatial4j.core.shape;
 
 import com.spatial4j.core.TestLog;
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.shape.impl.Range;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import org.junit.Rule;
@@ -58,7 +59,9 @@ public class ShapeCollectionTest extends RandomizedShapeTest {
 
   @Test
   public void testRectIntersect() {
-    SpatialContext ctx = new SpatialContext(false, null, new RectangleImpl(-100,100,-50,50,null));
+    SpatialContext ctx = new SpatialContextFactory()
+      {{geo = false; worldBounds = new RectangleImpl(-100, 100, -50, 50, null);}}.newSpatialContext();
+
     new ShapeCollectionRectIntersectionTestHelper(ctx).testRelateWithRectangle();
   }
 

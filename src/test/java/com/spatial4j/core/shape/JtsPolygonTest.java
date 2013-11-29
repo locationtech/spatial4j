@@ -19,6 +19,7 @@ package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -46,6 +47,11 @@ public class JtsPolygonTest extends AbstractTestShapes {
   private final boolean TEST_DL_POLY = true;
   //TODO poly.relate(circle) doesn't work when other crosses the dateline
   private final boolean TEST_DL_OTHER = true;
+
+  //our country test data file seems messed up w.r.t. particularly dateline-crossing
+  private static final JtsSpatialContext ctxAllowMultiOverlap = new JtsSpatialContextFactory() {
+    { geo = true; allowMultiOverlap = true;}
+  }.newSpatialContext();
 
   public JtsPolygonTest() {
     super(JtsSpatialContext.GEO);
@@ -118,7 +124,7 @@ public class JtsPolygonTest extends AbstractTestShapes {
     //simple bbox
     Rectangle r = randomRectangle(20);
     JtsSpatialContext ctxJts = (JtsSpatialContext) ctx;
-    JtsGeometry rPoly = new JtsGeometry(ctxJts.getGeometryFrom(r), ctxJts, false);
+    JtsGeometry rPoly = ctxJts.makeShape(ctxJts.getGeometryFrom(r), false, false);
     assertEquals(r.getArea(null), rPoly.getArea(null), 0.0);
     assertEquals(r.getArea(ctx), rPoly.getArea(ctx), 0.000001);//same since fills 100%
 
@@ -191,6 +197,7 @@ public class JtsPolygonTest extends AbstractTestShapes {
   public void testRussia() throws IOException {
     //TODO THE RUSSIA TEST DATA SET APPEARS CORRUPT
     // But this test "works" anyhow, and exercises a ton.
+    JtsSpatialContext ctx = ctxAllowMultiOverlap;//use different ctx
 
     //Russia exercises JtsGeometry fairly well because of these characteristics:
     // * a MultiPolygon
@@ -211,8 +218,8 @@ public class JtsPolygonTest extends AbstractTestShapes {
   @Test
   public void testFiji() throws IOException {
     //Fiji is a group of islands crossing the dateline.
+    JtsSpatialContext ctx = ctxAllowMultiOverlap;//use different ctx
     String wktStr = readFirstLineFromRsrc("/fiji.wkt.txt");
-
     JtsGeometry jtsGeom = (JtsGeometry)ctx.readShape(wktStr);
 
     assertRelation(null,SpatialRelation.CONTAINS, jtsGeom,

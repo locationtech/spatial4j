@@ -119,6 +119,12 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   }
 
   @Test
+  public void testLineStringDateline() throws ParseException {
+    Shape s = SHAPE_PARSER.parse("LINESTRING(160 10, -170 15)");
+    assertEquals(30, s.getBoundingBox().getWidth(), 0.0 );
+  }
+
+  @Test
   public void testWrapTopologyException() {
     //test that we can catch ParseException without having to detect TopologyException too
     try {

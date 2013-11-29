@@ -19,7 +19,8 @@ package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.impl.BufferedLine;
 import com.spatial4j.core.shape.impl.BufferedLineString;
@@ -41,11 +42,11 @@ public class TestShapes2D extends AbstractTestShapes {
 
   @ParametersFactory
   public static Iterable<Object[]> parameters() {
-    Rectangle WB = new RectangleImpl(-2000, 2000, -300, 300, null);//whatever
+    final Rectangle WB = new RectangleImpl(-2000, 2000, -300, 300, null);//whatever
 
     List<Object[]> ctxs = new ArrayList<Object[]>();
-    ctxs.add($(new SpatialContext(false,null,WB)));
-    ctxs.add($(new JtsSpatialContext(null,false,null,WB, true, false)));
+    ctxs.add($(new SpatialContextFactory() {{geo = false; worldBounds = WB;}}.newSpatialContext()));
+    ctxs.add($(new JtsSpatialContextFactory() {{geo = false; worldBounds = WB;}}.newSpatialContext()));
     return ctxs;
   }
 

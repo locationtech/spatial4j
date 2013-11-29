@@ -49,7 +49,7 @@ public class SpatialContextFactory {
   protected ClassLoader classLoader;
   
   protected boolean geo = true;
-  protected DistanceCalculator calculator;
+  protected DistanceCalculator distCalc;
   protected Rectangle worldBounds;
 
   /**
@@ -105,15 +105,15 @@ public class SpatialContextFactory {
     if (calcStr == null)
       return;
     if (calcStr.equalsIgnoreCase("haversine")) {
-      calculator = new GeodesicSphereDistCalc.Haversine();
+      distCalc = new GeodesicSphereDistCalc.Haversine();
     } else if (calcStr.equalsIgnoreCase("lawOfCosines")) {
-      calculator = new GeodesicSphereDistCalc.LawOfCosines();
+      distCalc = new GeodesicSphereDistCalc.LawOfCosines();
     } else if (calcStr.equalsIgnoreCase("vincentySphere")) {
-      calculator = new GeodesicSphereDistCalc.Vincenty();
+      distCalc = new GeodesicSphereDistCalc.Vincenty();
     } else if (calcStr.equalsIgnoreCase("cartesian")) {
-      calculator = new CartesianDistCalc();
+      distCalc = new CartesianDistCalc();
     } else if (calcStr.equalsIgnoreCase("cartesian^2")) {
-      calculator = new CartesianDistCalc(true);
+      distCalc = new CartesianDistCalc(true);
     } else {
       throw new RuntimeException("Unknown calculator: "+calcStr);
     }
@@ -125,12 +125,24 @@ public class SpatialContextFactory {
       return;
     
     //kinda ugly we do this just to read a rectangle.  TODO refactor
-    SpatialContext simpleCtx = new SpatialContext(geo, calculator, null);
+    SpatialContext simpleCtx = new SpatialContext(geo, distCalc, null);
     worldBounds = (Rectangle) simpleCtx.readShape(worldBoundsStr);
   }
 
+  public void setGeo(boolean geo) {
+    this.geo = geo;
+  }
+
+  public void setDistCalc(DistanceCalculator distCalc) {
+    this.distCalc = distCalc;
+  }
+
+  public void setWorldBounds(Rectangle worldBounds) {
+    this.worldBounds = worldBounds;
+  }
+
   /** Subclasses should simply construct the instance from the initialized configuration. */
-  protected SpatialContext newSpatialContext() {
-    return new SpatialContext(geo,calculator,worldBounds);
+  public SpatialContext newSpatialContext() {
+    return new SpatialContext(geo, distCalc,worldBounds);
   }
 }

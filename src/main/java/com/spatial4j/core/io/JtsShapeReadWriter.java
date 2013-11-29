@@ -151,7 +151,9 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
             off += buf.length;
           }
         });
-        return ctx.makeShape(geom);
+        //false: don't check for dateline-180 cross or multi-polygon overlaps; this won't happen
+        // once it gets written, and we're reading it now
+        return ctx.makeShape(geom, false, false);
       } catch (ParseException ex) {
         throw new InvalidShapeException("error reading WKT", ex);
       } catch (IOException ex) {

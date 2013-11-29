@@ -19,6 +19,7 @@ package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.shape.impl.BufferedLineString;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import org.junit.Test;
@@ -28,8 +29,9 @@ import java.util.List;
 
 public class BufferedLineStringTest extends RandomizedTest {
 
-  private final SpatialContext ctx = new SpatialContext(false, null,
-      new RectangleImpl(-100, 100, -50, 50, null));
+  private final SpatialContext ctx = new SpatialContextFactory()
+    {{geo = false; worldBounds = new RectangleImpl(-100, 100, -50, 50, null);}}.newSpatialContext();
+
 
   @Test
   public void testRectIntersect() {

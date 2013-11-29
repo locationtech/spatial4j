@@ -78,7 +78,7 @@ public class PolygonBuilder {
    * @return Built polygon
    */
   public Shape build() {
-    return new JtsGeometry(toPolygon(), ctx, true);
+    return new JtsGeometry(toPolygon(), ctx, true, true);
   }
 
   /**

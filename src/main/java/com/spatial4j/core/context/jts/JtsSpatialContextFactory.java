@@ -17,8 +17,8 @@
 
 package com.spatial4j.core.context.jts;
 
-import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 import java.util.Map;
 
@@ -28,8 +28,10 @@ import java.util.Map;
  */
 public class JtsSpatialContextFactory extends SpatialContextFactory {
 
-  private boolean autoValidate = true;
-  private boolean autoPrepare = false;
+  protected boolean autoValidate = true;
+  protected boolean autoPrepare = false;
+  protected boolean allowMultiOverlap = false;
+  protected GeometryFactory geometryFactory;
 
   @Override
   protected void init(Map<String, String> args, ClassLoader classLoader) {
@@ -42,10 +44,31 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
     String autoPrepareStr = args.get("autoPrepare");
     if (autoPrepareStr != null)
       this.autoPrepare = Boolean.parseBoolean(autoPrepareStr);
+
+    String allowMultiOverlapStr = args.get("allowMultiOverlap");
+    if (allowMultiOverlapStr != null)
+      this.allowMultiOverlap = Boolean.parseBoolean(allowMultiOverlapStr);
+  }
+
+  public void setGeometryFactory(GeometryFactory geometryFactory) {
+    this.geometryFactory = geometryFactory;
+  }
+
+  public void setAutoValidate(boolean autoValidate) {
+    this.autoValidate = autoValidate;
+  }
+
+  public void setAutoPrepare(boolean autoPrepare) {
+    this.autoPrepare = autoPrepare;
+  }
+
+  public void setAllowMultiOverlap(boolean allowMultiOverlap) {
+    this.allowMultiOverlap = allowMultiOverlap;
   }
 
   @Override
-  protected SpatialContext newSpatialContext() {
-    return new JtsSpatialContext(null, geo, calculator, worldBounds, autoValidate, autoPrepare);
+  public JtsSpatialContext newSpatialContext() {
+    return new JtsSpatialContext(geometryFactory, geo, distCalc, worldBounds, autoValidate, autoPrepare,
+            allowMultiOverlap);
   }
 }

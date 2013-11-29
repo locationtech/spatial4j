@@ -47,7 +47,8 @@ import java.util.List;
  */
 public class JtsSpatialContext extends SpatialContext {
 
-  public static final JtsSpatialContext GEO = new JtsSpatialContext(true);
+  public static final JtsSpatialContext GEO =
+          new JtsSpatialContext(null, true, null, null, true, false, false);//only autoValidate
 
   protected final GeometryFactory geometryFactory;
 
@@ -55,23 +56,19 @@ public class JtsSpatialContext extends SpatialContext {
 
   protected final boolean autoPrepare;
 
-  public JtsSpatialContext(boolean geo) {
-    this(null, geo, null, null, true, false);
-  }
+  protected final boolean allowMultiOverlap;
 
   /**
-   * See {@link SpatialContext#SpatialContext(boolean, com.spatial4j.core.distance.DistanceCalculator, com.spatial4j.core.shape.Rectangle)}.
-   *
-   * @param geometryFactory optional
-   * @param autoValidate
+   * Consider using {@link JtsSpatialContextFactory} instead.
    */
   public JtsSpatialContext(GeometryFactory geometryFactory, boolean geo,
                            DistanceCalculator calculator, Rectangle worldBounds,
-                           boolean autoValidate, boolean autoPrepare) {
+                           boolean autoValidate, boolean autoPrepare, boolean allowMultiOverlap) {
     super(geo, calculator, worldBounds);
-    this.autoValidate = autoValidate;
     this.geometryFactory = geometryFactory == null ? new GeometryFactory() : geometryFactory;
+    this.autoValidate = autoValidate;
     this.autoPrepare = autoPrepare;
+    this.allowMultiOverlap = allowMultiOverlap;
   }
 
   /**
@@ -182,16 +179,31 @@ public class JtsSpatialContext extends SpatialContext {
   }
 
   /**
+   * INTERNAL
+   * @see #makeShape(com.vividsolutions.jts.geom.Geometry)
+   *
+   * @param geom Non-null
+   * @param dateline180Check if both this is true and {@link #isGeo()}, then JtsGeometry will check
+   *                         for adjacent coordinates greater than 180 degrees longitude apart, and
+   *                         it will do tricks to make that line segment (and the shape as a whole)
+   *                         cross the dateline even though JTS doesn't have geodetic support.
+   * @param allowMultiOverlap If geom might be a multi geometry of some kind, then might multiple
+   *                          component geometries overlap? Strict OGC says this is invalid but we
+   *                          can accept it by taking the union. Note: Our ShapeCollection mostly
+   *                          doesn't care but it has a method related to this
+   *                          {@link com.spatial4j.core.shape.ShapeCollection#relateContainsShortCircuits()}.
+   */
+  public JtsGeometry makeShape(Geometry geom, boolean dateline180Check, boolean allowMultiOverlap) {
+    return new JtsGeometry(geom, this, dateline180Check, allowMultiOverlap);
+  }
+
+  /**
    * INTERNAL: Creates a {@link Shape} from a JTS {@link Geometry}. Generally, this shouldn't be
    * called when one of the other factory methods are available, such as for points. The caller
    * needs to have done some verification/normalization of the coordinates by now.
-   *
-   * @param geom Non-null
-   * @return Non-null.
    */
   public JtsGeometry makeShape(Geometry geom) {
-    JtsGeometry jtsGeom = new JtsGeometry(geom, this, isGeo());
-    return jtsGeom;
+    return makeShape(geom, true/*dateline180Check*/, allowMultiOverlap);
   }
 
   public GeometryFactory getGeometryFactory() {

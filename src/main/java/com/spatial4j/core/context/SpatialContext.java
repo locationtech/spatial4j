@@ -59,8 +59,10 @@ public class SpatialContext {
   private final ShapeReadWriter shapeReadWriter;
 
   /**
+   * Consider using {@link com.spatial4j.core.context.jts.JtsSpatialContextFactory} instead.
+   *
    * @param geo Establishes geo vs cartesian / Euclidean.
-   * @param calculator Optional; defaults to Haversine or cartesian depending on units.
+   * @param calculator Optional; defaults to haversine or cartesian depending on {@code geo}.
    * @param worldBounds Optional; defaults to GEO_WORLDBOUNDS or MAX_WORLDBOUNDS depending on units.
    */
   public SpatialContext(boolean geo, DistanceCalculator calculator, Rectangle worldBounds) {

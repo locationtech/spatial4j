@@ -63,7 +63,7 @@ public class JtsGeometry implements Shape {
   protected PreparedGeometry preparedGeometry;
   protected boolean validated = false;
 
-  public JtsGeometry(Geometry geom, JtsSpatialContext ctx, boolean dateline180Check) {
+  public JtsGeometry(Geometry geom, JtsSpatialContext ctx, boolean dateline180Check, boolean allowMultiOverlap) {
     this.ctx = ctx;
     //GeometryCollection isn't supported in relate()
     if (geom.getClass().equals(GeometryCollection.class))
@@ -75,7 +75,8 @@ public class JtsGeometry implements Shape {
       if (dateline180Check)
         unwrapDateline(geom);//potentially modifies geom
       //If given multiple overlapping polygons, fix it by union
-      geom = unionGeometryCollection(geom);//returns same or new geom
+      if (allowMultiOverlap)
+        geom = unionGeometryCollection(geom);//returns same or new geom
 
       //Cuts an unwrapped geometry back into overlaid pages in the standard geo bounds.
       geom = cutUnwrappedGeomInto360(geom);//returns same or new geom
@@ -85,6 +86,10 @@ public class JtsGeometry implements Shape {
       //Compute bbox
       bbox = computeGeoBBox(geom);
     } else {//not geo
+      //If given multiple overlapping polygons, fix it by union
+      if (allowMultiOverlap)
+        geom = unionGeometryCollection(geom);//returns same or new geom
+
       Envelope env = geom.getEnvelopeInternal();
       bbox = new RectangleImpl(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY(), ctx);
     }
@@ -159,7 +164,7 @@ public class JtsGeometry implements Shape {
   public JtsGeometry getBuffered(SpatialContext ctx, double distance) {
     //TODO doesn't work correctly across the dateline. The buffering needs to happen
     // when it's transiently unrolled, prior to being sliced.
-    return this.ctx.makeShape(geom.buffer(distance));
+    return this.ctx.makeShape(geom.buffer(distance), true, true);
   }
 
   @Override
@@ -323,7 +328,7 @@ public class JtsGeometry implements Shape {
   private static int unwrapDateline(Geometry geom) {
     if (geom.getEnvelopeInternal().getWidth() < 180)
       return 0;//can't possibly cross the dateline
-    final int[] result = {0};//an array so that an inner class can modify it.
+    final int[] crossings = {0};//an array so that an inner class can modify it.
     geom.apply(new GeometryFilter() {
       @Override
       public void filter(Geometry geom) {
@@ -338,12 +343,11 @@ public class JtsGeometry implements Shape {
           cross = unwrapDateline((Polygon) geom);
         } else
           return;
-        result[0] = Math.max(result[0], cross);
+        crossings[0] = Math.max(crossings[0], cross);
       }
     });//geom.apply()
 
-    int crossings = result[0];
-    return crossings;
+    return crossings[0];
   }
 
   /** See {@link #unwrapDateline(Geometry)}. */

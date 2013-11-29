@@ -85,7 +85,7 @@ public class SpatialContextFactoryTest {
   public static class DSCF extends SpatialContextFactory {
 
     @Override
-    protected SpatialContext newSpatialContext() {
+    public SpatialContext newSpatialContext() {
       return new SpatialContext(false);
     }
   }

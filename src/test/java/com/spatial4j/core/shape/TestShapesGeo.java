@@ -19,7 +19,8 @@ package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
@@ -41,13 +42,12 @@ public class TestShapesGeo extends AbstractTestShapes {
 
     //TODO ENABLE LawOfCosines WHEN WORKING
     //DistanceCalculator distCalcL = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
-    DistanceCalculator distCalcH = new GeodesicSphereDistCalc.Haversine();//default
-    DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty();
-    Rectangle WB = SpatialContext.GEO.getWorldBounds();
+    final DistanceCalculator distCalcH = new GeodesicSphereDistCalc.Haversine();//default
+    final DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty();
     return Arrays.asList($$(
-        $(new SpatialContext(true, new RoundingDistCalc(distCalcH), WB)),
-        $(new SpatialContext(true, new RoundingDistCalc(distCalcV), WB)),
-        $(new JtsSpatialContext(null, true, new RoundingDistCalc(distCalcH), WB, true, false)))
+        $(new SpatialContextFactory(){{geo = true; distCalc = new RoundingDistCalc(distCalcH);}}.newSpatialContext()),
+        $(new SpatialContextFactory(){{geo = true; distCalc = new RoundingDistCalc(distCalcV);}}.newSpatialContext()),
+        $(new JtsSpatialContextFactory(){{geo = true; distCalc = new RoundingDistCalc(distCalcH);}}.newSpatialContext()))
     );
   }
 
