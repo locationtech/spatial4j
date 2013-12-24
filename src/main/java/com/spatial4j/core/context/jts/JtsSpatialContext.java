@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@
 package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.JtsShapeReadWriter;
 import com.spatial4j.core.io.ShapeReadWriter;
@@ -28,11 +27,7 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import java.util.ArrayList;
@@ -47,8 +42,12 @@ import java.util.List;
  */
 public class JtsSpatialContext extends SpatialContext {
 
-  public static final JtsSpatialContext GEO =
-          new JtsSpatialContext(null, true, null, null, true, false, false);//only autoValidate
+  public static final JtsSpatialContext GEO;
+  static {
+    JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
+    factory.setGeo(true);
+    GEO = new JtsSpatialContext(factory);
+  }
 
   protected final GeometryFactory geometryFactory;
 
@@ -61,14 +60,12 @@ public class JtsSpatialContext extends SpatialContext {
   /**
    * Consider using {@link JtsSpatialContextFactory} instead.
    */
-  public JtsSpatialContext(GeometryFactory geometryFactory, boolean geo,
-                           DistanceCalculator calculator, Rectangle worldBounds,
-                           boolean autoValidate, boolean autoPrepare, boolean allowMultiOverlap) {
-    super(geo, calculator, worldBounds);
-    this.geometryFactory = geometryFactory == null ? new GeometryFactory() : geometryFactory;
-    this.autoValidate = autoValidate;
-    this.autoPrepare = autoPrepare;
-    this.allowMultiOverlap = allowMultiOverlap;
+  public JtsSpatialContext(JtsSpatialContextFactory factory) {
+    super(factory);
+    this.geometryFactory = factory.geometryFactory == null ? new GeometryFactory() : factory.geometryFactory;
+    this.autoValidate = factory.autoValidate;
+    this.autoPrepare = factory.autoPrepare;
+    this.allowMultiOverlap = factory.allowMultiOverlap;
   }
 
   /**

@@ -22,16 +22,8 @@ import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReadWriter;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.ShapeCollection;
-import com.spatial4j.core.shape.impl.BufferedLineString;
-import com.spatial4j.core.shape.impl.CircleImpl;
-import com.spatial4j.core.shape.impl.GeoCircle;
-import com.spatial4j.core.shape.impl.PointImpl;
-import com.spatial4j.core.shape.impl.RectangleImpl;
+import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.impl.*;
 
 import java.util.List;
 
@@ -59,12 +51,13 @@ public class SpatialContext {
   private final ShapeReadWriter shapeReadWriter;
 
   /**
-   * Consider using {@link com.spatial4j.core.context.jts.JtsSpatialContextFactory} instead.
+   * Consider using {@link com.spatial4j.core.context.SpatialContextFactory} instead.
    *
    * @param geo Establishes geo vs cartesian / Euclidean.
    * @param calculator Optional; defaults to haversine or cartesian depending on {@code geo}.
    * @param worldBounds Optional; defaults to GEO_WORLDBOUNDS or MAX_WORLDBOUNDS depending on units.
    */
+  //TODO Deprecate this constructor?
   public SpatialContext(boolean geo, DistanceCalculator calculator, Rectangle worldBounds) {
     this.geo = geo;
 
@@ -94,6 +87,10 @@ public class SpatialContext {
 
   public SpatialContext(boolean geo) {
     this(geo, null, null);
+  }
+
+  public SpatialContext(SpatialContextFactory factory) {
+    this(factory.geo, factory.distCalc, factory.worldBounds);
   }
 
   protected ShapeReadWriter makeShapeReadWriter() {
