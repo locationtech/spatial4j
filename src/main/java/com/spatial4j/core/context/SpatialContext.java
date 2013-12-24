@@ -104,6 +104,16 @@ public class SpatialContext {
     return calculator;
   }
 
+  /** Convenience that uses {@link #getDistCalc()} */
+  public double calcDistance(Point p, double x2, double y2) {
+    return getDistCalc().distance(p, x2, y2);
+  }
+
+  /** Convenience that uses {@link #getDistCalc()} */
+  public double calcDistance(Point p, Point p2) {
+    return getDistCalc().distance(p, p2);
+  }
+
   /**
    * The extent of x & y coordinates should fit within the return'ed rectangle.
    * Do *NOT* invoke reset() on this return type.
