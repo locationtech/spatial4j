@@ -19,6 +19,7 @@ package com.spatial4j.core.context;
 
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.DistanceCalculator;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReadWriter;
@@ -49,6 +50,8 @@ public class SpatialContext {
   private final Rectangle worldBounds;
 
   private final ShapeReadWriter shapeReadWriter;
+
+  private boolean normWrapLongitude = false;//TODO make final when I can
 
   /**
    * Consider using {@link com.spatial4j.core.context.SpatialContextFactory} instead.
@@ -91,6 +94,7 @@ public class SpatialContext {
 
   public SpatialContext(SpatialContextFactory factory) {
     this(factory.geo, factory.distCalc, factory.worldBounds);
+    this.normWrapLongitude = factory.normWrapLongitude && this.isGeo();
   }
 
   protected ShapeReadWriter makeShapeReadWriter() {
@@ -109,10 +113,28 @@ public class SpatialContext {
     return worldBounds;
   }
 
+  /** If true then {@link #normX(double)} will wrap longitudes outside of the standard
+   * geodetic boundary into it. Example: 181 will become -179. */
+  public boolean isNormWrapLongitude() {
+    return normWrapLongitude;
+  }
+
   /** Is this a geospatial context (true) or simply 2d spatial (false). */
   public boolean isGeo() {
     return geo;
   }
+
+  /** Normalize the 'x' dimension. Might reduce precision or wrap it to be within the bounds. This
+   * is called by {@link com.spatial4j.core.io.WktShapeParser} before creating a shape. */
+  public double normX(double x) {
+    if (normWrapLongitude)
+      x = DistanceUtils.normLonDEG(x);
+    return x;
+  }
+
+  /** Normalize the 'y' dimension. Might reduce precision or wrap it to be within the bounds. This
+   * is called by {@link com.spatial4j.core.io.WktShapeParser} before creating a shape. */
+  public double normY(double y) { return y; }
 
   /** Ensure fits in {@link #getWorldBounds()} */
   public void verifyX(double x) {

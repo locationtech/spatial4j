@@ -22,6 +22,7 @@ import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.shape.Rectangle;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
@@ -51,6 +52,8 @@ public class SpatialContextFactory {
   protected boolean geo = true;
   protected DistanceCalculator distCalc;
   protected Rectangle worldBounds;
+
+  protected boolean normWrapLongitude = false;
 
   /**
    * Creates a new {@link SpatialContext} based on configuration in
@@ -89,15 +92,39 @@ public class SpatialContextFactory {
   protected void init(Map<String, String> args, ClassLoader classLoader) {
     this.args = args;
     this.classLoader = classLoader;
-    initUnits();
+    initField("geo");
     initCalculator();
     initWorldBounds();
+
+    initField("normWrapLongitude");
   }
 
-  protected void initUnits() {
-    String geoStr = args.get("geo");
-    if (geoStr != null)
-      geo = Boolean.valueOf(geoStr);
+  /** Gets {@code name} from args and populates a field by the same name with the value. */
+  protected void initField(String name) {
+    //  note: java.beans API is more verbose to use correctly but would arguably be better
+    Field field = null;
+    Class clazz = getClass();
+    while (true) {//note: this could be much simpler if we decide the fields should be public
+      try {
+        field = clazz.getDeclaredField(name);
+        break;
+      } catch (NoSuchFieldException e) {
+        clazz = clazz.getSuperclass();
+        if (clazz == Object.class)
+          throw new Error(e);
+      }
+    }
+    String str = args.get(name);
+    if (str != null) {
+      //TODO support other primitive types as applicable
+      assert field.getType() == Boolean.TYPE;
+      Object o = Boolean.valueOf(str);
+      try {
+        field.set(this, o);
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   protected void initCalculator() {
@@ -139,6 +166,10 @@ public class SpatialContextFactory {
 
   public void setWorldBounds(Rectangle worldBounds) {
     this.worldBounds = worldBounds;
+  }
+
+  public void setNormWrapLongitude(boolean normWrapLongitude) {
+    this.normWrapLongitude = normWrapLongitude;
   }
 
   /** Subclasses should simply construct the instance from the initialized configuration. */

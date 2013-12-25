@@ -62,7 +62,7 @@ public class JtsSpatialContext extends SpatialContext {
    */
   public JtsSpatialContext(JtsSpatialContextFactory factory) {
     super(factory);
-    this.geometryFactory = factory.geometryFactory == null ? new GeometryFactory() : factory.geometryFactory;
+    this.geometryFactory = factory.getGeometryFactory();
     this.autoValidate = factory.autoValidate;
     this.autoPrepare = factory.autoPrepare;
     this.allowMultiOverlap = factory.allowMultiOverlap;
@@ -82,6 +82,29 @@ public class JtsSpatialContext extends SpatialContext {
    */
   public boolean isAutoPrepare() {
     return autoPrepare;
+  }
+
+  /**
+   * If geom might be a multi geometry of some kind, then might multiple
+   * component geometries overlap? Strict OGC says this is invalid but we
+   * can accept it by computing the union. Note: Our ShapeCollection mostly
+   * doesn't care but it has a method related to this
+   * {@link com.spatial4j.core.shape.ShapeCollection#relateContainsShortCircuits()}.
+   */
+  public boolean isAllowMultiOverlap() {
+    return allowMultiOverlap;
+  }
+
+  @Override
+  public double normX(double x) {
+    x = super.normX(x);
+    return geometryFactory.getPrecisionModel().makePrecise(x);
+  }
+
+  @Override
+  public double normY(double y) {
+    y = super.normY(y);
+    return geometryFactory.getPrecisionModel().makePrecise(y);
   }
 
   protected ShapeReadWriter makeShapeReadWriter() {
@@ -184,11 +207,7 @@ public class JtsSpatialContext extends SpatialContext {
    *                         for adjacent coordinates greater than 180 degrees longitude apart, and
    *                         it will do tricks to make that line segment (and the shape as a whole)
    *                         cross the dateline even though JTS doesn't have geodetic support.
-   * @param allowMultiOverlap If geom might be a multi geometry of some kind, then might multiple
-   *                          component geometries overlap? Strict OGC says this is invalid but we
-   *                          can accept it by taking the union. Note: Our ShapeCollection mostly
-   *                          doesn't care but it has a method related to this
-   *                          {@link com.spatial4j.core.shape.ShapeCollection#relateContainsShortCircuits()}.
+   * @param allowMultiOverlap See {@link #isAllowMultiOverlap()}.
    */
   public JtsGeometry makeShape(Geometry geom, boolean dateline180Check, boolean allowMultiOverlap) {
     return new JtsGeometry(geom, this, dateline180Check, allowMultiOverlap);
@@ -197,7 +216,7 @@ public class JtsSpatialContext extends SpatialContext {
   /**
    * INTERNAL: Creates a {@link Shape} from a JTS {@link Geometry}. Generally, this shouldn't be
    * called when one of the other factory methods are available, such as for points. The caller
-   * needs to have done some verification/normalization of the coordinates by now.
+   * needs to have done some verification/normalization of the coordinates by now, if any.
    */
   public JtsGeometry makeShape(Geometry geom) {
     return makeShape(geom, true/*dateline180Check*/, allowMultiOverlap);
