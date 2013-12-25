@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@
 package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.JtsShapeReadWriter;
 import com.spatial4j.core.io.ShapeReadWriter;
@@ -28,11 +27,7 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import java.util.ArrayList;
@@ -47,8 +42,12 @@ import java.util.List;
  */
 public class JtsSpatialContext extends SpatialContext {
 
-  public static final JtsSpatialContext GEO =
-          new JtsSpatialContext(null, true, null, null, true, false, false);//only autoValidate
+  public static final JtsSpatialContext GEO;
+  static {
+    JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
+    factory.setGeo(true);
+    GEO = new JtsSpatialContext(factory);
+  }
 
   protected final GeometryFactory geometryFactory;
 
@@ -61,14 +60,12 @@ public class JtsSpatialContext extends SpatialContext {
   /**
    * Consider using {@link JtsSpatialContextFactory} instead.
    */
-  public JtsSpatialContext(GeometryFactory geometryFactory, boolean geo,
-                           DistanceCalculator calculator, Rectangle worldBounds,
-                           boolean autoValidate, boolean autoPrepare, boolean allowMultiOverlap) {
-    super(geo, calculator, worldBounds);
-    this.geometryFactory = geometryFactory == null ? new GeometryFactory() : geometryFactory;
-    this.autoValidate = autoValidate;
-    this.autoPrepare = autoPrepare;
-    this.allowMultiOverlap = allowMultiOverlap;
+  public JtsSpatialContext(JtsSpatialContextFactory factory) {
+    super(factory);
+    this.geometryFactory = factory.getGeometryFactory();
+    this.autoValidate = factory.autoValidate;
+    this.autoPrepare = factory.autoPrepare;
+    this.allowMultiOverlap = factory.allowMultiOverlap;
   }
 
   /**
@@ -85,6 +82,29 @@ public class JtsSpatialContext extends SpatialContext {
    */
   public boolean isAutoPrepare() {
     return autoPrepare;
+  }
+
+  /**
+   * If geom might be a multi geometry of some kind, then might multiple
+   * component geometries overlap? Strict OGC says this is invalid but we
+   * can accept it by computing the union. Note: Our ShapeCollection mostly
+   * doesn't care but it has a method related to this
+   * {@link com.spatial4j.core.shape.ShapeCollection#relateContainsShortCircuits()}.
+   */
+  public boolean isAllowMultiOverlap() {
+    return allowMultiOverlap;
+  }
+
+  @Override
+  public double normX(double x) {
+    x = super.normX(x);
+    return geometryFactory.getPrecisionModel().makePrecise(x);
+  }
+
+  @Override
+  public double normY(double y) {
+    y = super.normY(y);
+    return geometryFactory.getPrecisionModel().makePrecise(y);
   }
 
   protected ShapeReadWriter makeShapeReadWriter() {
@@ -187,11 +207,7 @@ public class JtsSpatialContext extends SpatialContext {
    *                         for adjacent coordinates greater than 180 degrees longitude apart, and
    *                         it will do tricks to make that line segment (and the shape as a whole)
    *                         cross the dateline even though JTS doesn't have geodetic support.
-   * @param allowMultiOverlap If geom might be a multi geometry of some kind, then might multiple
-   *                          component geometries overlap? Strict OGC says this is invalid but we
-   *                          can accept it by taking the union. Note: Our ShapeCollection mostly
-   *                          doesn't care but it has a method related to this
-   *                          {@link com.spatial4j.core.shape.ShapeCollection#relateContainsShortCircuits()}.
+   * @param allowMultiOverlap See {@link #isAllowMultiOverlap()}.
    */
   public JtsGeometry makeShape(Geometry geom, boolean dateline180Check, boolean allowMultiOverlap) {
     return new JtsGeometry(geom, this, dateline180Check, allowMultiOverlap);
@@ -200,7 +216,7 @@ public class JtsSpatialContext extends SpatialContext {
   /**
    * INTERNAL: Creates a {@link Shape} from a JTS {@link Geometry}. Generally, this shouldn't be
    * called when one of the other factory methods are available, such as for points. The caller
-   * needs to have done some verification/normalization of the coordinates by now.
+   * needs to have done some verification/normalization of the coordinates by now, if any.
    */
   public JtsGeometry makeShape(Geometry geom) {
     return makeShape(geom, true/*dateline180Check*/, allowMultiOverlap);

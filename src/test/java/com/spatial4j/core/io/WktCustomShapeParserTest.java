@@ -17,6 +17,7 @@
 
 package com.spatial4j.core.io;
 
+import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.impl.PointImpl;
 import org.junit.Test;
@@ -25,20 +26,22 @@ import java.text.ParseException;
 
 public class WktCustomShapeParserTest extends WktShapeParserTest {
 
-  class CustomShape extends PointImpl {
+  static class CustomShape extends PointImpl {
 
     private final String name;
 
     /**
      * A simple constructor without normalization / validation.
      */
-    public CustomShape(String name) {
+    public CustomShape(String name, SpatialContext ctx) {
       super(0, 0, ctx);
       this.name = name;
     }
   }
 
-  MyWKTShapeParser SHAPE_PARSER = new MyWKTShapeParser();
+  public WktCustomShapeParserTest() {
+    super(new MyWKTShapeParser(SpatialContext.GEO));
+  }
 
   @Test
   public void testCustomShape() throws ParseException {
@@ -64,9 +67,9 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
     assertEquals("OUTER(INNER(3".length(), state.offset);
   }
 
-  private class MyWKTShapeParser extends WktShapeParser {
-    public MyWKTShapeParser() {
-      super(WktCustomShapeParserTest.this.ctx);
+  private static class MyWKTShapeParser extends WktShapeParser {
+    public MyWKTShapeParser(SpatialContext ctx) {
+      super(ctx);
     }
 
     protected State newState(String wkt) {
@@ -84,7 +87,7 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
       if (result == null && shapeType.contains("custom")) {
         state.nextExpect('(');
         state.nextExpect(')');
-        return new CustomShape(shapeType);
+        return new CustomShape(shapeType, ctx);
       }
       return result;
     }

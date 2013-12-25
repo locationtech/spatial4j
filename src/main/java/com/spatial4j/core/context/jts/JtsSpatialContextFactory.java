@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,10 @@
 package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.PrecisionModel;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
 
 import java.util.Map;
 
@@ -28,47 +31,61 @@ import java.util.Map;
  */
 public class JtsSpatialContextFactory extends SpatialContextFactory {
 
+  protected static final PrecisionModel defaultPrecisionModel = new PrecisionModel();//floating
+
+  //These 3 are JTS defaults for new GeometryFactory()
+  protected PrecisionModel precisionModel = defaultPrecisionModel;
+  protected int srid = 0;
+  protected CoordinateSequenceFactory coordinateSequenceFactory = CoordinateArraySequenceFactory.instance();
+
   protected boolean autoValidate = true;
   protected boolean autoPrepare = false;
   protected boolean allowMultiOverlap = false;
-  protected GeometryFactory geometryFactory;
 
   @Override
   protected void init(Map<String, String> args, ClassLoader classLoader) {
     super.init(args, classLoader);
 
-    String autoValidateStr = args.get("autoValidate");
-    if (autoValidateStr != null)
-      this.autoValidate = Boolean.parseBoolean(autoValidateStr);
+    initField("autoValidate");
+    initField("autoPrepare");
+    initField("allowMultiOverlap");
 
-    String autoPrepareStr = args.get("autoPrepare");
-    if (autoPrepareStr != null)
-      this.autoPrepare = Boolean.parseBoolean(autoPrepareStr);
+    String scaleStr = args.get("precisionScale");
+    String modelStr = args.get("precisionModel");
 
-    String allowMultiOverlapStr = args.get("allowMultiOverlap");
-    if (allowMultiOverlapStr != null)
-      this.allowMultiOverlap = Boolean.parseBoolean(allowMultiOverlapStr);
+    if (scaleStr != null) {
+      if (modelStr != null && !modelStr.equals("fixed"))
+        throw new RuntimeException("Since precisionScale was specified; precisionModel must be 'fixed' but got: "+modelStr);
+      precisionModel = new PrecisionModel(Double.parseDouble(scaleStr));
+    } else if (modelStr != null) {
+      if (modelStr.equals("floating")) {
+        precisionModel = new PrecisionModel(PrecisionModel.FLOATING);
+      } else if (modelStr.equals("floating_single")) {
+        precisionModel = new PrecisionModel(PrecisionModel.FLOATING_SINGLE);
+      } else if (modelStr.equals("fixed")) {
+        throw new RuntimeException("For fixed model, must specifiy 'precisionScale'");
+      } else {
+        throw new RuntimeException("Unknown precisionModel: "+modelStr);
+      }
+    }
   }
 
-  public void setGeometryFactory(GeometryFactory geometryFactory) {
-    this.geometryFactory = geometryFactory;
+  public GeometryFactory getGeometryFactory() {
+    return new GeometryFactory(precisionModel, srid, coordinateSequenceFactory);
   }
 
-  public void setAutoValidate(boolean autoValidate) {
-    this.autoValidate = autoValidate;
-  }
+  // TODO ? get rid of these setters?  make fields public?
+
+  public void setAutoValidate(boolean autoValidate) { this.autoValidate = autoValidate; }
 
   public void setAutoPrepare(boolean autoPrepare) {
     this.autoPrepare = autoPrepare;
   }
 
-  public void setAllowMultiOverlap(boolean allowMultiOverlap) {
-    this.allowMultiOverlap = allowMultiOverlap;
-  }
+  public void setAllowMultiOverlap(boolean allowMultiOverlap) { this.allowMultiOverlap = allowMultiOverlap; }
 
   @Override
   public JtsSpatialContext newSpatialContext() {
-    return new JtsSpatialContext(geometryFactory, geo, distCalc, worldBounds, autoValidate, autoPrepare,
-            allowMultiOverlap);
+    return new JtsSpatialContext(this);
   }
 }

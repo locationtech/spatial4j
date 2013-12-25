@@ -29,9 +29,19 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class WktShapeParserTest extends RandomizedTest {
-  SpatialContext ctx = SpatialContext.GEO;
 
-  WktShapeParser SHAPE_PARSER = new WktShapeParser(ctx);
+  final SpatialContext ctx;
+
+  final WktShapeParser SHAPE_PARSER;
+
+  protected WktShapeParserTest(WktShapeParser parser) {
+    this.ctx = parser.getCtx();
+    this.SHAPE_PARSER = parser;
+  }
+
+  public WktShapeParserTest() {
+    this(new WktShapeParser(SpatialContext.GEO));
+  }
 
   protected void assertParses(String wkt, Shape expected) throws ParseException {
     assertEquals(SHAPE_PARSER.parse(wkt), expected);

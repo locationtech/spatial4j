@@ -35,9 +35,8 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   JtsSpatialContext ctx;//note: masks superclass
 
   public JtsWktShapeParserTest() {
-    this.ctx = JtsSpatialContext.GEO;
-    super.ctx = ctx;
-    SHAPE_PARSER = new JtsWktShapeParser(ctx);
+    super(new JtsWktShapeParser(JtsSpatialContext.GEO));
+    this.ctx = (JtsSpatialContext) super.ctx;
   }
 
   @Test

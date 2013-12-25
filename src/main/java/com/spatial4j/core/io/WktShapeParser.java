@@ -183,6 +183,7 @@ public class WktShapeParser {
     state.nextExpect('(');
     Shape shape = shape(state);
     state.nextExpect(',');
+    //TODO should there be a ctx.normDist(d) method?
     double distance = state.nextDouble();
     state.nextExpect(')');
     return shape.getBuffered(ctx, distance);
@@ -231,7 +232,7 @@ public class WktShapeParser {
   }
 
   /**
-   * Parses an ENVELOPE (aka Rectangle) shape from the raw string.
+   * Parses an ENVELOPE (aka Rectangle) shape from the raw string. The values are normalized.
    * <p />
    * Source: OGC "Catalogue Services Specification", the "CQL" (Common Query Language) sub-spec.
    * <em>Note the inconsistent order of the min & max values between x & y!</em>
@@ -250,7 +251,7 @@ public class WktShapeParser {
     state.nextExpect(',');
     double y1 = state.nextDouble();
     state.nextExpect(')');
-    return ctx.makeRectangle(x1, x2, y1, y2);
+    return ctx.makeRectangle(ctx.normX(x1), ctx.normX(x2), ctx.normY(y1), ctx.normY(y2));
   }
 
   /**
@@ -337,7 +338,7 @@ public class WktShapeParser {
 
   /**
    * Reads a raw Point (AKA Coordinate) from the current position. Only the first 2 numbers are
-   * used.
+   * used.  The values are normalized.
    * <pre>
    *   number number number*
    * </pre>
@@ -346,7 +347,7 @@ public class WktShapeParser {
     double x = state.nextDouble();
     double y = state.nextDouble();
     state.skipNextDoubles();
-    return ctx.makePoint(x, y);
+    return ctx.makePoint(ctx.normX(x), ctx.normY(y));
   }
 
   /** The parse state. */

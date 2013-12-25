@@ -33,11 +33,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
-import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
-import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
+import static com.spatial4j.core.shape.SpatialRelation.*;
 
-public class JtsPolygonTest extends AbstractTestShapes {
+/** Tests {@link com.spatial4j.core.shape.jts.JtsGeometry} and some other code related
+ * to {@link com.spatial4j.core.context.jts.JtsSpatialContext}.
+ */
+public class JtsGeometryTest extends AbstractTestShapes {
 
   private final String POLY_STR = "Polygon((-10 30, -40 40, -10 -20, 40 20, 0 0, -10 30))";
   private JtsGeometry POLY_SHAPE;
@@ -53,7 +54,7 @@ public class JtsPolygonTest extends AbstractTestShapes {
     { geo = true; allowMultiOverlap = true;}
   }.newSpatialContext();
 
-  public JtsPolygonTest() {
+  public JtsGeometryTest() {
     super(JtsSpatialContext.GEO);
     POLY_SHAPE = (JtsGeometry) ctx.readShape(POLY_STR);
 
