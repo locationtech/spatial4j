@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,18 +46,21 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
 
   @Override
   public double distance(Point from, double toX, double toY) {
-    double result = 0;
+    double deltaX = from.getX() - toX;
+    double deltaY = from.getY() - toY;
+    double xSquaredPlusYSquared = deltaX*deltaX + deltaY*deltaY;
 
-    double v = from.getX() - toX;
-    result += (v * v);
+    if (squared)
+      return xSquaredPlusYSquared;
 
-    v = from.getY() - toY;
-    result += (v * v);
+    return Math.sqrt(xSquaredPlusYSquared);
+  }
 
-    if( squared )
-      return result;
-
-    return Math.sqrt(result);
+  @Override
+  public boolean within(Point from, double toX, double toY, double distance) {
+    double deltaX = from.getX() - toX;
+    double deltaY = from.getY() - toY;
+    return deltaX*deltaX + deltaY*deltaY <= distance*distance;
   }
 
   @Override

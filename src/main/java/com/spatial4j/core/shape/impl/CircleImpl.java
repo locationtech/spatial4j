@@ -18,11 +18,7 @@
 package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.SpatialRelation;
+import com.spatial4j.core.shape.*;
 
 /**
  * A circle, also known as a point-radius, based on a {@link
@@ -87,7 +83,7 @@ public class CircleImpl implements Circle {
   }
 
   public boolean contains(double x, double y) {
-    return ctx.getDistCalc().distance(point, x, y) <= radiusDEG;
+    return ctx.getDistCalc().within(point, x, y, radiusDEG);
   }
 
   @Override
