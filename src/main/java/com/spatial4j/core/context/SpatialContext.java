@@ -23,8 +23,16 @@ import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReadWriter;
-import com.spatial4j.core.shape.*;
-import com.spatial4j.core.shape.impl.*;
+import com.spatial4j.core.shape.Circle;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.ShapeCollection;
+import com.spatial4j.core.shape.impl.BufferedLineString;
+import com.spatial4j.core.shape.impl.CircleImpl;
+import com.spatial4j.core.shape.impl.GeoCircle;
+import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.shape.impl.RectangleImpl;
 
 import java.util.List;
 
@@ -33,9 +41,11 @@ import java.util.List;
  * DistanceCalculator}, and the coordinate world boundaries, and acting as a
  * factory for the {@link Shape}s.
  * <p/>
- * A SpatialContext has public constructors, but note the convenience instance
- * {@link #GEO}.  Also, if you wish to construct one based on configuration
- * information then consider using {@link SpatialContextFactory}.
+ * If you want a typical geodetic context, just reference {@link #GEO}.  Otherwise,
+ * You should either create and configure a {@link SpatialContextFactory} and then call
+ * {@link SpatialContextFactory#newSpatialContext()}, OR, call
+ * {@link com.spatial4j.core.context.SpatialContextFactory#makeSpatialContext(java.util.Map, ClassLoader)}
+ * to do this via configuration data.
  * <p/>
  * Thread-safe & immutable.
  */
@@ -49,9 +59,10 @@ public class SpatialContext {
   private final DistanceCalculator calculator;
   private final Rectangle worldBounds;
 
+  @Deprecated
   private final ShapeReadWriter shapeReadWriter;
 
-  private boolean normWrapLongitude = false;//TODO make final when I can
+  private final boolean normWrapLongitude;
 
   /**
    * Consider using {@link com.spatial4j.core.context.SpatialContextFactory} instead.
@@ -60,40 +71,56 @@ public class SpatialContext {
    * @param calculator Optional; defaults to haversine or cartesian depending on {@code geo}.
    * @param worldBounds Optional; defaults to GEO_WORLDBOUNDS or MAX_WORLDBOUNDS depending on units.
    */
-  //TODO Deprecate this constructor?
+  @Deprecated
   public SpatialContext(boolean geo, DistanceCalculator calculator, Rectangle worldBounds) {
-    this.geo = geo;
-
-    if (calculator == null) {
-      calculator = isGeo()
-          ? new GeodesicSphereDistCalc.Haversine()
-          : new CartesianDistCalc();
-    }
-    this.calculator = calculator;
-
-    if (worldBounds == null) {
-      worldBounds = isGeo()
-              ? new RectangleImpl(-180, 180, -90, 90, this)
-              : new RectangleImpl(-Double.MAX_VALUE, Double.MAX_VALUE,
-                  -Double.MAX_VALUE, Double.MAX_VALUE, this);
-    } else {
-      if (isGeo())
-        assert worldBounds.equals(new RectangleImpl(-180, 180, -90, 90, this));
-      if (worldBounds.getCrossesDateLine())
-        throw new IllegalArgumentException("worldBounds shouldn't cross dateline: "+worldBounds);
-    }
-    //hopefully worldBounds' rect implementation is compatible
-    this.worldBounds = new RectangleImpl(worldBounds, this);
-
-    shapeReadWriter = makeShapeReadWriter();
+    this(initFromLegacyConstructor(geo, calculator, worldBounds));
   }
 
+  private static SpatialContextFactory initFromLegacyConstructor(boolean geo,
+                                                                 DistanceCalculator calculator,
+                                                                 Rectangle worldBounds) {
+    SpatialContextFactory factory = new SpatialContextFactory();
+    factory.geo = geo;
+    factory.distCalc = calculator;
+    factory.worldBounds = worldBounds;
+    return factory;
+  }
+
+  @Deprecated
   public SpatialContext(boolean geo) {
     this(geo, null, null);
   }
 
+  /**
+   * Called by {@link com.spatial4j.core.context.SpatialContextFactory#newSpatialContext()}.
+   */
   public SpatialContext(SpatialContextFactory factory) {
-    this(factory.geo, factory.distCalc, factory.worldBounds);
+    this.geo = factory.geo;
+
+    if (factory.distCalc == null) {
+      this.calculator = isGeo()
+              ? new GeodesicSphereDistCalc.Haversine()
+              : new CartesianDistCalc();
+    } else {
+      this.calculator = factory.distCalc;
+    }
+
+    //TODO remove worldBounds from Spatial4j: see Issue #55
+    if (factory.worldBounds == null) {
+      this.worldBounds = isGeo()
+              ? new RectangleImpl(-180, 180, -90, 90, this)
+              : new RectangleImpl(-Double.MAX_VALUE, Double.MAX_VALUE,
+              -Double.MAX_VALUE, Double.MAX_VALUE, this);
+    } else {
+      if (isGeo())
+        assert factory.worldBounds.equals(new RectangleImpl(-180, 180, -90, 90, this));
+      if (factory.worldBounds.getCrossesDateLine())
+        throw new IllegalArgumentException("worldBounds shouldn't cross dateline: "+factory.worldBounds);
+      //hopefully worldBounds' rect implementation is compatible
+      this.worldBounds = new RectangleImpl(factory.worldBounds, this);
+    }
+
+    this.shapeReadWriter = makeShapeReadWriter();
     this.normWrapLongitude = factory.normWrapLongitude && this.isGeo();
   }
 

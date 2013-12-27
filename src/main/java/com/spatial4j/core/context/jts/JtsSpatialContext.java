@@ -27,7 +27,11 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import java.util.ArrayList;
@@ -58,7 +62,7 @@ public class JtsSpatialContext extends SpatialContext {
   protected final boolean allowMultiOverlap;
 
   /**
-   * Consider using {@link JtsSpatialContextFactory} instead.
+   * Called by {@link com.spatial4j.core.context.jts.JtsSpatialContextFactory#newSpatialContext()}.
    */
   public JtsSpatialContext(JtsSpatialContextFactory factory) {
     super(factory);
