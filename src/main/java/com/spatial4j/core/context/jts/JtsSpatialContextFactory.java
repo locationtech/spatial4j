@@ -34,13 +34,13 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   protected static final PrecisionModel defaultPrecisionModel = new PrecisionModel();//floating
 
   //These 3 are JTS defaults for new GeometryFactory()
-  protected PrecisionModel precisionModel = defaultPrecisionModel;
-  protected int srid = 0;
-  protected CoordinateSequenceFactory coordinateSequenceFactory = CoordinateArraySequenceFactory.instance();
+  public PrecisionModel precisionModel = defaultPrecisionModel;
+  public int srid = 0;
+  public CoordinateSequenceFactory coordinateSequenceFactory = CoordinateArraySequenceFactory.instance();
 
-  protected boolean autoValidate = true;
-  protected boolean autoPrepare = false;
-  protected boolean allowMultiOverlap = false;
+  public boolean autoValidate = true;
+  public boolean autoPrepare = false;
+  public boolean allowMultiOverlap = false;
 
   @Override
   protected void init(Map<String, String> args, ClassLoader classLoader) {
@@ -73,16 +73,6 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   public GeometryFactory getGeometryFactory() {
     return new GeometryFactory(precisionModel, srid, coordinateSequenceFactory);
   }
-
-  // TODO ? get rid of these setters?  make fields public?
-
-  public void setAutoValidate(boolean autoValidate) { this.autoValidate = autoValidate; }
-
-  public void setAutoPrepare(boolean autoPrepare) {
-    this.autoPrepare = autoPrepare;
-  }
-
-  public void setAllowMultiOverlap(boolean allowMultiOverlap) { this.allowMultiOverlap = allowMultiOverlap; }
 
   @Override
   public JtsSpatialContext newSpatialContext() {

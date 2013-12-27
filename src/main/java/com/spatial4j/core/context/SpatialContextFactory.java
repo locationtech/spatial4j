@@ -35,25 +35,33 @@ import java.util.Map;
  * <DD>com.spatial4j.core.context.SpatialContext or com.spatial4j.core
  * .context.jts.JtsSpatialContext</DD>
  * <DT>geo</DT>
- * <DD>true | false</DD>
+ * <DD>true (default)| false </DD>
  * <DT>distCalculator</DT>
  * <DD>haversine | lawOfCosines | vincentySphere | cartesian | cartesian^2
  * -- see {@link DistanceCalculator}</DD>
  * <DT>worldBounds</DT>
- * <DD>-180,180,-90,90 -- the string form of a {@link Rectangle} read by
+ * <DD>-180 180 -90 90 -- the string form of a {@link Rectangle} read by
  * {@link SpatialContext#readShape(String)}</DD>
+ * <DT>normWrapLongitude</DT>
+ * <DD>true | false (default) -- if longitudes
+ * out of -180 to 180 range get wrapped back into this range instead of throwing an error when
+ * they are read from WKT.</DD>
  * </DL>
  */
 public class SpatialContextFactory {
 
+  /** Set by {@link #makeSpatialContext(java.util.Map, ClassLoader)}. */
   protected Map<String, String> args;
+  /** Set by {@link #makeSpatialContext(java.util.Map, ClassLoader)}. */
   protected ClassLoader classLoader;
-  
-  protected boolean geo = true;
-  protected DistanceCalculator distCalc;
-  protected Rectangle worldBounds;
 
-  protected boolean normWrapLongitude = false;
+  /* These fields are public to make it easy to set them without bothering with setters. */
+
+  public boolean geo = true;
+  public DistanceCalculator distCalc;
+  public Rectangle worldBounds;
+
+  public boolean normWrapLongitude = false;
 
   /**
    * Creates a new {@link SpatialContext} based on configuration in
@@ -102,17 +110,11 @@ public class SpatialContextFactory {
   /** Gets {@code name} from args and populates a field by the same name with the value. */
   protected void initField(String name) {
     //  note: java.beans API is more verbose to use correctly but would arguably be better
-    Field field = null;
-    Class clazz = getClass();
-    while (true) {//note: this could be much simpler if we decide the fields should be public
-      try {
-        field = clazz.getDeclaredField(name);
-        break;
-      } catch (NoSuchFieldException e) {
-        clazz = clazz.getSuperclass();
-        if (clazz == Object.class)
-          throw new Error(e);
-      }
+    Field field;
+    try {
+      field = getClass().getField(name);
+    } catch (NoSuchFieldException e) {
+      throw new Error(e);
     }
     String str = args.get(name);
     if (str != null) {
@@ -122,7 +124,7 @@ public class SpatialContextFactory {
       try {
         field.set(this, o);
       } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
+        throw new Error(e);
       }
     }
   }
@@ -154,22 +156,6 @@ public class SpatialContextFactory {
     //kinda ugly we do this just to read a rectangle.  TODO refactor
     SpatialContext simpleCtx = new SpatialContext(geo, distCalc, null);
     worldBounds = (Rectangle) simpleCtx.readShape(worldBoundsStr);
-  }
-
-  public void setGeo(boolean geo) {
-    this.geo = geo;
-  }
-
-  public void setDistCalc(DistanceCalculator distCalc) {
-    this.distCalc = distCalc;
-  }
-
-  public void setWorldBounds(Rectangle worldBounds) {
-    this.worldBounds = worldBounds;
-  }
-
-  public void setNormWrapLongitude(boolean normWrapLongitude) {
-    this.normWrapLongitude = normWrapLongitude;
   }
 
   /** Subclasses should simply construct the instance from the initialized configuration. */

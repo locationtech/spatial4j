@@ -49,7 +49,7 @@ public class JtsSpatialContext extends SpatialContext {
   public static final JtsSpatialContext GEO;
   static {
     JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
-    factory.setGeo(true);
+    factory.geo = true;
     GEO = new JtsSpatialContext(factory);
   }
 
