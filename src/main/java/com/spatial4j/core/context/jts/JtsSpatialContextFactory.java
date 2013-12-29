@@ -58,7 +58,9 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   public boolean autoValidate = true;
   public boolean autoPrepare = false;
   public boolean allowMultiOverlap = false;
-  
+  public boolean useJtsPoint = true;
+  public boolean useJtsLineString = true;
+
   public JtsSpatialContextFactory() {
     super.wktShapeParserClass = JtsWktShapeParser.class;
   }
@@ -70,6 +72,8 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
     initField("autoValidate");
     initField("autoPrepare");
     initField("allowMultiOverlap");
+    initField("useJtsPoint");
+    initField("useJtsLineString");
 
     String scaleStr = args.get("precisionScale");
     String modelStr = args.get("precisionModel");

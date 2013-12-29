@@ -56,10 +56,10 @@ public class JtsSpatialContext extends SpatialContext {
   protected final GeometryFactory geometryFactory;
 
   protected final boolean autoValidate;
-
   protected final boolean autoPrepare;
-
   protected final boolean allowMultiOverlap;
+  protected final boolean useJtsPoint;
+  protected final boolean useJtsLineString;
 
   /**
    * Called by {@link com.spatial4j.core.context.jts.JtsSpatialContextFactory#newSpatialContext()}.
@@ -70,6 +70,8 @@ public class JtsSpatialContext extends SpatialContext {
     this.autoValidate = factory.autoValidate;
     this.autoPrepare = factory.autoPrepare;
     this.allowMultiOverlap = factory.allowMultiOverlap;
+    this.useJtsPoint = factory.useJtsPoint;
+    this.useJtsLineString = factory.useJtsLineString;
   }
 
   /**
@@ -162,8 +164,9 @@ public class JtsSpatialContext extends SpatialContext {
     throw new InvalidShapeException("can't make Geometry from: " + shape);
   }
 
+  /** Should {@link #makePoint(double, double)} return {@link JtsPoint}? */
   public boolean useJtsPoint() {
-    return true;
+    return useJtsPoint;
   }
 
   @Override
@@ -177,10 +180,11 @@ public class JtsSpatialContext extends SpatialContext {
     return new JtsPoint(geometryFactory.createPoint(coord), this);
   }
 
+  /** Should {@link #makeLineString(java.util.List)} return {@link JtsGeometry}? */
   public boolean useJtsLineString() {
     //BufferedLineString doesn't yet do dateline cross, and can't yet be relate()'ed with a
     // JTS geometry
-    return true;
+    return useJtsLineString;
   }
 
   @Override
