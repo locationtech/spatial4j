@@ -18,6 +18,7 @@
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.impl.PointImpl;
 import org.junit.Test;
@@ -40,7 +41,13 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
   }
 
   public WktCustomShapeParserTest() {
-    super(new MyWKTShapeParser(SpatialContext.GEO));
+    super(makeCtx());
+  }
+
+  private static SpatialContext makeCtx() {
+    SpatialContextFactory factory = new SpatialContextFactory();
+    factory.wktShapeParserClass = MyWKTShapeParser.class;
+    return factory.newSpatialContext();
   }
 
   @Test
@@ -67,7 +74,7 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
     assertEquals("OUTER(INNER(3".length(), state.offset);
   }
 
-  private static class MyWKTShapeParser extends WktShapeParser {
+  public static class MyWKTShapeParser extends WktShapeParser {
     public MyWKTShapeParser(SpatialContext ctx) {
       super(ctx);
     }

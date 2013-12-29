@@ -34,13 +34,13 @@ public class WktShapeParserTest extends RandomizedTest {
 
   final WktShapeParser SHAPE_PARSER;
 
-  protected WktShapeParserTest(WktShapeParser parser) {
-    this.ctx = parser.getCtx();
-    this.SHAPE_PARSER = parser;
+  protected WktShapeParserTest(SpatialContext ctx) {
+    this.ctx = ctx;
+    this.SHAPE_PARSER = ctx.getWktShapeParser();
   }
 
   public WktShapeParserTest() {
-    this(new WktShapeParser(SpatialContext.GEO));
+    this(SpatialContext.GEO);
   }
 
   protected void assertParses(String wkt, Shape expected) throws ParseException {

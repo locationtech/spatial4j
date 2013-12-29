@@ -18,6 +18,7 @@
 package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.io.JtsWktShapeParser;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -28,6 +29,22 @@ import java.util.Map;
 /**
  * See {@link SpatialContextFactory#makeSpatialContext(java.util.Map,
  * ClassLoader)}.
+ * <p/>
+ * The following keys are looked up in the args map, in addition to those in the
+ * superclass:
+ * <DL>
+ * <DT>autoValidate</DT>
+ * <DD>true(default)|false -- see {@link JtsSpatialContext#isAutoValidate()}</DD>
+ * <DT>autoPrepare</DT>
+ * <DD>true|false(default) -- see {@link JtsSpatialContext#isAutoPrepare()}</DD>
+ * <DT>allowMultiOverlap</DT>
+ * <DD>true|false(default) -- see {@link JtsSpatialContext#isAllowMultiOverlap()}</DD>
+ * <DT>precisionModel</DT>
+ * <DD>floating(default) | floating_single | fixed
+ * -- see {@link com.vividsolutions.jts.geom.PrecisionModel}.
+ * If {@code fixed} then you must also provide {@code precisionScale}
+ * -- see {@link com.vividsolutions.jts.geom.PrecisionModel#getScale()}</DD>
+ * </DL>
  */
 public class JtsSpatialContextFactory extends SpatialContextFactory {
 
@@ -41,7 +58,11 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   public boolean autoValidate = true;
   public boolean autoPrepare = false;
   public boolean allowMultiOverlap = false;
-
+  
+  public JtsSpatialContextFactory() {
+    super.wktShapeParserClass = JtsWktShapeParser.class;
+  }
+  
   @Override
   protected void init(Map<String, String> args, ClassLoader classLoader) {
     super.init(args, classLoader);

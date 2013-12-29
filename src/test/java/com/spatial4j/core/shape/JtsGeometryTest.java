@@ -32,8 +32,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.ParseException;
 
-import static com.spatial4j.core.shape.SpatialRelation.*;
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 
 /** Tests {@link com.spatial4j.core.shape.jts.JtsGeometry} and some other code related
  * to {@link com.spatial4j.core.context.jts.JtsSpatialContext}.
@@ -54,9 +57,9 @@ public class JtsGeometryTest extends AbstractTestShapes {
     { geo = true; allowMultiOverlap = true;}
   }.newSpatialContext();
 
-  public JtsGeometryTest() {
+  public JtsGeometryTest() throws ParseException {
     super(JtsSpatialContext.GEO);
-    POLY_SHAPE = (JtsGeometry) ctx.readShape(POLY_STR);
+    POLY_SHAPE = (JtsGeometry) ctx.readShapeFromWkt(POLY_STR);
 
     if (TEST_DL_POLY && ctx.isGeo()) {
       POLY_SHAPE_DL = shiftPoly(POLY_SHAPE, DL_SHIFT);
@@ -66,7 +69,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
     }
   }
 
-  private JtsGeometry shiftPoly(JtsGeometry poly, final int lon_shift) {
+  private JtsGeometry shiftPoly(JtsGeometry poly, final int lon_shift) throws ParseException {
     Geometry pGeom = poly.getGeom();
     assertTrue(pGeom.isValid());
     //shift 180 to the right
@@ -79,27 +82,27 @@ public class JtsGeometryTest extends AbstractTestShapes {
     });
     pGeom.geometryChanged();
     assertFalse(pGeom.isValid());
-    return (JtsGeometry) ctx.readShape(pGeom.toText());
+    return (JtsGeometry) ctx.readShapeFromWkt(pGeom.toText());
   }
 
   @Test
-  public void testRelations() {
+  public void testRelations() throws ParseException {
     testRelations(false);
     testRelations(true);
   }
-  public void testRelations(boolean prepare) {
+  public void testRelations(boolean prepare) throws ParseException {
     //base polygon
-    JtsGeometry base = (JtsGeometry) ctx.readShape("POLYGON((0 0, 10 0, 5 5, 0 0))");
+    JtsGeometry base = (JtsGeometry) ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 5 5, 0 0))");
     //shares only "10 0" with base
-    JtsGeometry polyI = (JtsGeometry) ctx.readShape("POLYGON((10 0, 20 0, 15 5, 10 0))");
+    JtsGeometry polyI = (JtsGeometry) ctx.readShapeFromWkt("POLYGON((10 0, 20 0, 15 5, 10 0))");
     //within base: differs from base by one point is within
-    JtsGeometry polyW = (JtsGeometry) ctx.readShape("POLYGON((0 0, 9 0, 5 5, 0 0))");
+    JtsGeometry polyW = (JtsGeometry) ctx.readShapeFromWkt("POLYGON((0 0, 9 0, 5 5, 0 0))");
     //a boundary point of base
     Point pointB = ctx.makePoint(0, 0);
     //a shared boundary line of base
-    JtsGeometry lineB = (JtsGeometry) ctx.readShape("LINESTRING(0 0, 10 0)");
+    JtsGeometry lineB = (JtsGeometry) ctx.readShapeFromWkt("LINESTRING(0 0, 10 0)");
     //a line sharing only one point with base
-    JtsGeometry lineI = (JtsGeometry) ctx.readShape("LINESTRING(10 0, 20 0)");
+    JtsGeometry lineI = (JtsGeometry) ctx.readShapeFromWkt("LINESTRING(10 0, 20 0)");
 
     if (prepare) base.prepare();
     assertRelation(CONTAINS, base, base);//preferred result as there is no EQUALS
@@ -114,8 +117,8 @@ public class JtsGeometryTest extends AbstractTestShapes {
   }
 
   @Test
-  public void testEmpty() {
-    Shape emptyGeom = ctx.readShape("POLYGON EMPTY");
+  public void testEmpty() throws ParseException {
+    Shape emptyGeom = ctx.readShapeFromWkt("POLYGON EMPTY");
     testEmptiness(emptyGeom);
     assertRelation("EMPTY", DISJOINT, emptyGeom, POLY_SHAPE);
   }
@@ -156,9 +159,9 @@ public class JtsGeometryTest extends AbstractTestShapes {
   }
 
   @Test
-  public void testWidthGreaterThan180() {
+  public void testWidthGreaterThan180() throws ParseException {
     //does NOT cross the dateline but is a wide shape >180
-    JtsGeometry jtsGeo = (JtsGeometry) ctx.readShape("POLYGON((-161 49, 0 49, 20 49, 20 89.1, 0 89.1, -161 89.2, -161 49))");
+    JtsGeometry jtsGeo = (JtsGeometry) ctx.readShapeFromWkt("POLYGON((-161 49, 0 49, 20 49, 20 89.1, 0 89.1, -161 89.2, -161 49))");
     assertEquals(161+20,jtsGeo.getBoundingBox().getWidth(), 0.001);
 
     //shift it to cross the dateline and check that it's still good
@@ -195,7 +198,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
 
 
   @Test
-  public void testRussia() throws IOException {
+  public void testRussia() throws IOException, ParseException {
     //TODO THE RUSSIA TEST DATA SET APPEARS CORRUPT
     // But this test "works" anyhow, and exercises a ton.
     JtsSpatialContext ctx = ctxAllowMultiOverlap;//use different ctx
@@ -207,7 +210,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
     // * some geometries might(?) not be "valid" (requires union to overcome)
     String wktStr = readFirstLineFromRsrc("/russia.wkt.txt");
 
-    JtsGeometry jtsGeom = (JtsGeometry)ctx.readShape(wktStr);
+    Shape shape = ctx.readShapeFromWkt(wktStr);
 
     //Unexplained holes revealed via KML export:
     // TODO Test contains: 64°12'44.82"N    61°29'5.20"E
@@ -217,17 +220,17 @@ public class JtsGeometryTest extends AbstractTestShapes {
   }
 
   @Test
-  public void testFiji() throws IOException {
+  public void testFiji() throws IOException, ParseException {
     //Fiji is a group of islands crossing the dateline.
     JtsSpatialContext ctx = ctxAllowMultiOverlap;//use different ctx
     String wktStr = readFirstLineFromRsrc("/fiji.wkt.txt");
-    JtsGeometry jtsGeom = (JtsGeometry)ctx.readShape(wktStr);
+    Shape shape = ctx.readShapeFromWkt(wktStr);
 
-    assertRelation(null,SpatialRelation.CONTAINS, jtsGeom,
+    assertRelation(null,SpatialRelation.CONTAINS, shape,
             ctx.makePoint(-179.99,-16.9));
-    assertRelation(null,SpatialRelation.CONTAINS, jtsGeom,
+    assertRelation(null,SpatialRelation.CONTAINS, shape,
             ctx.makePoint(+179.99,-16.9));
-    assertTrue(jtsGeom.getBoundingBox().getWidth() < 5);//smart bbox
+    assertTrue(shape.getBoundingBox().getWidth() < 5);//smart bbox
   }
 
   private String readFirstLineFromRsrc(String wktRsrcPath) throws IOException {

@@ -23,6 +23,7 @@ import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReadWriter;
+import com.spatial4j.core.io.WktShapeParser;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -34,12 +35,12 @@ import com.spatial4j.core.shape.impl.GeoCircle;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 
+import java.text.ParseException;
 import java.util.List;
 
 /**
- * This is a facade to most of Spatial4j, holding things like {@link
- * DistanceCalculator}, and the coordinate world boundaries, and acting as a
- * factory for the {@link Shape}s.
+ * This is a facade to most of Spatial4j, holding things like {@link DistanceCalculator},
+ * {@link com.spatial4j.core.io.WktShapeParser}, and acting as a factory for the {@link Shape}s.
  * <p/>
  * If you want a typical geodetic context, just reference {@link #GEO}.  Otherwise,
  * You should either create and configure a {@link SpatialContextFactory} and then call
@@ -52,12 +53,19 @@ import java.util.List;
 public class SpatialContext {
 
   /** A popular default SpatialContext implementation for geospatial. */
-  public static final SpatialContext GEO = new SpatialContext(true);
+  public static final SpatialContext GEO;
+  static {
+    SpatialContextFactory factory = new SpatialContextFactory();
+    factory.geo = true;
+    GEO = new SpatialContext(factory);
+  }
 
   //These are non-null
   private final boolean geo;
   private final DistanceCalculator calculator;
   private final Rectangle worldBounds;
+
+  protected final WktShapeParser wktShapeParser;
 
   @Deprecated
   private final ShapeReadWriter shapeReadWriter;
@@ -88,7 +96,7 @@ public class SpatialContext {
 
   @Deprecated
   public SpatialContext(boolean geo) {
-    this(geo, null, null);
+    this(initFromLegacyConstructor(geo, null, null));
   }
 
   /**
@@ -120,10 +128,12 @@ public class SpatialContext {
       this.worldBounds = new RectangleImpl(factory.worldBounds, this);
     }
 
-    this.shapeReadWriter = makeShapeReadWriter();
     this.normWrapLongitude = factory.normWrapLongitude && this.isGeo();
+    this.wktShapeParser = factory.makeWktShapeParser(this);
+    this.shapeReadWriter = makeShapeReadWriter();
   }
 
+  @Deprecated
   protected ShapeReadWriter makeShapeReadWriter() {
     return new ShapeReadWriter<SpatialContext>(this);
   }
@@ -173,14 +183,16 @@ public class SpatialContext {
    * is called by {@link com.spatial4j.core.io.WktShapeParser} before creating a shape. */
   public double normY(double y) { return y; }
 
-  /** Ensure fits in {@link #getWorldBounds()} */
+  /** Ensure fits in {@link #getWorldBounds()}. It's called by any shape factory method that
+   * gets an 'x' dimension. */
   public void verifyX(double x) {
     Rectangle bounds = getWorldBounds();
     if (x < bounds.getMinX() || x > bounds.getMaxX())//NaN will pass
       throw new InvalidShapeException("Bad X value "+x+" is not in boundary "+bounds);
   }
 
-  /** Ensure fits in {@link #getWorldBounds()} */
+  /** Ensure fits in {@link #getWorldBounds()}. It's called by any shape factory method that
+   * gets a 'y' dimension. */
   public void verifyY(double y) {
     Rectangle bounds = getWorldBounds();
     if (y < bounds.getMinY() || y > bounds.getMaxY())//NaN will pass
@@ -274,11 +286,36 @@ public class SpatialContext {
     return new ShapeCollection<S>(coll, this);
   }
 
+  /** The {@link com.spatial4j.core.io.WktShapeParser} used by {@link #readShapeFromWkt(String)}. */
+  public WktShapeParser getWktShapeParser() {
+    return wktShapeParser;
+  }
+
+  /** Reads a shape from the string formatted in WKT.
+   * @see com.spatial4j.core.io.WktShapeParser
+   * @param wkt non-null WKT.
+   * @return non-null
+   * @throws ParseException if it failed to parse.
+   */
+  public Shape readShapeFromWkt(String wkt) throws ParseException {
+    return wktShapeParser.parse(wkt);
+  }
+
+  /** Reads the shape from a String using the deprecated {@link com.spatial4j.core.io.ShapeReadWriter}.
+   * Instead you should use standard WKT via {@link #readShapeFromWkt(String)}.
+   * @param value non-null
+   * @return
+   */
   @Deprecated
   public Shape readShape(String value) throws InvalidShapeException {
     return shapeReadWriter.readShape(value);
   }
 
+  /** Writes the shape to a String using the deprecated {@link com.spatial4j.core.io.ShapeReadWriter}.
+   * Spatial4j in the near future won't support writing shapes to strings.
+   * @param shape non-null
+   * @return non-null
+   */
   @Deprecated
   public String toString(Shape shape) {
     return shapeReadWriter.writeShape(shape);

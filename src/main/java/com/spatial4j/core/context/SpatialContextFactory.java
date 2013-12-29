@@ -20,8 +20,10 @@ package com.spatial4j.core.context;
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
+import com.spatial4j.core.io.WktShapeParser;
 import com.spatial4j.core.shape.Rectangle;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Map;
 
@@ -32,20 +34,17 @@ import java.util.Map;
  * The following keys are looked up in the args map:
  * <DL>
  * <DT>spatialContextFactory</DT>
- * <DD>com.spatial4j.core.context.SpatialContext or com.spatial4j.core
- * .context.jts.JtsSpatialContext</DD>
+ * <DD>com.spatial4j.core.context.SpatialContext or
+ * com.spatial4j.core.context.jts.JtsSpatialContext</DD>
  * <DT>geo</DT>
- * <DD>true (default)| false </DD>
+ * <DD>true (default)| false -- see {@link SpatialContext#isGeo()} </DD>
  * <DT>distCalculator</DT>
  * <DD>haversine | lawOfCosines | vincentySphere | cartesian | cartesian^2
  * -- see {@link DistanceCalculator}</DD>
  * <DT>worldBounds</DT>
- * <DD>-180 180 -90 90 -- the string form of a {@link Rectangle} read by
- * {@link SpatialContext#readShape(String)}</DD>
+ * <DD>-180 180 -90 90 -- (minX maxX minY maxY) -- see {@link SpatialContext#getWorldBounds()}</DD>
  * <DT>normWrapLongitude</DT>
- * <DD>true | false (default) -- if longitudes
- * out of -180 to 180 range get wrapped back into this range instead of throwing an error when
- * they are read from WKT.</DD>
+ * <DD>true | false (default) -- see {@link SpatialContext#isNormWrapLongitude()}</DD>
  * </DL>
  */
 public class SpatialContextFactory {
@@ -62,6 +61,8 @@ public class SpatialContextFactory {
   public Rectangle worldBounds;
 
   public boolean normWrapLongitude = false;
+  
+  public Class<? extends WktShapeParser> wktShapeParserClass = WktShapeParser.class;
 
   /**
    * Creates a new {@link SpatialContext} based on configuration in
@@ -94,9 +95,6 @@ public class SpatialContextFactory {
     return instance.newSpatialContext();
   }
 
-  protected SpatialContextFactory() {
-  }
-
   protected void init(Map<String, String> args, ClassLoader classLoader) {
     this.args = args;
     this.classLoader = classLoader;
@@ -105,11 +103,12 @@ public class SpatialContextFactory {
     initWorldBounds();
 
     initField("normWrapLongitude");
+    initField("wktShapeParserClass");
   }
 
   /** Gets {@code name} from args and populates a field by the same name with the value. */
   protected void initField(String name) {
-    //  note: java.beans API is more verbose to use correctly but would arguably be better
+    //  note: java.beans API is more verbose to use correctly (?) but would arguably be better
     Field field;
     try {
       field = getClass().getField(name);
@@ -118,9 +117,18 @@ public class SpatialContextFactory {
     }
     String str = args.get(name);
     if (str != null) {
-      //TODO support other primitive types as applicable
-      assert field.getType() == Boolean.TYPE;
-      Object o = Boolean.valueOf(str);
+      Object o;
+      if (field.getType() == Boolean.TYPE) {
+        o = Boolean.valueOf(str);
+      } else if (field.getType() == Class.class) {
+        try {
+          o = classLoader.loadClass(str);
+        } catch (ClassNotFoundException e) {
+          throw new RuntimeException(e);
+        }
+      } else {
+        throw new Error("unsupported field type: "+field.getType());
+      }
       try {
         field.set(this, o);
       } catch (IllegalAccessException e) {
@@ -154,12 +162,30 @@ public class SpatialContextFactory {
       return;
     
     //kinda ugly we do this just to read a rectangle.  TODO refactor
-    SpatialContext simpleCtx = new SpatialContext(geo, distCalc, null);
+    SpatialContext simpleCtx = new SpatialContext(this);
     worldBounds = (Rectangle) simpleCtx.readShape(worldBoundsStr);
   }
 
   /** Subclasses should simply construct the instance from the initialized configuration. */
   public SpatialContext newSpatialContext() {
     return new SpatialContext(this);
+  }
+
+  @SuppressWarnings("unchecked")
+  public WktShapeParser makeWktShapeParser(SpatialContext ctx) {
+    try {
+      //can't simply lookup constructor by single arg type (ctx) because might be subclass type
+      for (Constructor<?> ctor : wktShapeParserClass.getConstructors()) {
+        Class[] parameterTypes = ctor.getParameterTypes();
+        if (parameterTypes.length != 1)
+          continue;
+        if (!parameterTypes[0].isAssignableFrom(ctx.getClass()))
+          continue;
+        return (WktShapeParser) ctor.newInstance(ctx);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    throw new RuntimeException("needs a constructor that takes a context: " + wktShapeParserClass);
   }
 }

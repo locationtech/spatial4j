@@ -32,10 +32,10 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
 
   //By extending WktShapeParserTest we inherit its test too
 
-  JtsSpatialContext ctx;//note: masks superclass
+  final JtsSpatialContext ctx;//note: masks superclass
 
   public JtsWktShapeParserTest() {
-    super(new JtsWktShapeParser(JtsSpatialContext.GEO));
+    super(JtsSpatialContext.GEO);
     this.ctx = (JtsSpatialContext) super.ctx;
   }
 
