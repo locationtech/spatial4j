@@ -34,9 +34,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 
-import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
-import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
-import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
+import static com.spatial4j.core.shape.SpatialRelation.*;
 
 /** Tests {@link com.spatial4j.core.shape.jts.JtsGeometry} and some other code related
  * to {@link com.spatial4j.core.context.jts.JtsSpatialContext}.
@@ -48,24 +46,13 @@ public class JtsGeometryTest extends AbstractTestShapes {
   private final int DL_SHIFT = 180;//since POLY_SHAPE contains 0 0, I know a shift of 180 will make it cross the DL.
   private JtsGeometry POLY_SHAPE_DL;//POLY_SHAPE shifted by DL_SHIFT to cross the dateline
 
-  private final boolean TEST_DL_POLY = true;
-  //TODO poly.relate(circle) doesn't work when other crosses the dateline
-  private final boolean TEST_DL_OTHER = true;
-
-  //our country test data file seems messed up w.r.t. particularly dateline-crossing
-  private static final JtsSpatialContext ctxAllowMultiOverlap = new JtsSpatialContextFactory() {
-    { geo = true; allowMultiOverlap = true;}
-  }.newSpatialContext();
-
   public JtsGeometryTest() throws ParseException {
     super(JtsSpatialContext.GEO);
     POLY_SHAPE = (JtsGeometry) ctx.readShapeFromWkt(POLY_STR);
 
-    if (TEST_DL_POLY && ctx.isGeo()) {
+    if (ctx.isGeo()) {
       POLY_SHAPE_DL = shiftPoly(POLY_SHAPE, DL_SHIFT);
-      assertTrue(
-          POLY_SHAPE_DL.getBoundingBox().getCrossesDateLine() ||
-              360 == POLY_SHAPE_DL.getBoundingBox().getWidth());
+      assertTrue(POLY_SHAPE_DL.getBoundingBox().getCrossesDateLine());
     }
   }
 
@@ -78,6 +65,8 @@ public class JtsGeometryTest extends AbstractTestShapes {
       @Override
       public void filter(Coordinate coord) {
         coord.x = normX(coord.x + lon_shift);
+        if (ctx.isGeo() && Math.abs(coord.x) == 180 && randomBoolean())
+          coord.x = - coord.x;//invert sign of dateline boundary some of the time
       }
     });
     pGeom.geometryChanged();
@@ -91,6 +80,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
     testRelations(true);
   }
   public void testRelations(boolean prepare) throws ParseException {
+    assert !((JtsSpatialContext)ctx).isAutoPrepare();
     //base polygon
     JtsGeometry base = (JtsGeometry) ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 5 5, 0 0))");
     //shares only "10 0" with base
@@ -142,10 +132,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
   @Test
   @Repeat(iterations = 100)
   public void testPointAndRectIntersect() {
-    Rectangle r = null;
-    do{
-      r = randomRectangle(2);
-    } while(!TEST_DL_OTHER && r.getCrossesDateLine());
+    Rectangle r = randomRectangle(5);
 
     assertJtsConsistentRelate(r);
     assertJtsConsistentRelate(r.getCenter());
@@ -177,14 +164,12 @@ public class JtsGeometryTest extends AbstractTestShapes {
       expectedSR = SpatialRelation.CONTAINS;
     assertRelation(null, expectedSR, POLY_SHAPE, shape);
 
-    if (TEST_DL_POLY && ctx.isGeo()) {
+    if (ctx.isGeo()) {
       //shift shape, set to shape2
       Shape shape2;
       if (shape instanceof Rectangle) {
         Rectangle r = (Rectangle) shape;
         shape2 = makeNormRect(r.getMinX() + DL_SHIFT, r.getMaxX() + DL_SHIFT, r.getMinY(), r.getMaxY());
-        if (!TEST_DL_OTHER && shape2.getBoundingBox().getCrossesDateLine())
-          return;
       } else if (shape instanceof Point) {
         Point p = (Point) shape;
         shape2 = ctx.makePoint(normX(p.getX() + DL_SHIFT), p.getY());
@@ -196,12 +181,14 @@ public class JtsGeometryTest extends AbstractTestShapes {
     }
   }
 
-
   @Test
   public void testRussia() throws IOException, ParseException {
     //TODO THE RUSSIA TEST DATA SET APPEARS CORRUPT
     // But this test "works" anyhow, and exercises a ton.
-    JtsSpatialContext ctx = ctxAllowMultiOverlap;//use different ctx
+    //our country test data file seems messed up, particularly w.r.t. dateline-crossing
+    JtsSpatialContext ctx = new JtsSpatialContextFactory() {
+      { geo = true; allowMultiOverlap = true;}
+    }.newSpatialContext();
 
     //Russia exercises JtsGeometry fairly well because of these characteristics:
     // * a MultiPolygon
@@ -222,8 +209,8 @@ public class JtsGeometryTest extends AbstractTestShapes {
   @Test
   public void testFiji() throws IOException, ParseException {
     //Fiji is a group of islands crossing the dateline.
-    JtsSpatialContext ctx = ctxAllowMultiOverlap;//use different ctx
     String wktStr = readFirstLineFromRsrc("/fiji.wkt.txt");
+
     Shape shape = ctx.readShapeFromWkt(wktStr);
 
     assertRelation(null,SpatialRelation.CONTAINS, shape,

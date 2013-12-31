@@ -78,8 +78,8 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   }
 
   @Test
-  public void testPolyToEnvelope() throws ParseException {
-    //poly is envelope
+  public void testPolyToRect() throws ParseException {
+    //poly is a rect (no dateline issue)
     assertParses("POLYGON((0 5, 10 5, 10 20, 0 20, 0 5))", ctx.makeRectangle(0, 10, 5, 20));
 
     //crosses dateline
@@ -119,6 +119,7 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
 
   @Test
   public void testLineStringDateline() throws ParseException {
+    //works because we use JTS (JtsGeometry); BufferedLineString doesn't yet do DL wrap.
     Shape s = SHAPE_PARSER.parse("LINESTRING(160 10, -170 15)");
     assertEquals(30, s.getBoundingBox().getWidth(), 0.0 );
   }
@@ -126,6 +127,7 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   @Test
   public void testWrapTopologyException() {
     //test that we can catch ParseException without having to detect TopologyException too
+    assert ctx.isAutoValidate();
     try {
       SHAPE_PARSER.parse("POLYGON((0 0, 10 0, 10 20))");//doesn't connect around
       fail();
