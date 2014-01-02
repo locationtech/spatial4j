@@ -17,6 +17,7 @@
 
 package com.spatial4j.core.shape;
 
+import com.carrotsearch.randomizedtesting.RandomizedContext;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
+import java.util.Random;
 
 import static com.spatial4j.core.shape.SpatialRelation.*;
 
@@ -57,6 +59,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
   }
 
   private JtsGeometry shiftPoly(JtsGeometry poly, final int lon_shift) throws ParseException {
+    final Random random = RandomizedContext.current().getRandom();
     Geometry pGeom = poly.getGeom();
     assertTrue(pGeom.isValid());
     //shift 180 to the right
@@ -65,7 +68,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
       @Override
       public void filter(Coordinate coord) {
         coord.x = normX(coord.x + lon_shift);
-        if (ctx.isGeo() && Math.abs(coord.x) == 180 && randomBoolean())
+        if (ctx.isGeo() && Math.abs(coord.x) == 180 && random.nextBoolean())
           coord.x = - coord.x;//invert sign of dateline boundary some of the time
       }
     });
