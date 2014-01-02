@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
@@ -14,28 +31,24 @@ import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.InStream;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKBReader;
-import com.vividsolutions.jts.io.WKBWriter;
-import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+@Deprecated
 public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
 
   private static final byte TYPE_POINT = 0;
   private static final byte TYPE_BBOX = 1;
   private static final byte TYPE_GEOM = 2;
 
-  private boolean normalizeGeomCoords = true;//TODO make configurable
-
   public JtsShapeReadWriter(JtsSpatialContext ctx) {
     super(ctx);
   }
 
   private void checkCoordinates(Geometry geom) {
+    // note: JTS WKTReader has already normalized coords with the JTS PrecisionModel
     geom.apply(new CoordinateSequenceFilter() {
       boolean changed = false;
       @Override
@@ -43,21 +56,20 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
         double x = seq.getX(i);
         double y = seq.getY(i);
 
-        if (ctx.isGeo() && normalizeGeomCoords) {
+        if (ctx.isGeo() && ctx.isNormWrapLongitude()) {
           double xNorm = DistanceUtils.normLonDEG(x);
-          if (x != xNorm) {
+          if (Double.compare(x, xNorm) != 0) {//handles NaN
             changed = true;
-            seq.setOrdinate(i,CoordinateSequence.X,xNorm);
+            seq.setOrdinate(i, CoordinateSequence.X, xNorm);
           }
-          double yNorm = DistanceUtils.normLatDEG(y);
-          if (y != yNorm) {
-            changed = true;
-            seq.setOrdinate(i,CoordinateSequence.Y,yNorm);
-          }
-        } else {
-          ctx.verifyX(x);
-          ctx.verifyY(y);
+//          double yNorm = DistanceUtils.normLatDEG(y);
+//          if (y != yNorm) {
+//            changed = true;
+//            seq.setOrdinate(i,CoordinateSequence.Y,yNorm);
+//          }
         }
+        ctx.verifyX(x);
+        ctx.verifyY(y);
       }
 
       @Override
@@ -76,15 +88,29 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
     Shape shape = super.readStandardShape(str);
     if (shape != null)
       return shape;
+    return readShapeViaJtsWKTReader(str, new WKTReader(ctx.getGeometryFactory()));
+  }
+
+  /**
+   * Reads WKT from the {@code str} via JTS's {@link com.vividsolutions.jts.io.WKTReader}. We do
+   * some post-processing here like conversion to a Rectangle.
+   * @param str
+   * @param reader <pre>new WKTReader(ctx.getGeometryFactory()))</pre>
+   * @return
+   */
+  public Shape readShapeViaJtsWKTReader(String str, WKTReader reader) {
     try {
-      WKTReader reader = new WKTReader(ctx.getGeometryFactory());
       Geometry geom = reader.read(str);
 
       //Normalize coordinates to geo boundary
       checkCoordinates(geom);
 
       if (geom instanceof com.vividsolutions.jts.geom.Point) {
-        return new JtsPoint((com.vividsolutions.jts.geom.Point)geom, ctx);
+        com.vividsolutions.jts.geom.Point ptGeom = (com.vividsolutions.jts.geom.Point) geom;
+        if (ctx.useJtsPoint())
+          return new JtsPoint(ptGeom, ctx);
+        else
+          return ctx.makePoint(ptGeom.getX(), ptGeom.getY());
       } else if (geom.isRectangle()) {
         boolean crossesDateline = false;
         if (ctx.isGeo()) {
@@ -119,7 +145,16 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
       JtsGeometry jtsGeom = (JtsGeometry) shape;
       return jtsGeom.getGeom().toText();
     }
+    //TODO doesn't handle ShapeCollection or BufferedLineString
     return super.writeShape(shape);
+  }
+
+  /** Writes a shape using JTS's {@link com.vividsolutions.jts.io.WKTWriter}. This implementation
+   * is simple; it just uses {@link com.spatial4j.core.context.jts.JtsSpatialContext#getGeometryFrom(com.spatial4j.core.shape.Shape)}.
+   */
+  public String writeShapeViaJtsWKTWriter(Shape shape, WKTWriter writer) {
+    Geometry geom = ctx.getGeometryFrom(shape);
+    return writer.write(geom);
   }
 
   /**
