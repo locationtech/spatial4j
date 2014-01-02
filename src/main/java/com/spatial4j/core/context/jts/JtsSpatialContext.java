@@ -49,35 +49,11 @@ public class JtsSpatialContext extends SpatialContext {
     GEO = new JtsSpatialContext(factory);
   }
 
-  /**
-   * Indicates the algorithm used to process JTS Polygons and JTS LineStrings for detecting dateline
-   * crossings. It only applies when geo=true.
-   */
-  public enum DatelineRule {
-    /** No polygon will cross the dateline. */
-    none,
-
-    /** Adjacent points with an x (longitude) difference that spans more than half
-     * way around the globe will be interpreted as going the other (shorter) way, and thus cross the
-     * dateline.
-     */
-    width180,//TODO is there a better name that doesn't have '180' in it?
-
-    /** For rectangular polygons, the point order is interpreted as being Counter-Clockwise (which
-     * is consistent with OGC Simple Features Specification v. 1.2.0 section 6.1.11.1).
-     * However, non-rectangular polygons or other shapes aren't processed this way; they use the
-     * {@link #width180} rule instead. */
-    ccwRect
-  }
-
   protected final GeometryFactory geometryFactory;
 
-  protected final boolean autoValidate;
-  protected final boolean autoPrepare;
   protected final boolean allowMultiOverlap;
   protected final boolean useJtsPoint;
   protected final boolean useJtsLineString;
-  protected final DatelineRule datelineRule;
 
   /**
    * Called by {@link com.spatial4j.core.context.jts.JtsSpatialContextFactory#newSpatialContext()}.
@@ -85,28 +61,10 @@ public class JtsSpatialContext extends SpatialContext {
   public JtsSpatialContext(JtsSpatialContextFactory factory) {
     super(factory);
     this.geometryFactory = factory.getGeometryFactory();
-    this.autoValidate = factory.autoValidate;
-    this.autoPrepare = factory.autoPrepare;
+
     this.allowMultiOverlap = factory.allowMultiOverlap;
     this.useJtsPoint = factory.useJtsPoint;
     this.useJtsLineString = factory.useJtsLineString;
-    this.datelineRule = factory.datelineRule;
-  }
-
-  /**
-   * If JtsGeometry shapes should be automatically validated when read via WKT.
-   * @see com.spatial4j.core.shape.jts.JtsGeometry#validate()
-   */
-  public boolean isAutoValidate() {
-    return autoValidate;
-  }
-
-  /**
-   * If JtsGeometry shapes should be automatically prepared (i.e. optimized) when read via WKT.
-   * @see com.spatial4j.core.shape.jts.JtsGeometry#prepare()
-   */
-  public boolean isAutoPrepare() {
-    return autoPrepare;
   }
 
   /**
@@ -118,11 +76,6 @@ public class JtsSpatialContext extends SpatialContext {
    */
   public boolean isAllowMultiOverlap() {
     return allowMultiOverlap;
-  }
-
-  /** See {@link com.spatial4j.core.context.jts.JtsSpatialContext.DatelineRule}. */
-  public DatelineRule getDatelineRule() {
-    return datelineRule;
   }
 
   @Override

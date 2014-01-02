@@ -182,11 +182,13 @@ public class SpatialContextFactory {
       //can't simply lookup constructor by single arg type (ctx) because might be subclass type
       for (Constructor<?> ctor : wktShapeParserClass.getConstructors()) {
         Class[] parameterTypes = ctor.getParameterTypes();
-        if (parameterTypes.length != 1)
+        if (parameterTypes.length != 2)
           continue;
         if (!parameterTypes[0].isAssignableFrom(ctx.getClass()))
           continue;
-        return (WktShapeParser) ctor.newInstance(ctx);
+        if (!parameterTypes[1].isAssignableFrom(this.getClass()))
+          continue;
+        return (WktShapeParser) ctor.newInstance(ctx, this);
       }
     } catch (Exception e) {
       throw new RuntimeException(e);

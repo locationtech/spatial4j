@@ -126,9 +126,10 @@ public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
           return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY(), ctx);
       } else {
         JtsGeometry jtsShape = ctx.makeShape(geom);
-        if (ctx.isAutoValidate())
+        JtsWktShapeParser wktShapeParser = (JtsWktShapeParser) ctx.getWktShapeParser();
+        if (wktShapeParser.isAutoValidate())
           jtsShape.validate();
-        if (ctx.isAutoPrepare())
+        if (wktShapeParser.isAutoPrepare())
           jtsShape.prepare();
         return jtsShape;
       }

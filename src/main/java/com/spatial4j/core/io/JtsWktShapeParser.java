@@ -18,6 +18,7 @@
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
@@ -37,9 +38,38 @@ public class JtsWktShapeParser extends WktShapeParser {
 
   protected final JtsSpatialContext ctx;
 
-  public JtsWktShapeParser(JtsSpatialContext ctx) {
-    super(ctx);
+  protected final JtsWktShapeParser.DatelineRule datelineRule;
+  protected final boolean autoValidate;
+  protected final boolean autoPrepare;
+
+  public JtsWktShapeParser(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
+    super(ctx, factory);
     this.ctx = ctx;
+    this.datelineRule = factory.datelineRule;
+    this.autoValidate = factory.autoValidate;
+    this.autoPrepare = factory.autoPrepare;
+  }
+
+  /**
+   * If JtsGeometry shapes should be automatically validated when read via WKT.
+   * @see com.spatial4j.core.shape.jts.JtsGeometry#validate()
+   */
+  public boolean isAutoValidate() {
+    return autoValidate;
+  }
+
+  /**
+   * If JtsGeometry shapes should be automatically prepared (i.e. optimized) when read via WKT.
+   * @see com.spatial4j.core.shape.jts.JtsGeometry#prepare()
+   */
+  public boolean isAutoPrepare() {
+    return autoPrepare;
+  }
+
+
+  /** See {@link DatelineRule}. */
+  public DatelineRule getDatelineRule() {
+    return datelineRule;
   }
 
   @Override
@@ -96,8 +126,8 @@ public class JtsWktShapeParser extends WktShapeParser {
     assert geometry.isRectangle();
     Envelope env = geometry.getEnvelopeInternal();
     boolean crossesDateline = false;
-    if (ctx.isGeo() && ctx.getDatelineRule() != JtsSpatialContext.DatelineRule.none) {
-      if (ctx.getDatelineRule() == JtsSpatialContext.DatelineRule.ccwRect) {
+    if (ctx.isGeo() && getDatelineRule() != DatelineRule.none) {
+      if (getDatelineRule() == DatelineRule.ccwRect) {
         // If JTS says it is clockwise, then it's actually a dateline crossing rectangle.
         crossesDateline = ! CGAlgorithms.isCCW(geometry.getCoordinates());
       } else {
@@ -197,10 +227,31 @@ public class JtsWktShapeParser extends WktShapeParser {
   }
 
   protected JtsGeometry makeShapeAndMaybeValidate(Geometry geometry) {
-    boolean dateline180Check = ctx.getDatelineRule() != JtsSpatialContext.DatelineRule.none;
+    boolean dateline180Check = getDatelineRule() != DatelineRule.none;
     JtsGeometry jtsGeom = ctx.makeShape(geometry, dateline180Check, ctx.isAllowMultiOverlap());
-    if (ctx.isAutoValidate()) jtsGeom.validate();
-    if (ctx.isAutoPrepare()) jtsGeom.prepare();
+    if (isAutoValidate()) jtsGeom.validate();
+    if (isAutoPrepare()) jtsGeom.prepare();
     return jtsGeom;
+  }
+
+  /**
+   * Indicates the algorithm used to process JTS Polygons and JTS LineStrings for detecting dateline
+   * crossings. It only applies when geo=true.
+   */
+  public enum DatelineRule {
+    /** No polygon will cross the dateline. */
+    none,
+
+    /** Adjacent points with an x (longitude) difference that spans more than half
+     * way around the globe will be interpreted as going the other (shorter) way, and thus cross the
+     * dateline.
+     */
+    width180,//TODO is there a better name that doesn't have '180' in it?
+
+    /** For rectangular polygons, the point order is interpreted as being Counter-Clockwise (which
+     * is consistent with OGC Simple Features Specification v. 1.2.0 section 6.1.11.1).
+     * However, non-rectangular polygons or other shapes aren't processed this way; they use the
+     * {@link #width180} rule instead. */
+    ccwRect
   }
 }

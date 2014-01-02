@@ -34,11 +34,11 @@ import java.util.Map;
  * superclass:
  * <DL>
  * <DT>datelineRule</DT>
- * <DD>width180(default)|ccwRect|none -- see {@link JtsSpatialContext#getDatelineRule()}</DD>
+ * <DD>width180(default)|ccwRect|none -- see {@link JtsWktShapeParser#getDatelineRule()}</DD>
  * <DT>autoValidate</DT>
- * <DD>true(default)|false -- see {@link JtsSpatialContext#isAutoValidate()}</DD>
+ * <DD>true(default)|false -- see {@link JtsWktShapeParser#isAutoValidate()}</DD>
  * <DT>autoPrepare</DT>
- * <DD>true|false(default) -- see {@link JtsSpatialContext#isAutoPrepare()}</DD>
+ * <DD>true|false(default) -- see {@link JtsWktShapeParser#isAutoPrepare()}</DD>
  * <DT>allowMultiOverlap</DT>
  * <DD>true|false(default) -- see {@link JtsSpatialContext#isAllowMultiOverlap()}</DD>
  * <DT>precisionModel</DT>
@@ -58,7 +58,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   public CoordinateSequenceFactory coordinateSequenceFactory = CoordinateArraySequenceFactory.instance();
 
   //ignored if geo=false
-  public JtsSpatialContext.DatelineRule datelineRule = JtsSpatialContext.DatelineRule.width180;
+  public JtsWktShapeParser.DatelineRule datelineRule = JtsWktShapeParser.DatelineRule.width180;
 
   public boolean autoValidate = true;
   public boolean autoPrepare = false;

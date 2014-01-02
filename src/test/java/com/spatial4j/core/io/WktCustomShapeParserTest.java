@@ -75,8 +75,8 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
   }
 
   public static class MyWKTShapeParser extends WktShapeParser {
-    public MyWKTShapeParser(SpatialContext ctx) {
-      super(ctx);
+    public MyWKTShapeParser(SpatialContext ctx, SpatialContextFactory factory) {
+      super(ctx, factory);
     }
 
     protected State newState(String wkt) {

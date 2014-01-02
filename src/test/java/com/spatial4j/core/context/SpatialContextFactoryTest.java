@@ -92,7 +92,8 @@ public class SpatialContextFactoryTest {
     assertTrue(ctx.isNormWrapLongitude());
     assertEquals(2.0, ctx.getGeometryFactory().getPrecisionModel().getScale(), 0.0);
     assertTrue(CustomWktShapeParser.once);//cheap way to test it was created
-    assertEquals(JtsSpatialContext.DatelineRule.ccwRect, ctx.getDatelineRule());
+    assertEquals(JtsWktShapeParser.DatelineRule.ccwRect,
+        ((JtsWktShapeParser)ctx.getWktShapeParser()).getDatelineRule());
   }
   
   @Test
@@ -112,8 +113,8 @@ public class SpatialContextFactoryTest {
 
   public static class CustomWktShapeParser extends JtsWktShapeParser {
     static boolean once = false;//cheap way to test it was created
-    public CustomWktShapeParser(JtsSpatialContext ctx) {
-      super(ctx);
+    public CustomWktShapeParser(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
+      super(ctx, factory);
       once = true;
     }
   }

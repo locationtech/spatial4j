@@ -19,6 +19,7 @@ package com.spatial4j.core.io;
 
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 
@@ -64,7 +65,8 @@ public class WktShapeParser {
   // might optionally do data validation & normalization
   protected final SpatialContext ctx;
 
-  public WktShapeParser(SpatialContext ctx) {
+  /** This constructor is required by {@link com.spatial4j.core.context.SpatialContextFactory#makeWktShapeParser(com.spatial4j.core.context.SpatialContext)}. */
+  public WktShapeParser(SpatialContext ctx, SpatialContextFactory factory) {
     this.ctx = ctx;
   }
 

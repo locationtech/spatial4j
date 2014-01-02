@@ -96,7 +96,7 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
 
   @Test
   public void polyToRectCcwRule() throws ParseException {
-    JtsSpatialContext ctx = new JtsSpatialContextFactory() { { datelineRule = JtsSpatialContext.DatelineRule.ccwRect;} }.newSpatialContext();
+    JtsSpatialContext ctx = new JtsSpatialContextFactory() { { datelineRule = JtsWktShapeParser.DatelineRule.ccwRect;} }.newSpatialContext();
     //counter-clockwise
     assertEquals(ctx.readShapeFromWkt("POLYGON((160 0, -170 0, -170 10, 160 10, 160 0))"),
         ctx.makeRectangle(160, -170, 0, 10));
@@ -142,7 +142,7 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   @Test
   public void testWrapTopologyException() {
     //test that we can catch ParseException without having to detect TopologyException too
-    assert ctx.isAutoValidate();
+    assert ((JtsWktShapeParser)ctx.getWktShapeParser()).isAutoValidate();
     try {
       ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 10 20))");//doesn't connect around
       fail();
