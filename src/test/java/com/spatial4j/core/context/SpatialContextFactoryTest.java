@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.spatial4j.core.context;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
@@ -52,44 +53,46 @@ public class SpatialContextFactoryTest {
   
   @Test
   public void testDefault() {
-    SpatialContext s = SpatialContext.GEO;
-    SpatialContext t = call();//default
-    assertEquals(s.getClass(),t.getClass());
-    assertEquals(s.isGeo(),t.isGeo());
-    assertEquals(s.getDistCalc(),t.getDistCalc());
-    assertEquals(s.getWorldBounds(),t.getWorldBounds());
+    SpatialContext ctx = SpatialContext.GEO;
+    SpatialContext ctx2 = call();//default
+    assertEquals(ctx.getClass(), ctx2.getClass());
+    assertEquals(ctx.isGeo(), ctx2.isGeo());
+    assertEquals(ctx.getDistCalc(),ctx2.getDistCalc());
+    assertEquals(ctx.getWorldBounds(), ctx2.getWorldBounds());
   }
   
   @Test
   public void testCustom() {
-    SpatialContext sc = call("geo","false");
-    assertTrue(!sc.isGeo());
-    assertEquals(new CartesianDistCalc(),sc.getDistCalc());
+    SpatialContext ctx = call("geo","false");
+    assertTrue(!ctx.isGeo());
+    assertEquals(new CartesianDistCalc(), ctx.getDistCalc());
 
-    sc = call("geo","false",
+    ctx = call("geo","false",
         "distCalculator","cartesian^2",
         "worldBounds","-100 0 75 200");//West South East North
-    assertEquals(new CartesianDistCalc(true),sc.getDistCalc());
-    assertEquals(new RectangleImpl(-100,75,0,200, sc),sc.getWorldBounds());
+    assertEquals(new CartesianDistCalc(true),ctx.getDistCalc());
+    assertEquals(new RectangleImpl(-100, 75, 0, 200, ctx), ctx.getWorldBounds());
 
-    sc = call("geo","true",
+    ctx = call("geo","true",
         "distCalculator","lawOfCosines");
-    assertTrue(sc.isGeo());
+    assertTrue(ctx.isGeo());
     assertEquals(new GeodesicSphereDistCalc.LawOfCosines(),
-        sc.getDistCalc());
+        ctx.getDistCalc());
   }
 
   @Test
   public void testJtsContextFactory() {
-    JtsSpatialContext sc = (JtsSpatialContext) call(
+    JtsSpatialContext ctx = (JtsSpatialContext) call(
         "spatialContextFactory", JtsSpatialContextFactory.class.getName(),
         "geo", "true",
         "normWrapLongitude", "true",
         "precisionScale", "2.0",
-        "wktShapeParserClass", CustomWktShapeParser.class.getName());
-    assertTrue(sc.isNormWrapLongitude());
-    assertEquals(2.0, sc.getGeometryFactory().getPrecisionModel().getScale(), 0.0);
+        "wktShapeParserClass", CustomWktShapeParser.class.getName(),
+        "datelineRule", "ccwRect");
+    assertTrue(ctx.isNormWrapLongitude());
+    assertEquals(2.0, ctx.getGeometryFactory().getPrecisionModel().getScale(), 0.0);
     assertTrue(CustomWktShapeParser.once);//cheap way to test it was created
+    assertEquals(JtsSpatialContext.DatelineRule.ccwRect, ctx.getDatelineRule());
   }
   
   @Test

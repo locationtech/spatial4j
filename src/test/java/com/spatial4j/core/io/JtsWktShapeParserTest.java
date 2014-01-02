@@ -18,6 +18,7 @@
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -81,13 +82,27 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   public void testPolyToRect() throws ParseException {
     //poly is a rect (no dateline issue)
     assertParses("POLYGON((0 5, 10 5, 10 20, 0 20, 0 5))", ctx.makeRectangle(0, 10, 5, 20));
+  }
 
+  @Test
+  public void polyToRect180Rule() throws ParseException {
     //crosses dateline
     Rectangle expected = ctx.makeRectangle(160, -170, 0, 10);
     //counter-clockwise
     assertParses("POLYGON((160 0, -170 0, -170 10, 160 10, 160 0))", expected);
     //clockwise
     assertParses("POLYGON((160 10, -170 10, -170 0, 160 0, 160 10))", expected);
+  }
+
+  @Test
+  public void polyToRectCcwRule() throws ParseException {
+    JtsSpatialContext ctx = new JtsSpatialContextFactory() { { datelineRule = JtsSpatialContext.DatelineRule.ccwRect;} }.newSpatialContext();
+    //counter-clockwise
+    assertEquals(ctx.readShapeFromWkt("POLYGON((160 0, -170 0, -170 10, 160 10, 160 0))"),
+        ctx.makeRectangle(160, -170, 0, 10));
+    //clockwise
+    assertEquals(ctx.readShapeFromWkt("POLYGON((160 10, -170 10, -170 0, 160 0, 160 10))"),
+        ctx.makeRectangle(-170, 160, 0, 10));
   }
 
   @Test
@@ -120,7 +135,7 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   @Test
   public void testLineStringDateline() throws ParseException {
     //works because we use JTS (JtsGeometry); BufferedLineString doesn't yet do DL wrap.
-    Shape s = SHAPE_PARSER.parse("LINESTRING(160 10, -170 15)");
+    Shape s = ctx.readShapeFromWkt("LINESTRING(160 10, -170 15)");
     assertEquals(30, s.getBoundingBox().getWidth(), 0.0 );
   }
 
@@ -129,14 +144,14 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
     //test that we can catch ParseException without having to detect TopologyException too
     assert ctx.isAutoValidate();
     try {
-      SHAPE_PARSER.parse("POLYGON((0 0, 10 0, 10 20))");//doesn't connect around
+      ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 10 20))");//doesn't connect around
       fail();
     } catch (ParseException e) {
       //expected
     }
 
     try {
-      SHAPE_PARSER.parse("POLYGON((0 0, 10 0, 10 20, 5 -5, 0 20, 0 0))");//Topology self-intersect
+      ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 10 20, 5 -5, 0 20, 0 0))");//Topology self-intersect
       fail();
     } catch (ParseException e) {
       //expected

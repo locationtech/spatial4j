@@ -33,6 +33,8 @@ import java.util.Map;
  * The following keys are looked up in the args map, in addition to those in the
  * superclass:
  * <DL>
+ * <DT>datelineRule</DT>
+ * <DD>width180(default)|ccwRect|none -- see {@link JtsSpatialContext#getDatelineRule()}</DD>
  * <DT>autoValidate</DT>
  * <DD>true(default)|false -- see {@link JtsSpatialContext#isAutoValidate()}</DD>
  * <DT>autoPrepare</DT>
@@ -55,9 +57,14 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   public int srid = 0;
   public CoordinateSequenceFactory coordinateSequenceFactory = CoordinateArraySequenceFactory.instance();
 
+  //ignored if geo=false
+  public JtsSpatialContext.DatelineRule datelineRule = JtsSpatialContext.DatelineRule.width180;
+
   public boolean autoValidate = true;
   public boolean autoPrepare = false;
-  public boolean allowMultiOverlap = false;
+  public boolean allowMultiOverlap = false;//ignored if geo=false
+
+  //kinda advanced options:
   public boolean useJtsPoint = true;
   public boolean useJtsLineString = true;
 
@@ -69,6 +76,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   protected void init(Map<String, String> args, ClassLoader classLoader) {
     super.init(args, classLoader);
 
+    initField("datelineRule");
     initField("autoValidate");
     initField("autoPrepare");
     initField("allowMultiOverlap");

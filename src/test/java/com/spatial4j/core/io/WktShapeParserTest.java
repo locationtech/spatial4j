@@ -32,11 +32,8 @@ public class WktShapeParserTest extends RandomizedTest {
 
   final SpatialContext ctx;
 
-  final WktShapeParser SHAPE_PARSER;
-
   protected WktShapeParserTest(SpatialContext ctx) {
     this.ctx = ctx;
-    this.SHAPE_PARSER = ctx.getWktShapeParser();
   }
 
   public WktShapeParserTest() {
@@ -44,12 +41,12 @@ public class WktShapeParserTest extends RandomizedTest {
   }
 
   protected void assertParses(String wkt, Shape expected) throws ParseException {
-    assertEquals(SHAPE_PARSER.parse(wkt), expected);
+    assertEquals(ctx.readShapeFromWkt(wkt), expected);
   }
 
   protected void assertFails(String wkt) {
     try {
-      SHAPE_PARSER.parse(wkt);
+      ctx.readShapeFromWkt(wkt);
       fail("ParseException expected");
     } catch (ParseException e) {//expected
     }
@@ -57,10 +54,11 @@ public class WktShapeParserTest extends RandomizedTest {
 
   @Test
   public void testNoOp() throws ParseException {
-    assertNull(SHAPE_PARSER.parseIfSupported(""));
-    assertNull(SHAPE_PARSER.parseIfSupported("  "));
-    assertNull(SHAPE_PARSER.parseIfSupported("BogusShape()"));
-    assertNull(SHAPE_PARSER.parseIfSupported("BogusShape"));
+    WktShapeParser wktShapeParser = ctx.getWktShapeParser();
+    assertNull(wktShapeParser.parseIfSupported(""));
+    assertNull(wktShapeParser.parseIfSupported("  "));
+    assertNull(wktShapeParser.parseIfSupported("BogusShape()"));
+    assertNull(wktShapeParser.parseIfSupported("BogusShape"));
   }
 
   @Test

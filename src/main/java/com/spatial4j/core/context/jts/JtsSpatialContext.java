@@ -27,11 +27,7 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import java.util.ArrayList;
@@ -53,6 +49,27 @@ public class JtsSpatialContext extends SpatialContext {
     GEO = new JtsSpatialContext(factory);
   }
 
+  /**
+   * Indicates the algorithm used to process JTS Polygons and JTS LineStrings for detecting dateline
+   * crossings. It only applies when geo=true.
+   */
+  public enum DatelineRule {
+    /** No polygon will cross the dateline. */
+    none,
+
+    /** Adjacent points with an x (longitude) difference that spans more than half
+     * way around the globe will be interpreted as going the other (shorter) way, and thus cross the
+     * dateline.
+     */
+    width180,//TODO is there a better name that doesn't have '180' in it?
+
+    /** For rectangular polygons, the point order is interpreted as being Counter-Clockwise (which
+     * is consistent with OGC Simple Features Specification v. 1.2.0 section 6.1.11.1).
+     * However, non-rectangular polygons or other shapes aren't processed this way; they use the
+     * {@link #width180} rule instead. */
+    ccwRect
+  }
+
   protected final GeometryFactory geometryFactory;
 
   protected final boolean autoValidate;
@@ -60,6 +77,7 @@ public class JtsSpatialContext extends SpatialContext {
   protected final boolean allowMultiOverlap;
   protected final boolean useJtsPoint;
   protected final boolean useJtsLineString;
+  protected final DatelineRule datelineRule;
 
   /**
    * Called by {@link com.spatial4j.core.context.jts.JtsSpatialContextFactory#newSpatialContext()}.
@@ -72,6 +90,7 @@ public class JtsSpatialContext extends SpatialContext {
     this.allowMultiOverlap = factory.allowMultiOverlap;
     this.useJtsPoint = factory.useJtsPoint;
     this.useJtsLineString = factory.useJtsLineString;
+    this.datelineRule = factory.datelineRule;
   }
 
   /**
@@ -99,6 +118,11 @@ public class JtsSpatialContext extends SpatialContext {
    */
   public boolean isAllowMultiOverlap() {
     return allowMultiOverlap;
+  }
+
+  /** See {@link com.spatial4j.core.context.jts.JtsSpatialContext.DatelineRule}. */
+  public DatelineRule getDatelineRule() {
+    return datelineRule;
   }
 
   @Override

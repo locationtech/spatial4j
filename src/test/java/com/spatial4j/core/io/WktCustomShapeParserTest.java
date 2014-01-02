@@ -52,14 +52,14 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
 
   @Test
   public void testCustomShape() throws ParseException {
-    assertEquals("customShape", ((CustomShape)SHAPE_PARSER.parse("customShape()")).name);
-    assertEquals("custom3d", ((CustomShape)SHAPE_PARSER.parse("custom3d ()")).name);//number supported
+    assertEquals("customShape", ((CustomShape)ctx.readShapeFromWkt("customShape()")).name);
+    assertEquals("custom3d", ((CustomShape)ctx.readShapeFromWkt("custom3d ()")).name);//number supported
   }
 
   @Test
   public void testNextSubShapeString() throws ParseException {
 
-    WktShapeParser.State state = SHAPE_PARSER.newState("OUTER(INNER(3, 5))");
+    WktShapeParser.State state = ctx.getWktShapeParser().newState("OUTER(INNER(3, 5))");
     state.offset = 0;
 
     assertEquals("OUTER(INNER(3, 5))", state.nextSubShapeString());

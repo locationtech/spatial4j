@@ -117,22 +117,27 @@ public class SpatialContextFactory {
     }
     String str = args.get(name);
     if (str != null) {
-      Object o;
-      if (field.getType() == Boolean.TYPE) {
-        o = Boolean.valueOf(str);
-      } else if (field.getType() == Class.class) {
-        try {
-          o = classLoader.loadClass(str);
-        } catch (ClassNotFoundException e) {
-          throw new RuntimeException(e);
-        }
-      } else {
-        throw new Error("unsupported field type: "+field.getType());
-      }
       try {
+        Object o;
+        if (field.getType() == Boolean.TYPE) {
+          o = Boolean.valueOf(str);
+        } else if (field.getType() == Class.class) {
+          try {
+            o = classLoader.loadClass(str);
+          } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+          }
+        } else if (field.getType().isEnum()) {
+          o = Enum.valueOf(field.getType().asSubclass(Enum.class), str);
+        } else {
+          throw new Error("unsupported field type: "+field.getType());//not plausible at runtime unless developing
+        }
         field.set(this, o);
       } catch (IllegalAccessException e) {
         throw new Error(e);
+      } catch (Exception e) {
+        throw new RuntimeException(
+            "Invalid value '"+str+"' on field "+name+" of type "+field.getType(), e);
       }
     }
   }

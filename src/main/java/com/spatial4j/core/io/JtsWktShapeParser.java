@@ -19,8 +19,10 @@ package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
+import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.*;
 
 import java.text.ParseException;
@@ -82,16 +84,30 @@ public class JtsWktShapeParser extends WktShapeParser {
           new Coordinate[]{}), null);
     } else {
       geometry = polygon(state);
-      //return a Rectangle instead
       if (geometry.isRectangle()) {
-        Envelope env = geometry.getEnvelopeInternal();
-        if (ctx.isGeo() && env.getWidth() > 180)
-          return ctx.makeRectangle(env.getMaxX(), env.getMinX(), env.getMinY(), env.getMaxY());
-        else
-          return ctx.makeRectangle(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY());
+        //TODO although, might want to never convert if there's a semantic difference (e.g. geodetically)
+        return makeRectFromPoly(geometry);
       }
     }
     return makeShapeAndMaybeValidate(geometry);
+  }
+
+  protected Rectangle makeRectFromPoly(Geometry geometry) {
+    assert geometry.isRectangle();
+    Envelope env = geometry.getEnvelopeInternal();
+    boolean crossesDateline = false;
+    if (ctx.isGeo() && ctx.getDatelineRule() != JtsSpatialContext.DatelineRule.none) {
+      if (ctx.getDatelineRule() == JtsSpatialContext.DatelineRule.ccwRect) {
+        // If JTS says it is clockwise, then it's actually a dateline crossing rectangle.
+        crossesDateline = ! CGAlgorithms.isCCW(geometry.getCoordinates());
+      } else {
+        crossesDateline = env.getWidth() > 180;
+      }
+    }
+    if (crossesDateline)
+      return ctx.makeRectangle(env.getMaxX(), env.getMinX(), env.getMinY(), env.getMaxY());
+    else
+      return ctx.makeRectangle(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
   }
 
   /**
@@ -181,7 +197,8 @@ public class JtsWktShapeParser extends WktShapeParser {
   }
 
   protected JtsGeometry makeShapeAndMaybeValidate(Geometry geometry) {
-    JtsGeometry jtsGeom = ctx.makeShape(geometry);
+    boolean dateline180Check = ctx.getDatelineRule() != JtsSpatialContext.DatelineRule.none;
+    JtsGeometry jtsGeom = ctx.makeShape(geometry, dateline180Check, ctx.isAllowMultiOverlap());
     if (ctx.isAutoValidate()) jtsGeom.validate();
     if (ctx.isAutoPrepare()) jtsGeom.prepare();
     return jtsGeom;
