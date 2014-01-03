@@ -18,144 +18,30 @@
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.spatial4j.core.shape.jts.JtsPoint;
-import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.*;
+import com.vividsolutions.jts.io.InStream;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBReader;
+import com.vividsolutions.jts.io.WKBWriter;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 @Deprecated
-public class JtsShapeReadWriter extends ShapeReadWriter<JtsSpatialContext> {
+public class JtsShapeReadWriter {
 
   private static final byte TYPE_POINT = 0;
   private static final byte TYPE_BBOX = 1;
   private static final byte TYPE_GEOM = 2;
+  private final JtsSpatialContext ctx;
 
   public JtsShapeReadWriter(JtsSpatialContext ctx) {
-    super(ctx);
-  }
-
-  private void checkCoordinates(Geometry geom) {
-    // note: JTS WKTReader has already normalized coords with the JTS PrecisionModel
-    geom.apply(new CoordinateSequenceFilter() {
-      boolean changed = false;
-      @Override
-      public void filter(CoordinateSequence seq, int i) {
-        double x = seq.getX(i);
-        double y = seq.getY(i);
-
-        if (ctx.isGeo() && ctx.isNormWrapLongitude()) {
-          double xNorm = DistanceUtils.normLonDEG(x);
-          if (Double.compare(x, xNorm) != 0) {//handles NaN
-            changed = true;
-            seq.setOrdinate(i, CoordinateSequence.X, xNorm);
-          }
-//          double yNorm = DistanceUtils.normLatDEG(y);
-//          if (y != yNorm) {
-//            changed = true;
-//            seq.setOrdinate(i,CoordinateSequence.Y,yNorm);
-//          }
-        }
-        ctx.verifyX(x);
-        ctx.verifyY(y);
-      }
-
-      @Override
-      public boolean isDone() { return false; }
-
-      @Override
-      public boolean isGeometryChanged() { return changed; }
-    });
-  }
-
-  /**
-   * Reads the standard shape format + WKT.
-   */
-  @Override
-  public Shape readShape(String str) throws InvalidShapeException {
-    Shape shape = super.readStandardShape(str);
-    if (shape != null)
-      return shape;
-    return readShapeViaJtsWKTReader(str, new WKTReader(ctx.getGeometryFactory()));
-  }
-
-  /**
-   * Reads WKT from the {@code str} via JTS's {@link com.vividsolutions.jts.io.WKTReader}. We do
-   * some post-processing here like conversion to a Rectangle.
-   * @param str
-   * @param reader <pre>new WKTReader(ctx.getGeometryFactory()))</pre>
-   * @return
-   */
-  public Shape readShapeViaJtsWKTReader(String str, WKTReader reader) {
-    try {
-      Geometry geom = reader.read(str);
-
-      //Normalize coordinates to geo boundary
-      checkCoordinates(geom);
-
-      if (geom instanceof com.vividsolutions.jts.geom.Point) {
-        com.vividsolutions.jts.geom.Point ptGeom = (com.vividsolutions.jts.geom.Point) geom;
-        if (ctx.useJtsPoint())
-          return new JtsPoint(ptGeom, ctx);
-        else
-          return ctx.makePoint(ptGeom.getX(), ptGeom.getY());
-      } else if (geom.isRectangle()) {
-        boolean crossesDateline = false;
-        if (ctx.isGeo()) {
-          // Says Counter-clockwise: see 6.1.11.1 in OGC Simple Features Specification v. 1.2.0
-          //Polygon points are supposed to be counter-clockwise order. If JTS says it is clockwise, then
-          // it's actually a dateline crossing rectangle.
-          crossesDateline = ! CGAlgorithms.isCCW(geom.getCoordinates());
-        }
-        Envelope env = geom.getEnvelopeInternal();
-        if (crossesDateline)
-          return new RectangleImpl(env.getMaxX(),env.getMinX(),env.getMinY(),env.getMaxY(), ctx);
-        else
-          return new RectangleImpl(env.getMinX(),env.getMaxX(),env.getMinY(),env.getMaxY(), ctx);
-      } else {
-        JtsGeometry jtsShape = ctx.makeShape(geom);
-        JtsWktShapeParser wktShapeParser = (JtsWktShapeParser) ctx.getWktShapeParser();
-        if (wktShapeParser.isAutoValidate())
-          jtsShape.validate();
-        if (wktShapeParser.isAutoPrepare())
-          jtsShape.prepare();
-        return jtsShape;
-      }
-    } catch (InvalidShapeException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new InvalidShapeException("error reading WKT: "+e.toString(), e);
-    }
-  }
-
-  @Override
-  public String writeShape(Shape shape) {
-    if (shape instanceof JtsGeometry) {
-      JtsGeometry jtsGeom = (JtsGeometry) shape;
-      return jtsGeom.getGeom().toText();
-    }
-    //TODO doesn't handle ShapeCollection or BufferedLineString
-    return super.writeShape(shape);
-  }
-
-  /** Writes a shape using JTS's {@link com.vividsolutions.jts.io.WKTWriter}. This implementation
-   * is simple; it just uses {@link com.spatial4j.core.context.jts.JtsSpatialContext#getGeometryFrom(com.spatial4j.core.shape.Shape)}.
-   */
-  public String writeShapeViaJtsWKTWriter(Shape shape, WKTWriter writer) {
-    Geometry geom = ctx.getGeometryFrom(shape);
-    return writer.write(geom);
+    this.ctx = ctx;
   }
 
   /**

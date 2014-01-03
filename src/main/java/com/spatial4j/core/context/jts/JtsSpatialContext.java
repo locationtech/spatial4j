@@ -19,8 +19,6 @@ package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.io.JtsShapeReadWriter;
-import com.spatial4j.core.io.ShapeReadWriter;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -90,8 +88,15 @@ public class JtsSpatialContext extends SpatialContext {
     return geometryFactory.getPrecisionModel().makePrecise(y);
   }
 
-  protected ShapeReadWriter makeShapeReadWriter() {
-    return new JtsShapeReadWriter(this);
+  @Override
+  public String toString(Shape shape) {
+    //Note: this logic is from the defunct JtsShapeReadWriter
+    if (shape instanceof JtsGeometry) {
+      JtsGeometry jtsGeom = (JtsGeometry) shape;
+      return jtsGeom.getGeom().toText();
+    }
+    //Note: doesn't handle ShapeCollection or BufferedLineString
+    return super.toString(shape);
   }
 
   /**

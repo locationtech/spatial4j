@@ -22,18 +22,10 @@ import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.io.ShapeReadWriter;
+import com.spatial4j.core.io.LegacyShapeReadWriterFormat;
 import com.spatial4j.core.io.WktShapeParser;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.ShapeCollection;
-import com.spatial4j.core.shape.impl.BufferedLineString;
-import com.spatial4j.core.shape.impl.CircleImpl;
-import com.spatial4j.core.shape.impl.GeoCircle;
-import com.spatial4j.core.shape.impl.PointImpl;
-import com.spatial4j.core.shape.impl.RectangleImpl;
+import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.impl.*;
 
 import java.text.ParseException;
 import java.util.List;
@@ -65,10 +57,7 @@ public class SpatialContext {
   private final DistanceCalculator calculator;
   private final Rectangle worldBounds;
 
-  protected final WktShapeParser wktShapeParser;
-
-  @Deprecated
-  private final ShapeReadWriter shapeReadWriter;
+  private final WktShapeParser wktShapeParser;
 
   private final boolean normWrapLongitude;
 
@@ -130,12 +119,6 @@ public class SpatialContext {
 
     this.normWrapLongitude = factory.normWrapLongitude && this.isGeo();
     this.wktShapeParser = factory.makeWktShapeParser(this);
-    this.shapeReadWriter = makeShapeReadWriter();
-  }
-
-  @Deprecated
-  protected ShapeReadWriter makeShapeReadWriter() {
-    return new ShapeReadWriter<SpatialContext>(this);
   }
 
   public DistanceCalculator getDistCalc() {
@@ -301,24 +284,36 @@ public class SpatialContext {
     return wktShapeParser.parse(wkt);
   }
 
-  /** Reads the shape from a String using the deprecated {@link com.spatial4j.core.io.ShapeReadWriter}.
-   * Instead you should use standard WKT via {@link #readShapeFromWkt(String)}.
+  /** Reads the shape from a String using the old/deprecated
+   * {@link com.spatial4j.core.io.LegacyShapeReadWriterFormat}.
+   * Instead you should use standard WKT via {@link #readShapeFromWkt(String)}. This method falls
+   * back on WKT if it's not in the legacy format.
    * @param value non-null
-   * @return
+   * @return non-null
    */
   @Deprecated
   public Shape readShape(String value) throws InvalidShapeException {
-    return shapeReadWriter.readShape(value);
+    Shape s = LegacyShapeReadWriterFormat.readShapeOrNull(this, value);
+    if (s == null) {
+      try {
+        s = readShapeFromWkt(value);
+      } catch (ParseException e) {
+        throw new InvalidShapeException(e.toString(), e);
+      }
+    }
+    return s;
   }
 
-  /** Writes the shape to a String using the deprecated {@link com.spatial4j.core.io.ShapeReadWriter}.
-   * Spatial4j in the near future won't support writing shapes to strings.
+  /** Writes the shape to a String using the old/deprecated
+   * {@link com.spatial4j.core.io.LegacyShapeReadWriterFormat}. The JTS based subclass will write it
+   * to WKT if the legacy format doesn't support that shape.
+   * <b>Spatial4j in the near future won't support writing shapes to strings.</b>
    * @param shape non-null
    * @return non-null
    */
   @Deprecated
   public String toString(Shape shape) {
-    return shapeReadWriter.writeShape(shape);
+    return LegacyShapeReadWriterFormat.writeShape(shape);
   }
 
   @Override

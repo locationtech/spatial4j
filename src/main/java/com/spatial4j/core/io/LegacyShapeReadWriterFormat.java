@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.SpatialContext;
@@ -12,42 +29,25 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 /**
- * Reads and writes {@link Shape}s to strings.
+ * Reads & writes a shape from a given string (ie, X Y, XMin XMax YMin YMax)
+ * <ul>
+ *   <li>Point: X Y
+ *   <br /> 1.23 4.56
+ *   </li>
+ *   <li>Rect: XMin YMin XMax YMax
+ *   <br /> 1.23 4.56 7.87 4.56
+ *   </li>
+ *   <li>{CIRCLE} '(' {POINT} {DISTANCE} ')' <br/>
+ *   CIRCLE is "CIRCLE" or "Circle" (no other case), and POINT is "X Y" order pair of doubles, or
+ *   "Y,X" (lat,lon) pair of doubles, and DISTANCE is "d=RADIUS" or "distance=RADIUS" where RADIUS
+ *   is a double that is the distance radius in degrees.
+ *   </li>
+ * </ul>
  */
-public class ShapeReadWriter<CTX extends SpatialContext> {
-  protected CTX ctx;
+@Deprecated
+public class LegacyShapeReadWriterFormat {
 
-  @SuppressWarnings("unchecked")
-  public ShapeReadWriter(SpatialContext ctx) {
-    this.ctx = (CTX) ctx;
-  }
-
-  /**
-   * Reads a shape from a given string (ie, X Y, XMin XMax... WKT)
-   * <ul>
-   *   <li>Point: X Y
-   *   <br /> 1.23 4.56
-   *   </li>
-   *   <li>BOX: XMin YMin XMax YMax
-   *   <br /> 1.23 4.56 7.87 4.56</li>
-   *   <li><a href="http://en.wikipedia.org/wiki/Well-known_text">
-   *     WKT (Well Known Text)</a>
-   *   <br /> POLYGON( ... )
-   *   <br /> <b>Note:</b>Polygons and WKT might not be supported by this
-   *   spatial context; you'll have to use {@link com.spatial4j.core.context.jts.JtsSpatialContext}.
-   *   </li>
-   * </ul>
-   * @param value A string representation of the shape; not null.
-   * @return A Shape; not null.
-   *
-   * @see #writeShape
-   */
-  public Shape readShape(String value) throws InvalidShapeException {
-    Shape s = readStandardShape(value);
-    if(s == null) {
-      throw new InvalidShapeException("Unable to read: "+value);
-    }
-    return s;
+  private LegacyShapeReadWriterFormat() {
   }
 
   /**
@@ -55,12 +55,12 @@ public class ShapeReadWriter<CTX extends SpatialContext> {
    * @param shape Not null.
    * @return Not null.
    */
-  public String writeShape(Shape shape) {
-    return writeShape(shape,makeNumberFormat(6));
+  public static String writeShape(Shape shape) {
+    return writeShape(shape, makeNumberFormat(6));
   }
 
   /** Overloaded to provide a number format. */
-  public String writeShape(Shape shape, NumberFormat nf) {
+  public static String writeShape(Shape shape, NumberFormat nf) {
     if (shape instanceof Point) {
       Point point = (Point) shape;
       return nf.format(point.getX()) + " " + nf.format(point.getY());
@@ -68,18 +68,18 @@ public class ShapeReadWriter<CTX extends SpatialContext> {
     else if (shape instanceof Rectangle) {
       Rectangle rect = (Rectangle)shape;
       return
-              nf.format(rect.getMinX()) + " " +
-                      nf.format(rect.getMinY()) + " " +
-                      nf.format(rect.getMaxX()) + " " +
-                      nf.format(rect.getMaxY());
+          nf.format(rect.getMinX()) + " " +
+              nf.format(rect.getMinY()) + " " +
+              nf.format(rect.getMaxX()) + " " +
+              nf.format(rect.getMaxY());
     }
     else if (shape instanceof Circle) {
       Circle c = (Circle) shape;
       return "Circle(" +
-              nf.format(c.getCenter().getX()) + " " +
-              nf.format(c.getCenter().getY()) + " " +
-              "d=" + nf.format(c.getRadius()) +
-              ")";
+          nf.format(c.getCenter().getX()) + " " +
+          nf.format(c.getCenter().getY()) + " " +
+          "d=" + nf.format(c.getRadius()) +
+          ")";
     }
     return shape.toString();
   }
@@ -95,7 +95,13 @@ public class ShapeReadWriter<CTX extends SpatialContext> {
     return nf;
   }
 
-  protected Shape readStandardShape(String str) {
+  /** Reads the shape specification as defined in the class javadocs. If the first character is
+   * a letter but it doesn't complete out "Circle" or "CIRCLE" then this method returns null,
+   * offering the caller the opportunity to potentially try additional parsing.
+   * If the first character is not a letter then it's assumed to be a point or rectangle. If that
+   * doesn't work out then an {@link com.spatial4j.core.exception.InvalidShapeException} is thrown.
+   */
+  public static Shape readShapeOrNull(SpatialContext ctx, String str) throws InvalidShapeException {
     if (str == null || str.length() == 0) {
       throw new InvalidShapeException(str);
     }
@@ -109,7 +115,7 @@ public class ShapeReadWriter<CTX extends SpatialContext> {
           String token = st.nextToken();
           Point pt;
           if (token.indexOf(',') != -1) {
-            pt = readLatCommaLonPoint(token);
+            pt = readLatCommaLonPoint(ctx, token);
           } else {
             double x = Double.parseDouble(token);
             double y = Double.parseDouble(st.nextToken());
@@ -139,11 +145,11 @@ public class ShapeReadWriter<CTX extends SpatialContext> {
           return ctx.makeCircle(pt, d);
         }
       }
-      return null;
+      return null;//caller has opportunity to try other parsing
     }
 
     if (str.indexOf(',') != -1)
-      return readLatCommaLonPoint(str);
+      return readLatCommaLonPoint(ctx, str);
     StringTokenizer st = new StringTokenizer(str, " ");
     double p0 = Double.parseDouble(st.nextToken());
     double p1 = Double.parseDouble(st.nextToken());
@@ -158,8 +164,9 @@ public class ShapeReadWriter<CTX extends SpatialContext> {
   }
 
   /** Reads geospatial latitude then a comma then longitude. */
-  private Point readLatCommaLonPoint(String value) throws InvalidShapeException {
+  private static Point readLatCommaLonPoint(SpatialContext ctx, String value) throws InvalidShapeException {
     double[] latLon = ParseUtils.parseLatitudeLongitude(value);
-    return ctx.makePoint(latLon[1],latLon[0]);
+    return ctx.makePoint(latLon[1], latLon[0]);
   }
+
 }

@@ -1,8 +1,25 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.spatial4j.core.io;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
@@ -10,12 +27,15 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-/**
- * Note that {@link com.spatial4j.core.io.ShapeReadWriterTest} already tests JTS but we want to exercise some JTS specifics here.
- */
-public class JtsShapeReadWriterTest extends RandomizedTest {
+public class JtsWKTReaderShapeParserTest extends RandomizedTest {
 
-  SpatialContext ctx = JtsSpatialContext.GEO;
+  final SpatialContext ctx;
+  {
+    JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
+    factory.datelineRule = JtsWktShapeParser.DatelineRule.ccwRect;
+    factory.wktShapeParserClass = JtsWKTReaderShapeParser.class;
+    ctx = factory.newSpatialContext();
+  }
 
   @Test
   public void wktGeoPt() throws IOException {
