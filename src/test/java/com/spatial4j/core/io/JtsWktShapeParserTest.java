@@ -21,6 +21,8 @@ import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.SpatialRelation;
+import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.junit.Test;
@@ -156,6 +158,36 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
     } catch (ParseException e) {
       //expected
     }
+  }
+
+  @Test
+  public void testPolygonRepair() throws ParseException {
+    //because we're going to test validation
+    System.setProperty(JtsGeometry.SYSPROP_ASSERT_VALIDATE, "false");
+
+
+    //note: doesn't repair all cases; this case isn't:
+    //ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 10 20))");//doesn't connect around
+    String wkt = "POLYGON((0 0, 10 0, 10 20, 5 -5, 0 20, 0 0))";//Topology self-intersect
+
+    JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
+    factory.validationRule = JtsWktShapeParser.ValidationRule.repairBuffer0;
+    JtsSpatialContext ctx = factory.newSpatialContext();
+    Shape buffer0 = ctx.readShapeFromWkt(wkt);
+    assertTrue(buffer0.getArea(ctx) > 0);
+
+    factory = new JtsSpatialContextFactory();
+    factory.validationRule = JtsWktShapeParser.ValidationRule.repairConvexHull;
+    ctx = factory.newSpatialContext();
+    Shape cvxHull = ctx.readShapeFromWkt(wkt);
+    assertTrue(cvxHull.getArea(ctx) > 0);
+
+    assertEquals(SpatialRelation.CONTAINS, cvxHull.relate(buffer0));
+
+    factory = new JtsSpatialContextFactory();
+    factory.validationRule = JtsWktShapeParser.ValidationRule.none;
+    ctx = factory.newSpatialContext();
+    ctx.readShapeFromWkt(wkt);//doesn't throw
   }
 
 }

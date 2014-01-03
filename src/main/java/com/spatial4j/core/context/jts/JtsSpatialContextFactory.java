@@ -27,25 +27,26 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
 import java.util.Map;
 
 /**
- * See {@link SpatialContextFactory#makeSpatialContext(java.util.Map,
- * ClassLoader)}.
+ * See {@link SpatialContextFactory#makeSpatialContext(java.util.Map, ClassLoader)}.
  * <p/>
  * The following keys are looked up in the args map, in addition to those in the
  * superclass:
  * <DL>
  * <DT>datelineRule</DT>
- * <DD>width180(default)|ccwRect|none -- see {@link JtsWktShapeParser#getDatelineRule()}</DD>
- * <DT>autoValidate</DT>
- * <DD>true(default)|false -- see {@link JtsWktShapeParser#isAutoValidate()}</DD>
+ * <DD>width180(default)|ccwRect|none
+ *  -- see {@link com.spatial4j.core.io.JtsWktShapeParser.DatelineRule}</DD>
+ * <DT>validationRule</DT>
+ * <DD>error(default)|none|repairConvexHull|repairBuffer0
+ *  -- see {@link com.spatial4j.core.io.JtsWktShapeParser.ValidationRule}</DD>
  * <DT>autoPrepare</DT>
  * <DD>true|false(default) -- see {@link JtsWktShapeParser#isAutoPrepare()}</DD>
  * <DT>allowMultiOverlap</DT>
  * <DD>true|false(default) -- see {@link JtsSpatialContext#isAllowMultiOverlap()}</DD>
  * <DT>precisionModel</DT>
  * <DD>floating(default) | floating_single | fixed
- * -- see {@link com.vividsolutions.jts.geom.PrecisionModel}.
+ *  -- see {@link com.vividsolutions.jts.geom.PrecisionModel}.
  * If {@code fixed} then you must also provide {@code precisionScale}
- * -- see {@link com.vividsolutions.jts.geom.PrecisionModel#getScale()}</DD>
+ *  -- see {@link com.vividsolutions.jts.geom.PrecisionModel#getScale()}</DD>
  * </DL>
  */
 public class JtsSpatialContextFactory extends SpatialContextFactory {
@@ -60,7 +61,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   //ignored if geo=false
   public JtsWktShapeParser.DatelineRule datelineRule = JtsWktShapeParser.DatelineRule.width180;
 
-  public boolean autoValidate = true;
+  public JtsWktShapeParser.ValidationRule validationRule = JtsWktShapeParser.ValidationRule.error;
   public boolean autoPrepare = false;
   public boolean allowMultiOverlap = false;//ignored if geo=false
 
@@ -77,7 +78,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
     super.init(args, classLoader);
 
     initField("datelineRule");
-    initField("autoValidate");
+    initField("validationRule");
     initField("autoPrepare");
     initField("allowMultiOverlap");
     initField("useJtsPoint");

@@ -187,33 +187,37 @@ public class JtsGeometryTest extends AbstractTestShapes {
 
   @Test
   public void testRussia() throws IOException, ParseException {
-    //TODO THE RUSSIA TEST DATA SET APPEARS CORRUPT
-    // But this test "works" anyhow, and exercises a ton.
-    //our country test data file seems messed up, particularly w.r.t. dateline-crossing
-    JtsSpatialContext ctx = new JtsSpatialContextFactory() {
-      { geo = true; allowMultiOverlap = true;}
-    }.newSpatialContext();
-
+    final String wktStr = readFirstLineFromRsrc("/russia.wkt.txt");
     //Russia exercises JtsGeometry fairly well because of these characteristics:
     // * a MultiPolygon
     // * crosses the dateline
     // * has coordinates needing normalization (longitude +180.000xxx)
-    // * some geometries might(?) not be "valid" (requires union to overcome)
-    String wktStr = readFirstLineFromRsrc("/russia.wkt.txt");
 
-    Shape shape = ctx.readShapeFromWkt(wktStr);
-
+    //TODO THE RUSSIA TEST DATA SET APPEARS CORRUPT
+    // But this test "works" anyhow, and exercises a ton.
     //Unexplained holes revealed via KML export:
     // TODO Test contains: 64°12'44.82"N    61°29'5.20"E
     //  64.21245  61.48475
     // FAILS
-    //assertRelation(null,SpatialRelation.CONTAINS, jtsGeom, ctx.makePoint(61.48, 64.21));
+    //assertRelation(null,SpatialRelation.CONTAINS, shape, ctx.makePoint(61.48, 64.21));
+
+    JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
+    factory.normWrapLongitude = true;
+
+    JtsSpatialContext ctx = factory.newSpatialContext();
+
+    Shape shape = ctx.readShapeFromWkt(wktStr);
+    //System.out.println("Russia Area: "+shape.getArea(ctx));
   }
 
   @Test
   public void testFiji() throws IOException, ParseException {
     //Fiji is a group of islands crossing the dateline.
     String wktStr = readFirstLineFromRsrc("/fiji.wkt.txt");
+
+    JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
+    factory.normWrapLongitude = true;
+    JtsSpatialContext ctx = factory.newSpatialContext();
 
     Shape shape = ctx.readShapeFromWkt(wktStr);
 
@@ -222,6 +226,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
     assertRelation(null,SpatialRelation.CONTAINS, shape,
             ctx.makePoint(+179.99,-16.9));
     assertTrue(shape.getBoundingBox().getWidth() < 5);//smart bbox
+    System.out.println("Fiji Area: "+shape.getArea(ctx));
   }
 
   private String readFirstLineFromRsrc(String wktRsrcPath) throws IOException {

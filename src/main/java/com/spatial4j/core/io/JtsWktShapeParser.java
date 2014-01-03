@@ -38,24 +38,29 @@ public class JtsWktShapeParser extends WktShapeParser {
 
   protected final JtsSpatialContext ctx;
 
-  protected final JtsWktShapeParser.DatelineRule datelineRule;
-  protected final boolean autoValidate;
+  protected final DatelineRule datelineRule;
+  protected final ValidationRule validationRule;
   protected final boolean autoPrepare;
 
   public JtsWktShapeParser(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
     super(ctx, factory);
     this.ctx = ctx;
     this.datelineRule = factory.datelineRule;
-    this.autoValidate = factory.autoValidate;
+    this.validationRule = factory.validationRule;
     this.autoPrepare = factory.autoPrepare;
   }
 
+  /** @see com.spatial4j.core.io.JtsWktShapeParser.ValidationRule */
+  public ValidationRule getValidationRule() {
+    return validationRule;
+  }
+
   /**
-   * If JtsGeometry shapes should be automatically validated when read via WKT.
-   * @see com.spatial4j.core.shape.jts.JtsGeometry#validate()
+   * JtsGeometry shapes are automatically validated when {@link #getValidationRule()} isn't
+   * {@code none}.
    */
   public boolean isAutoValidate() {
-    return autoValidate;
+    return validationRule != ValidationRule.none;
   }
 
   /**
@@ -67,7 +72,7 @@ public class JtsWktShapeParser extends WktShapeParser {
   }
 
 
-  /** See {@link DatelineRule}. */
+  /** @see DatelineRule */
   public DatelineRule getDatelineRule() {
     return datelineRule;
   }
@@ -96,7 +101,7 @@ public class JtsWktShapeParser extends WktShapeParser {
     GeometryFactory geometryFactory = ctx.getGeometryFactory();
 
     Coordinate[] coordinates = coordinateSequence(state);
-    return makeShapeAndMaybeValidate(geometryFactory.createLineString(coordinates));
+    return makeShapeFromGeometry(geometryFactory.createLineString(coordinates));
   }
 
   /**
@@ -119,7 +124,7 @@ public class JtsWktShapeParser extends WktShapeParser {
         return makeRectFromPoly(geometry);
       }
     }
-    return makeShapeAndMaybeValidate(geometry);
+    return makeShapeFromGeometry(geometry);
   }
 
   protected Rectangle makeRectFromPoly(Geometry geometry) {
@@ -220,17 +225,36 @@ public class JtsWktShapeParser extends WktShapeParser {
    * a JTS Coordinate.  Only the first 2 numbers are parsed; any remaining are ignored.
    */
   protected Coordinate coordinate(WktShapeParser.State state) throws ParseException {
-    double x = state.nextDouble();
-    double y = state.nextDouble();
+    double x = ctx.normX(state.nextDouble());
+    ctx.verifyX(x);
+    double y = ctx.normY(state.nextDouble());
+    ctx.verifyY(y);
     state.skipNextDoubles();
-    return new Coordinate(ctx.normX(x), ctx.normY(y));
+    return new Coordinate(x, y);
   }
 
-  protected JtsGeometry makeShapeAndMaybeValidate(Geometry geometry) {
-    boolean dateline180Check = getDatelineRule() != DatelineRule.none;
-    JtsGeometry jtsGeom = ctx.makeShape(geometry, dateline180Check, ctx.isAllowMultiOverlap());
-    if (isAutoValidate()) jtsGeom.validate();
-    if (isAutoPrepare()) jtsGeom.prepare();
+  /** Creates the JtsGeometry, potentially validating, repairing, and preparing. */
+  protected JtsGeometry makeShapeFromGeometry(Geometry geometry) {
+    final boolean dateline180Check = getDatelineRule() != DatelineRule.none;
+    JtsGeometry jtsGeom;
+    try {
+      jtsGeom = ctx.makeShape(geometry, dateline180Check, ctx.isAllowMultiOverlap());
+      if (isAutoValidate())
+        jtsGeom.validate();
+    } catch (RuntimeException e) {
+      //repair:
+      if (validationRule == ValidationRule.repairConvexHull) {
+        jtsGeom = ctx.makeShape(geometry.convexHull(), dateline180Check, ctx.isAllowMultiOverlap());
+      } else if (validationRule == ValidationRule.repairBuffer0) {
+        jtsGeom = ctx.makeShape(geometry.buffer(0), dateline180Check, ctx.isAllowMultiOverlap());
+      } else {
+        //TODO there are other smarter things we could do like repairing inner holes and subtracting
+        //  from outer repaired shell; but we needn't try too hard.
+        throw e;
+      }
+    }
+    if (isAutoPrepare())
+      jtsGeom.prepare();
     return jtsGeom;
   }
 
@@ -253,5 +277,37 @@ public class JtsWktShapeParser extends WktShapeParser {
      * However, non-rectangular polygons or other shapes aren't processed this way; they use the
      * {@link #width180} rule instead. */
     ccwRect
+  }
+
+  /** Indicates how JTS geometries (notably polygons but applies to other geometries too) are
+   * validated (if at all) and repaired (if at all).
+   */
+  public enum ValidationRule {
+    /** Geometries will not be validated (because it's kinda expensive to calculate). You may or may
+     * not ultimately get an error at some point; results are undefined. However, note that
+     * coordinates will still be validated for falling within the world boundaries.
+     * @see com.vividsolutions.jts.geom.Geometry#isValid(). */
+    none,
+
+    /** Geometries will be explicitly validated on creation, possibly resulting in an exception:
+     * {@link com.spatial4j.core.exception.InvalidShapeException}. */
+    error,
+
+    /** Invalid Geometries are repaired by taking the convex hull. The result will very likely be a
+     * larger shape that matches false-positives, but no false-negatives.
+     * See {@link com.vividsolutions.jts.geom.Geometry#convexHull()}. */
+    repairConvexHull,
+
+    /** Invalid polygons are repaired using the {@code buffer(0)} technique. From the <a
+     * href="http://tsusiatsoftware.net/jts/jts-faq/jts-faq.html">JTS FAQ</a>:
+     * <p>The buffer operation is fairly insensitive to topological invalidity, and the act of
+     * computing the buffer can often resolve minor issues such as self-intersecting rings. However,
+     * in some situations the computed result may not be what is desired (i.e. the buffer operation
+     * may be "confused" by certain topologies, and fail to produce a result which is close to the
+     * original. An example where this can happen is a "bow-tie: or "figure-8" polygon, with one
+     * very small lobe and one large one. Depending on the orientations of the lobes, the buffer(0)
+     * operation may keep the small lobe and discard the "valid" large lobe).
+     * </p> */
+    repairBuffer0
   }
 }
