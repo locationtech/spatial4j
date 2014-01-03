@@ -57,8 +57,8 @@ public class SpatialContextFactory {
   /* These fields are public to make it easy to set them without bothering with setters. */
 
   public boolean geo = true;
-  public DistanceCalculator distCalc;
-  public Rectangle worldBounds;
+  public DistanceCalculator distCalc;//defaults in SpatialContext c'tor based on geo
+  public Rectangle worldBounds;//defaults in SpatialContext c'tor based on geo
 
   public boolean normWrapLongitude = false;
   
@@ -77,6 +77,8 @@ public class SpatialContextFactory {
    *                    argument.
    */
   public static SpatialContext makeSpatialContext(Map<String,String> args, ClassLoader classLoader) {
+    if (classLoader == null)
+      classLoader = SpatialContextFactory.class.getClassLoader();
     SpatialContextFactory instance;
     String cname = args.get("spatialContextFactory");
     if (cname == null)
