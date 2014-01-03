@@ -20,28 +20,13 @@ package com.spatial4j.core.shape.jts;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.Circle;
+import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.shape.impl.BufferedLineString;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.Range;
 import com.spatial4j.core.shape.impl.RectangleImpl;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFilter;
-import com.vividsolutions.jts.geom.IntersectionMatrix;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Lineal;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.Puntal;
+import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.union.UnaryUnionOp;
@@ -56,6 +41,9 @@ import java.util.List;
  * dateline wrap.
  */
 public class JtsGeometry implements Shape {
+  /** System property boolean that can disable auto validation in an assert. */
+  public static final String SYSPROP_ASSERT_VALIDATE = "spatial4j.JtsGeometry.assertValidate";
+
   private final Geometry geom;//cannot be a direct instance of GeometryCollection as it doesn't support relate()
   private final boolean hasArea;
   private final Rectangle bbox;
@@ -96,9 +84,17 @@ public class JtsGeometry implements Shape {
     geom.getEnvelopeInternal();//ensure envelope is cached internally, which is lazy evaluated. Keeps this thread-safe.
 
     this.geom = geom;
-    assert validate();//kinda expensive but caches valid state
+    assert assertValidate();//kinda expensive but caches valid state
 
     this.hasArea = !((geom instanceof Lineal) || (geom instanceof Puntal));
+  }
+
+  /** called via assertion */
+  private boolean assertValidate() {
+    String assertValidate = System.getProperty(SYSPROP_ASSERT_VALIDATE);
+    if (assertValidate == null || Boolean.parseBoolean(assertValidate))
+      validate();
+    return true;
   }
 
   /**
@@ -106,16 +102,14 @@ public class JtsGeometry implements Shape {
    * is usually called automatically by default, but that can be disabled.
    *
    * @throws InvalidShapeException with descriptive error if the shape isn't valid
-   * @return Always returns true, so it's easy to use with an assert statement
    */
-  public boolean validate() throws InvalidShapeException {
+  public void validate() throws InvalidShapeException {
     if (!validated) {
       IsValidOp isValidOp = new IsValidOp(geom);
       if (!isValidOp.isValid())
         throw new InvalidShapeException(isValidOp.getValidationError().toString());
       validated = true;
     }
-    return true;
   }
 
   /**
