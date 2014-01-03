@@ -112,8 +112,10 @@ public class WktShapeParser {
       result = parseShapeByType(state, shapeType);
     } catch (ParseException e) {
       throw e;
-    } catch (Exception e) {
-      throw new ParseException(e.toString(), state.offset);
+    } catch (Exception e) {//most likely InvalidShapeException
+      ParseException pe = new ParseException(e.toString(), state.offset);
+      pe.initCause(e);
+      throw pe;
     }
     if (result != null && !state.eof())
       throw new ParseException("end of shape expected", state.offset);
