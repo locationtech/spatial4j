@@ -233,6 +233,11 @@ public class JtsWktShapeParser extends WktShapeParser {
     return new Coordinate(x, y);
   }
 
+  @Override
+  protected double normDist(double v) {
+    return ctx.getGeometryFactory().getPrecisionModel().makePrecise(v);
+  }
+
   /** Creates the JtsGeometry, potentially validating, repairing, and preparing. */
   protected JtsGeometry makeShapeFromGeometry(Geometry geometry) {
     final boolean dateline180Check = getDatelineRule() != DatelineRule.none;

@@ -187,10 +187,16 @@ public class WktShapeParser {
     state.nextExpect('(');
     Shape shape = shape(state);
     state.nextExpect(',');
-    //TODO should there be a ctx.normDist(d) method?
-    double distance = state.nextDouble();
+    double distance = normDist(state.nextDouble());
     state.nextExpect(')');
     return shape.getBuffered(ctx, distance);
+  }
+
+  /** Called to normalize a value that isn't X or Y. X & Y or normalized via
+   * {@link com.spatial4j.core.context.SpatialContext#normX(double)} & normY.
+   */
+  protected double normDist(double v) {//TODO should this be added to ctx?
+    return v;
   }
 
   /**
