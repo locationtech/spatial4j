@@ -18,6 +18,7 @@
 package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.io.JtsBinaryCodec;
 import com.spatial4j.core.io.JtsWktShapeParser;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -71,6 +72,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
 
   public JtsSpatialContextFactory() {
     super.wktShapeParserClass = JtsWktShapeParser.class;
+    super.binaryCodecClass = JtsBinaryCodec.class;
   }
   
   @Override
@@ -105,6 +107,8 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   }
 
   public GeometryFactory getGeometryFactory() {
+    if (precisionModel == null || coordinateSequenceFactory == null)
+      throw new IllegalStateException("precision model or coord seq factory can't be null");
     return new GeometryFactory(precisionModel, srid, coordinateSequenceFactory);
   }
 

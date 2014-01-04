@@ -22,6 +22,7 @@ import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.io.BinaryCodec;
 import com.spatial4j.core.io.LegacyShapeReadWriterFormat;
 import com.spatial4j.core.io.WktShapeParser;
 import com.spatial4j.core.shape.*;
@@ -58,6 +59,7 @@ public class SpatialContext {
   private final Rectangle worldBounds;
 
   private final WktShapeParser wktShapeParser;
+  private final BinaryCodec binaryCodec;
 
   private final boolean normWrapLongitude;
 
@@ -119,6 +121,7 @@ public class SpatialContext {
 
     this.normWrapLongitude = factory.normWrapLongitude && this.isGeo();
     this.wktShapeParser = factory.makeWktShapeParser(this);
+    this.binaryCodec = factory.makeBinaryCodec(this);
   }
 
   public DistanceCalculator getDistCalc() {
@@ -283,6 +286,8 @@ public class SpatialContext {
   public Shape readShapeFromWkt(String wkt) throws ParseException {
     return wktShapeParser.parse(wkt);
   }
+
+  public BinaryCodec getBinaryCodec() { return binaryCodec; }
 
   /** Reads the shape from a String using the old/deprecated
    * {@link com.spatial4j.core.io.LegacyShapeReadWriterFormat}.

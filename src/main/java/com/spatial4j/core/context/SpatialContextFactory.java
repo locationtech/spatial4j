@@ -20,11 +20,13 @@ package com.spatial4j.core.context;
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
+import com.spatial4j.core.io.BinaryCodec;
 import com.spatial4j.core.io.WktShapeParser;
 import com.spatial4j.core.shape.Rectangle;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -63,6 +65,7 @@ public class SpatialContextFactory {
   public boolean normWrapLongitude = false;
   
   public Class<? extends WktShapeParser> wktShapeParserClass = WktShapeParser.class;
+  public Class<? extends BinaryCodec> binaryCodecClass = BinaryCodec.class;
 
   /**
    * Creates a new {@link SpatialContext} based on configuration in
@@ -106,6 +109,7 @@ public class SpatialContextFactory {
 
     initField("normWrapLongitude");
     initField("wktShapeParserClass");
+    initField("binaryCodecClass");
   }
 
   /** Gets {@code name} from args and populates a field by the same name with the value. */
@@ -178,23 +182,34 @@ public class SpatialContextFactory {
     return new SpatialContext(this);
   }
 
-  @SuppressWarnings("unchecked")
   public WktShapeParser makeWktShapeParser(SpatialContext ctx) {
+    return makeClassInstance(wktShapeParserClass, ctx, this);
+  }
+
+  public BinaryCodec makeBinaryCodec(SpatialContext ctx) {
+    return makeClassInstance(binaryCodecClass, ctx, this);
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> T makeClassInstance(Class<? extends T> clazz, Object... ctorArgs) {
     try {
-      //can't simply lookup constructor by single arg type (ctx) because might be subclass type
-      for (Constructor<?> ctor : wktShapeParserClass.getConstructors()) {
+      //can't simply lookup constructor by arg type because might be subclass type
+      ctorLoop: for (Constructor<?> ctor : clazz.getConstructors()) {
         Class[] parameterTypes = ctor.getParameterTypes();
-        if (parameterTypes.length != 2)
+        if (parameterTypes.length != ctorArgs.length)
           continue;
-        if (!parameterTypes[0].isAssignableFrom(ctx.getClass()))
-          continue;
-        if (!parameterTypes[1].isAssignableFrom(this.getClass()))
-          continue;
-        return (WktShapeParser) ctor.newInstance(ctx, this);
+        for (int i = 0; i < ctorArgs.length; i++) {
+          Object ctorArg = ctorArgs[i];
+          if (!parameterTypes[i].isAssignableFrom(ctorArg.getClass()))
+            continue ctorLoop;
+        }
+        return clazz.cast(ctor.newInstance(ctorArgs));
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    throw new RuntimeException("needs a constructor that takes a context: " + wktShapeParserClass);
+    throw new RuntimeException(clazz + " needs a constructor that takes: "
+        + Arrays.toString(ctorArgs));
   }
+
 }
