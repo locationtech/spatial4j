@@ -40,8 +40,8 @@ DATE: ______January 2014 (pending)
    on an angle). This new shape does not yet support geodesics (e.g. the dateline), and so JTS’s
    equivalents are used by default for now.
    
- * JtsGeometry can now be “prepared” (i.e. it builds an internal index to speed up subsequent
-   calculations). It can be done automatically when read from WKT via the new “autoPrepare” option.
+ * JtsGeometry can now be “indexed”.  It builds an internal index to speed up subsequent
+   calculations. It can be done automatically when read from WKT via the new “autoIndex” option.
    
  * JtsGeometry shapes when read via WKT have configurable validation and automatic repair via a
    couple algorithms. See the new “validationRule” setting.
