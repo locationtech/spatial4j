@@ -39,8 +39,8 @@ import java.util.Map;
  * <DT>validationRule</DT>
  * <DD>error(default)|none|repairConvexHull|repairBuffer0
  *  -- see {@link com.spatial4j.core.io.jts.JtsWktShapeParser.ValidationRule}</DD>
- * <DT>autoPrepare</DT>
- * <DD>true|false(default) -- see {@link JtsWktShapeParser#isAutoPrepare()}</DD>
+ * <DT>autoIndex</DT>
+ * <DD>true|false(default) -- see {@link JtsWktShapeParser#isAutoIndex()}</DD>
  * <DT>allowMultiOverlap</DT>
  * <DD>true|false(default) -- see {@link JtsSpatialContext#isAllowMultiOverlap()}</DD>
  * <DT>precisionModel</DT>
@@ -63,7 +63,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   public JtsWktShapeParser.DatelineRule datelineRule = JtsWktShapeParser.DatelineRule.width180;
 
   public JtsWktShapeParser.ValidationRule validationRule = JtsWktShapeParser.ValidationRule.error;
-  public boolean autoPrepare = false;
+  public boolean autoIndex = false;
   public boolean allowMultiOverlap = false;//ignored if geo=false
 
   //kinda advanced options:
@@ -81,7 +81,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
 
     initField("datelineRule");
     initField("validationRule");
-    initField("autoPrepare");
+    initField("autoIndex");
     initField("allowMultiOverlap");
     initField("useJtsPoint");
     initField("useJtsLineString");

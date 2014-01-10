@@ -20,13 +20,28 @@ package com.spatial4j.core.shape.jts;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.shape.impl.BufferedLineString;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.Range;
 import com.spatial4j.core.shape.impl.RectangleImpl;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFilter;
+import com.vividsolutions.jts.geom.IntersectionMatrix;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Lineal;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Puntal;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.union.UnaryUnionOp;
@@ -113,11 +128,13 @@ public class JtsGeometry implements Shape {
   }
 
   /**
-   * Adds an index to this class internally to compute spatial relations faster. This
+   * Adds an index to this class internally to compute spatial relations faster. In JTS this
+   * is called a {@link com.vividsolutions.jts.geom.prep.PreparedGeometry}.  This
    * isn't done by default because it takes some time to do the optimization, and it uses more
-   * memory.  Calling this method isn't thread-safe so be careful when this is done.
+   * memory.  Calling this method isn't thread-safe so be careful when this is done. If it was
+   * already indexed then nothing happens.
    */
-  public void prepare() {
+  public void index() {
     if (preparedGeometry == null)
       preparedGeometry = PreparedGeometryFactory.prepare(geom);
   }

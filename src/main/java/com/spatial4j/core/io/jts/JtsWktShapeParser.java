@@ -46,14 +46,14 @@ public class JtsWktShapeParser extends WktShapeParser {
 
   protected final DatelineRule datelineRule;
   protected final ValidationRule validationRule;
-  protected final boolean autoPrepare;
+  protected final boolean autoIndex;
 
   public JtsWktShapeParser(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
     super(ctx, factory);
     this.ctx = ctx;
     this.datelineRule = factory.datelineRule;
     this.validationRule = factory.validationRule;
-    this.autoPrepare = factory.autoPrepare;
+    this.autoIndex = factory.autoIndex;
   }
 
   /** @see JtsWktShapeParser.ValidationRule */
@@ -71,10 +71,10 @@ public class JtsWktShapeParser extends WktShapeParser {
 
   /**
    * If JtsGeometry shapes should be automatically prepared (i.e. optimized) when read via WKT.
-   * @see com.spatial4j.core.shape.jts.JtsGeometry#prepare()
+   * @see com.spatial4j.core.shape.jts.JtsGeometry#index()
    */
-  public boolean isAutoPrepare() {
-    return autoPrepare;
+  public boolean isAutoIndex() {
+    return autoIndex;
   }
 
 
@@ -264,8 +264,8 @@ public class JtsWktShapeParser extends WktShapeParser {
         throw e;
       }
     }
-    if (isAutoPrepare())
-      jtsGeom.prepare();
+    if (isAutoIndex())
+      jtsGeom.index();
     return jtsGeom;
   }
 

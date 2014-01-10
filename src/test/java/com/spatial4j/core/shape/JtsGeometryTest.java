@@ -86,7 +86,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
     testRelations(true);
   }
   public void testRelations(boolean prepare) throws ParseException {
-    assert !((JtsWktShapeParser)ctx.getWktShapeParser()).isAutoPrepare();
+    assert !((JtsWktShapeParser)ctx.getWktShapeParser()).isAutoIndex();
     //base polygon
     JtsGeometry base = (JtsGeometry) ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 5 5, 0 0))");
     //shares only "10 0" with base
@@ -100,14 +100,14 @@ public class JtsGeometryTest extends AbstractTestShapes {
     //a line sharing only one point with base
     JtsGeometry lineI = (JtsGeometry) ctx.readShapeFromWkt("LINESTRING(10 0, 20 0)");
 
-    if (prepare) base.prepare();
+    if (prepare) base.index();
     assertRelation(CONTAINS, base, base);//preferred result as there is no EQUALS
     assertRelation(INTERSECTS, base, polyI);
     assertRelation(CONTAINS, base, polyW);
     assertRelation(CONTAINS, base, pointB);
     assertRelation(CONTAINS, base, lineB);
     assertRelation(INTERSECTS, base, lineI);
-    if (prepare) lineB.prepare();
+    if (prepare) lineB.index();
     assertRelation(CONTAINS, lineB, lineB);//line contains itself
     assertRelation(CONTAINS, lineB, pointB);
   }

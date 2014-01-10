@@ -89,7 +89,8 @@ public class SpatialContextFactoryTest {
         "precisionScale", "2.0",
         "wktShapeParserClass", CustomWktShapeParser.class.getName(),
         "datelineRule", "ccwRect",
-        "validationRule", "repairConvexHull");
+        "validationRule", "repairConvexHull",
+        "autoIndex", "true");
     assertTrue(ctx.isNormWrapLongitude());
     assertEquals(2.0, ctx.getGeometryFactory().getPrecisionModel().getScale(), 0.0);
     assertTrue(CustomWktShapeParser.once);//cheap way to test it was created
