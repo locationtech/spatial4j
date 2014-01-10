@@ -20,13 +20,23 @@ package com.spatial4j.core.io;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.Circle;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.ShapeCollection;
 
-import java.nio.ByteBuffer;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * @author David Smiley - dsmiley@mitre.org
+ * A binary shape format. It is <em>not</em> designed to be a published standard, unlike Well Known
+ * Binary (WKB). The initial release is simple but it could get more optimized to use fewer bytes or
+ * indexing pre-computed index structures.
+ * <p/>
+ * Immutable and thread-safe.
  */
 public class BinaryCodec {
   //type 0; reserved for unkonwn/generic; see readCollection
@@ -46,44 +56,44 @@ public class BinaryCodec {
     this.ctx = ctx;
   }
 
-  public Shape readShape(ByteBuffer byteBuf) {
-    byte type = byteBuf.get();
-    Shape s = readShapeByTypeIfSupported(byteBuf, type);
+  public Shape readShape(DataInput dataInput) throws IOException {
+    byte type = dataInput.readByte();
+    Shape s = readShapeByTypeIfSupported(dataInput, type);
     if (s == null)
       throw new IllegalArgumentException("Unsupported shape byte "+type);
     return s;
   }
 
-  public void writeShape(ByteBuffer byteBuf, Shape s) {
-    boolean written = writeShapeByTypeIfSupported(byteBuf, s);
+  public void writeShape(DataOutput dataOutput, Shape s) throws IOException {
+    boolean written = writeShapeByTypeIfSupported(dataOutput, s);
     if (!written)
       throw new IllegalArgumentException("Unsupported shape "+s.getClass());
   }
 
-  protected Shape readShapeByTypeIfSupported(ByteBuffer byteBuf, byte type) {
+  protected Shape readShapeByTypeIfSupported(DataInput dataInput, byte type) throws IOException {
     switch (type) {
-      case TYPE_POINT: return readPoint(byteBuf);
-      case TYPE_RECT: return readRect(byteBuf);
-      case TYPE_CIRCLE: return readCircle(byteBuf);
-      case TYPE_COLL: return readCollection(byteBuf);
+      case TYPE_POINT: return readPoint(dataInput);
+      case TYPE_RECT: return readRect(dataInput);
+      case TYPE_CIRCLE: return readCircle(dataInput);
+      case TYPE_COLL: return readCollection(dataInput);
       default: return null;
     }
   }
 
   /** Note: writes the type byte even if not supported */
-  protected boolean writeShapeByTypeIfSupported(ByteBuffer byteBuf, Shape s) {
+  protected boolean writeShapeByTypeIfSupported(DataOutput dataOutput, Shape s) throws IOException {
     byte type = typeForShape(s);
-    byteBuf.put(type);
-    return writeShapeByTypeIfSupported(byteBuf, s, type);
-    //byteBuf.position(byteBuf.position() - 1);//reset putting type
+    dataOutput.writeByte(type);
+    return writeShapeByTypeIfSupported(dataOutput, s, type);
+    //dataOutput.position(dataOutput.position() - 1);//reset putting type
   }
 
-  protected boolean writeShapeByTypeIfSupported(ByteBuffer byteBuf, Shape s, byte type) {
+  protected boolean writeShapeByTypeIfSupported(DataOutput dataOutput, Shape s, byte type) throws IOException {
     switch (type) {
-      case TYPE_POINT: writePoint(byteBuf, (Point) s); break;
-      case TYPE_RECT: writeRect(byteBuf, (Rectangle) s); break;
-      case TYPE_CIRCLE: writeCircle(byteBuf, (Circle) s); break;
-      case TYPE_COLL: writeCollection(byteBuf, (ShapeCollection) s); break;
+      case TYPE_POINT: writePoint(dataOutput, (Point) s); break;
+      case TYPE_RECT: writeRect(dataOutput, (Rectangle) s); break;
+      case TYPE_CIRCLE: writeCircle(dataOutput, (Circle) s); break;
+      case TYPE_COLL: writeCollection(dataOutput, (ShapeCollection) s); break;
       default:
         return false;
     }
@@ -104,52 +114,52 @@ public class BinaryCodec {
     }
   }
 
-  protected double readDim(ByteBuffer byteBuf) {
-    return byteBuf.getDouble();
+  protected double readDim(DataInput dataInput) throws IOException {
+    return dataInput.readDouble();
   }
 
-  protected void writeDim(ByteBuffer byteBuf, double v) {
-    byteBuf.putDouble(v);
+  protected void writeDim(DataOutput dataOutput, double v) throws IOException {
+    dataOutput.writeDouble(v);
   }
 
-  public Point readPoint(ByteBuffer byteBuf) {
-    return ctx.makePoint(readDim(byteBuf), readDim(byteBuf));
+  public Point readPoint(DataInput dataInput) throws IOException {
+    return ctx.makePoint(readDim(dataInput), readDim(dataInput));
   }
 
-  public void writePoint(ByteBuffer byteBuf, Point pt) {
-    writeDim(byteBuf, pt.getX());
-    writeDim(byteBuf, pt.getY());
+  public void writePoint(DataOutput dataOutput, Point pt) throws IOException {
+    writeDim(dataOutput, pt.getX());
+    writeDim(dataOutput, pt.getY());
   }
 
-  public Rectangle readRect(ByteBuffer byteBuf) {
-    return ctx.makeRectangle(readDim(byteBuf), readDim(byteBuf), readDim(byteBuf), readDim(byteBuf));
+  public Rectangle readRect(DataInput dataInput) throws IOException {
+    return ctx.makeRectangle(readDim(dataInput), readDim(dataInput), readDim(dataInput), readDim(dataInput));
   }
 
-  public void writeRect(ByteBuffer byteBuf, Rectangle r) {
-    writeDim(byteBuf, r.getMinX());
-    writeDim(byteBuf, r.getMaxX());
-    writeDim(byteBuf, r.getMinY());
-    writeDim(byteBuf, r.getMaxY());
+  public void writeRect(DataOutput dataOutput, Rectangle r) throws IOException {
+    writeDim(dataOutput, r.getMinX());
+    writeDim(dataOutput, r.getMaxX());
+    writeDim(dataOutput, r.getMinY());
+    writeDim(dataOutput, r.getMaxY());
   }
 
-  public Circle readCircle(ByteBuffer byteBuf) {
-    return ctx.makeCircle(readPoint(byteBuf), readDim(byteBuf));
+  public Circle readCircle(DataInput dataInput) throws IOException {
+    return ctx.makeCircle(readPoint(dataInput), readDim(dataInput));
   }
 
-  public void writeCircle(ByteBuffer byteBuf, Circle c) {
-    writePoint(byteBuf, c.getCenter());
-    writeDim(byteBuf, c.getRadius());
+  public void writeCircle(DataOutput dataOutput, Circle c) throws IOException {
+    writePoint(dataOutput, c.getCenter());
+    writeDim(dataOutput, c.getRadius());
   }
 
-  public ShapeCollection readCollection(ByteBuffer byteBuf) {
-    byte type = byteBuf.get();
-    int size = byteBuf.getInt();
+  public ShapeCollection readCollection(DataInput dataInput) throws IOException {
+    byte type = dataInput.readByte();
+    int size = dataInput.readInt();
     ArrayList<Shape> shapes = new ArrayList<Shape>(size);
     for (int i = 0; i < size; i++) {
       if (type == 0) {
-        shapes.add(readShape(byteBuf));
+        shapes.add(readShape(dataInput));
       } else {
-        Shape s = readShapeByTypeIfSupported(byteBuf, type);
+        Shape s = readShapeByTypeIfSupported(dataInput, type);
         if (s == null)
           throw new InvalidShapeException("Unsupported shape byte "+type);
         shapes.add(s);
@@ -158,16 +168,16 @@ public class BinaryCodec {
     return ctx.makeCollection(shapes);
   }
 
-  public void writeCollection(ByteBuffer byteBuf, ShapeCollection col) {
+  public void writeCollection(DataOutput dataOutput, ShapeCollection col) throws IOException {
     byte type = (byte) 0;//TODO add type to ShapeCollection
-    byteBuf.put(type);
-    byteBuf.putInt(col.size());
+    dataOutput.writeByte(type);
+    dataOutput.writeInt(col.size());
     for (int i = 0; i < col.size(); i++) {
       Shape s = col.get(i);
       if (type == 0) {
-        writeShape(byteBuf, s);
+        writeShape(dataOutput, s);
       } else {
-        boolean written = writeShapeByTypeIfSupported(byteBuf, s, type);
+        boolean written = writeShapeByTypeIfSupported(dataOutput, s, type);
         if (!written)
           throw new IllegalArgumentException("Unsupported shape type "+s.getClass());
       }
