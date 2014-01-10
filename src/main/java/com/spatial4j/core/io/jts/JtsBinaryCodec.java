@@ -15,15 +15,20 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.io;
+package com.spatial4j.core.io.jts;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.io.BinaryCodec;
 import com.spatial4j.core.shape.Shape;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.PrecisionModel;
-import com.vividsolutions.jts.io.*;
+import com.vividsolutions.jts.io.InStream;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBConstants;
+import com.vividsolutions.jts.io.WKBReader;
+import com.vividsolutions.jts.io.WKBWriter;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

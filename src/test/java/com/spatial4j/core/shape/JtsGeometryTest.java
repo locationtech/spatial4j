@@ -21,7 +21,7 @@ import com.carrotsearch.randomizedtesting.RandomizedContext;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import com.spatial4j.core.io.JtsWktShapeParser;
+import com.spatial4j.core.io.jts.JtsWktShapeParser;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -37,7 +37,9 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.Random;
 
-import static com.spatial4j.core.shape.SpatialRelation.*;
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 
 /** Tests {@link com.spatial4j.core.shape.jts.JtsGeometry} and some other code related
  * to {@link com.spatial4j.core.context.jts.JtsSpatialContext}.

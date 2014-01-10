@@ -21,7 +21,7 @@ import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
-import com.spatial4j.core.io.JtsWktShapeParser;
+import com.spatial4j.core.io.jts.JtsWktShapeParser;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import org.junit.After;
 import org.junit.Test;

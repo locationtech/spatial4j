@@ -18,8 +18,8 @@
 package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.io.JtsBinaryCodec;
-import com.spatial4j.core.io.JtsWktShapeParser;
+import com.spatial4j.core.io.jts.JtsBinaryCodec;
+import com.spatial4j.core.io.jts.JtsWktShapeParser;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -35,10 +35,10 @@ import java.util.Map;
  * <DL>
  * <DT>datelineRule</DT>
  * <DD>width180(default)|ccwRect|none
- *  -- see {@link com.spatial4j.core.io.JtsWktShapeParser.DatelineRule}</DD>
+ *  -- see {@link com.spatial4j.core.io.jts.JtsWktShapeParser.DatelineRule}</DD>
  * <DT>validationRule</DT>
  * <DD>error(default)|none|repairConvexHull|repairBuffer0
- *  -- see {@link com.spatial4j.core.io.JtsWktShapeParser.ValidationRule}</DD>
+ *  -- see {@link com.spatial4j.core.io.jts.JtsWktShapeParser.ValidationRule}</DD>
  * <DT>autoPrepare</DT>
  * <DD>true|false(default) -- see {@link JtsWktShapeParser#isAutoPrepare()}</DD>
  * <DT>allowMultiOverlap</DT>

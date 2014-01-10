@@ -15,16 +15,22 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.io;
+package com.spatial4j.core.io.jts;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
+import com.spatial4j.core.io.WktShapeParser;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -32,7 +38,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Extends {@link WktShapeParser} adding support for polygons, using JTS.
+ * Extends {@link com.spatial4j.core.io.WktShapeParser} adding support for polygons, using JTS.
  */
 public class JtsWktShapeParser extends WktShapeParser {
 
@@ -50,7 +56,7 @@ public class JtsWktShapeParser extends WktShapeParser {
     this.autoPrepare = factory.autoPrepare;
   }
 
-  /** @see com.spatial4j.core.io.JtsWktShapeParser.ValidationRule */
+  /** @see JtsWktShapeParser.ValidationRule */
   public ValidationRule getValidationRule() {
     return validationRule;
   }

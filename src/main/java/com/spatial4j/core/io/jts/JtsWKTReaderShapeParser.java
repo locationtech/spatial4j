@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.io;
+package com.spatial4j.core.io.jts;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
@@ -31,7 +31,7 @@ import com.vividsolutions.jts.io.WKTReader;
 import java.text.ParseException;
 
 /**
- * This is an extension of {@link com.spatial4j.core.io.JtsWktShapeParser} that processes the entire
+ * This is an extension of {@link JtsWktShapeParser} that processes the entire
  * string with JTS's {@link com.vividsolutions.jts.io.WKTReader}.  Some differences:
  * <ul>
  *   <li>No support for ENVELOPE and BUFFER</li>

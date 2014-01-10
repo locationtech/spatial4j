@@ -21,6 +21,8 @@ import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.io.jts.JtsWKTReaderShapeParser;
+import com.spatial4j.core.io.jts.JtsWktShapeParser;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import org.junit.Test;
