@@ -23,8 +23,13 @@ import com.spatial4j.core.shape.Rectangle;
 
 
 /**
- * Various distance calculations and constants.
- * Originally from Lucene 3x's old spatial module. It has been modified here.
+ * Various distance calculations and constants. To the extent possible, a {@link
+ * com.spatial4j.core.distance.DistanceCalculator}, retrieved from {@link
+ * com.spatial4j.core.context.SpatialContext#getDistCalc()} should be used in preference to calling
+ * these methods directly.
+ * <p/>
+ * This code came from <a href="https://issues.apache.org/jira/browse/LUCENE-773">Apache
+ * Lucene, LUCENE-773</a>, which in turn came from "LocalLucene".
  */
 public class DistanceUtils {
 

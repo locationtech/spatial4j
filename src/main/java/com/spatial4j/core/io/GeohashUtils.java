@@ -24,8 +24,15 @@ import com.spatial4j.core.shape.Rectangle;
 import java.util.Arrays;
 
 /**
- * Utilities for encoding and decoding geohashes. Based on
- * <a href="http://en.wikipedia.org/wiki/Geohash">http://en.wikipedia.org/wiki/Geohash</a>.
+ * Utilities for encoding and decoding <a href="http://en.wikipedia.org/wiki/Geohash">geohashes</a>.
+ * <p/>
+ * This class isn't used by any other part of Spatial4j; it's included largely for convenience of
+ * software using Spatial4j. There are other open-source libraries that have more comprehensive
+ * geohash utilities but providing this one avoids an additional dependency for what's a small
+ * amount of code.  If you're using Spatial4j just for this class, consider alternatives.
+ * <p/>
+ * This code originally came from <a href="https://issues.apache.org/jira/browse/LUCENE-1512">
+ * Apache Lucene, LUCENE-1512</a>.
  */
 public class GeohashUtils {
 

@@ -35,15 +35,17 @@ import java.util.List;
  * <ul>
  *   <li>POINT</li>
  *   <li>MULTIPOINT</li>
- *   <li>ENVELOPE</li>
- *   <li>GEOMETRYCOLLECTION</li>
+ *   <li>ENVELOPE</li> (strictly isn't WKT but is defined by OGC's
+ *   <a href="http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html">Common Query Language (CQL)</a>)
  *   <li>LINESTRING</li>
  *   <li>MULTILINESTRING</li>
+ *   <li>GEOMETRYCOLLECTION</li>
  *   <li>BUFFER</li> (non-standard Spatial4j operation)
  * </ul>
  * 'EMPTY' is supported. Specifying 'Z', 'M', or any other dimensionality in the WKT is effectively
  * ignored.  Thus, you can specify any number of numbers in the coordinate points but only the first
- * two take effect.
+ * two take effect.  The javadocs for the <code>parse___Shape</code> methods further describe these
+ * shapes, or you
  *
  * <p />
  * Most users of this class will call just one method: {@link #parse(String)}, or

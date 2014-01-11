@@ -25,7 +25,7 @@ import com.spatial4j.core.context.SpatialContext;
  * by reading WKT which calls those methods; they should <em>not</em> be
  * created directly.
  * <p/>
- * Shapes are generally immutable. If a particular shape has a
+ * Shapes are generally immutable and thread-safe. If a particular shape has a
  * <code>reset(...)</code> method then its use means the shape is actually
  * mutable. Mutating shape state is considered expert and should be done with care.
  */

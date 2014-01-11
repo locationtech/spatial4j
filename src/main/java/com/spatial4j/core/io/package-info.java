@@ -15,6 +15,5 @@
  * limitations under the License.
  */
 
-/** Serializing and deserializing (e.g. reading & writing) shapes in
- * various forms. */
+/** Reading & writing shapes in various forms. */
 package com.spatial4j.core.io;

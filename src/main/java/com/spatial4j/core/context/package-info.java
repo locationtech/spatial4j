@@ -15,5 +15,5 @@
  * limitations under the License.
  */
 
-/** SpatialContext implementations are the keystone to the Spatial4j API. */
+/** SpatialContext implementations are the facade to the Spatial4j API. */
 package com.spatial4j.core.context;
