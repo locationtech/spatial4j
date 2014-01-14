@@ -52,7 +52,7 @@ import java.util.List;
 
 /**
  * Wraps a JTS {@link Geometry} (i.e. may be a polygon or basically anything).
- * JTS's does a great deal of the hard work, but there is work here in handling
+ * JTS does a great deal of the hard work, but there is work here in handling
  * dateline wrap.
  */
 public class JtsGeometry implements Shape {

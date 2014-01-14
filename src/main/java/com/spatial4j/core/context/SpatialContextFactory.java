@@ -31,7 +31,9 @@ import java.util.Map;
 
 /**
  * Factory for a {@link SpatialContext} based on configuration data.  Call
- * {@link #makeSpatialContext(java.util.Map, ClassLoader)}.
+ * {@link #makeSpatialContext(java.util.Map, ClassLoader)} to construct one via String name-value
+ * pairs. To construct one via code then create a factory instance, set the fields, then call
+ * {@link #newSpatialContext()}.
  * <p/>
  * The following keys are looked up in the args map:
  * <DL>

@@ -30,11 +30,12 @@ import com.vividsolutions.jts.io.WKBConstants;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 /**
- * Writes shapes in WKB, if it isn't
+ * Writes shapes in WKB, if it isn't otherwise supported by the superclass.
  */
 public class JtsBinaryCodec extends BinaryCodec {
 
@@ -47,18 +48,18 @@ public class JtsBinaryCodec extends BinaryCodec {
   }
 
   @Override
-  protected double readDim(ByteBuffer byteBuf) {
+  protected double readDim(DataInput dataInput) throws IOException {
     if (useFloat)
-      return byteBuf.getFloat();
-    return super.readDim(byteBuf);
+      return dataInput.readFloat();
+    return super.readDim(dataInput);
   }
 
   @Override
-  protected void writeDim(ByteBuffer byteBuf, double v) {
+  protected void writeDim(DataOutput dataOutput, double v) throws IOException {
     if (useFloat)
-      byteBuf.putFloat((float)v);
+      dataOutput.writeFloat((float) v);
     else
-      super.writeDim(byteBuf, v);
+      super.writeDim(dataOutput, v);
   }
 
   @Override
@@ -71,21 +72,21 @@ public class JtsBinaryCodec extends BinaryCodec {
   }
 
   @Override
-  protected Shape readShapeByTypeIfSupported(final ByteBuffer byteBuf, byte type) {
+  protected Shape readShapeByTypeIfSupported(final DataInput dataInput, byte type) throws IOException {
     if (type != TYPE_GEOM)
-      return super.readShapeByTypeIfSupported(byteBuf, type);
-    return readJtsGeom(byteBuf);
+      return super.readShapeByTypeIfSupported(dataInput, type);
+    return readJtsGeom(dataInput);
   }
 
   @Override
-  protected boolean writeShapeByTypeIfSupported(ByteBuffer byteBuf, Shape s, byte type) {
+  protected boolean writeShapeByTypeIfSupported(DataOutput dataOutput, Shape s, byte type) throws IOException {
     if (type != TYPE_GEOM)
-      return super.writeShapeByTypeIfSupported(byteBuf, s, type);
-    writeJtsGeom(byteBuf, s);
+      return super.writeShapeByTypeIfSupported(dataOutput, s, type);
+    writeJtsGeom(dataOutput, s);
     return true;
   }
 
-  public Shape readJtsGeom(final ByteBuffer byteBuf) {
+  public Shape readJtsGeom(final DataInput dataInput) throws IOException {
     JtsSpatialContext ctx = (JtsSpatialContext)super.ctx;
     WKBReader reader = new WKBReader(ctx.getGeometryFactory());
     try {
@@ -100,7 +101,7 @@ public class JtsBinaryCodec extends BinaryCodec {
             first = false;
           } else {
             //TODO for performance, specialize for common array lengths: 1, 4, 8
-            byteBuf.get(buf);
+            dataInput.readFully(buf);
           }
         }
       };
@@ -110,18 +111,16 @@ public class JtsBinaryCodec extends BinaryCodec {
       return ctx.makeShape(geom, false, false);
     } catch (ParseException ex) {
       throw new InvalidShapeException("error reading WKT", ex);
-    } catch (IOException ex) {
-      throw new InvalidShapeException("error reading WKT", ex);
     }
   }
 
-  public void writeJtsGeom(ByteBuffer byteBuf, Shape s) {
+  public void writeJtsGeom(DataOutput dataOutput, Shape s) throws IOException {
     JtsSpatialContext ctx = (JtsSpatialContext)super.ctx;
     Geometry geom = ctx.getGeometryFrom(s);//might even translate it
     WKBWriter writer = new WKBWriter();
     byte[] bb = writer.write(geom);
     if (bb[0] != WKBConstants.wkbXDR)//the default
       throw new IllegalStateException("Unexpected WKB byte order mark");
-    byteBuf.put(bb, 1, bb.length - 1);//skip byte order mark
+    dataOutput.write(bb, 1, bb.length - 1);//skip byte order mark
   }
 }

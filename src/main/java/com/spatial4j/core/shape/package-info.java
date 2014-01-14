@@ -18,5 +18,5 @@
 /** Shapes are the core geometry objects that Spatial4j provides. The types
  * exposed in this package should be considered public.  Remember not to
  * instantiate them directly, use the SpatialContext which acts as a
- * factory. */
+ * factory for shapes. */
 package com.spatial4j.core.shape;

@@ -30,9 +30,10 @@ import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
 
 /**
- * INTERNAL: A line between two points with a buffer distance extending in every
- * direction. By contrast, an un-buffered line covers no area and as such
- * is extremely unlikely to intersect with a point.
+ * INTERNAL: A line between two points with a buffer distance extending in every direction. By
+ * contrast, an un-buffered line covers no area and as such is extremely unlikely to intersect with
+ * a point. BufferedLine isn't yet aware of geodesics (e.g. the dateline); it operates in Euclidean
+ * space.
  */
 public class BufferedLine implements Shape {
 
@@ -153,10 +154,9 @@ public class BufferedLine implements Shape {
   }
 
   /**
-   * Calls {@link DistanceUtils#calcLonDegreesAtLat(double,
-   * double)} given pA or pB's latitude; whichever is farthest. It's useful to
-   * expand a buffer of a line segment when used in a geospatial context to
-   * cover the desired area.
+   * Calls {@link DistanceUtils#calcLonDegreesAtLat(double, double)} given pA or pB's latitude;
+   * whichever is farthest. It's useful to expand a buffer of a line segment when used in
+   * a geospatial context to cover the desired area.
    */
   public static double expandBufForLongitudeSkew(Point pA, Point pB,
                                                  double buf) {

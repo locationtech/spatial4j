@@ -58,7 +58,7 @@ public class JtsWKTReaderShapeParser extends JtsWktShapeParser {
    * Reads WKT from the {@code str} via JTS's {@link com.vividsolutions.jts.io.WKTReader}.
    * @param str
    * @param reader <pre>new WKTReader(ctx.getGeometryFactory()))</pre>
-   * @return
+   * @return Non-Null
    */
   protected Shape parseIfSupported(String str, WKTReader reader) throws ParseException {
     try {

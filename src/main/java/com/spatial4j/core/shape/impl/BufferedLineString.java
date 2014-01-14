@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * A BufferedLineString is a collection of {@link com.spatial4j.core.shape.impl.BufferedLine} shapes,
  * resulting in what some call a "Track" or "Polyline" (ESRI terminology).
- * The buffer can be 0.
+ * The buffer can be 0.  Note that BufferedLine isn't yet aware of geodesics (e.g. the dateline).
  */
 public class BufferedLineString implements Shape {
 
@@ -74,6 +74,7 @@ public class BufferedLineString implements Shape {
         if (prevPoint != null) {
           double segBuf = buf;
           if (expandBufForLongitudeSkew) {
+            //TODO this is faulty in that it over-buffers.  See Issue#60.
             segBuf = BufferedLine.expandBufForLongitudeSkew(prevPoint, point, buf);
           }
           segments.add(new BufferedLine(prevPoint, point, segBuf, ctx));

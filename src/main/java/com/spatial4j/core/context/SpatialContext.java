@@ -25,8 +25,16 @@ import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.BinaryCodec;
 import com.spatial4j.core.io.LegacyShapeReadWriterFormat;
 import com.spatial4j.core.io.WktShapeParser;
-import com.spatial4j.core.shape.*;
-import com.spatial4j.core.shape.impl.*;
+import com.spatial4j.core.shape.Circle;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.ShapeCollection;
+import com.spatial4j.core.shape.impl.BufferedLineString;
+import com.spatial4j.core.shape.impl.CircleImpl;
+import com.spatial4j.core.shape.impl.GeoCircle;
+import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.shape.impl.RectangleImpl;
 
 import java.text.ParseException;
 import java.util.List;
@@ -46,12 +54,7 @@ import java.util.List;
 public class SpatialContext {
 
   /** A popular default SpatialContext implementation for geospatial. */
-  public static final SpatialContext GEO;
-  static {
-    SpatialContextFactory factory = new SpatialContextFactory();
-    factory.geo = true;
-    GEO = new SpatialContext(factory);
-  }
+  public static final SpatialContext GEO = new SpatialContext(new SpatialContextFactory());
 
   //These are non-null
   private final boolean geo;
@@ -152,7 +155,9 @@ public class SpatialContext {
     return normWrapLongitude;
   }
 
-  /** Is this a geospatial context (true) or simply 2d spatial (false). */
+  /** Is the mathematical world model based on a sphere, or is it a flat plane? The word
+   * "geodetic" or "geodesic" is sometimes used to refer to the former, and the latter is sometimes
+   * referred to as "Euclidean" or "cartesian". */
   public boolean isGeo() {
     return geo;
   }
@@ -254,9 +259,8 @@ public class SpatialContext {
   }
 
   /** Constructs a line string. It's an ordered sequence of connected vertexes. There
-   * is no official shape/interface for it so we just return Shape. */
+   * is no official shape/interface for it yet so we just return Shape. */
   public Shape makeLineString(List<Point> points) {
-    //no "proper" LineString interface yet so we declare to return Shape
     return new BufferedLineString(points, 0, false, this);
   }
 
@@ -303,6 +307,8 @@ public class SpatialContext {
       try {
         s = readShapeFromWkt(value);
       } catch (ParseException e) {
+        if (e.getCause() instanceof InvalidShapeException)
+          throw (InvalidShapeException) e.getCause();
         throw new InvalidShapeException(e.toString(), e);
       }
     }

@@ -283,10 +283,11 @@ public class JtsWktShapeParser extends WktShapeParser {
      */
     width180,//TODO is there a better name that doesn't have '180' in it?
 
-    /** For rectangular polygons, the point order is interpreted as being Counter-Clockwise (which
-     * is consistent with OGC Simple Features Specification v. 1.2.0 section 6.1.11.1).
+    /** For rectangular polygons, the point order is interpreted as being counter-clockwise (CCW).
      * However, non-rectangular polygons or other shapes aren't processed this way; they use the
-     * {@link #width180} rule instead. */
+     * {@link #width180} rule instead. The CCW rule is specified by OGC Simple Features
+     * Specification v. 1.2.0 section 6.1.11.1.
+     */
     ccwRect
   }
 

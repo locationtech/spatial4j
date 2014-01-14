@@ -21,17 +21,19 @@ import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.ShapeCollection;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.nio.ByteBuffer;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Arrays;
 
 public class BinaryCodecTest extends RandomizedTest {
 
   final SpatialContext ctx;
-  private ByteBuffer byteBuf = ByteBuffer.allocate(10*1024);//plenty for our tests
   private BinaryCodec binaryCodec;
 
   protected BinaryCodecTest(SpatialContext ctx) {
@@ -43,29 +45,21 @@ public class BinaryCodecTest extends RandomizedTest {
     this(SpatialContext.GEO);
   }
 
-  @Before
-  public void setUp() {
-    byteBuf.clear();
-  }
-
   //This test uses WKT to specify the shapes because the Jts based subclass tests will test
   // using floats instead of doubles, and WKT is normalized whereas ctx.makeXXX is not.
 
   @Test
   public void testPoint() {
-    byteBuf.limit(1+8+8);
     assertRoundTrip(wkt("POINT(-10 80.3)"));
   }
 
   @Test
   public void testRect() {
-    byteBuf.limit(1+8+8+8+8);
     assertRoundTrip(wkt("ENVELOPE(-10, 180, 42.3, 0)"));
   }
 
   @Test
   public void testCircle() {
-    byteBuf.limit(1+8+8+8);
     assertRoundTrip(wkt("BUFFER(POINT(-10 30), 5.2)"));
   }
 
@@ -99,8 +93,13 @@ public class BinaryCodecTest extends RandomizedTest {
   }
 
   protected void assertRoundTrip(Shape shape) {
-    binaryCodec.writeShape(byteBuf, shape);
-    byteBuf.flip();
-    assertEquals(shape, binaryCodec.readShape(byteBuf));
+    try {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      binaryCodec.writeShape(new DataOutputStream(baos), shape);
+      ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+      assertEquals(shape, binaryCodec.readShape(new DataInputStream(bais)));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

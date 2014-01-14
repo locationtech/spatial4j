@@ -29,7 +29,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 /**
- * Reads & writes a shape from a given string (ie, X Y, XMin XMax YMin YMax)
+ * Reads & writes a shape from a given string in the old format.
  * <ul>
  *   <li>Point: X Y
  *   <br /> 1.23 4.56
@@ -51,7 +51,8 @@ public class LegacyShapeReadWriterFormat {
   }
 
   /**
-   * Writes a shape to a String, in a format that can be read by {@link #readShape(String)}.
+   * Writes a shape to a String, in a format that can be read by
+   * {@link #readShapeOrNull(com.spatial4j.core.context.SpatialContext, String)}.
    * @param shape Not null.
    * @return Not null.
    */
