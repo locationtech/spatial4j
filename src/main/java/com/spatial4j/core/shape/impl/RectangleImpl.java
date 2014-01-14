@@ -71,7 +71,7 @@ public class RectangleImpl implements Rectangle {
   }
 
   @Override
-  public Rectangle getBuffered(SpatialContext ctx, double distance) {
+  public Rectangle getBuffered(double distance, SpatialContext ctx) {
     if (ctx.isGeo()) {
       //first check pole touching, triggering a world-wrap rect
       if (maxY + distance >= 90) {

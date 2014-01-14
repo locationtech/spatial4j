@@ -71,7 +71,7 @@ public class JtsPoint implements Point {
   }
 
   @Override
-  public Circle getBuffered(SpatialContext ctx, double distance) {
+  public Circle getBuffered(double distance, SpatialContext ctx) {
     return ctx.makeCircle(this, distance);
   }
 

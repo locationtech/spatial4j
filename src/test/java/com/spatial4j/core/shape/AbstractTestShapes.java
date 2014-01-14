@@ -218,6 +218,6 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
     assertRelation("EMPTY", DISJOINT, emptyShape, randomPoint());
     assertRelation("EMPTY", DISJOINT, emptyShape, emptyRect);
     assertRelation("EMPTY", DISJOINT, emptyShape, randomRectangle(10));
-    assertTrue(emptyShape.getBuffered(ctx, randomInt(4)).isEmpty());
+    assertTrue(emptyShape.getBuffered(randomInt(4), ctx).isEmpty());
   }
 }

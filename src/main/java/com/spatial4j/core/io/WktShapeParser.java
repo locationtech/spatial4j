@@ -191,7 +191,7 @@ public class WktShapeParser {
     state.nextExpect(',');
     double distance = normDist(state.nextDouble());
     state.nextExpect(')');
-    return shape.getBuffered(ctx, distance);
+    return shape.getBuffered(distance, ctx);
   }
 
   /** Called to normalize a value that isn't X or Y. X & Y or normalized via

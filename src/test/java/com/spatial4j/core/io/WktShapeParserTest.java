@@ -163,6 +163,6 @@ public class WktShapeParserTest extends RandomizedTest {
 
   @Test
   public void testBuffer() throws ParseException {
-    assertParses("BUFFER(POINT(1 2), 3)", ctx.makePoint(1, 2).getBuffered(ctx, 3));
+    assertParses("BUFFER(POINT(1 2), 3)", ctx.makePoint(1, 2).getBuffered(3, ctx));
   }
 }

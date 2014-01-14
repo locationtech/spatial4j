@@ -302,7 +302,7 @@ public class SpatialContext {
    */
   @Deprecated
   public Shape readShape(String value) throws InvalidShapeException {
-    Shape s = LegacyShapeReadWriterFormat.readShapeOrNull(this, value);
+    Shape s = LegacyShapeReadWriterFormat.readShapeOrNull(value, this);
     if (s == null) {
       try {
         s = readShapeFromWkt(value);

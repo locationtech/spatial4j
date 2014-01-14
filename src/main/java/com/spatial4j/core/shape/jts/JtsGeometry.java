@@ -172,7 +172,7 @@ public class JtsGeometry implements Shape {
   }
 
   @Override
-  public JtsGeometry getBuffered(SpatialContext ctx, double distance) {
+  public JtsGeometry getBuffered(double distance, SpatialContext ctx) {
     //TODO doesn't work correctly across the dateline. The buffering needs to happen
     // when it's transiently unrolled, prior to being sliced.
     return this.ctx.makeShape(geom.buffer(distance), true, true);
