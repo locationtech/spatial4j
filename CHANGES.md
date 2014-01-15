@@ -23,6 +23,9 @@ DATE: ______January 2014 (pending)
    -180 to 180 were also normalized and this is now an error too. Longitude normalization can be
    enabled with the “normWrapLongitude” option.
 
+ * Newly deprecated: ParseUtils, some methods and constants in DistanceUtils (which seemed only used
+   by Solr), LineReader, SampleData..., Geonames..., SpatialContext constructors other than
+   that which takes a SpatialContextFactory.
 
 ### Features:
 

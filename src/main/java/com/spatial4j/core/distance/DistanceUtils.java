@@ -28,17 +28,22 @@ import com.spatial4j.core.shape.Rectangle;
  * com.spatial4j.core.context.SpatialContext#getDistCalc()} should be used in preference to calling
  * these methods directly.
  * <p/>
- * This code came from <a href="https://issues.apache.org/jira/browse/LUCENE-773">Apache
- * Lucene, LUCENE-773</a>, which in turn came from "LocalLucene".
+ * This code came from <a href="https://issues.apache.org/jira/browse/LUCENE-1387">Apache
+ * Lucene, LUCENE-1387</a>, which in turn came from "LocalLucene".
  */
 public class DistanceUtils {
 
   //pre-compute some angles that are commonly used
+  @Deprecated
   public static final double DEG_45_AS_RADS = Math.PI / 4;
+  @Deprecated
   public static final double SIN_45_AS_RADS = Math.sin(DEG_45_AS_RADS);
+
   public static final double DEG_90_AS_RADS = Math.PI / 2;
   public static final double DEG_180_AS_RADS = Math.PI;
+  @Deprecated
   public static final double DEG_225_AS_RADS = 5 * DEG_45_AS_RADS;
+  @Deprecated
   public static final double DEG_270_AS_RADS = 3 * DEG_90_AS_RADS;
 
   public static final double DEGREES_TO_RADIANS =  Math.PI / 180;
@@ -77,6 +82,7 @@ public class DistanceUtils {
    * @see #vectorDistance(double[], double[], double, double)
    *
    */
+  @Deprecated
   public static double vectorDistance(double[] vec1, double[] vec2, double power) {
     //only calc oneOverPower if it's needed
     double oneOverPower = (power == 0 || power == 1.0 || power == 2.0) ? Double.NaN : 1.0 / power;
@@ -93,6 +99,7 @@ public class DistanceUtils {
    *                     one division operation over {@link #vectorDistance(double[], double[], double)}.
    * @return The length.
    */
+  @Deprecated
   public static double vectorDistance(double[] vec1, double[] vec2, double power, double oneOverPower) {
     double result = 0;
 
@@ -129,6 +136,7 @@ public class DistanceUtils {
    * @param upperRight If true, return the coords for the upper right corner, else return the lower left.
    * @return The point, either the upperLeft or the lower right
    */
+  @Deprecated
   public static double[] vectorBoxCorner(double[] center, double[] result, double distance, boolean upperRight) {
     if (result == null || result.length != center.length) {
       result = new double[center.length];
@@ -370,6 +378,7 @@ public class DistanceUtils {
    * @param vec2 The second point
    * @return The squared cartesian distance
    */
+  @Deprecated
   public static double distSquaredCartesian(double[] vec1, double[] vec2) {
     double result = 0;
     for (int i = 0; i < vec1.length; i++) {
