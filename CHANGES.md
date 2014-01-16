@@ -7,7 +7,7 @@ DATE: ______January 2014 (pending)
  * It used to be the case that rectangular polygons provided in WKT had to have its vertexes given
    in counter-clockwise order to indicate which way around the earth it went. The default is now
    the shorter width (less than 180 degrees). This setting can be changed via the “datelineRule”
-   setting, but to avoid ambiguity, use the ENVELOPE syntax.
+   setting. To avoid ambiguity, just use the ENVELOPE syntax.
 
  * Unless you refer to the SpatialContext.GEO or JtsSpatialContext.GEO instances, the only true way
    to create a context is to use the SpatialContextFactory (and including the JTS based subclass),
@@ -24,8 +24,9 @@ DATE: ______January 2014 (pending)
    enabled with the “normWrapLongitude” option.
 
  * Newly deprecated: ParseUtils, some methods and constants in DistanceUtils (which seemed only used
-   by Solr), LineReader, SampleData..., Geonames..., SpatialContext constructors other than
-   that which takes a SpatialContextFactory.
+   by Solr), and SpatialContext constructors other than that which takes a SpatialContextFactory.
+   In the "io" package, these classes were **deleted**:  LineReader, SampleData..., Geoname...
+   Copies of those were moved to the _Spatial Solr Sandbox_ project.
 
 ### Features:
 
