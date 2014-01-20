@@ -25,6 +25,7 @@ import com.spatial4j.core.shape.Shape;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.InStream;
+import com.vividsolutions.jts.io.OutStream;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBConstants;
 import com.vividsolutions.jts.io.WKBReader;
@@ -114,13 +115,22 @@ public class JtsBinaryCodec extends BinaryCodec {
     }
   }
 
-  public void writeJtsGeom(DataOutput dataOutput, Shape s) throws IOException {
+  public void writeJtsGeom(final DataOutput dataOutput, Shape s) throws IOException {
     JtsSpatialContext ctx = (JtsSpatialContext)super.ctx;
     Geometry geom = ctx.getGeometryFrom(s);//might even translate it
-    WKBWriter writer = new WKBWriter();
-    byte[] bb = writer.write(geom);
-    if (bb[0] != WKBConstants.wkbXDR)//the default
-      throw new IllegalStateException("Unexpected WKB byte order mark");
-    dataOutput.write(bb, 1, bb.length - 1);//skip byte order mark
+    new WKBWriter().write(geom, new OutStream() {//a strange JTS abstraction
+      boolean first = true;
+      @Override
+      public void write(byte[] buf, int len) throws IOException {
+        if (first) {
+          first = false;
+          //skip byte order mark
+          if (len != 1 || buf[0] != WKBConstants.wkbXDR)//the default
+            throw new IllegalStateException("Unexpected WKB byte order mark");
+          return;
+        }
+        dataOutput.write(buf, 0, len);
+      }
+    });
   }
 }
