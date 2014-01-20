@@ -13,9 +13,10 @@ DATE: ______January 2014 (pending)
    to create a context is to use the SpatialContextFactory (and including the JTS based subclass),
    which have a host of settings that make Spatial4j very customizable.
 
- * SpatialContext.readShape(String) and toString(Shape) are still deprecated but will likely be
+ * SpatialContext.readShape(String) and toString(Shape) are still deprecated but will be
    removed in the next release. You should instead read WKT via the new method
-   readShapeFromWkt(String). Spatial4j will no longer provide a way to generate WKT from a shape
+   readShapeFromWkt(String). This also affects initializing worldBounds from a string using the
+   SpatialContextFactory. Spatial4j will no longer provide a way to generate WKT from a shape
    although it’s pretty easy to use JTS for that.
 
  * In Spatial4j’s older JTS based implementation, it used to be the case that when reading WKT,

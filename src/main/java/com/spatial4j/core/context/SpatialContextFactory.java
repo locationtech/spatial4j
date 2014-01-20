@@ -46,7 +46,7 @@ import java.util.Map;
  * <DD>haversine | lawOfCosines | vincentySphere | cartesian | cartesian^2
  * -- see {@link DistanceCalculator}</DD>
  * <DT>worldBounds</DT>
- * <DD>-180 180 -90 90 -- (minX maxX minY maxY) -- see {@link SpatialContext#getWorldBounds()}</DD>
+ * <DD>{@code ENVELOPE(xMin, xMax, yMax, yMin)} -- see {@link SpatialContext#getWorldBounds()}</DD>
  * <DT>normWrapLongitude</DT>
  * <DD>true | false (default) -- see {@link SpatialContext#isNormWrapLongitude()}</DD>
  * </DL>
@@ -176,7 +176,7 @@ public class SpatialContextFactory {
     
     //kinda ugly we do this just to read a rectangle.  TODO refactor
     SpatialContext simpleCtx = new SpatialContext(this);
-    worldBounds = (Rectangle) simpleCtx.readShape(worldBoundsStr);
+    worldBounds = (Rectangle) simpleCtx.readShape(worldBoundsStr);//TODO use readShapeFromWkt
   }
 
   /** Subclasses should simply construct the instance from the initialized configuration. */

@@ -108,18 +108,21 @@ public class SpatialContext {
     }
 
     //TODO remove worldBounds from Spatial4j: see Issue #55
-    if (factory.worldBounds == null) {
+    Rectangle bounds = factory.worldBounds;
+    if (bounds == null) {
       this.worldBounds = isGeo()
               ? new RectangleImpl(-180, 180, -90, 90, this)
               : new RectangleImpl(-Double.MAX_VALUE, Double.MAX_VALUE,
               -Double.MAX_VALUE, Double.MAX_VALUE, this);
     } else {
-      if (isGeo())
-        assert factory.worldBounds.equals(new RectangleImpl(-180, 180, -90, 90, this));
-      if (factory.worldBounds.getCrossesDateLine())
-        throw new IllegalArgumentException("worldBounds shouldn't cross dateline: "+factory.worldBounds);
+      if (isGeo() && !bounds.equals(new RectangleImpl(-180, 180, -90, 90, this)))
+        throw new IllegalArgumentException("for geo (lat/lon), bounds must be " + GEO.getWorldBounds());
+      if (bounds.getMinX() > bounds.getMaxX())
+        throw new IllegalArgumentException("worldBounds minX should be <= maxX: "+ bounds);
+      if (bounds.getMinY() > bounds.getMaxY())
+        throw new IllegalArgumentException("worldBounds minY should be <= maxY: "+ bounds);
       //hopefully worldBounds' rect implementation is compatible
-      this.worldBounds = new RectangleImpl(factory.worldBounds, this);
+      this.worldBounds = new RectangleImpl(bounds, this);
     }
 
     this.normWrapLongitude = factory.normWrapLongitude && this.isGeo();
