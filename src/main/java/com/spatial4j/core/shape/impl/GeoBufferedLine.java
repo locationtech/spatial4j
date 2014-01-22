@@ -77,12 +77,12 @@ public class GeoBufferedLine extends BufferedLine {
     double perpExtent = bufExtend ? buf : 0;
 
     if (deltaX == 0 && deltaY == 0) {
-      linePrimary = new InfBufLine(0, center, buf);
-      linePerp = new InfBufLine(Double.POSITIVE_INFINITY, center, buf);
+      linePrimary = new RayLine(0, center, buf);
+      linePerp = new RayLine(Double.POSITIVE_INFINITY, center, buf);
     } else {
-      linePrimary = new InfBufLine(deltaY / deltaX, center, buf);
+      linePrimary = new RayLine(deltaY / deltaX, center, buf);
       double length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      linePerp = new InfBufLine(-deltaX / deltaY, center,
+      linePerp = new RayLine(-deltaX / deltaY, center,
               length / 2 + perpExtent);
     }
 
@@ -234,14 +234,14 @@ public class GeoBufferedLine extends BufferedLine {
   /**
    * INTERNAL
    */
-  public InfBufLine getLinePrimary() {
+  public RayLine getLinePrimary() {
     return linePrimary;
   }
 
   /**
    * INTERNAL
    */
-  public InfBufLine getLinePerp() {
+  public RayLine getLinePerp() {
     return linePerp;
   }
 

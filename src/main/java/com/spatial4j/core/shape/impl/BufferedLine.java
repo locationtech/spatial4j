@@ -43,11 +43,11 @@ public class BufferedLine implements Shape {
   /**
    * the primary line; passes through pA & pB
    */
-  protected final InfBufLine linePrimary;
+  protected final RayLine linePrimary;
   /**
    * perpendicular to the primary line, centered between pA & pB
    */
-  protected final InfBufLine linePerp;
+  protected final RayLine linePerp;
 
   /**
    * Creates a buffered line from pA to pB. The buffer extends on both sides of
@@ -82,12 +82,12 @@ public class BufferedLine implements Shape {
     double perpExtent = bufExtend ? buf : 0;
 
     if (deltaX == 0 && deltaY == 0) {
-      linePrimary = new InfBufLine(0, center, buf);
-      linePerp = new InfBufLine(Double.POSITIVE_INFINITY, center, buf);
+      linePrimary = new RayLine(0, center, buf);
+      linePerp = new RayLine(Double.POSITIVE_INFINITY, center, buf);
     } else {
-      linePrimary = new InfBufLine(deltaY / deltaX, center, buf);
+      linePrimary = new RayLine(deltaY / deltaX, center, buf);
       double length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      linePerp = new InfBufLine(-deltaX / deltaY, center,
+      linePerp = new RayLine(-deltaX / deltaY, center,
           length / 2 + perpExtent);
     }
 
@@ -251,14 +251,14 @@ public class BufferedLine implements Shape {
   /**
    * INTERNAL
    */
-  public InfBufLine getLinePrimary() {
+  public RayLine getLinePrimary() {
     return linePrimary;
   }
 
   /**
    * INTERNAL
    */
-  public InfBufLine getLinePerp() {
+  public RayLine getLinePerp() {
     return linePerp;
   }
 

@@ -19,7 +19,7 @@ package com.spatial4j.core.shape;
 
 import com.spatial4j.core.TestLog;
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.impl.InfBufLine;
+import com.spatial4j.core.shape.impl.RayLine;
 import com.spatial4j.core.shape.impl.PointImpl;
 
 import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
@@ -105,7 +105,7 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
               Point p;
               if (j < 4) {
                 p = new PointImpl(0, 0, ctx);
-                InfBufLine.cornerByQuadrant(r, j + 1, p);
+                RayLine.cornerByQuadrant(r, j + 1, p);
               } else {
                 if (randomPointSpace == null) {
                   if (pointR == DISJOINT) {

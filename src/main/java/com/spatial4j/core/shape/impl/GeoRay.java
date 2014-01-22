@@ -140,7 +140,7 @@ public class GeoRay {
   }
 
   /** INTERNAL: AKA lineToPointQuadrant */
-  // Same as InfBufLine
+  // Same as RayLine
   // Should still work, but mapped on a sphere
   // vs a euclidean plane.
   public int quadrant(Point c) {
@@ -192,7 +192,7 @@ public class GeoRay {
 
   @Override
   public String toString() {
-    return "InfBufLine{" +
+    return "RayLine{" +
         ", equatorIntercept=" + xIntercept +
         ", primeMeridianIntercept=" + yIntercept +
         ", slope=" + slope +
