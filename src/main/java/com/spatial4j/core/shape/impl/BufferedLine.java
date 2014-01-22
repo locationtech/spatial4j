@@ -37,17 +37,17 @@ import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
  */
 public class BufferedLine implements Shape {
 
-  private final Point pA, pB;
-  private final double buf;
-  private final Rectangle bbox;
+  protected final Point pA, pB;
+  protected final double buf;
+  protected final Rectangle bbox;
   /**
    * the primary line; passes through pA & pB
    */
-  private final InfBufLine linePrimary;
+  protected final InfBufLine linePrimary;
   /**
    * perpendicular to the primary line, centered between pA & pB
    */
-  private final InfBufLine linePerp;
+  protected final InfBufLine linePerp;
 
   /**
    * Creates a buffered line from pA to pB. The buffer extends on both sides of
