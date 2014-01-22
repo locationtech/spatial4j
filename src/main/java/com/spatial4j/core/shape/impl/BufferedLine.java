@@ -40,14 +40,22 @@ public class BufferedLine implements Shape {
   protected Point pA, pB;
   protected double buf;
   protected Rectangle bbox;
+
+  protected double deltaX;
+  protected double deltaY;
+
+  protected double perpExtent;
+
+  protected double minY, maxY;
+  protected double minX, maxX;
   /**
    * the primary line; passes through pA & pB
    */
-  protected final RayLine linePrimary;
+  protected Ray linePrimary;
   /**
    * perpendicular to the primary line, centered between pA & pB
    */
-  protected final RayLine linePerp;
+  protected Ray linePerp;
 
   /**
    * Creates a buffered line from pA to pB. The buffer extends on both sides of
@@ -73,26 +81,18 @@ public class BufferedLine implements Shape {
     this.pB = pB;
     this.buf = buf;
 
-    double deltaY = pB.getY() - pA.getY();
-    double deltaX = pB.getX() - pA.getX();
+    deltaY = pB.getY() - pA.getY();
+    deltaX = pB.getX() - pA.getX();
 
     PointImpl center = new PointImpl(pA.getX() + deltaX / 2,
         pA.getY() + deltaY / 2, null);
 
-    double perpExtent = bufExtend ? buf : 0;
+    perpExtent = bufExtend ? buf : 0;
 
-    if (deltaX == 0 && deltaY == 0) {
-      linePrimary = new RayLine(0, center, buf);
-      linePerp = new RayLine(Double.POSITIVE_INFINITY, center, buf);
-    } else {
-      linePrimary = new RayLine(deltaY / deltaX, center, buf);
-      double length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      linePerp = new RayLine(-deltaX / deltaY, center,
-          length / 2 + perpExtent);
-    }
+    getRays(center, deltaX , deltaY);
 
-    double minY, maxY;
-    double minX, maxX;
+
+
     if (deltaX == 0) { // vertical
       if (pA.getY() <= pB.getY()) {
         minY = pA.getY();
@@ -141,6 +141,24 @@ public class BufferedLine implements Shape {
         Math.min(bounds.getMaxX(), maxX),
         Math.max(bounds.getMinY(), minY),
         Math.min(bounds.getMaxY(), maxY));
+  }
+
+  /**
+   * Implement in each subclass
+   * @param center
+   * @param deltaX
+   * @param deltaY
+   */
+  protected void getRays(PointImpl center, double deltaX, double deltaY) {
+    if (deltaX == 0 && deltaY == 0) {
+      this.linePrimary = new RayLine(0, center, buf);
+      linePerp = new RayLine(Double.POSITIVE_INFINITY, center, buf);
+    } else {
+      linePrimary = new RayLine(deltaY / deltaX, center, buf);
+      double length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      linePerp = new RayLine(-deltaX / deltaY, center,
+              length / 2 + perpExtent);
+    }
   }
 
   @Override
@@ -251,15 +269,29 @@ public class BufferedLine implements Shape {
   /**
    * INTERNAL
    */
-  public RayLine getLinePrimary() {
+  public Ray getLinePrimary() {
     return linePrimary;
   }
 
   /**
    * INTERNAL
    */
-  public RayLine getLinePerp() {
+  public Ray getLinePerp() {
     return linePerp;
+  }
+
+  /**
+   * INTERNAL
+   */
+  protected RayLine setLinePrimary(Ray line) {
+    this.linePrimary = line;
+  }
+
+  /**
+   * INTERNAL
+   */
+  protected RayLine setLinePerp(Ray line) {
+    this.linePerp = line;
   }
 
   @Override

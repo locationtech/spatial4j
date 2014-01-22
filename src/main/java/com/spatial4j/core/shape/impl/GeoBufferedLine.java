@@ -36,14 +36,6 @@ import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
  * space.
  */
 public class GeoBufferedLine extends BufferedLine {
-  /**
-   * the primary line; passes through pA & pB
-   */
-  protected final Ray linePrimary;
-  /**
-   * perpendicular to the primary line, centered between pA & pB
-   */
-  protected final Ray linePerp;
 
   /**
    * Creates a buffered line from pA to pB. The buffer extends on both sides of
@@ -56,25 +48,8 @@ public class GeoBufferedLine extends BufferedLine {
    * @param ctx
    */
   public GeoBufferedLine(Point pA, Point pB, double buf, SpatialContext ctx) {
-    assert buf >= 0;//TODO support buf=0 via another class ?
+    super(pA,pB,buf,ctx);
 
-    /**
-     * If true, buf should bump-out from the pA & pB, in effect
-     *                  extending the line a little.
-     */
-    final boolean bufExtend = true;//TODO support false and make this a
-    // parameter
-    this.setA(pA);
-    this.setB(pB);
-    this.setBuf(buf);
-
-    double deltaY = pB.getY() - pA.getY();
-    double deltaX = pB.getX() - pA.getX();
-
-    PointImpl center = new PointImpl(pA.getX() + deltaX / 2,
-            pA.getY() + deltaY / 2, null);
-
-    double perpExtent = bufExtend ? buf : 0;
 
     if (deltaX == 0 && deltaY == 0) {
       linePrimary = new RayLine(0, center, buf);
