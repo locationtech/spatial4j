@@ -57,6 +57,8 @@ public class BufferedLine implements Shape {
    */
   protected Ray linePerp;
 
+  protected final boolean bufExtend = true;
+
   /**
    * Creates a buffered line from pA to pB. The buffer extends on both sides of
    * the line, making the width 2x the buffer. The buffer extends out from
@@ -74,7 +76,8 @@ public class BufferedLine implements Shape {
      * If true, buf should bump-out from the pA & pB, in effect
      *                  extending the line a little.
      */
-    final boolean bufExtend = true;//TODO support false and make this a
+    // included above now
+    //final boolean bufExtend = true;//TODO support false and make this a
     // parameter
 
     this.pA = pA;
@@ -89,10 +92,40 @@ public class BufferedLine implements Shape {
 
     perpExtent = bufExtend ? buf : 0;
 
-    getRays(center, deltaX , deltaY);
+    initRays(center, deltaX, deltaY);
+    initMinMax();
 
 
 
+    Rectangle bounds = ctx.getWorldBounds();
+
+    bbox = ctx.makeRectangle(
+            Math.max(bounds.getMinX(), minX),
+            Math.min(bounds.getMaxX(), maxX),
+            Math.max(bounds.getMinY(), minY),
+            Math.min(bounds.getMaxY(), maxY));
+  }
+   protected 
+  /**
+   * Implement in each subclass
+   * Use appropriate rays for implementation
+   * @param center
+   * @param deltaX
+   * @param deltaY
+   */
+  protected void initRays(PointImpl center, double deltaX, double deltaY) {
+    if (deltaX == 0 && deltaY == 0) {
+      this.linePrimary = new RayLine(0, center, buf);
+      linePerp = new RayLine(Double.POSITIVE_INFINITY, center, buf);
+    } else {
+      linePrimary = new RayLine(deltaY / deltaX, center, buf);
+      double length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      linePerp = new RayLine(-deltaX / deltaY, center,
+              length / 2 + perpExtent);
+    }
+  }
+
+  protected void initMinMax() {
     if (deltaX == 0) { // vertical
       if (pA.getY() <= pB.getY()) {
         minY = pA.getY();
@@ -115,7 +148,7 @@ public class BufferedLine implements Shape {
       //Given a right triangle of A, B, C sides, C (hypotenuse) ==
       // buf, and A + B == the bounding box offset from pA & pB in x & y.
       double bboxBuf = buf * (1 + Math.abs(linePrimary.getSlope()))
-          * linePrimary.getDistDenomInv();
+              * linePrimary.getDistDenomInv();
       assert bboxBuf >= buf && bboxBuf <= buf * 1.5;
 
       if (pA.getX() <= pB.getX()) {
@@ -133,31 +166,6 @@ public class BufferedLine implements Shape {
         maxY = pA.getY() + bboxBuf;
       }
 
-    }
-    Rectangle bounds = ctx.getWorldBounds();
-
-    bbox = ctx.makeRectangle(
-        Math.max(bounds.getMinX(), minX),
-        Math.min(bounds.getMaxX(), maxX),
-        Math.max(bounds.getMinY(), minY),
-        Math.min(bounds.getMaxY(), maxY));
-  }
-
-  /**
-   * Implement in each subclass
-   * @param center
-   * @param deltaX
-   * @param deltaY
-   */
-  protected void getRays(PointImpl center, double deltaX, double deltaY) {
-    if (deltaX == 0 && deltaY == 0) {
-      this.linePrimary = new RayLine(0, center, buf);
-      linePerp = new RayLine(Double.POSITIVE_INFINITY, center, buf);
-    } else {
-      linePrimary = new RayLine(deltaY / deltaX, center, buf);
-      double length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      linePerp = new RayLine(-deltaX / deltaY, center,
-              length / 2 + perpExtent);
     }
   }
 
