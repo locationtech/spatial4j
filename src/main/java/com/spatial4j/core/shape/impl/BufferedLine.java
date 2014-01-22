@@ -37,9 +37,9 @@ import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
  */
 public class BufferedLine implements Shape {
 
-  protected final Point pA, pB;
-  protected final double buf;
-  protected final Rectangle bbox;
+  protected Point pA, pB;
+  protected double buf;
+  protected Rectangle bbox;
   /**
    * the primary line; passes through pA & pB
    */
@@ -233,6 +233,18 @@ public class BufferedLine implements Shape {
   }
 
   public double getBuf() {
+    return buf;
+  }
+
+  protected Point setA() {
+    return pA;
+  }
+
+  protected Point setB() {
+    return pB;
+  }
+
+  protected double setBuf() {
     return buf;
   }
 

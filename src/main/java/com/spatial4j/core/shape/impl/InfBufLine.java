@@ -27,7 +27,7 @@ import static com.spatial4j.core.shape.SpatialRelation.*;
  * INERNAL: A buffered line of infinite length.
  * Public for test access.
  */
-public class InfBufLine {
+public class InfBufLine implements Ray {
 
   //TODO consider removing support for vertical line -- let caller
   // do something else.  BufferedLine could have a factory method
@@ -56,7 +56,7 @@ public class InfBufLine {
     this.buf = buf;
   }
 
-  SpatialRelation relate(Rectangle r, Point prC, Point scratch) {
+  public SpatialRelation relate(Rectangle r, Point prC, Point scratch) {
     assert r.getCenter().equals(prC);
 
     int cQuad = quadrant(prC);
@@ -80,7 +80,7 @@ public class InfBufLine {
     }
   }
 
-  boolean contains(Point p) {
+  public boolean contains(Point p) {
     return (distanceUnbuffered(p) <= buf);
   }
 
