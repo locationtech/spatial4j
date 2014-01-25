@@ -1,0 +1,338 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>JtsWktShapeParser xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/com/spatial4j/core/io/jts/JtsWktShapeParser.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *    <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">package</strong> com.spatial4j.core.io.jts;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> com.spatial4j.core.context.jts.JtsSpatialContext;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> com.spatial4j.core.context.jts.JtsSpatialContextFactory;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> com.spatial4j.core.io.WktShapeParser;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> com.spatial4j.core.shape.Point;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> com.spatial4j.core.shape.Rectangle;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> com.spatial4j.core.shape.Shape;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> com.spatial4j.core.shape.jts.JtsGeometry;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.algorithm.CGAlgorithms;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.Coordinate;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.Envelope;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.Geometry;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.GeometryFactory;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.LinearRing;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.Polygon;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> java.text.ParseException;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * Extends {@link com.spatial4j.core.io.WktShapeParser} adding support for polygons, using JTS.</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/spatial4j/core/io/jts/JtsWktShapeParser.html">JtsWktShapeParser</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../com/spatial4j/core/io/WktShapeParser.html">WktShapeParser</a> {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/spatial4j/core/context/jts/JtsSpatialContext.html">JtsSpatialContext</a> ctx;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/spatial4j/core/io/jts/JtsWktShapeParser.html">DatelineRule</a> datelineRule;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/spatial4j/core/io/jts/JtsWktShapeParser.html">ValidationRule</a> validationRule;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>    <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> autoIndex;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../com/spatial4j/core/io/jts/JtsWktShapeParser.html">JtsWktShapeParser</a>(<a href="../../../../../com/spatial4j/core/context/jts/JtsSpatialContext.html">JtsSpatialContext</a> ctx, <a href="../../../../../com/spatial4j/core/context/jts/JtsSpatialContextFactory.html">JtsSpatialContextFactory</a> factory) {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">super</strong>(ctx, factory);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">this</strong>.ctx = ctx;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">this</strong>.datelineRule = factory.datelineRule;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">this</strong>.validationRule = factory.validationRule;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">this</strong>.autoIndex = factory.autoIndex;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>    }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>    <em class="jxr_javadoccomment">/** @see JtsWktShapeParser.ValidationRule */</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../com/spatial4j/core/io/jts/JtsWktShapeParser.html">ValidationRule</a> getValidationRule() {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">return</strong> validationRule;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>    }
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">   * JtsGeometry shapes are automatically validated when {@link #getValidationRule()} isn't</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">   * {@code none}.</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isAutoValidate() {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">return</strong> validationRule != ValidationRule.none;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>    }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">   * If JtsGeometry shapes should be automatically prepared (i.e. optimized) when read via WKT.</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">   * @see com.spatial4j.core.shape.jts.JtsGeometry#index()</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isAutoIndex() {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">return</strong> autoIndex;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>    }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>    <em class="jxr_javadoccomment">/** @see DatelineRule */</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../com/spatial4j/core/io/jts/JtsWktShapeParser.html">DatelineRule</a> getDatelineRule() {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">return</strong> datelineRule;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>    }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>    @Override
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>    <strong class="jxr_keyword">protected</strong> <a href="../../../../../com/spatial4j/core/shape/Shape.html">Shape</a> parseShapeByType(WktShapeParser.State state, String shapeType) <strong class="jxr_keyword">throws</strong> ParseException {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">if</strong> (shapeType.equalsIgnoreCase(<span class="jxr_string">"POLYGON"</span>)) {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>        <strong class="jxr_keyword">return</strong> parsePolygonShape(state);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (shapeType.equalsIgnoreCase(<span class="jxr_string">"MULTIPOLYGON"</span>)) {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>        <strong class="jxr_keyword">return</strong> parseMulitPolygonShape(state);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.parseShapeByType(state, shapeType);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>    }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>    <em class="jxr_javadoccomment">/** Bypasses {@link JtsSpatialContext#makeLineString(java.util.List)} so that we can more</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">   * efficiently get the LineString without creating a {@code List&lt;Point&gt;}.</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>    @Override
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../com/spatial4j/core/shape/Shape.html">Shape</a> parseLineStringShape(WktShapeParser.State state) <strong class="jxr_keyword">throws</strong> ParseException {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">if</strong> (!ctx.useJtsLineString())
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.parseLineStringShape(state);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">if</strong> (state.nextIfEmptyAndSkipZM())
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>       <strong class="jxr_keyword">return</strong> ctx.makeLineString(Collections.&lt;Point&gt;emptyList());
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     GeometryFactory geometryFactory = ctx.getGeometryFactory();
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     Coordinate[] coordinates = coordinateSequence(state);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">return</strong> makeShapeFromGeometry(geometryFactory.createLineString(coordinates));
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>   }
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">   * Parses a POLYGON shape from the raw string. It might return a {@link com.spatial4j.core.shape.Rectangle}</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">   * if the polygon is one.</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">   *   coordinateSequenceList</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../com/spatial4j/core/shape/Shape.html">Shape</a> parsePolygonShape(WktShapeParser.State state) <strong class="jxr_keyword">throws</strong> ParseException {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     Geometry geometry;
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">if</strong> (state.nextIfEmptyAndSkipZM()) {
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>       GeometryFactory geometryFactory = ctx.getGeometryFactory();
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>       geometry = geometryFactory.createPolygon(geometryFactory.createLinearRing(
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>           <strong class="jxr_keyword">new</strong> Coordinate[]{}), <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>       geometry = polygon(state);
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>       <strong class="jxr_keyword">if</strong> (geometry.isRectangle()) {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <em class="jxr_comment">//TODO although, might want to never convert if there's a semantic difference (e.g. geodetically)</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">return</strong> makeRectFromPoly(geometry);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>       }
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     }
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <strong class="jxr_keyword">return</strong> makeShapeFromGeometry(geometry);
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>   }
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../com/spatial4j/core/shape/Rectangle.html">Rectangle</a> makeRectFromPoly(Geometry geometry) {
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     assert geometry.isRectangle();
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     Envelope env = geometry.getEnvelopeInternal();
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">boolean</strong> crossesDateline = false;
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">if</strong> (ctx.isGeo() &amp;&amp; getDatelineRule() != DatelineRule.none) {
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>       <strong class="jxr_keyword">if</strong> (getDatelineRule() == DatelineRule.ccwRect) {
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_comment">// If JTS says it is clockwise, then it's actually a dateline crossing rectangle.</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         crossesDateline = ! CGAlgorithms.isCCW(geometry.getCoordinates());
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         crossesDateline = env.getWidth() &gt; 180;
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>       }
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     }
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     <strong class="jxr_keyword">if</strong> (crossesDateline)
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>       <strong class="jxr_keyword">return</strong> ctx.makeRectangle(env.getMaxX(), env.getMinX(), env.getMinY(), env.getMaxY());
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">else</strong>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>       <strong class="jxr_keyword">return</strong> ctx.makeRectangle(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>   }
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">   * Reads a polygon, returning a JTS polygon.</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>   <strong class="jxr_keyword">protected</strong> Polygon polygon(WktShapeParser.State state) <strong class="jxr_keyword">throws</strong> ParseException {
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     GeometryFactory geometryFactory = ctx.getGeometryFactory();
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> 
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     List&lt;Coordinate[]&gt; coordinateSequenceList = coordinateSequenceList(state);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     LinearRing shell = geometryFactory.createLinearRing
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         (coordinateSequenceList.get(0));
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     LinearRing[] holes = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">if</strong> (coordinateSequenceList.size() &gt; 1) {
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>       holes = <strong class="jxr_keyword">new</strong> LinearRing[coordinateSequenceList.size() - 1];
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; coordinateSequenceList.size(); i++) {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         holes[i - 1] = geometryFactory.createLinearRing(coordinateSequenceList.get(i));
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>       }
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     }
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <strong class="jxr_keyword">return</strong> geometryFactory.createPolygon(shell, holes);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>   }
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">   * Parses a MULTIPOLYGON shape from the raw string.</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">   *   '(' polygon (',' polygon )* ')'</em>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../com/spatial4j/core/shape/Shape.html">Shape</a> parseMulitPolygonShape(WktShapeParser.State state) <strong class="jxr_keyword">throws</strong> ParseException {
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">if</strong> (state.nextIfEmptyAndSkipZM())
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>       <strong class="jxr_keyword">return</strong> ctx.makeCollection(Collections.EMPTY_LIST);
+<a class="jxr_linenumber" name="L184" href="#L184">184</a> 
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>     List&lt;Shape&gt; polygons = <strong class="jxr_keyword">new</strong> ArrayList&lt;Shape&gt;();
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     state.nextExpect('(');
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>       polygons.add(parsePolygonShape(state));
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     } <strong class="jxr_keyword">while</strong> (state.nextIf(','));
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     state.nextExpect(')');
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> 
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <strong class="jxr_keyword">return</strong> ctx.makeCollection(polygons);
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>   }
+<a class="jxr_linenumber" name="L194" href="#L194">194</a> 
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">   * Reads a list of JTS Coordinate sequences from the current position.</em>
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">   *   '(' coordinateSequence (',' coordinateSequence )* ')'</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>   <strong class="jxr_keyword">protected</strong> List&lt;Coordinate[]&gt; coordinateSequenceList(WktShapeParser.State state) <strong class="jxr_keyword">throws</strong> ParseException {
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>     List&lt;Coordinate[]&gt; sequenceList = <strong class="jxr_keyword">new</strong> ArrayList&lt;Coordinate[]&gt;();
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>     state.nextExpect('(');
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>     <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>       sequenceList.add(coordinateSequence(state));
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     } <strong class="jxr_keyword">while</strong> (state.nextIf(','));
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     state.nextExpect(')');
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">return</strong> sequenceList;
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>   }
+<a class="jxr_linenumber" name="L211" href="#L211">211</a> 
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">   * Reads a JTS Coordinate sequence from the current position.</em>
+<a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">   *   '(' coordinate (',' coordinate )* ')'</em>
+<a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L217" href="#L217">217</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>   <strong class="jxr_keyword">protected</strong> Coordinate[] coordinateSequence(WktShapeParser.State state) <strong class="jxr_keyword">throws</strong> ParseException {
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>     List&lt;Coordinate&gt; sequence = <strong class="jxr_keyword">new</strong> ArrayList&lt;Coordinate&gt;();
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>     state.nextExpect('(');
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>       sequence.add(coordinate(state));
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>     } <strong class="jxr_keyword">while</strong> (state.nextIf(','));
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>     state.nextExpect(')');
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     <strong class="jxr_keyword">return</strong> sequence.toArray(<strong class="jxr_keyword">new</strong> Coordinate[sequence.size()]);
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>   }
+<a class="jxr_linenumber" name="L227" href="#L227">227</a> 
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">   * Reads a {@link com.vividsolutions.jts.geom.Coordinate} from the current position.</em>
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">   * It's akin to {@link #point(com.spatial4j.core.io.WktShapeParser.State)} but for</em>
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">   * a JTS Coordinate.  Only the first 2 numbers are parsed; any remaining are ignored.</em>
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>   <strong class="jxr_keyword">protected</strong> Coordinate coordinate(WktShapeParser.State state) <strong class="jxr_keyword">throws</strong> ParseException {
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     <strong class="jxr_keyword">double</strong> x = ctx.normX(state.nextDouble());
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     ctx.verifyX(x);
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">double</strong> y = ctx.normY(state.nextDouble());
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     ctx.verifyY(y);
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>     state.skipNextDoubles();
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Coordinate(x, y);
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>   }
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>   @Override
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> normDist(<strong class="jxr_keyword">double</strong> v) {
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <strong class="jxr_keyword">return</strong> ctx.getGeometryFactory().getPrecisionModel().makePrecise(v);
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>   }
+<a class="jxr_linenumber" name="L246" href="#L246">246</a> 
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>   <em class="jxr_javadoccomment">/** Creates the JtsGeometry, potentially validating, repairing, and preparing. */</em>
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../com/spatial4j/core/shape/jts/JtsGeometry.html">JtsGeometry</a> makeShapeFromGeometry(Geometry geometry) {
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> dateline180Check = getDatelineRule() != DatelineRule.none;
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>     <a href="../../../../../com/spatial4j/core/shape/jts/JtsGeometry.html">JtsGeometry</a> jtsGeom;
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>       jtsGeom = ctx.makeShape(geometry, dateline180Check, ctx.isAllowMultiOverlap());
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>       <strong class="jxr_keyword">if</strong> (isAutoValidate())
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         jtsGeom.validate();
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>       <em class="jxr_comment">//repair:</em>
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>       <strong class="jxr_keyword">if</strong> (validationRule == ValidationRule.repairConvexHull) {
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         jtsGeom = ctx.makeShape(geometry.convexHull(), dateline180Check, ctx.isAllowMultiOverlap());
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (validationRule == ValidationRule.repairBuffer0) {
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         jtsGeom = ctx.makeShape(geometry.buffer(0), dateline180Check, ctx.isAllowMultiOverlap());
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <em class="jxr_comment">//TODO there are other smarter things we could do like repairing inner holes and subtracting</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         <em class="jxr_comment">//  from outer repaired shell; but we needn't try too hard.</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         <strong class="jxr_keyword">throw</strong> e;
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>       }
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>     }
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>     <strong class="jxr_keyword">if</strong> (isAutoIndex())
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>       jtsGeom.index();
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <strong class="jxr_keyword">return</strong> jtsGeom;
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>   }
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">   * Indicates the algorithm used to process JTS Polygons and JTS LineStrings for detecting dateline</em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">   * crossings. It only applies when geo=true.</em>
+<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>   <strong class="jxr_keyword">public</strong> enum <a href="../../../../../com/spatial4j/core/io/jts/JtsWktShapeParser.html">DatelineRule</a> {
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>     <em class="jxr_javadoccomment">/** No polygon will cross the dateline. */</em>
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>     none,
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> 
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <em class="jxr_javadoccomment">/** Adjacent points with an x (longitude) difference that spans more than half</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">     * way around the globe will be interpreted as going the other (shorter) way, and thus cross the</em>
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">     * dateline.</em>
+<a class="jxr_linenumber" name="L283" href="#L283">283</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>     width180,<em class="jxr_comment">//TODO is there a better name that doesn't have '180' in it?</em>
+<a class="jxr_linenumber" name="L285" href="#L285">285</a> 
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>     <em class="jxr_javadoccomment">/** For rectangular polygons, the point order is interpreted as being counter-clockwise (CCW).</em>
+<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     * However, non-rectangular polygons or other shapes aren't processed this way; they use the</em>
+<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     * {@link #width180} rule instead. The CCW rule is specified by OGC Simple Features</em>
+<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">     * Specification v. 1.2.0 section 6.1.11.1.</em>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>     ccwRect
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>   }
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> 
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>   <em class="jxr_javadoccomment">/** Indicates how JTS geometries (notably polygons but applies to other geometries too) are</em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">   * validated (if at all) and repaired (if at all).</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>   <strong class="jxr_keyword">public</strong> enum <a href="../../../../../com/spatial4j/core/io/jts/JtsWktShapeParser.html">ValidationRule</a> {
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>     <em class="jxr_javadoccomment">/** Geometries will not be validated (because it's kinda expensive to calculate). You may or may</em>
+<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     * not ultimately get an error at some point; results are undefined. However, note that</em>
+<a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     * coordinates will still be validated for falling within the world boundaries.</em>
+<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     * @see com.vividsolutions.jts.geom.Geometry#isValid(). */</em>
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>     none,
+<a class="jxr_linenumber" name="L303" href="#L303">303</a> 
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>     <em class="jxr_javadoccomment">/** Geometries will be explicitly validated on creation, possibly resulting in an exception:</em>
+<a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">     * {@link com.spatial4j.core.exception.InvalidShapeException}. */</em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     error,
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>     <em class="jxr_javadoccomment">/** Invalid Geometries are repaired by taking the convex hull. The result will very likely be a</em>
+<a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">     * larger shape that matches false-positives, but no false-negatives.</em>
+<a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">     * See {@link com.vividsolutions.jts.geom.Geometry#convexHull()}. */</em>
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>     repairConvexHull,
+<a class="jxr_linenumber" name="L312" href="#L312">312</a> 
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <em class="jxr_javadoccomment">/** Invalid polygons are repaired using the {@code buffer(0)} technique. From the &lt;a</em>
+<a class="jxr_linenumber" name="L314" href="#L314">314</a> <em class="jxr_javadoccomment">     * href="<a href="http://tsusiatsoftware.net/jts/jts-faq/jts-faq.html" target="alexandria_uri">http://tsusiatsoftware.net/jts/jts-faq/jts-faq.html</a>"&gt;JTS FAQ&lt;/a&gt;:</em>
+<a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The buffer operation is fairly insensitive to topological invalidity, and the act of</em>
+<a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_javadoccomment">     * computing the buffer can often resolve minor issues such as self-intersecting rings. However,</em>
+<a class="jxr_linenumber" name="L317" href="#L317">317</a> <em class="jxr_javadoccomment">     * in some situations the computed result may not be what is desired (i.e. the buffer operation</em>
+<a class="jxr_linenumber" name="L318" href="#L318">318</a> <em class="jxr_javadoccomment">     * may be "confused" by certain topologies, and fail to produce a result which is close to the</em>
+<a class="jxr_linenumber" name="L319" href="#L319">319</a> <em class="jxr_javadoccomment">     * original. An example where this can happen is a "bow-tie: or "figure-8" polygon, with one</em>
+<a class="jxr_linenumber" name="L320" href="#L320">320</a> <em class="jxr_javadoccomment">     * very small lobe and one large one. Depending on the orientations of the lobes, the buffer(0)</em>
+<a class="jxr_linenumber" name="L321" href="#L321">321</a> <em class="jxr_javadoccomment">     * operation may keep the small lobe and discard the "valid" large lobe).</em>
+<a class="jxr_linenumber" name="L322" href="#L322">322</a> <em class="jxr_javadoccomment">     * &lt;/p&gt; */</em>
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>     repairBuffer0
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>   }
+<a class="jxr_linenumber" name="L325" href="#L325">325</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2014 <a href="http://locationtech.org">LocationTech</a>. All rights reserved.</div>
+</body>
+</html>

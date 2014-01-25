@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Spatial4J - About</title>
+    <title>Spatial4J - Dependency Information</title>
     <style type="text/css" media="all">
       @import url("./css/maven-base.css");
       @import url("./css/maven-theme.css");
@@ -48,8 +48,8 @@
                           <a href="project-info.html" title="Project Information">Project Information</a>
                     <ul>
                       <li class="none">
-            <strong>About</strong>
-          </li>
+                          <a href="index.html" title="About">About</a>
+            </li>
                       <li class="none">
                           <a href="plugin-management.html" title="Plugin Management">Plugin Management</a>
             </li>
@@ -57,8 +57,8 @@
                           <a href="distribution-management.html" title="Distribution Management">Distribution Management</a>
             </li>
                       <li class="none">
-                          <a href="dependency-info.html" title="Dependency Information">Dependency Information</a>
-            </li>
+            <strong>Dependency Information</strong>
+          </li>
                       <li class="none">
                           <a href="source-repository.html" title="Source Repository">Source Repository</a>
             </li>
@@ -102,10 +102,44 @@
     <div id="bodyColumn">
       <div id="contentBox">
         <div class="section">
-<h2>About Spatial4J<a name="About_Spatial4J"></a></h2><a name="About_Spatial4J"></a>
-<p>Spatial4j is a general purpose spatial / geospatial ASL licensed open-source Java library. It's
-    core capabilities are 3-fold: to provide common geospatially-aware shapes, to provide distance
-    calculations and other math, and to read shapes in WKT format.</p></div>
+<h2>Dependency Information<a name="Dependency_Information"></a></h2><a name="Dependency_Information"></a>
+<div class="section">
+<h3>Apache Maven<a name="Apache_Maven"></a></h3><a name="Apache_Maven"></a>
+<div class="source">
+<pre>&lt;dependency&gt;
+  &lt;groupId&gt;com.spatial4j&lt;/groupId&gt;
+  &lt;artifactId&gt;spatial4j&lt;/artifactId&gt;
+  &lt;version&gt;0.4&lt;/version&gt;
+  &lt;type&gt;bundle&lt;/type&gt;
+&lt;/dependency&gt;</pre></div></div>
+<div class="section">
+<h3>Apache Buildr<a name="Apache_Buildr"></a></h3><a name="Apache_Buildr"></a>
+<div class="source">
+<pre>'com.spatial4j:spatial4j:bundle:0.4'</pre></div></div>
+<div class="section">
+<h3>Apache Ant<a name="Apache_Ant"></a></h3><a name="Apache_Ant"></a>
+<div class="source">
+<pre>&lt;dependency org=&quot;com.spatial4j&quot; name=&quot;spatial4j&quot; rev=&quot;0.4&quot;&gt;
+  &lt;artifact name=&quot;spatial4j&quot; type=&quot;bundle&quot; /&gt;
+&lt;/dependency&gt;</pre></div></div>
+<div class="section">
+<h3>Groovy Grape<a name="Groovy_Grape"></a></h3><a name="Groovy_Grape"></a>
+<div class="source">
+<pre>@Grapes(
+@Grab(group='com.spatial4j', module='spatial4j', version='0.4')
+)</pre></div></div>
+<div class="section">
+<h3>Grails<a name="Grails"></a></h3><a name="Grails"></a>
+<div class="source">
+<pre>compile 'com.spatial4j:spatial4j:0.4'</pre></div></div>
+<div class="section">
+<h3>Leiningen<a name="Leiningen"></a></h3><a name="Leiningen"></a>
+<div class="source">
+<pre>[com.spatial4j/spatial4j &quot;0.4&quot;]</pre></div></div>
+<div class="section">
+<h3>SBT<a name="SBT"></a></h3><a name="SBT"></a>
+<div class="source">
+<pre>libraryDependencies += &quot;com.spatial4j&quot; %% &quot;spatial4j&quot; % &quot;0.4&quot;</pre></div></div></div>
       </div>
     </div>
     <div class="clear">

@@ -1,0 +1,10 @@
+com.spatial4j.core
+com.spatial4j.core.context
+com.spatial4j.core.context.jts
+com.spatial4j.core.distance
+com.spatial4j.core.exception
+com.spatial4j.core.io
+com.spatial4j.core.io.jts
+com.spatial4j.core.shape
+com.spatial4j.core.shape.impl
+com.spatial4j.core.shape.jts
