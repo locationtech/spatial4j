@@ -1,6 +1,6 @@
 ## VERSION 0.4
 
-DATE: ______January 2014 (pending)
+DATE: 20 January 2014
 
 ### User/API changes & Notes:
 
