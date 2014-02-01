@@ -119,6 +119,10 @@ public class GeoRay {
     }
   }
 
+  // Original version is for a straight line, however now the buffer is curved.
+  // The buffer should be specified in degrees, and should not require any further
+  // calculations. (Since we are not finding a distance that is from 2 points and abstracting
+  // to a flat surface)
   boolean contains(Point p) {
     return (distanceUnbuffered(p) <= buf);
   }

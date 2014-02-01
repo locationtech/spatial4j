@@ -49,14 +49,23 @@ public class GeoBufferedLine extends BufferedLine {
    */
   public GeoBufferedLine(Point pA, Point pB, double buf, SpatialContext ctx) {
     super(pA,pB,buf,ctx);
+    assert ctx.isGeo();
+    double radius = 180;
 
+    PointImpl center = new PointImpl(pA.getX() + deltaX / 2,
+            pA.getY() + deltaY / 2, null);
 
     if (deltaX == 0 && deltaY == 0) {
       linePrimary = new RayLine(0, center, buf);
       linePerp = new RayLine(Double.POSITIVE_INFINITY, center, buf);
     } else {
       linePrimary = new RayLine(deltaY / deltaX, center, buf);
-      double length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      double halfVerticalDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)/2;
+      double arcRadius = (double)2 * Math.asin(halfVerticalDistance/radius);
+      // we now have the length of the curve
+      double length = (arcRadius * Math.PI * radius) / (180);
+
       linePerp = new RayLine(-deltaX / deltaY, center,
               length / 2 + perpExtent);
     }
