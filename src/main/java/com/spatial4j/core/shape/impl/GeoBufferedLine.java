@@ -218,14 +218,14 @@ public class GeoBufferedLine extends BufferedLine {
   /**
    * INTERNAL
    */
-  public RayLine getLinePrimary() {
+  public Ray getLinePrimary() {
     return linePrimary;
   }
 
   /**
    * INTERNAL
    */
-  public RayLine getLinePerp() {
+  public Ray getLinePerp() {
     return linePerp;
   }
 

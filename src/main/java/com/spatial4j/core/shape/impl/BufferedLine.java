@@ -105,7 +105,6 @@ public class BufferedLine implements Shape {
             Math.max(bounds.getMinY(), minY),
             Math.min(bounds.getMaxY(), maxY));
   }
-   protected 
   /**
    * Implement in each subclass
    * Use appropriate rays for implementation
@@ -291,14 +290,14 @@ public class BufferedLine implements Shape {
   /**
    * INTERNAL
    */
-  protected RayLine setLinePrimary(Ray line) {
+  protected void setLinePrimary(Ray line) {
     this.linePrimary = line;
   }
 
   /**
    * INTERNAL
    */
-  protected RayLine setLinePerp(Ray line) {
+  protected void setLinePerp(Ray line) {
     this.linePerp = line;
   }
 
