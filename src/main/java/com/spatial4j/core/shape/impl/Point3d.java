@@ -104,7 +104,7 @@ public class Point3d {
   public Point3d scalarProductPoint(double scalar) {
     return new Point3d(getX()*scalar,getY()*scalar,getZ()*scalar);
   }
-
+  
   public String toString() {
     return "X: " + this.getX() + "\n" + "Y: " + this.getY() + "\n" + "Z: "  + this.getZ() + "\n";
   }

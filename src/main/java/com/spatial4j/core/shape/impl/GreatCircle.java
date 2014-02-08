@@ -38,6 +38,30 @@ public class GreatCircle {
     Point3d b3d = new Point3d(b);
     Point3d c3d = new Point3d(c);
 
+    Point3d plane = Point3d.crossProductPoint(a3d,b3d);
+
+    double height = dotProd(plane,c3d)/planeRooted(plane);
+    return Math.abs(DistanceUtils.toDegrees(Math.asin(height)));
+  }
+
+  private double dotProd(Point3d plane, Point3d point) {
+    return plane.getX()*point.getX() + plane.getY()*point.getY() + plane.getZ()*point.getZ();
+  }
+
+  private double planeRooted(Point3d p) {
+    double x2 = p.getX() * p.getX();
+    double y2 = p.getY() * p.getY();
+    double z2 = p.getZ() * p.getZ();
+
+    return Math.sqrt(x2 + y2 + z2);
+  }
+
+  /*
+  private double runDistance (Point c) {
+    Point3d a3d = new Point3d(a);
+    Point3d b3d = new Point3d(b);
+    Point3d c3d = new Point3d(c);
+
     Point3d g = Point3d.crossProductPoint(a3d,b3d);
     Point3d f = Point3d.crossProductPoint(c3d,g);
     Point3d t = Point3d.crossProductPoint(g,f);
@@ -61,6 +85,5 @@ public class GreatCircle {
     double distance = DistanceUtils.toDegrees(distInRAD);
     return distance;
   }
-
-
+*/
 }

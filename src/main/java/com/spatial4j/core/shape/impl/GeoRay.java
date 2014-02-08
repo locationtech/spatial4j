@@ -131,7 +131,9 @@ public class GeoRay implements Ray {
 
   /** INTERNAL AKA lineToPointDistance */
   public double distanceUnbuffered(Point c) {
+    double length = 0.0;
 
+    if(!Double.isNaN(xIntercept)) {
     // Get point on infinite line
     double nearestY = slope * ((slope*c.getY() + c.getX() - slope * xIntercept) / (slope * slope + 1)) + xIntercept;
     double nearestX = (slope * c.getY() + c.getX() - slope * xIntercept) / (slope * slope + 1);
@@ -144,8 +146,22 @@ public class GeoRay implements Ray {
     double halfVerticalDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)/2;
     double arcRadius = (double)2 * Math.asin(halfVerticalDistance/radius);
     // we now have the length of the curve
-    double length = (arcRadius * Math.PI * radius) / (180);
+    length = (arcRadius * Math.PI * radius) / (180);
+    } else {
+      // Get point on infinite line
+      double nearestY = slope * ((slope*c.getY() + c.getX() - slope) / (slope * slope + 1));
+      double nearestX = (slope * c.getY() + c.getX() - slope) / (slope * slope + 1);
 
+      double deltaX = c.getX() - nearestX;
+      double deltaY = c.getY() - nearestY;
+
+      double radius = DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM;
+
+      double halfVerticalDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)/2;
+      double arcRadius = (double)2 * Math.asin(halfVerticalDistance/radius);
+      // we now have the length of the curve
+      length = (arcRadius * Math.PI * radius) / (180);
+    }
     // Vertical line.
     // Y value = 0
     // c.getX() - xIntercept
@@ -162,7 +178,7 @@ public class GeoRay implements Ray {
       return num * distDenomInv;
       }
       */
-    return DistanceUtils.dist2Degrees(length,DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
+    return DistanceUtils.dist2Degrees(length,DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM) + 1;
 
   }
 
