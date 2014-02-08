@@ -17,7 +17,6 @@
 
 package com.spatial4j.core.shape;
 
-
 /**
  * @file: DirectionCosinePoint.java
  * @brief: Interface to a Direction Cosine Point
@@ -43,17 +42,17 @@ public interface DirectionCosinePoint {
     public void reset( double a, double b, double g );
 
     /**
-     * Get the Alpha component of the direction cosine point
+     * @brief Get the Alpha component of the direction cosine point
      */
     public double getAlpha();
 
     /**
-     * Get the Beta component of the direction cosine point
+     * @brief Get the Beta component of the direction cosine point
      */
     public double getBeta();
 
     /**
-     * Get the Gamma compnent of the direction cosine point
+     * @brief Get the Gamma component of the direction cosine point
      */
     public double getGamma();
 

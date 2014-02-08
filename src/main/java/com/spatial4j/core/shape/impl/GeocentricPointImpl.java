@@ -18,28 +18,35 @@
 package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.shape.GeocentricPoint;
+import com.spatial4j.core.shape.Vector3D;
 
 /**
- * Implementation of a 3D Geocentric point which defines a point
+ * @file: GeocentricPointImpl.java
+ * @brief: Implementation of a Geocentric Point
+ * @author: Rebecca Alford (ralford)
+ *
+ * @details Implementation of a 3D Geocentric point which defines a point
  * on the surface of a sphere in XYZ Euclidean space.
+ *
+ * @note Last Modified: 2/8/14
  */
-public class GeocentricPointImpl implements GeocentricPoint {
+public class GeocentricPointImpl extends Vector3D implements GeocentricPoint {
 
     /**
-     * Data - X, Y, and Z coordinates
+     * Store Geocentric Point Components
      */
     private double x;
     private double y;
     private double z;
 
     /**
-     * Private Constructor - Create an Empty Geocentric
-     * point (should never create a point without data)
+     * @brief Private Constructor - Create an Empty Geocentric point
+     * (should never create a point without data)
      */
     private GeocentricPointImpl() {}
 
     /**
-     * Constructor: Create a geocentric point from x, y, and z
+     * @brief Standard Constructor: Create a geocentric point from x, y, and z
      */
     public GeocentricPointImpl( double x, double y, double z ) {
         this.x = x;
@@ -48,7 +55,7 @@ public class GeocentricPointImpl implements GeocentricPoint {
     }
 
     /**
-     * Reset the 3D point
+     * @brief Reset the 3D Geodetic Point
      */
     @Override
     public void reset( double x, double y, double z ) {
@@ -58,43 +65,31 @@ public class GeocentricPointImpl implements GeocentricPoint {
     }
 
     /**
-     * Get the X coordinate of the 3D point
+     * @brief Get the X coordinate of the 3D point
      */
+    @Override
     public double getX() {
         return this.x;
     }
 
     /**
-     * Get the Y coordinate of the 3D point
+     * @brief Get the Y coordinate of the 3D point
      */
+    @Override
     public double getY() {
         return this.y;
     }
 
     /**
-     * Get the Z coordinate of the 3D point
+     * @brief Get the Z coordinate of the 3D point
      */
+    @Override
     public double getZ() {
         return this.z;
     }
 
     /**
-     * Get Center: Return The Geocentric point itself
-     * Provides some shape like behavior of teh 3D geocentric point
-     */
-    public GeocentricPoint getCenter() {
-        return this;
-    }
-
-    /**
-     * Determine if the shape has any area (internal)
-     */
-    public boolean hasArea() {
-        return false;
-    }
-
-    /**
-     * Provide a string representation of the 3D geocentric point
+     * @brief Provide a string representation of the 3D geocentric point
      */
     @Override
     public String toString() {
@@ -107,14 +102,15 @@ public class GeocentricPointImpl implements GeocentricPoint {
     }
 
     /**
-     *  All Geocentric Point implementations should use this definition of Object#equals(Object)
+     *  @brief Equality between Geocentric Points
+     *  @details All Geocentric Point implementations should use this definition of Object#equals(Object)
      */
-    public static boolean equals(GeocentricPoint thiz, Object o) {
+    public static boolean equals(GeocentricPointImpl thiz, Object o) {
         assert thiz != null;
         if (thiz == o) return true;
         if (!(o instanceof GeocentricPoint)) return false;
 
-        GeocentricPoint point = (GeocentricPoint) o;
+        GeocentricPointImpl point = (GeocentricPointImpl) o;
 
         if (Double.compare(point.getX(), thiz.getX()) != 0) return false;
         if (Double.compare(point.getY(), thiz.getY()) != 0) return false;
@@ -129,10 +125,11 @@ public class GeocentricPointImpl implements GeocentricPoint {
     }
 
     /**
-     * All GeocentricPoint implementations should use this definition of Object#hashCode()
+     * @brief HashCode for Geocentric Point
+     * @details All GeocentricPoint implementations should use this definition of Object#hashCode()
      * Using the same hashCode definition as teh XY point
      */
-    public static int hashCode(GeocentricPoint thiz )   {
+    public static int hashCode(GeocentricPointImpl thiz )   {
         int result;
         long temp;
         temp = thiz.getX() != +0.0d ? Double.doubleToLongBits(thiz.getX()) : 0L;
