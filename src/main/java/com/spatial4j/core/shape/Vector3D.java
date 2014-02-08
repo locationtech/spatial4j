@@ -18,7 +18,7 @@
 package com.spatial4j.core.shape;
 
 /**
- * @file: Point3D.java
+ * @file: Vector3D.java
  * @brief: Generic 3 Component Vector/Point (double)
  * @author: Rebecca Alford (ralford)
  *
@@ -28,7 +28,7 @@ package com.spatial4j.core.shape;
  *
  * @note Last Modified: 2/8/14
  */
-public class Point3D {
+public class Vector3D {
 
     /**
      * Store coordinate information
@@ -45,7 +45,7 @@ public class Point3D {
      * Default constructor for a 3D Point - Initialzies all components
      * to 0.
      */
-    public Point3D() {
+    public Vector3D() {
         this.X = 0;
         this.Y = 0;
         this.Z = 0;
@@ -54,7 +54,7 @@ public class Point3D {
     /**
      * Public constructor for a 3 component point (generic)
      */
-    public Point3D( double x, double y, double z ) {
+    public Vector3D(double x, double y, double z) {
         this.X = x;
         this.Y = y;
         this.Z = z;
