@@ -23,6 +23,52 @@ package com.spatial4j.core.math;
 
 public class VectorUtils {
 
+    /**
+     * Constructors
+     */
+
+    /**
+     * Default Constructor - Build a Vector utilities class
+     */
+    public VectorUtils() {}
+
+    /**
+     * Vector Sum
+     */
+    public Vector3D sum( Vector3D a, Vector3D, b ) {
+
+    }
+
+    /**
+     * Vector Difference
+     */
+    public Vector3D difference( Vector3D a, Vector3D b ) {
+
+    }
+
+
+    /**
+     * Scalar multiplication
+     */
+    public double multiply( Vector3D v, double s ) {
+
+    }
+
+    /**
+     * Vector Magnitude
+     */
+    public double mag( Vector3D v  ) {
+
+    }
+
+    /**
+     * Unit Vector
+     */
+    public Vector3D unit_vector( Vector3D v ) {
+
+    }
+
+
 
 
 
