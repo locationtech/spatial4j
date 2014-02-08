@@ -17,8 +17,7 @@
 
 package com.spatial4j.core.math;
 
-import com.spatial4j.core.shape.DirectionCosinePoint;
-import com.spatial4j.core.shape.impl.DirectionCosinePointImpl;
+import com.spatial4j.core.shape.impl.DirectionCosinePoint;
 import com.spatial4j.core.shape.impl.GeocentricPoint;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
@@ -122,13 +121,13 @@ public class TransformUtils {
      *
      * Include link: </here>
      */
-    public DirectionCosinePoint toDirectionCosine( GeocentricPoint gp ) {
+    public com.spatial4j.core.shape.DirectionCosinePoint toDirectionCosine( GeocentricPoint gp ) {
 
         double alpha = gp.getX()/VectorUtils.mag(gp);
         double beta = gp.getY()/VectorUtils.mag(gp);
         double gamma = gp.getZ()/VectorUtils.mag(gp);
 
-        return new DirectionCosinePointImpl( alpha, beta, gamma );
+        return new DirectionCosinePoint( alpha, beta, gamma );
 
     }
 

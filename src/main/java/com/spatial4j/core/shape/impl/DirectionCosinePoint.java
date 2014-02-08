@@ -17,13 +17,18 @@
 
 package com.spatial4j.core.shape.impl;
 
-import com.spatial4j.core.shape.DirectionCosinePoint;
+import com.spatial4j.core.shape.Vector3D;
 
 /**
- * Implementation of a direction cosine point which represents a point on the surface
- * of the spheroidal model of the earth
+ * Interface to a Direction Cosine Point
+ * Define a point in 3D Euclidean space defined by its XYZ direction cosines that represents
+ * a point on a spheroidal model of the earth by its direction cosines. Provides avenues to fast
+ * computations of geodesic intersections.
+ *
+ * Information for Implementation of Direction Cosine Points can be found from:
+ * http://www3.ul.ie/~mlc/support/Loughborough%20website/chap9/9_3.pdf
  */
-public class DirectionCosinePointImpl implements DirectionCosinePoint {
+public class DirectionCosinePoint extends Vector3D {
 
     /**
      * Data - alpha, beta, and gamma coordinates
@@ -36,7 +41,7 @@ public class DirectionCosinePointImpl implements DirectionCosinePoint {
      * Private Constructor - Create an Empty DirectionCosine
      * point (should never create a point without data)
      */
-    private DirectionCosinePointImpl() {
+    private DirectionCosinePoint() {
         this.alpha = 0;
         this.beta = 0;
         this.gamma = 0;
@@ -45,7 +50,7 @@ public class DirectionCosinePointImpl implements DirectionCosinePoint {
     /**
      * Constructor: Create a direction cosine point from a, b, g
      */
-    public DirectionCosinePointImpl(double a, double b, double g) {
+    public DirectionCosinePoint(double a, double b, double g) {
         this.alpha = a;
         this.beta = b;
         this.gamma = g;
@@ -83,20 +88,28 @@ public class DirectionCosinePointImpl implements DirectionCosinePoint {
         return this.gamma;
     }
 
-
     /**
-     * Get Center: Return The Direciton cosine point itself
-     * Provides some shape like behavior of teh 3D geocentric point
+     * Vector Interface Method: alpha -> X for vector ops
      */
-    public DirectionCosinePointImpl getCenter() {
-        return this;
+    @Override
+    public double getX() {
+        return getAlpha();
     }
 
     /**
-     * Determine if the shape has any area (internal)
+     * Vector Interface Method; beta -> Y for vector ops
      */
-    public boolean hasArea() {
-        return false;
+    @Override
+    public double getY() {
+        return getBeta();
+    }
+
+    /**
+     * Vector Interface Method: gamma -> Z for vector ops
+     */
+    @Override
+    public double getZ() {
+        return getGamma();
     }
 
     /**
@@ -138,7 +151,7 @@ public class DirectionCosinePointImpl implements DirectionCosinePoint {
      * All GeocentricPoint implementations should use this definition of Object#hashCode()
      * Using the same hashCode definition as teh XY point
      */
-    public static int hashCode(DirectionCosinePoint thiz )   {
+    public static int hashCode( DirectionCosinePoint thiz )   {
         int result;
         long temp;
         temp = thiz.getAlpha() != +0.0d ? Double.doubleToLongBits(thiz.getAlpha()) : 0L;
