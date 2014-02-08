@@ -17,6 +17,8 @@
 
 package com.spatial4j.core.math;
 
+import com.spatial4j.core.shape.Vector3D;
+
 /**
  * Utilities for operations on 3D vectors
  */
@@ -27,7 +29,7 @@ public class VectorUtils {
     /**
      * Vector Sum
      */
-    public Vector3D sum( Vector3D a, Vector3D b ) {
+    public static Vector3D sum( Vector3D a, Vector3D b ) {
 
         double sum_x = a.getX() + b.getX();
         double sum_y = a.getY() + b.getY();
@@ -39,7 +41,7 @@ public class VectorUtils {
     /**
      * Vector Difference
      */
-    public Vector3D difference( Vector3D a, Vector3D b ) {
+    public static Vector3D difference( Vector3D a, Vector3D b ) {
 
         double diff_x = a.getX() - b.getX();
         double diff_y = a.getY() - b.getY();
@@ -52,7 +54,7 @@ public class VectorUtils {
     /**
      * Scalar multiplication
      */
-    public Vector3D multiply( Vector3D v, double s ) {
+    public static Vector3D multiply( Vector3D v, double s ) {
 
         double mult_x = s * v.getX();
         double mult_y = s * v.getY();
@@ -64,7 +66,7 @@ public class VectorUtils {
     /**
      * Vector Magnitude
      */
-    public double mag( Vector3D v  ) {
+    public static double mag( Vector3D v  ) {
 
         double x_2 = Math.pow( v.getX(), 2 );
         double y_2 = Math.pow( v.getY(), 2 );
@@ -77,7 +79,7 @@ public class VectorUtils {
      * Compute the unit vector of the given 3D Vector
      * Specifies direction and guarantees a magnitude == 1
      */
-    public Vector3D unit_vector( Vector3D v ) {
+    public static Vector3D unit_vector( Vector3D v ) {
         double mag = mag(v);
         return multiply(v, 1/mag);
     }

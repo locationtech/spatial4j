@@ -34,12 +34,7 @@ import com.spatial4j.core.distance.DistanceUtils;
  */
 public class TransformUtils {
 
-
-    /**
-     * Construct a transform utilities class
-     */
-    public TransformUtils() {}
-
+    private TransformUtils() {}
 
     /**
      * This method converts a 2D geodetic point (latitude/longitude)
@@ -49,7 +44,7 @@ public class TransformUtils {
      *
      * agh idk I need constants... (e, n, u)
      */
-    public GeocentricPoint toGeodetic( Point p ) {
+    public static GeocentricPoint toGeodetic( Point p ) {
 
         // Convert lat/lon to radians
         double lambda = DistanceUtils.toRadians(p.getX());
@@ -74,7 +69,7 @@ public class TransformUtils {
      *
      * Method Referenced from Goedesy FrameOfReference Class (ASL Licensed)
      */
-    public Point toGeoDetic( GeocentricPoint gp ) {
+    public static Point toGeoDetic( GeocentricPoint gp ) {
 
         // Grab the initial XYZ coordinates form the geodetic point
         double X = gp.getX();
@@ -121,13 +116,13 @@ public class TransformUtils {
      *
      * Include link: </here>
      */
-    public com.spatial4j.core.shape.DirectionCosinePoint toDirectionCosine( GeocentricPoint gp ) {
+    public static DirectionCosinePoint toDirectionCosine( GeocentricPoint gp ) {
 
-        double alpha = gp.getX()/VectorUtils.mag(gp);
-        double beta = gp.getY()/VectorUtils.mag(gp);
-        double gamma = gp.getZ()/VectorUtils.mag(gp);
+       double alpha = gp.getX()/VectorUtils.mag(gp);
+       double beta = gp.getY()/VectorUtils.mag(gp);
+       double gamma = gp.getZ()/VectorUtils.mag(gp);
 
-        return new DirectionCosinePoint( alpha, beta, gamma );
+       return new DirectionCosinePoint( alpha, beta, gamma );
 
     }
 
