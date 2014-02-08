@@ -17,7 +17,6 @@
 
 package com.spatial4j.core.shape;
 
-
 /**
  * @file: GeocentricPoint.java
  * @brief: Interface to a Geocentric Point
@@ -40,20 +39,5 @@ public interface GeocentricPoint {
      * argument control.
      */
     public void reset( double x, double y, double z );
-
-    /**
-     * @brief Get the X coordinate in the 3D geocentric point
-     */
-    public double getX();
-
-    /**
-     * @brief Get the Y coordinate in the 3D geocentric point
-     */
-    public double getY();
-
-    /**
-     * @brief Get the Z coordinate in the 3D geocentric point
-     */
-    public double getZ();
 
 } // interface GeocentricPoint

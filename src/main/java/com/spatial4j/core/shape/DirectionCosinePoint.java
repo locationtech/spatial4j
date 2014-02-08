@@ -17,6 +17,20 @@
 
 package com.spatial4j.core.shape;
 
+
+/**
+ * @file: GeocentricPoint.java
+ * @brief: Interface to a Geocentric Point
+ * @author: Rebecca Alford (ralford)
+ *
+ * @details Define a point in 3D Euclidean space (XYZ) that represents a point
+ * on the spheroidal model of the earth. The Geocentric Point can also be described
+ * as a vector from the center of the earth (0, 0, 0) to the defined XYZ geocentric point.
+ * The geocentric point in Spatial4j alows shapes to be internally represented in 3D for polygonal
+ * modeling
+ *
+ * @note Last Modified: 2/8/14
+ */
 /**
  * Interface: Direction Cosine Point
  * Define a point in 3D space that represents a point on the spheroidal
