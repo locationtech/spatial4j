@@ -17,6 +17,7 @@
 
 package com.spatial4j.core.shape.impl;
 
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.SpatialRelation;
@@ -29,11 +30,12 @@ import static com.spatial4j.core.shape.SpatialRelation.*;
  */
 
 /**
+
  * Created by Chris Pavlicek
  * Jan 21 2014
  */
 
-public class GeoRay {
+public class GeoRay implements Ray {
   // This is a normal line implementation : y = slope * x + yIntercept
   // if slope is 0 line is parallel to the equator.
   private final double slope;
@@ -57,7 +59,7 @@ public class GeoRay {
    * @param slope
    * @param point
    */
-  GeoRay(double slope, Point point, double buf) {
+  public GeoRay(double slope, Point point, double buf) {
 
     // Check the slope
     assert !Double.isNaN(slope);
@@ -95,7 +97,7 @@ public class GeoRay {
 
   }
 
-  SpatialRelation relate(Rectangle r, Point prC, Point scratch) {
+  public SpatialRelation relate(Rectangle r, Point prC, Point scratch) {
     assert r.getCenter().equals(prC);
 
     int cQuad = quadrant(prC);
@@ -123,15 +125,32 @@ public class GeoRay {
   // The buffer should be specified in degrees, and should not require any further
   // calculations. (Since we are not finding a distance that is from 2 points and abstracting
   // to a flat surface)
-  boolean contains(Point p) {
+  public boolean contains(Point p) {
     return (distanceUnbuffered(p) <= buf);
   }
 
   /** INTERNAL AKA lineToPointDistance */
   public double distanceUnbuffered(Point c) {
 
+    // Get point on infinite line
+    double nearestY = slope * ((slope*c.getY() + c.getX() - slope * xIntercept) / (slope * slope + 1)) + xIntercept;
+    double nearestX = (slope * c.getY() + c.getX() - slope * xIntercept) / (slope * slope + 1);
+
+    double deltaX = c.getX() - nearestX;
+    double deltaY = c.getY() - nearestY;
+
+    double radius = DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM;
+
+    double halfVerticalDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)/2;
+    double arcRadius = (double)2 * Math.asin(halfVerticalDistance/radius);
+    // we now have the length of the curve
+    double length = (arcRadius * Math.PI * radius) / (180);
+
     // Vertical line.
-    if (Double.isInfinite(slope)) {
+    // Y value = 0
+    // c.getX() - xIntercept
+    // Else it must be smaller
+   /* if (Double.isInfinite(slope)) {
       return Math.abs(c.getX() - xIntercept);
     } else {
       // We have a line of some sort
@@ -139,8 +158,12 @@ public class GeoRay {
       // See link for more information.
       // http://math.ucsd.edu/~wgarner/math4c/derivations/distance/distptline.htm
       double num = Math.abs(c.getY() - slope * c.getX() - xIntercept);
+      //System.out.println("Distance UNBUFF" + (num * distDenomInv));
       return num * distDenomInv;
-    }
+      }
+      */
+    return DistanceUtils.dist2Degrees(length,DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
+
   }
 
   /** INTERNAL: AKA lineToPointQuadrant */
@@ -181,6 +204,9 @@ public class GeoRay {
     return slope;
   }
 
+  public double getBuf() {
+    return buf;
+  }
   public double getEquatorIntercept() {
     return xIntercept;
   }
