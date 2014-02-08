@@ -19,47 +19,41 @@ package com.spatial4j.core.shape;
 
 
 /**
- * @file: GeocentricPoint.java
- * @brief: Interface to a Geocentric Point
+ * @file: DirectionCosinePoint.java
+ * @brief: Interface to a Direction Cosine Point
  * @author: Rebecca Alford (ralford)
  *
- * @details Define a point in 3D Euclidean space (XYZ) that represents a point
- * on the spheroidal model of the earth. The Geocentric Point can also be described
- * as a vector from the center of the earth (0, 0, 0) to the defined XYZ geocentric point.
- * The geocentric point in Spatial4j alows shapes to be internally represented in 3D for polygonal
- * modeling
+ * @details Define a point in 3D Euclidean space defined by its XYZ direction cosines that represents
+ * a point on a spheroidal model of the earth by its direciton cosines. Provides avenues to fast
+ * compotations of geodesic intersections.
+ *
+ * Information for Implementation of Direction Cosine Points can be found from:
+ * http://www3.ul.ie/~mlc/support/Loughborough%20website/chap9/9_3.pdf
  *
  * @note Last Modified: 2/8/14
- */
-/**
- * Interface: Direction Cosine Point
- * Define a point in 3D space that represents a point on the spheroidal
- * model of the earth by its direction cosines.
- *
- * Referneces http://www3.ul.ie/~mlc/support/Loughborough%20website/chap9/9_3.pdf
- * for computation of Direction Cosines
  */
 public interface DirectionCosinePoint {
 
     /**
-     * Reset the state of the direction cosine point given arguments. This feature
+     * @brief Reset the Direction Cosine Point
+     * @details Reset the state of the direction cosine point given arguments. This feature
      * is a performance optimization to avoid excessive shape object allocation and
      * argument control.
      */
     public void reset( double a, double b, double g );
 
     /**
-     * Set the X coordinate in the 3D geocentric point
+     * Get the Alpha component of the direction cosine point
      */
     public double getAlpha();
 
     /**
-     * Get the Y coordinate in the 3D geocentric point
+     * Get the Beta component of the direction cosine point
      */
     public double getBeta();
 
     /**
-     * Get the Z coordinate in the 3D geocentric point
+     * Get the Gamma compnent of the direction cosine point
      */
     public double getGamma();
 
