@@ -1,8 +1,7 @@
 package com.spatial4j.core.shape.impl;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Point;
 
 /**
@@ -14,41 +13,72 @@ public class GreatCircle {
   private Point a;
   private Point b;
 
+  final Point3d a3d;
+  final Point3d b3d;
+
+  // TODO: inline vector class? or build another?
+  final Point3d planeVector;
+
+  final double invPlaneLength;
+
   public GreatCircle(Point a, Point b) {
     this.a = a;
     this.b = b;
-  }
 
-  public double distanceToPoint(Point c) {
-    double distance = runDistance(c);
-    double flipX = 0;
-    if(distance > 90) {
-      flipX = c.getX()-180;
+    if(b.getY() == (-1*a.getY())) {
 
-      if(flipX < -180)
-        flipX += 360;
-      c.reset(flipX,-1.0*c.getY());
-      distance = runDistance(c);
+      double xA = a.getX() - 180;
+      if(xA < -180) {
+        xA += 360;
+      } else if(xA == 180){
+        xA = -180;
+      }
+
+      double xB = b.getX();
+
+      if(xB == 180) {
+        xB = -180;
+      }
+
+      if(xA == xB || (a.getX() == b.getX() && a.getY() == b.getY())) {
+        throw new InvalidShapeException("Antipodal points ambiguous great circle");
+      }
     }
-    return distance;
+
+    // Store points of the great circle
+    a3d = new Point3d(a);
+    b3d = new Point3d(b);
+
+    // Vector as Point3d for simplicity.
+    planeVector = Point3d.crossProductPoint(a3d,b3d);
+
+    // Inverse of plane length
+    invPlaneLength = 1/GreatCircle.vectorLength(planeVector);
   }
 
-  private double runDistance (Point c) {
-    Point3d a3d = new Point3d(a);
-    Point3d b3d = new Point3d(b);
+  /**
+   * Returns the distance to the GreatCircle from the Point c.
+   * Also known as the cross-track distance.
+   * See Ref: http://mathworld.wolfram.com/Point-PlaneDistance.html
+   * @param c
+   * @return
+   */
+  public double distanceToPoint(Point c) {
     Point3d c3d = new Point3d(c);
+    double height = GreatCircle.dotProduct(planeVector, c3d)*invPlaneLength;
 
-    Point3d plane = Point3d.crossProductPoint(a3d,b3d);
-
-    double height = dotProd(plane,c3d)/planeRooted(plane);
+    // opposite/hyp = Sin theta -> use asin of Height/1 (radians)
+    // Gives radians of arc length.
     return Math.abs(DistanceUtils.toDegrees(Math.asin(height)));
   }
 
-  private double dotProd(Point3d plane, Point3d point) {
-    return plane.getX()*point.getX() + plane.getY()*point.getY() + plane.getZ()*point.getZ();
+  /** the dot product of a vector and a point. (plane.x * point.x + plane.y * point.y + plane.z * point.z) */
+  private static double dotProduct(Point3d vectorPlane, Point3d point) {
+    return vectorPlane.getX()*point.getX() + vectorPlane.getY()*point.getY() + vectorPlane.getZ()*point.getZ();
   }
 
-  private double planeRooted(Point3d p) {
+  /** The magnitude of the vector. sqrt(x^2 + y^2 + z^2) */
+  private static double vectorLength(Point3d p) {
     double x2 = p.getX() * p.getX();
     double y2 = p.getY() * p.getY();
     double z2 = p.getZ() * p.getZ();

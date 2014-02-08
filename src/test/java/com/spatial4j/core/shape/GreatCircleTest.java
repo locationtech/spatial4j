@@ -3,6 +3,7 @@ package com.spatial4j.core.shape;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.impl.GreatCircle;
 import com.spatial4j.core.shape.impl.PointImpl;
 import org.junit.Test;
@@ -42,7 +43,38 @@ public class GreatCircleTest extends RandomizedTest {
     dist(2, 0, 0, 90,0, 90, 2);
     dist(90-random90, 0, 0, 90, random90, 0,90);
     dist(Math.abs(45-random90), 0, 0, 90, 45, 90,random90);
+    for(int i = 0; i <= 90; i++) {
+      double random90b = i;
+      random90 = randomDouble()*90;
+      dist(Math.abs(random90b-random90), 0, 0, 90,random90b , 90,random90);
+    }
     dist(0, 0, 0, 0, 90, 180,0);
+
+    try { dist(0, 0, 0, 180, 0, 0,90);
+      fail();
+    } catch (InvalidShapeException e) {
+      // Expected
+    }
+
+    try {
+      for(int i =0; i <= 180; i ++) {
+        dist(0, i, 0, i, 0, 0,90);
+        fail();
+      }
+    } catch (InvalidShapeException e) {
+      // Expected
+    }
+
+
+    try {
+      for(int i =0; i <= 180; i ++) {
+        double randomLat = randomDouble() * 90;
+        dist(0, i, randomLat, i-180, -1*randomLat, 0,90);
+        fail();
+      }
+    } catch (InvalidShapeException e) {
+      // Expected
+    }
 
   }
 
