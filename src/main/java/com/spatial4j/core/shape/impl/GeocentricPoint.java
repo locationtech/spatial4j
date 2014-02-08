@@ -17,20 +17,17 @@
 
 package com.spatial4j.core.shape.impl;
 
-import com.spatial4j.core.shape.GeocentricPoint;
 import com.spatial4j.core.shape.Vector3D;
 
 /**
- * @file: GeocentricPointImpl.java
- * @brief: Implementation of a Geocentric Point
- * @author: Rebecca Alford (ralford)
- *
- * @details Implementation of a 3D Geocentric point which defines a point
- * on the surface of a sphere in XYZ Euclidean space.
- *
- * @note Last Modified: 2/8/14
+ * Implementation of a Geocentric Point
+ * Define a point in 3D Euclidean space (XYZ) that represents a point
+ * on the spheroidal model of the earth. The Geocentric Point can also be described
+ * as a vector from the center of the earth (0, 0, 0) to the defined XYZ geocentric point.
+ * The geocentric point in Spatial4j allows shapes to be internally represented in 3D for polygonal
+ * modeling
  */
-public class GeocentricPointImpl extends Vector3D implements GeocentricPoint {
+public class GeocentricPoint extends Vector3D {
 
     /**
      * Store Geocentric Point Components
@@ -40,24 +37,23 @@ public class GeocentricPointImpl extends Vector3D implements GeocentricPoint {
     private double z;
 
     /**
-     * @brief Private Constructor - Create an Empty Geocentric point
+     * Private Constructor - Create an Empty Geocentric point
      * (should never create a point without data)
      */
-    private GeocentricPointImpl() {}
+    private GeocentricPoint() {}
 
     /**
-     * @brief Standard Constructor: Create a geocentric point from x, y, and z
+     * Standard Constructor: Create a geocentric point from x, y, and z
      */
-    public GeocentricPointImpl( double x, double y, double z ) {
+    public GeocentricPoint(double x, double y, double z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
     /**
-     * @brief Reset the 3D Geodetic Point
+     * Reset the 3D Geodetic Point
      */
-    @Override
     public void reset( double x, double y, double z ) {
         this.x = x;
         this.y = y;
@@ -65,7 +61,7 @@ public class GeocentricPointImpl extends Vector3D implements GeocentricPoint {
     }
 
     /**
-     * @brief Get the X coordinate of the 3D point
+     * Get the X coordinate of the 3D point
      */
     @Override
     public double getX() {
@@ -73,7 +69,7 @@ public class GeocentricPointImpl extends Vector3D implements GeocentricPoint {
     }
 
     /**
-     * @brief Get the Y coordinate of the 3D point
+     * Get the Y coordinate of the 3D point
      */
     @Override
     public double getY() {
@@ -81,7 +77,7 @@ public class GeocentricPointImpl extends Vector3D implements GeocentricPoint {
     }
 
     /**
-     * @brief Get the Z coordinate of the 3D point
+     * Get the Z coordinate of the 3D point
      */
     @Override
     public double getZ() {
@@ -89,7 +85,7 @@ public class GeocentricPointImpl extends Vector3D implements GeocentricPoint {
     }
 
     /**
-     * @brief Provide a string representation of the 3D geocentric point
+     * Provide a string representation of the 3D geocentric point
      */
     @Override
     public String toString() {
@@ -102,15 +98,15 @@ public class GeocentricPointImpl extends Vector3D implements GeocentricPoint {
     }
 
     /**
-     *  @brief Equality between Geocentric Points
-     *  @details All Geocentric Point implementations should use this definition of Object#equals(Object)
+     *  Equality between Geocentric Points
+     *  All Geocentric Point implementations should use this definition of Object#equals(Object)
      */
-    public static boolean equals(GeocentricPointImpl thiz, Object o) {
+    public static boolean equals(GeocentricPoint thiz, Object o) {
         assert thiz != null;
         if (thiz == o) return true;
         if (!(o instanceof GeocentricPoint)) return false;
 
-        GeocentricPointImpl point = (GeocentricPointImpl) o;
+        GeocentricPoint point = (GeocentricPoint) o;
 
         if (Double.compare(point.getX(), thiz.getX()) != 0) return false;
         if (Double.compare(point.getY(), thiz.getY()) != 0) return false;
@@ -125,11 +121,11 @@ public class GeocentricPointImpl extends Vector3D implements GeocentricPoint {
     }
 
     /**
-     * @brief HashCode for Geocentric Point
-     * @details All GeocentricPoint implementations should use this definition of Object#hashCode()
+     * HashCode for Geocentric Point
+     * All GeocentricPoint implementations should use this definition of Object#hashCode()
      * Using the same hashCode definition as teh XY point
      */
-    public static int hashCode(GeocentricPointImpl thiz )   {
+    public static int hashCode(GeocentricPoint thiz )   {
         int result;
         long temp;
         temp = thiz.getX() != +0.0d ? Double.doubleToLongBits(thiz.getX()) : 0L;

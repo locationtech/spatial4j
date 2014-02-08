@@ -23,7 +23,7 @@ import com.spatial4j.core.shape.DirectionCosinePoint;
  * Implementation of a direction cosine point which represents a point on the surface
  * of the spheroidal model of the earth
  */
-public class DirectionCosineImpl implements DirectionCosinePoint {
+public class DirectionCosinePointImpl implements DirectionCosinePoint {
 
     /**
      * Data - alpha, beta, and gamma coordinates
@@ -36,7 +36,7 @@ public class DirectionCosineImpl implements DirectionCosinePoint {
      * Private Constructor - Create an Empty DirectionCosine
      * point (should never create a point without data)
      */
-    private DirectionCosineImpl() {
+    private DirectionCosinePointImpl() {
         this.alpha = 0;
         this.beta = 0;
         this.gamma = 0;
@@ -45,7 +45,7 @@ public class DirectionCosineImpl implements DirectionCosinePoint {
     /**
      * Constructor: Create a direction cosine point from a, b, g
      */
-    public DirectionCosineImpl( double a, double b, double g ) {
+    public DirectionCosinePointImpl(double a, double b, double g) {
         this.alpha = a;
         this.beta = b;
         this.gamma = g;
@@ -88,7 +88,7 @@ public class DirectionCosineImpl implements DirectionCosinePoint {
      * Get Center: Return The Direciton cosine point itself
      * Provides some shape like behavior of teh 3D geocentric point
      */
-    public DirectionCosineImpl getCenter() {
+    public DirectionCosinePointImpl getCenter() {
         return this;
     }
 
