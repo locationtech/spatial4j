@@ -27,9 +27,9 @@ public class GreatCircle {
 
       if(flipX < -180)
         flipX += 360;
+      c.reset(flipX,-1.0*c.getY());
+      distance = runDistance(c);
     }
-    c.reset(flipX,-1.0*c.getY());
-    distance = runDistance(c);
     return distance;
   }
 
@@ -42,24 +42,23 @@ public class GreatCircle {
     Point3d f = Point3d.crossProductPoint(c3d,g);
     Point3d t = Point3d.crossProductPoint(g,f);
 
-    t.normalizePoint();
-    t.scalarProductPoint(DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
+    //t.normalizePoint();
+    //t.scalarProductPoint(DistanceUtils.RADIANS_TO_DEGREES);
 
-    double lat = Math.asin(t.getZ() / DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
+    double lat = Math.asin(t.getZ() / DistanceUtils.RADIANS_TO_DEGREES);
     double lon = Math.atan2(t.getY(), t.getX());
 
     // Radians
-    lat = DistanceUtils.toRadians(lat);
-    lon = DistanceUtils.toRadians(lon);
+    //lat = DistanceUtils.toRadians(lat);
+    //lon = DistanceUtils.toRadians(lon);
 
     double lonPoint = DistanceUtils.toRadians(c.getX());
     double latPoint = DistanceUtils.toRadians(c.getY());
 
-    // Error in distHaversineRAD
-    double distInRAD = DistanceUtils.distHaversineRAD(lat,lon,latPoint,lonPoint);
-    double distInKm = DistanceUtils.radians2Dist(distInRAD,DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
 
-    double distance = DistanceUtils.dist2Degrees(distInKm,DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
+    double distInRAD = DistanceUtils.distHaversineRAD(lat,lon,latPoint,lonPoint);
+
+    double distance = DistanceUtils.toDegrees(distInRAD);
     return distance;
   }
 

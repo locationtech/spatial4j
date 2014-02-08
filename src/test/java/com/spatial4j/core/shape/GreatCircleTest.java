@@ -14,22 +14,32 @@ import org.junit.Test;
  */
 public class GreatCircleTest extends RandomizedTest {
 
-
-  private static final double EPS = 0.00001;
+  //TODO: Robustness of calcs
+  private static final double EPS = 0.0000001;
   private final SpatialContext ctx = new SpatialContextFactory()
   {{geo = true;}}.newSpatialContext();
 
   @Test
   public void distance() {
-
-    Point a = new PointImpl(0,0,ctx);
-    Point b = new PointImpl(90,0,ctx);
-    Point c = new PointImpl(0,181,ctx);
-
     // Great circle is equator
     dist(90,0,0,5,0,0,90); // north pole
     dist(45,0, 0, 5, 0, 0, 45); // 45 north of equator
-    dist(10,0, 0, 0, 90 , 0, 10); // 45 north of equator
+    double random90 = randomDouble()*90;
+    dist(random90,0, 0, 5, 0, 0, random90); // 45 north of equator
+
+    // Dateline
+    dist(90,0, 0, 0, 90 , 90, 0);
+    dist(45,0, 0, 0, 10 , 45, 0);
+
+    // Random Vertical to Long
+    dist(random90,0, 0, 90, 0,0, random90);
+
+    //
+    double test = 90 - (90 - random90);
+    dist(90, 0, 0, 0, 90, 90, 0);
+    dist(random90, 0, 0, 0, 90, random90, 0);
+
+
 
   }
 

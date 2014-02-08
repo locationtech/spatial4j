@@ -29,9 +29,12 @@ public class Point3d {
    */
   public Point3d(double longitude, double latitude) {
 
-    this.x = DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM * Math.cos(latitude) * Math.cos(longitude);
-    this.y = DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM * Math.cos(latitude) * Math.sin(longitude);
-    this.z = DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM * Math.sin(latitude);
+    double longitudeRAD = DistanceUtils.toRadians(longitude);
+    double latitudeRAD = DistanceUtils.toRadians(latitude);
+
+    this.x = Math.cos(latitudeRAD) * Math.cos(longitudeRAD);
+    this.y = Math.cos(latitudeRAD) * Math.sin(longitudeRAD);
+    this.z = Math.sin(latitudeRAD);
   }
 
   /**
