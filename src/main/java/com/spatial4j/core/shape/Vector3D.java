@@ -22,16 +22,17 @@ package com.spatial4j.core.shape;
  * @brief: Generic 3 Component Vector/Point (double)
  * @author: Rebecca Alford (ralford)
  *
- * @details This cass represents a generalized 3D point. The purpose of this class is to provide a lightweight
- * representation of a 3 double component object and is currently the base cass for a GeocentricPoint and
- * DirectionCosine Point. This vector will enable these points to be used in vector utilities.
+ * @details This class provides a generic abstraction of a 3 component vector from the origin (0, 0, 0). This
+ * class is intended to be lightweight and allow easily abstraction for reuse of vector utilities. This class
+ * might be used alone as a 3D vector and also as the base class for DirectionCosine Point and GeocentricPoint
+ * which are both representations of a point on the spheroidal model of the earth.
  *
  * @note Last Modified: 2/8/14
  */
 public class Vector3D {
 
     /**
-     * Store coordinate information
+     * Store 3 doubles as vector components
      */
     private final double X;
     private final double Y;
@@ -42,8 +43,7 @@ public class Vector3D {
      */
 
     /**
-     * Default constructor for a 3D Point - Initialzies all components
-     * to 0.
+     * @brief Default constructor for a 3D Vector - Initializes all components to 0.
      */
     public Vector3D() {
         this.X = 0;
@@ -52,7 +52,7 @@ public class Vector3D {
     }
 
     /**
-     * Public constructor for a 3 component point (generic)
+     * @brief Public constructor for a 3 component vector (generic)
      */
     public Vector3D(double x, double y, double z) {
         this.X = x;
@@ -65,21 +65,21 @@ public class Vector3D {
      */
 
     /**
-     * Get the x component of the 3D point
+     * @brief Get the x component of the 3D point
      */
     public double getX() {
         return this.X;
     }
 
     /**
-     * Get the y component of the 3D point
+     * @brief Get the y component of the 3D point
      */
     public double getY() {
         return this.Y;
     }
 
     /**
-     * Get the z component of the 3D point
+     * @brief Get the z component of the 3D point
      */
     public double getZ() {
         return this.Z;
