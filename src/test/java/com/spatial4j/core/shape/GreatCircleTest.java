@@ -42,6 +42,7 @@ public class GreatCircleTest extends RandomizedTest {
     dist(2, 0, 0, 90,0, 90, 2);
     dist(90-random90, 0, 0, 90, random90, 0,90);
     dist(Math.abs(45-random90), 0, 0, 90, 45, 90,random90);
+    dist(0, 0, 0, 0, 90, 180,0);
 
   }
 

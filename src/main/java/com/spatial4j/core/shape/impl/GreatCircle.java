@@ -56,34 +56,5 @@ public class GreatCircle {
     return Math.sqrt(x2 + y2 + z2);
   }
 
-  /*
-  private double runDistance (Point c) {
-    Point3d a3d = new Point3d(a);
-    Point3d b3d = new Point3d(b);
-    Point3d c3d = new Point3d(c);
 
-    Point3d g = Point3d.crossProductPoint(a3d,b3d);
-    Point3d f = Point3d.crossProductPoint(c3d,g);
-    Point3d t = Point3d.crossProductPoint(g,f);
-
-    //t.normalizePoint();
-    //t.scalarProductPoint(DistanceUtils.RADIANS_TO_DEGREES);
-
-    double lat = Math.asin(t.getZ() / DistanceUtils.RADIANS_TO_DEGREES);
-    double lon = Math.atan2(t.getY(), t.getX());
-
-    // Radians
-    //lat = DistanceUtils.toRadians(lat);
-    //lon = DistanceUtils.toRadians(lon);
-
-    double lonPoint = DistanceUtils.toRadians(c.getX());
-    double latPoint = DistanceUtils.toRadians(c.getY());
-
-
-    double distInRAD = DistanceUtils.distHaversineRAD(lat,lon,latPoint,lonPoint);
-
-    double distance = DistanceUtils.toDegrees(distInRAD);
-    return distance;
-  }
-*/
 }
