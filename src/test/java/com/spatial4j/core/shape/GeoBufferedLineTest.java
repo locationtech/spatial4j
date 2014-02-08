@@ -22,6 +22,7 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.spatial4j.core.TestLog;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.impl.BufferedLine;
 import com.spatial4j.core.shape.impl.GeoBufferedLine;
 import com.spatial4j.core.shape.impl.PointImpl;
@@ -42,7 +43,7 @@ public class GeoBufferedLineTest extends RandomizedTest {
   public TestLog testLog = TestLog.instance;
 //SpatialContext.GEO ;//
 
-  /*public static void logShapes(final GeoBufferedLine line, final Rectangle rect) {
+  public static void logShapes(final GeoBufferedLine line, final Rectangle rect) {
     String lineWKT =
         "LINESTRING(" + line.getA().getX() + " " + line.getA().getY() + "," +
             line.getB().getX() + " " + line.getB().getY() + ")";
@@ -52,26 +53,33 @@ public class GeoBufferedLineTest extends RandomizedTest {
 
     String rectWKT = rectToWkt(rect);
     System.out.println(rectWKT);
-  }*/
+  }
 
-  /*static private String rectToWkt(Rectangle rect) {
+  static private String rectToWkt(Rectangle rect) {
     return "POLYGON((" + rect.getMinX() + " " + rect.getMinY() + "," +
         rect.getMaxX() + " " + rect.getMinY() + "," +
         rect.getMaxX() + " " + rect.getMaxY() + "," +
         rect.getMinX() + " " + rect.getMaxY() + "," +
         rect.getMinX() + " " + rect.getMinY() + "))";
-  }*/
+  }
 
   @Test
   public void distance() {
     System.out.println("Tested GeoBufferedLine");
     //negative slope
     testDistToPoint(ctx.makePoint(0, 0), ctx.makePoint(5, 0),
-        ctx.makePoint(0, 90), 90);
+            ctx.makePoint(0, 90), 90);
     testDistToPoint(ctx.makePoint(0, 45), ctx.makePoint(5, 45),
             ctx.makePoint(0, 90), 45);
     testDistToPoint(ctx.makePoint(0, -90), ctx.makePoint(5, -90),
             ctx.makePoint(0, 90), 180);
+    testLessToPoint(ctx.makePoint(180, 0), ctx.makePoint(180, 5),
+            ctx.makePoint(-170, 0),11);
+
+    testDistToPoint(ctx.makePoint(20, 5), ctx.makePoint(20, 10),
+            ctx.makePoint(27, 7), 7);
+    testLessToPoint(ctx.makePoint(12.638, -4.23), ctx.makePoint(24.12, 9.45),
+            ctx.makePoint(19.15, 3.44), 1);
     //positive slope
     /*testDistToPoint(ctx.makePoint(3, 2), ctx.makePoint(7, 5),
         ctx.makePoint(5, 6), 2.0);
@@ -82,31 +90,33 @@ public class GeoBufferedLineTest extends RandomizedTest {
     testDistToPoint(ctx.makePoint(3, 2), ctx.makePoint(6, 2),
         ctx.makePoint(4, 3), 1.0);*/
   }
+  private void testLessToPoint(Point pA, Point pB, Point pC, double dist) {
+    assertTrue(new GeoBufferedLine(pA, pB, dist * 1.001, ctx).contains(pC));
+  }
 
   private void testDistToPoint(Point pA, Point pB, Point pC, double dist) {
     if (dist > 0) {
       assertFalse(new GeoBufferedLine(pA, pB, dist * 0.999, ctx).contains(pC));
     } else {
       assert dist == 0;
-      assertTrue(new BufferedLine(pA, pB, 0, ctx).contains(pC));
+      assertTrue(new GeoBufferedLine(pA, pB, 0, ctx).contains(pC));
     }
-    assertTrue(new BufferedLine(pA, pB, dist * 1.001, ctx).contains(pC));
+    assertTrue(new GeoBufferedLine(pA, pB, dist * 1.001, ctx).contains(pC));
   }
-/*
+
   @Test
   public void misc() {
     //pa == pb
     Point pt = ctx.makePoint(10, 1);
-    BufferedLine line = new BufferedLine(pt, pt, 3, ctx);
+    GeoBufferedLine line = new GeoBufferedLine(pt, pt, 3, ctx);
     assertTrue(line.contains(ctx.makePoint(10, 1 + 3 - 0.1)));
     assertFalse(line.contains(ctx.makePoint(10, 1 + 3 + 0.1)));
   }
-
   @Test
   @Repeat(iterations = 15)
   public void quadrants() {
     //random line
-    BufferedLine line = newRandomLine();
+    GeoBufferedLine line = newRandomLine();
 //    if (line.getA().equals(line.getB()))
 //      return;//this test doesn't work
     Rectangle rect = newRandomLine().getBoundingBox();
@@ -132,12 +142,11 @@ public class GeoBufferedLineTest extends RandomizedTest {
     int calcClosestQuad = line.getLinePrimary().quadrant(rect.getCenter());
     assertTrue(farthestDistanceQuads.contains(calcClosestQuad));
   }
-
-  private BufferedLine newRandomLine() {
-    Point pA = new PointImpl(randomInt(9), randomInt(9), ctx);
-    Point pB = new PointImpl(randomInt(9), randomInt(9), ctx);
+  private GeoBufferedLine newRandomLine() {
+    Point pA = new PointImpl(randomInt(90), randomInt(90), ctx);
+    Point pB = new PointImpl(randomInt(90), randomInt(90), ctx);
     int buf = randomInt(5);
-    return new BufferedLine(pA, pB, buf, ctx);
+    return new GeoBufferedLine(pA, pB, buf, ctx);
   }
 
   private ArrayList<Point> quadrantCorners(Rectangle rect) {
@@ -151,22 +160,22 @@ public class GeoBufferedLineTest extends RandomizedTest {
 
   @Test
   public void testRectIntersect() {
-    new RectIntersectionTestHelper<BufferedLine>(ctx) {
+    new RectIntersectionTestHelper<GeoBufferedLine>(ctx) {
 
       @Override
-      protected BufferedLine generateRandomShape(Point nearP) {
+      protected GeoBufferedLine generateRandomShape(Point nearP) {
         Rectangle nearR = randomRectangle(nearP);
         ArrayList<Point> corners = quadrantCorners(nearR);
         int r4 = randomInt(3);//0..3
         Point pA = corners.get(r4);
         Point pB = corners.get((r4 + 2) % 4);
         double maxBuf = Math.max(nearR.getWidth(), nearR.getHeight());
-        double buf = Math.abs(randomGaussian()) * maxBuf / 4;
+        double buf = Math.abs(randomGaussian());// * maxBuf / 4;
         buf = randomInt((int) divisible(buf));
-        return new BufferedLine(pA, pB, buf, ctx);
+        return new GeoBufferedLine(pA, pB, buf, ctx);
       }
 
-      protected Point randomPointInEmptyShape(BufferedLine shape) {
+      protected Point randomPointInEmptyShape(GeoBufferedLine shape) {
         int r = randomInt(1);
         if (r == 0) return shape.getA();
         //if (r == 1)
@@ -177,14 +186,14 @@ public class GeoBufferedLineTest extends RandomizedTest {
     }.testRelateWithRectangle();
   }
 
-  private BufferedLine newBufLine(int x1, int y1, int x2, int y2, int buf) {
+  private GeoBufferedLine newBufLine(int x1, int y1, int x2, int y2, int buf) {
     Point pA = ctx.makePoint(x1, y1);
     Point pB = ctx.makePoint(x2, y2);
     if (randomBoolean()) {
-      return new BufferedLine(pB, pA, buf, ctx);
+      return new GeoBufferedLine(pB, pA, buf, ctx);
     } else {
-      return new BufferedLine(pA, pB, buf, ctx);
+      return new GeoBufferedLine(pA, pB, buf, ctx);
     }
-  }*/
+  }
 
 }
