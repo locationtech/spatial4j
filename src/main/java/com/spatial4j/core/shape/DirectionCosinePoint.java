@@ -28,7 +28,7 @@ package com.spatial4j.core.shape;
 public interface DirectionCosinePoint {
 
     /**
-     * Reset the state of the direciton cosine point given arguments. This feature
+     * Reset the state of the direction cosine point given arguments. This feature
      * is a performance optimization to avoid excessive shape object allocation and
      * argument control.
      */

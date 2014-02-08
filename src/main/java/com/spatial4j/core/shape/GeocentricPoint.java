@@ -17,33 +17,42 @@
 
 package com.spatial4j.core.shape;
 
+
 /**
- * Interface: Geocentric Point
- * Define a point in 3D space that represents a point on the spheroidal
- * model of the earth. The geocentric point in spatial 4j allows shapes to be internally
- * represented in 3D geocentric coordinates for polygonal modeling.
+ * @file: GeocentricPoint.java
+ * @brief: Interface to a Geocentric Point
+ * @author: Rebecca Alford (ralford)
+ *
+ * @details Define a point in 3D Euclidean space (XYZ) that represents a point
+ * on the spheroidal model of the earth. The Geocentric Point can also be described
+ * as a vector from the center of the earth (0, 0, 0) to the defined XYZ geocentric point.
+ * The geocentric point in Spatial4j alows shapes to be internally represented in 3D for polygonal
+ * modeling
+ *
+ * @note Last Modified: 2/8/14
  */
 public interface GeocentricPoint {
 
     /**
-     * Reset the state of the geocentric point given arguments. This feature
+     * @brief Reset Geocentric Point
+     * @detials Reset the state of the geocentric point given arguments. This feature
      * is a performance optimization to avoid excessive shape object allocation and
      * argument control.
      */
     public void reset( double x, double y, double z );
 
     /**
-     * Set the X coordinate in the 3D geocentric point
+     * @brief Get the X coordinate in the 3D geocentric point
      */
     public double getX();
 
     /**
-     * Get the Y coordinate in the 3D geocentric point
+     * @brief Get the Y coordinate in the 3D geocentric point
      */
     public double getY();
 
     /**
-     * Get the Z coordinate in the 3D geocentric point
+     * @brief Get the Z coordinate in the 3D geocentric point
      */
     public double getZ();
 
