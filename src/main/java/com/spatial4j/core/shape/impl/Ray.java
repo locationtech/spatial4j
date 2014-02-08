@@ -13,8 +13,7 @@ public interface Ray {
   public double distanceUnbuffered(Point c);
   public int quadrant(Point c);
   public double getSlope();
-  public double getIntercept();
+ // public double getIntercept();
   public double getBuf();
   public double getDistDenomInv();
-
 }
