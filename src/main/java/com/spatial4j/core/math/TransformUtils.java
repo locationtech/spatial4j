@@ -17,12 +17,15 @@
 
 package com.spatial4j.core.math;
 
+import com.spatial4j.core.shape.DirectionCosinePoint;
+import com.spatial4j.core.shape.impl.DirectionCosineImpl;
 import com.spatial4j.core.shape.GeocentricPoint;
 import com.spatial4j.core.shape.impl.GeocentricPointImpl;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
 
 import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.math.VectorUtils;
 
 /**
  * The purpose of the transform utils class is to provide convenient utilities for
@@ -119,7 +122,16 @@ public class TransformUtils {
      * point on the surface of a spheroidal model of the earth. This method references math from
      * the Wikipedia page on directed cosines:
      *
-     *
+     * Include link: </here>
      */
+    public DirectionCosinePoint toDirectionCosine( GeocentricPoint gp ) {
+
+        double alpha = gp.getX()/VectorUtils.mag(gp);
+        double beta = gp.getY()/VectorUtils.mag(gp);
+        double gamma = gp.getZ()/VectorUtils.mag(gp);
+
+        return new DirectionCosineImpl( alpha, beta, gamma );
+
+    }
 
 } // TransformUtils
