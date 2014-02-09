@@ -215,21 +215,6 @@ public class TestDistances extends RandomizedTest {
     assertEquals(0,deltaRatio, EPS);
   }
 
-
-  @Test
-  public void distDirection() {
-    Point a = ctx.makePoint(-180, 0);
-    Point b = ctx.makePoint(0, 0);
-
-
-
-    double aLong = DistanceUtils.dist2Radians(DistanceUtils.degrees2Dist(a.getY(),DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM),DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
-    double aLat = DistanceUtils.dist2Radians(DistanceUtils.degrees2Dist(a.getX(),DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM),DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
-    double bLong = DistanceUtils.dist2Radians(DistanceUtils.degrees2Dist(b.getY(),DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM),DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
-    double bLat = DistanceUtils.dist2Radians(DistanceUtils.degrees2Dist(b.getX(),DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM),DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
-
-    assertEquals(180, DistanceUtils.distHaversineRAD(aLat, aLong, bLat, bLong), EPS);
-  }
   @Test
   public void testNormLat() {
     double[][] lats = new double[][] {
