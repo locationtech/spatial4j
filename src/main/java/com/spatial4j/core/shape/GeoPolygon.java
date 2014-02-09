@@ -19,12 +19,17 @@ package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
 
+import com.spatial4j.core.shape.Shape;
+
 import com.spatial4j.core.shape.graph.GeoEdge;
 import com.spatial4j.core.shape.graph.GeoGraph;
 import com.spatial4j.core.shape.graph.GeoGraphUtils;
 
+import com.spatial4j.core.exception.*;
+
 /**
- * unsupported operation exception
+ * Project To Do List (Opened 2/9/14):
+ *
  */
 
 /**
@@ -33,107 +38,114 @@ import com.spatial4j.core.shape.graph.GeoGraphUtils;
  * and longitude (2D geodetic) and teh internal representation uses a GeoGraph which models
  * the points as 3D geocentric or directed cosine points
  */
-public class GeoPolygon extends Shape {
+public class GeoPolygon implements Shape {
 
-    // Store my geograph
-    private final GeoGraph polygon;
+    // Store my GeoGraph which is the internal representation for a
+    // polygon in Spatial4j. Also store the points as a convenient O(1)
+    // access point.
+    private GeoGraph polygon;
+    private Point[] points;
 
     /**
-     * Constructors
+     * Construct an Empty GeoPolygon
      */
-    private GeoPolygon();
+    private GeoPolygon() {}
 
     /**
-     * Construct a geodesic polygon from a list of
-     * ordered points
-     * @param points
+     * Construct a geodesic polygon from a list of ordered points
      */
     public GeoPolygon( Point[] points ) {
         init( points );
     }
 
     /**
-     * Private helper method - construct a geodesic
-     * polygon from a list of ordered points
+     * Construct a Geodesic Polygon from a list of points by
+     * building a GeoGraph.
      */
     private void init( Point[] points ) {
-        // build the geograph from the list of points
-        // check geograph invariants
-        // check polygon invariants
+        this.polygon = new GeoGraph( points );
+        this.points = points;
     }
 
     /**
-     * Describe the relationship between the two objects.  For example
-     * <ul>
-     *   <li>this is WITHIN other</li>
-     *   <li>this CONTAINS other</li>
-     *   <li>this is DISJOINT other</li>
-     *   <li>this INTERSECTS other</li>
-     * </ul>
-     * Note that a Shape implementation may choose to return INTERSECTS when the
-     * true answer is WITHIN or CONTAINS for performance reasons. If a shape does
-     * this then it <i>must</i> document when it does.  Ideally the shape will not
-     * do this approximation in all circumstances, just sometimes.
-     * <p />
-     * If the shapes are equal then the result is CONTAINS (preferred) or WITHIN.
+     * Describe the Relationship between a polygon and another shape - determining
+     * within, contains, disjoint and intersection. If the shapes are equal, then the result
+     * contains or within will be returned.
      */
-    SpatialRelation relate(Shape other);
-
-    /**
-     * Get the bounding box for this Shape. This means the shape is within the
-     * bounding box and that it touches each side of the rectangle.
-     * <p />
-     * Postcondition: <code>this.getBoundingBox().relate(this) == CONTAINS</code>
-     */
-    Rectangle getBoundingBox();
-
-    /**
-     * Does the shape have area?  This will be false for points and lines. It will
-     * also be false for shapes that normally have area but are constructed in a
-     * degenerate case as to not have area (e.g. a circle with 0 radius or
-     * rectangle with no height or no width).
-     */
-    boolean hasArea();
-
-    /**
-     * Calculates the area of the shape, in square-degrees. If ctx is null then
-     * simple Euclidean calculations will be used.  This figure can be an
-     * estimate.
-     */
-    double getArea(SpatialContext ctx);
-
-    /**
-     * Returns the center point of this shape. This is usually the same as
-     * <code>getBoundingBox().getCenter()</code> but it doesn't have to be.
-     * <p />
-     * Postcondition: <code>this.relate(this.getCenter()) == CONTAINS</code>
-     */
-    Point getCenter();
-
-    /**
-     * Returns a buffered version of this shape.  The buffer is usually a
-     * rounded-corner buffer, although some shapes might buffer differently. This
-     * is an optional operation.
-     *
-     *
-     * @param distance
-     * @return Not null, and the returned shape should contain the current shape.
-     */
-    Shape getBuffered(double distance, SpatialContext ctx);
-
-    /**
-     * Shapes can be "empty", which is to say it exists nowhere. The underlying coordinates are
-     * typically NaN.
-     */
-    boolean isEmpty();
-
-    /** The sub-classes of Shape generally implement the
-     * same contract for {@link Object#equals(Object)} and {@link Object#hashCode()}
-     * amongst the same sub-interface type.  This means, for example, that multiple
-     * Point implementations of different classes are equal if they share the same x
-     * & y. */
     @Override
-    public boolean equals(Object other);
+    public SpatialRelation relate(Shape other) {
+        throw new UnsupportedOperationException(); // TODO Implement this
+    }
 
+    /**
+     * Compute the bounding box for the geodesic polygon. This means the
+     * shape is within the bounding box and that it touches each side of the
+     * rectangle
+     */
+    @Override
+    public Rectangle getBoundingBox() {
+        throw new UnsupportedOperationException(); // TODO IMPLEMENT THIS
+    }
+
+    /**
+     * Does the Shape have area?
+     */
+    @Override
+    public boolean hasArea() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+
+    /**
+     * Calculate the area of the shape in square-degrees. If no spatial
+     * context is provided, then simple Euclidean calculations would be used
+     * This figure can be an estimate.
+     */
+    public double getArea(SpatialContext ctx) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Return the center point of the polygon. Typically the same as the centroid of the bounding box.
+     */
+    @Override
+    public Point getCenter() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns a buffered version of a polygon. Buffer is usually a rounded corner buffer - though some
+     * shapes might buffer differently.
+     */
+    @Override
+    public Shape getBuffered(double distance, SpatialContext ctx ) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+
+    /**
+     * Shapes can be 'empty' if underlying coordinates are NaN
+     */
+    @Override
+    public boolean isEmpty() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Implement Equals Method (polygons equal)
+     */
+    @Override
+    public boolean equals(Object other) {
+        return false; // TODO implement this
+    }
+
+
+    /**
+     * Implement HashCode method (unique hascode for the shape)
+     */
+    @Override
+    public int hashCode() {
+        return 0; // TODO implement this
+    }
 
 }
