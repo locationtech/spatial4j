@@ -109,4 +109,12 @@ public class Point3d {
     return "X: " + this.getX() + "\n" + "Y: " + this.getY() + "\n" + "Z: "  + this.getZ() + "\n";
   }
 
+  public static Point3d midPoint(Point3d a, Point3d b) {
+    double x = (a.getX() + b.getX())/2;
+    double y = (a.getY() + b.getY())/2;
+    double z = (a.getZ() + b.getZ())/2;
+
+    return new Point3d(x,y,z);
+  }
+
 }

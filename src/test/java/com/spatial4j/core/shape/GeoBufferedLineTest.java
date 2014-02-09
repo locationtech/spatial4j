@@ -43,7 +43,7 @@ public class GeoBufferedLineTest extends RandomizedTest {
   public TestLog testLog = TestLog.instance;
 //SpatialContext.GEO ;//
 
-  public static void logShapes(final GeoBufferedLine line, final Rectangle rect) {
+ /* public static void logShapes(final GeoBufferedLine line, final Rectangle rect) {
     String lineWKT =
         "LINESTRING(" + line.getA().getX() + " " + line.getA().getY() + "," +
             line.getB().getX() + " " + line.getB().getY() + ")";
@@ -62,39 +62,30 @@ public class GeoBufferedLineTest extends RandomizedTest {
         rect.getMinX() + " " + rect.getMaxY() + "," +
         rect.getMinX() + " " + rect.getMinY() + "))";
   }
-
+*/
   @Test
   public void distance() {
     System.out.println("Tested GeoBufferedLine");
     //negative slope
     testDistToPoint(ctx.makePoint(0, 0), ctx.makePoint(5, 0),
             ctx.makePoint(0, 90), 90);
-    testDistToPoint(ctx.makePoint(0, 45), ctx.makePoint(5, 45),
-            ctx.makePoint(0, 90), 45);
-    testDistToPoint(ctx.makePoint(0, -90), ctx.makePoint(5, -90),
-            ctx.makePoint(0, 90), 180);
-    testLessToPoint(ctx.makePoint(180, 0), ctx.makePoint(180, 5),
-            ctx.makePoint(-170, 0),11);
+    testDistToPoint(ctx.makePoint(0, 0), ctx.makePoint(5, 0),
+            ctx.makePoint(0, 45), 45);
+    testDistToPoint(ctx.makePoint(0, 0), ctx.makePoint(0,5),
+            ctx.makePoint(5, 0), 5);
+    testDistToPoint(ctx.makePoint(0, 0), ctx.makePoint(0,5),
+            ctx.makePoint(90, 0), 90);
+    testDistToPoint(ctx.makePoint(10, 0), ctx.makePoint(10,5),
+            ctx.makePoint(30, 0), 20);
 
-    testDistToPoint(ctx.makePoint(20, 5), ctx.makePoint(20, 10),
-            ctx.makePoint(27, 7), 7);
-    testLessToPoint(ctx.makePoint(12.638, -4.23), ctx.makePoint(24.12, 9.45),
-            ctx.makePoint(19.15, 3.44), 1);
-    //positive slope
-    /*testDistToPoint(ctx.makePoint(3, 2), ctx.makePoint(7, 5),
-        ctx.makePoint(5, 6), 2.0);
-    //vertical line
-    testDistToPoint(ctx.makePoint(3, 2), ctx.makePoint(3, 8),
-        ctx.makePoint(4, 3), 1.0);
-    //horiz line
-    testDistToPoint(ctx.makePoint(3, 2), ctx.makePoint(6, 2),
-        ctx.makePoint(4, 3), 1.0);*/
   }
+
   private void testLessToPoint(Point pA, Point pB, Point pC, double dist) {
     assertTrue(new GeoBufferedLine(pA, pB, dist * 1.001, ctx).contains(pC));
   }
 
   private void testDistToPoint(Point pA, Point pB, Point pC, double dist) {
+
     if (dist > 0) {
       assertFalse(new GeoBufferedLine(pA, pB, dist * 0.999, ctx).contains(pC));
     } else {
@@ -102,8 +93,25 @@ public class GeoBufferedLineTest extends RandomizedTest {
       assertTrue(new GeoBufferedLine(pA, pB, 0, ctx).contains(pC));
     }
     assertTrue(new GeoBufferedLine(pA, pB, dist * 1.001, ctx).contains(pC));
+
+    flipPoint(pA);
+    flipPoint(pB);
+    flipPoint(pC);
+
+    if (dist > 0) {
+      assertFalse(new GeoBufferedLine(pA, pB, dist * 0.999, ctx).contains(pC));
+    } else {
+      assert dist == 0;
+      assertTrue(new GeoBufferedLine(pA, pB, 0, ctx).contains(pC));
+    }
+    assertTrue(new GeoBufferedLine(pA, pB, dist * 1.001, ctx).contains(pC));
+
   }
 
+  private void flipPoint(Point p) {
+    p.reset(-1*p.getX(),-1*p.getY());
+  }
+/*
   @Test
   public void misc() {
     //pa == pb
@@ -194,6 +202,6 @@ public class GeoBufferedLineTest extends RandomizedTest {
     } else {
       return new GeoBufferedLine(pA, pB, buf, ctx);
     }
-  }
+  }*/
 
 }

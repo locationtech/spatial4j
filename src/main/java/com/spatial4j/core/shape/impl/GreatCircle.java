@@ -56,6 +56,18 @@ public class GreatCircle {
     invPlaneLength = 1/GreatCircle.vectorLength(planeVector);
   }
 
+  public GreatCircle(Point3d a, Point3d b) {
+    // Store points of the great circle
+    a3d = a;
+    b3d = b;
+
+    // Vector as Point3d for simplicity.
+    planeVector = Point3d.crossProductPoint(a3d,b3d);
+
+    // Inverse of plane length
+    invPlaneLength = 1/GreatCircle.vectorLength(planeVector);
+  }
+
   /**
    * Returns the distance to the GreatCircle from the Point c.
    * Also known as the cross-track distance.
@@ -75,6 +87,14 @@ public class GreatCircle {
   /** the dot product of a vector and a point. (plane.x * point.x + plane.y * point.y + plane.z * point.z) */
   private static double dotProduct(Point3d vectorPlane, Point3d point) {
     return vectorPlane.getX()*point.getX() + vectorPlane.getY()*point.getY() + vectorPlane.getZ()*point.getZ();
+  }
+
+  public Point3d getA() {
+    return a3d;
+  }
+
+  public Point3d getB() {
+    return b3d;
   }
 
   /** The magnitude of the vector. sqrt(x^2 + y^2 + z^2) */
