@@ -21,6 +21,9 @@ import com.spatial4j.core.shape.Point;
 
 /**
  * GeoGraph - Represents points in space connected by a geodesic distance
+ *
+ * shapes are immutable - so you cannot change the graph after it is constructed. You can cosntruct a new
+ * one from scratch - but you cannot change its existing state.
  */
 public class GeoGraph {
 
@@ -38,7 +41,7 @@ public class GeoGraph {
      * in order creating a graph.
      * @param points
      */
-    private init( Point[] points ) {
+    private void init( Point[] points ) {
 
 
     }
@@ -51,7 +54,5 @@ public class GeoGraph {
     /**
      * Return unique point set
      */
-
-
 
 }
