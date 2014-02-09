@@ -29,7 +29,7 @@ import com.spatial4j.core.shape.impl.BufferedLine;
  * A GeoEdge represents a geodesic (line) between two 3D geocentric points in space. The
  * GeoEdge is not an explicit representation of a geodesic, but is part of a GeoGraph
  * which is the internal representation of a Geodesic Polygon in Spatial4j. Uses haversine
- * for distance calculations by defualt.
+ * for distance calculations by default.
  */
 public class GeoEdge {
 
@@ -63,7 +63,6 @@ public class GeoEdge {
         this.pA = TransformUtils.toGeocentric(pointA);
         this.pB = TransformUtils.toGeocentric(pointB);
         this.geodesicDist = DistanceUtils.distHaversineRAD( pointA.getX(), pointB.getY(), pointA.getX(), pointB.getY() );
-
     }
 
     /**
