@@ -25,7 +25,8 @@ import java.util.ArrayList;
 /**
  * A GeoGraph is the internal representation of a geodesic polygon in Spatial4j. The vertices of a
  * GeoGraph are 3D points which define the boundary of the Polgyon and each edge represents
- * the connection between 2 vertices and the geodesic distance between them.
+ * the connection between 2 vertices and the geodesic distance between them (and thus represends the geodesic
+ * borders of the polygon).
  *
  * Because the shape of a GeoPolygon itself is immutable, a GeoGraph is also immutable once constructed
  * but can be reset from scratch if needed.
@@ -34,6 +35,7 @@ public class GeoGraph {
 
     // Represent a graph internally as a list of edges
     private List< GeoEdge > edgeList;
+    private Point[] points;
 
     private GeoGraph() {}
 
@@ -48,6 +50,7 @@ public class GeoGraph {
      */
     private void init( Point[] points ) {
 
+        this.points = points;
         this.edgeList = new ArrayList<GeoEdge>(points.length -1); // n-1 edges in a bounding polygon for n points
 
         // For each point, create an edge between the two points
@@ -59,28 +62,36 @@ public class GeoGraph {
         // Connect the ends of the polygon
         GeoEdge connect = new GeoEdge( points[0], points[points.length-1] );
 
+        // Check invariants
+        isGeoGraph();
     }
 
     /**
-     * Is Connected - Verify that the polygon is a closed shape
+     * Access the geograph edge list
      */
-    private void isConnected() {
-
+    public List< GeoEdge > getGeoEdges() {
+        return this.edgeList;
     }
 
     /**
-     * Is Valid GeoGraph. Some proposed Invariants:
-     *  (1) No redundant input points (unique geometry)
-     *  (2) internal geometry is fully connected.
+     * Access a unique vertices list in the edge list
+     */
+    public Point[] getPoints() {
+        return this.points;
+    }
+
+
+    /**
+     * GeoGraph Invariant Checking
      */
 
     /**
-     * Is valid geograph
-     * DAG invariants - mostly due to search invariants
+     * Check if this GeoGraph is a Valid GeoGraph:
+     *  (1) No redundant input points
+     *  (2) Internal Geometry is fully connected
      */
-
-    /**
-     * Return unique point set
-     */
-
+    public void isGeoGraph() {
+        // check connected components
+        // check for redundant vertices
+    }
 }
