@@ -19,16 +19,21 @@ package com.spatial4j.core.shape.graph;
 
 import com.spatial4j.core.shape.Point;
 
+import java.util.List;
+import java.util.ArrayList;
+
 /**
- * GeoGraph - Represents points in space connected by a geodesic distance
+ * A GeoGraph is the internal representation of a geodesic polygon in Spatial4j. The vertices of a
+ * GeoGraph are 3D points which define the boundary of the Polgyon and each edge represents
+ * the connection between 2 vertices and the geodesic distance between them.
  *
- * shapes are immutable - so you cannot change the graph after it is constructed. You can cosntruct a new
- * one from scratch - but you cannot change its existing state.
+ * Because the shape of a GeoPolygon itself is immutable, a GeoGraph is also immutable once constructed
+ * but can be reset from scratch if needed.
  */
 public class GeoGraph {
 
-    // maybe store a spatial context?
-    private GeoEdge[] edgeList;
+    // Represent a graph internally as a list of edges
+    private List< GeoEdge > edgeList;
 
     private GeoGraph() {}
 
@@ -43,8 +48,31 @@ public class GeoGraph {
      */
     private void init( Point[] points ) {
 
+        this.edgeList = new ArrayList<GeoEdge>(points.length -1); // n-1 edges in a bounding polygon for n points
+
+        // For each point, create an edge between the two points
+        for ( int i = 0; i < points.length; i++ ) {
+            GeoEdge e = new GeoEdge( points[i], points[i+1] );
+            this.edgeList.add(e);
+        }
+
+        // Connect the ends of the polygon
+        GeoEdge connect = new GeoEdge( points[0], points[points.length-1] );
 
     }
+
+    /**
+     * Is Connected - Verify that the polygon is a closed shape
+     */
+    private void isConnected() {
+
+    }
+
+    /**
+     * Is Valid GeoGraph. Some proposed Invariants:
+     *  (1) No redundant input points (unique geometry)
+     *  (2) internal geometry is fully connected.
+     */
 
     /**
      * Is valid geograph
