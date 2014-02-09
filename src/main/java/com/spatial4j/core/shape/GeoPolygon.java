@@ -45,6 +45,7 @@ public class GeoPolygon implements Shape {
     // access point.
     private GeoGraph polygon;
     private Point[] points;
+    private final SpatialContext ctx;
 
     /**
      * Construct an Empty GeoPolygon
@@ -54,7 +55,8 @@ public class GeoPolygon implements Shape {
     /**
      * Construct a geodesic polygon from a list of ordered points
      */
-    public GeoPolygon( Point[] points ) {
+    public GeoPolygon( Point[] points, SpatialContext ctx  ) {
+        this.ctx = ctx;
         init( points );
     }
 
@@ -94,7 +96,6 @@ public class GeoPolygon implements Shape {
     public boolean hasArea() throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
-
 
     /**
      * Calculate the area of the shape in square-degrees. If no spatial
