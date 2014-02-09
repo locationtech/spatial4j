@@ -97,6 +97,14 @@ public class GreatCircle {
     return b3d;
   }
 
+  public Point getPointA() {
+    return a;
+  }
+
+  public Point getPointB() {
+    return b;
+  }
+
   /** The magnitude of the vector. sqrt(x^2 + y^2 + z^2) */
   private static double vectorLength(Point3d p) {
     double x2 = p.getX() * p.getX();

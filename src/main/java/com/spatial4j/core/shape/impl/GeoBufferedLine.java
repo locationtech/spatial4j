@@ -34,6 +34,7 @@ public class GeoBufferedLine {
   private final Point a;
   private final Point b;
   private final double buffer;
+  private final double bufferPerp;
   private final SpatialContext ctx;
 
   private final GreatCircle linePrimary;
@@ -43,6 +44,7 @@ public class GeoBufferedLine {
     this.a = a;
     this.b = b;
     this.buffer = buffer;
+    this.bufferPerp = bufferPerpendicular(a, b);
     this.ctx = ctx;
     linePrimary = new GreatCircle(a,b);
 
@@ -51,13 +53,12 @@ public class GeoBufferedLine {
     Point3d a3d = linePrimary.getA();
     Point3d b3d = linePrimary.getB();
 
-
-    Point3d midA = new Point3d(a3d.getX()-midPoint.getX(),a3d.getY()-midPoint.getY(),a3d.getZ()-midPoint.getZ());
-    Point3d midB = new Point3d(0-midPoint.getX(),0-midPoint.getY(),0-midPoint.getZ());
+    Point3d midAVector = new Point3d(a3d.getX()-midPoint.getX(),a3d.getY()-midPoint.getY(),a3d.getZ()-midPoint.getZ());
+    Point3d midBVector = new Point3d(0-midPoint.getX(),0-midPoint.getY(),0-midPoint.getZ());
 
     // midPoint a3d X midPoint b3d
     // Normal Vector to the plane, at point midPoint
-    Point3d normal = Point3d.crossProductPoint(midA,midB);
+    Point3d normal = Point3d.crossProductPoint(midAVector,midBVector);
 
     // Calculate a second point
     Point3d secondaryPoint = new Point3d(midPoint.getX() + normal.getX()*2,midPoint.getY() + normal.getY()*2,midPoint.getZ() + normal.getZ()*2);
@@ -65,16 +66,32 @@ public class GeoBufferedLine {
     linePerpendicular = new GreatCircle(midPoint,secondaryPoint);
   }
 
-  public boolean contains(Point p) {
-    return distanceToPointIsZero(p);
+  private double bufferPerpendicular(Point a, Point b) {
+    double xA,xB,yA,yB;
+    xA = DistanceUtils.toRadians(a.getX());
+    yA = DistanceUtils.toRadians(a.getY());
+    xB = DistanceUtils.toRadians(b.getX());
+    yB = DistanceUtils.toRadians(b.getY());
+    return DistanceUtils.toDegrees(DistanceUtils.distHaversineRAD(xA,yA,xB,yB));
   }
 
-  private boolean distanceToPointIsZero(Point p) {
-    if(linePrimary.distanceToPoint(p) <= buffer && linePerpendicular.distanceToPoint(p) <= buffer) {
+  /* public for testing */
+  public GreatCircle getLinePrimary() {
+    return linePrimary;
+  }
+
+  /* public for testing */
+  public GreatCircle getLinePerpendicular() {
+    return linePerpendicular;
+  }
+
+  public boolean contains(Point p) {
+    // TODO: Extend past end of line
+    if(linePrimary.distanceToPoint(p) <= buffer && linePerpendicular.distanceToPoint(p) <= bufferPerp) {
       return true;
     } else {
       return false;
     }
-}
+  }
 
 }
