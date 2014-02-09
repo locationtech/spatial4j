@@ -24,6 +24,10 @@ import com.spatial4j.core.shape.graph.GeoGraph;
 import com.spatial4j.core.shape.graph.GeoGraphUtils;
 
 /**
+ * unsupported operation exception
+ */
+
+/**
  * Geodesic Polygon - This shape represents the polygon constructed by an ordered
  * list of points on the surface of a sphere. THe interface to Geodetic polygon is latitude
  * and longitude (2D geodetic) and teh internal representation uses a GeoGraph which models
@@ -38,6 +42,25 @@ public class GeoPolygon extends Shape {
      * Constructors
      */
     private GeoPolygon();
+
+    /**
+     * Construct a geodesic polygon from a list of
+     * ordered points
+     * @param points
+     */
+    public GeoPolygon( Point[] points ) {
+        init( points );
+    }
+
+    /**
+     * Private helper method - construct a geodesic
+     * polygon from a list of ordered points
+     */
+    private void init( Point[] points ) {
+        // build the geograph from the list of points
+        // check geograph invariants
+        // check polygon invariants
+    }
 
     /**
      * Describe the relationship between the two objects.  For example

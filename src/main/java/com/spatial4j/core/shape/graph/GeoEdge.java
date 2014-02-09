@@ -26,29 +26,29 @@ import com.spatial4j.core.shape.impl.GeocentricPoint;
 import com.spatial4j.core.shape.impl.BufferedLine;
 
 /**
- * A GeoEdge represents a geodesic (line) between two 3D geocentric points in space
- * as part of a GeoGraph which is the internal representation of a Geodetic Polygon in Spatial4j
+ * A GeoEdge represents a geodesic (line) between two 3D geocentric points in space. The
+ * GeoEdge is not an explicit representation of a geodesic, but is part of a GeoGraph
+ * which is the internal representation of a Geodesic Polygon in Spatial4j.
  */
 public class GeoEdge {
 
-    private GeocentricPoint p1;
-    private GeocentricPoint p2;
+    // Store 2 Geocentric Points and the distance along the geodesic between them
+    private GeocentricPoint pA;
+    private GeocentricPoint pB;
     private double geodesicDist;
 
-    /**
-     * Keep default constructor private!!
-     */
     private GeoEdge() {}
 
     /**
-     * Construct a geodesic edge from 2 Points
+     * Construct a geodesic edge from 2 Geographic Points
      */
-    public GeoEdge( Point p1, Point p2 ) {
-        init(p1, p2);
+    public GeoEdge( Point pA, Point pB ) {
+        init(pA, pB);
     }
 
     /**
-     * Reset the Edge - Good for recycling of classes??
+     * Complete a full reset of the edge - enables the use of immutable data while also recycling objects in
+     * memory allocation.
      */
     public void reset( Point point1, Point point2 ) {
         init( point1, point2 );
@@ -57,25 +57,39 @@ public class GeoEdge {
     /**
      * Initialize Edge from 2 Geocentric Points
      */
-    private void init( Point point1, Point point2 ) {
+    private void init( Point pointA, Point pointB ) {
 
-        this.p1 = TransformUtils.toGeocentric(point1);
-        this.p2 = TransformUtils.toGeocentric(point2);
-        this.geodesicDist = DistanceUtils.distHaversineRAD( point1.getX(), point1.getY(), point2.getX(), point2.getY() );
+        this.pA = TransformUtils.toGeocentric(pointA);
+        this.pB = TransformUtils.toGeocentric(pointB);
+        this.geodesicDist = DistanceUtils.distHaversineRAD( pointA.getX(), pointB.getY(), pointA.getX(), pointB.getY() );
 
     }
 
     /**
-     * Access Point 1 of the Edge
+     * Access Point 1 of the Edge as a geocentric point (3D)
      */
-    public GeocentricPoint getP1() {
-        return this.p1;
+    public GeocentricPoint getGP1() {
+        return this.pA;
     }
 
     /**
-     * Access Point 2 of the Edge
+     * Access Point 1 of the edge as a geographic (lat/lon) point
      */
-    public GeocentricPoint getP2() {
-        return this.p2;
+    public Point getP1() {
+        return TransformUtils.toGeodetic(pA);
+    }
+
+    /**
+     * Access Point 2 of the Edge as a geocentric point (3D)
+     */
+    public GeocentricPoint getGP2() {
+        return this.pB;
+    }
+
+    /**
+     * Access Point 2 of the edge as a geographic (lat/lon) point
+     */
+    public Point getP2() {
+        return TransformUtils.toGeodetic(pB);
     }
 }
