@@ -44,7 +44,7 @@ public class TransformUtils {
      *
      * agh idk I need constants... (e, n, u)
      */
-    public static GeocentricPoint toGeodetic( Point p ) {
+    public static GeocentricPoint toGeocentric( Point p ) {
 
         // Convert lat/lon to radians
         double lambda = DistanceUtils.toRadians(p.getX());
@@ -69,7 +69,7 @@ public class TransformUtils {
      *
      * Method Referenced from Goedesy FrameOfReference Class (ASL Licensed)
      */
-    public static Point toGeoDetic( GeocentricPoint gp ) {
+    public static Point toGeodetic( GeocentricPoint gp ) {
 
         // Grab the initial XYZ coordinates form the geodetic point
         double X = gp.getX();
