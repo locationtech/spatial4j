@@ -149,4 +149,20 @@ public class GeoPolygon implements Shape {
         return 0; // TODO implement this
     }
 
+    /**
+     * To String - string representation of a polygon
+     */
+    @Override
+    public String toString() {
+        return "";
+    }
+
+    /**
+     * Show method
+     */
+    public void show() {
+        // print a string representation and other information about the current
+        // shape - useful for debugging
+    }
+
 }

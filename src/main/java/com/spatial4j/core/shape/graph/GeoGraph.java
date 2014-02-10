@@ -94,4 +94,28 @@ public class GeoGraph {
         // check connected components
         // check for redundant vertices
     }
+
+    /**
+     * Graph Equality
+     */
+    @Override
+    public boolean equals(Object other) {
+        return false; // TODO implement this
+    }
+
+    /**
+     * Graph Hash Code
+     */
+    @Override
+    public int hashCode() {
+        return 0; // TODO Implement this
+    }
+
+    /**
+     * toString
+     */
+    @Override
+    public String toString() {
+        return "";
+    }
 }
