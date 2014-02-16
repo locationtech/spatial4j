@@ -56,18 +56,23 @@ public class GeodesicIntersection {
     private GeodesicIntersection() {}
 
     /**
-     * Compute teh Intersection between two geodesics defined by 3D geocentric points
+     * Compute the Intersection between two geodesics defined by 3D geocentric points
      */
-    public GeocentricPoint computeIntersection( Point p1,
-                                                Point p2,
-                                                Point p3,
-                                                Point p4
-                                                ) {
-
+    public GeocentricPoint computeIntersection( Point p1, Point p2, Point p3, Point p4 ) {
+       return compute( p1, p2, p3, p4 );
     }
 
     /**
      * Main Compute Method
+     *
+     * question I had - what if they don't intersect? I think in the case of
+     * geodesics, becasue we project the arcs onto great circles and
+     * great cirlces always have two intersection points that are valid, than this is
+     * the case (evne if the intersection points are poles. THis is because
+     * we are working on a spherical surface and not a traiditonal euclidean
+     * plane
+     *
+     * i.e. beware do not stick regular points in here... not sure what would happen.
      */
     private GeocentricPoint compute( Point p1, Point p2, Point p3, Point p4 ) {
 
@@ -78,8 +83,12 @@ public class GeodesicIntersection {
         Vector3D u4 = computeUnitVector( p4.getX(), p4.getY() );
 
         // Compute the normal vector for each set of points
-        Vector3D Nu1u2;
-        Vector3D Nu3u4;
+        Vector3D Nu1u2 = computeNormal( u1, u2 );
+        Vector3D Nu3u4 = computeNormal( u3, u4 );
+
+        Vector3D r = computeNormal( Nu1u2, Nu3u4 );
+
+        return new GeocentricPoint( r.getX(), r.getY(), r.getZ() );
     }
 
     /**
@@ -108,6 +117,4 @@ public class GeodesicIntersection {
         Vector3D result = VectorUtils.multiply(crossProd, 1/mag);
         return result;
     }
-
-
 }
