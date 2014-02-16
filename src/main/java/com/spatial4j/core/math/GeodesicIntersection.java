@@ -18,17 +18,24 @@
 package com.spatial4j.core.math;
 
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.GeocentricPoint;
 import com.spatial4j.core.shape.Vector3D;
 
 import com.spatial4j.core.math.VectorUtils;
 import com.spatial4j.core.distance.DistanceUtils;
 
+import com.spatial4j.core.context.SpatialContext;
+
 /**
- * Compute the intersection point between two geodesics on the surface of a
- * sphere. Will compute a point and antipodal point, but always return the point
- * that is on the line which is the shorter haversin distance between the two points
- * Algorithm uses direciton cosines
+ * Compute the intersection point between two geodesics. This algorithm
+ * takes two points and projects it onto the corresponding great circle. Two
+ * great circles will always have 2 intersection points, however I then extend
+ * this algorithm to determine if the intersection point lies within range of either
+ * original geodesic to test the relevant point and non-intersection.
+ *
+ * This algorithm interfaces with geographic coordinates but works internally
+ * with direction cosines.
  *
  * Algorithm from: http://www.movable-type.co.uk/scripts/latlong.htm
  *
@@ -36,45 +43,31 @@ import com.spatial4j.core.distance.DistanceUtils;
  */
 public class GeodesicIntersection {
 
-    /**
-     * Just for while I am writing the code, keeping the algorithm description over here
-     * comes straight from my write up on the blog
-     *
-     * For each point in latitude/longitude, where latitude - phi and longitude is lambda, we can define a unit vector u{x, y, z} = < cos(phi)cos(lambda, cos(phi)sin(lambda), sin(phi) >
-     Compute the unit vector for each point p where p1, p2 is on arc 1, and p3, p4 is on arc2
-     We then project the great circle path from our two points:
-     Unit vector N - normal to the plane of great circle and x is the cross product
-     N(u1, u2) = (u1 x u2)/||u1xu2||
-     N(u3, u4) = (u3 x u4)/||u3xu4||
-     Compute the intersection vector:
-     N( N(u1, u2), N(u3, u4) )
-     Return Lat/Lon result:
-     First Point (phi, lambda): phi = atan2( uz, sqrt(ux^2, uy^2) )), lambda = atan2(uy, ux)
-     Second point (antipodal): (-phi, lambda + pi)
-     */
-
     private GeodesicIntersection() {}
 
     /**
      * Compute the Intersection between two geodesics defined by 3D geocentric points
      */
-    public GeocentricPoint computeIntersection( Point p1, Point p2, Point p3, Point p4 ) {
-       return compute( p1, p2, p3, p4 );
+    public GeocentricPoint computeIntersection( Point p1, Point p2, Point p3, Point p4, SpatialContext ctx ) {
+       //return intersection( p1, p2, p3, p4, ctx );
+        return null;
     }
 
     /**
-     * Main Compute Method
+     * Compute the Two Intersection Points on the projected great circles
+     * from the defined line segments
      *
-     * question I had - what if they don't intersect? I think in the case of
-     * geodesics, becasue we project the arcs onto great circles and
-     * great cirlces always have two intersection points that are valid, than this is
-     * the case (evne if the intersection points are poles. THis is because
-     * we are working on a spherical surface and not a traiditonal euclidean
-     * plane
-     *
-     * i.e. beware do not stick regular points in here... not sure what would happen.
+     *      (1) Project Lat/Lon points onto a great circle and compute the
+     *          unit vector describing each point.
+     *      (2) Compute the normal vector between each pair of points (to represent
+     *          the corresponding great circle)
+     *      (3) Compute the normal vector between the two pairs.
+     *      (4) Return the corresponding point Point[1] and Antipodal point Point[2[
      */
-    private GeocentricPoint compute( Point p1, Point p2, Point p3, Point p4 ) {
+    public Point intersection( Point p1, Point p2, Point p3, Point p4, SpatialContext ctx ) {
+
+        // Naming: Nu1u2 - Normal Vector to first geodesic, Nu3u4 - Normal Vector
+        // to second geodesic
 
         // Compute the unit vector from lat/lon to xyz
         Vector3D u1 = computeUnitVector( p1.getX(), p1.getY() );
@@ -86,15 +79,21 @@ public class GeodesicIntersection {
         Vector3D Nu1u2 = computeNormal( u1, u2 );
         Vector3D Nu3u4 = computeNormal( u3, u4 );
 
+        // Compute resultant normal r.
         Vector3D r = computeNormal( Nu1u2, Nu3u4 );
 
-        return new GeocentricPoint( r.getX(), r.getY(), r.getZ() );
-    }
+        // Extract Point and antipodal point
+        Point[] points = getPointPair(r, ctx);
 
+        // Determine the appropriate intersection point in range.
+        // If no points intersect return out of bounds lat/lon??
+        Point result = getPointInRange( points );
+
+        return points;
+    }
     /**
-     * To unit vector
-     * phi = latitude
-     * lamdba = longitude
+     * Compute the unit vector using direction cosines from 2D geographic
+     * points. Phi = latitude and Lambda = longitude.
      */
     private Vector3D computeUnitVector( double phi, double lambda ) {
        double x = Math.cos(phi)*Math.cos(lambda);
@@ -105,16 +104,51 @@ public class GeodesicIntersection {
     }
 
     /**
-     * Compute normal vector
+     * Compute the normal vector from 2 given vectors
      */
     private Vector3D computeNormal( Vector3D v1, Vector3D v2 ) {
 
-        // Compute cross prod and magnitude of the cross product
+        // Compute cross prod and magnitude of the cross product. Return
+        // the quotient of these two.
         Vector3D crossProd = VectorUtils.crossProduct(v1, v2);
         double mag = VectorUtils.mag(crossProd);
+        return VectorUtils.multiply(crossProd, 1/mag);
 
-        // Compute crossProd/mag(crossProd)
-        Vector3D result = VectorUtils.multiply(crossProd, 1/mag);
-        return result;
+    }
+
+    /**
+     * Get the point and antipodal point pair from a resulting unit
+     * vector in direction cosine
+     */
+    private Point[] getPointPair( Vector3D r, SpatialContext ctx ) {
+
+        // Construct a SpatialContext
+
+        // Get point 1 from r
+        double phi1 = Math.atan2( r.getZ(), Math.sqrt( Math.pow(r.getX(), 2) + Math.pow(r.getY(), 2)));
+        double lambda1 = Math.atan2( r.getY(), r.getX() );
+        Point p1 = new PointImpl( phi1, lambda1, ctx ); // hhmm...needs a spatial context.
+
+        // Get antipodal point 2 from r
+        double phi2 = -1*phi1;
+        double lambda2 = lambda1 + Math.PI;
+        Point p2 = new PointImpl( phi2, lambda2, ctx );
+
+        // Create a list of points and return
+        Point[] points = new Point[2];
+        points[0] = p1;
+        points[1] = p2;
+
+        return points;
+    }
+
+    /**
+     * From a pair of points computed as intersection points, determine
+     * if these two points are in range of the line segment shortest
+     * distance.
+     */
+    private Point getPointInRange( Point[] points ) {
+        return null; // not yet implemented. TODO
     }
 }
+
