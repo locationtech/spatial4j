@@ -17,22 +17,23 @@
 
 package com.spatial4j.core.math;
 
-import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.GeocentricPoint;
 
+import com.spatial4j.core.distance.DistanceUtils;
+
 /**
- * Computes the intersection point between geodesics
+ * Compute the intersection point between two geodesics on the surface of a
+ * sphere. Will compute a point and antipodal point, but always return the point
+ * that is on the line which is the shorter haversin distance between the two points
+ * Algorithm uses direciton cosines
+ *
+ * Algorithm from: http://www.movable-type.co.uk/scripts/latlong.htm
+ *
+ * Last Modified: 2/16/14
  */
 public class GeodesicIntersection {
 
     private GeodesicIntersection() {}
-
-    /**
-     * Compute the Intersection between two geodesics defined by lat/lon points
-     */
-    public Point computeIntersection( Point p1, Point p2 ) {
-
-    }
 
     /**
      * Compute teh Intersection between two geodesics defined by 3D geocentric points
@@ -40,4 +41,21 @@ public class GeodesicIntersection {
     public GeocentricPoint computeIntersection( GeodesicIntersection p1, GeodesicIntersection p2 ) {
 
     }
+
+    /**
+     * Main Compute Method
+     */
+    private GeocentricPoint compute() {
+
+    }
+
+    /**
+     * To unit vector
+     */
+    private
+    /**
+     * Compute normal vector
+     */
+
+
 }
