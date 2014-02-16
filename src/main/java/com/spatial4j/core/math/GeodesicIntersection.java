@@ -17,8 +17,11 @@
 
 package com.spatial4j.core.math;
 
+import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.GeocentricPoint;
+import com.spatial4j.core.shape.Vector3D;
 
+import com.spatial4j.core.math.VectorUtils;
 import com.spatial4j.core.distance.DistanceUtils;
 
 /**
@@ -33,29 +36,78 @@ import com.spatial4j.core.distance.DistanceUtils;
  */
 public class GeodesicIntersection {
 
+    /**
+     * Just for while I am writing the code, keeping the algorithm description over here
+     * comes straight from my write up on the blog
+     *
+     * For each point in latitude/longitude, where latitude - phi and longitude is lambda, we can define a unit vector u{x, y, z} = < cos(phi)cos(lambda, cos(phi)sin(lambda), sin(phi) >
+     Compute the unit vector for each point p where p1, p2 is on arc 1, and p3, p4 is on arc2
+     We then project the great circle path from our two points:
+     Unit vector N - normal to the plane of great circle and x is the cross product
+     N(u1, u2) = (u1 x u2)/||u1xu2||
+     N(u3, u4) = (u3 x u4)/||u3xu4||
+     Compute the intersection vector:
+     N( N(u1, u2), N(u3, u4) )
+     Return Lat/Lon result:
+     First Point (phi, lambda): phi = atan2( uz, sqrt(ux^2, uy^2) )), lambda = atan2(uy, ux)
+     Second point (antipodal): (-phi, lambda + pi)
+     */
+
     private GeodesicIntersection() {}
 
     /**
      * Compute teh Intersection between two geodesics defined by 3D geocentric points
      */
-    public GeocentricPoint computeIntersection( GeodesicIntersection p1, GeodesicIntersection p2 ) {
+    public GeocentricPoint computeIntersection( Point p1,
+                                                Point p2,
+                                                Point p3,
+                                                Point p4
+                                                ) {
 
     }
 
     /**
      * Main Compute Method
      */
-    private GeocentricPoint compute() {
+    private GeocentricPoint compute( Point p1, Point p2, Point p3, Point p4 ) {
 
+        // Compute the unit vector from lat/lon to xyz
+        Vector3D u1 = computeUnitVector( p1.getX(), p1.getY() );
+        Vector3D u2 = computeUnitVector( p2.getX(), p2.getY() );
+        Vector3D u3 = computeUnitVector( p3.getX(), p3.getY() );
+        Vector3D u4 = computeUnitVector( p4.getX(), p4.getY() );
+
+        // Compute the normal vector for each set of points
+        Vector3D Nu1u2;
+        Vector3D Nu3u4;
     }
 
     /**
      * To unit vector
+     * phi = latitude
+     * lamdba = longitude
      */
-    private
+    private Vector3D computeUnitVector( double phi, double lambda ) {
+       double x = Math.cos(phi)*Math.cos(lambda);
+       double y = Math.cos(phi)*Math.sin(lambda);
+       double z = Math.sin(phi);
+
+       return new Vector3D( x, y, z );
+    }
+
     /**
      * Compute normal vector
      */
+    private Vector3D computeNormal( Vector3D v1, Vector3D v2 ) {
+
+        // Compute cross prod and magnitude of the cross product
+        Vector3D crossProd = VectorUtils.crossProduct(v1, v2);
+        double mag = VectorUtils.mag(crossProd);
+
+        // Compute crossProd/mag(crossProd)
+        Vector3D result = VectorUtils.multiply(crossProd, 1/mag);
+        return result;
+    }
 
 
 }

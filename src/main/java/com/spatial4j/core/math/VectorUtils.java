@@ -79,8 +79,20 @@ public class VectorUtils {
      * Compute the unit vector of the given 3D Vector
      * Specifies direction and guarantees a magnitude == 1
      */
-    public static Vector3D unit_vector( Vector3D v ) {
+    public static Vector3D unitVector( Vector3D v ) {
         double mag = mag(v);
         return multiply(v, 1/mag);
+    }
+
+    /**
+     * Compute the Cross product of two vector3Ds
+     */
+    public static Vector3D crossProduct( Vector3D v1, Vector3D v2 ) {
+
+        double x = v1.getY()*v2.getZ() - v1.getZ()*v2.getY();
+        double y = v2.getZ()*v2.getX() - v1.getX()*v2.getZ();
+        double z = v1.getX()*v2.getY() - v1.getY()*v2.getX();
+
+        return new Vector3D(x, y, z);
     }
 }
