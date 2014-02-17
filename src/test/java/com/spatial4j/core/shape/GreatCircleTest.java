@@ -109,4 +109,30 @@ public class GreatCircleTest extends RandomizedTest {
     assertEquals(dist,circle.distanceToPoint(c),EPS);
 
   }
+
+  private GreatCircle makeCircle(double ax, double ay, double bx, double by) {
+    Point a = ctx.makePoint(ax, ay);
+    Point b = ctx.makePoint(bx, by);
+
+    return new GreatCircle(a, b);
+  }
+
+  @Test
+  public void testCircleAngle() throws Exception {
+    GreatCircle circle = makeCircle(0,0,0,90);
+    assertEquals(0, circle.angleInDegCalc(), EPS);
+
+    circle = makeCircle(0,0,45,90);
+    assertEquals(45,circle.angleInDegCalc(),EPS);
+
+    circle = makeCircle(0,0,90,90);
+    assertEquals(90,circle.angleInDegCalc(),EPS);
+
+    // Test -90 to 90
+    for(int i = -90; i <= 90; i ++) {
+      double random90 = randomDouble() * 90;
+      circle = makeCircle(0,0,random90,90);
+      assertEquals(random90,circle.angleInDegCalc(),EPS);
+    }
+  }
 }

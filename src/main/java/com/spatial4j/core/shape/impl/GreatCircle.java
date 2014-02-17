@@ -3,6 +3,7 @@ package com.spatial4j.core.shape.impl;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
 
 /**
  * Created by Chris Pavlicek on 2/7/2014.
@@ -20,6 +21,8 @@ public class GreatCircle {
   final Point3d planeVector;
 
   final double invPlaneLength;
+
+  final double angleInDegree;
 
   public GreatCircle(Point a, Point b) {
     this.a = a;
@@ -54,6 +57,8 @@ public class GreatCircle {
 
     // Inverse of plane length
     invPlaneLength = 1/GreatCircle.vectorLength(planeVector);
+
+    angleInDegree = angleInDegCalc();
   }
 
   public GreatCircle(Point3d a, Point3d b) {
@@ -66,6 +71,7 @@ public class GreatCircle {
 
     // Inverse of plane length
     invPlaneLength = 1/GreatCircle.vectorLength(planeVector);
+    angleInDegree = angleInDegCalc();
   }
 
   /**
@@ -112,6 +118,27 @@ public class GreatCircle {
     double z2 = p.getZ() * p.getZ();
 
     return Math.sqrt(x2 + y2 + z2);
+  }
+
+  public double getAngleInDegree() {
+    return angleInDegree;
+  }
+
+  /**
+   * Returns the Angle of the GreatCircle
+   * @return double in Degrees
+   */
+  public double angleInDegCalc() {
+    // Plane of the Equator
+    Point3d equatorPlane = new Point3d(0,-1,1);
+
+    double dotProd = dotProduct(planeVector,equatorPlane);
+    double distA = vectorLength(planeVector);
+    double distB = vectorLength(equatorPlane);
+    double prodDist = distA * distB;
+
+    // Angle in Rad, convert to degrees
+    return DistanceUtils.toDegrees(Math.acos(dotProd/prodDist));
   }
 
 
