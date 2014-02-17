@@ -89,11 +89,16 @@ public class GeoGraph {
      */
     public Point[] getPointsFromEdges() {
 
+        // Create a new list of points
+        Point[] points = new Point[ this.edgeList.size() ];
 
+        // Iterate through the edge list and copy over nr points
+        for ( int i = 0; i < this.edgeList.size(); i++ ) {
+            points[i] = this.edgeList.get(i).getP1();
+        }
+
+        return points;
     }
-    /**
-     * GeoGraph Invariant Checking
-     */
 
     /**
      * Check if this GeoGraph is a Valid GeoGraph:
@@ -105,48 +110,68 @@ public class GeoGraph {
         // Iterate through the edge list, ensure that each
         // edge represents a connected list
         GeoEdge start;
-        for ( int i = 0; i < this.edgeList.size(); i++ ) {
+        for ( int i = 0; i < this.edgeList.size()-1; i++ ) {
 
+            if ( i == this.edgeList.size()-1 ) {
+                if ( !this.edgeList.get(1).getP1().equals(this.edgeList.get(i).getP2())) return false;
+            } else {
+                if ( !this.edgeList.get(i).getP2().equals(this.edgeList.get(i+1).getP2())) return false;
+            }
         }
 
-        // check connected components
-        // check for redundant vertices
+        return true; ///passed!
     }
 
     /**
-     * Graph Equality
+     * Determine if two GeoGraphs are equal
      */
     @Override
     public boolean equals(Object other) {
-
-        /**
-         * Are two given geo edges equal?
-         */
-        @Override
-        public boolean equals(Object other) {
-            return equals(this, other);
-        }
-
-
-        /**
-         * All GeoEdges should use this definition of equals
-         */
-    public static boolean equals( GeoEdge thiz, Object o ) {
-        assert thiz != null;
-        if ( thiz == o ) return true;
-        if (!(o instanceof GeoEdge)) return false;
-
-        GeoEdge e = (GeoEdge) o;
-
-        return false; // TODO implement this
+        return equals(this, other);
     }
 
     /**
-     * Graph Hash Code
+     * Two GeoGraphs are equal if all containing geoedges in the edge lists are equal
+     * and in equal order
+     */
+    public static boolean equals( GeoGraph thiz, Object o ) {
+        assert thiz != null;
+        if ( thiz == o ) return true;
+        if (!(o instanceof GeoGraph)) return false;
+
+        GeoGraph g = (GeoGraph) o;
+
+        // Iterate through edges and compare
+        if ( g.getGeoEdges().size() != thiz.getGeoEdges().size() ) return false;
+
+        for ( int i = 0; i < thiz.getGeoEdges().size(); i++ ) {
+            if (!g.getGeoEdges().get(i).equals(thiz.getGeoEdges().get(i))) return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the HashCode for this GeoGraph
      */
     @Override
     public int hashCode() {
-        return 0; // TODO Implement this
+        return hashCode(this);
+    }
+
+    /**
+     * All implementations of GeoGraph should use this definition of hashCode
+     */
+    public int hashCode( GeoGraph thiz ) {
+        int result;
+        long temp = 0;
+
+        for ( int i = 0; i < thiz.getGeoEdges().size(); i++ ) {
+            temp =+ thiz.getGeoEdges().get(i).hashCode();
+        }
+
+        result = (int) (temp ^ (temp >>> 32 ));
+        return result;
     }
 
     /**
@@ -154,6 +179,10 @@ public class GeoGraph {
      */
     @Override
     public String toString() {
-        return "";
+        String edgeString = "GeoGraph\n";
+        for ( int i = 0; i < this.edgeList.size(); i++ ) {
+            edgeString = edgeString + this.edgeList.get(i).toString() + "\n";
+        }
+        return edgeString;
     }
 }
