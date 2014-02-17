@@ -29,13 +29,44 @@ import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
 import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
 
-public class GeoBufferedLine {
+
+public class GeoBufferedLine implements Shape {
 
   private final Point a;
   private final Point b;
   private final double buffer;
   private final double bufferPerp;
   private final SpatialContext ctx;
+
+  @Override
+  public Rectangle getBoundingBox() {
+    return null;
+  }
+
+  @Override
+  public boolean hasArea() {
+    return false;
+  }
+
+  @Override
+  public double getArea(SpatialContext ctx) {
+    return 0;
+  }
+
+  @Override
+  public Point getCenter() {
+    return null;
+  }
+
+  @Override
+  public Shape getBuffered(SpatialContext ctx, double distance) {
+    return null;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return false;
+  }
 
   private final GreatCircle linePrimary;
   private final GreatCircle linePerpendicular;
@@ -75,6 +106,15 @@ public class GeoBufferedLine {
     return DistanceUtils.toDegrees(DistanceUtils.distHaversineRAD(xA,yA,xB,yB));
   }
 
+  public double getBuffer() {
+    return this.buffer;
+  }
+
+  @Override
+  public SpatialRelation relate(Shape other) {
+    return null;
+  }
+
   /* public for testing */
   public GreatCircle getLinePrimary() {
     return linePrimary;
@@ -93,5 +133,7 @@ public class GeoBufferedLine {
       return false;
     }
   }
+
+
 
 }
