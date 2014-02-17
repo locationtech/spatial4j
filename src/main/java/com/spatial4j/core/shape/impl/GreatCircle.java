@@ -14,6 +14,8 @@ public class GreatCircle {
   private Point a;
   private Point b;
 
+  private Point3d equatorPlane = new Point3d(0,0,1);
+
   final Point3d a3d;
   final Point3d b3d;
 
@@ -124,16 +126,20 @@ public class GreatCircle {
     return angleInDegree;
   }
 
+  public Point3d intersectionPoint() {
+    // Using Point (0,0,0) as the "normal"
+    return Point3d.crossProductPoint(equatorPlane,planeVector);
+  }
+
   /**
    * Returns the Angle of the GreatCircle
    * @return double in Degrees
    */
   public double angleInDegCalc() {
-    // Plane of the Equator
-    Point3d equatorPlane = new Point3d(0,-1,1);
 
     double dotProd = dotProduct(planeVector,equatorPlane);
     double distA = vectorLength(planeVector);
+    equatorPlane.normalizePoint();
     double distB = vectorLength(equatorPlane);
     double prodDist = distA * distB;
 

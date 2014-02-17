@@ -119,20 +119,28 @@ public class GreatCircleTest extends RandomizedTest {
 
   @Test
   public void testCircleAngle() throws Exception {
-    GreatCircle circle = makeCircle(0,0,0,90);
+    GreatCircle circle = makeCircle(0,0,90,0);
     assertEquals(0, circle.angleInDegCalc(), EPS);
 
-    circle = makeCircle(0,0,45,90);
+    circle = makeCircle(0,0,90,45);
     assertEquals(45,circle.angleInDegCalc(),EPS);
 
-    circle = makeCircle(0,0,90,90);
+    circle = makeCircle(0,0,0,90);
     assertEquals(90,circle.angleInDegCalc(),EPS);
 
     // Test -90 to 90
     for(int i = -90; i <= 90; i ++) {
       double random90 = randomDouble() * 90;
-      circle = makeCircle(0,0,random90,90);
+      circle = makeCircle(0,0,90,random90);
       assertEquals(random90,circle.angleInDegCalc(),EPS);
     }
+  }
+
+  @Test
+  public void testIntersectionPoint() throws Exception {
+    GreatCircle circle = makeCircle(0,0,45,90);
+    System.out.println("Intersection:" + circle.intersectionPoint());
+
+
   }
 }
