@@ -22,20 +22,20 @@ import com.spatial4j.core.math.TransformUtils;
 import com.spatial4j.core.math.VectorUtils;
 
 import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.impl.GeocentricPoint;
+import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.BufferedLine;
 
 /**
- * A GeoEdge represents a geodesic (line) between two 3D geocentric points in space. The
- * GeoEdge is not an explicit representation of a geodesic, but is part of a GeoGraph
- * which is the internal representation of a Geodesic Polygon in Spatial4j. Uses haversine
- * for distance calculations by default.
+ * A GeoEdge represents the geodesic between two geographic points in space and the shortest
+ * distance between them. A GeoEdge is an implicit representation of a geodesic and part of
+ * a GeoGraph - the internal representation of a Geodesic Polygon in Spatial4j. Uses
+ * haversine distance calculations by default.
  */
 public class GeoEdge {
 
-    // Store 2 Geocentric Points and the distance along the geodesic between them
-    private GeocentricPoint pA;
-    private GeocentricPoint pB;
+    // Store 2 Geocentric and the distance along the geodesic between them
+    private Point pA;
+    private Point pB;
     private double geodesicDist;
 
     private GeoEdge() {}
@@ -59,38 +59,23 @@ public class GeoEdge {
      * Initialize Edge from 2 Geocentric Points
      */
     private void init( Point pointA, Point pointB ) {
-
-        this.pA = TransformUtils.toGeocentric(pointA);
-        this.pB = TransformUtils.toGeocentric(pointB);
+        this.pA = pointA;
+        this.pB = pointB;
         this.geodesicDist = DistanceUtils.distHaversineRAD( pointA.getX(), pointB.getY(), pointA.getX(), pointB.getY() );
-    }
-
-    /**
-     * Access Point 1 of the Edge as a geocentric point (3D)
-     */
-    public GeocentricPoint getGP1() {
-        return this.pA;
     }
 
     /**
      * Access Point 1 of the edge as a geographic (lat/lon) point
      */
     public Point getP1() {
-        return TransformUtils.toGeodetic(pA);
-    }
-
-    /**
-     * Access Point 2 of the Edge as a geocentric point (3D)
-     */
-    public GeocentricPoint getGP2() {
-        return this.pB;
+        return this.pA;
     }
 
     /**
      * Access Point 2 of the edge as a geographic (lat/lon) point
      */
     public Point getP2() {
-        return TransformUtils.toGeodetic(pB);
+        return this.pB;
     }
 
     /**
@@ -101,19 +86,53 @@ public class GeoEdge {
     }
 
     /**
-     * Graph Equality
+     * Are two given geo edges equal?
      */
     @Override
     public boolean equals(Object other) {
-        return false; // TODO implement this
+        return equals(this, other);
+    }
+
+
+    /**
+     * All GeoEdges should use this definition of equals
+     */
+    public static boolean equals( GeoEdge thiz, Object o ) {
+        assert thiz != null;
+        if ( thiz == o ) return true;
+        if (!(o instanceof GeoEdge)) return false;
+
+        GeoEdge e = (GeoEdge) o;
+
+        if (!e.getP1().equals(thiz.getP1())) return false;
+        if (!e.getP2().equals(thiz.getP2())) return false;
+        if (Double.compare(e.getDistance(), thiz.getDistance()) != 0) return false;
+
+        return true;
     }
 
     /**
-     * Graph Hash Code
+     * HashCode Method for GeoEdge
      */
     @Override
     public int hashCode() {
-        return 0; // TODO Implement this
+        return hashCode(this);
+    }
+
+    /**
+     * All GeoEdges should use this definition of hashCode
+     */
+    public static int hashCode(GeoEdge thiz) {
+        int result;
+        long temp;
+        temp = thiz.getP1().getX() != +0.0d ? Double.doubleToLongBits(thiz.getP1().getX()) : 0L;
+        result = (int) (temp ^ (temp >>> 32));
+        temp = thiz.getP2().getY() != +0.0d ? Double.doubleToLongBits(thiz.getP2().getY()) : 0L;
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = thiz.getDistance() != +0.0d ? Double.doubleToLongBits(thiz.getDistance()) : 0L;
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+
+        return result;
     }
 
     /**
@@ -121,6 +140,10 @@ public class GeoEdge {
      */
     @Override
     public String toString() {
-        return ""; // todo implement this
+        return "GeoEdge{" +
+               "point 1=(" + pA.getX() + " " + pB.getY() + "), " +
+               "point 2=(" + pB.getX() + " " + pB.getY() + "), " +
+               "distance=" + geodesicDist +
+                '}';
     }
 }
