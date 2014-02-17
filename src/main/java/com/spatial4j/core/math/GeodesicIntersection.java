@@ -148,6 +148,12 @@ public class GeodesicIntersection {
      * distance.
      */
     private Point getPointInRange( Point[] points ) {
+
+        /**
+         * Convert points to geocentric
+         * find min/max points
+         * determine if the test points are in range??
+         */
         return null; // not yet implemented. TODO
     }
 }
