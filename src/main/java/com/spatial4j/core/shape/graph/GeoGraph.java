@@ -23,34 +23,33 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * A GeoGraph is the internal representation of a geodesic polygon in Spatial4j. The vertices of a
- * GeoGraph are 3D points which define the boundary of the Polgyon and each edge represents
- * the connection between 2 vertices and the geodesic distance between them (and thus represends the geodesic
- * borders of the polygon).
+ * A GeoGraph is the internal representation of a geodesic polygon in Spatial4j. The vertices
+ * of a GeoGraph are 2D points which define the boundary of the Polygon and each edge represents
+ * the connection between these two points, weighted by the shortest-path distance between them.
+ * The full polygon is a closed cycle, but this class also marks start and stop points.
  *
  * Because the shape of a GeoPolygon itself is immutable, a GeoGraph is also immutable once constructed
  * but can be reset from scratch if needed.
  */
 public class GeoGraph {
 
-    // Represent a graph internally as a list of edges
+    // Represent a graph internally as a list of GeoEdges (see GeoEdge Class)
     private List< GeoEdge > edgeList;
-    private Point[] points;
 
     private GeoGraph() {}
 
     public GeoGraph( Point[] points ) {
-        init(points);
+        initFromPoints(points);
     }
 
     /**
-     * Given a list of ordered points, create an edge for the pairs of points
-     * in order creating a graph.
+     * Given a list of ordered points, create an edge for the pairs of points, mark
+     * the start and end points, and build the full graph.
      * @param points
      */
-    private void init( Point[] points ) {
+    private void initFromPoints( Point[] points ) {
 
-        this.points = points;
+        // Initialize edgeList
         this.edgeList = new ArrayList<GeoEdge>(points.length -1); // n-1 edges in a bounding polygon for n points
 
         // For each point, create an edge between the two points
@@ -61,26 +60,37 @@ public class GeoGraph {
 
         // Connect the ends of the polygon
         GeoEdge connect = new GeoEdge( points[0], points[points.length-1] );
+        this.edgeList.add(connect);
 
         // Check invariants
-        isGeoGraph();
+        if ( !isGeoGraph() ) {
+            throw new IllegalStateException("Invalid Construction of a GeoGraph!");
+        }
+        return;
     }
 
     /**
-     * Access the geograph edge list
+     * Access the edge list of the GeoGraph
      */
     public List< GeoEdge > getGeoEdges() {
         return this.edgeList;
     }
 
     /**
-     * Access a unique vertices list in the edge list
+     * Access the unique list of vertices (points) in the edge list
      */
     public Point[] getPoints() {
-        return this.points;
+        return getPointsFromEdges();
     }
 
 
+    /**
+     * Compute the non redundant set of points from the edge list
+     */
+    public Point[] getPointsFromEdges() {
+
+
+    }
     /**
      * GeoGraph Invariant Checking
      */
@@ -90,7 +100,15 @@ public class GeoGraph {
      *  (1) No redundant input points
      *  (2) Internal Geometry is fully connected
      */
-    public void isGeoGraph() {
+    public boolean isGeoGraph() {
+
+        // Iterate through the edge list, ensure that each
+        // edge represents a connected list
+        GeoEdge start;
+        for ( int i = 0; i < this.edgeList.size(); i++ ) {
+
+        }
+
         // check connected components
         // check for redundant vertices
     }
@@ -100,6 +118,26 @@ public class GeoGraph {
      */
     @Override
     public boolean equals(Object other) {
+
+        /**
+         * Are two given geo edges equal?
+         */
+        @Override
+        public boolean equals(Object other) {
+            return equals(this, other);
+        }
+
+
+        /**
+         * All GeoEdges should use this definition of equals
+         */
+    public static boolean equals( GeoEdge thiz, Object o ) {
+        assert thiz != null;
+        if ( thiz == o ) return true;
+        if (!(o instanceof GeoEdge)) return false;
+
+        GeoEdge e = (GeoEdge) o;
+
         return false; // TODO implement this
     }
 
