@@ -15,9 +15,9 @@ DATE: 20 January 2014
 
  * SpatialContext.readShape(String) and toString(Shape) are still deprecated but will be
    removed in the next release. You should instead read WKT via the new method
-   readShapeFromWkt(String). This also affects initializing worldBounds from a string using the
-   SpatialContextFactory. Spatial4j will no longer provide a way to generate WKT from a shape
-   although it’s pretty easy to use JTS for that.
+   readShapeFromWkt(String). This also means the worldBounds initialization via SpatialContextFactory
+   should be specified as an ENVELOPE WKT. Spatial4j will no longer provide a way to generate WKT
+   from a shape although it’s pretty easy to use JTS for that.
 
  * In Spatial4j’s older JTS based implementation, it used to be the case that when reading WKT,
    latitudes would be normalized into the -90 to 90 range; it’s now an error. Longitudes outside of
