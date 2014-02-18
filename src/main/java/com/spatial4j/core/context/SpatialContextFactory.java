@@ -105,12 +105,17 @@ public class SpatialContextFactory {
   protected void init(Map<String, String> args, ClassLoader classLoader) {
     this.args = args;
     this.classLoader = classLoader;
+
     initField("geo");
+
     initCalculator();
+
+    //init wktParser before worldBounds because WB needs to be parsed
+    initField("wktShapeParserClass");
     initWorldBounds();
 
     initField("normWrapLongitude");
-    initField("wktShapeParserClass");
+
     initField("binaryCodecClass");
   }
 
@@ -175,8 +180,8 @@ public class SpatialContextFactory {
       return;
     
     //kinda ugly we do this just to read a rectangle.  TODO refactor
-    SpatialContext simpleCtx = new SpatialContext(this);
-    worldBounds = (Rectangle) simpleCtx.readShape(worldBoundsStr);//TODO use readShapeFromWkt
+    final SpatialContext ctx = newSpatialContext();
+    worldBounds = (Rectangle) ctx.readShape(worldBoundsStr);//TODO use readShapeFromWkt
   }
 
   /** Subclasses should simply construct the instance from the initialized configuration. */
