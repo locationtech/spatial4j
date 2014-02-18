@@ -24,7 +24,7 @@ public class GreatCircle {
 
   final double invPlaneLength;
 
-  final double angleInDegree;
+  final double angleDEG;
 
   public GreatCircle(Point a, Point b) {
     this.a = a;
@@ -60,7 +60,7 @@ public class GreatCircle {
     // Inverse of plane length
     invPlaneLength = 1/GreatCircle.vectorLength(planeVector);
 
-    angleInDegree = angleInDegCalc();
+    angleDEG = angleInDegCalc();
   }
 
   public GreatCircle(Point3d a, Point3d b) {
@@ -73,7 +73,7 @@ public class GreatCircle {
 
     // Inverse of plane length
     invPlaneLength = 1/GreatCircle.vectorLength(planeVector);
-    angleInDegree = angleInDegCalc();
+    angleDEG = angleInDegCalc();
   }
 
   /**
@@ -123,16 +123,38 @@ public class GreatCircle {
   }
 
   public double getAngleInDegree() {
-    return angleInDegree;
+    return angleDEG;
   }
 
-  public Point3d intersectionPoint() {
-    // Using Point (0,0,0) as the "normal"
-    return Point3d.crossProductPoint(equatorPlane,planeVector);
+  /**
+   * Returns the Point3d on the Equator where the great circle intersects.
+   * This can be either of the 2 points.
+   * @return
+   */
+  public double intersectionLongitude() {
+    // Using Point (0,0,0) as the "normal" for the line Cross Product
+    // This gives us the equation of a line
+
+    // This is a on the equator at that goes through 180,0 and 0,0.
+    Point3d axis = new Point3d(1,0,0);
+
+    Point3d line = Point3d.crossProductPoint(equatorPlane,planeVector);
+    double dotProd = dotProduct(axis, line);
+    double length = vectorLength(axis) * vectorLength(line);
+
+    // Find the angle from the perfect line.
+    double longitude = DistanceUtils.toDegrees(Math.acos(dotProd / length));
+
+    // Adjust for Negative Values
+    if((line.getY() < 0 && line.getX() < 0) || line.getY() < 0)
+      longitude *= -1;
+
+    return longitude;
   }
 
   /**
    * Returns the Angle of the GreatCircle
+   * Always positive
    * @return double in Degrees
    */
   public double angleInDegCalc() {

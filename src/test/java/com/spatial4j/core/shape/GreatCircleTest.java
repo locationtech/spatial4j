@@ -3,6 +3,7 @@ package com.spatial4j.core.shape;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.impl.GreatCircle;
 import com.spatial4j.core.shape.impl.PointImpl;
@@ -129,17 +130,20 @@ public class GreatCircleTest extends RandomizedTest {
     assertEquals(90,circle.angleInDegCalc(),EPS);
 
     // Test -90 to 90
-    for(int i = -90; i <= 90; i ++) {
-      double random90 = randomDouble() * 90;
-      circle = makeCircle(0,0,90,random90);
-      assertEquals(random90,circle.angleInDegCalc(),EPS);
+    for(int i = 90; i >= -90; i--) {
+      circle = makeCircle(0,0,90,i);
+      assertEquals(Math.abs(i),circle.angleInDegCalc(),EPS);
     }
   }
 
   @Test
   public void testIntersectionPoint() throws Exception {
-    GreatCircle circle = makeCircle(0,0,45,90);
-    System.out.println("Intersection:" + circle.intersectionPoint());
+
+    for (int i = -180; i <= 180; i ++) {
+      GreatCircle circle = makeCircle(i,0,i,90);
+      double intersection = circle.intersectionLongitude();
+      assertEquals(i,intersection,EPS);
+    }
 
 
   }
