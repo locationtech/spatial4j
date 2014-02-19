@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,12 @@ import com.spatial4j.core.exception.InvalidShapeException;
 
 /**
  * Utility methods related to parsing a series of numbers.
- * @deprecated Not useful; see https://github.com/spatial4j/spatial4j/issues/19
  * <p/>
  * This code came from DistanceUtils, which came from
  * <a href="https://issues.apache.org/jira/browse/LUCENE-773">Apache
  * Lucene, LUCENE-773</a>, which in turn came from "LocalLucene".
+ *
+ * @deprecated Not useful; see https://github.com/spatial4j/spatial4j/issues/19
  */
 @Deprecated
 public class ParseUtils {
