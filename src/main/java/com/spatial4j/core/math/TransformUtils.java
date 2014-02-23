@@ -34,7 +34,7 @@ import com.spatial4j.core.context.SpatialContext;
  * http://kartoweb.itc.nl/geometrics/coordinate%20transformations/coordtrans.html
  * and were adapted from the ellipsoidal model to the spherical model.
  *
- * Last Modified: 2/22/14
+ * Last Modified: 2/23/14
  */
 public class TransformUtils {
 
