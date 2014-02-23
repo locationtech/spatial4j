@@ -18,9 +18,38 @@
 package com.spatial4j.core.math;
 
 import com.spatial4j.core.TestLog;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 
+/**
+ * Test methods for converting between geographic and geocentric coordinates
+ * Test methods for creating direction cosine points (no inverses)
+ */
 public class TransformUtilsTest {
+
+    @Before
+    public void setUp() {
+
+    }
+
+    @After
+    public void tearDown() {
+
+    }
+
+    /**
+     * Test
+     */
+    @Test
+    public void
+
+    @Test
+    public void testGeoConversion() {
+
+        // Generate a random point and check
+    }
+
 }
