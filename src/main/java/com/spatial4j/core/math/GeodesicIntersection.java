@@ -150,6 +150,19 @@ public class GeodesicIntersection {
     private Point getPointInRange( Point[] points ) {
 
         /**
+         * Algorithm:
+         *
+         * (min/max - is there code for this? or do I need to move back to direction cosines)
+         * find min lat/lon point
+         * find max lat/lon point
+         *
+         * Get
+         *
+         */
+
+
+
+        /**
          * Convert points to geocentric
          * find min/max points
          * determine if the test points are in range??

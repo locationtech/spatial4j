@@ -20,14 +20,17 @@ package com.spatial4j.core.math;
 import com.spatial4j.core.shape.Vector3D;
 
 /**
- * Utilities for operations on 3D vectors
+ * VectorUtils implements utilities for operations with 3 component vectors (x,y,z).
+ * This class includes sum, difference, multiply, mag, unitVector, and cross product.
+ *
+ * Last Modified: 2/22/14
  */
 public class VectorUtils {
 
     private VectorUtils() {}
 
     /**
-     * Vector Sum
+     * Compute the sum of two vectors
      */
     public static Vector3D sum( Vector3D a, Vector3D b ) {
 
@@ -39,7 +42,7 @@ public class VectorUtils {
     }
 
     /**
-     * Vector Difference
+     * Compute the difference between two vectors
      */
     public static Vector3D difference( Vector3D a, Vector3D b ) {
 
@@ -52,7 +55,7 @@ public class VectorUtils {
 
 
     /**
-     * Scalar multiplication
+     * Compute the product of a vector and a scalar factor s.
      */
     public static Vector3D multiply( Vector3D v, double s ) {
 
@@ -64,7 +67,7 @@ public class VectorUtils {
     }
 
     /**
-     * Vector Magnitude
+     * Compute the scalar magnitude of a vector
      */
     public static double mag( Vector3D v  ) {
 
@@ -76,8 +79,7 @@ public class VectorUtils {
     }
 
     /**
-     * Compute the unit vector of the given 3D Vector
-     * Specifies direction and guarantees a magnitude == 1
+     * Compute the unit vector of the given vector
      */
     public static Vector3D unitVector( Vector3D v ) {
         double mag = mag(v);
@@ -85,7 +87,7 @@ public class VectorUtils {
     }
 
     /**
-     * Compute the Cross product of two vector3Ds
+     * Compute the cross product between two vectors
      */
     public static Vector3D crossProduct( Vector3D v1, Vector3D v2 ) {
 
