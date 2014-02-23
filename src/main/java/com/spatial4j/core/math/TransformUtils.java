@@ -17,112 +17,101 @@
 
 package com.spatial4j.core.math;
 
-import com.spatial4j.core.shape.impl.DirectionCosinePoint;
+import com.spatial4j.core.shape.Vector3D;
 import com.spatial4j.core.shape.impl.GeocentricPoint;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
 
 import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.context.SpatialContext;
 
 /**
- * The purpose of the transform utils class is to provide convenient utilities for
- * easily moving between latitude/longitude, geocentric, and directed cosines representation
- * of a point on a sphere.
+ * TransformUtils allows easily moving between 3 coordinate references: geographic coordinates
+ * (traditional Spatial4j latitude/longitude), geocentric coordinates and direction cosine points.
+ * These three systems are different representations of a point on the surface of a sphere.
  *
- * This class uses methods referenced from the FrameOfRefernece Class in GeoDesy which is ASL
- * licensed. Link: https://github.com/OpenSextant/geodesy/blob/master/src/main/java/org/opensextant/geodesy/FrameOfReference.java
+ * Computations for moving between GeoGraphic to GeoCentric Coordinates come from
+ * http://kartoweb.itc.nl/geometrics/coordinate%20transformations/coordtrans.html
+ * and were adapted from the ellipsoidal model to the spherical model.
+ *
+ * Last Modified: 2/22/14
  */
 public class TransformUtils {
 
     private TransformUtils() {}
 
     /**
-     * This method converts a 2D geodetic point (latitude/longitude)
-     * to a 3D geocentric point
+     * Convert a Geographic Point (latitude and longitude) to a Geocentric
+     * Point (x, y, z) on the spherical model of the earth (h = 0)
      *
-     * Method Referenced from Geodesy FrameOfRefernece Class (ASL Licensed)
-     *
-     * agh idk I need constants... (e, n, u)
+     * Note: if you are trying to follow the calculation directly from the reference
+     * provided above, this is now the nomenclature works out
+     *      x => longitude => lambda
+     *      y => latitude => phi
      */
     public static GeocentricPoint toGeocentric( Point p ) {
 
-        // Convert lat/lon to radians
-        double lambda = DistanceUtils.toRadians(p.getX());
-        double phi = DistanceUtils.toRadians(p.getY());
-        double h = 0;
+        // Compute u (prime vertical radius of curvature and radius
+        double r = DistanceUtils.EARTH_MEAN_RADIUS_KM;
 
-        // Needs a radius??
-        double N = 0; // implement here
-
-        // Convert lat/lon to XYZ
-        double cosPhi = Math.cos(phi);
-        double X = (N + h) * cosPhi * Math.cos(lambda);
-        double Y = (N + h) * cosPhi * Math.sin(lambda);
-        double Z = ( (N * (1.0 - pow(ecc, 2))) ) + h ) * Math.sin(phi);
+        // Compute X, Y, and Z
+        double X = r * Math.cos(p.getY()) * Math.cos(p.getX());
+        double Y = r * Math.cos(p.getY()) * Math.sin(p.getY());
+        double Z = r * Math.sin(p.getY());
 
         return new GeocentricPoint(X, Y, Z);
     }
 
     /**
-     * This method converts a 3D geocentric point (X, Y, Z in euclidean space)
-     * to a 2D geodetic point (latitude and longitude)
+     * Convert a Geocentric Point ((X, Y, Z) in Euclidean Space) to a Geographic
+     * point (latitude and longitude)
      *
-     * Method Referenced from Goedesy FrameOfReference Class (ASL Licensed)
+     * ** Approximates lon at the poles to be 0 (no topoOrigin available??)
+     * Method Referenced from OpenSextant/Goedesy FrameOfReference Class (ASL Licensed)
      */
-    public static Point toGeodetic( GeocentricPoint gp ) {
+    public static Point toGeodetic( GeocentricPoint gp, SpatialContext ctx ) {
 
-        // Grab the initial XYZ coordinates form the geodetic point
-        double X = gp.getX();
-        double Y = gp.getY();
-        double Z = gp.getZ();
+        // Initial Declarations to Clean up appearance of the algorithm
+        double x = gp.getX();
+        double y = gp.getY();
+        double z = gp.getZ();
 
-        // Calculate the Equatorial and Polar Radii
-        double a = 0; // equatorial radius
-        double b = 0; // polar radius
+        double r = DistanceUtils.EARTH_MEAN_RADIUS_KM;
 
-        // Computation??
-        double p = Math.sqrt((X * X) + (Y * Y));
-        double lon;
+        // Variable declarations
         double lat;
-        double h;
+        double lon;
 
+        // Compute Phi
+        double phi = Math.sqrt( Math.pow(gp.getX(), 2) + Math.pow(gp.getY(), 2));
 
-        //
-        if (p == 0.0) {
-            // At the pole, all longitude values are at the same place so we might
-            // normalize lon to be zero, but using topocentric origin's lon instead
-            lon = 0; // topoOrigLle.getLon
-            lat = (Z > 0.0 ) ? +90.0 : -90.0;
-            h = (Z > 0.0) ? Z-b : b-Z;
+        if ( phi == 0.0 ) {
+            // At a pole, longitude values all superimpose so we will normalize to 0
+            lon = 0;
+            lat = z > 0.0 ? +90.0 : -90.0;
         } else {
-            lon = Math.atan2(Y, X);
-            double theta = Math.atan(Z * a)/ (p * b);
-            double sinTheta = Math.sin(theta);
-            double cosTheta = Math.cos(theta);
-            double phi = Math.atan(
-                    (Z + (eccensquared * b * sinTheta * sinTheta * sinTheta )) /
-                            (p - (eccensquared * a * cosTheta * cosTheta * cosTheta ));
-            lat = phi;
-            h = ( p/ Math.cos(phi)) = (getRad lat);
-
-            return new PointImpl( lon, lat ); // check concistency in XY
+            lon = Math.atan2(y, x);
+            double theta = Math.atan((z * r)/(phi * r));
+            double phi2 = Math.atan(z/phi);
+            lat = phi2;
         }
+
+        return new PointImpl(lon, lat, ctx);
     }
 
     /**
-     * This method converts a 3D geocentric point to a directed cosine representation of the
-     * point on the surface of a spheroidal model of the earth. This method references math from
-     * the Wikipedia page on directed cosines:
+     * Convert a 3D Geocentric Point to a Direction Cosine Vector. Method referenced
+     * from the Wikipedia page on direction cosines.
      *
-     * Include link: </here>
+     * http://en.wikipedia.org/wiki/Direction_cosine
      */
-    public static DirectionCosinePoint toDirectionCosine( GeocentricPoint gp ) {
+    public static Vector3D toDirectionCosine( GeocentricPoint gp ) {
 
-       double alpha = gp.getX()/VectorUtils.mag(gp);
-       double beta = gp.getY()/VectorUtils.mag(gp);
-       double gamma = gp.getZ()/VectorUtils.mag(gp);
+       double a = gp.getX()/VectorUtils.mag(gp);
+       double b = gp.getY()/VectorUtils.mag(gp);
+       double g = gp.getZ()/VectorUtils.mag(gp);
 
-       return new DirectionCosinePoint( alpha, beta, gamma );
+       return new Vector3D( a, b, g );
 
     }
 
