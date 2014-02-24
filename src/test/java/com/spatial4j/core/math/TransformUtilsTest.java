@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-
 /**
  * Test methods for converting between geographic and geocentric coordinates
  * Test methods for creating direction cosine points (no inverses)
@@ -41,15 +40,44 @@ public class TransformUtilsTest {
     }
 
     /**
-     * Test
+     * Test Geodetic to Geocentric Conversion
      */
     @Test
-    public void
+    public void test2Dto3DConversion() {
 
+    }
+
+    /**
+     * Test Geocentric to Geodetic COnversion - Poles Edge Case
+     */
     @Test
-    public void testGeoConversion() {
+    public void testGeodeticConversionAtPoles() {
 
-        // Generate a random point and check
+    }
+
+    /**
+     * Test Geocentric to Geodetic Conversion
+     */
+    @Test
+    public void test3Dto2DConversion() {
+
+    }
+
+    /**
+     * Test Identity Conversion between Geocentric and Geodetic Coordinates
+     */
+    @Test
+    public void testIdentityGeoConversion() {
+
+
+    }
+
+    /**
+     * Test Conversion to Direction Cosine Point
+     */
+    @Test
+    public void testDirectionCosines() {
+
     }
 
 }
