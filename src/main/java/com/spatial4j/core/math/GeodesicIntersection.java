@@ -87,7 +87,7 @@ public class GeodesicIntersection {
 
         // Determine the appropriate intersection point in range.
         // If no points intersect return out of bounds lat/lon??
-        Point result = getPointInRange( points, p1, p2, p3, p4 );
+        Point result = getPointInRange( points, p1, p2 );
 
         return result;
 
@@ -135,10 +135,14 @@ public class GeodesicIntersection {
         double lambda2 = lambda1 + Math.PI;
         Point p2 = new PointImpl( phi2, lambda2, ctx );
 
+        // Get the possible no intersection point
+        Point p3 = new PointImpl(360, 360, ctx);
+
         // Create a list of points and return
-        Point[] points = new Point[2];
+        Point[] points = new Point[3];
         points[0] = p1;
         points[1] = p2;
+        points[2] = p3;
 
         return points;
     }
@@ -151,7 +155,7 @@ public class GeodesicIntersection {
      * p1 and p2 are for the first line
      * p3 and p4 are for the second line
      */
-    private Point getPointInRange( Point[] points, Point p1, Point p2, Point p3, Point p4 ) {
+    private Point getPointInRange( Point[] points, Point p1, Point p2 ) {
 
         /**
          * Get the point and antipodal point
@@ -160,44 +164,36 @@ public class GeodesicIntersection {
         Point antiPoint = points[1];
 
         /**
-         * Get Min and Max Points
+         * Get Min and Max Points for latitude and longitude ranges
+         * defined by the line segment
          */
-        double min = Math.min( p1.getX(), p2.getX() );
-        double max = Math.max( p1.getX(), p2.getX() );
-
+        double longMin = Math.min( p1.getX(), p2.getX() );
+        double longMax = Math.max( p1.getX(), p2.getX() );
+        double latMin = Math.min( p1.getY(), p2.getY() );
+        double latMax = Math.max( p1.getY(), p2.getY() );
 
         /**
-         * Create latitude and longitude ranges
+         * Check point is within longitude range
          */
+        if ( longMin <= point.getX() && point.getX() <= longMax ) {
+            if ( latMin <= point.getY() && point.getY() <= latMax ) {
+                return point;
+            } else {
+                return points[2];
+            }
 
+        } else if ( longMin <= antiPoint.getX() && antiPoint.getX() <= longMax ) {
+            if ( latMin <= antiPoint.getY() && antiPoint.getY() <= latMax ) {
+                return antiPoint;
+            } else {
+                return points[2];
+            }
+        }
 
         /**
-         * Determine if the first point is contained in the  longitude range
+         * If no other criteria met, return the empty/non intersection point
          */
-
-
-
-
-
-        /**
-         * Algorithm:
-         *
-         * (min/max - is there code for this? or do I need to move back to direction cosines)
-         * find min lat/lon point
-         * find max lat/lon point
-         *
-         * Get
-         *
-         */
-
-
-
-        /**
-         * Convert points to geocentric
-         * find min/max points
-         * determine if the test points are in range??
-         */
-        return null; // not yet implemented. TODO
+        return points[2];
     }
 }
 
