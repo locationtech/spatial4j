@@ -87,9 +87,10 @@ public class GeodesicIntersection {
 
         // Determine the appropriate intersection point in range.
         // If no points intersect return out of bounds lat/lon??
-        Point result = getPointInRange( points );
+        Point result = getPointInRange( points, p1, p2, p3, p4 );
 
-        return points;
+        return result;
+
     }
     /**
      * Compute the unit vector using direction cosines from 2D geographic
@@ -146,8 +147,37 @@ public class GeodesicIntersection {
      * From a pair of points computed as intersection points, determine
      * if these two points are in range of the line segment shortest
      * distance.
+     *
+     * p1 and p2 are for the first line
+     * p3 and p4 are for the second line
      */
-    private Point getPointInRange( Point[] points ) {
+    private Point getPointInRange( Point[] points, Point p1, Point p2, Point p3, Point p4 ) {
+
+        /**
+         * Get the point and antipodal point
+         */
+        Point point = points[0];
+        Point antiPoint = points[1];
+
+        /**
+         * Get Min and Max Points
+         */
+        double min = Math.min( p1.getX(), p2.getX() );
+        double max = Math.max( p1.getX(), p2.getX() );
+
+
+        /**
+         * Create latitude and longitude ranges
+         */
+
+
+        /**
+         * Determine if the first point is contained in the  longitude range
+         */
+
+
+
+
 
         /**
          * Algorithm:
