@@ -39,7 +39,7 @@ import com.spatial4j.core.context.SpatialContext;
  *
  * Algorithm from: http://www.movable-type.co.uk/scripts/latlong.htm
  *
- * Last Modified: 2/16/14
+ * Last Modified: 2/23/14
  */
 public class GeodesicIntersection {
 
