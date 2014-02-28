@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
 
 /**
  * A GeoLoop is a representation of a single Polygon on the surface of a sphere
@@ -96,6 +97,21 @@ public class GeoLoop {
         return is_hole;
     }
 
+    /**
+     * Find a vertex of interest in the loop
+     */
+    public Point findVertex( Point p ) {
+
+    }
+
+    /**
+     * Determine if a line interesects the polygon defined
+     * by 2 points
+     */
+    public intersects( Point p1, Point p2 ) {
+
+    }
+
     ////// Compute Geometric Properties of the Loop ///////
 
     /**
@@ -116,6 +132,13 @@ public class GeoLoop {
      * Compute the centroid of the loop
      */
     public Point getCenter() {
+
+    }
+
+    /**
+     * Get the Bounding Lat/Lon Rectangle of the Loop
+     */
+    public Rectangle getBoundingBox() {
 
     }
 
@@ -152,6 +175,21 @@ public class GeoLoop {
 
     }
 
+
+    /**
+     * String representation of a GeoLoop
+     */
+    @Override
+    public String toString() {
+        toString(this);
+    }
+
+    /**
+     * Represent a GeoLoop as a string
+     */
+    public String toString( GeoLoop thiz ) {
+
+    }
 
 
 
