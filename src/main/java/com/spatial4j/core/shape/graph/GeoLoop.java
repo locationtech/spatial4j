@@ -1,0 +1,167 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.spatial4j.core.shape.graph;
+
+import java.util.List;
+import java.util.ArrayList;
+
+import com.spatial4j.core.shape.Point;
+
+/**
+ * A GeoLoop is a representation of a single Polygon on the surface of a sphere
+ * (in geodesic context). The algorithms for modeling a simple polygon originated
+ * in the C++ s2Geometry library which is under Apache (ASL) License and have been
+ * adapted as a Spatial4j shape implementation
+ *
+ * A loop is represented as a list of edges where the first and last edges are
+ * implicitly connected. Lists are part of a loop as read in order. Enables
+ * the building of polygons with holes
+ *
+ * Link: https://code.google.com/p/s2-geometry-library/
+ */
+public class GeoLoop {
+
+    // Data: Store Loop Vertices
+    private final List< Point > vertices;
+    private final int depth;
+    private final boolean is_hole;
+
+    /**
+     * Construct a geodesic loop from a list of vertices (2D Point)
+     */
+    public GeoLoop( List< Point > vertices, int depth, boolean is_hole ) {
+        this.vertices = vertices;
+        this.depth = depth;
+        this.is_hole = is_hole;
+        assert( isValid() );
+    }
+
+    ////// Methods for Loop Properties ///////
+
+    /**
+     * Check the loop is valid - should always return true after construction
+     */
+    public boolean isValid() {
+
+    }
+
+    /**
+     * Return the vertices currently contained in the loop
+     */
+    public List< Point > getVertices() {
+        return this.vertices;
+    }
+
+    /**
+     * Return the cannonical first vertex of the loop
+     */
+    public Point getCanonicalFirstVertex() {
+        assert( isValid() );
+        return this.vertices.get(1);
+    }
+
+    /**
+     * Get the depth of the loop within a polygon structure
+     */
+    public int depth() {
+        return this.depth;
+    }
+
+    /**
+     * Return number of vertices in the loop
+     */
+    public int numVertices() {
+        return this.vertices.size();
+    }
+
+    /**
+     * Is the loop a hole in the polygon?
+     */
+    public boolean isHole() {
+        return is_hole;
+    }
+
+    ////// Compute Geometric Properties of the Loop ///////
+
+    /**
+     * Does the loop have area?
+     */
+    public boolean hasArea() {
+        return (getArea() > 0 );
+    }
+
+    /**
+     * Compute the area of the loop
+     */
+    public double getArea() {
+
+    }
+
+    /**
+     * Compute the centroid of the loop
+     */
+    public Point getCenter() {
+
+    }
+
+
+    //// Useful Java Methods /////
+
+    /**
+     * All Loops maintain this .equals definition
+     */
+    @Override
+    public boolean equals( Object o ) {
+        return equals( this, o );
+    }
+
+    /**
+     * Determine loop equality
+     */
+    public boolean equals( GeoLoop thiz, Object other ) {
+
+    }
+
+    /**
+     * All Loops should implement this .hashCode definition
+     */
+    @Override
+    public int hashCode() {
+        return hashCode(this);
+    }
+
+    /**
+     * Implementation of hashCode for GeoLoops
+     */
+    public int hashCode( GeoLoop thiz ) {
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
