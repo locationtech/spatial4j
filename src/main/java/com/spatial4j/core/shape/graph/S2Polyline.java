@@ -93,19 +93,32 @@ public class S2Polyline  {
     double getLength() {
         double length = 0;
         for ( int i = 1; i < vertices.size(); i++ ) {
-            length += VectorUtils.angle( vertices.get(i-1), vertices.get(i))''
+            length += VectorUtils.angle( vertices.get(i-1), vertices.get(i));
         }
         return length;
     }
 
-
     /**
-     * Return the true center of the polyline multiplied by the length of the polyline.
-     * The result will not be of unit length so normalize it
+     * Return the true centroid of the polyline multiplied by the length of the polyline.
+     * The result is not unit length but can be normalized. Prescaling length makes it
+     * easy to compute the centroid of multiple polylines.
      */
     Vector3D getCentroid() {
-
+        Vector3D centroid = new Vector3D(0, 0, 0);
+        for (int i = 1; i < vertices.size(); i++ ) {
+            Vector3D vsum = VectorUtils.sum( vertices.get(i-1), vertices.get(i));
+            Vector3D vdiff = VectorUtils.difference( vertices.get(i-1), vertices.get(i));
+            double
+        }
     }
+
+
+        double cos2 = vsum.Norm2();
+        double sin2 = vdiff.Norm2();
+        DCHECK_GT(cos2, 0);  // Otherwise edge is undefined, and result is NaN.
+        centroid += sqrt(sin2 / cos2) * vsum;  // Length == 2*sin(theta)
+    }
+    return centroid;
 
     /**
      * Return the poitn whose distance from vertex 0 is the given fraciton of the polyline's total

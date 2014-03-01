@@ -115,4 +115,11 @@ public class VectorUtils {
 
         return Math.sqrt( x2 + y2 + z2 );
     }
+
+    /**
+     * S2 Normalize
+     */
+    public static double norm2( Vector3D v1 ) {
+        /// uhhh // TODO
+    }
 }
