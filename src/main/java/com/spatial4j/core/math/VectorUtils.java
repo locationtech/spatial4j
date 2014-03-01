@@ -97,4 +97,22 @@ public class VectorUtils {
 
         return new Vector3D(x, y, z);
     }
+
+    /**
+     * Compute the angle between two vectors
+     */
+    public static double angle( Vector3D v1, Vector3D v2 ) {
+        return distance( v1, v2 );
+    }
+
+    /**
+     * Compute the unit distance between the two points
+     */
+    public static double distance( Vector3D v1, Vector3D v2 ) {
+        double x2 = Math.pow( v2.getX()-v1.getX(), 2 );
+        double y2 = Math.pow( v2.getY()-v1.getY(), 2 );
+        double z2 = Math.pow( v2.getZ()-v1.getZ(), 2 );
+
+        return Math.sqrt( x2 + y2 + z2 );
+    }
 }

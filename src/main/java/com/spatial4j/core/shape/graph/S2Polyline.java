@@ -43,75 +43,61 @@ public class S2Polyline  {
     /**
      * Construct an Empty S2 Polyline
      */
-    public S2Polyline() {}
+    public S2Polyline() {
+        this.vertices = new ArrayList< Vector3D >();
+    }
 
     /**
-     * Construct an S2 Polyline from a series of Vector3D Points
+     * Initialize a Polyline that connects the list of given vertices. Empty polylines
+     * are allowed. Adjacent vertices should not be identical or antipodal.
      */
     public S2Polyline( List< Vector3D > vertices ) {
-        init3D(vertices);
+        this.vertices = vertices;
+        assert( isValid() );
     }
 
     /**
-     * Construct an S2 Polyline from a series of Lat/Long Points
-     */
-    public S2Polyline( List< Point > vertices ) {
-         init2D(vertices);
-    }
-
-    /**
-     * Initialize a polyline that connects the given vertices. Empty
-     * polylines are allowed. Adjacent vertices should not be identical or antipodal.
-     * All vertices should be of unit length.
-     */
-    public void init3D( List< Vector3D > vertices ) {
-
-    }
-
-    /**
-     * Convenience initialization of a polyline from 2D lat/long points
-     */
-    public void init2D( List< Point > vertices ) {
-
-    }
-
-    ///// Properties of the Polyline /////
-    /**
-     * Determine if the PolyLine is empty (this is a valid state of the polyline)
+     * Determine if the PolyLine is empty (contains no vertices)
      */
     boolean isEmpty() {
-
+        return (this.vertices.size() == 0);
     }
 
     /**
-     * Determine if the polyline is valid (return true after construction)
+     * Is this a valid polyline? Checks that adjacent vertices are non identical and
+     * are not antipodal points and all vertices are of unit length.
      */
     boolean isValid() {
 
+        // All vertices are unit length
+        for ( int i = 0; i < vertices.size(); i++ ) {
+            if ( VectorUtils.mag(vertices.get(i)) != 1 ) {
+                return false;
+            }
+        }
+
+        // Adjacent vertices must not be identical or antipodal
+        for (int i = 1; i < vertices.size(); i++ ) {
+            if ( vertices.get(i-1).equals(vertices.get(i)) ||
+                    vertices.get(i-1).equals(VectorUtils.multiply(vertices.get(i), -1))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    ///// Geometric Operations on the Polyline ////////
-
     /**
-     * Return the index of the next polyline after the interpolatio of the point p. Allows
-     * caller to easily construct a given suffix of the polyline by concatenating p
-     * with the polyline.
-     * P is guaranteed to be different than vertex next so will never get duplicates.
-     *
-     * Polyline must not be empty.
-     *
-     * some more description....
-     */
-    Vector3D getSuffix( double fraction, Vector3D next_vertex ) {
-
-    }
-
-    /**
-     * Return the lenght of the polyline
+     * Return the length of the polyline
      */
     double getLength() {
-
+        double length = 0;
+        for ( int i = 1; i < vertices.size(); i++ ) {
+            length += VectorUtils.angle( vertices.get(i-1), vertices.get(i))''
+        }
+        return length;
     }
+
 
     /**
      * Return the true center of the polyline multiplied by the length of the polyline.
@@ -127,6 +113,21 @@ public class S2Polyline  {
      * Polyine must not be empty
      */
     Vector3D interpolate( double fraction ) {
+
+    }
+
+
+    /**
+     * Return the index of the next polyline after the interpolatio of the point p. Allows
+     * caller to easily construct a given suffix of the polyline by concatenating p
+     * with the polyline.
+     * P is guaranteed to be different than vertex next so will never get duplicates.
+     *
+     * Polyline must not be empty.
+     *
+     * some more description....
+     */
+    Vector3D getSuffix( double fraction, Vector3D next_vertex ) {
 
     }
 
