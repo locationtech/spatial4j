@@ -20,11 +20,15 @@ package com.spatial4j.core.shape.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.Vector3D;
-import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.shape.*;
 
 import com.spatial4j.core.math.VectorUtils;
+
+/// TODO Rebecca:
+/// TODO: Implement crosser object
+/// TODO: implement missing vector utilities
+/// TODO: Implement s2 style transformation utilities
 
 /**
  * S2 Implementation of a Geodesic Line defined by a series of points
@@ -57,9 +61,16 @@ public class S2Polyline  {
     }
 
     /**
+     * Returns the number of vertices in the polyline
+     */
+    public int numVertices() {
+        return this.vertices.size();
+    }
+
+    /**
      * Determine if the PolyLine is empty (contains no vertices)
      */
-    boolean isEmpty() {
+    public boolean isEmpty() {
         return (this.vertices.size() == 0);
     }
 
@@ -67,7 +78,7 @@ public class S2Polyline  {
      * Is this a valid polyline? Checks that adjacent vertices are non identical and
      * are not antipodal points and all vertices are of unit length.
      */
-    boolean isValid() {
+    public boolean isValid() {
 
         // All vertices are unit length
         for ( int i = 0; i < vertices.size(); i++ ) {
@@ -90,7 +101,7 @@ public class S2Polyline  {
     /**
      * Return the length of the polyline
      */
-    double getLength() {
+    public double getLength() {
         double length = 0;
         for ( int i = 1; i < vertices.size(); i++ ) {
             length += VectorUtils.angle( vertices.get(i-1), vertices.get(i));
@@ -108,48 +119,88 @@ public class S2Polyline  {
         for (int i = 1; i < vertices.size(); i++ ) {
             Vector3D vsum = VectorUtils.sum( vertices.get(i-1), vertices.get(i));
             Vector3D vdiff = VectorUtils.difference( vertices.get(i-1), vertices.get(i));
-            double
+            double cos2 = VectorUtils.norm2(vsum);
+            double sin2 = VectorUtils.norm2(vdiff);
+            centroid = VectorUtils.sum( centroid, VectorUtils.multiply( vsum, Math.sqrt(sin2/cos2))); // length == 2*sin(theta)
         }
+        return centroid;
     }
-
-
-        double cos2 = vsum.Norm2();
-        double sin2 = vdiff.Norm2();
-        DCHECK_GT(cos2, 0);  // Otherwise edge is undefined, and result is NaN.
-        centroid += sqrt(sin2 / cos2) * vsum;  // Length == 2*sin(theta)
-    }
-    return centroid;
 
     /**
-     * Return the poitn whose distance from vertex 0 is the given fraciton of the polyline's total
-     * length. Fractions less than 0 or greater than 1 are clamped. Return value is unit lenght.
-     * Polyine must not be empty
+     * Return the point whose distance from vertex 0 along the polyline is the given fraction of the
+     * polyline's total length. Fractions less than zero or greater than one are clamped. The return
+     * value is unit length. Runtime O(n), Polyline !isEmpty()
      */
-    Vector3D interpolate( double fraction ) {
-
+    public Vector3D interpolate( double fraction ) {
+        int next_vertex = 1;
+        return getSuffix( fraction, next_vertex );
     }
 
-
     /**
-     * Return the index of the next polyline after the interpolatio of the point p. Allows
-     * caller to easily construct a given suffix of the polyline by concatenating p
-     * with the polyline.
-     * P is guaranteed to be different than vertex next so will never get duplicates.
+     * Similar to interpolate, but also return the index of the next polyline
+     * vertex after the interpolated point P. Allows the caller to easily construct a given
+     * suffixx of the polyline by concatenating P with the polyline vertices starting
+     * at the next vertex. Note that P is guaranteed to be different than
+     * vertices.get(next_vertex) so this will never result in a duplicate.
      *
-     * Polyline must not be empty.
+     * Polyline !isEmpty(). If fraction is >= 1.0, next vertex will be set to vertices.size()
+     * indicating that no vertices need to be appended. Value of next_vertex is always
+     * between [1, vertices.size()].
      *
-     * some more description....
+     * This method can be used to construct a prefix of the polyline by taking the
+     * polyline vertices up to next_vertex - 1 and appending the returned point P
+     * if it is different from the last vertex.
      */
-    Vector3D getSuffix( double fraction, Vector3D next_vertex ) {
+     public Vector3D getSuffix( double fraction, int next_vertex ) {
+        assert( !isEmpty() );
 
+        // Let fraction >= 1 case fall through, since it will be handled later
+        if ( fraction <= 0 ) {
+            next_vertex = 1;
+            return vertices.get(0);
+        }
+
+        double length_sum = 0; // angle;
+        for (int i = 1; i < vertices.size(); i++) {
+            length_sum += VectorUtils.angle(vertices.get(i-1), vertices.get(i));
+        }
+        double target = fraction * length_sum; // angle
+        for (int i =1; i < vertices.size(); i++) {
+            double length = VectorUtils.angle(vertices.get(i-1), vertices.get(i));
+            if (target < length) {
+                // Interpolate with respect to arc length rather than straight line distance
+                Vector3D result = interpolateAtDistance(target, vertices.get(i-1), vertices.get(i), length);   // needs this method
+                next_vertex = (result == vertices.get(i)) ? (i + 1) : i;
+                return result;
+            }
+            target -= length;
+        }
+        next_vertex = vertices.size();
+        return vertices.get(vertices.size()-1);
     }
 
     /**
-     * Inverse operation of getSuffix/interpolate. given a point on the polyline, return
-     * the ratio of the distance to the point of the beginning of the polyline over
-     * the length of the polyline. Return value x in [0, 1]
+     * The inverse operation of GetSuffix/Interpolate. Given a point on the polyline, returns
+     * the ratio of the distance to the point from the beginning of the polyline over the length
+     * of the polyline. The return value is always between 0 and 1 inclusive.
      */
-    double UnInterpolate(Vector3D point, int next_vertex ) {
+    public double UnInterpolate(Vector3D point, int next_vertex ) {
+        assert( !isEmpty() );
+
+        if ( vertices.size() < 2 ) {
+            return 0;
+        }
+
+        double length_sum = 0;
+        for (int i = next_vertex; i < vertices.size(); i++) {
+            length_sum += VectorUtils.angle(vertices.get(i-1), vertices.get(i));
+        }
+
+        double length_to_point = length_sum + VectorUtils.angle(vertices.get(i-1), vertices.get(i));
+        for (int i = 1; i < vertices.size(); i++) {
+            length_sum += VectorUtils.angle(vertices.get(i-1), vertices.get(i));
+        }
+        return Math.min(1.0, length_to_point/length_sum);
 
     }
 
@@ -158,14 +209,66 @@ public class S2Polyline  {
      * See GetSuffix() for the meaning of next vertex which is chosen here w.r.t the projection
      * point as opposed to the interpolated point.
      */
-    Vector3D project( Vector3D point, int next_vertex ) {
+    public Vector3D project( Vector3D point, int next_vertex ) {
+        assert( !isEmpty() );
 
+        // If there is only one vertex, it is always the closest to any given point
+        if (vertices.size() == 1) {
+            next_vertex = 1;
+            return vertices.get(0);
+        }
+
+        // Initial value larger than any possible distance on the unit sphere
+        double min_distance = DistanceUtils.toRadians(10);
+        int min_index = -1;
+
+        // Find the line segment in the polyline that is closest to the point given
+        for (int i = 1; i < vertices.size(); i++) {
+            double distance_to_segment = VectorUtils.distance(point, vertices.get(i-1), vertices.get(i));  // TODO: distance method in vector Utils
+            if ( distance_to_segment < min_distance ) {
+                min_distance = distance_to_segment;
+                min_index = 1;
+            }
+        }
+        assert( min_index != -1 );
+
+        // Compute point on the segment found that is closest to the point given
+        Vector3D closest_point = VectorUtils.getClosest( point, vertices.get(min_index-1), vertices.get(min_index)); // TODO implement getClosest
+        next_vertex = min_index + ( closest_point.equals( vertices.get(min_index)) ? 1 : 0 );
+        return closest_point;
     }
 
     /**
      * Returns true if this polyline intersects the given polyline
      */
-    boolean intersects( S2Polyline line ) {
+    public boolean intersects( S2Polyline line ) {
+
+        if ( vertices.size() <= 0 || line.numVertices() <= 0 ) {
+            return false;
+        }
+
+        if ( !(getBoundingBox().relate(line.getBoundingBox()) == SpatialRelation.INTERSECTS) ) {
+           return false;
+        }
+
+        for (int i = 1; i < vertices.size(); i++ ) {
+            EdgeCrosser crosser = new EdgeCrosser( vertices.get(i-1), vertices.get(i), line.getVertices().get(0));
+            for (int j = 1; j < line.numVertices(); ++i) {
+                if (crosser.RobustCrossing(line.vertices.(j)) >= 0)  {
+                    return true;
+                }
+        }
+
+
+            for (int j = 1; j < line->num_vertices(); ++j) {
+                if (crosser.RobustCrossing(&line->vertex(j)) >= 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+
 
     }
 
@@ -225,6 +328,13 @@ public class S2Polyline  {
 
     /// Some Additional Relational Methods //////////
     boolean contains( Vector3D point ) {
+
+    }
+
+    /**
+     * Get the bounding lat/lon rectangle (uses a Spatial4j lat/long rectangle - should be ok)
+     */
+    public Rectangle getBoundingBox() {
 
     }
 

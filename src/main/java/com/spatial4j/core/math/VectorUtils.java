@@ -121,5 +121,6 @@ public class VectorUtils {
      */
     public static double norm2( Vector3D v1 ) {
         /// uhhh // TODO
+        return 0;
     }
 }
