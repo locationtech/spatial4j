@@ -19,33 +19,45 @@ package com.spatial4j.core.shape.graph;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
-import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.math.VectorUtils;
+
+import com.spatial4j.core.shape.Vector3D;
 import com.spatial4j.core.shape.Rectangle;
 
 /**
- * A GeoLoop is a representation of a single Polygon on the surface of a sphere
- * (in geodesic context). The algorithms for modeling a simple polygon originated
- * in the C++ s2Geometry library which is under Apache (ASL) License and have been
- * adapted as a Spatial4j shape implementation
+ * A loop is a representation of a simple polygon on the surface of a sphere. Vertices
+ * are represented as 3D direction cosine vectors (derived from the 3D geocentric point)
+ * and are listed counter clockwise with an implicit closure between the last and
+ * first vertex on the ring.
  *
- * A loop is represented as a list of edges where the first and last edges are
- * implicitly connected. Lists are part of a loop as read in order. Enables
- * the building of polygons with holes
+ * A loop has:
+ *      (1) At least 3 vertices
+ *      (2) All vertices of unit length
+ *      (3) No duplicate vertices
+ *      (4) Non-adjacent edges cannot intersect
+ *
+ * Various loop modeling algorithms are modeled after the s2Loop implementation in the
+ * s2Geometry project which is under Apache (ASL) license. More info on this project
+ * can be found at:
  *
  * Link: https://code.google.com/p/s2-geometry-library/
  */
-public class GeoLoop {
+public class Loop {
 
     // Data: Store Loop Vertices
-    private final List< Point > vertices;
-    private final int depth;
-    private final boolean is_hole;
+    private List< Vector3D > vertices;
+    private int depth;
+    private boolean is_hole;
+
+    private Loop() {}
 
     /**
      * Construct a geodesic loop from a list of vertices (2D Point)
      */
-    public GeoLoop( List< Point > vertices, int depth, boolean is_hole ) {
+    public Loop( List< Vector3D > vertices, int depth, boolean is_hole ) {
         this.vertices = vertices;
         this.depth = depth;
         this.is_hole = is_hole;
@@ -55,9 +67,47 @@ public class GeoLoop {
     ////// Methods for Loop Properties ///////
 
     /**
-     * Check the loop is valid - should always return true after construction
+     * Determine if this loop is a valid loop. Should always return true after
+     * loop construction. Asserts the following invariants:
+     *
+     * A loop has:
+     *      (1) At least 3 vertices
+     *      (2) All vertices of unit length
+     *      (3) No duplicate vertices
+     *      (4) Non-adjacent edges cannot intersect
      */
     public boolean isValid() {
+
+        // Check num_vertices > 3;
+        if ( vertices.size() < 3 ) {
+            return false;
+        }
+
+        // Check all vertices are of unit length
+        for ( int i = 0; i < vertices.size(); i++ ) {
+            if ( VectorUtils.mag(vertices.get(i)) != 1 ) {
+               return false;
+            }
+        }
+
+        // Assert loops do not contain any duplicate vertices
+        Map< Vector3D, Integer > hashMap = new HashMap< Vector3D, Integer >();
+        for (int i = 0; i < vertices.size(); i++ ) {
+            if ( !hashMap.containsKey(vertices.get(i))) {
+                hashMap.put( vertices.get(i), i );
+            } else {
+                return false;
+            }
+        }
+
+        // Assert Non-Adjacent edges are not allowed to intersect
+        boolean crosses = false;
+
+        // Iterate through vertices, predict intersection for each vertex
+        for ( int i = 0; i < vertices.size(); i++ ) {
+
+        }
+
 
     }
 
