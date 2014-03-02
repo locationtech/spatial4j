@@ -19,16 +19,27 @@ package com.spatial4j.core.shape.graph;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.*;
 
 import com.spatial4j.core.math.VectorUtils;
 
+// hmmm...search utilities for things in a list of vertices that would be globally useful??
+
 /// TODO Rebecca:
 /// TODO: Implement crosser object
 /// TODO: implement missing vector utilities
 /// TODO: Implement s2 style transformation utilities
+/// TODO: needs to rethink some of the access modifiers in this class - particularly those that might
+/// TODO: dpbelong in a generic search methods class??
+
+/**
+ * There are some additional methods in this class that have not yet been implemented due to some
+ * possible organizational changes to support the large number of methods about to be added here!!
+ */
 
 /**
  * S2 Implementation of a Geodesic Line defined by a series of points
@@ -65,6 +76,13 @@ public class S2Polyline  {
      */
     public int numVertices() {
         return this.vertices.size();
+    }
+
+    /**
+     * Get the list of vertices representing the polyline
+     */
+    public List< Vector3D > getVertices() {
+        return this.vertices;
     }
 
     /**
@@ -114,7 +132,7 @@ public class S2Polyline  {
      * The result is not unit length but can be normalized. Prescaling length makes it
      * easy to compute the centroid of multiple polylines.
      */
-    Vector3D getCentroid() {
+    public Vector3D getCentroid() {
         Vector3D centroid = new Vector3D(0, 0, 0);
         for (int i = 1; i < vertices.size(); i++ ) {
             Vector3D vsum = VectorUtils.sum( vertices.get(i-1), vertices.get(i));
@@ -257,53 +275,43 @@ public class S2Polyline  {
                 if (crosser.RobustCrossing(line.vertices.(j)) >= 0)  {
                     return true;
                 }
-        }
-
-
-            for (int j = 1; j < line->num_vertices(); ++j) {
-                if (crosser.RobustCrossing(&line->vertex(j)) >= 0) {
-                    return true;
-                }
             }
         }
         return false;
-
-
-
     }
 
     /**
-     * Reverse the order of vertices listed currently in the s2 polyline
-     */
-    public void reverse() {}
-
-    /**
-     * Return a subsequence of vertex indices such that
-     * the polyline connecting these indices is never further than the tolerance
-     * from the original polyline. The first and last vertices are always
-     * preserved.
+     * Returns a subsequence of vertex indices such that the polyline connecting
+     * these indices is never further than the tolerance from the original polyline.
+     * The first and last vertices are always preserved.
      *
-     *
-     * straihgt from their code
-     *   // Some useful properties of the algorithm:
-     //
-     //  - It runs in linear time.
-     //
-     //  - The output is always a valid polyline.  In particular, adjacent
-     //    output vertices are never identical or antipodal.
-     //
-     //  - The method is not optimal, but it tends to produce 2-3% fewer
-     //    vertices than the Douglas-Peucker algorithm with the same tolerance.
-     //
-     //  - The output is *parametrically* equivalent to the original polyline to
-     //    within the given tolerance.  For example, if a polyline backtracks on
-     //    itself and then proceeds onwards, the backtracking will be preserved
-     //    (to within the given tolerance).  This is different than the
-     //    Douglas-Peucker algorithm used in maps/util/geoutil-inl.h, which only
-     //    guarantees geometric equivalence.
+     * Algorithm Notes:
+     *  - O(n) runtime
+     *  - Output is always a valid polyline
+     *  - Non-Optimal, 2-5% fewer vertices than the Douglas-Peucker algorithm
+     *    with similar tolerance
+     *  - *Paramentrically* equivalent to the original polyline to
+     *    within the given tolerance.
      */
-    void SubsampleVertices( double tolerance, List< Integer > indices ) {
+    public void SubsampleVertices( double tolerance, List< Integer > indices ) {
 
+        indices.clear();
+        if ( numVertices() == 0 ) return;
+
+        int counter = 0;
+        indices.add(counter, 0);
+        counter++;
+
+        double clamped_tolerance = Math.max(tolerance, DistanceUtils.toRadians(0));
+        for( int index = 0; index + 1 < vertices.size(); ) {
+            int next_index = findEndVertex(*this, clamped_tolerance, index); // implement findEndVertex
+            // Don't create duplicate adjacent vertices
+            if (vertices.get(next_index) != vertices.get(index)) {
+                indices.add(counter, next_index);
+                counter++;
+            }
+            index = next_index;
+        }
     }
 
     /**
@@ -312,22 +320,158 @@ public class S2Polyline  {
      *
      * Max error defualt setting seems to be 1e-15
      */
-    boolean approxEquals( S2Polyline line, double max_erorr ) {
-
+    public boolean approxEquals( S2Polyline line, double max_erorr ) {
+        if (vertices.get(i) != line.numVertices()) return false;
+        for (int offset = 0; offset < vertices.size(); offset++) {
+            if (!VectorUtils.appeoxEquals(vertices.get(offset), line.getVertices().get(offset), max_error)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
-     * Return true if "covered" is within "max_error of a contiguous subpath of
-     * this polyline over its entire length. Specifically, returns true if this polyline has parameterization a:[0,1]
-     * -> s^2, "covered" has parameterization b:[0,1]->S^2 and there is a non decreasing function f:[0, 1] -> [0,1]
-     * such that the distance(a(f(t)), b(t)) <= max_error for all t.
+     * Returns the first i > index such that the ith vertex of the polyline
+     * is not at the same point as the index'th vertex. Returns the polyline.numVertices
+     * if there is no such value of i
      */
-    boolean nearlyCoversPolyline( S2Polyline covered, double max_error ) {
+    private int nextDistinctVertex( S2Polyline pline, int index ) {
+        Vector3D initial = pline.getVertices().get(index);
+        while ( index < pline.numVertices() && pline.getVertices().get(index).equals(initial) ) {
+            index++;
+        }
+        return index;
+    }
 
+    /**
+     * Search State Data structure required for nearly covers polyline method
+     */
+    private class SearchState {
+
+        // data
+        private final int i;
+        private final int j;
+        private final boolean i_in_progress;
+
+        // Constructor
+        public SearchState( int i_val, int j_val, boolean i_in_progress_val ) {
+            i = i_val;
+            j = j_val;
+            i_in_progress = i_in_progress_val;
+        }
+
+        // Search State Comparator
+        public boolean compareLess( SearchState lhs, SearchState rhs ) {
+            if ( lhs.i < rhs.i ) return true;
+            if ( lhs.i > rhs.i ) return false;
+            if ( lhs.j < rhs.j ) return true;
+            if ( lhs.j > rhs.j ) return false;
+            return !lhs.i_in_progress && rhs.i_in_progress;
+
+        }
+
+        // Equals Method (required for contains comparator used below)
+        @Override
+        public boolean equals(Object o) {
+            assert o != null;
+            if ( this == o ) return true;
+            if (!(o instanceof SearchState)) return false;
+
+            SearchState s = (SearchState) o;
+
+            if ( this.i != s.i ) return false;
+            if ( this.j != s.j ) return false;
+            if ( this.i_in_progress != s.i_in_progress ) return false;
+
+            return true;
+        }
+    }
+
+    /**
+     * Returns true if the line is covered within max error of a contiguous subpath of this
+     * polyine over its entire length. Specifically, returns true if this polyline has parameterization
+     * a:[0,1]->s^2, "covered has parameterization b:[0,1]->s^2 and there is a non decreasing function
+     * f:[0,1]->[0,1] such that the distance (a(f(t)), b(t)) <= max_error for all t.
+     *
+     * Note: This algorithm is described assuming adjacent vertices in
+     * a polyline are never at the same point in space. Implementation
+     * does not make this assumption.
+     */
+    public boolean nearlyCoversPolyline( S2Polyline covered, double max_error ) {
+
+        // Useful Definitions:
+        //  -edge "i" of a polyline is the edge from the ith to the i+1th vertex
+        //  -covered_j is a polyline consisting of the edges 0 through j of covered
+        //  -this_i is a polyline consisting of edges 0 through i of this polyline
+        //
+        // A search state is a tuple of (int, int bool)
+        // DEFINITIONS:
+        //   - edge "i" of a polyline is the edge from the ith to i+1th vertex.
+        //   - covered_j is a polyline consisting of edges 0 through j of "covered."
+        //   - this_i is a polyline consisting of edges 0 through i of this polyline.
+        //   - A search state is represented as an (int, int, bool) tuple, (i, j,
+
+        // TODO might want to replace these with java stacks for utility?
+        List< SearchState > pending = new ArrayList<SearchState>();
+        Set< SearchState > done = new HashSet<SearchState>();
+
+        // Find all possible starting states
+        int counter = 0;
+        for (int i = 0, next_i = nextDistinctVertex(this, 0); next_i < this.numVertices();
+             i = next_i, next_i = nextDistinctVertex(this, next_i)) {
+
+            Vector3D closestPoint = SearchUtils.getClosestPoint( covered.vertices.get(0),
+                    vertices.get(i), vertices.get(next_i));
+            if ( closestPoint.equals(vertices.get(next_i)) &&
+                    VectorUtils.angle(closestPoint, covered.getVertices().get(i)) <= max_error ) {
+                pending.add(counter, SearchState(i, 0, true));
+                counter++;
+            }
+        }
+
+        int countDown = pending.size()-1;
+        while (pending.size() != 0) {
+            SearchState state = pending.get(countDown);
+            pending.remove(countDown);
+            countDown--;
+
+            if ( !done.contains(state) ) continue;
+
+            int next_i = nextDistinctVertex(this, state.i);
+            int next_j = nextDistinctVertex(this, state.j);
+
+            if (next_j == covered.numVertices()) return true;
+            else if ( next_i == this.numVertices()) continue;
+
+            Vector3D i_begin = new Vector3D(0, 0, 0);
+            Vector3D j_begin = new Vector3D(0, 0, 0);
+
+            if (state.i_in_progress) {
+                i_begin = covered.getVertices().get(state.j);
+                j_begin = SearchUtils.getClosestPoint(
+                        j_begin, this.vertices.get(state.i), this.vertices.get(next-i));
+            } else {
+                i_begin = this.vertices(state.i);
+                j_begin = SearchUtils.getClosestPoint(
+                        i_begin, covered.getVertices().get(state.j), covered.getVertices().get(next_j));
+            }
+
+            // Will require either edge utils or search utils
+            if ( SearchUtils.isEdgeNearA(j_begin, covered.getVertices().get(next_j),
+                    i_begin, this.vertices(next_i), max_error)) {
+                pending.add(counter, SearchState(next_i), state.j, false));
+                counter++;
+            }
+            if ( SearchUtils.isEdgeNearA(i_begin, this.getVertices().get(next_i),
+                    j_begin, covered.getVertices().get(next_j), max_error)) {
+                pending.add(counter, SearchState(state.i, next_j, true));
+            }
+        }
+        return false;
     }
 
     /// Some Additional Relational Methods //////////
-    boolean contains( Vector3D point ) {
+    public boolean contains( Vector3D point ) {
 
     }
 
