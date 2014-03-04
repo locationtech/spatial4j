@@ -39,7 +39,7 @@ public class GeoPolygon implements Shape {
     // access point.
     private GeoGraph polygon;
     private Point[] points;
-    private final SpatialContext ctx;
+    private SpatialContext ctx;
 
     /**
      * Construct an Empty GeoPolygon

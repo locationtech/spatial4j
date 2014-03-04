@@ -61,7 +61,7 @@ public class TransformUtils {
      */
     public static Point toPoint( Vector3D v, SpatialContext ctx ) {
 
-        double lat = Math.atan2( v.getY(), Math.sqrt( Math.pow( v.getX(), 2 )+ Math.pow( v.getY(), 2 ) ));
+        double lat = Math.atan2( v.getZ(), Math.sqrt( Math.pow( v.getX(), 2 )+ Math.pow( v.getY(), 2 ) ));
         double lon = Math.atan2( v.getY(), v.getX() );
 
         return new PointImpl( lon, lat, ctx );
