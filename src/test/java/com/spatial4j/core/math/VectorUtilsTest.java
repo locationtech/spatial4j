@@ -19,20 +19,28 @@ package com.spatial4j.core.math;
 
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.spatial4j.core.context.SpatialContext;
 import org.junit.*;
 
 import com.spatial4j.core.shape.Vector3D;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.impl.PointImpl;
 
 /**
  * Test static methods for basic 3-component vector operations
  */
 public class VectorUtilsTest extends RandomizedTest {
 
+    // needed for creating regular points
+    private SpatialContext ctx;
+
     /**
      * Setup before test
      */
     @Before
-    public void setUp() {}
+    public void setUp() {
+        ctx = SpatialContext.GEO;
+    }
 
     /**
      * Tear down after test
@@ -81,6 +89,41 @@ public class VectorUtilsTest extends RandomizedTest {
     /**
      * Test Expected magnitude (done with constants)
      */
+    @Test
+    public void testMagnitude() {
+
+        // Creating a bunch of unit vectors from random points.
+        for ( int i = 0; i <= randomIntBetween(10, 20); i++ ) {
+            Point p = new PointImpl( randomInt(20), randomInt(20), ctx );
+            Vector3D v = TransformUtils.toVector(p);
+            assertEquals( VectorUtils.mag(v), 1, 0.0001);
+        }
+    }
+
+    /**
+     * Test Create Unit Vector
+     */
+    @Test
+    public void testUnitVector() {
+
+        // Create a bunch of random vectors, create unit vectors from those
+        for ( int i = 0; i <= randomIntBetween(10, 20); i++ ) {
+            Vector3D v = new Vector3D( randomDouble(), randomDouble(), randomDouble() );
+            Vector3D uv = VectorUtils.unitVector(v);
+
+            assertEquals( VectorUtils.mag(uv), 1, 0.0001);
+
+            // Derive the original vector
+            double mag = VectorUtils.mag(v);
+            Vector3D v1 = new Vector3D( uv.getX()*mag, uv.getY()*mag, uv.getZ()*mag );
+
+            // Approx equals
+            assertEquals(v1.getX(), v.getX(), 0.0001);
+            assertEquals(v1.getY(), v.getY(), 0.0001);
+            assertEquals(v1.getZ(), v.getZ(), 0.0001);
+
+        }
+    }
 
     /**
      * Test expected dot product (done with constants)
