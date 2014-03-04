@@ -77,8 +77,8 @@ public class TransformUtilsTest extends RandomizedTest {
         // Test 10 random points for conversion accuracy
         for ( int i = 0; i <= 10; i++ ) {
             // Create a random lat/lng point
-            double lat = randomInt(9);
-            double lng = randomInt(9);
+            double lat = randomInt(90);
+            double lng = randomInt(90);
 
             Point p = new PointImpl(lng, lat, ctx );
             Point p_post = TransformUtils.toPoint( TransformUtils.toVector(p), ctx);
