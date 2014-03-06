@@ -30,6 +30,8 @@ import java.util.ArrayList;
  *
  * Because the shape of a GeoPolygon itself is immutable, a GeoGraph is also immutable once constructed
  * but can be reset from scratch if needed.
+ *
+ * Loop implementations and invariants taken from the s2Loop class in s2Geom
  */
 public class GeoGraph {
 

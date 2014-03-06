@@ -19,13 +19,7 @@ package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
 
-import com.spatial4j.core.shape.Shape;
-
-import com.spatial4j.core.shape.graph.GeoEdge;
 import com.spatial4j.core.shape.graph.GeoGraph;
-import com.spatial4j.core.shape.graph.GeoGraphUtils;
-
-import com.spatial4j.core.exception.*;
 
 /**
  * Project To Do List (Opened 2/9/14):
@@ -50,7 +44,7 @@ public class GeoPolygon implements Shape {
     private
     private GeoGraph polygon;
     private Point[] points;
-    private final SpatialContext ctx;
+    private SpatialContext ctx;
 
     /**
      * Construct an Empty GeoPolygon

@@ -1,13 +1,36 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
-    <groupId>spatial4j</groupId>
-    <artifactId>spatial4j</artifactId>
-    <version>1.0-SNAPSHOT</version>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+    <relativePath />
+  </parent>
+  
+  <groupId>com.spatial4j</groupId>
+  <artifactId>spatial4j</artifactId>
+  <version>0.5-SNAPSHOT</version>
+  <packaging>bundle</packaging>
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     
 </project>
@@ -105,6 +128,101 @@
       <scope>test</scope>
     </dependency>
     
+=======
+  <name>Spatial4J</name>
+  <description>
+    Spatial4j is a general purpose spatial / geospatial ASL licensed open-source Java library. It's
+    core capabilities are 3-fold: to provide common geospatially-aware shapes, to provide distance
+    calculations and other math, and to read shapes in WKT format.
+  </description>
+  <organization>
+    <name>LocationTech</name>
+    <url>http://locationtech.org</url>
+    <!-- membership is pending: http://locationtech.org/proposals/spatial4j  -->
+  </organization>
+  <url>https://github.com/spatial4j/spatial4j</url>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/spatial4j/spatial4j/issues</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>Travis-CI</system>
+    <url>https://travis-ci.org/spatial4j/spatial4j</url>
+  </ciManagement>
+
+  <mailingLists>
+    <mailingList>
+      <name>dev@lists.spatial4j.com</name>
+      <archive>http://spatial4j.16575.x6.nabble.com</archive>
+      <otherArchives>
+        <otherArchive>http://lists.spatial4j.com/pipermail/dev-spatial4j.com/</otherArchive>
+      </otherArchives>
+      <post>dev@lists.spatial4j.com</post>
+    </mailingList>
+  </mailingLists>
+
+  <!--
+  <contributors>
+    See for yourself: https://github.com/spatial4j/spatial4j/graphs/contributors
+  </contributors>
+  -->
+
+  <scm>
+    <connection>scm:git:git@github.com:spatial4j/spatial4j.git</connection>
+    <developerConnection>scm:git:git@github.com:spatial4j/spatial4j.git</developerConnection>
+    <url>https://github.com/spatial4j/spatial4j</url>
+  </scm>
+
+  <properties>
+    <!-- this magic system property is honored by many plugins: http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <slf4j.version>1.7.5</slf4j.version>
+
+  </properties>
+
+  <!-- To check for new plugins and dependencies:
+  mvn org.codehaus.mojo:versions-maven-plugin:2.1:display-plugin-updates
+                                                  display-dependency-updates -->
+  <prerequisites>
+    <maven>2.2.1</maven>
+  </prerequisites>
+
+  <dependencies>
+
+    <!-- JTS is essentially only used for polygons. -->
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <!-- last I checked, it still works with 1.12 -->
+      <version>1.13</version>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    
+>>>>>>> geodesic_intersection
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
@@ -290,5 +408,9 @@
     </plugins>
   </reporting>
 
+<<<<<<< HEAD
 </project>
 >>>>>>> 0f17372289ea7dfac95ecfe9ba812a063fb91d0f
+=======
+</project>
+>>>>>>> geodesic_intersection

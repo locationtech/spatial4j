@@ -39,7 +39,7 @@ import com.spatial4j.core.context.SpatialContext;
  *
  * Algorithm from: http://www.movable-type.co.uk/scripts/latlong.htm
  *
- * Last Modified: 2/16/14
+ * Last Modified: 2/23/14
  */
 public class GeodesicIntersection {
 
@@ -87,9 +87,10 @@ public class GeodesicIntersection {
 
         // Determine the appropriate intersection point in range.
         // If no points intersect return out of bounds lat/lon??
-        Point result = getPointInRange( points );
+        Point result = getPointInRange( points, p1, p2 );
 
-        return points;
+        return result;
+
     }
     /**
      * Compute the unit vector using direction cosines from 2D geographic
@@ -134,10 +135,14 @@ public class GeodesicIntersection {
         double lambda2 = lambda1 + Math.PI;
         Point p2 = new PointImpl( phi2, lambda2, ctx );
 
+        // Get the possible no intersection point
+        Point p3 = new PointImpl(360, 360, ctx);
+
         // Create a list of points and return
-        Point[] points = new Point[2];
+        Point[] points = new Point[3];
         points[0] = p1;
         points[1] = p2;
+        points[2] = p3;
 
         return points;
     }
@@ -146,28 +151,49 @@ public class GeodesicIntersection {
      * From a pair of points computed as intersection points, determine
      * if these two points are in range of the line segment shortest
      * distance.
+     *
+     * p1 and p2 are for the first line
+     * p3 and p4 are for the second line
      */
-    private Point getPointInRange( Point[] points ) {
+    private Point getPointInRange( Point[] points, Point p1, Point p2 ) {
 
         /**
-         * Algorithm:
-         *
-         * (min/max - is there code for this? or do I need to move back to direction cosines)
-         * find min lat/lon point
-         * find max lat/lon point
-         *
-         * Get
-         *
+         * Get the point and antipodal point
          */
-
-
+        Point point = points[0];
+        Point antiPoint = points[1];
 
         /**
-         * Convert points to geocentric
-         * find min/max points
-         * determine if the test points are in range??
+         * Get Min and Max Points for latitude and longitude ranges
+         * defined by the line segment
          */
-        return null; // not yet implemented. TODO
+        double longMin = Math.min( p1.getX(), p2.getX() );
+        double longMax = Math.max( p1.getX(), p2.getX() );
+        double latMin = Math.min( p1.getY(), p2.getY() );
+        double latMax = Math.max( p1.getY(), p2.getY() );
+
+        /**
+         * Check point is within longitude range
+         */
+        if ( longMin <= point.getX() && point.getX() <= longMax ) {
+            if ( latMin <= point.getY() && point.getY() <= latMax ) {
+                return point;
+            } else {
+                return points[2];
+            }
+
+        } else if ( longMin <= antiPoint.getX() && antiPoint.getX() <= longMax ) {
+            if ( latMin <= antiPoint.getY() && antiPoint.getY() <= latMax ) {
+                return antiPoint;
+            } else {
+                return points[2];
+            }
+        }
+
+        /**
+         * If no other criteria met, return the empty/non intersection point
+         */
+        return points[2];
     }
 }
 
