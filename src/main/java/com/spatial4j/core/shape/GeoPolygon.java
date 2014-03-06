@@ -20,10 +20,15 @@ package com.spatial4j.core.shape;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.graph.Loop;
 
+import java.util.List;
+import java.util.ArrayList;
+
 /**
- * Project To Do List (Opened 2/9/14):
- *
- *
+ * Project To Do List (Opened 3/5/14):
+ *  - finish basic implementation of the loops class (representation) \
+ *  - implement polyline as edge
+ *  - implement required intersection utilities (+ tests)
+ *  - implement area, has area, centroid, equals, bounding box, point in polygon
  */
 
 /**
@@ -42,6 +47,7 @@ public class GeoPolygon implements Shape {
     // own depth.
     private List< Loop > loops;
     private SpatialContext ctx;
+    private boolean isSimple;
 
     /**
      * Construct an Empty GeoPolygon
@@ -49,20 +55,50 @@ public class GeoPolygon implements Shape {
     private GeoPolygon() {}
 
     /**
-     * Construct a geodesic polygon from a list of ordered points
+     * Construct a simple geodesic polygon (no holes) from a list
+     * of lat/lng points
      */
-    public GeoPolygon( Point[] points, SpatialContext ctx  ) {
-        this.ctx = ctx;
-        init( points );
+    public GeoPolygon( List< Point > points ) {
+
+        // GeoPolygon always in a geodesic context
+        this.ctx = SpatialContext.GEO;
+
+        // Construct a single loop of depth = 0
+        Loop simpleLoop = new Loop( points, 0 );
+        this.loops = new ArrayList< Loop >(1);
+        this.loops.add(1, simpleLoop);
+
+        // Set is_simple == true
+        this.isSimple = true;
+
+        // Assert polygon is valid
+        assert( isValid() );
     }
 
     /**
-     * Construct a Geodesic Polygon from a list of points by
-     * building a GeoGraph.
+     * Construct a complex polygon from a user specified list of
+     * loops
      */
-    private void init( Point[] points ) {
-        this.polygon = new GeoGraph( points );
-        this.points = points;
+    public GeoPolygon( List< Loop > loops, boolean isSimple ) {
+        this.ctx = SpatialContext.GEO;
+        this.loops = loops;
+        this.isSimple = isSimple;
+        assert( isValid() );
+    }
+
+    /**
+     * Check that our polygon is valid by checking overlap invariants
+     * and valid loops
+     */
+    public boolean isValid() {
+
+    }
+
+    /**
+     * Determine if we have a simple polygon (depth = 0, no holes)
+     */
+    public boolean isSimple() {
+        return this.isSimple;
     }
 
     /**
