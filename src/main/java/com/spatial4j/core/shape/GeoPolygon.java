@@ -30,19 +30,24 @@ import com.spatial4j.core.exception.*;
 /**
  * Project To Do List (Opened 2/9/14):
  *
+ *
  */
 
 /**
- * Geodesic Polygon - This shape represents the polygon constructed by an ordered
- * list of points on the surface of a sphere. THe interface to Geodetic polygon is latitude
- * and longitude (2D geodetic) and teh internal representation uses a GeoGraph which models
- * the points as 3D geocentric or directed cosine points
+ * Geodesic Polygon: A Geodesic Polyon is a composition of loops, which represent
+ * implicit closed geometries on the surface of a sphere. Each loop is
+ * assigned a depth with respect to the outer boundary of the polygon and
+ * is specified at construction.
+ *
+ * A Geodesic polygon is represented internally in direction vectors to simplify
+ * computation. Methods for converting between geographic points and direction
+ * vectors are provided in core.math.TransformUtils.
  */
 public class GeoPolygon implements Shape {
 
-    // Store my GeoGraph which is the internal representation for a
-    // polygon in Spatial4j. Also store the points as a convenient O(1)
-    // access point.
+    // Store a list of loops in the polygon which maintain their
+    // own depth.
+    private
     private GeoGraph polygon;
     private Point[] points;
     private final SpatialContext ctx;

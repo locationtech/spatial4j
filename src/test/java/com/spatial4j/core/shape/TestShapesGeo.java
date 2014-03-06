@@ -104,7 +104,8 @@ public class TestShapesGeo extends AbstractTestShapes {
 
     //Test buffer
     assertEquals(ctx.makeRectangle(-10, 10, -10, 10), ctx.makeRectangle(0, 0, 0, 0).getBuffered(10, ctx));
-    for (int i = 0; i < atLeast(100); i++) {
+    int MAX_TRIES = scaledRandomIntBetween(100, 1000);
+    for (int i = 0; i < MAX_TRIES; i++) {
       Rectangle r = randomRectangle(1);
       int buf = randomIntBetween(0, 90);
       Rectangle br = (Rectangle) r.getBuffered(buf, ctx);
