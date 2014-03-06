@@ -86,26 +86,27 @@ public class Vector3D {
     }
 
     /**
-     * Graph Equality
+     * Determine if two Vector3Ds are equal
      */
     @Override
     public boolean equals(Object other) {
-        return false; // TODO implement this
+        return equals(this, other);
     }
 
     /**
-     * Graph Hash Code
+     * All implementations of Vector3D should use this .equals definition
      */
-    @Override
-    public int hashCode() {
-        return 0; // TODO Implement this
-    }
+    public boolean equals( Vector3D thiz, Object o ) {
+        assert thiz != null;
+        if (thiz == o) return true;
+        if (!(o instanceof Vector3D)) return false;
 
-    /**
-     * toString
-     */
-    @Override
-    public String toString() {
-        return ""; // todo implement this
+        Vector3D v = (Vector3D) o;
+
+        if ( thiz.getX() != v.getX() ) return false;
+        if ( thiz.getY() != v.getY() ) return false;
+        if ( thiz.getZ() != v.getZ() ) return false;
+
+        return true;
     }
 }

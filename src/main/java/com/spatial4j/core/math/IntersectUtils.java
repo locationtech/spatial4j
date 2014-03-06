@@ -27,6 +27,8 @@ import com.spatial4j.core.shape.Vector3D;
  * The math for intersection utilities is based in direction vectors. Therefore,
  * geographic points should be converted to Vectors before using these methods.
  *
+ * resource: https://code.google.com/p/s2-geometry-library/source/browse/geometry/s2edgeutil.h
+ *
  * Last Modified: 3/6/14
  */
 public class IntersectUtils {

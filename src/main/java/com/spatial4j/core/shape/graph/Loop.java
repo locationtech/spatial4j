@@ -55,7 +55,7 @@ public class Loop {
     private Loop() {}
 
     /**
-     * Construct a geodesic loop from a list of vertices (2D Point)
+     * Construct a geodesic loop from a list of vertices (3D Point)
      */
     public Loop( List< Vector3D > vertices, int depth, boolean is_hole ) {
         this.vertices = vertices;
@@ -105,23 +105,23 @@ public class Loop {
 
         // Iterate through vertices, predict intersection for each vertex
         for ( int i = 0; i < vertices.size(); i++ ) {
-
+            // still needs to implement
         }
 
-
+       return true;
     }
 
     /**
      * Return the vertices currently contained in the loop
      */
-    public List< Point > getVertices() {
+    public List< Vector3D > getVertices() {
         return this.vertices;
     }
 
     /**
      * Return the cannonical first vertex of the loop
      */
-    public Point getCanonicalFirstVertex() {
+    public Vector3D getCanonicalFirstVertex() {
         assert( isValid() );
         return this.vertices.get(1);
     }
@@ -150,16 +150,12 @@ public class Loop {
     /**
      * Find a vertex of interest in the loop
      */
-    public Point findVertex( Point p ) {
+    public Vector3D findVertex( Vector3D v ) {
 
-    }
-
-    /**
-     * Determine if a line interesects the polygon defined
-     * by 2 points
-     */
-    public intersects( Point p1, Point p2 ) {
-
+        for ( int i = 0; i < this.vertices.size(); i++ ) {
+            if (this.vertices.get(i).equals(v)) return this.vertices.get(i);
+        }
+        return new Vector3D(0, 0, 0); // otherwise, return a non-unit vector
     }
 
     ////// Compute Geometric Properties of the Loop ///////
@@ -175,21 +171,21 @@ public class Loop {
      * Compute the area of the loop
      */
     public double getArea() {
-
+        throw new UnsupportedOperationException("Get Area not yet implemented");
     }
 
     /**
      * Compute the centroid of the loop
      */
-    public Point getCenter() {
-
+    public Vector3D getCenter() {
+        throw new UnsupportedOperationException("Get centroid not yet implemented");
     }
 
     /**
      * Get the Bounding Lat/Lon Rectangle of the Loop
      */
     public Rectangle getBoundingBox() {
-
+        throw new UnsupportedOperationException("Get bounding bod not yet implemented");
     }
 
 
@@ -206,38 +202,23 @@ public class Loop {
     /**
      * Determine loop equality
      */
-    public boolean equals( GeoLoop thiz, Object other ) {
+    public boolean equals( Loop thiz, Object other ) {
+        assert thiz != null;
+        if (thiz == other) return true;
+        if (!(other instanceof Loop)) return false;
 
+        Loop l = (Loop) other;
+
+        if ( l.numVertices() != thiz.numVertices() ) return false;
+        if ( l.isHole() != thiz.isHole() ) return false;
+        if ( l.depth() != thiz.depth() ) return false;
+
+        for ( int i = 0; i < l.numVertices(); i++ ) {
+            if (! l.getVertices().get(i).equals(thiz.getVertices().get(i))) return false;
+        }
+
+        return true;
     }
 
-    /**
-     * All Loops should implement this .hashCode definition
-     */
-    @Override
-    public int hashCode() {
-        return hashCode(this);
-    }
 
-    /**
-     * Implementation of hashCode for GeoLoops
-     */
-    public int hashCode( GeoLoop thiz ) {
-
-    }
-
-
-    /**
-     * String representation of a GeoLoop
-     */
-    @Override
-    public String toString() {
-        toString(this);
-    }
-
-    /**
-     * Represent a GeoLoop as a string
-     */
-    public String toString( GeoLoop thiz ) {
-
-    }
 }
