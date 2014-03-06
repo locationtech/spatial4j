@@ -18,8 +18,7 @@
 package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
-
-import com.spatial4j.core.shape.graph.GeoGraph;
+import com.spatial4j.core.shape.graph.Loop;
 
 /**
  * Project To Do List (Opened 2/9/14):
@@ -41,9 +40,7 @@ public class GeoPolygon implements Shape {
 
     // Store a list of loops in the polygon which maintain their
     // own depth.
-    private
-    private GeoGraph polygon;
-    private Point[] points;
+    private List< Loop > loops;
     private SpatialContext ctx;
 
     /**
