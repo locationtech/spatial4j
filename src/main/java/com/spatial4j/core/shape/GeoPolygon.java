@@ -100,7 +100,7 @@ public class GeoPolygon implements Shape {
      * and valid loops
      */
     public boolean isValid() {
-
+        return false; // not yet implemented
     }
 
     /**
