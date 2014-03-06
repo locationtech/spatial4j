@@ -240,18 +240,4 @@ public class Loop {
     public String toString( GeoLoop thiz ) {
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
