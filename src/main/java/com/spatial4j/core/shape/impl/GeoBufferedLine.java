@@ -77,6 +77,7 @@ public class GeoBufferedLine implements Shape {
     this.buffer = buffer;
     this.bufferPerp = bufferPerpendicular(a, b);
     this.ctx = ctx;
+
     linePrimary = new GreatCircle(a,b);
 
     Point3d midPoint = Point3d.midPoint(linePrimary.getA(),linePrimary.getB());

@@ -76,6 +76,22 @@ public class GreatCircle {
     angleDEG = angleInDegCalc();
   }
 
+
+  /**
+   * Returns the distance to the GreatCircle from the Point3d c.
+   * Also known as the cross-track distance.
+   * See Ref: http://mathworld.wolfram.com/Point-PlaneDistance.html
+   * @param c
+   * @return
+   */
+  public double distanceToPoint(Point3d c3d) {
+    double height = GreatCircle.dotProduct(planeVector, c3d)*invPlaneLength;
+
+    // opposite/hyp = Sin theta -> use asin of Height/1 (radians)
+    // Gives radians of arc length.
+    return Math.abs(DistanceUtils.toDegrees(Math.asin(height)));
+  }
+
   /**
    * Returns the distance to the GreatCircle from the Point c.
    * Also known as the cross-track distance.
@@ -127,15 +143,15 @@ public class GreatCircle {
   }
 
   /**
-   * Returns the Point3d on the Equator where the great circle intersects.
-   * This can be either of the 2 points.
-   * @return
+   * Returns a longitude where the great circle intersects the equator
+   * Use this to calculate bounding box.
+   * @return double
    */
   public double intersectionLongitude() {
     // Using Point (0,0,0) as the "normal" for the line Cross Product
     // This gives us the equation of a line
 
-    // This is a on the equator at that goes through 180,0 and 0,0.
+    // This is a on the equator.
     Point3d axis = new Point3d(1,0,0);
 
     Point3d line = Point3d.crossProductPoint(equatorPlane,planeVector);
@@ -159,15 +175,31 @@ public class GreatCircle {
    */
   public double angleInDegCalc() {
 
-    double dotProd = dotProduct(planeVector,equatorPlane);
+    double dotProd = dotProduct(planeVector, equatorPlane);
     double distA = vectorLength(planeVector);
     equatorPlane.normalizePoint();
     double distB = vectorLength(equatorPlane);
     double prodDist = distA * distB;
+    double angleInDeg = DistanceUtils.toDegrees(Math.acos(dotProd/prodDist));
+
+    double longitudeIntersection = Math.abs(intersectionLongitude());
+
+    if(longitudeIntersection > 90) {
+      longitudeIntersection -= 180;
+    }
+    Point3d p = new Point3d(longitudeIntersection+90,angleInDeg);
+
+
+    double dist = distanceToPoint(p);
+
+    if(dist >= 1) {
+      angleInDeg *= -1;
+    }
 
     // Angle in Rad, convert to degrees
-    return DistanceUtils.toDegrees(Math.acos(dotProd/prodDist));
+    return angleInDeg;
   }
 
-
 }
+
+

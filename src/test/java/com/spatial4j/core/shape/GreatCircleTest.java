@@ -17,7 +17,7 @@ import org.junit.Test;
 public class GreatCircleTest extends RandomizedTest {
 
   //TODO: Robustness of calcs
-  private static final double EPS = 0.0000001;
+  private static final double EPS = 0.000001;
   private final SpatialContext ctx = new SpatialContextFactory()
   {{geo = true;}}.newSpatialContext();
 
@@ -132,7 +132,7 @@ public class GreatCircleTest extends RandomizedTest {
     // Test -90 to 90
     for(int i = 90; i >= -90; i--) {
       circle = makeCircle(0,0,90,i);
-      assertEquals(Math.abs(i),circle.angleInDegCalc(),EPS);
+      assertEquals(i,circle.angleInDegCalc(),EPS);
     }
   }
 
@@ -144,7 +144,6 @@ public class GreatCircleTest extends RandomizedTest {
       double intersection = circle.intersectionLongitude();
       assertEquals(i,intersection,EPS);
     }
-
 
   }
 }
