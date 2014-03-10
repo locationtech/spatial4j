@@ -38,6 +38,8 @@ public class GeoBufferedLine implements Shape {
   private final double bufferPerp;
   private final SpatialContext ctx;
 
+
+  // does not include the bounding box.
   @Override
   public Rectangle getBoundingBox() {
 
@@ -63,10 +65,34 @@ public class GeoBufferedLine implements Shape {
     Point highestPoint = linePrimary.highestPoint(ctx);
     Point lowestPoint = linePrimary.lowestPoint(ctx);
 
-    
+    // TODO: find which direction is the shortest, between the two points.
+    // Find the Change in x, and y. Try both, see which is shorter.
+    // Ie, calc delta x, add to one point, subtract x from the same point, see which one,
+    // gives us the same
 
-    return null;
+    boolean posXDirection = ((maxX - minX) == 0 ) ? true : false;
+    boolean posYDirection = ((maxY - minY) == 0 ) ? true : false;
 
+    // Moving from minx to maxx (Positive long)
+    if(posXDirection) {
+      if((maxY >= 0) && (minX < highestPoint.getX()) && (highestPoint.getX() < maxX)) {
+        maxY = highestPoint.getY();
+      }
+
+      if(((maxY <= 0) && (minX < lowestPoint.getX()) && (lowestPoint.getX() < maxX))) {
+        minY = lowestPoint.getY();
+      }
+    } else {
+      if((maxY >= 0) && (minX > highestPoint.getX()) && (highestPoint.getX() > maxX)) {
+        maxY = highestPoint.getY();
+      }
+
+      if(((maxY <= 0) && (minX > lowestPoint.getX()) && (lowestPoint.getX() > maxX))) {
+        minY = lowestPoint.getY();
+      }
+    }
+
+    return ctx.makeRectangle(minX + buffer,maxX + buffer,minY + buffer,maxY + buffer);
   }
 
   @Override
