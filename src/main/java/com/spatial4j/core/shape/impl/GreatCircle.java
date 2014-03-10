@@ -26,6 +26,8 @@ public class GreatCircle {
 
   final double angleDEG;
 
+  double highestLongitude;
+
   public GreatCircle(Point a, Point b) {
     this.a = a;
     this.b = b;
@@ -168,6 +170,8 @@ public class GreatCircle {
     return longitude;
   }
 
+
+
   /**
    * Returns the Angle of the GreatCircle
    * Always positive
@@ -184,18 +188,22 @@ public class GreatCircle {
 
     double longitudeIntersection = Math.abs(intersectionLongitude());
 
-    if(longitudeIntersection > 90) {
-      longitudeIntersection -= 180;
+    if(longitudeIntersection > 90.0001) {
+      longitudeIntersection = -180 + 90 + longitudeIntersection;
+    } else {
+      longitudeIntersection += 90;
     }
-    Point3d p = new Point3d(longitudeIntersection+90,angleInDeg);
 
+    Point3d p = new Point3d(longitudeIntersection,angleInDeg);
 
     double dist = distanceToPoint(p);
 
-    if(dist >= 1) {
+    if(dist >= 0.00001) {
+      highestLongitude -= longitudeIntersection;
       angleInDeg *= -1;
+    } else {
+      highestLongitude = longitudeIntersection;
     }
-
     // Angle in Rad, convert to degrees
     return angleInDeg;
   }
