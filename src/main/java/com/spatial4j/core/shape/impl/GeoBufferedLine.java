@@ -40,7 +40,33 @@ public class GeoBufferedLine implements Shape {
 
   @Override
   public Rectangle getBoundingBox() {
+
+    double minX, maxX;
+    double minY, maxY;
+
+    if(a.getX() > a.getY()) {
+      maxX = a.getX();
+      minX = b.getX();
+    } else {
+      maxX = b.getX();
+      minX = a.getX();
+    }
+
+    if(a.getY() > b.getY()) {
+      maxY = a.getY();
+      minY = b.getY();
+    } else {
+      maxY = b.getY();
+      minY = a.getY();
+    }
+
+    Point highestPoint = linePrimary.highestPoint(ctx);
+    Point lowestPoint = linePrimary.lowestPoint(ctx);
+
+    
+
     return null;
+
   }
 
   @Override

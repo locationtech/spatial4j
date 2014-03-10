@@ -1,5 +1,6 @@
 package com.spatial4j.core.shape.impl;
 
+import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Point;
@@ -171,6 +172,18 @@ public class GreatCircle {
   }
 
 
+  public Point highestPoint(SpatialContext ctx) {
+    return ctx.makePoint(highestLongitude,angleDEG);
+  }
+
+
+  public Point lowestPoint(SpatialContext ctx) {
+    return ctx.makePoint(-1.0*highestLongitude,angleDEG);
+  }
+
+  public double angleInDeg() {
+    return angleDEG;
+  }
 
   /**
    * Returns the Angle of the GreatCircle
