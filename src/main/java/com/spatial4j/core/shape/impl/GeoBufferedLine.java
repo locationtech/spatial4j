@@ -92,7 +92,7 @@ public class GeoBufferedLine implements Shape {
       }
     }
 
-    return ctx.makeRectangle(minX + buffer,maxX + buffer,minY + buffer,maxY + buffer);
+    return ctx.makeRectangle(minX - buffer,maxX + buffer,minY - buffer,maxY + buffer);
   }
 
   @Override
