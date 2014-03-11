@@ -59,16 +59,18 @@ public class GeoBufferedLineTest extends RandomizedTest {
 
   @Test
   public void testPerpendicular() throws Exception {
-    GeoBufferedLine line = new GeoBufferedLine(p(-1,0), p(1,0), 0, ctx);
+    Point a = p(-1,0);
+    Point b = p(1,0);
+    GeoBufferedLine line = new GeoBufferedLine(a, b, 0, ctx);
     GreatCircle l = line.getLinePerpendicular();
-    assertFalse(l.getA().getX() == 1 && l.getA().getY() == 0 && l.getA().getZ() == 0);
-    assertFalse(l.getB().getX() == 1 && l.getB().getY() == 0);
+    assertFalse(line.getPerpA3d().getX() == 1 && line.getPerpA3d().getY() == 0 && line.getPerpA3d().getZ() == 0);
+    assertFalse(line.getPerpB3d().getX() == 1 && line.getPerpB3d().getY() == 0);
 
     for (int i = 0; i < 20; i++) {
       double random90 = randomDouble() * 90;
       line = new GeoBufferedLine(p(-1 * random90, 0), p(random90, 0), 0, ctx);
-      assertFalse(l.getA().getX() == 1 && l.getA().getY() == 0 && l.getA().getZ() == 0);
-      assertFalse(l.getB().getX() == 1 && l.getB().getY() == 0);
+      assertFalse(line.getPerpA3d().getX() == 1 && line.getPerpA3d().getY() == 0 && line.getPerpA3d().getZ() == 0);
+      assertFalse(line.getPerpB3d().getX() == 1 && line.getPerpB3d().getY() == 0);
       l = line.getLinePerpendicular();
       for (int j = 0; j <= 90; j++) {
         assertEquals(l.distanceToPoint(p(0, j)), 0, 0.000001);

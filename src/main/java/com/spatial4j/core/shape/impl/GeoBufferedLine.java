@@ -19,10 +19,13 @@ package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.SpatialRelation;
+
+import java.util.ArrayList;
 
 import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
 import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
@@ -34,10 +37,69 @@ public class GeoBufferedLine implements Shape {
 
   private final Point a;
   private final Point b;
+
   private final double buffer;
   private final double bufferPerp;
+
   private final SpatialContext ctx;
 
+  private final GreatCircle linePrimary;
+  private final GreatCircle linePerpendicular;
+
+  private final Point3d primeA3d;
+  private final Point3d primeB3d;
+
+  private final Point3d perpA3d;
+  private final Point3d perpB3d;
+
+
+
+  //TODO: Can a and b be the same point?
+  public GeoBufferedLine(Point a, Point b, double buffer, SpatialContext ctx) {
+    this.a = a;
+    this.b = b;
+    this.buffer = buffer;
+    this.bufferPerp = bufferPerpendicular(a, b);
+    this.ctx = ctx;
+
+    Point3d[] points = GreatCircle.get3dPointsForGreatCircle(a,b);
+    primeA3d = points[0];
+    primeB3d = points[1];
+
+    linePrimary = new GreatCircle(primeA3d,primeB3d);
+
+    perpA3d = Point3d.midPoint(primeA3d,primeB3d);
+
+    Point3d midAVector = new Point3d(primeA3d.getX()-perpA3d.getX(),primeA3d.getY()-perpA3d.getY(),primeA3d.getZ()-perpA3d.getZ());
+    Point3d midBVector = new Point3d(0-perpA3d.getX(),0-perpA3d.getY(),0-perpA3d.getZ());
+
+    // perpA3d a3d X perpA3d b3d
+    // Normal Vector to the plane, at point perpA3d
+    Point3d normal = Point3d.crossProductPoint(midAVector,midBVector);
+
+    // Calculate a second point
+    perpB3d = new Point3d(perpA3d.getX() + normal.getX()*2,perpA3d.getY() + normal.getY()*2,perpA3d.getZ() + normal.getZ()*2);
+
+
+
+    linePerpendicular = new GreatCircle(perpA3d,perpB3d);
+  }
+
+  public Point3d getPrimeA3d() {
+    return primeA3d;
+  }
+
+  public Point3d getPrimeB3d() {
+    return primeB3d;
+  }
+
+  public Point3d getPerpA3d() {
+    return perpA3d;
+  }
+
+  public Point3d getPerpB3d() {
+    return perpB3d;
+  }
 
   // does not include the bounding box.
   @Override
@@ -46,7 +108,7 @@ public class GeoBufferedLine implements Shape {
     double minX, maxX;
     double minY, maxY;
 
-    if(a.getX() > a.getY()) {
+    if(a.getX() > b.getX()) {
       maxX = a.getX();
       minX = b.getX();
     } else {
@@ -71,7 +133,7 @@ public class GeoBufferedLine implements Shape {
     // gives us the same
 
     boolean posXDirection = ((maxX - minX) == 0 ) ? true : false;
-    boolean posYDirection = ((maxY - minY) == 0 ) ? true : false;
+   // boolean posYDirection = ((maxY - minY) == 0 ) ? true : false;
 
     // Moving from minx to maxx (Positive long)
     if(posXDirection) {
@@ -120,35 +182,6 @@ public class GeoBufferedLine implements Shape {
     return false;
   }
 
-  private final GreatCircle linePrimary;
-  private final GreatCircle linePerpendicular;
-
-  public GeoBufferedLine(Point a, Point b, double buffer, SpatialContext ctx) {
-    this.a = a;
-    this.b = b;
-    this.buffer = buffer;
-    this.bufferPerp = bufferPerpendicular(a, b);
-    this.ctx = ctx;
-
-    linePrimary = new GreatCircle(a,b);
-
-    Point3d midPoint = Point3d.midPoint(linePrimary.getA(),linePrimary.getB());
-
-    Point3d a3d = linePrimary.getA();
-    Point3d b3d = linePrimary.getB();
-
-    Point3d midAVector = new Point3d(a3d.getX()-midPoint.getX(),a3d.getY()-midPoint.getY(),a3d.getZ()-midPoint.getZ());
-    Point3d midBVector = new Point3d(0-midPoint.getX(),0-midPoint.getY(),0-midPoint.getZ());
-
-    // midPoint a3d X midPoint b3d
-    // Normal Vector to the plane, at point midPoint
-    Point3d normal = Point3d.crossProductPoint(midAVector,midBVector);
-
-    // Calculate a second point
-    Point3d secondaryPoint = new Point3d(midPoint.getX() + normal.getX()*2,midPoint.getY() + normal.getY()*2,midPoint.getZ() + normal.getZ()*2);
-
-    linePerpendicular = new GreatCircle(midPoint,secondaryPoint);
-  }
 
   private double bufferPerpendicular(Point a, Point b) {
     double xA,xB,yA,yB;
@@ -165,7 +198,7 @@ public class GeoBufferedLine implements Shape {
 
   @Override
   public SpatialRelation relate(Shape other) {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /* public for testing */
