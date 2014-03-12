@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+<name>KmlFile</name> 
+<Style id="transPurpleLineGreenPoly">
+<LineStyle> 
+<color>7fff00ff</color>
+<width>4</width>
+</LineStyle>
+</Style> 
+<Style id="transBluePoly"> 
+<LineStyle> 
+<width>1.5</width> 
+</LineStyle> 
+<PolyStyle> 
+<color>7dff0000</color> 
+</PolyStyle> 
+</Style> 
+<Placemark> 
+<name>Absolute</name> 
+<visibility>1</visibility> 
+<styleUrl>#transBluePoly</styleUrl> 
+<Polygon> 
+<tessellate>1</tessellate> 
+<altitudeMode>absolute</altitudeMode> 
+<outerBoundaryIs> 
+<LinearRing> 
+<coordinates> 
+-68.99418532297041,-79.1750445924111,1784 
+-66.28458066054512,-79.1750445924111,1784 
+-66.28458066054512,-81.72667476227542,1784 
+-68.99418532297041,-81.72667476227542,1784 
+-68.99418532297041,-79.1750445924111,1784 
+        </coordinates> 
+</LinearRing> 
+</outerBoundaryIs> 
+</Polygon> 
+</Placemark> 
+<Placemark>
+<name>Absolute</name>
+<visibility>1</visibility>
+<description>Transparent purple line</description> 
+<styleUrl>#transPurpleLineGreenPoly</styleUrl> 
+<LineString> 
+<tessellate>1</tessellate> 
+<altitudeMode>absolute</altitudeMode> 
+<coordinates> 
+-68.99418532297041,-81.72667476227542,0
+-66.28458066054512,-79.1750445924111,0
+       </coordinates> 
+</LineString> 
+</Placemark> 
+</Document> 
+</kml>

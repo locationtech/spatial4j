@@ -23,9 +23,13 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.shape.impl.GeoBufferedLine;
 import com.spatial4j.core.shape.impl.GreatCircle;
+import com.spatial4j.core.shape.impl.PointImpl;
 import org.junit.Rule;
 import org.junit.Test;
 import sun.print.PSPrinterJob;
+
+import java.io.*;
+import java.util.Date;
 
 public class GeoBufferedLineTest extends RandomizedTest {
 
@@ -33,19 +37,73 @@ public class GeoBufferedLineTest extends RandomizedTest {
     {{geo = true;}}.newSpatialContext();
 
   @Rule
-  public TestLog testLog = TestLog.instance;
+  //public String TestLog testLog = TestLog.instance;
 //SpatialContext.GEO ;//
 
- /* public static void logShapes(final GeoBufferedLine line, final Rectangle rect) {
+
+
+ public static String logShapes(final GeoBufferedLine line, final Rectangle rect) {
     String lineWKT =
         "LINESTRING(" + line.getA().getX() + " " + line.getA().getY() + "," +
             line.getB().getX() + " " + line.getB().getY() + ")";
-    System.out.println(
-        "GEOMETRYCOLLECTION(" + lineWKT + "," + rectToWkt(line.getBoundingBox
-            ()) + ")");
 
-    String rectWKT = rectToWkt(rect);
-    System.out.println(rectWKT);
+    String kml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n" +
+    "<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n" +
+    "<Document>\n"+
+    "<name>KmlFile</name> \n"+
+    "<Style id=\"transPurpleLineGreenPoly\">\n"+
+    "<LineStyle> \n"+
+    "<color>7fff00ff</color>\n" +
+    "<width>4</width>\n"+
+    "</LineStyle>\n"+
+            "</Style> \n"+
+            "<Style id=\"transBluePoly\"> \n"+
+    "<LineStyle> \n"+
+    "<width>1.5</width> \n"+
+    "</LineStyle> \n"+
+    "<PolyStyle> \n"+
+    "<color>7dff0000</color> \n"+
+    "</PolyStyle> \n"+
+    "</Style> \n"+
+    "<Placemark> \n"+
+    "<name>Absolute</name> \n"+
+    "<visibility>1</visibility> \n"+
+    "<styleUrl>#transBluePoly</styleUrl> \n"+
+    "<Polygon> \n"+
+    "<tessellate>1</tessellate> \n"+
+    "<altitudeMode>absolute</altitudeMode> \n"+
+    "<outerBoundaryIs> \n"+
+    "<LinearRing> \n"+
+    "<coordinates> \n"+
+            rect.getMinX() +"," + rect.getMaxY() +",1784 \n" +
+            rect.getMaxX() +"," + rect.getMaxY() +",1784 \n" +
+            rect.getMaxX() +"," + rect.getMinY() +",1784 \n" +
+            rect.getMinX() +"," + rect.getMinY() +",1784 \n" +
+            rect.getMinX() +"," + rect.getMaxY() +",1784 \n" +
+    "        </coordinates> \n"+
+    "</LinearRing> \n"+
+    "</outerBoundaryIs> \n"+
+    "</Polygon> \n"+
+    "</Placemark> \n"+
+           "<Placemark>\n"+
+    "<name>Absolute</name>\n"+
+    "<visibility>1</visibility>\n"+
+    "<description>Transparent purple line</description> \n"+
+    "<styleUrl>#transPurpleLineGreenPoly</styleUrl> \n"+
+    "<LineString> \n"+
+    "<tessellate>1</tessellate> \n"+
+    "<altitudeMode>absolute</altitudeMode> \n"+
+    "<coordinates> \n"+
+            + line.getA().getX() + "," + line.getA().getY() + ",0\n" +
+            + line.getB().getX() + "," + line.getB().getY() + ",0\n" +
+    "       </coordinates> \n"+
+    "</LineString> \n"+
+    "</Placemark> \n"+
+    "</Document> \n"+
+    "</kml>";
+
+    return kml;
+
   }
 
   static private String rectToWkt(Rectangle rect) {
@@ -55,7 +113,6 @@ public class GeoBufferedLineTest extends RandomizedTest {
         rect.getMinX() + " " + rect.getMaxY() + "," +
         rect.getMinX() + " " + rect.getMinY() + "))";
   }
-*/
 
   @Test
   public void testPerpendicular() throws Exception {
@@ -139,7 +196,59 @@ public class GeoBufferedLineTest extends RandomizedTest {
   private void flipPoint(Point p) {
     p.reset(-1*p.getX(),-1*p.getY());
   }
-/*
+
+  @Test
+  public void testVisualShape() throws Exception {
+    GeoBufferedLine line = newRandomLine();
+    String s = logShapes(line, line.getBoundingBox());
+    Writer writer = null;
+
+    try {
+      writer = new BufferedWriter(new OutputStreamWriter(
+              new FileOutputStream("text.kml"), "utf-8"));
+      writer.write(s);
+    } catch (IOException ex) {
+      // report
+    } finally {
+      try {writer.close();} catch (Exception ex) {}
+    }
+
+  }
+
+
+  private GeoBufferedLine newRandomLine() {
+
+    boolean randomA = randomBoolean();
+    boolean randomB = randomBoolean();
+    double random90A = randomDouble() * 90;
+    double random180B = randomDouble() * 180;
+
+    double rand90 =  randomDouble() * 90;
+    double rand180 =  randomDouble() * 180;
+
+    random90A = randomA ? rand90 : -1*rand90;
+    random180B = randomA ? rand180 : -1*rand180;
+
+    Point pA = new PointImpl(random180B,random90A, ctx );
+
+
+    randomA = randomBoolean();
+    randomB = randomBoolean();
+
+    rand90 =  randomDouble() * 90;
+    rand180 =  randomDouble() * 180;
+
+
+    double random90AB = randomA ? rand90 : -1*rand90;
+    double random180BB = randomA ? rand180 : -1*rand180;
+
+
+    Point pB = new PointImpl(random180BB, random90AB, ctx);
+
+    int buf = randomInt(5);
+    return new GeoBufferedLine(pA, pB, 0, ctx);
+  }
+  /*
   @Test
   public void misc() {
     //pa == pb

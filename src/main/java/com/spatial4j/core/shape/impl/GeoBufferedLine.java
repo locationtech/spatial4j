@@ -39,6 +39,15 @@ public class GeoBufferedLine implements Shape {
   private final Point b;
 
   private final double buffer;
+
+  public Point getA() {
+    return a;
+  }
+
+  public Point getB() {
+    return b;
+  }
+
   private final double bufferPerp;
 
   private final SpatialContext ctx;
