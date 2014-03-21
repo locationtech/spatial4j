@@ -49,6 +49,10 @@ import java.util.Map;
  * <DD>{@code ENVELOPE(xMin, xMax, yMax, yMin)} -- see {@link SpatialContext#getWorldBounds()}</DD>
  * <DT>normWrapLongitude</DT>
  * <DD>true | false (default) -- see {@link SpatialContext#isNormWrapLongitude()}</DD>
+ * <DT>wktShapeParserClass</DT>
+ * <DD>Java class of the {@link com.spatial4j.core.io.WktShapeParser}</DD>
+ * <DT>binaryCodecClass</DT>
+ * <DD>Java class of the {@link com.spatial4j.core.io.BinaryCodec}</DD>
  * </DL>
  */
 public class SpatialContextFactory {
