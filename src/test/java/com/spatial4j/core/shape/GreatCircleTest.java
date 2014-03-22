@@ -160,13 +160,13 @@ public class GreatCircleTest extends RandomizedTest {
     // Test -90 to 90
     for(int i = 90; i >= -89; i--) {
       circle = makeCircle(0,0,90,i);
-      assertEquals(i,circle.getAngleDEG(),EPS);
+      assertEquals(Math.abs(i),circle.getAngleDEG(),EPS);
     }
 
     // Test -90 to 90
     for(int i = 90; i >= -89; i--) {
       circle = makeCircle(90,0,180,i);
-      assertEquals(i,circle.getAngleDEG(),EPS);
+      assertEquals(Math.abs(i),circle.getAngleDEG(),EPS);
     }
 
 

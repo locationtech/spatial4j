@@ -63,6 +63,12 @@ public class GreatCircle {
     double prodDist = distA * distB;
     double angleDEG = DistanceUtils.toDegrees(Math.acos(dotProd/prodDist));
 
+    if(angleDEG > 90)
+        angleDEG = 180 - angleDEG;
+
+    if(angleDEG < 0)
+        angleDEG = -180 - angleDEG;
+
     double longitudeIntersection = lonAtEquator;
 
     // TODO: Don't use precision
@@ -78,11 +84,14 @@ public class GreatCircle {
 
     // TODO: Don't use precision
     if(dist >= precision) {
-      highestLongitude -= longitudeIntersection;
-      angleDEG *= -1;
+      highestLongitude = longitudeIntersection + 180;
     } else {
       highestLongitude = longitudeIntersection;
     }
+
+    if(highestLongitude >  180)
+       highestLongitude = (360 - highestLongitude) * -1;
+
     // Angle in Rad, convert to degrees
     this.angleDEG = angleDEG;
     // END ANGLE INTERSECTION
@@ -149,7 +158,7 @@ public class GreatCircle {
 
 
   public Point lowestPoint(SpatialContext ctx) {
-    return ctx.makePoint(-1.0*highestLongitude,angleDEG);
+    return ctx.makePoint(highestLongitude*-1,angleDEG);
   }
 
   /**

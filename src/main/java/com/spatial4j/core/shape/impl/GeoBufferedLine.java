@@ -111,6 +111,8 @@ public class GeoBufferedLine implements Shape {
   }
 
   // does not include the bounding box.
+
+  //TODO: Dateline / Extra Wrapping eg over the pole
   @Override
   public Rectangle getBoundingBox() {
 
@@ -142,29 +144,40 @@ public class GeoBufferedLine implements Shape {
     // gives us the same
 
     boolean posXDirection = ((maxX - minX) == 0 ) ? true : false;
-   // boolean posYDirection = ((maxY - minY) == 0 ) ? true : false;
+    //boolean posYDirection = ((maxY - minY) == 0 ) ? true : false;
 
-    // Moving from minx to maxx (Positive long)
-    if(posXDirection) {
-      if((maxY >= 0) && (minX < highestPoint.getX()) && (highestPoint.getX() < maxX)) {
+    double deltaX = (maxX - minX);
+    double deltaY = (maxY - minY);
+
+    double slope = deltaY / deltaX;
+
+    double angle = Math.atan2(deltaX,deltaY);
+
+    // Positive
+    double dist_x = buffer * Math.cos(angle);
+    double dist_y = buffer * Math.sin(angle);
+
+//    // Moving from minx to maxx (Positive long)
+//    if(posXDirection) {
+//      if((maxY >= 0) && (minX < highestPoint.getX()) && (highestPoint.getX() < maxX)) {
+//        maxY = highestPoint.getY();
+//      }
+//
+//      if(((maxY <= 0) && (minX < lowestPoint.getX()) && (lowestPoint.getX() < maxX))) {
+//        minY = lowestPoint.getY();
+//      }
+//    } else {
+      if((maxY > 0) && (minX <= highestPoint.getX()) && (highestPoint.getX() <= maxX)) {
         maxY = highestPoint.getY();
       }
 
-      if(((maxY <= 0) && (minX < lowestPoint.getX()) && (lowestPoint.getX() < maxX))) {
+      if(((maxY < 0) && (minX <= lowestPoint.getX()) && (lowestPoint.getX() <= maxX))) {
         minY = lowestPoint.getY();
       }
-    } else {
-      if((maxY >= 0) && (minX > highestPoint.getX()) && (highestPoint.getX() > maxX)) {
-        maxY = highestPoint.getY();
-      }
-
-      if(((maxY <= 0) && (minX > lowestPoint.getX()) && (lowestPoint.getX() > maxX))) {
-        minY = lowestPoint.getY();
-      }
-    }
-
+    //}
     return ctx.makeRectangle(minX - buffer,maxX + buffer,minY - buffer,maxY + buffer);
   }
+
 
   @Override
   public boolean hasArea() {

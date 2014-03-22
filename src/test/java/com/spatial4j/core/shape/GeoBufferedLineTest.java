@@ -47,14 +47,14 @@ public class GeoBufferedLineTest extends RandomizedTest {
         "LINESTRING(" + line.getA().getX() + " " + line.getA().getY() + "," +
             line.getB().getX() + " " + line.getB().getY() + ")";
 
-    String kml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n" +
-    "<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n" +
+    String kml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+    "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:kml=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n" +
     "<Document>\n"+
     "<name>KmlFile</name> \n"+
     "<Style id=\"transPurpleLineGreenPoly\">\n"+
     "<LineStyle> \n"+
     "<color>7fff00ff</color>\n" +
-    "<width>4</width>\n"+
+    "<width>1</width>\n"+
     "</LineStyle>\n"+
             "</Style> \n"+
             "<Style id=\"transBluePoly\"> \n"+
@@ -71,15 +71,9 @@ public class GeoBufferedLineTest extends RandomizedTest {
     "<styleUrl>#transBluePoly</styleUrl> \n"+
     "<Polygon> \n"+
     "<tessellate>1</tessellate> \n"+
-    "<altitudeMode>absolute</altitudeMode> \n"+
     "<outerBoundaryIs> \n"+
     "<LinearRing> \n"+
-    "<coordinates> \n"+
-            rect.getMinX() +"," + rect.getMaxY() +",1784 \n" +
-            rect.getMaxX() +"," + rect.getMaxY() +",1784 \n" +
-            rect.getMaxX() +"," + rect.getMinY() +",1784 \n" +
-            rect.getMinX() +"," + rect.getMinY() +",1784 \n" +
-            rect.getMinX() +"," + rect.getMaxY() +",1784 \n" +
+    "<coordinates> \n"+ rect.getMinX() +"," + rect.getMaxY() +",0 " + rect.getMaxX() +"," + rect.getMaxY() +",0 " + rect.getMaxX() +"," + rect.getMinY() +",0 " + rect.getMinX() +"," + rect.getMinY() +",0 " + rect.getMinX() +"," + rect.getMaxY() +",0 \n" +
     "        </coordinates> \n"+
     "</LinearRing> \n"+
     "</outerBoundaryIs> \n"+
@@ -87,15 +81,12 @@ public class GeoBufferedLineTest extends RandomizedTest {
     "</Placemark> \n"+
            "<Placemark>\n"+
     "<name>Absolute</name>\n"+
-    "<visibility>1</visibility>\n"+
     "<description>Transparent purple line</description> \n"+
     "<styleUrl>#transPurpleLineGreenPoly</styleUrl> \n"+
     "<LineString> \n"+
     "<tessellate>1</tessellate> \n"+
-    "<altitudeMode>absolute</altitudeMode> \n"+
     "<coordinates> \n"+
-            + line.getA().getX() + "," + line.getA().getY() + ",0\n" +
-            + line.getB().getX() + "," + line.getB().getY() + ",0\n" +
+            + line.getA().getX() + "," + line.getA().getY() + ",0\n" + line.getB().getX() + "," + line.getB().getY() + ",0\n" +
     "       </coordinates> \n"+
     "</LineString> \n"+
     "</Placemark> \n"+
@@ -200,6 +191,10 @@ public class GeoBufferedLineTest extends RandomizedTest {
   @Test
   public void testVisualShape() throws Exception {
     GeoBufferedLine line = newRandomLine();
+//    line = new GeoBufferedLine(ctx.makePoint(2.1833,41.3833),ctx.makePoint(-73.9400,40.67),0,ctx);
+//    System.out.println("Angle " + line.getLinePrimary().getAngleDEG());
+//    System.out.println("Highest Point: " + line.getLinePrimary().highestPoint(ctx));
+
     String s = logShapes(line, line.getBoundingBox());
     Writer writer = null;
 
@@ -229,7 +224,7 @@ public class GeoBufferedLineTest extends RandomizedTest {
     random90A = randomA ? rand90 : -1*rand90;
     random180B = randomA ? rand180 : -1*rand180;
 
-    Point pA = new PointImpl(random180B,random90A, ctx );
+    Point pA = ctx.makePoint(random180B,random90A);
 
 
     randomA = randomBoolean();
@@ -243,10 +238,10 @@ public class GeoBufferedLineTest extends RandomizedTest {
     double random180BB = randomA ? rand180 : -1*rand180;
 
 
-    Point pB = new PointImpl(random180BB, random90AB, ctx);
+    Point pB = ctx.makePoint(random180BB,random90AB);
 
     int buf = randomInt(5);
-    return new GeoBufferedLine(pA, pB, 0, ctx);
+    return new GeoBufferedLine(pA, pB, buf, ctx);
   }
   /*
   @Test
