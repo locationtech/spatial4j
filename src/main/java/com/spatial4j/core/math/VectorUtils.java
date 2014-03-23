@@ -182,4 +182,16 @@ public class VectorUtils {
         return normalize(crossProduct(a, temp));
     }
 
+    /**
+     * Vector Compare: B Greater than A
+     */
+    public static boolean greaterThan( Vector3D a, Vector3D b ) {
+        if ( a.getX() < b.getX() ) return true;
+        if ( b.getX() < a.getX() ) return false;
+        if ( a.getY() < b.getY() ) return true;
+        if ( b.getY() < a.getY() ) return false;
+        if ( a.getZ() < b.getZ() ) return true;
+        return false;
+    }
+
 }
