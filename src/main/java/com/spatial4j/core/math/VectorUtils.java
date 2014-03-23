@@ -99,6 +99,18 @@ public class VectorUtils {
     }
 
     /**
+     * Compute the dot product between two vectors
+     */
+    public static double dotProduct( Vector3D a, Vector3D b ) {
+
+        double x = a.getX()*b.getX();
+        double y = a.getY()*b.getY();
+        double z = a.getZ()*b.getZ();
+
+        return x + y + z;
+    }
+
+    /**
      * Compute the angle between two vectors
      */
     public static double angle( Vector3D v1, Vector3D v2 ) {
@@ -117,10 +129,57 @@ public class VectorUtils {
     }
 
     /**
-     * S2 Normalize
+     * Standard Normalize
      */
-    public static double norm2( Vector3D v1 ) {
-        /// uhhh // TODO
-        return 0;
+    public static Vector3D normalize( Vector3D a ) {
+        double n = norm(a);
+        if ( n != 0 ) n = 1.0/n;
+        return multiply(a, n);
     }
+
+    /**
+     * Norm2
+     */
+    public static double norm2( Vector3D a ) {
+        return Math.pow(a.getX(), 2) + Math.pow(a.getY(), 2) + Math.pow(a.getZ(), 2);
+    }
+
+    /**
+     * Norm
+     */
+    public static double norm( Vector3D a ) {
+        return Math.sqrt(norm2(a));
+    }
+
+    /**
+     * Return the largest absolute value component
+     */
+    public static double largestAbsComponent( Vector3D v1 ) {
+
+        double x = Math.abs(v1.getX());
+        double y = Math.abs(v1.getY());
+        double z = Math.abs(v1.getZ());
+
+        if ( Math.max(x, y) == Math.max(y, z) ) {
+            return y;
+        } else {
+            return Math.max(x, z);
+        }
+    }
+
+    /**
+     * Compute Unit Vector orthogonal to provided vector
+     */
+    public static Vector3D ortho( Vector3D a ) {
+
+        double k = largestAbsComponent(a);
+        Vector3D temp;
+
+        if ( k == a.getX() ) temp = new Vector3D(1, 0, 0);
+        else if ( k == a.getY() ) temp = new Vector3D(0, 1, 0);
+        else temp = new Vector3D(0, 0, 1);
+
+        return normalize(crossProduct(a, temp));
+    }
+
 }

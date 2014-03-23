@@ -68,4 +68,26 @@ public class IntersectUtils {
     public static boolean robustIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
         throw new UnsupportedOperationException("Robust crossing not yet implemented!");
     }
+
+    /// Helper Methods ///
+
+    /**
+     * Returns true if the points are listed in a counter-clockwise fashion with respect to
+     * direction in the direction vector frame of reference (needs a better comment here!)
+     */
+    public boolean orderedCCW( Vector3D a, Vector3D b, Vector3D c, Vector3D o ) {
+
+        int sum = 0;
+        if ( simpleCCW(b, o, a) == true ) sum += 1;
+        if ( simpleCCW(c, o, b) == true ) sum += 1;
+        if ( simpleCCW(a, o, c) == true ) sum += 1; // this is wrong???
+        return sum >= 2;
+    }
+
+    /**
+     * Using a simple CCW - could not figure out a robust one
+     */
+    public boolean simpleCCW( Vector3D a, Vector3D b, Vector3D c ) {
+        return VectorUtils.dotProduct( VectorUtils.crossProduct(c, a), b ) > 0;
+    }
 }
