@@ -25,9 +25,9 @@ import com.spatial4j.core.shape.Vector3D;
  *
  * Last Modified: 2/22/14
  */
-public class VectorUtils {
+public class Vector3DUtils {
 
-    private VectorUtils() {}
+    private Vector3DUtils() {}
 
     /**
      * Compute the sum of two vectors

@@ -17,6 +17,7 @@
 
 package com.spatial4j.core.math;
 
+import com.spatial4j.core.shape.Vector2D;
 import com.spatial4j.core.shape.Vector3D;
 
 /**
@@ -88,7 +89,7 @@ public class IntersectUtils {
      * Using a simple CCW - could not figure out a robust one
      */
     public boolean simpleCCW( Vector3D a, Vector3D b, Vector3D c ) {
-        return VectorUtils.dotProduct( VectorUtils.crossProduct(c, a), b ) > 0;
+        return Vector3DUtils.dotProduct( Vector3DUtils.crossProduct(c, a), b ) > 0;
     }
 
     /*
@@ -115,34 +116,34 @@ public class IntersectUtils {
         if ( a.equals(b) || b.equals(c) || c.equals(a) ) return 0;
 
         // Handle the Edge case of nearby and nearly antipodal points.
-        double sab = (VectorUtils.dotProduct(a, b) > 0) ? -1 : 1;
-        double sbc = (VectorUtils.dotProduct(b, c) > 0) ? -1 : 1;
-        double sca = (VectorUtils.dotProduct(c, a) > 0) ? -1 : 1;
+        double sab = (Vector3DUtils.dotProduct(a, b) > 0) ? -1 : 1;
+        double sbc = (Vector3DUtils.dotProduct(b, c) > 0) ? -1 : 1;
+        double sca = (Vector3DUtils.dotProduct(c, a) > 0) ? -1 : 1;
 
-        Vector3D vab = VectorUtils.sum(a, VectorUtils.multiply(b, sab));
-        Vector3D vbc = VectorUtils.sum(b, VectorUtils.multiply(c, sbc));
-        Vector3D vca = VectorUtils.sum(c, VectorUtils.multiply(a, sca));
+        Vector3D vab = Vector3DUtils.sum(a, Vector3DUtils.multiply(b, sab));
+        Vector3D vbc = Vector3DUtils.sum(b, Vector3DUtils.multiply(c, sbc));
+        Vector3D vca = Vector3DUtils.sum(c, Vector3DUtils.multiply(a, sca));
 
-        double dab = VectorUtils.norm2(vab);
-        double dbc = VectorUtils.norm2(vbc);
-        double dca = VectorUtils.norm2(vca);
+        double dab = Vector3DUtils.norm2(vab);
+        double dbc = Vector3DUtils.norm2(vbc);
+        double dca = Vector3DUtils.norm2(vca);
 
         // Sort the difference vectors to find the longest edge, and use the
         // opposite vertex as the origin. If two difference vectors are the same length,
         // we break ties deterministically to ensure that the symmetry properties are true.
 
         double sign;
-        if (dca < dbc || (dca == dbc && VectorUtils.greaterThan(a, b))) { // using mags because I am not sure if you can do direct comparison
-            if (dca < dbc || (dab == dbc && VectorUtils.greaterThan(a, c))) {
-                sign = VectorUtils.dotProduct(VectorUtils.crossProduct(vab, vca), a) * sab; // BC is the longest edge
+        if (dca < dbc || (dca == dbc && Vector3DUtils.greaterThan(a, b))) { // using mags because I am not sure if you can do direct comparison
+            if (dca < dbc || (dab == dbc && Vector3DUtils.greaterThan(a, c))) {
+                sign = Vector3DUtils.dotProduct(Vector3DUtils.crossProduct(vab, vca), a) * sab; // BC is the longest edge
             } else {
-                sign = VectorUtils.dotProduct(VectorUtils.crossProduct(vca, vbc), c) * sca;
+                sign = Vector3DUtils.dotProduct(Vector3DUtils.crossProduct(vca, vbc), c) * sca;
             }
         } else {
-            if ( dab < dca || (dab == dca && VectorUtils.greaterThan(b, c))) {
-                sign = VectorUtils.dotProduct(VectorUtils.crossProduct(vbc, vab), b) * sbc;
+            if ( dab < dca || (dab == dca && Vector3DUtils.greaterThan(b, c))) {
+                sign = Vector3DUtils.dotProduct(Vector3DUtils.crossProduct(vbc, vab), b) * sbc;
             } else {
-                sign = VectorUtils.dotProduct(VectorUtils.crossProduct(vca, vbc), c) * sca;
+                sign = Vector3DUtils.dotProduct(Vector3DUtils.crossProduct(vca, vbc), c) * sca;
             }
         }
 
@@ -170,6 +171,10 @@ public class IntersectUtils {
         /**
          * Compute Planar CCW (coplanar points edge case) which requires 2D points
          */
+        public static int planarCCW( Vector2D a, Vector2D b ) {
+
+
+        }
 
 
         static inline int PlanarCCW(Vector2_d const& a, Vector2_d const& b) {

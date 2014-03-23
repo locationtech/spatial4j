@@ -29,7 +29,7 @@ import com.spatial4j.core.shape.impl.PointImpl;
 /**
  * Test static methods for basic 3-component vector operations
  */
-public class VectorUtilsTest extends RandomizedTest {
+public class Vector3DUtilsTest extends RandomizedTest {
 
     // needed for creating regular points
     private SpatialContext ctx;
@@ -58,7 +58,7 @@ public class VectorUtilsTest extends RandomizedTest {
             Vector3D a = new Vector3D( randomDouble(), randomDouble(), randomDouble() );
             Vector3D b = new Vector3D( randomDouble(), randomDouble(), randomDouble() );
 
-            Vector3D result = VectorUtils.difference( VectorUtils.sum(a, b), b);
+            Vector3D result = Vector3DUtils.difference( Vector3DUtils.sum(a, b), b);
 
             assertEquals( a.getX(), result.getX(), 0.0001);
             assertEquals( a.getY(), result.getY(), 0.0001);
@@ -77,7 +77,7 @@ public class VectorUtilsTest extends RandomizedTest {
             Vector3D a = new Vector3D( randomDouble(), randomDouble(), randomDouble() );
             double k = randomDouble();
 
-            Vector3D result = VectorUtils.multiply( VectorUtils.multiply(a, k), 1/k);
+            Vector3D result = Vector3DUtils.multiply( Vector3DUtils.multiply(a, k), 1/k);
 
             assertEquals( a.getX(), result.getX(), 0.0001);
             assertEquals( a.getY(), result.getY(), 0.0001);
@@ -96,7 +96,7 @@ public class VectorUtilsTest extends RandomizedTest {
         for ( int i = 0; i <= randomIntBetween(10, 20); i++ ) {
             Point p = new PointImpl( randomInt(20), randomInt(20), ctx );
             Vector3D v = TransformUtils.toVector(p);
-            assertEquals( VectorUtils.mag(v), 1, 0.0001);
+            assertEquals( Vector3DUtils.mag(v), 1, 0.0001);
         }
     }
 
@@ -109,12 +109,12 @@ public class VectorUtilsTest extends RandomizedTest {
         // Create a bunch of random vectors, create unit vectors from those
         for ( int i = 0; i <= randomIntBetween(10, 20); i++ ) {
             Vector3D v = new Vector3D( randomDouble(), randomDouble(), randomDouble() );
-            Vector3D uv = VectorUtils.unitVector(v);
+            Vector3D uv = Vector3DUtils.unitVector(v);
 
-            assertEquals( VectorUtils.mag(uv), 1, 0.0001);
+            assertEquals( Vector3DUtils.mag(uv), 1, 0.0001);
 
             // Derive the original vector
-            double mag = VectorUtils.mag(v);
+            double mag = Vector3DUtils.mag(v);
             Vector3D v1 = new Vector3D( uv.getX()*mag, uv.getY()*mag, uv.getZ()*mag );
 
             // Approx equals
