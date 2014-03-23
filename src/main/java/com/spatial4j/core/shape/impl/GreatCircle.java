@@ -18,6 +18,7 @@ public class GreatCircle {
 
   // Fundamental
   double highestLongitude;
+  double lowestLongitude;
   final double lonAtEquator;
   final double angleDEG;
 
@@ -52,7 +53,15 @@ public class GreatCircle {
     // Find the angle from the perfect line.
     double longitude = DistanceUtils.toDegrees(Math.acos(dotProductAxisLine / length));
 
-    lonAtEquator = Math.abs(longitude);
+    Point3d intersection = new Point3d(longitude, 0);
+
+
+    if(distanceToPoint(intersection) >= precision){
+      lonAtEquator = longitude * -1;
+    } else {
+      lonAtEquator = longitude;
+    }
+
     // END LON OF INTERSECTION
 
     // START ANGLE OF INTERSECTION
@@ -66,14 +75,14 @@ public class GreatCircle {
     if(angleDEG > 90)
         angleDEG = 180 - angleDEG;
 
-    if(angleDEG < 0)
+    if(angleDEG < -90)
         angleDEG = -180 - angleDEG;
 
     double longitudeIntersection = lonAtEquator;
 
     // TODO: Don't use precision
     if(longitudeIntersection > (90 + precision)) {
-      longitudeIntersection = -180 + 90 + longitudeIntersection;
+      longitudeIntersection = longitudeIntersection - 90;
     } else {
       longitudeIntersection += 90;
     }
@@ -91,6 +100,14 @@ public class GreatCircle {
 
     if(highestLongitude >  180)
        highestLongitude = (360 - highestLongitude) * -1;
+
+
+    double lowest = highestLongitude + 180;
+    if(lowest >  180) {
+      lowestLongitude = (360 - lowest) * -1;
+    } else {
+      lowestLongitude = lowest;
+    }
 
     // Angle in Rad, convert to degrees
     this.angleDEG = angleDEG;
@@ -158,7 +175,7 @@ public class GreatCircle {
 
 
   public Point lowestPoint(SpatialContext ctx) {
-    return ctx.makePoint(highestLongitude*-1,angleDEG);
+    return ctx.makePoint(lowestLongitude,-1*angleDEG);
   }
 
   /**

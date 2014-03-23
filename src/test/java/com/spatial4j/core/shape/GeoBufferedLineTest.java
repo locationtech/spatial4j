@@ -29,6 +29,7 @@ import org.junit.Test;
 import sun.print.PSPrinterJob;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.Date;
 
 public class GeoBufferedLineTest extends RandomizedTest {
@@ -42,19 +43,38 @@ public class GeoBufferedLineTest extends RandomizedTest {
 
 
 
- public static String logShapes(final GeoBufferedLine line, final Rectangle rect) {
+ public static String logShapes(final GeoBufferedLine line, final Rectangle rect, int num) {
     String lineWKT =
         "LINESTRING(" + line.getA().getX() + " " + line.getA().getY() + "," +
             line.getB().getX() + " " + line.getB().getY() + ")";
 
-    String kml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+    boolean leftDraw = false;
+
+    if((rect.getMaxX() - rect.getMinX()) > 180 ) {
+      leftDraw = true;
+    }
+
+
+    String boxString  = "";
+    if(leftDraw) {
+      // debug
+      //System.out.println("LEFT " + num);
+      boxString =  rect.getMaxX() +"," + rect.getMaxY() +",0 " + (rect.getMinX() + 360) +"," + rect.getMaxY() +",0 " + (rect.getMinX() + 360) +"," + rect.getMinY() +",0 " + rect.getMaxX() +"," + rect.getMinY() +",0 " + rect.getMaxX() +"," + rect.getMaxY() +",0 \n";
+
+      // boxString =  rect.getMaxX() +"," + rect.getMaxY() +",0 " + (rect.getMinX() + 360) +"," + rect.getMaxY() +",0 "  + rect.getMinX() +"," + rect.getMinY() +",0 " + rect.getMaxX() +"," + rect.getMinY() +",0 " + rect.getMaxX() +"," + rect.getMaxY() +",0 \n";
+    } else {
+      boxString = rect.getMinX() +"," + rect.getMaxY() +",0 " + rect.getMaxX() +"," + rect.getMaxY() +",0 " + rect.getMaxX() +"," + rect.getMinY() +",0 " + rect.getMinX() +"," + rect.getMinY() +",0 " + rect.getMinX() +"," + rect.getMaxY() +",0 \n";
+    }
+
+
+      String kml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:kml=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n" +
     "<Document>\n"+
-    "<name>KmlFile</name> \n"+
+    "<name>KmlFile "+ num +"</name> \n"+
     "<Style id=\"transPurpleLineGreenPoly\">\n"+
     "<LineStyle> \n"+
     "<color>7fff00ff</color>\n" +
-    "<width>1</width>\n"+
+    "<width>" + 1 + line.getBuffer() * 5 + "</width>\n"+
     "</LineStyle>\n"+
             "</Style> \n"+
             "<Style id=\"transBluePoly\"> \n"+
@@ -73,8 +93,8 @@ public class GeoBufferedLineTest extends RandomizedTest {
     "<tessellate>1</tessellate> \n"+
     "<outerBoundaryIs> \n"+
     "<LinearRing> \n"+
-    "<coordinates> \n"+ rect.getMinX() +"," + rect.getMaxY() +",0 " + rect.getMaxX() +"," + rect.getMaxY() +",0 " + rect.getMaxX() +"," + rect.getMinY() +",0 " + rect.getMinX() +"," + rect.getMinY() +",0 " + rect.getMinX() +"," + rect.getMaxY() +",0 \n" +
-    "        </coordinates> \n"+
+    "<coordinates> \n"+ boxString +
+       "        </coordinates> \n"+
     "</LinearRing> \n"+
     "</outerBoundaryIs> \n"+
     "</Polygon> \n"+
@@ -188,26 +208,72 @@ public class GeoBufferedLineTest extends RandomizedTest {
     p.reset(-1*p.getX(),-1*p.getY());
   }
 
+
+  private double [][] coordinates = {{-99.50495175269295,-27.847143714750892,94.92744976763885,58.97453564417145},{-113.55873663082807,-37.38700137891473 ,108.9768420505157,56.82595028841023},
+          {-114.13045387706195,-57.759601585537034,
+                  66.42246194712695,7.61423855201417},{135.673532878296,19.749231296312367,
+          99.89993687971368,54.595746732751735},{-113.55873663082807,-37.38700137891473,
+          108.9768420505157,56.82595028841023},{-99.50495175269295,-27.847143714750892,
+          94.92744976763885,58.97453564417145},{-137.4473549035918,-59.92702226097382,
+          37.65126452060316,46.121912417763326},{-34.1896496909006,-4.55377853792414,
+          145.29499975518303,42.11651349705701},{-132.7599266353268,-55.81481332371045,
+          -92.47845748579186,-53.72410194167834},{-80.37659959947197,-59.29005255570004,
+          121.42340168404372,48.274996665589015},{134.50864258825123,4.025328678586604,
+          -79.42487585076405,-55.09328902724629},{-114.56774869654645,-46.80318469884033,
+          -15.145331712139603,-40.95521632556603},{-106.80494427030459,-51.35562641913801,
+          80.5612819857112,29.766393899451643},{135.673532878296,19.749231296312367,
+          99.89993687971368,54.595746732751735},{2.1833,41.3833,-73.9400,40.67},{-128.27072030063476,-27.70757917535692,28.498386417001726,47.68996542540272},
+          {-132.7599266353268,-55.81481332371045,-92.47845748579186,-53.72410194167834}};
+
   @Test
   public void testVisualShape() throws Exception {
-    GeoBufferedLine line = newRandomLine();
-//    line = new GeoBufferedLine(ctx.makePoint(2.1833,41.3833),ctx.makePoint(-73.9400,40.67),0,ctx);
-//    System.out.println("Angle " + line.getLinePrimary().getAngleDEG());
-//    System.out.println("Highest Point: " + line.getLinePrimary().highestPoint(ctx));
+    int i = 0;
+//    for (i = 0; i < 10; i ++) {
 
-    String s = logShapes(line, line.getBoundingBox());
-    Writer writer = null;
+    GeoBufferedLine line;// = newRandomLine();
 
-    try {
-      writer = new BufferedWriter(new OutputStreamWriter(
-              new FileOutputStream("text.kml"), "utf-8"));
-      writer.write(s);
-    } catch (IOException ex) {
-      // report
-    } finally {
-      try {writer.close();} catch (Exception ex) {}
+    for (double[] c : coordinates) {
+      line = new GeoBufferedLine(ctx.makePoint(c[0], c[1]), ctx.makePoint(c[2], c[3]), 0, ctx);
+      i++;
+      String s = logShapes(line, line.getBoundingBox(), i);
+      Writer writer = null;
+
+      try {
+        writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream("test_visual/test_hand_visual_" + i + ".kml"), "utf-8"));
+        writer.write(s);
+      } catch (IOException ex) {
+        // report
+      } finally {
+        try {
+          writer.close();
+        } catch (Exception ex) {
+        }
+      }
     }
+  }
 
+  @Test
+  public void testVisualShapeRandom() throws Exception {
+    for (int i = 0; i < 10; i++) {
+
+      GeoBufferedLine line = newRandomLine();
+      String s = logShapes(line, line.getBoundingBox(), i);
+      Writer writer = null;
+
+      try {
+        writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream("test_visual/test_visual_" + i + ".kml"), "utf-8"));
+        writer.write(s);
+      } catch (IOException ex) {
+        // report
+      } finally {
+        try {
+          writer.close();
+        } catch (Exception ex) {
+        }
+      }
+    }
   }
 
 
@@ -218,8 +284,8 @@ public class GeoBufferedLineTest extends RandomizedTest {
     double random90A = randomDouble() * 90;
     double random180B = randomDouble() * 180;
 
-    double rand90 =  randomDouble() * 90;
-    double rand180 =  randomDouble() * 180;
+    double rand90 =  randomDouble() * 60;
+    double rand180 =  randomDouble() * 150;
 
     random90A = randomA ? rand90 : -1*rand90;
     random180B = randomA ? rand180 : -1*rand180;
@@ -230,8 +296,8 @@ public class GeoBufferedLineTest extends RandomizedTest {
     randomA = randomBoolean();
     randomB = randomBoolean();
 
-    rand90 =  randomDouble() * 90;
-    rand180 =  randomDouble() * 180;
+    rand90 =  randomDouble() * 60;
+    rand180 =  randomDouble() * 150;
 
 
     double random90AB = randomA ? rand90 : -1*rand90;
@@ -240,8 +306,8 @@ public class GeoBufferedLineTest extends RandomizedTest {
 
     Point pB = ctx.makePoint(random180BB,random90AB);
 
-    int buf = randomInt(5);
-    return new GeoBufferedLine(pA, pB, buf, ctx);
+    int buf = randomInt(20);
+    return new GeoBufferedLine(pA, pB, 0, ctx);
   }
   /*
   @Test

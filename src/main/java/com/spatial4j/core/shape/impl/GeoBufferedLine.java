@@ -143,41 +143,50 @@ public class GeoBufferedLine implements Shape {
     // Ie, calc delta x, add to one point, subtract x from the same point, see which one,
     // gives us the same
 
-    boolean posXDirection = ((maxX - minX) == 0 ) ? true : false;
+
+    boolean posXDirection = ((maxX - minX) > 180) ? true : false;
     //boolean posYDirection = ((maxY - minY) == 0 ) ? true : false;
 
-    double deltaX = (maxX - minX);
-    double deltaY = (maxY - minY);
+    double xMax360,xMin360,xHighest360, xLowest360;
 
-    double slope = deltaY / deltaX;
+    xMax360 = makeAxis360(maxX);
+    xMin360 = makeAxis360(minX);
+    xHighest360 = makeAxis360(highestPoint.getX());
+    xLowest360 = makeAxis360(lowestPoint.getX());
 
-    double angle = Math.atan2(deltaX,deltaY);
-
-    // Positive
-    double dist_x = buffer * Math.cos(angle);
-    double dist_y = buffer * Math.sin(angle);
-
-//    // Moving from minx to maxx (Positive long)
-//    if(posXDirection) {
-//      if((maxY >= 0) && (minX < highestPoint.getX()) && (highestPoint.getX() < maxX)) {
-//        maxY = highestPoint.getY();
-//      }
-//
-//      if(((maxY <= 0) && (minX < lowestPoint.getX()) && (lowestPoint.getX() < maxX))) {
-//        minY = lowestPoint.getY();
-//      }
-//    } else {
+    // Moving from minx to maxx (Positive long)
+    if(posXDirection) {
+      if((maxY > 0) && (xMin360 >= xHighest360) && (xHighest360 >= xMax360)) {
+        maxY = highestPoint.getY();
+      }
+      if(((minY < 0) && (xMin360 >= xLowest360) && (xLowest360) >= xMax360)) {
+        minY = lowestPoint.getY();
+      }
+    } else {
       if((maxY > 0) && (minX <= highestPoint.getX()) && (highestPoint.getX() <= maxX)) {
         maxY = highestPoint.getY();
       }
-
-      if(((maxY < 0) && (minX <= lowestPoint.getX()) && (lowestPoint.getX() <= maxX))) {
+      if(((minY < 0) && (minX <= lowestPoint.getX()) && (lowestPoint.getX() <= maxX))) {
         minY = lowestPoint.getY();
       }
-    //}
+    }
+
+    if(posXDirection) {
+      return ctx.makeRectangle(minX + buffer,maxX - buffer,minY - buffer,maxY + buffer);
+    } else {
     return ctx.makeRectangle(minX - buffer,maxX + buffer,minY - buffer,maxY + buffer);
+    }
   }
 
+
+  private double makeAxis360(double x) {
+    if(x < 0) {
+      return 360 + x;
+    } else {
+      return x;
+    }
+
+  }
 
   @Override
   public boolean hasArea() {

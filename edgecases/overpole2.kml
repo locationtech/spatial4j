@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
 <Document>
-<name>KmlFile</name> 
+<name>KmlFile 8</name> 
 <Style id="transPurpleLineGreenPoly">
 <LineStyle> 
 <color>7fff00ff</color>
-<width>1</width>
+<width>10.0</width>
 </LineStyle>
 </Style> 
 <Style id="transBluePoly"> 
@@ -25,7 +25,7 @@
 <outerBoundaryIs> 
 <LinearRing> 
 <coordinates> 
-82.66595262853562,76.26311280517807,0 118.66142074909067,76.26311280517807,0 118.66142074909067,58.77894257363508,0 82.66595262853562,58.77894257363508,0 82.66595262853562,76.26311280517807,0 
+-34.1896496909006,89.37494941327519,0 145.29499975518303,89.37494941327519,0 145.29499975518303,-4.55377853792414,0 -34.1896496909006,-4.55377853792414,0 -34.1896496909006,89.37494941327519,0 
         </coordinates> 
 </LinearRing> 
 </outerBoundaryIs> 
@@ -38,8 +38,8 @@
 <LineString> 
 <tessellate>1</tessellate> 
 <coordinates> 
-83.66595262853562,75.26311280517807,0
-117.66142074909067,59.77894257363508,0
+-34.1896496909006,-4.55377853792414,0
+145.29499975518303,42.11651349705701,0
        </coordinates> 
 </LineString> 
 </Placemark> 

@@ -183,7 +183,7 @@ public class GreatCircleTest extends RandomizedTest {
     for (int i = -180; i <= 180; i ++) {
       GreatCircle circle = makeCircle(i,0,i,90);
       double intersection = circle.getLonAtEquator();
-      assertEquals(Math.abs(i),intersection,EPS);
+      assertEquals(Math.abs(i),Math.abs(intersection),EPS);
     }
 
   }
