@@ -83,6 +83,14 @@ public class Vector2DUtils {
     }
 
     /**
+     * Compute the cross product between two 2D vectors (apparently this is mathematically valid??)
+     * returns a scalar in 2D
+     */
+    public static double crossProduct( Vector2D a, Vector2D b ) {
+        return a.getX()*b.getY() - a.getY()*b.getX();
+    }
+
+    /**
      * Compute the dot product between two vectors
      */
     public static double dotProduct( Vector2D a, Vector2D b ) {
@@ -115,5 +123,16 @@ public class Vector2DUtils {
      */
     public static double norm( Vector2D a ) {
         return Math.sqrt(norm2(a));
+    }
+
+    /**
+     * Vector Comparison: B greater than A
+     */
+    public static boolean greaterThan( Vector2D a, Vector2D b ) {
+        if ( a.getX() < b.getX() ) return true;
+        if ( b.getX() < a.getX() ) return false;
+        if ( a.getY() < b.getY() ) return true;
+        return false;
+
     }
 }
