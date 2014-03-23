@@ -149,6 +149,62 @@ public class IntersectUtils {
         if (sign > 0) return 1;
         if (sign < 0) return -1;
 
+        // Check for the case in which the three points are nearly coplanar (numerical robustness issue) or
+        // are actually planar. In this case, we use planar CCW
+
+
+        int ccw = PlanarOrderedCCW(Vector2_d(a.y(), a.z()), Vector2_d(b.y(), b.z()),
+                Vector2_d(c.y(), c.z()));
+        if (ccw == 0) {
+            ccw = PlanarOrderedCCW(Vector2_d(a.z(), a.x()), Vector2_d(b.z(), b.x()),
+                    Vector2_d(c.z(), c.x()));
+            if (ccw == 0) {
+                ccw = PlanarOrderedCCW(Vector2_d(a.x(), a.y()), Vector2_d(b.x(), b.y()),
+                        Vector2_d(c.x(), c.y()));
+                // There are a few cases where "ccw" may still be zero despite our best
+                // efforts.  For example, two input points may be exactly proportional
+                // to each other (where both still satisfy IsNormalized()).
+            }
+        }
+
+        /**
+         * Compute Planar CCW (coplanar points edge case) which requires 2D points
+         */
+
+
+        static inline int PlanarCCW(Vector2_d const& a, Vector2_d const& b) {
+            // Return +1 if the edge AB is CCW around the origin, etc.
+            double sab = (a.DotProd(b) > 0) ? -1 : 1;
+            Vector2_d vab = a + sab * b;
+            double da = a.Norm2();
+            double db = b.Norm2();
+            double sign;
+            if (da < db || (da == db && a < b)) {
+                sign = a.CrossProd(vab) * sab;
+            } else {
+                sign = vab.CrossProd(b);
+            }
+            if (sign > 0) return 1;
+            if (sign < 0) return -1;
+            return 0;
+        }
+
+    /**
+     * Compute Planar Ordered CCW which requires 2D points
+     */
+
+        static inline int PlanarOrderedCCW(Vector2_d const& a, Vector2_d const& b,
+                Vector2_d const& c) {
+            int sum = 0;
+            sum += PlanarCCW(a, b);
+            sum += PlanarCCW(b, c);
+            sum += PlanarCCW(c, a);
+            if (sum > 0) return 1;
+            if (sum < 0) return -1;
+            return 0;
+        }
+
+
         return 0; // else case? still needs to handle coplanar edge case with planar ccw
 
     }
