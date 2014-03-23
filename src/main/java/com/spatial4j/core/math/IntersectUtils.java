@@ -132,14 +132,14 @@ public class IntersectUtils {
         // we break ties deterministically to ensure that the symmetry properties are true.
 
         double sign;
-        if (dca < dbc || (dca == dbc && VectorUtils.mag(a) < VectorUtils.mag(b))) { // using mags because I am not sure if you can do direct comparison
-            if (dca < dbc || (dab == dbc && VectorUtils.mag(a) < VectorUtils.mag(c))) {
+        if (dca < dbc || (dca == dbc && VectorUtils.greaterThan(a, b))) { // using mags because I am not sure if you can do direct comparison
+            if (dca < dbc || (dab == dbc && VectorUtils.greaterThan(a, c))) {
                 sign = VectorUtils.dotProduct(VectorUtils.crossProduct(vab, vca), a) * sab; // BC is the longest edge
             } else {
                 sign = VectorUtils.dotProduct(VectorUtils.crossProduct(vca, vbc), c) * sca;
             }
         } else {
-            if ( dab < dca || (dab == dca && VectorUtils.mag(b) < VectorUtils.mag(c))) {
+            if ( dab < dca || (dab == dca && VectorUtils.greaterThan(b, c))) {
                 sign = VectorUtils.dotProduct(VectorUtils.crossProduct(vbc, vab), b) * sbc;
             } else {
                 sign = VectorUtils.dotProduct(VectorUtils.crossProduct(vca, vbc), c) * sca;
