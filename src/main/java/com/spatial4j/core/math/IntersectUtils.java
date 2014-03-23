@@ -45,7 +45,11 @@ public class IntersectUtils {
      *
      */
     public static boolean edgeOrVertexIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
-        throw new UnsupportedOperationException("Edge or vertex crossing not yet implemented!");
+
+        int crossing = robustIntersection(a, b, c, d);
+        if (crossing < 0) return false;
+        if (crossing > 0) return true;
+        return vertexIntersection(a, b, c, d);
     }
 
     /**
@@ -91,7 +95,7 @@ public class IntersectUtils {
     /**
      *
      */
-    public static boolean robustIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
+    public static int robustIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
         throw new UnsupportedOperationException("Robust crossing not yet implemented!");
     }
 
