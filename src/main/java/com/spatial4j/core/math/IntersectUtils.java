@@ -35,52 +35,36 @@ import com.spatial4j.core.shape.Vector3D;
 public class IntersectUtils {
 
     /**
-     *
+     * The actual get intersection method - after all of this checking!!
      */
     public static Vector3D getIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
+        Vector3D a_norm = Vector3DUtils.normalize(robustCrossProd(a, b));
+        Vector3D b_norm = Vector3DUtils.normalize(robustCrossProd(c, d));
+        Vector3D x = Vector3DUtils.normalize(robustCrossProd(a_norm, b_norm));
 
-        // We use RobustCrossProd() to get accurate results even when two endpoints
-        // are close together, or when the two line segments are nearly parallel.
+        // Check the intersection point is on the right side of the sphere. Since all
+        // vertices are of unit length, edges are less than 180 degrees, needs to do this
+        if ( Vector3DUtils.dotProduct(x, (Vector3DUtils.sum(Vector3DUtils.sum(a, b), Vector3DUtils.sum(c, d)))) < 0 ) {
+            x = Vector3DUtils.multiply(x, -1);
+        }
 
-        S2Point a_norm = S2::RobustCrossProd(a0, a1).Normalize();
-        S2Point b_norm = S2::RobustCrossProd(b0, b1).Normalize();
-        S2Point x = S2::RobustCrossProd(a_norm, b_norm).Normalize();
+        // Calculation above is enough to ensure that x is within some intersection tolerance
+        // of the great cirlces through a,b, and c,d. However, if these circles are close to parallel
+        // then it is possible that x does not lie between the endpoitn so fthe given line segments
+        if ( CCW.orderedCCW(a, x, b, a_norm ) && CCW.orderedCCW(c, x, d, b_norm)) return x;
 
-        // Make sure the intersection point is on the correct side of the sphere.
-        // Since all vertices are unit length, and edges are less than 180 degrees,
-        // (a0 + a1) and (b0 + b1) both have positive dot product with the
-        // intersection point.  We use the sum of all vertices to make sure that the
-        // result is unchanged when the edges are reversed or exchanged.
-
-        if (x.DotProd((a0 + a1) + (b0 + b1)) < 0) x = -x;
-
-        // The calculation above is sufficient to ensure that "x" is within
-        // kIntersectionTolerance of the great circles through (a0,a1) and (b0,b1).
-        // However, if these two great circles are very close to parallel, it is
-        // possible that "x" does not lie between the endpoints of the given line
-        // segments.  In other words, "x" might be on the great circle through
-        // (a0,a1) but outside the range covered by (a0,a1).  In this case we do
-        // additional clipping to ensure that it does.
-
-        if (S2::OrderedCCW(a0, x, a1, a_norm) && S2::OrderedCCW(b0, x, b1, b_norm))
-        return x;
-
-        // Find the acceptable endpoint closest to x and return it.  An endpoint is
+        // Find the acceptable endpoint closest to x and return it. An endpoint is
         // acceptable if it lies between the endpoints of the other line segment.
-        double dmin2 = 10;
-        S2Point vmin = x;
-        if (S2::OrderedCCW(b0, a0, b1, b_norm)) ReplaceIfCloser(x, a0, &dmin2, &vmin);
-        if (S2::OrderedCCW(b0, a1, b1, b_norm)) ReplaceIfCloser(x, a1, &dmin2, &vmin);
-        if (S2::OrderedCCW(a0, b0, a1, a_norm)) ReplaceIfCloser(x, b0, &dmin2, &vmin);
-        if (S2::OrderedCCW(a0, b1, a1, a_norm)) ReplaceIfCloser(x, b1, &dmin2, &vmin);
+        double dmin = 10;
+        Vector3D vmin = x;
 
-        DCHECK(S2::OrderedCCW(a0, vmin, a1, a_norm));
-        DCHECK(S2::OrderedCCW(b0, vmin, b1, b_norm));
+        if ( CCW.orderedCCW(c, a, d, b_norm)) replaceIfCloser(x, a, dmin, vmin);
+        if ( CCW.orderedCCW(c, b, d, b_norm)) replaceIfCloser(x, b, dmin, vmin);
+        if ( CCW.orderedCCW(a, c, b, a_norm)) replaceIfCloser(x, c, dmin, vmin);
+        if ( CCW.orderedCCW(a, c, b, a_norm)) replaceIfCloser(x, c, dmin, vmin);
+
         return vmin;
-
-
-
     }
 
     /**
@@ -143,7 +127,7 @@ public class IntersectUtils {
 
     /// Helper Methods ///
 
-    private int robustCrossing( Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
+    private static int robustCrossing( Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
         Vector3D cd = Vector3DUtils.crossProduct(c, d);
         int cbd = -1*CCW.expensiveCCW(c, d, b, cd); // sign... the long running problem with robust CCW???
@@ -156,7 +140,7 @@ public class IntersectUtils {
 
     // replace if closer... no idea??
     // so C++ is passing by reference, i think this will work in java too. Will need to see.
-    private void replaceIfCloser( Vector3D a, Vector3D b, double dmin, Vector3D vmin ) {
+    private static void replaceIfCloser( Vector3D a, Vector3D b, double dmin, Vector3D vmin ) {
 
         double d2 = Vector3DUtils.norm2(Vector3DUtils.difference(a, b));
         if ( d2 < dmin || (d2 == dmin && Vector3DUtils.greaterThan(b, vmin))) {
@@ -172,7 +156,7 @@ public class IntersectUtils {
      * twice the cross product of a and b but has the numerical advantage that (b+a) and
      * (b-a) are always orthogonal.
      */
-    private Vector3D robustCrossProd( Vector3D a, Vector3D b ) {
+    private static Vector3D robustCrossProd( Vector3D a, Vector3D b ) {
         Vector3D x = Vector3DUtils.crossProduct(
                 Vector3DUtils.sum(a, b),
                 Vector3DUtils.difference(b, a));
