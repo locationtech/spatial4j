@@ -73,7 +73,17 @@ public class IntersectUtils {
      */
     public static boolean simpleIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
+        Vector3D ab = Vector3DUtils.crossProduct(a, b);
+        double acb = -1*Vector3DUtils.dotProduct(ab, c);
+        double bda = Vector3DUtils.dotProduct(ab, d);
 
+        if (acb * bda <= 0) return false;
+
+        Vector3D cd = Vector3DUtils.crossProduct(c, d);
+        double cbd = -1 * Vector3DUtils.dotProduct(cd, b);
+        double dac = Vector3DUtils.dotProduct(cd, a);
+
+        return (acb * cbd > 0) && (acb * dac > 0);
 
     }
 
