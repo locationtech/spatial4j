@@ -90,4 +90,66 @@ public class IntersectUtils {
     public boolean simpleCCW( Vector3D a, Vector3D b, Vector3D c ) {
         return VectorUtils.dotProduct( VectorUtils.crossProduct(c, a), b ) > 0;
     }
+
+    /*
+     * Determine the orientation of a set of three unit vectors in space (clockwise, counter, NA).
+     * Returns the following results for orientation:
+     *      - 1: if points A, B and C are counterclockwise
+     *      - -1: If points A, B, and C are clockwise
+     *      - 0: If any two or more points are equal
+     *
+     * The method is virtually the same as taking the determinant of ABC, but includes additional logic
+     * for ensuring the above hold even when the three points are coplanar and to deal with limitations
+     * of floating point arithmetic (in both java and C++).
+     *
+     * PostConditions:
+     *      (1) Result == 0 iff two points are the same
+     *      (2) ccw(a, b, c) == ccw(b, c, a) for all a, b, c
+     *      (3) ccw(a, b, c) == -ccw(c, b, a) for all a , b, c
+     *
+     * Method - implements ExpensiveCCW from s2Geometry Library
+     */
+    public int ccw( Vector3D a, Vector3D b, Vector3D c ) {
+
+        // Check Equality
+        if ( a.equals(b) || b.equals(c) || c.equals(a) ) return 0;
+
+        // Handle the Edge case of nearby and nearly antipodal points.
+        double sab = (VectorUtils.dotProduct(a, b) > 0) ? -1 : 1;
+        double sbc = (VectorUtils.dotProduct(b, c) > 0) ? -1 : 1;
+        double sca = (VectorUtils.dotProduct(c, a) > 0) ? -1 : 1;
+
+        Vector3D vab = VectorUtils.sum(a, VectorUtils.multiply(b, sab));
+        Vector3D vbc = VectorUtils.sum(b, VectorUtils.multiply(c, sbc));
+        Vector3D vca = VectorUtils.sum(c, VectorUtils.multiply(a, sca));
+
+        double dab = VectorUtils.norm2(vab);
+        double dbc = VectorUtils.norm2(vbc);
+        double dca = VectorUtils.norm2(vca);
+
+        // Sort the difference vectors to find the longest edge, and use the
+        // opposite vertex as the origin. If two difference vectors are the same length,
+        // we break ties deterministically to ensure that the symmetry properties are true.
+
+        double sign;
+        if (dca < dbc || (dca == dbc && VectorUtils.mag(a) < VectorUtils.mag(b))) { // using mags because I am not sure if you can do direct comparison
+            if (dca < dbc || (dab == dbc && VectorUtils.mag(a) < VectorUtils.mag(c))) {
+                sign = VectorUtils.dotProduct(VectorUtils.crossProduct(vab, vca), a) * sab; // BC is the longest edge
+            } else {
+                sign = VectorUtils.dotProduct(VectorUtils.crossProduct(vca, vbc), c) * sca;
+            }
+        } else {
+            if ( dab < dca || (dab == dca && VectorUtils.mag(b) < VectorUtils.mag(c))) {
+                sign = VectorUtils.dotProduct(VectorUtils.crossProduct(vbc, vab), b) * sbc;
+            } else {
+                sign = VectorUtils.dotProduct(VectorUtils.crossProduct(vca, vbc), c) * sca;
+            }
+        }
+
+        if (sign > 0) return 1;
+        if (sign < 0) return -1;
+
+        return 0; // else case? still needs to handle coplanar edge case with planar ccw
+
+    }
 }
