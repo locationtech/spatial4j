@@ -52,14 +52,29 @@ public class IntersectUtils {
      *
      */
     public static boolean vertexIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
-        throw new UnsupportedOperationException("Vertex crossing not yet implemented!");
+
+        // If A == B or C == D there is no intersection. Optimization point.
+        if ( a == b || c == d ) return false;
+
+        // if any other pair of vertices is equal, there is a crossing iff orderedCCW indicates
+        // that edge AB is further CCW around the shared vertex (either A or B) than edge CD, starting
+        // from an arbitrary fixed reference point.
+        if ( a == d ) return CCW.orderedCCW(Vector3DUtils.ortho(a), c, b, a);
+        if ( b == c ) return CCW.orderedCCW(Vector3DUtils.ortho(b), d, a, b);
+        if ( a == c ) return CCW.orderedCCW(Vector3DUtils.ortho(a), d, b, a);
+        if ( b == d ) return CCW.orderedCCW(Vector3DUtils.ortho(b), c, a, b);
+
+        // vertex crossing called with four distinct vertices (here they log fatal?)
+        return false;
     }
 
     /**
      *
      */
     public static boolean simpleIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
-        throw new UnsupportedOperationException("Simple crossing not yet implemented!");
+
+
+
     }
 
 
@@ -72,6 +87,15 @@ public class IntersectUtils {
 
     /// Helper Methods ///
 
+    private int robustCrossing( Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
+        Vector3D cd = Vector3DUtils.crossProduct(c, d);
+        int cbd = -1*CCW.expensiveCCW(c, d, b, cd); // sign... the long running problem with robust CCW???
+        int acb = CCW.expensiveCCW(a, c, b);
+        if ( cbd != acb ) return -1;
+
+        int dac = CCW.expensiveCCW(c, d, a, cd); // sign... the long running problem with robust CCW???
+        return (dac == acb) ? 1 : -1;
+    }
 
 }
