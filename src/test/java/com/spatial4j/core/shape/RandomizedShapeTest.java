@@ -11,7 +11,6 @@ package com.spatial4j.core.shape;
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.impl.Range;
 
 import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
 import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
@@ -195,20 +194,23 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     if (nearP == null)
       nearP = randomPointIn(bounds);
 
-    Range xRange = randomRange(rarely() ? 0 : nearP.getX(), Range.xRange(bounds, ctx));
-    Range yRange = randomRange(rarely() ? 0 : nearP.getY(), Range.yRange(bounds, ctx));
+    double[] worldXRange = {bounds.getMinX(), bounds.getMaxX()};
+    double[] worldYRange = {bounds.getMinY(), bounds.getMaxY()};
+    double[] xRange = randomRange(rarely() ? 0 : nearP.getX(), worldXRange);
+    double[] yRange = randomRange(rarely() ? 0 : nearP.getY(), worldYRange);
 
     return makeNormRect(
-        divisible(xRange.getMin()),
-        divisible(xRange.getMax()),
-        divisible(yRange.getMin()),
-        divisible(yRange.getMax()) );
+        divisible(xRange[0]),
+        divisible(xRange[1]),
+        divisible(yRange[0]),
+        divisible(yRange[1]) );
   }
 
-  private Range randomRange(double near, Range bounds) {
-    double mid = near + randomGaussian() * bounds.getWidth() / 6;
-    double width = Math.abs(randomGaussian()) * bounds.getWidth() / 6;//1/3rd
-    return new Range(mid - width / 2, mid + width / 2);
+  private double[] randomRange(double near, double[] bounds) {
+    final double boundsWidth = bounds[1] - bounds[0];
+    double mid = near + randomGaussian() * boundsWidth / 6;
+    double width = Math.abs(randomGaussian()) * boundsWidth / 6;//1/3rd
+    return new double[]{mid - width / 2, mid + width / 2};
   }
 
   private double randomGaussianZeroTo(double max) {

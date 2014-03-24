@@ -11,7 +11,6 @@ package com.spatial4j.core.shape;
 import com.spatial4j.core.TestLog;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.shape.impl.Range;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,6 +23,12 @@ import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
 
 public class ShapeCollectionTest extends RandomizedShapeTest {
 
+  public static final String WORLD180 = getLonRangeString(SpatialContext.GEO.getWorldBounds());
+
+  protected static String getLonRangeString(Rectangle bbox) {
+    return bbox.getMinX()+" "+bbox.getMaxX();
+  }
+
   @Rule
   public final TestLog testLog = TestLog.instance;
 
@@ -34,17 +39,29 @@ public class ShapeCollectionTest extends RandomizedShapeTest {
     validateWorld(-90, +90, +90, -90);
   }
 
+  @Test
+  public void testBboxNotWorldWrap() {
+    ctx = SpatialContext.GEO;
+    //doesn't contain 102, thus shouldn't world-wrap
+    Rectangle r1 = ctx.makeRectangle(-92, 90, -10, 10);
+    Rectangle r2 = ctx.makeRectangle(130, 172, -10, 10);
+    Rectangle r3 = ctx.makeRectangle(172, -60, -10, 10);
+    ShapeCollection<Rectangle> s = new ShapeCollection<Rectangle>(Arrays.asList(r1,r2,r3), ctx);
+    assertEquals(WORLD180, getLonRangeString(s.getBoundingBox()));
+  }
+
+
   private void validateWorld(double r1MinX, double r1MaxX, double r2MinX, double r2MaxX) {
     ctx = SpatialContext.GEO;
     Rectangle r1 = ctx.makeRectangle(r1MinX, r1MaxX, -10, 10);
     Rectangle r2 = ctx.makeRectangle(r2MinX, r2MaxX, -10, 10);
 
     ShapeCollection<Rectangle> s = new ShapeCollection<Rectangle>(Arrays.asList(r1,r2), ctx);
-    assertEquals(Range.LongitudeRange.WORLD_180E180W, new Range.LongitudeRange(s.getBoundingBox()));
+    assertEquals(WORLD180, getLonRangeString(s.getBoundingBox()));
 
     //flip r1, r2 order
     s = new ShapeCollection<Rectangle>(Arrays.asList(r2,r1), ctx);
-    assertEquals(Range.LongitudeRange.WORLD_180E180W, new Range.LongitudeRange(s.getBoundingBox()));
+    assertEquals(WORLD180, getLonRangeString(s.getBoundingBox()));
   }
 
   @Test
@@ -85,6 +102,18 @@ public class ShapeCollectionTest extends RandomizedShapeTest {
       } else {
         for (Rectangle shape : shapes) {
           assertRelation("bbox contains shape", CONTAINS, msBbox, shape);
+        }
+        if (ctx.isGeo() && msBbox.getMinX() == -180 && msBbox.getMaxX() == 180) {
+          int lonTest = randomIntBetween(-180, 180);
+          boolean valid = false;
+          for (Rectangle shape : shapes) {
+            if (shape.relateXRange(lonTest, lonTest).intersects()) {
+              valid = true;
+              break;
+            }
+          }
+          if (!valid)
+            fail("ShapeCollection bbox world-wrap doesn't contain "+lonTest+" for shapes: "+shapes);
         }
       }
       return shapeCollection;
