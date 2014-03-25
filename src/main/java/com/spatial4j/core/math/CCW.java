@@ -23,6 +23,9 @@ import com.spatial4j.core.shape.Vector3D;
 /**
  * Utility methods for computing point orientations in direction cos based methods
  * (needs a better comment here)
+ *
+ * referneced from s2 java library
+ * https://code.google.com/p/s2-geometry-library-java/source/browse/src/com/google/common/geometry/S2.java
  */
 public class CCW {
 
@@ -30,6 +33,28 @@ public class CCW {
      * Private Constructor - static methods
      */
     private CCW() {}
+
+    /**
+     * Top Level Robust CCW method
+     */
+    public static int robustCCW( Vector3D a, Vector3D b, Vector3D c ) {
+        return robustCCW(a, b, c, Vector3DUtils.crossProduct(a, b));
+    }
+
+    /**
+     * Returns the Robust CCW - does a lot of strange arithmetic but everyone uses it so ok :D
+     */
+    public static int robustCCW(Vector3D a, Vector3D b, Vector3D c, Vector3D aCrossB) {
+
+        final double kMinAbsValue = 1.6e-15; // 2 * 14 * 2**-54
+        double det = Vector3DUtils.dotProduct(aCrossB, c);
+
+        if ( det > kMinAbsValue ) return 1;
+        if ( det < -kMinAbsValue ) return -1;
+
+        return expensiveCCW(a, b, c);
+    }
+
 
     /**
      * Returns true if the points are listed in a counter-clockwise fashion with respect to

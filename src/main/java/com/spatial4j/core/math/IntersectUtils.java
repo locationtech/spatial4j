@@ -130,11 +130,11 @@ public class IntersectUtils {
     private static int robustCrossing( Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
         Vector3D cd = Vector3DUtils.crossProduct(c, d);
-        int cbd = -1*CCW.expensiveCCW(c, d, b, cd); // sign... the long running problem with robust CCW???
+        int cbd = -1*CCW.robustCCW(c, d, b, cd); // sign... the long running problem with robust CCW???
         int acb = CCW.expensiveCCW(a, c, b);
         if ( cbd != acb ) return -1;
 
-        int dac = CCW.expensiveCCW(c, d, a, cd); // sign... the long running problem with robust CCW???
+        int dac = CCW.robustCCW(c, d, a, cd); // sign... the long running problem with robust CCW???
         return (dac == acb) ? 1 : -1;
     }
 
