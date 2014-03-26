@@ -21,28 +21,43 @@ import com.spatial4j.core.shape.Vector2D;
 import com.spatial4j.core.shape.Vector3D;
 
 /**
- * Utility methods for computing point orientations in direction cos based methods
- * (needs a better comment here)
+ * When using direction vectors to represent the bounds of some shape, it is important to ensure that all of the direction
+ * vectors (represented by Vector3Ds) hold a consistent orientation - either pointing clockwise or counter clockwise (CCW). We use
+ * the counter-clockwise orientation as it is a precendent set by both the Raytheon and S2 spherical geometry projects.
  *
- * referneced from s2 java library
- * https://code.google.com/p/s2-geometry-library-java/source/browse/src/com/google/common/geometry/S2.java
+ * Several methods for computing CCW are included in this class. These include computing the CCCW of coplanar points,
+ * ordered coplanar points, an ordered set of points. There are also both 'expensive' and 'robust' methods for computing
+ * CCWs which deal with numerical robustness and precision issues that arise in computation.
+ *
+ * The CCW methods in this class were adapted for use with Spatial4j shapes from the following projects:
+ *      S2-Java: https://code.google.com/p/s2-geometry-library-java/source/
+ *      S2-C++: https://code.google.com/p/s2-geometry-library/s
+ *
+ * Last Updated: 3/25/14
  */
 public class CCW {
 
-    /**
-     * Private Constructor - static methods
-     */
+    // Construct CCW
     private CCW() {}
 
     /**
-     * Top Level Robust CCW method
+     *  Robust Method for determining if a set of three consecutive direction vectors
+     *  are of counterclockwise orientation> Returns +1 for CCW and -1 for CW. Satisfies
+     *  the following invariants:
+     *
+     *      (1) robustCCW(a, b, c) == 0 iff a==b || b == c || c == a
+     *      (2) robustCCW(b, c, a) == robustCCW(a, b, c) for all a, b, c
+     *      (3) robustCCW(c, b, a) == -robustCCW(a, b, c) for all a, b, c
+     *
+     * **Numerically robust
      */
     public static int robustCCW( Vector3D a, Vector3D b, Vector3D c ) {
         return robustCCW(a, b, c, Vector3DUtils.crossProduct(a, b));
     }
 
     /**
-     * Returns the Robust CCW - does a lot of strange arithmetic but everyone uses it so ok :D
+     * A slightly more efficient version of robustCCW that enables the cross product of
+     * a and b to be specified in advance.
      */
     public static int robustCCW(Vector3D a, Vector3D b, Vector3D c, Vector3D aCrossB) {
 
@@ -55,10 +70,18 @@ public class CCW {
         return expensiveCCW(a, b, c);
     }
 
-
     /**
-     * Returns true if the points are listed in a counter-clockwise fashion with respect to
-     * direction in the direction vector frame of reference (needs a better comment here!)
+     * Method for determining if a set of four points are listed in counter-clockwise orientation. Returns
+     * true if edges OA, OB, and oC are encountered in that order while sweeping CCW about the point 0.
+     * Equivalent to thinking if A <= B <= C with respect to a continuous CCW about 0.
+     *
+     * Assert the following invariants:
+     *      (1) orderedCCW(a, b, c, o) && orderedCCW(b, a, c, o) then a == b
+     *      (2) orderedCCW(a, b, c, o) && orderedCCW(a, c, b, o) then b == c
+     *      (3) orderedCCW(a, b, c, o) && orderedCCW(c, b, a, o) then a == b == c
+     *      (4) a == b or b == c then orderedCCW(a, b, c, o) == true
+     *      (5) a == c then orderedCCW(a, b, c, o) == false
+     *
      */
     public static boolean orderedCCW( Vector3D a, Vector3D b, Vector3D c, Vector3D o ) {
 
@@ -70,29 +93,33 @@ public class CCW {
     }
 
     /**
-     * Using a simple CCW - could not figure out a robust one
+     * Non-Robust implementation of determining if points are counter-clockwise.
+     * Return true if a, b, and c are strictly CCW. Return if points are clockwise
+     * or colinear (all contained in the great circle). Due to numerical errors, impercision
+     * might return the wrong error.
+     *
+     * Assert the following invaraint:
+     *  simpleCCW(a, b, c) then !simpleCCW(c, b, a) for all a, b, c
      */
     public static boolean simpleCCW( Vector3D a, Vector3D b, Vector3D c ) {
         return Vector3DUtils.dotProduct( Vector3DUtils.crossProduct(c, a), b ) > 0;
     }
 
-    /*
-     * Determine the orientation of a set of three unit vectors in space (clockwise, counter, NA).
-     * Returns the following results for orientation:
-     *      - 1: if points A, B and C are counterclockwise
-     *      - -1: If points A, B, and C are clockwise
-     *      - 0: If any two or more points are equal
+    /**
+     * Determine the orientation of a set of three direction vectors (CCW, non-CCW, inconsistent). Returns
+     * the following results:
+     *      - expensiveCCW(a, b, c) == 1 if CCW
+     *      - expensiveCCW(a, b, c) == -1 if CW
+     *      - expensiveCCW(a, b, c) == 0 if none of the above
      *
-     * The method is virtually the same as taking the determinant of ABC, but includes additional logic
-     * for ensuring the above hold even when the three points are coplanar and to deal with limitations
-     * of floating point arithmetic (in both java and C++).
+     * The method is the same as taking the determinant of ABC, but includes
+     * additional logic and precision arithmetic to ensure the above hold true.  We can also
+     * say teh invariants below hold.
      *
-     * PostConditions:
+     * Assert the following invariants:
      *      (1) Result == 0 iff two points are the same
      *      (2) ccw(a, b, c) == ccw(b, c, a) for all a, b, c
      *      (3) ccw(a, b, c) == -ccw(c, b, a) for all a , b, c
-     *
-     * Method - implements ExpensiveCCW from s2Geometry Library
      */
     public static int expensiveCCW( Vector3D a, Vector3D b, Vector3D c ) {
 
