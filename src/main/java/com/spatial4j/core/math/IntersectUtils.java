@@ -87,7 +87,7 @@ public class IntersectUtils {
      */
     public static boolean edgeOrVertexIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
-        int crossing = robustIntersection(a, b, c, d);
+        int crossing = robustCrossing(a, b, c, d);
         if (crossing < 0) return false;
         if (crossing > 0) return true;
         return vertexIntersection(a, b, c, d);
