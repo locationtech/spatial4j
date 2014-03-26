@@ -32,10 +32,9 @@ import org.junit.Test;
 import org.junit.Assert.*;
 
 /**
- * Test cases for determining consistent orientation of direction
- * vectors in a shape
+ * Test cases for determining intersection points
  */
-public class CCWTest extends RandomizedTest {
+public class IntersectionUtilsTest extends RandomizedTest {
 
     // Required for backwards conversion
     private SpatialContext ctx;
@@ -53,37 +52,30 @@ public class CCWTest extends RandomizedTest {
     public void tearDown() {}
 
     /**
-     * Test Planar Ordered CCW Method
+     * Test get intersection method
      */
-    void testPlanarOrderedCCW() {
+    void testGetIntersection() {
 
     }
 
     /**
-     * Test Planar CCW Method
+     * Test Edge or vertex crossing method
      */
-    void testPlanarCCW() {
+    void testEdgeOrVertexMethod() {
 
     }
 
     /**
-     * Test Ordered CCW Method
+     * Test vertex crossing method
      */
-    void testOrderedCCW() {
+    void testVertexCrossing() {
 
     }
 
     /**
-     * Test Expensive CCW Method
+     * Test simple intersection method
      */
-    void testExpensiveCCW() {
-
-    }
-
-    /**
-     * Test Robust CCW Method
-     */
-    void testRobustCCW() {
+    void testSimpleIntersection() {
 
     }
 
