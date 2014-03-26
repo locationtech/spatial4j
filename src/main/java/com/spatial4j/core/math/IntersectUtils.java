@@ -21,21 +21,36 @@ import com.spatial4j.core.shape.Vector2D;
 import com.spatial4j.core.shape.Vector3D;
 
 /**
- * Intersection utils provides a set of utilities for determining the intersection between
- * two line segments (geodesics) with direct applications in determining the relationships
- * between shapes and a geodesic polygon.
+ * Intersection utilities provides a set of methods for computing the intersections between
+ * two geodesics, where each geodesic is a geodesic line segment defined by two direction cosine
+ * vectors.
  *
- * The math for intersection utilities is based in direction vectors. Therefore,
- * geographic points should be converted to Vectors before using these methods.
+ * In particular, this class provides utilities for grabbing the intersection point itself,
+ * boolean methods for determining if an edge or vertex intersects, and computing both
+ * simple and robust intersections.
  *
- * resource: https://code.google.com/p/s2-geometry-library/source/browse/geometry/s2edgeutil.h
+ * The intersection methods in this class were adapted for use with Spatial4j shapes from the following projects:
+ *      S2-Java: https://code.google.com/p/s2-geometry-library-java/source/
+ *      S2-C++: https://code.google.com/p/s2-geometry-library/s
  *
- * Last Modified: 3/6/14
+ * Last Updated: 3/25/14
  */
 public class IntersectUtils {
 
+    // private constructor
+    private IntersectUtils() {}
+
     /**
-     * The actual get intersection method - after all of this checking!!
+     * Determines the intersection point between two geodesics - AB and CD. Will only
+     * return if robustCrossing returns true (internal). We can make the following statement.
+     *
+     * Assert the following:
+     *      (1) getIntersection(b, a, c, d) == getIntersection(a, b, d, c)
+     *      (2) getIntersection(c, d, a, b) == getIntersection(a, b, c, d)
+     *
+     * **Numerical Robustness: The intersection point x is guaranteed to be close
+     * to AB and CD. However, if edges intersect at very small angles, then X might not be
+     * as close to the intersection point. Can set a tolerance for this.
      */
     public static Vector3D getIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
@@ -68,7 +83,7 @@ public class IntersectUtils {
     }
 
     /**
-     *
+     * Convenience method that optimizes for cases where all four vertices are distinct.
      */
     public static boolean edgeOrVertexIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
@@ -79,7 +94,7 @@ public class IntersectUtils {
     }
 
     /**
-     *
+     * Convenience method that optimizes for cases where oen or more vertices is equivalent.
      */
     public static boolean vertexIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
@@ -99,7 +114,12 @@ public class IntersectUtils {
     }
 
     /**
+     * Determines if there is an intersection between AB and CD. Returns true at a point that
+     * is interior to both geodescics.
      *
+     * Properties:
+     *      (1) simpleCrossing(b, a, c, d) == simpleCrossing(a, b, c, d)
+     *      (2) simpleCrossing(c, d, a, b) == simpleCrossing(a, b, c, d)
      */
     public static boolean simpleIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
@@ -117,16 +137,19 @@ public class IntersectUtils {
 
     }
 
-
     /**
+     * Determine if the edges AB and CD intersect. Doe sthis by arbitrarily classifying points
+     * as being on one side or the other (such that robustCCW can be applied). Returns +1 if there
+     * is a crossing, -1 f no crossing, and 0 if any two vertices are the same. Returns 0 or -1 if
+     * either edge is degenerate.
+     *
+     * Assert the following:
+     *      (1) robustCrossing(b, a, c, d) == robustCrossing(a, b, c, d)
+     *      (2) robustCrossing(c, d, a, b) == robustCrossing(a, b, c, d)
+     *      (3) robustCrossing(a, b, c, d) == 0 if a == c a == d b == c and b ==c
+     *      (4) robustCrossing(a, b, c, d) <= 0 if a == b or c == d
      *
      */
-    public static int robustIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
-        throw new UnsupportedOperationException("Robust crossing not yet implemented!");
-    }
-
-    /// Helper Methods ///
-
     private static int robustCrossing( Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
         Vector3D cd = Vector3DUtils.crossProduct(c, d);
@@ -138,8 +161,9 @@ public class IntersectUtils {
         return (dac == acb) ? 1 : -1;
     }
 
-    // replace if closer... no idea??
-    // so C++ is passing by reference, i think this will work in java too. Will need to see.
+    /**
+     * Helper method - replace point if I have found a better intersection point.
+     */
     private static void replaceIfCloser( Vector3D a, Vector3D b, double dmin, Vector3D vmin ) {
 
         double d2 = Vector3DUtils.norm2(Vector3DUtils.difference(a, b));
