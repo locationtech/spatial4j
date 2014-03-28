@@ -43,7 +43,7 @@ public class GeoBufferedLineTest extends RandomizedTest {
 
 
 
- public static String logShapes(final GeoBufferedLine line, final Rectangle rect, int num) {
+ public static String logShapes(final GeoBufferedLine line, final Rectangle rect, int num, Point[] points) {
     String lineWKT =
         "LINESTRING(" + line.getA().getX() + " " + line.getA().getY() + "," +
             line.getB().getX() + " " + line.getB().getY() + ")";
@@ -109,8 +109,18 @@ public class GeoBufferedLineTest extends RandomizedTest {
             + line.getA().getX() + "," + line.getA().getY() + ",0\n" + line.getB().getX() + "," + line.getB().getY() + ",0\n" +
     "       </coordinates> \n"+
     "</LineString> \n"+
-    "</Placemark> \n"+
-    "</Document> \n"+
+    "</Placemark> \n";
+
+    if(points != null) {
+      int i = 0;
+      for(Point p: points) {
+        kml += "<Placemark><Point> \n" +
+        "<coordinates>"+ p.getX()+","+p.getY() +"</coordinates>\n" +
+        "</Point></Placemark>";
+      }
+    }
+
+    kml += "</Document> \n"+
     "</kml>";
 
     return kml;
@@ -176,6 +186,7 @@ public class GeoBufferedLineTest extends RandomizedTest {
     return ctx.makePoint(x, y);
   }
 
+
   private void testLessToPoint(Point pA, Point pB, Point pC, double dist) {
     assertTrue(new GeoBufferedLine(pA, pB, dist * 1.001, ctx).contains(pC));
   }
@@ -209,7 +220,8 @@ public class GeoBufferedLineTest extends RandomizedTest {
   }
 
 
-  private double [][] coordinates = {{-99.50495175269295,-27.847143714750892,94.92744976763885,58.97453564417145},{-113.55873663082807,-37.38700137891473 ,108.9768420505157,56.82595028841023},
+  private double [][] coordinates = {{-99.50495175269295,-27.847143714750892,94.92744976763885,58.97453564417145},
+          {-113.55873663082807,-37.38700137891473 ,108.9768420505157,56.82595028841023},
           {-114.13045387706195,-57.759601585537034,
                   66.42246194712695,7.61423855201417},{135.673532878296,19.749231296312367,
           99.89993687971368,54.595746732751735},{-113.55873663082807,-37.38700137891473,
@@ -222,34 +234,51 @@ public class GeoBufferedLineTest extends RandomizedTest {
           -79.42487585076405,-55.09328902724629},{-114.56774869654645,-46.80318469884033,
           -15.145331712139603,-40.95521632556603},{-106.80494427030459,-51.35562641913801,
           80.5612819857112,29.766393899451643},{135.673532878296,19.749231296312367,
-          99.89993687971368,54.595746732751735},{2.1833,41.3833,-73.9400,40.67},{-128.27072030063476,-27.70757917535692,28.498386417001726,47.68996542540272},
-          {-132.7599266353268,-55.81481332371045,-92.47845748579186,-53.72410194167834}};
+          99.89993687971368,54.595746732751735},{2.1833,41.3833,-73.9400,40.67},
+          {-128.27072030063476,-27.70757917535692,28.498386417001726,47.68996542540272},
+          {-132.7599266353268,-55.81481332371045,-92.47845748579186,-53.72410194167834},{0,0,10,0}};
+
+
+  private void writeVisualTestFile(String fileName, String contents) {
+    Writer writer = null;
+    try {
+      writer = new BufferedWriter(new OutputStreamWriter(
+              new FileOutputStream("test_visual/test_visual_" + fileName + ".kml"), "utf-8"));
+      writer.write(contents);
+    } catch (IOException ex) {
+      // report
+    } finally {
+      try {
+        writer.close();
+      } catch (Exception ex) {
+      }
+  }
+  }
 
   @Test
-  public void testVisualShape() throws Exception {
+  public void testVisualShapeEquator() {
+
+    // TODO: Buffer forces coverage of more than half of earth, opposite bounding box is drawn instead.
+    // Do we handle this case?
+    double[] test = coordinates[17];
+    GeoBufferedLine equator = new GeoBufferedLine(ctx.makePoint(test[0], test[1]), ctx.makePoint(test[2], test[3]), 80, ctx);
+    Rectangle r = equator.getBoundingBox();
+    String s = logShapes(equator, equator.getBoundingBox(), 0,null);
+    writeVisualTestFile("equator",s);
+    }
+
+
+  @Test
+  public void testVisualShapeStatic() {
     int i = 0;
-//    for (i = 0; i < 10; i ++) {
 
     GeoBufferedLine line;// = newRandomLine();
 
     for (double[] c : coordinates) {
       line = new GeoBufferedLine(ctx.makePoint(c[0], c[1]), ctx.makePoint(c[2], c[3]), 0, ctx);
       i++;
-      String s = logShapes(line, line.getBoundingBox(), i);
-      Writer writer = null;
-
-      try {
-        writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream("test_visual/test_hand_visual_" + i + ".kml"), "utf-8"));
-        writer.write(s);
-      } catch (IOException ex) {
-        // report
-      } finally {
-        try {
-          writer.close();
-        } catch (Exception ex) {
-        }
-      }
+      String s = logShapes(line, line.getBoundingBox(), i,null);
+      writeVisualTestFile("static_" + i + "",s);
     }
   }
 
@@ -258,21 +287,8 @@ public class GeoBufferedLineTest extends RandomizedTest {
     for (int i = 0; i < 10; i++) {
 
       GeoBufferedLine line = newRandomLine();
-      String s = logShapes(line, line.getBoundingBox(), i);
-      Writer writer = null;
-
-      try {
-        writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream("test_visual/test_visual_" + i + ".kml"), "utf-8"));
-        writer.write(s);
-      } catch (IOException ex) {
-        // report
-      } finally {
-        try {
-          writer.close();
-        } catch (Exception ex) {
-        }
-      }
+      String s = logShapes(line, line.getBoundingBox(), i,null);
+      writeVisualTestFile(""+i+"",s);
     }
   }
 
@@ -306,9 +322,39 @@ public class GeoBufferedLineTest extends RandomizedTest {
 
     Point pB = ctx.makePoint(random180BB,random90AB);
 
-    int buf = randomInt(20);
-    return new GeoBufferedLine(pA, pB, 0, ctx);
+    int buf = randomInt(3);
+    return new GeoBufferedLine(pA, pB, buf, ctx);
   }
+
+  @Test
+  public void testBoundingBox() throws Exception {
+
+    for(int i = 0; i < 10; i ++) {
+      GeoBufferedLine line = newRandomLine();
+      Rectangle bbox = line.getBoundingBox();
+      Point[] points = randomPointsInBoundingBox(bbox);
+      for(Point p: points) {
+        assertEquals(SpatialRelation.CONTAINS , bbox.relate(p));
+      }
+
+      String s = logShapes(line, bbox, i, points);
+      writeVisualTestFile("points_" + i,s);
+    }
+
+  }
+
+  private Point[] randomPointsInBoundingBox(Rectangle box) {
+    // 999 random points in box.
+    Point[] points = new Point[2000];
+    for(int i = 0; i < 2000; i ++) {
+      double randomX = box.getMinX() + (box.getMaxX() - box.getMinX()) * randomDouble();
+      double randomY = box.getMinY() + (box.getMaxY() - box.getMinY()) * randomDouble();
+      points[i] = ctx.makePoint(randomX,randomY);
+    }
+
+    return points;
+  }
+
   /*
   @Test
   public void misc() {
