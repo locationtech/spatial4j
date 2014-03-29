@@ -206,4 +206,11 @@ public class GeoPolygon implements Shape {
         // shape - useful for debugging
     }
 
+    /**
+     * Private Method - Point in Polygon Algorithm
+     */
+    private void pointInPolygion() {
+
+    }
+
 }

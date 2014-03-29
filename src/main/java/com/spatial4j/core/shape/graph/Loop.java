@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
-import com.spatial4j.core.math.VectorUtils;
+import com.spatial4j.core.math.Vector3DUtils;
+import com.spatial4j.core.math.CCW;
 
 import com.spatial4j.core.shape.Vector3D;
 import com.spatial4j.core.shape.Rectangle;
@@ -85,7 +86,7 @@ public class Loop {
 
         // Check all vertices are of unit length
         for ( int i = 0; i < vertices.size(); i++ ) {
-            if ( VectorUtils.mag(vertices.get(i)) != 1 ) {
+            if ( Vector3DUtils.mag(vertices.get(i)) != 1 ) {
                 return false;
             }
         }

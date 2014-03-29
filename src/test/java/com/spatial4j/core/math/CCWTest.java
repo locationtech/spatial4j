@@ -17,11 +17,11 @@
 
 package com.spatial4j.core.math;
 
-import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.math.CCW;
+import com.spatial4j.core.math.Vector3DUtils;
 import com.spatial4j.core.shape.Vector3D;
+
+import com.carrotsearch.randomizedtesting.RandomizedTest;
 
 import com.spatial4j.core.TestLog;
 import com.spatial4j.core.context.SpatialContext;
@@ -55,35 +55,62 @@ public class CCWTest extends RandomizedTest {
     /**
      * Test Planar Ordered CCW Method
      */
-    void testPlanarOrderedCCW() {
+    public void testPlanarOrderedCCW() {
 
     }
 
     /**
      * Test Planar CCW Method
      */
-    void testPlanarCCW() {
+    public void testPlanarCCW() {
 
     }
 
     /**
      * Test Ordered CCW Method
      */
-    void testOrderedCCW() {
+    public void testOrderedCCW() {
 
     }
 
     /**
      * Test Expensive CCW Method
      */
-    void testExpensiveCCW() {
+    public void testExpensiveCCW() {
 
     }
 
     /**
      * Test Robust CCW Method
      */
-    void testRobustCCW() {
+    @Test
+    public void testRobustCCW() {
+
+        // Test Case from S2 Lib
+        Vector3D a = new Vector3D(0.72571927877036835, 0.46058825605889098, 0.51106749730504852);
+        Vector3D b = new Vector3D(0.7257192746638208, 0.46058826573818168, 0.51106749441312738);
+        Vector3D c = new Vector3D(0.72571927671709457, 0.46058826089853633, 0.51106749585908795);
+        assertTrue(CCW.robustCCW(a, b, c) != 0);
+
+    }
+
+    /**
+     * Make a Random Set of Oriented Points
+     */
+    private Vector3D[] make_random_point_set( int numPoints, boolean oriented, boolean ccw ) {
+
+        // Create a New Random GeoCircle (just needs to be a valid circle)
+        ctx.makeCircle(45, 45, 10);
+
+        // Split the circle into random segments
+
+        // pick random points on the circle in each bin
+
+        // convert to 3D points
+
+        // return point set
+
+
 
     }
 
