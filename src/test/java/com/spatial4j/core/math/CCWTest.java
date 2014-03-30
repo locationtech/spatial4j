@@ -17,8 +17,10 @@
 
 package com.spatial4j.core.math;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
@@ -57,6 +59,14 @@ public class CCWTest extends RandomizedTest {
 
     @After
     public void tearDown() {}
+
+    /**
+     * Test Simple CCW Method
+     */
+    @Test
+    public void testSimpleCCW() {
+        // todo implement
+    }
 
     /**
      * Test Planar Ordered CCW Method
@@ -101,7 +111,28 @@ public class CCWTest extends RandomizedTest {
     @Test
     public void testRobustCCW() {
 
-        // Test Case from S2 Lib
+        // Test robust CCW on some n random point sets between 10-20
+        for ( int i = 0; i <= 10; i++ ) {
+            List< Vector3D > vectors = make_random_point_set(true, true);
+            assertTrue( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2)) == 1 );
+            assertTrue( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))) == 1);
+        }
+
+        // Test robust non CCW on some n random point sets between 10-20
+        for ( int i = 0; i <= 10; i++ ) {
+            List< Vector3D > vectors = make_random_point_set(true, false);
+            assertTrue( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2)) == -1 );
+            assertTrue( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))) == -1);
+        }
+
+        // Test robust non oriented on some n random point sets between 10-20
+        for ( int i = 0; i <= 10; i++ ) {
+            List< Vector3D > vectors = make_random_point_set(false, false);
+            assertTrue( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2)) == 0 );
+            assertTrue( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))) == 0);
+        }
+
+        // Very "robust" Test Case from S2 Lib
         Vector3D a = new Vector3D(0.72571927877036835, 0.46058825605889098, 0.51106749730504852);
         Vector3D b = new Vector3D(0.7257192746638208, 0.46058826573818168, 0.51106749441312738);
         Vector3D c = new Vector3D(0.72571927671709457, 0.46058826089853633, 0.51106749585908795);
@@ -114,8 +145,11 @@ public class CCWTest extends RandomizedTest {
 
     /**
      * Make a Random Set of Oriented Points
+     *
+     * note - num points was unused so I removed the arg though it might be a good point of
+     * extension
      */
-    private Vector3D[] make_random_point_set( int numPoints, boolean oriented, boolean ccw ) {
+    private List< Vector3D > make_random_point_set( boolean oriented, boolean ccw ) {
 
        // Picking a Non Random Lat Lon Point to start (boston -
         double x = 0; // some rand coord
@@ -125,6 +159,12 @@ public class CCWTest extends RandomizedTest {
 
         // just kidding - do we even need the circle? its just a container for information
         // I already have
+
+        /**
+         * Note - the reason I am explicitly picking four points here and not just picking three points
+         * on the circle is because if I have a point in each bin, I get some sort of reliable angle distribution
+         * and can predict ordering of angles for testing.
+         */
 
         // Pick four random points in the quadrants of the circle
         List< Point > pointArr = new ArrayList< Point >(4);
@@ -149,22 +189,54 @@ public class CCWTest extends RandomizedTest {
         Point d = new PointImpl( r*Math.cos(chi), r*Math.sin(chi), ctx);
         pointArr.add(d);
 
-        // Declare 3 indices
+        // Establish a final array of points converted to direction cosines
+        List< Vector3D > vectorArr = new ArrayList< Vector3D >(3);
 
+        // Declare 3 indices
+        int ind1, ind2, ind3;
 
         // If no orientation, pick three random indices
         if ( !oriented ) {
 
+            // Pick the first 3 points
+            List< Point > copy = new ArrayList<Point>(pointArr);
+            Collections.shuffle(copy);
+
+            for ( int i = 0; i <= copy.size(); i++ ) {
+                Vector3D v = TransformUtils.toVector(copy.get(i));
+                vectorArr.add(v);
+            }
+            return vectorArr;
+
+        } else if ( oriented && !ccw ) {
+
+            // Pick a random leave out point
+            int leaveOut = (int) Math.random() * (3); // needs to ensure this is an index between 0 and 3 and that 0 is possible
+
+            // Pick 3 of 4 points in clockwise orientation
+            for ( int i = 0; i < pointArr.size(); i++ ) {
+                if ( i != leaveOut) {
+                    Vector3D v = TransformUtils.toVector(pointArr.get(i));
+                    vectorArr.add(v);
+                }
+            }
+            return vectorArr;
+
+        // otherwise, oriented && ccw are true
+        } else {
+
+            // Pick a random leave out point
+            int leaveOut = (int) Math.random() * (3); // needs to ensure this is an index between 0 and 3 and that 0 is possible
+
+            // Pick 3 of 4 points in clockwise orientation
+            for ( int i = pointArr.size()-1; i >= 0; i-- ) {
+                if ( i != leaveOut) {
+                    Vector3D v = TransformUtils.toVector(pointArr.get(i));
+                    vectorArr.add(v);
+                }
+            }
+            return vectorArr;
         }
-
-        // pick random points on the circle in each bin
-
-        // convert to 3D points
-
-        // return point set
-
-         return null;
-
     }
 
     /**
