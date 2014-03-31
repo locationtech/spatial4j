@@ -32,6 +32,9 @@ import java.util.List;
  * cosine vectors. This class contains code for computing random vectors in both oriented and non
  * oriented conformations. It is not an extension of the randomized testing packages and just uses
  * Java Math.Random()
+ *
+ * Everything here is done with respect to a unit circle with origin (0, 0) and radius of 1, so its definition
+ * in this class is implicit.
  */
 public class RandomPolygon {
 
@@ -46,41 +49,35 @@ public class RandomPolygon {
     }
 
     /**
-     * Inner Class - Contains a Unit circle with origin 0. We don't construct regular GeoCircles
-     * because the position is irrelevant - everything will ultimately be abstracted into direciton
-     * vectors which have no length or relevant position except with respect to one another.
+     * Create a set of Random CCW Direction Cosine Vectors.
      */
-    private class UnitCircle {
+    public List< Vector3D > createVectors( boolean ccw, int minBinSize, int maxBinSize ) {
 
-        // Circle Info
-        private double x;
-        private double y;
-        private double r;
+        // Pick some n from [0, maxBin]
+        int n = (int) (minBinSize + Math.random() * (maxBinSize - minBinSize));
 
-        /**
-         * Constructor
-         */
-        public UnitCircle() {
-            this.x = 0;
-            this.y = 0;
-            this.r = 1;
+        // Pick n random numbers from 0 to 360 and sort
+        List< Double > bins = new ArrayList< Double >(n);
+        for ( int i = 0; i < n; i++ ) {
+            double num = Math.random() * 360;
+            bins.add(num);
         }
 
-        /**
-         * Data Accessors
-         */
-        public double getX() {
-            return this.x;
+        // Sort my list
+        Collections.sort(bins);
+
+        // Convert to radians and generate a set of vectors to return
+        List< Vector3D > vectors = new ArrayList<Vector3D>(n);
+        for ( int i = 0; i < bins.size(); i++ ) {
+            double angle =  bins.get(i);
+            Point p = new PointImpl( Math.cos(angle), Math.sin(angle), ctx);
+            Vector3D v = TransformUtils.toVector(p);
+            vectors.add(v);
         }
 
-        public double getY() {
-            return this.y;
-        }
-
-        public double getRadius() {
-            return this.r;
-        }
+        return vectors;
     }
+
 
     /**
      * Make a Random Set of Oriented Points
@@ -90,14 +87,6 @@ public class RandomPolygon {
      */
     private List< Vector3D > make_random_point_set( boolean oriented, boolean ccw ) {
 
-        // Picking a Non Random Lat Lon Point to start (boston -
-        double x = 0; // some rand coord
-        double y = 0; // some rand coord
-        double r = 10; // fixed radius - doesn't matter becasue we will use direction vectors anyway
-
-
-        // just kidding - do we even need the circle? its just a container for information
-        // I already have
 
         /**
          * Note - the reason I am explicitly picking four points here and not just picking three points
@@ -110,22 +99,22 @@ public class RandomPolygon {
 
         // Quadrant 1
         double alpha = randomAngle(0.0, 90.0);
-        Point a = new PointImpl( r*Math.cos(alpha), r*Math.sin(alpha), ctx);
+        Point a = new PointImpl( Math.cos(alpha), Math.sin(alpha), ctx);
         pointArr.add(a);
 
         // Quadrant 2
         double beta = randomAngle(90.0, 180.0);
-        Point b = new PointImpl( r*Math.cos(beta), r*Math.sin(beta), ctx);
+        Point b = new PointImpl( Math.cos(beta), Math.sin(beta), ctx);
         pointArr.add(b);
 
         // Quadrant 3
         double gamma = randomAngle(180.0, 270.0);
-        Point c = new PointImpl( r*Math.cos(gamma), r*Math.sin(gamma), ctx);
+        Point c = new PointImpl( Math.cos(gamma), Math.sin(gamma), ctx);
         pointArr.add(c);
 
         // Quadrant 4
         double chi = randomAngle(270.0, 360.0);
-        Point d = new PointImpl( r*Math.cos(chi), r*Math.sin(chi), ctx);
+        Point d = new PointImpl( Math.cos(chi), Math.sin(chi), ctx);
         pointArr.add(d);
 
         // Establish a final array of points converted to direction cosines
