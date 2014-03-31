@@ -18,6 +18,7 @@
 package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.spatial4j.core.TestLog;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
@@ -30,6 +31,7 @@ import sun.print.PSPrinterJob;
 
 import java.io.*;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class GeoBufferedLineTest extends RandomizedTest {
@@ -353,6 +355,42 @@ public class GeoBufferedLineTest extends RandomizedTest {
     }
 
     return points;
+  }
+
+  private ArrayList<Point> quadrantCorners(Rectangle rect) {
+    ArrayList<Point> corners = new ArrayList<Point>(4);
+    corners.add(ctx.makePoint(rect.getMaxX(), rect.getMaxY()));
+    corners.add(ctx.makePoint(rect.getMinX(), rect.getMaxY()));
+    corners.add(ctx.makePoint(rect.getMinX(), rect.getMinY()));
+    corners.add(ctx.makePoint(rect.getMaxX(), rect.getMinY()));
+    return corners;
+  }
+
+  public void testRectIntersect() {
+    new RectIntersectionTestHelper<GeoBufferedLine>(ctx) {
+
+      @Override
+      protected GeoBufferedLine generateRandomShape(Point nearP) {
+        Rectangle nearR = randomRectangle(nearP);
+        ArrayList<Point> corners = quadrantCorners(nearR);
+        int r4 = randomInt(3);//0..3
+        Point pA = corners.get(r4);
+        Point pB = corners.get((r4 + 2) % 4);
+        double maxBuf = Math.max(nearR.getWidth(), nearR.getHeight());
+        double buf = Math.abs(randomGaussian()) * maxBuf / 4;
+        buf = randomInt((int) divisible(buf));
+        return new GeoBufferedLine(pA, pB, buf, ctx);
+      }
+
+      protected Point randomPointInEmptyShape(GeoBufferedLine shape) {
+        int r = randomInt(1);
+        if (r == 0) return shape.getA();
+        //if (r == 1)
+        return shape.getB();
+//        Point c = shape.getCenter();
+//        if (shape.contains(c));
+      }
+    }.testRelateWithRectangle();
   }
 
   /*

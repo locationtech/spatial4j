@@ -51,11 +51,11 @@ public class BufferedLine implements Shape {
   /**
    * the primary line; passes through pA & pB
    */
-  protected Ray linePrimary;
+  protected RayLine linePrimary;
   /**
    * perpendicular to the primary line, centered between pA & pB
    */
-  protected Ray linePerp;
+  protected RayLine linePerp;
 
   protected final boolean bufExtend = true;
 
@@ -276,28 +276,28 @@ public class BufferedLine implements Shape {
   /**
    * INTERNAL
    */
-  public Ray getLinePrimary() {
+  public RayLine getLinePrimary() {
     return linePrimary;
   }
 
   /**
    * INTERNAL
    */
-  public Ray getLinePerp() {
+  public RayLine getLinePerp() {
     return linePerp;
   }
 
   /**
    * INTERNAL
    */
-  protected void setLinePrimary(Ray line) {
+  protected void setLinePrimary(RayLine line) {
     this.linePrimary = line;
   }
 
   /**
    * INTERNAL
    */
-  protected void setLinePerp(Ray line) {
+  protected void setLinePerp(RayLine line) {
     this.linePerp = line;
   }
 

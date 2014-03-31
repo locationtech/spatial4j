@@ -61,6 +61,8 @@ public class GeoBufferedLine implements Shape {
   private final Point3d perpA3d;
   private final Point3d perpB3d;
 
+  private final Rectangle bbox;
+
 
 
   //TODO: Can a and b be the same point?
@@ -89,7 +91,7 @@ public class GeoBufferedLine implements Shape {
     // Calculate a second point
     perpB3d = new Point3d(perpA3d.getX() + normal.getX()*2,perpA3d.getY() + normal.getY()*2,perpA3d.getZ() + normal.getZ()*2);
 
-
+    bbox = getBoundingBox();
 
     linePerpendicular = new GreatCircle(perpA3d,perpB3d);
   }
@@ -115,6 +117,10 @@ public class GeoBufferedLine implements Shape {
   //TODO: Dateline / Extra Wrapping eg over the pole
   @Override
   public Rectangle getBoundingBox() {
+
+    if(bbox != null) {
+      return bbox;
+    }
 
     double minX, maxX;
     double minY, maxY;
@@ -229,7 +235,31 @@ public class GeoBufferedLine implements Shape {
 
   @Override
   public SpatialRelation relate(Shape other) {
+    if (other instanceof Point)
+      return contains((Point) other) ? CONTAINS : DISJOINT;
+    if (other instanceof Rectangle)
+      return relate((Rectangle) other);
     throw new UnsupportedOperationException();
+  }
+
+  public SpatialRelation relate(Rectangle r) {
+    //Check BBox for disjoint & within.
+    SpatialRelation bboxR = bbox.relate(r);
+    if (bboxR == DISJOINT || bboxR == WITHIN)
+      return bboxR;
+    //Either CONTAINS, INTERSECTS, or DISJOINT
+
+    Point scratch = new PointImpl(0, 0, null);
+    Point prC = r.getCenter();
+    SpatialRelation result = linePrimary.relate(r, prC, scratch, buffer);
+    if (result == DISJOINT)
+      return DISJOINT;
+    SpatialRelation resultOpp = linePerpendicular.relate(r, prC, scratch, buffer);
+    if (resultOpp == DISJOINT)
+      return DISJOINT;
+    if (result == resultOpp)//either CONTAINS or INTERSECTS
+      return result;
+    return INTERSECTS;
   }
 
   /* public for testing */

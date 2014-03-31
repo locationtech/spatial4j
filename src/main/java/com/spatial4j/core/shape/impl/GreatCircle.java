@@ -4,8 +4,14 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.SpatialRelation;
 
 import java.util.ArrayList;
+
+import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
+import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 
 /**
  * Created by Chris Pavlicek on 2/7/2014.
@@ -115,6 +121,17 @@ public class GreatCircle {
 
   }
 
+  //TODO ? Use an Enum for quadrant?
+
+  /* quadrants 1-4: NE, NW, SW, SE. */
+  private static final int[] oppositeQuad= {-1,3,4,1,2};
+
+  public static void cornerByQuadrant(Rectangle r, int cornerQuad, Point out) {
+    double x = (cornerQuad == 1 || cornerQuad == 4) ? r.getMaxX() : r.getMinX();
+    double y = (cornerQuad == 1 || cornerQuad == 2) ? r.getMaxY() : r.getMinY();
+    out.reset(x, y);
+  }
+
   /**
    * Returns the distance to the GreatCircle from the Point3d c.
    * Also known as the cross-track distance.
@@ -216,6 +233,71 @@ public class GreatCircle {
     return list;
   }
 
+  public SpatialRelation relate(Rectangle r, Point prC, Point scratch, double buf) {
+    assert r.getCenter().equals(prC);
+
+    int cQuad = quadrant(prC);
+
+    Point nearestP = scratch;
+    cornerByQuadrant(r, oppositeQuad[cQuad], nearestP);
+    boolean nearestContains = contains(nearestP, buf);
+
+    if (nearestContains) {
+      Point farthestP = scratch;
+      nearestP = null;//just to be safe (same scratch object)
+      cornerByQuadrant(r, cQuad, farthestP);
+      boolean farthestContains = contains(farthestP, buf);
+      if (farthestContains)
+        return CONTAINS;
+      return INTERSECTS;
+    } else {// not nearestContains
+      if (quadrant(nearestP) == cQuad)
+        return DISJOINT;//out of buffer on same side as center
+      return INTERSECTS;//nearest & farthest points straddle the line
+    }
+  }
+
+  public boolean contains(Point p,double buf) {
+    return (distanceToPoint(p) <= buf);
+  }
+
+  public int quadrant(Point c) {
+    //check vertical line case 1st
+    double intercept = lonAtEquator;
+    double angle = angleDEG;
+    if (angle == 90) {
+      //when slope is infinite, intercept is x intercept instead of y
+      if(lowestLongitude < c.getX() || c.getX() > highestLongitude) {
+        angle *= -1;
+        intercept += 180;
+
+        if(intercept > 180)
+          intercept -= 360;
+      }
+      return c.getX() > lonAtEquator ? 1 : 2; //4 : 3 would work too
+    }
+    //(below will work for slope==0 horizontal line too)
+    //is c above or below the line
+
+    // Positive slope
+    if(lowestLongitude < c.getX() || c.getX() > highestLongitude) {
+        angle *= -1;
+        intercept += 180;
+
+        if(intercept > 180)
+            intercept -= 360;
+    }
+
+    double yAtCinLine = Math.tan(angle) * c.getX() + lonAtEquator;
+    boolean above = c.getY() >= yAtCinLine;
+    if (angle > 0) {
+      //if slope is a forward slash, then result is 2 | 4
+      return above ? 2 : 4;
+    } else {
+      //if slope is a backward slash, then result is 1 | 3
+      return above ? 1 : 3;
+    }
+  }
 }
 
 

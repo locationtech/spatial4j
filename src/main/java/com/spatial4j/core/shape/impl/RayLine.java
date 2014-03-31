@@ -27,7 +27,7 @@ import static com.spatial4j.core.shape.SpatialRelation.*;
  * INERNAL: A buffered line of infinite length.
  * Public for test access.
  */
-public class RayLine implements Ray {
+public class RayLine {
 
   //TODO consider removing support for vertical line -- let caller
   // do something else.  BufferedLine could have a factory method
