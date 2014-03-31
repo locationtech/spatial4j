@@ -114,22 +114,17 @@ public class CCWTest extends RandomizedTest {
         // Test robust CCW on some n random point sets between 10-20
         for ( int i = 0; i <= 10; i++ ) {
             List< Vector3D > vectors = make_random_point_set(true, true);
-            assertTrue( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2)) == 1 );
-            assertTrue( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))) == 1);
+           assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2)), -1 );
+           assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))), -1);
         }
 
         // Test robust non CCW on some n random point sets between 10-20
         for ( int i = 0; i <= 10; i++ ) {
-            List< Vector3D > vectors = make_random_point_set(true, false);
-            assertTrue( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2)) == -1 );
-            assertTrue( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))) == -1);
-        }
 
-        // Test robust non oriented on some n random point sets between 10-20
-        for ( int i = 0; i <= 10; i++ ) {
-            List< Vector3D > vectors = make_random_point_set(false, false);
-            assertTrue( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2)) == 0 );
-            assertTrue( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))) == 0);
+            List< Vector3D > vectors = make_random_point_set(true, false);
+
+            assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2)), 1 );
+            assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))), 1);
         }
 
         // Very "robust" Test Case from S2 Lib
@@ -202,7 +197,7 @@ public class CCWTest extends RandomizedTest {
             List< Point > copy = new ArrayList<Point>(pointArr);
             Collections.shuffle(copy);
 
-            for ( int i = 0; i <= copy.size(); i++ ) {
+            for ( int i = 0; i < copy.size(); i++ ) {
                 Vector3D v = TransformUtils.toVector(copy.get(i));
                 vectorArr.add(v);
             }
@@ -211,7 +206,7 @@ public class CCWTest extends RandomizedTest {
         } else if ( oriented && !ccw ) {
 
             // Pick a random leave out point
-            int leaveOut = (int) Math.random() * (3); // needs to ensure this is an index between 0 and 3 and that 0 is possible
+            int leaveOut = (int) Math.random() * 3; // should return int [0, 3] inclusive
 
             // Pick 3 of 4 points in clockwise orientation
             for ( int i = 0; i < pointArr.size(); i++ ) {
@@ -226,7 +221,7 @@ public class CCWTest extends RandomizedTest {
         } else {
 
             // Pick a random leave out point
-            int leaveOut = (int) Math.random() * (3); // needs to ensure this is an index between 0 and 3 and that 0 is possible
+            int leaveOut = (int) Math.random() *3; // should return int [0, 3] inclusive
 
             // Pick 3 of 4 points in clockwise orientation
             for ( int i = pointArr.size()-1; i >= 0; i-- ) {

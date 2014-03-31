@@ -109,4 +109,13 @@ public class Vector3D {
 
         return true;
     }
+
+    /**
+     * ToString Method (useful for debugging)
+     */
+    public String toString() {
+        String s = "x=" + this.X + " y=" + this.Y + " z=" + this.Z;
+        return s;
+    }
+
 }

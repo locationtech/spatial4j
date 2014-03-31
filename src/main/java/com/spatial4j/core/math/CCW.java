@@ -123,6 +123,7 @@ public class CCW {
      */
     public static int expensiveCCW( Vector3D a, Vector3D b, Vector3D c ) {
 
+        System.out.println("In expensive ccw");
         // Check Equality
         if ( a.equals(b) || b.equals(c) || c.equals(a) ) return 0;
 
