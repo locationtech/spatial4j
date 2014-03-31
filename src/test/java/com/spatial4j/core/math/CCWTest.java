@@ -65,24 +65,13 @@ public class CCWTest extends RandomizedTest {
      */
     @Test
     public void testSimpleCCW() {
-        // todo implement
+
+        // Test robust CCW on some n random point sets between 10-20
+        for ( int i = 0; i <= 10; i++ ) {
+            List< Vector3D > vectors = make_random_point_set(true, false);
+            assertEquals( CCW.simpleCCW(vectors.get(0), vectors.get(1), vectors.get(2)), true );
+        }
     }
-
-    /**
-     * Test Planar Ordered CCW Method
-     */
-    @Test
-    public void testPlanarOrderedCCW() {
-    }
-
-    /**
-     * Test Planar CCW Method
-     */
-    @Test
-    public void testPlanarCCW() {
-
-    }
-
     /**
      * Test Ordered CCW Method
      */
@@ -92,37 +81,22 @@ public class CCWTest extends RandomizedTest {
     }
 
     /**
-     * Test Expensive CCW Method
-     */
-    @Test
-    public void testExpensiveCCW() {
-
-        // Test Case from S2 Lib
-        Vector3D a = new Vector3D(0.72571927877036835, 0.46058825605889098, 0.51106749730504852);
-        Vector3D b = new Vector3D(0.7257192746638208, 0.46058826573818168, 0.51106749441312738);
-        Vector3D c = new Vector3D(0.72571927671709457, 0.46058826089853633, 0.51106749585908795);
-       // assertTrue(CCW.expensiveCCW(a, b, c) != 0);
-
-    }
-
-    /**
      * Test Robust CCW Method
      */
     @Test
     public void testRobustCCW() {
 
-        // Test robust CCW on some n random point sets between 10-20
+        // Test robust Non-CCW on some n random point sets between 10-20
         for ( int i = 0; i <= 10; i++ ) {
             List< Vector3D > vectors = make_random_point_set(true, true);
            assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2)), -1 );
            assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))), -1);
         }
 
-        // Test robust non CCW on some n random point sets between 10-20
+        // Test robust CCW on some n random point sets between 10-20
         for ( int i = 0; i <= 10; i++ ) {
 
             List< Vector3D > vectors = make_random_point_set(true, false);
-
             assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2)), 1 );
             assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))), 1);
         }
@@ -190,20 +164,7 @@ public class CCWTest extends RandomizedTest {
         // Declare 3 indices
         int ind1, ind2, ind3;
 
-        // If no orientation, pick three random indices
-        if ( !oriented ) {
-
-            // Pick the first 3 points
-            List< Point > copy = new ArrayList<Point>(pointArr);
-            Collections.shuffle(copy);
-
-            for ( int i = 0; i < copy.size(); i++ ) {
-                Vector3D v = TransformUtils.toVector(copy.get(i));
-                vectorArr.add(v);
-            }
-            return vectorArr;
-
-        } else if ( oriented && !ccw ) {
+         if ( oriented && ccw ) {
 
             // Pick a random leave out point
             int leaveOut = (int) Math.random() * 3; // should return int [0, 3] inclusive
