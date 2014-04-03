@@ -163,6 +163,7 @@ public class GeoBufferedLineTest extends RandomizedTest {
   public void distance() {
     System.out.println("Tested GeoBufferedLine");
     //negative slope
+    testDistToPoint(p(180,89),p(0,89),p(0,0),89);
     testDistToPoint(p(0, 0), p(5, 0),p(0, 90), 90);
     testDistToPoint(p(0, 0), p(5, 0),p(0, 45), 45);
     testDistToPoint(p(0, 0), p(0, 5),p(5, 0), 5);
