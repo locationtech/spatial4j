@@ -348,14 +348,21 @@ public class GeoBufferedLineTest extends RandomizedTest {
 
   private Point[] randomPointsInBoundingBox(Rectangle box) {
     // 999 random points in box.
-    Point[] points = new Point[2000];
-    for(int i = 0; i < 2000; i ++) {
+    Point[] points = new Point[1000];
+    for(int i = 0; i < 1000; i ++) {
       double randomX = box.getMinX() + (box.getMaxX() - box.getMinX()) * randomDouble();
       double randomY = box.getMinY() + (box.getMaxY() - box.getMinY()) * randomDouble();
       points[i] = ctx.makePoint(randomX,randomY);
     }
 
     return points;
+  }
+
+  @Test
+  public void testMoment() throws Exception {
+    GeoBufferedLine line = new GeoBufferedLine(p(0,0),p(90,45),10,ctx);
+    Rectangle rect = ctx.makeRectangle(90,100,44,60);
+    System.out.println("Relate massive rect " + line.relate(rect));
   }
 
   private ArrayList<Point> quadrantCorners(Rectangle rect) {
@@ -366,6 +373,8 @@ public class GeoBufferedLineTest extends RandomizedTest {
     corners.add(ctx.makePoint(rect.getMaxX(), rect.getMinY()));
     return corners;
   }
+
+
 
   public void testRectIntersect() {
     new RectIntersectionTestHelper<GeoBufferedLine>(ctx) {

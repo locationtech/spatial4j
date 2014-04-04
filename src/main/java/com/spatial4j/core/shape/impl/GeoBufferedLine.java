@@ -33,17 +33,19 @@ import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
 import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
 
 
-public class GeoBufferedLine implements Shape {
+public class GeoBufferedLine implements Shape, com.spatial4j.core.shape.LineSegment {
 
   private final Point a;
   private final Point b;
 
   private final double buffer;
 
+  @Override
   public Point getA() {
     return a;
   }
 
+  @Override
   public Point getB() {
     return b;
   }
@@ -62,6 +64,8 @@ public class GeoBufferedLine implements Shape {
   private final Point3d perpB3d;
 
   private final Rectangle bbox;
+
+  private final double length;
 
 
 
@@ -94,6 +98,11 @@ public class GeoBufferedLine implements Shape {
     bbox = getBoundingBox();
 
     linePerpendicular = new GreatCircle(perpA3d,perpB3d);
+
+    double deltaY = b.getY() - a.getY();
+    double deltaX = b.getX() - a.getX();
+    length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
   }
 
   public Point3d getPrimeA3d() {
@@ -180,7 +189,7 @@ public class GeoBufferedLine implements Shape {
     if(posXDirection) {
       return ctx.makeRectangle(minX + buffer,maxX - buffer,minY - buffer,maxY + buffer);
     } else {
-    return ctx.makeRectangle(minX - buffer,maxX + buffer,minY - buffer,maxY + buffer);
+      return ctx.makeRectangle(minX - buffer,maxX + buffer,minY - buffer,maxY + buffer);
     }
   }
 
@@ -254,7 +263,7 @@ public class GeoBufferedLine implements Shape {
     SpatialRelation result = linePrimary.relate(r, prC, scratch, buffer);
     if (result == DISJOINT)
       return DISJOINT;
-    SpatialRelation resultOpp = linePerpendicular.relate(r, prC, scratch, buffer);
+    SpatialRelation resultOpp = linePerpendicular.relate(r, prC, scratch, buffer + length/2);
     if (resultOpp == DISJOINT)
       return DISJOINT;
     if (result == resultOpp)//either CONTAINS or INTERSECTS

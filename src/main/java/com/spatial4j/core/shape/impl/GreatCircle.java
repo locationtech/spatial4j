@@ -233,11 +233,62 @@ public class GreatCircle {
     return list;
   }
 
+
+
+
+  /*
+   * Returns two rectangles. Index 0 will be the "Left" side and Index 1 will be the "Right" side.
+   */
+  private double[] originalRect = {0,0,0,0};
+  private boolean relateRectIsSplit = false;
+  private void splitRectange(Rectangle r, double longitude, boolean right) {
+
+    if(right) {
+      r.reset(longitude,originalRect[1],originalRect[2],originalRect[3]);
+    } else {
+      // Left
+      r.reset(originalRect[0],longitude,originalRect[2],originalRect[3]);
+    }
+  }
+
+
+
   public SpatialRelation relate(Rectangle r, Point prC, Point scratch, double buf) {
     assert r.getCenter().equals(prC);
 
-    int cQuad = quadrant(prC);
+    // r spans over a moment.
+    double splitPoint = 0;
+    if((r.getMinX() < lowestLongitude && r.getMaxX() > lowestLongitude)) {
+      relateRectIsSplit = true;
+      setOriginalRect(r);
+      splitRectange(r,lowestLongitude,false);
+      splitPoint = lowestLongitude;
+    } else if (r.getMinX() < highestLongitude && r.getMaxX() > highestLongitude) {
+      relateRectIsSplit = true;
+      setOriginalRect(r);
+      splitRectange(r,highestLongitude,false);
+      splitPoint = highestLongitude;
+    }
 
+    if(relateRectIsSplit) {
+      // Relate the Left side
+      SpatialRelation relationOne = getSpatialRelation(r, prC, scratch, buf);
+
+      // Relate the Right side
+      splitRectange(r,splitPoint,true);
+      SpatialRelation relationTwo = getSpatialRelation(r, prC, scratch, buf);
+
+      // Combine and return
+      r.reset(originalRect[0],originalRect[1],originalRect[2],originalRect[3]);
+      return relationOne.combine(relationTwo);
+    } else {
+      // Otherwise this will do.
+      return getSpatialRelation(r, prC, scratch, buf);
+    }
+  }
+
+  private SpatialRelation getSpatialRelation(Rectangle r, Point prC, Point scratch, double buf) {
+    int cQuad = quadrant(prC);
     Point nearestP = scratch;
     cornerByQuadrant(r, oppositeQuad[cQuad], nearestP);
     boolean nearestContains = contains(nearestP, buf);
@@ -255,6 +306,13 @@ public class GreatCircle {
         return DISJOINT;//out of buffer on same side as center
       return INTERSECTS;//nearest & farthest points straddle the line
     }
+  }
+
+  private void setOriginalRect(Rectangle r) {
+    originalRect[0] = r.getMinX();
+    originalRect[1] = r.getMaxX();
+    originalRect[2] = r.getMinY();
+    originalRect[3] = r.getMaxY();
   }
 
   public boolean contains(Point p,double buf) {
