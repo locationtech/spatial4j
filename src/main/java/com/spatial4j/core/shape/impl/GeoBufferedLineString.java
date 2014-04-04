@@ -9,37 +9,41 @@ import java.util.List;
 public class GeoBufferedLineString implements Shape {
   @Override
   public SpatialRelation relate(Shape other) {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Rectangle getBoundingBox() {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public boolean hasArea() {
-    return false;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public double getArea(SpatialContext ctx) {
-    return 0;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Point getCenter() {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   @Override
+  public Shape getBuffered(double distance, SpatialContext ctx) {
+    throw new UnsupportedOperationException();
+  }
+
   public Shape getBuffered(SpatialContext ctx, double distance) {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public boolean isEmpty() {
-    return false;
+    throw new UnsupportedOperationException();
   }
 
   static class PairSegment extends ShapeCollection<GeoBufferedLine> implements LineSegment {
@@ -56,12 +60,12 @@ public class GeoBufferedLineString implements Shape {
 
     @Override
     public Point getA() {
-      return null;
+      throw new UnsupportedOperationException();
     }
 
     @Override
     public Point getB() {
-      return null;
+      throw new UnsupportedOperationException();
     }
   }
 }

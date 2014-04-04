@@ -205,27 +205,31 @@ public class GeoBufferedLine implements Shape, com.spatial4j.core.shape.LineSegm
 
   @Override
   public boolean hasArea() {
-    return false;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public double getArea(SpatialContext ctx) {
-    return 0;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Point getCenter() {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   @Override
+  public Shape getBuffered(double distance, SpatialContext ctx) {
+    throw new UnsupportedOperationException();
+  }
+
   public Shape getBuffered(SpatialContext ctx, double distance) {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public boolean isEmpty() {
-    return false;
+    throw new UnsupportedOperationException();
   }
 
 
