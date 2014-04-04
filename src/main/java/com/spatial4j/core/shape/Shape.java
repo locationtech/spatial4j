@@ -84,10 +84,11 @@ public interface Shape {
    * rounded-corner buffer, although some shapes might buffer differently. This
    * is an optional operation.
    *
+   *
    * @param distance
    * @return Not null, and the returned shape should contain the current shape.
    */
-  Shape getBuffered(SpatialContext ctx, double distance);
+  Shape getBuffered(double distance, SpatialContext ctx);
 
   /**
    * Shapes can be "empty", which is to say it exists nowhere. The underlying coordinates are

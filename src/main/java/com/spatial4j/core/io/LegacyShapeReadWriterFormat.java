@@ -52,7 +52,7 @@ public class LegacyShapeReadWriterFormat {
 
   /**
    * Writes a shape to a String, in a format that can be read by
-   * {@link #readShapeOrNull(com.spatial4j.core.context.SpatialContext, String)}.
+   * {@link #readShapeOrNull(String, com.spatial4j.core.context.SpatialContext)}.
    * @param shape Not null.
    * @return Not null.
    */
@@ -102,7 +102,7 @@ public class LegacyShapeReadWriterFormat {
    * If the first character is not a letter then it's assumed to be a point or rectangle. If that
    * doesn't work out then an {@link com.spatial4j.core.exception.InvalidShapeException} is thrown.
    */
-  public static Shape readShapeOrNull(SpatialContext ctx, String str) throws InvalidShapeException {
+  public static Shape readShapeOrNull(String str, SpatialContext ctx) throws InvalidShapeException {
     if (str == null || str.length() == 0) {
       throw new InvalidShapeException(str);
     }
@@ -116,7 +116,7 @@ public class LegacyShapeReadWriterFormat {
           String token = st.nextToken();
           Point pt;
           if (token.indexOf(',') != -1) {
-            pt = readLatCommaLonPoint(ctx, token);
+            pt = readLatCommaLonPoint(token, ctx);
           } else {
             double x = Double.parseDouble(token);
             double y = Double.parseDouble(st.nextToken());
@@ -150,7 +150,7 @@ public class LegacyShapeReadWriterFormat {
     }
 
     if (str.indexOf(',') != -1)
-      return readLatCommaLonPoint(ctx, str);
+      return readLatCommaLonPoint(str, ctx);
     StringTokenizer st = new StringTokenizer(str, " ");
     double p0 = Double.parseDouble(st.nextToken());
     double p1 = Double.parseDouble(st.nextToken());
@@ -165,7 +165,7 @@ public class LegacyShapeReadWriterFormat {
   }
 
   /** Reads geospatial latitude then a comma then longitude. */
-  private static Point readLatCommaLonPoint(SpatialContext ctx, String value) throws InvalidShapeException {
+  private static Point readLatCommaLonPoint(String value, SpatialContext ctx) throws InvalidShapeException {
     double[] latLon = ParseUtils.parseLatitudeLongitude(value);
     return ctx.makePoint(latLon[1], latLon[0]);
   }

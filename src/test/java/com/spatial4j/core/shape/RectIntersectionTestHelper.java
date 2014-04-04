@@ -47,7 +47,7 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
     //counters for the different intersection cases
     int i_C = 0, i_I = 0, i_W = 0, i_D = 0, i_bboxD = 0;
     int laps = 0;
-    final int MINLAPSPERCASE = atLeast(20);
+    final int MINLAPSPERCASE = scaledRandomIntBetween(20, 200);
     while(i_C < MINLAPSPERCASE || i_I < MINLAPSPERCASE || i_W < MINLAPSPERCASE
         || i_D < MINLAPSPERCASE || i_bboxD < MINLAPSPERCASE) {
       laps++;
@@ -65,10 +65,11 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
       TestLog.log("S-R Rel: {}, Shape {}, Rectangle {}", ic, s, r);
 
       try {
+        int MAX_TRIES = scaledRandomIntBetween(10, 100);
         switch (ic) {
           case CONTAINS:
             i_C++;
-            for (int j = 0; j < atLeast(10); j++) {
+            for (int j = 0; j < MAX_TRIES; j++) {
               Point p = randomPointIn(r);
               assertRelation(null, CONTAINS, s, p);
             }
@@ -76,7 +77,7 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
 
           case WITHIN:
             i_W++;
-            for (int j = 0; j < atLeast(10); j++) {
+            for (int j = 0; j < MAX_TRIES; j++) {
               Point p = randomPointIn(s);
               assertRelation(null, CONTAINS, r, p);
             }
@@ -90,7 +91,7 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
             } else {
               i_D++;
             }
-            for (int j = 0; j < atLeast(10); j++) {
+            for (int j = 0; j < MAX_TRIES; j++) {
               Point p = randomPointIn(r);
               assertRelation(null, DISJOINT, s, p);
             }
@@ -100,7 +101,7 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
             i_I++;
             SpatialRelation pointR = null;//set once
             Rectangle randomPointSpace = null;
-            int MAX_TRIES = 1000;
+            MAX_TRIES = 1000;//give many attempts
             for (int j = 0; j < MAX_TRIES; j++) {
               Point p;
               if (j < 4) {

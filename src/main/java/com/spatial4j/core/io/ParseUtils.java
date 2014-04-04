@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +20,15 @@ package com.spatial4j.core.io;
 import com.spatial4j.core.exception.InvalidShapeException;
 
 /**
- * Utility methods related to parsing shapes.
+ * Utility methods related to parsing a series of numbers.
+ * <p/>
+ * This code came from DistanceUtils, which came from
+ * <a href="https://issues.apache.org/jira/browse/LUCENE-773">Apache
+ * Lucene, LUCENE-773</a>, which in turn came from "LocalLucene".
+ *
+ * @deprecated Not useful; see https://github.com/spatial4j/spatial4j/issues/19
  */
+@Deprecated
 public class ParseUtils {
   private ParseUtils() {
   }
@@ -114,43 +121,42 @@ public class ParseUtils {
     return out;
   }
 
+  /**
+   * Extract (by calling {@link #parsePoint(String[], String, int)} and validate the latitude and
+   * longitude contained in the String by making sure the latitude is between 90 & -90 and longitude
+   * is between -180 and 180.
+   * <p/>
+   * The latitude is assumed to be the first part of the string and the longitude the second part.
+   *
+   * @param latLonStr The string to parse.  Latitude is the first value, longitude is the second.
+   * @return The lat long
+   *
+   * @throws com.spatial4j.core.exception.InvalidShapeException if there was an error parsing
+   */
   public static final double[] parseLatitudeLongitude(String latLonStr) throws InvalidShapeException {
     return parseLatitudeLongitude(null, latLonStr);
   }
 
   /**
-   * extract (by calling {@link #parsePoint(String[], String, int)} and validate the latitude and longitude contained
-   * in the String by making sure the latitude is between 90 & -90 and longitude is between -180 and 180.
-   * <p/>
-   * The latitude is assumed to be the first part of the string and the longitude the second part.
-   *
-   * @param latLon    A preallocated array to hold the result
-   * @param latLonStr The string to parse.  Latitude is the first value, longitude is the second.
-   * @return The lat long
-   * @throws com.spatial4j.core.exception.InvalidShapeException if there was an error parsing
+   * A variation of {@link #parseLatitudeLongitude(String)} that re-uses an output array.
+   * @see #parseLatitudeLongitude(String)
    */
-  public static final double[] parseLatitudeLongitude(double[] latLon, String latLonStr) throws InvalidShapeException {
-    if (latLon == null) {
-      latLon = new double[2];
-    }
-    double[] toks = parsePointDouble(null, latLonStr, 2);
+  public static final double[] parseLatitudeLongitude(double[] outLatLon, String latLonStr) throws InvalidShapeException {
+    outLatLon = parsePointDouble(outLatLon, latLonStr, 2);
 
-    if (toks[0] < -90.0 || toks[0] > 90.0) {
+    if (outLatLon[0] < -90.0 || outLatLon[0] > 90.0) {
       throw new InvalidShapeException(
               "Invalid latitude: latitudes are range -90 to 90: provided lat: ["
-                      + toks[0] + "]");
+                      + outLatLon[0] + "]");
     }
-    latLon[0] = toks[0];
 
 
-    if (toks[1] < -180.0 || toks[1] > 180.0) {
-
+    if (outLatLon[1] < -180.0 || outLatLon[1] > 180.0) {
       throw new InvalidShapeException(
               "Invalid longitude: longitudes are range -180 to 180: provided lon: ["
-                      + toks[1] + "]");
+                      + outLatLon[1] + "]");
     }
-    latLon[1] = toks[1];
 
-    return latLon;
+    return outLatLon;
   }
 }

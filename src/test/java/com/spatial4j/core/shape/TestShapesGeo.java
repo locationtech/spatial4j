@@ -103,11 +103,12 @@ public class TestShapesGeo extends AbstractTestShapes {
     testRectIntersect();
 
     //Test buffer
-    assertEquals(ctx.makeRectangle(-10, 10, -10, 10), ctx.makeRectangle(0, 0, 0, 0).getBuffered(ctx, 10));
-    for (int i = 0; i < atLeast(100); i++) {
+    assertEquals(ctx.makeRectangle(-10, 10, -10, 10), ctx.makeRectangle(0, 0, 0, 0).getBuffered(10, ctx));
+    int MAX_TRIES = scaledRandomIntBetween(100, 1000);
+    for (int i = 0; i < MAX_TRIES; i++) {
       Rectangle r = randomRectangle(1);
       int buf = randomIntBetween(0, 90);
-      Rectangle br = (Rectangle) r.getBuffered(ctx, buf);
+      Rectangle br = (Rectangle) r.getBuffered(buf, ctx);
       assertRelation(null, CONTAINS, br, r);
       if (r.getWidth() + 2 * buf >= 360)
         assertEquals(360, br.getWidth(), 0.0);
@@ -115,7 +116,7 @@ public class TestShapesGeo extends AbstractTestShapes {
         assertTrue(br.getWidth() - r.getWidth() >= 2 * buf);
       //TODO test more thoroughly; we don't check that we over-buf
     }
-    assertTrue(ctx.makeRectangle(0, 10, 0, 89).getBuffered(ctx, 0.5).getBoundingBox().getWidth()
+    assertTrue(ctx.makeRectangle(0, 10, 0, 89).getBuffered(0.5, ctx).getBoundingBox().getWidth()
         > 11);
   }
 

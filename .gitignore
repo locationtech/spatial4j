@@ -2,3 +2,8 @@
 /.idea/
 *.iml
 target/
+.classpath
+.metadata/
+.project
+.settings/
+bin/

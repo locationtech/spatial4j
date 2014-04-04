@@ -94,7 +94,7 @@ public class BufferedLineString implements Shape {
   }
 
   @Override
-  public Shape getBuffered(SpatialContext ctx, double distance) {
+  public Shape getBuffered(double distance, SpatialContext ctx) {
     return ctx.makeBufferedLineString(getPoints(), buf + distance);
   }
 

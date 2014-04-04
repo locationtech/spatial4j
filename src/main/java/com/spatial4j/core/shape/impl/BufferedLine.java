@@ -174,7 +174,7 @@ public class BufferedLine implements Shape {
   }
 
   @Override
-  public Shape getBuffered(SpatialContext ctx, double distance) {
+  public Shape getBuffered(double distance, SpatialContext ctx) {
     return new BufferedLine(pA, pB, buf + distance, ctx);
   }
 

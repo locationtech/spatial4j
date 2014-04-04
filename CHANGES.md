@@ -1,28 +1,33 @@
 ## VERSION 0.4
 
-DATE: ______January 2014 (pending)
+DATE: 20 January 2014
 
 ### User/API changes & Notes:
 
  * It used to be the case that rectangular polygons provided in WKT had to have its vertexes given
    in counter-clockwise order to indicate which way around the earth it went. The default is now
    the shorter width (less than 180 degrees). This setting can be changed via the “datelineRule”
-   setting, but to avoid ambiguity, use the ENVELOPE syntax.
+   setting. To avoid ambiguity, just use the ENVELOPE syntax.
 
  * Unless you refer to the SpatialContext.GEO or JtsSpatialContext.GEO instances, the only true way
    to create a context is to use the SpatialContextFactory (and including the JTS based subclass),
    which have a host of settings that make Spatial4j very customizable.
 
- * SpatialContext.readShape(String) and toString(Shape) are still deprecated but will likely be
+ * SpatialContext.readShape(String) and toString(Shape) are still deprecated but will be
    removed in the next release. You should instead read WKT via the new method
-   readShapeFromWkt(String). Spatial4j will no longer provide a way to generate WKT from a shape
-   although it’s pretty easy to use JTS for that.
+   readShapeFromWkt(String). This also means the worldBounds initialization via SpatialContextFactory
+   should be specified as an ENVELOPE WKT. Spatial4j will no longer provide a way to generate WKT
+   from a shape although it’s pretty easy to use JTS for that.
 
  * In Spatial4j’s older JTS based implementation, it used to be the case that when reading WKT,
    latitudes would be normalized into the -90 to 90 range; it’s now an error. Longitudes outside of
    -180 to 180 were also normalized and this is now an error too. Longitude normalization can be
    enabled with the “normWrapLongitude” option.
 
+ * Newly deprecated: ParseUtils, some methods and constants in DistanceUtils (which seemed only used
+   by Solr), and SpatialContext constructors other than that which takes a SpatialContextFactory.
+   In the "io" package, these classes were **deleted**:  LineReader, SampleData..., Geoname...
+   Copies of those were moved to the _Spatial Solr Sandbox_ project.
 
 ### Features:
 

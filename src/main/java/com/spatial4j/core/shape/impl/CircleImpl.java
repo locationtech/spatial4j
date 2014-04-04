@@ -18,7 +18,11 @@
 package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.Circle;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.SpatialRelation;
 
 /**
  * A circle, also known as a point-radius, based on a {@link
@@ -78,7 +82,7 @@ public class CircleImpl implements Circle {
   }
 
   @Override
-  public Circle getBuffered(SpatialContext ctx, double distance) {
+  public Circle getBuffered(double distance, SpatialContext ctx) {
     return ctx.makeCircle(point, distance + radiusDEG);
   }
 

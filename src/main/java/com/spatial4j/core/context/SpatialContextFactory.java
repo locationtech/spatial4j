@@ -46,7 +46,7 @@ import java.util.Map;
  * <DD>haversine | lawOfCosines | vincentySphere | cartesian | cartesian^2
  * -- see {@link DistanceCalculator}</DD>
  * <DT>worldBounds</DT>
- * <DD>-180 180 -90 90 -- (minX maxX minY maxY) -- see {@link SpatialContext#getWorldBounds()}</DD>
+ * <DD>{@code ENVELOPE(xMin, xMax, yMax, yMin)} -- see {@link SpatialContext#getWorldBounds()}</DD>
  * <DT>normWrapLongitude</DT>
  * <DD>true | false (default) -- see {@link SpatialContext#isNormWrapLongitude()}</DD>
  * </DL>
@@ -105,12 +105,17 @@ public class SpatialContextFactory {
   protected void init(Map<String, String> args, ClassLoader classLoader) {
     this.args = args;
     this.classLoader = classLoader;
+
     initField("geo");
+
     initCalculator();
+
+    //init wktParser before worldBounds because WB needs to be parsed
+    initField("wktShapeParserClass");
     initWorldBounds();
 
     initField("normWrapLongitude");
-    initField("wktShapeParserClass");
+
     initField("binaryCodecClass");
   }
 
@@ -175,8 +180,8 @@ public class SpatialContextFactory {
       return;
     
     //kinda ugly we do this just to read a rectangle.  TODO refactor
-    SpatialContext simpleCtx = new SpatialContext(this);
-    worldBounds = (Rectangle) simpleCtx.readShape(worldBoundsStr);
+    final SpatialContext ctx = newSpatialContext();
+    worldBounds = (Rectangle) ctx.readShape(worldBoundsStr);//TODO use readShapeFromWkt
   }
 
   /** Subclasses should simply construct the instance from the initialized configuration. */

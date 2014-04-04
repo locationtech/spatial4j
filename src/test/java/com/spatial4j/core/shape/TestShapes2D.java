@@ -81,7 +81,7 @@ public class TestShapes2D extends AbstractTestShapes {
     pt.reset(1, 2);
     assertEquals(ctx.makePoint(1, 2), pt);
 
-    assertEquals(ctx.makeCircle(pt, 3), pt.getBuffered(ctx, 3));
+    assertEquals(ctx.makeCircle(pt, 3), pt.getBuffered(3, ctx));
 
     testEmptiness(ctx.makePoint(Double.NaN, Double.NaN));
   }
@@ -113,7 +113,7 @@ public class TestShapes2D extends AbstractTestShapes {
     testRectIntersect();
 
     if (!ctx.isGeo())
-      assertEquals(ctx.makeRectangle(0.9, 2.1, 2.9, 4.1), ctx.makeRectangle(1, 2, 3, 4).getBuffered(ctx, 0.1));
+      assertEquals(ctx.makeRectangle(0.9, 2.1, 2.9, 4.1), ctx.makeRectangle(1, 2, 3, 4).getBuffered(0.1, ctx));
 
     testEmptiness(ctx.makeRectangle(Double.NaN, Double.NaN, Double.NaN, Double.NaN));
   }
@@ -137,7 +137,7 @@ public class TestShapes2D extends AbstractTestShapes {
 
     testCircleIntersect();
 
-    assertEquals(ctx.makeCircle(1, 2, 10), ctx.makeCircle(1, 2, 6).getBuffered(ctx, 4));
+    assertEquals(ctx.makeCircle(1, 2, 10), ctx.makeCircle(1, 2, 6).getBuffered(4, ctx));
 
     testEmptiness(ctx.makeCircle(Double.NaN, Double.NaN, randomBoolean() ? 0 : Double.NaN));
   }

@@ -20,7 +20,11 @@ package com.spatial4j.core.shape;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.impl.Range;
 
-import java.util.*;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.RandomAccess;
 
 import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
 import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
@@ -117,10 +121,10 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
   }
 
   @Override
-  public ShapeCollection getBuffered(SpatialContext ctx, double distance) {
+  public ShapeCollection getBuffered(double distance, SpatialContext ctx) {
     List<Shape> bufColl = new ArrayList<Shape>(size());
     for (Shape shape : shapes) {
-      bufColl.add(shape.getBuffered(ctx, distance));
+      bufColl.add(shape.getBuffered(distance, ctx));
     }
     return ctx.makeCollection(bufColl);
   }

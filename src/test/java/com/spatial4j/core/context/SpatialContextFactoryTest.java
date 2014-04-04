@@ -69,7 +69,7 @@ public class SpatialContextFactoryTest {
 
     ctx = call("geo","false",
         "distCalculator","cartesian^2",
-        "worldBounds","-100 0 75 200");//West South East North
+        "worldBounds","ENVELOPE(-100, 75, 200, 0)");//xMin, xMax, yMax, yMin
     assertEquals(new CartesianDistCalc(true),ctx.getDistCalc());
     assertEquals(new RectangleImpl(-100, 75, 0, 200, ctx), ctx.getWorldBounds());
 
@@ -98,6 +98,19 @@ public class SpatialContextFactoryTest {
         ((JtsWktShapeParser)ctx.getWktShapeParser()).getDatelineRule());
     assertEquals(JtsWktShapeParser.ValidationRule.repairConvexHull,
         ((JtsWktShapeParser)ctx.getWktShapeParser()).getValidationRule());
+
+    //ensure geo=false with worldbounds works -- fixes #72
+    ctx = (JtsSpatialContext) call(
+        "spatialContextFactory", JtsSpatialContextFactory.class.getName(),
+        "geo", "false",//set to false
+        "worldBounds", "ENVELOPE(-500,500,300,-300)",
+        "normWrapLongitude", "true",
+        "precisionScale", "2.0",
+        "wktShapeParserClass", CustomWktShapeParser.class.getName(),
+        "datelineRule", "ccwRect",
+        "validationRule", "repairConvexHull",
+        "autoIndex", "true");
+    assertEquals(300, ctx.getWorldBounds().getMaxY(), 0.0);
   }
   
   @Test

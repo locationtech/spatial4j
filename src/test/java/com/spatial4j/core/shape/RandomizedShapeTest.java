@@ -63,22 +63,6 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     }
   }
 
-  /**
-   * BUG FIX: https://github.com/carrotsearch/randomizedtesting/issues/131
-   *
-   * Returns a random value greater or equal to <code>min</code>. The value
-   * picked is affected by {@link #isNightly()} and {@link #multiplier()}.
-   *
-   * @see #scaledRandomIntBetween(int, int)
-   */
-  public static int atLeast(int min) {
-    if (min < 0) throw new IllegalArgumentException("atLeast requires non-negative argument: " + min);
-
-    min = (int) Math.min(min, (isNightly() ? 3 * min : min) * multiplier());
-    int max = (int) Math.min(Integer.MAX_VALUE, (long) min + (min / 2));
-    return randomIntBetween(min, max);
-  }
-
   //These few norm methods normalize the arguments for creating a shape to
   // account for the dateline. Some tests loop past the dateline or have offsets
   // that go past it and it's easier to have them coded that way and correct for
