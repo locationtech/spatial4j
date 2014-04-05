@@ -45,13 +45,37 @@ public class GeoBufferedLineTest extends RandomizedTest {
 
 
 
- public static String logShapes(final GeoBufferedLine line, final Rectangle rect, int num, Point[] points) {
+ public static String logShapes(final GeoBufferedLine line, final ArrayList<Rectangle> rects, int num, ArrayList<Point> points) {
     String lineWKT =
         "LINESTRING(" + line.getA().getX() + " " + line.getA().getY() + "," +
             line.getB().getX() + " " + line.getB().getY() + ")";
 
     boolean leftDraw = false;
 
+    String kml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:kml=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n" +
+            "<Document>\n"+
+            "<name>KmlFile "+ num +"</name> \n"+
+            "<Style id=\"transPurpleLineGreenPoly\">\n"+
+            "<LineStyle> \n"+
+            "<color>7fff00ff</color>\n" +
+            "<width>" + 1 + line.getBuffer() * 5 + "</width>\n"+
+            "</LineStyle>\n"+
+            "</Style> \n"+
+            "<Style id=\"transBluePoly\"> \n"+
+            "<LineStyle> \n"+
+            "<width>1.5</width> \n"+
+            "</LineStyle> \n"+
+            "<PolyStyle> \n"+
+            "<color>7dff0000</color> \n"+
+            "</PolyStyle> \n"+
+            "</Style> \n"+
+            "<Placemark> \n"+
+            "<name>Absolute</name> \n"+
+            "<visibility>1</visibility> \n"+
+            "<styleUrl>#transBluePoly</styleUrl> \n";
+
+    for(Rectangle rect: rects) {
     if((rect.getMaxX() - rect.getMinX()) > 180 ) {
       leftDraw = true;
     }
@@ -68,39 +92,22 @@ public class GeoBufferedLineTest extends RandomizedTest {
       boxString = rect.getMinX() +"," + rect.getMaxY() +",0 " + rect.getMaxX() +"," + rect.getMaxY() +",0 " + rect.getMaxX() +"," + rect.getMinY() +",0 " + rect.getMinX() +"," + rect.getMinY() +",0 " + rect.getMinX() +"," + rect.getMaxY() +",0 \n";
     }
 
+      kml +=     "<Polygon> \n" +
+      "<tessellate>1</tessellate> \n"+
+              "<outerBoundaryIs> \n"+
+              "<LinearRing> \n"+
+              "<coordinates> \n"+ boxString +
+              "        </coordinates> \n"+
+              "</LinearRing> \n"+
+              "</outerBoundaryIs> \n"+
+              "</Polygon> \n";
 
-      String kml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-    "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:kml=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n" +
-    "<Document>\n"+
-    "<name>KmlFile "+ num +"</name> \n"+
-    "<Style id=\"transPurpleLineGreenPoly\">\n"+
-    "<LineStyle> \n"+
-    "<color>7fff00ff</color>\n" +
-    "<width>" + 1 + line.getBuffer() * 5 + "</width>\n"+
-    "</LineStyle>\n"+
-            "</Style> \n"+
-            "<Style id=\"transBluePoly\"> \n"+
-    "<LineStyle> \n"+
-    "<width>1.5</width> \n"+
-    "</LineStyle> \n"+
-    "<PolyStyle> \n"+
-    "<color>7dff0000</color> \n"+
-    "</PolyStyle> \n"+
-    "</Style> \n"+
-    "<Placemark> \n"+
-    "<name>Absolute</name> \n"+
-    "<visibility>1</visibility> \n"+
-    "<styleUrl>#transBluePoly</styleUrl> \n"+
-    "<Polygon> \n"+
-    "<tessellate>1</tessellate> \n"+
-    "<outerBoundaryIs> \n"+
-    "<LinearRing> \n"+
-    "<coordinates> \n"+ boxString +
-       "        </coordinates> \n"+
-    "</LinearRing> \n"+
-    "</outerBoundaryIs> \n"+
-    "</Polygon> \n"+
-    "</Placemark> \n"+
+    }
+
+
+
+
+    kml += "</Placemark> \n"+
            "<Placemark>\n"+
     "<name>Absolute</name>\n"+
     "<description>Transparent purple line</description> \n"+
@@ -265,8 +272,8 @@ public class GeoBufferedLineTest extends RandomizedTest {
     // Do we handle this case?
     double[] test = coordinates[17];
     GeoBufferedLine equator = new GeoBufferedLine(ctx.makePoint(test[0], test[1]), ctx.makePoint(test[2], test[3]), 80, ctx);
-    Rectangle r = equator.getBoundingBox();
-    String s = logShapes(equator, equator.getBoundingBox(), 0,null);
+    ArrayList<Rectangle> r = equator.getBoundingBoxes();
+    String s = logShapes(equator, r, 0,null);
     writeVisualTestFile("equator",s);
     }
 
@@ -280,7 +287,7 @@ public class GeoBufferedLineTest extends RandomizedTest {
     for (double[] c : coordinates) {
       line = new GeoBufferedLine(ctx.makePoint(c[0], c[1]), ctx.makePoint(c[2], c[3]), 0, ctx);
       i++;
-      String s = logShapes(line, line.getBoundingBox(), i,null);
+      String s = logShapes(line, line.getBoundingBoxes(), i,null);
       writeVisualTestFile("static_" + i + "",s);
     }
   }
@@ -290,7 +297,7 @@ public class GeoBufferedLineTest extends RandomizedTest {
     for (int i = 0; i < 10; i++) {
 
       GeoBufferedLine line = newRandomLine();
-      String s = logShapes(line, line.getBoundingBox(), i,null);
+      String s = logShapes(line, line.getBoundingBoxes(), i,null);
       writeVisualTestFile(""+i+"",s);
     }
   }
@@ -334,34 +341,34 @@ public class GeoBufferedLineTest extends RandomizedTest {
 
     for(int i = 0; i < 10; i ++) {
       GeoBufferedLine line = newRandomLine();
-      Rectangle bbox = line.getBoundingBox();
-      Point[] points = randomPointsInBoundingBox(bbox);
-      for(Point p: points) {
-        assertEquals(SpatialRelation.CONTAINS , bbox.relate(p));
+      ArrayList<Point> points = new ArrayList<Point>();
+      for(Rectangle bbox : line.getBoundingBoxes()) {
+        points.addAll(randomPointsInBoundingBox(bbox));
+        for(Point p: points) {
+          assertEquals(SpatialRelation.CONTAINS , bbox.relate(p));
+        }
       }
 
-      String s = logShapes(line, bbox, i, points);
+      String s = logShapes(line, line.getBoundingBoxes(), i, points);
       writeVisualTestFile("points_" + i,s);
     }
-
   }
 
-  private Point[] randomPointsInBoundingBox(Rectangle box) {
+  private ArrayList<Point> randomPointsInBoundingBox(Rectangle box) {
     // 999 random points in box.
-    Point[] points = new Point[1000];
+    ArrayList<Point> points = new ArrayList<Point>();
     for(int i = 0; i < 1000; i ++) {
       double randomX = box.getMinX() + (box.getMaxX() - box.getMinX()) * randomDouble();
       double randomY = box.getMinY() + (box.getMaxY() - box.getMinY()) * randomDouble();
-      points[i] = ctx.makePoint(randomX,randomY);
+      points.add(ctx.makePoint(randomX, randomY));
     }
-
     return points;
   }
 
   @Test
   public void testMoment() throws Exception {
-    GeoBufferedLine line = new GeoBufferedLine(p(0,0),p(90,45),10,ctx);
-    Rectangle rect = ctx.makeRectangle(90,100,44,60);
+    GeoBufferedLine line = new GeoBufferedLine(p(0,0),p(90,45),90,ctx);
+    Rectangle rect = ctx.makeRectangle(-50,-40,-90,-80);
     System.out.println("Relate massive rect " + line.relate(rect));
   }
 

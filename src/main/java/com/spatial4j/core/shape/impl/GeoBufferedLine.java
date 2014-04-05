@@ -63,7 +63,7 @@ public class GeoBufferedLine implements Shape, com.spatial4j.core.shape.LineSegm
   private final Point3d perpA3d;
   private final Point3d perpB3d;
 
-  private final Rectangle bbox;
+  private final ArrayList<Rectangle> bbox;
 
   private final double length;
 
@@ -95,7 +95,7 @@ public class GeoBufferedLine implements Shape, com.spatial4j.core.shape.LineSegm
     // Calculate a second point
     perpB3d = new Point3d(perpA3d.getX() + normal.getX()*2,perpA3d.getY() + normal.getY()*2,perpA3d.getZ() + normal.getZ()*2);
 
-    bbox = getBoundingBox();
+    bbox = getBoundingBoxes();
 
     linePerpendicular = new GreatCircle(perpA3d,perpB3d);
 
@@ -123,10 +123,15 @@ public class GeoBufferedLine implements Shape, com.spatial4j.core.shape.LineSegm
 
   // does not include the bounding box.
 
-  //TODO: Dateline / Extra Wrapping eg over the pole
   @Override
   public Rectangle getBoundingBox() {
+    throw new UnsupportedOperationException();
+  }
 
+  //TODO: Dateline / Extra Wrapping eg over the pole - see getAllRects()
+  public ArrayList<Rectangle> getBoundingBoxes() {
+
+    // Box may be more than one.
     if(bbox != null) {
       return bbox;
     }
@@ -187,12 +192,42 @@ public class GeoBufferedLine implements Shape, com.spatial4j.core.shape.LineSegm
     }
 
     if(posXDirection) {
-      return ctx.makeRectangle(minX + buffer,maxX - buffer,minY - buffer,maxY + buffer);
+      return getAllRects(minX + buffer, maxX - buffer, minY - buffer, maxY + buffer);
     } else {
-      return ctx.makeRectangle(minX - buffer,maxX + buffer,minY - buffer,maxY + buffer);
+      return getAllRects(minX - buffer, maxX + buffer, minY - buffer, maxY + buffer);
     }
   }
 
+
+  /*
+  * Returns an array of Rectangles
+   */
+  private ArrayList<Rectangle> getAllRects(double minX,double maxX, double minY, double maxY) {
+
+    // Adjust for buffer
+    if(maxX > 180) {
+      maxX -= 360;
+    } else if(minX < -180) {
+      minX += 360;
+    }
+
+    ArrayList<Rectangle> rects = new ArrayList<Rectangle>();
+    // Wraps under the bottom of the sphere
+    if(minY < -90) {
+      rects.add(ctx.makeRectangle(minX,maxX,-90,minY + 90));
+      minY = -90;
+    }
+
+    // Wraps over the top of the sphere
+    if(maxY > 90) {
+      rects.add(ctx.makeRectangle(minX,maxX,maxY - 90,90));
+      maxY = 90;
+    }
+
+    rects.add(ctx.makeRectangle(minX,maxX,minY,maxY));
+
+    return rects;
+  }
 
   private double makeAxis360(double x) {
     if(x < 0) {
@@ -257,7 +292,8 @@ public class GeoBufferedLine implements Shape, com.spatial4j.core.shape.LineSegm
 
   public SpatialRelation relate(Rectangle r) {
     //Check BBox for disjoint & within.
-    SpatialRelation bboxR = bbox.relate(r);
+    for(Rectangle boundingBox : bbox) {
+    SpatialRelation bboxR = boundingBox.relate(r);
     if (bboxR == DISJOINT || bboxR == WITHIN)
       return bboxR;
     //Either CONTAINS, INTERSECTS, or DISJOINT
@@ -273,6 +309,10 @@ public class GeoBufferedLine implements Shape, com.spatial4j.core.shape.LineSegm
     if (result == resultOpp)//either CONTAINS or INTERSECTS
       return result;
     return INTERSECTS;
+}
+    
+    // Empty rects
+    return DISJOINT;
   }
 
   /* public for testing */
