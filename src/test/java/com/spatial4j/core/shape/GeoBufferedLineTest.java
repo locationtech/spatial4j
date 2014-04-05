@@ -170,7 +170,7 @@ public class GeoBufferedLineTest extends RandomizedTest {
   public void distance() {
     System.out.println("Tested GeoBufferedLine");
     //negative slope
-    testDistToPoint(p(180,89),p(0,89),p(0,0),89);
+    testDistToPoint(p(0,0),p(90,89),p(90,0),89);
     testDistToPoint(p(0, 0), p(5, 0),p(0, 90), 90);
     testDistToPoint(p(0, 0), p(5, 0),p(0, 45), 45);
     testDistToPoint(p(0, 0), p(0, 5),p(5, 0), 5);
@@ -246,7 +246,8 @@ public class GeoBufferedLineTest extends RandomizedTest {
           80.5612819857112,29.766393899451643},{135.673532878296,19.749231296312367,
           99.89993687971368,54.595746732751735},{2.1833,41.3833,-73.9400,40.67},
           {-128.27072030063476,-27.70757917535692,28.498386417001726,47.68996542540272},
-          {-132.7599266353268,-55.81481332371045,-92.47845748579186,-53.72410194167834},{0,0,10,0}};
+          {-132.7599266353268,-55.81481332371045,-92.47845748579186,-53.72410194167834},{0,0,10,0}
+          ,{0,0,180,-70}};
 
 
   private void writeVisualTestFile(String fileName, String contents) {
