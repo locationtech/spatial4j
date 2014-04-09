@@ -74,7 +74,7 @@ public class GeoBufferedLine implements Shape, com.spatial4j.core.shape.LineSegm
     this.a = a;
     this.b = b;
     this.buffer = buffer;
-    this.bufferPerp = bufferPerpendicular(a, b);
+    this.bufferPerp = bufferPerpendicular(a, b) + buffer;
     this.ctx = ctx;
 
     Point3d[] points = GreatCircle.get3dPointsForGreatCircle(a,b);
@@ -124,11 +124,18 @@ public class GeoBufferedLine implements Shape, com.spatial4j.core.shape.LineSegm
   // does not include the bounding box.
 
   @Override
+  /**
+   * Unable to do this, One box is not enough.
+   */
   public Rectangle getBoundingBox() {
     throw new UnsupportedOperationException();
   }
 
-  //TODO: Dateline / Extra Wrapping eg over the pole - see getAllRects()
+  /**
+   * Instead of getBoundingBox, we have this, we returns an array of BoundingBoxes.
+   * This fixes the issue of over the pole.
+   * @return
+   */
   public ArrayList<Rectangle> getBoundingBoxes() {
 
     // Box may be more than one.
@@ -325,6 +332,7 @@ public class GeoBufferedLine implements Shape, com.spatial4j.core.shape.LineSegm
     return linePerpendicular;
   }
 
+  //TODO: CHECK if correct
   public boolean contains(Point p) {
     // TODO: Extend past end of line
     if(linePrimary.distanceToPoint(p) <= buffer && linePerpendicular.distanceToPoint(p) <= bufferPerp) {

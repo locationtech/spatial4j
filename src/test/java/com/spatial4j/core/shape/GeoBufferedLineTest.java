@@ -44,7 +44,9 @@ public class GeoBufferedLineTest extends RandomizedTest {
 //SpatialContext.GEO ;//
 
 
-
+  /**
+   * Spits out KML
+   */
  public static String logShapes(final GeoBufferedLine line, final ArrayList<Rectangle> rects, int num, ArrayList<Point> points) {
     String lineWKT =
         "LINESTRING(" + line.getA().getX() + " " + line.getA().getY() + "," +
@@ -166,11 +168,12 @@ public class GeoBufferedLineTest extends RandomizedTest {
     }
   }
 
+
   @Test
   public void distance() {
-    System.out.println("Tested GeoBufferedLine");
-    //negative slope
-    testDistToPoint(p(0,0),p(90,89),p(90,0),89);
+    // TODO: FIX THIS CASE.... Might not be able to use great circle idea...?
+    // TODO: Cross Track Distance might be what we need.
+    testDistToPoint(p(5,88),p(10,88),p(0,0),88);
     testDistToPoint(p(0, 0), p(5, 0),p(0, 90), 90);
     testDistToPoint(p(0, 0), p(5, 0),p(0, 45), 45);
     testDistToPoint(p(0, 0), p(0, 5),p(5, 0), 5);
@@ -403,105 +406,9 @@ public class GeoBufferedLineTest extends RandomizedTest {
       protected Point randomPointInEmptyShape(GeoBufferedLine shape) {
         int r = randomInt(1);
         if (r == 0) return shape.getA();
-        //if (r == 1)
         return shape.getB();
-//        Point c = shape.getCenter();
-//        if (shape.contains(c));
       }
     }.testRelateWithRectangle();
   }
-
-  /*
-  @Test
-  public void misc() {
-    //pa == pb
-    Point pt = p(10, 1);
-    GeoBufferedLine line = new GeoBufferedLine(pt, pt, 3, ctx);
-    assertTrue(line.contains(p(10, 1 + 3 - 0.1)));
-    assertFalse(line.contains(p(10, 1 + 3 + 0.1)));
-  }
-  @Test
-  @Repeat(iterations = 15)
-  public void quadrants() {
-    //random line
-    GeoBufferedLine line = newRandomLine();
-//    if (line.getA().equals(line.getB()))
-//      return;//this test doesn't work
-    Rectangle rect = newRandomLine().getBoundingBox();
-    //logShapes(line, rect);
-    //compute closest corner brute force
-    ArrayList<Point> corners = quadrantCorners(rect);
-    // a collection instead of 1 value due to ties
-    Collection<Integer> farthestDistanceQuads = new LinkedList<Integer>();
-    double farthestDistance = -1;
-    int quad = 1;
-    for (Point corner : corners) {
-      double d = line.getLinePrimary().distanceUnbuffered(corner);
-      if (Math.abs(d - farthestDistance) < 0.000001) {//about equal
-        farthestDistanceQuads.add(quad);
-      } else if (d > farthestDistance) {
-        farthestDistanceQuads.clear();
-        farthestDistanceQuads.add(quad);
-        farthestDistance = d;
-      }
-      quad++;
-    }
-    //compare results
-    int calcClosestQuad = line.getLinePrimary().quadrant(rect.getCenter());
-    assertTrue(farthestDistanceQuads.contains(calcClosestQuad));
-  }
-  private GeoBufferedLine newRandomLine() {
-    Point pA = new PointImpl(randomInt(90), randomInt(90), ctx);
-    Point pB = new PointImpl(randomInt(90), randomInt(90), ctx);
-    int buf = randomInt(5);
-    return new GeoBufferedLine(pA, pB, buf, ctx);
-  }
-
-  private ArrayList<Point> quadrantCorners(Rectangle rect) {
-    ArrayList<Point> corners = new ArrayList<Point>(4);
-    corners.add(p(rect.getMaxX(), rect.getMaxY()));
-    corners.add(p(rect.getMinX(), rect.getMaxY()));
-    corners.add(p(rect.getMinX(), rect.getMinY()));
-    corners.add(p(rect.getMaxX(), rect.getMinY()));
-    return corners;
-  }
-
-  @Test
-  public void testRectIntersect() {
-    new RectIntersectionTestHelper<GeoBufferedLine>(ctx) {
-
-      @Override
-      protected GeoBufferedLine generateRandomShape(Point nearP) {
-        Rectangle nearR = randomRectangle(nearP);
-        ArrayList<Point> corners = quadrantCorners(nearR);
-        int r4 = randomInt(3);//0..3
-        Point pA = corners.get(r4);
-        Point pB = corners.get((r4 + 2) % 4);
-        double maxBuf = Math.max(nearR.getWidth(), nearR.getHeight());
-        double buf = Math.abs(randomGaussian());// * maxBuf / 4;
-        buf = randomInt((int) divisible(buf));
-        return new GeoBufferedLine(pA, pB, buf, ctx);
-      }
-
-      protected Point randomPointInEmptyShape(GeoBufferedLine shape) {
-        int r = randomInt(1);
-        if (r == 0) return shape.getA();
-        //if (r == 1)
-        return shape.getB();
-//        Point c = shape.getCenter();
-//        if (shape.contains(c));
-      }
-    }.testRelateWithRectangle();
-  }
-
-  private GeoBufferedLine newBufLine(int x1, int y1, int x2, int y2, int buf) {
-    Point pA = p(x1, y1);
-    Point pB = p(x2, y2);
-    if (randomBoolean()) {
-      return new GeoBufferedLine(pB, pA, buf, ctx);
-    } else {
-      return new GeoBufferedLine(pA, pB, buf, ctx);
-    }
-  }*/
 
 }

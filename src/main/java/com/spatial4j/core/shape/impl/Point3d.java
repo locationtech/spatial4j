@@ -109,12 +109,28 @@ public class Point3d {
     return "X: " + this.getX() + "\n" + "Y: " + this.getY() + "\n" + "Z: "  + this.getZ() + "\n";
   }
 
+  /**
+   * Returns the Middle 3d point from a set of points.
+   * @param a
+   * @param b
+   * @return
+   */
   public static Point3d midPoint(Point3d a, Point3d b) {
     double x = (a.getX() + b.getX())/2;
     double y = (a.getY() + b.getY())/2;
     double z = (a.getZ() + b.getZ())/2;
 
     return new Point3d(x,y,z);
+  }
+
+  /**
+   * Returns a Vector (A - B) (Directional)
+   * @param a
+   * @param b
+   * @return AB Vector
+   */
+  public static Point3d vector(Point3d a, Point3d b) {
+    return new Point3d(a.getX()-b.getX(),a.getY()-b.getY(),a.getZ()-b.getZ());
   }
 
 }

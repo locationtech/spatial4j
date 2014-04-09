@@ -33,13 +33,23 @@ public class GreatCircle {
 
   final double invPlaneLength;
 
+  final Point3d lineVector;
+
+  // TODO: These may be removed if not used in distance, right now they are used in a comment out method.
+  final Point3d a3d, b3d;
+
   public GreatCircle(Point3d a, Point3d b) {
     // Store points of the great circle
-    Point3d a3d = a;
-    Point3d b3d = b;
+    a3d = a;
+    b3d = b;
 
     // Vector as Point3d for simplicity.
+    // Represent the Great Circle as a "Plane" in vector math
     planeVector = Point3d.crossProductPoint(a3d,b3d);
+
+    // TODO: Remove if comment out distance formula is not used, or this is not needed later.
+    lineVector = Point3d.vector(a3d,b3d);
+
 
     // Inverse of plane length
     invPlaneLength = 1/GreatCircle.vectorLength(planeVector);
@@ -78,6 +88,7 @@ public class GreatCircle {
     double prodDist = distA * distB;
     double angleDEG = DistanceUtils.toDegrees(Math.acos(dotProd/prodDist));
 
+    // Normalize...
     if(angleDEG > 90)
         angleDEG = 180 - angleDEG;
 
@@ -86,6 +97,7 @@ public class GreatCircle {
 
     double longitudeIntersection = lonAtEquator;
 
+    // Check if we go beyond the bounds. Ie over 90 degrees.
     // TODO: Don't use precision
     if(longitudeIntersection > (90 + precision)) {
       longitudeIntersection = longitudeIntersection - 90;
@@ -147,20 +159,27 @@ public class GreatCircle {
     return Math.abs(DistanceUtils.toDegrees(Math.asin(height)));
   }
 
+
+//  //http://onlinemschool.com/math/library/analytic_geometry/p_line/#h2
+//  public double distanceToPoint(Point3d c3d) {
+//    Point3d vec = Point3d.vector(b3d,c3d);
+//    Point3d newVec = Point3d.crossProductPoint(lineVector,vec);
+//    double height = (vectorLength(newVec)/vectorLength(lineVector));
+//
+//    double arcLength = 2 * Math.asin(height/2);
+//
+//    return Math.abs(DistanceUtils.toDegrees(arcLength));
+//  }
+
   /**
    * Returns the distance to the GreatCircle from the Point c.
-   * Also known as the cross-track distance.
    * See Ref: http://mathworld.wolfram.com/Point-PlaneDistance.html
    * @param c
    * @return
    */
   public double distanceToPoint(Point c) {
     Point3d c3d = new Point3d(c);
-    double height = GreatCircle.dotProduct(planeVector, c3d)*invPlaneLength;
-
-    // opposite/hyp = Sin theta -> use asin of Height/1 (radians)
-    // Gives radians of arc length.
-    return Math.abs(DistanceUtils.toDegrees(Math.asin(height)));
+    return distanceToPoint(c3d);
   }
 
   /** the dot product of a vector and a point. (plane.x * point.x + plane.y * point.y + plane.z * point.z) */
@@ -252,7 +271,14 @@ public class GreatCircle {
   }
 
 
-
+  /**
+   * Similar to BufferedLine but Split up if over the pole or over a "Moment" (Highest point on a great circle or lowest)
+   * @param r
+   * @param prC
+   * @param scratch
+   * @param buf
+   * @return
+   */
   public SpatialRelation relate(Rectangle r, Point prC, Point scratch, double buf) {
     assert r.getCenter().equals(prC);
 
@@ -287,6 +313,14 @@ public class GreatCircle {
     }
   }
 
+  /**
+   * Returns the relation based on input data.
+   * @param r
+   * @param prC
+   * @param scratch
+   * @param buf
+   * @return
+   */
   private SpatialRelation getSpatialRelation(Rectangle r, Point prC, Point scratch, double buf) {
     int cQuad = quadrant(prC);
     Point nearestP = scratch;
@@ -308,6 +342,10 @@ public class GreatCircle {
     }
   }
 
+  /**
+   * Store the original rect for future use.
+   * @param r
+   */
   private void setOriginalRect(Rectangle r) {
     originalRect[0] = r.getMinX();
     originalRect[1] = r.getMaxX();
@@ -315,10 +353,21 @@ public class GreatCircle {
     originalRect[3] = r.getMaxY();
   }
 
+  /**
+   * Check if point within bounds
+   * @param p
+   * @param buf
+   * @return
+   */
   public boolean contains(Point p,double buf) {
     return (distanceToPoint(p) <= buf);
   }
 
+  /**
+   * Uses the angle of the GreatCircle to determine quadrant.
+   * @param c
+   * @return
+   */
   public int quadrant(Point c) {
     //check vertical line case 1st
     double intercept = lonAtEquator;

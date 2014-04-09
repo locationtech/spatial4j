@@ -11,6 +11,12 @@ import java.util.List;
 
 public class GeoBufferedLineString implements Shape {
 
+  /**
+   * COPY AND PASTE (ALMOST) OF BufferedLine
+   * Maybe LineString should be abtract class?
+   * TODO: LineString to Abstract class?
+   */
+
   private final ShapeCollection<GeoBufferedLine> segments;
   private final double buf;
   /**
