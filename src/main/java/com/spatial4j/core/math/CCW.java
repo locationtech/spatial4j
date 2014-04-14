@@ -52,7 +52,7 @@ public class CCW {
      * **Numerically robust
      */
     public static int robustCCW( Vector3D a, Vector3D b, Vector3D c ) {
-        return robustCCW(a, b, c, Vector3DUtils.crossProduct(a, b));
+        return robustCCW(a, b, c, a.crossProd(b));
     }
 
     /**
@@ -131,13 +131,13 @@ public class CCW {
         double sbc = (b.dotProduct(c) > 0) ? -1 : 1;
         double sca = (c.dotProduct(a) > 0) ? -1 : 1;
 
-        Vector3D vab = Vector3DUtils.sum(a, Vector3DUtils.multiply(b, sab));
-        Vector3D vbc = Vector3DUtils.sum(b, Vector3DUtils.multiply(c, sbc));
-        Vector3D vca = Vector3DUtils.sum(c, Vector3DUtils.multiply(a, sca));
+        Vector3D vab = Vector3D.add(a, Vector3D.multiply(b, sab));
+        Vector3D vbc = Vector3D.add(b, Vector3D.multiply(c, sbc));
+        Vector3D vca = Vector3D.add(c, Vector3D.multiply(a, sca));
 
-        double dab = Vector3DUtils.norm2(vab);
-        double dbc = Vector3DUtils.norm2(vbc);
-        double dca = Vector3DUtils.norm2(vca);
+        double dab = vab.norm2();
+        double dbc = vbc.norm2();
+        double dca = vca.norm2();
 
         // Sort the difference vectors to find the longest edge, and use the
         // opposite vertex as the origin. If two difference vectors are the same length,

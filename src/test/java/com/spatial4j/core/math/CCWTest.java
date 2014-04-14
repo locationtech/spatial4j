@@ -122,14 +122,15 @@ public class CCWTest extends RandomizedTest {
             assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))), 1);
         }
 
+        System.out.println("Testing very robust case from S2 library test cases");
         // Very "robust" Test Case from S2 Lib
         a = new Vector3D(0.72571927877036835, 0.46058825605889098, 0.51106749730504852);
         b = new Vector3D(0.7257192746638208, 0.46058826573818168, 0.51106749441312738);
         c = new Vector3D(0.72571927671709457, 0.46058826089853633, 0.51106749585908795);
 
         // Check CCW returns true
-        assertEquals(CCW.robustCCW(a, b, c, Vector3DUtils.crossProduct(a, b)), 0);
-        assertEquals(CCW.robustCCW(a, b, c), 0);
+        assertTrue(CCW.robustCCW(a, b, c, a.crossProd(b)) != 0);
+        assertTrue(CCW.robustCCW(a, b, c) != 0);
 
     }
 
