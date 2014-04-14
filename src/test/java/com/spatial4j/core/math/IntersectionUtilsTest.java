@@ -36,39 +36,6 @@ import org.junit.Assert.*;
  */
 public class IntersectionUtilsTest extends RandomizedTest {
 
-    /**
-     * Helper test class - holds points for computing intersections
-     */
-    private class GeodesicSegments {
-
-        // Data
-        Vector3D Va;
-        Vector3D Vb;
-        Vector3D Vc;
-        Vector3D Vd;
-
-
-        /**
-         * Get Various Data Points
-         */
-        public Vector3D getA() {
-            return this.Va;
-        }
-
-        public Vector3D getB() {
-            return this.Vb;
-        }
-
-        public Vector3D getC() {
-            return this.Vc;
-        }
-
-        public Vector3D getD() {
-            return this.Vd;
-        }
-    }
-
-
     // Required for backwards conversion
     private SpatialContext ctx;
 
@@ -83,29 +50,6 @@ public class IntersectionUtilsTest extends RandomizedTest {
 
     @After
     public void tearDown() {}
-
-    /**
-     * Test get intersection method
-     */
-    public void testGetIntersection() {
-
-        // Case 1: Randomized Across Points
-
-    }
-
-    /**
-     * Test Edge or vertex crossing method
-     */
-    public void testEdgeOrVertexMethod() {
-
-    }
-
-    /**
-     * Test vertex crossing method
-     */
-    public void testVertexCrossing() {
-
-    }
 
     /**
      * Test Simple Intersection Method
