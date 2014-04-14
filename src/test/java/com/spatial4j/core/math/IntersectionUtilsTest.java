@@ -47,16 +47,6 @@ public class IntersectionUtilsTest extends RandomizedTest {
         Vector3D Vc;
         Vector3D Vd;
 
-        // Construct a GeodesicSegments object from points
-        public GeodesicSegments( Point Pa, Point Pb, Point Pc, Point Pd ) {
-
-            // Convert to initialize
-            Va = TransformUtils.toVector(Pa);
-            Vb = TransformUtils.toVector(Pb);
-            Vc = TransformUtils.toVector(Pc);
-            Vd = TransformUtils.toVector(Pd);
-
-        }
 
         /**
          * Get Various Data Points
@@ -140,7 +130,7 @@ public class IntersectionUtilsTest extends RandomizedTest {
         c = Vector3DUtils.normalize( new Vector3D( -1, 0.5, 3) );
         d = Vector3DUtils.normalize( new Vector3D( -0.1, -0.5, -3) );
 
-        assertEquals( IntersectUtils.robustCrossing( a, b, c, d), 1 );
+        assertEquals( IntersectUtils.robustCrossing( a, b, c, d), -1 );
         assertEquals( IntersectUtils.robustCrossing( a, c, b, d), -1 );
 
         // Two Edges on the Same Great Cirlce
@@ -149,7 +139,7 @@ public class IntersectionUtilsTest extends RandomizedTest {
         c = Vector3DUtils.normalize( new Vector3D( 0, 1, 1 ) );
         d = Vector3DUtils.normalize( new Vector3D( 0, 0, 1 ) );
 
-        assertEquals( IntersectUtils.robustCrossing( a, b, c, d), 1 );
+        assertEquals( IntersectUtils.robustCrossing( a, b, c, d), -1 );
         assertEquals( IntersectUtils.robustCrossing( a, c, b, d), -1 );
     }
 

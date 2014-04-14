@@ -61,42 +61,11 @@ public class CCWTest extends RandomizedTest {
     public void tearDown() {}
 
     /**
-     * Test Simple CCW Method
-     */
-    @Test
-    public void testSimpleCCW() {
-
-        // Test robust CCW on some n random point sets between 10-20
-        for ( int i = 0; i <= 10; i++ ) {
-            List< Vector3D > vectors = make_random_point_set(true);
-
-            System.out.println("Start vector set");
-            System.out.println( vectors.get(0).toString());
-            System.out.println( vectors.get(1).toString());
-            System.out.println( vectors.get(2).toString());
-            System.out.println("End vector set");
-
-            //assertEquals( CCW.simpleCCW(vectors.get(0), vectors.get(1), vectors.get(2)), true );
-
-
-        }
-    }
-
-    /**
-     * Test Ordered CCW Method
-     */
-    @Test
-    public void testOrderedCCW() {
-
-    }
-
-    /**
      * Test Robust CCW Method
      */
     @Test
     public void testRobustCCW() {
 
-        System.out.println("Testing equality case for robust CCW");
         // Check Invariant for a == b == c
         Vector3D a = new Vector3D(0.72571927877036835, 0.46058825605889098, 0.51106749730504852);
         Vector3D b = new Vector3D(0.72571927877036835, 0.46058825605889098, 0.51106749730504852);
@@ -105,8 +74,6 @@ public class CCWTest extends RandomizedTest {
         assertTrue(CCW.robustCCW(a, b, c, Vector3DUtils.crossProduct(a, b)) == 0);
         assertTrue(CCW.robustCCW(a, b, c) == 0);
 
-
-        System.out.println("Testing robust non-CCW cases");
         // Test robust Non-CCW on some n random point sets between 10-20
         for ( int i = 0; i <= 10; i++ ) {
             List< Vector3D > vectors = make_random_point_set(false);
@@ -122,15 +89,14 @@ public class CCWTest extends RandomizedTest {
             assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))), 1);
         }
 
-        System.out.println("Testing very robust case from S2 library test cases");
         // Very "robust" Test Case from S2 Lib
         a = new Vector3D(0.72571927877036835, 0.46058825605889098, 0.51106749730504852);
         b = new Vector3D(0.7257192746638208, 0.46058826573818168, 0.51106749441312738);
         c = new Vector3D(0.72571927671709457, 0.46058826089853633, 0.51106749585908795);
 
         // Check CCW returns true
-       // assertTrue(CCW.expensiveCCW(a, b, c, a.crossProd(b)) != 0);
-        assertTrue(CCW.expensiveCCW(a, b, c) != 0);
+        assertTrue(CCW.robustCCW(a, b, c, a.crossProd(b)) != 0);
+        assertTrue(CCW.robustCCW(a, b, c) != 0);
 
     }
 

@@ -152,12 +152,30 @@ public class IntersectUtils {
      */
     public static int robustCrossing( Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
-        Vector3D cd = Vector3DUtils.crossProduct(c, d);
-        int cbd = -1*CCW.robustCCW(c, d, b, cd); // sign... the long running problem with robust CCW???
-        int acb = CCW.expensiveCCW(a, c, b);
-        if ( cbd != acb ) return -1;
+        Vector3D aXB = a.crossProd(b);
+        int acb = -1*CCW.robustCCW(a, b, c, aXB );
+        int bda = CCW.robustCCW(a, b, d, aXB );
 
-        int dac = CCW.robustCCW(c, d, a, cd); // sign... the long running problem with robust CCW???
+        // If any two vertices are the same, the result is degenerate.
+        if ((bda & acb) == 0) {
+            return 0;
+        }
+
+        // If ABC and BDA have opposite orientations (the most common case),
+        // there is no crossing.
+        if (bda != acb) {
+            return -1;
+        }
+
+        // Otherwise we compute the orientations of CBD and DAC, and check whether
+        // their orientations are compatible with the other two triangles.
+        Vector3D cXD = c.crossProd(d);
+        int cbd = -1 *CCW.robustCCW(c, d, b, cXD);
+        if (cbd != acb) {
+            return -1;
+        }
+
+        int dac = CCW.robustCCW(c, d, a, cXD);
         return (dac == acb) ? 1 : -1;
     }
 
