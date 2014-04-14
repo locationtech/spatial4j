@@ -18,7 +18,7 @@
 package com.spatial4j.core.shape;
 
 /**
- * @file: Vector3D.java
+ * @file: Vector3D.java  (should update doucmentation and sort statics and noon statics)
  * @brief: Generic 3 Component Vector/Point (double)
  * @author: Rebecca Alford (ralford)
  *
@@ -85,37 +85,120 @@ public class Vector3D {
         return this.Z;
     }
 
+
     /**
-     * Determine if two Vector3Ds are equal
+     * Computations with Vectors
      */
-    @Override
-    public boolean equals(Object other) {
-        return equals(this, other);
+
+    // Subtract 2 vectors
+    public static Vector3D minus( Vector3D v1, Vector3D v2 ) {
+        return sub(v1, v2);
     }
 
-    /**
-     * All implementations of Vector3D should use this .equals definition
-     */
-    public boolean equals( Vector3D thiz, Object o ) {
-        assert thiz != null;
-        if (thiz == o) return true;
-        if (!(o instanceof Vector3D)) return false;
-
-        Vector3D v = (Vector3D) o;
-
-        if ( thiz.getX() != v.getX() ) return false;
-        if ( thiz.getY() != v.getY() ) return false;
-        if ( thiz.getZ() != v.getZ() ) return false;
-
-        return true;
+    // Negate a vector
+    public static Vector3D neg( Vector3D v ) {
+        return new Vector3D( -v.X, -v.Y, -v.Z );
     }
 
-    /**
-     * ToString Method (useful for debugging)
-     */
-    public String toString() {
-        String s = "x=" + this.X + " y=" + this.Y + " z=" + this.Z;
-        return s;
+    // Normalize Vector squared
+    public double norm2() {
+        return Math.pow(X, 2) + Math.pow(Y, 2) + Math.pow(Z, 2);
+    }
+
+    // Compute norm
+    public double norm() {
+        return Math.sqrt( norm2() );
+    }
+
+    // Inside compute cross product
+    public Vector3D crossProd( final Vector3D v ) {
+        return Vector3D.crossProd(this, v);
+    }
+
+    // Outside Compute Cross Product between two vectors
+    public static Vector3D crossProd( final Vector3D v1, final Vector3D v2 ) {
+        return new Vector3D(
+                v1.Y * v2.Z - v1.Z * v2.Y,
+                v1.Z * v2.X - v1.X * v2.Z,
+                v1.X * v2.Y - v1.Y * v2.X);
+    }
+
+    // Add 2 vectors
+    public static Vector3D add( final Vector3D v1, final Vector3D v2 ) {
+        return new Vector3D( v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z );
+    }
+
+
+    // Subtract 2 Vectors (internal final subtraction)
+    public static Vector3D sub(final Vector3D v1, final Vector3D v2) {
+        return new Vector3D(v1.X- v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
+    }
+
+    // Compute the dot product between this Vector3D and another point
+    public double dotProduct( Vector3D v ) {
+        return this.X * v.X + this.Y * v.Y + this.Z * v.Z;
+    }
+
+    // Multiply some vector by a scalar
+    public static Vector3D multiply( final Vector3D v, double m ) {
+        return new Vector3D( m*v.X, m*v.Y, m*v.Z );
+    }
+
+    // Divide some vector by a scalar
+    public static Vector3D divide( final Vector3D v, double m ) {
+        return new Vector3D( v.X/m, v.Y/m, v.Z/m );
+    }
+
+    // Return a Vector Orthogonal to this one
+    public Vector3D ortho() {
+        int k = largestAbsComponent();
+        Vector3D temp;
+
+        if (k == 1) temp = new Vector3D(1, 0, 0);
+        else if (k == 2) temp = new Vector3D(0, 1, 0);
+        else temp = new Vector3D(0, 0, 1);
+
+        return Vector3D.normalize( crossProd(this, temp) );
+    }
+
+    // Return the index of the largest abs component
+    public int largestAbsComponent() {
+        Vector3D temp = fabs(this);
+        if (temp.X > temp.Y) {
+            if (temp.X > temp.Z) {
+                return 0;
+            } else {
+                return 2;
+            }
+        } else {
+            if (temp.Y > temp.Z) {
+                return 1;
+            } else {
+                return 2;
+            }
+        }
+    }
+
+    public static Vector3D fabs(Vector3D v) {
+        return new Vector3D(Math.abs(v.X), Math.abs(v.Y), Math.abs(v.Z));
+    }
+
+    public static Vector3D normalize(Vector3D v) {
+        double norm = v.norm();
+        if (norm != 0) {
+            norm = 1.0 / norm;
+        }
+        return Vector3D.multiply(v, norm);
+    }
+
+    public double get(int axis) {
+        return (axis == 0) ? X : (axis == 1) ? Y : Z;
+    }
+
+    /** Return the angle between two vectors in radians */
+    public double angle(Vector3D v) {
+        return Math.atan2( crossProd(this, v).norm(), this.dotProduct(v) );
     }
 
 }
+// can still implement and test more, but working on it

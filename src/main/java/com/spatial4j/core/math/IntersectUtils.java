@@ -138,7 +138,7 @@ public class IntersectUtils {
     }
 
     /**
-     * Determine if the edges AB and CD intersect. Doe sthis by arbitrarily classifying points
+     * Determine if the edges AB and CD intersect. Does this by arbitrarily classifying points
      * as being on one side or the other (such that robustCCW can be applied). Returns +1 if there
      * is a crossing, -1 f no crossing, and 0 if any two vertices are the same. Returns 0 or -1 if
      * either edge is degenerate.
@@ -150,7 +150,7 @@ public class IntersectUtils {
      *      (4) robustCrossing(a, b, c, d) <= 0 if a == b or c == d
      *
      */
-    private static int robustCrossing( Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
+    public static int robustCrossing( Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
         Vector3D cd = Vector3DUtils.crossProduct(c, d);
         int cbd = -1*CCW.robustCCW(c, d, b, cd); // sign... the long running problem with robust CCW???

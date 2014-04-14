@@ -102,7 +102,7 @@ public class CCW {
      *  simpleCCW(a, b, c) then !simpleCCW(c, b, a) for all a, b, c
      */
     public static boolean simpleCCW( Vector3D a, Vector3D b, Vector3D c ) {
-        return Vector3DUtils.dotProduct( Vector3DUtils.crossProduct(c, a), b ) > 0;
+        return Vector3DUtils.dotProduct( Vector3DUtils.crossProduct(a, c), b ) > 0;
     }
 
     /**
@@ -123,14 +123,13 @@ public class CCW {
      */
     public static int expensiveCCW( Vector3D a, Vector3D b, Vector3D c ) {
 
-        System.out.println("In expensive ccw");
         // Check Equality
         if ( a.equals(b) || b.equals(c) || c.equals(a) ) return 0;
 
         // Handle the Edge case of nearby and nearly antipodal points.
-        double sab = (Vector3DUtils.dotProduct(a, b) > 0) ? -1 : 1;
-        double sbc = (Vector3DUtils.dotProduct(b, c) > 0) ? -1 : 1;
-        double sca = (Vector3DUtils.dotProduct(c, a) > 0) ? -1 : 1;
+        double sab = (a.dotProduct(b) > 0) ? -1 : 1;
+        double sbc = (b.dotProduct(c) > 0) ? -1 : 1;
+        double sca = (c.dotProduct(a) > 0) ? -1 : 1;
 
         Vector3D vab = Vector3DUtils.sum(a, Vector3DUtils.multiply(b, sab));
         Vector3D vbc = Vector3DUtils.sum(b, Vector3DUtils.multiply(c, sbc));
