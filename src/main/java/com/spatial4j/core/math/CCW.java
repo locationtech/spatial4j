@@ -144,20 +144,24 @@ public class CCW {
         // we break ties deterministically to ensure that the symmetry properties are true.
 
         double sign;
-        if (dca < dbc || (dca == dbc && Vector3DUtils.greaterThan(a, b))) { // using mags because I am not sure if you can do direct comparison
-            if (dca < dbc || (dab == dbc && Vector3DUtils.greaterThan(a, c))) {
-                sign = Vector3DUtils.dotProduct(Vector3DUtils.crossProduct(vab, vca), a) * sab; // BC is the longest edge
+        if (dca < dbc || (dca == dbc && a.lessThan(b))) {
+            if (dab < dbc || (dab == dbc && a.lessThan(c))) {
+                // The "sab" factor converts A +/- B into B +/- A.
+                sign = Vector3D.crossProd(vab, vca).dotProduct(a) * sab; // BC is longest
+                // edge
             } else {
-                sign = Vector3DUtils.dotProduct(Vector3DUtils.crossProduct(vca, vbc), c) * sca;
+                sign = Vector3D.crossProd(vca, vbc).dotProduct(c) * sca; // AB is longest
+                // edge
             }
         } else {
-            if ( dab < dca || (dab == dca && Vector3DUtils.greaterThan(b, c))) {
-                sign = Vector3DUtils.dotProduct(Vector3DUtils.crossProduct(vbc, vab), b) * sbc;
+            if (dab < dca || (dab == dca && b.lessThan(c))) {
+                sign = Vector3D.crossProd(vbc, vab).dotProduct(b) * sbc; // CA is longest
+                // edge
             } else {
-                sign = Vector3DUtils.dotProduct(Vector3DUtils.crossProduct(vca, vbc), c) * sca;
+                sign = Vector3D.crossProd(vca, vbc).dotProduct(c) * sca; // AB is longest
+                // edge
             }
         }
-
         if (sign > 0) return 1;
         if (sign < 0) return -1;
 
@@ -182,7 +186,7 @@ public class CCW {
         }
 
         // despite all of this, CCW still might be 0 due to issues in numerical robustness
-        return 0;
+        return ccw;
     }
 
 

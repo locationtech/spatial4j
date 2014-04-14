@@ -129,8 +129,8 @@ public class CCWTest extends RandomizedTest {
         c = new Vector3D(0.72571927671709457, 0.46058826089853633, 0.51106749585908795);
 
         // Check CCW returns true
-        assertTrue(CCW.robustCCW(a, b, c, a.crossProd(b)) != 0);
-        assertTrue(CCW.robustCCW(a, b, c) != 0);
+       // assertTrue(CCW.expensiveCCW(a, b, c, a.crossProd(b)) != 0);
+        assertTrue(CCW.expensiveCCW(a, b, c) != 0);
 
     }
 
@@ -139,6 +139,8 @@ public class CCWTest extends RandomizedTest {
      *
      * note - num points was unused so I removed the arg though it might be a good point of
      * extension
+     *
+     * will only make convex shapes for now...
      */
     private List< Vector3D > make_random_point_set( boolean ccw ) {
 

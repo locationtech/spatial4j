@@ -200,5 +200,23 @@ public class Vector3D {
         return Math.atan2( crossProd(this, v).norm(), this.dotProduct(v) );
     }
 
+    public boolean lessThan( Vector3D v) {
+        if (X < v.X) {
+            return true;
+        }
+        if (v.X < X) {
+            return false;
+        }
+        if (Y < v.Y) {
+            return true;
+        }
+        if (v.Y < Y) {
+            return false;
+        }
+        if (Z < v.Z) {
+            return true;
+        }
+        return false;
+    }
 }
 // can still implement and test more, but working on it
