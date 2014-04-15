@@ -213,4 +213,28 @@ public class GeoPolygon implements Shape {
 
     }
 
+    /**
+     * Pairwise Lat/Lon Method for Computing the Bounding Box
+     * void so it compiles for now
+     */
+    private void latLonBounding() {
+
+        // grab the outermost ring of the polygon
+
+        // for all combinations of vertices, find the greatest
+        // latitude span
+
+        // for all combinations of vertices, find the greatest
+        // longitude span
+
+        // return a latitude/longitude bounding box from these bounds
+
+        // formal way of checking validity of teh bod
+
+    }
+
+    /**
+     * S2 Method for Computing the bounding box
+     */
+
 }

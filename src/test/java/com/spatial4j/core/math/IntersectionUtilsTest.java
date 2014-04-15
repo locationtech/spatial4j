@@ -18,9 +18,6 @@
 package com.spatial4j.core.math;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.Vector3D;
 
 import com.spatial4j.core.TestLog;
@@ -36,17 +33,12 @@ import org.junit.Assert.*;
  */
 public class IntersectionUtilsTest extends RandomizedTest {
 
-    // Required for backwards conversion
-    private SpatialContext ctx;
-
     /**
      * Setup Spatial Context (Geodesic) Prior to running
      * the test suite
      */
     @Before
-    public void setUp() {
-        ctx = SpatialContext.GEO;
-    }
+    public void setUp() {}
 
     @After
     public void tearDown() {}
