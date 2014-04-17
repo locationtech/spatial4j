@@ -22,50 +22,50 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
-import com.spatial4j.core.math.Vector3DUtils;
+import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.math.CCW;
 
-import com.spatial4j.core.shape.Vector3D;
-import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.math.IntersectUtils;
+import com.spatial4j.core.math.TransformUtils;
+import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.impl.PointImpl;
 
 /**
  * A loop is a representation of a simple polygon on the surface of a sphere. Vertices
- * are represented as 3D direction cosine vectors (derived from the 3D geocentric point)
- * and are listed counter clockwise with an implicit closure between the last and
- * first vertex on the ring.
+ * are represented in latitude and longitude, with an implicit closure between the first and
+ * last vertex in the ring
  *
  * A loop has:
  *      (1) At least 3 vertices
- *      (2) All vertices of unit length
- *      (3) No duplicate vertices
- *      (4) Non-adjacent edges cannot intersect
+ *      (2) No duplicate non-adjacent vertices
+ *      (3) Non-adjacent edges cannot intersect
  *
- * Various loop modeling algorithms are modeled after the s2Loop implementation in the
- * s2Geometry project which is under Apache (ASL) license. More info on this project
- * can be found at:
+ * This implementation of loops is inspired both by the jTS LinearRing and S2Loop implementations
+ * for modeling general polygons.
  *
  * Link: https://code.google.com/p/s2-geometry-library/
  */
-public class Loop {
+public class Loop implements Shape {
 
     // Data: Store Loop Vertices
-    private List< Vector3D > vertices;
+    private List< Point > vertices;
     private int depth;
     private boolean is_hole;
+    private SpatialContext ctx;
 
+    // Private Constructor - Must always construct a loop from vertices
     private Loop() {}
 
     /**
-     * Construct a geodesic loop from a list of vertices (3D Point)
+     * Construct a geodesic loop from a list of latitude/longitude points
      */
-    public Loop( List< Vector3D > vertices, int depth, boolean is_hole ) {
+    public Loop( List< Point > vertices, int depth, boolean is_hole ) {
+        this.ctx = SpatialContext.GEO;
         this.vertices = vertices;
         this.depth = depth;
         this.is_hole = is_hole;
         assert( isValid() );
     }
-
-    ////// Methods for Loop Properties ///////
 
     /**
      * Determine if this loop is a valid loop. Should always return true after
@@ -73,8 +73,7 @@ public class Loop {
      *
      * A loop has:
      *      (1) At least 3 vertices
-     *      (2) All vertices of unit length
-     *      (3) No duplicate vertices
+     *      (3) No duplicate non-adjacent vertices
      *      (4) Non-adjacent edges cannot intersect
      */
     public boolean isValid() {
@@ -84,19 +83,13 @@ public class Loop {
             return false;
         }
 
-        // Check all vertices are of unit length
-        for ( int i = 0; i < vertices.size(); i++ ) {
-            if ( Vector3DUtils.mag(vertices.get(i)) != 1 ) {
-                return false;
-            }
-        }
-
-        // Assert loops do not contain any duplicate vertices
-        Map< Vector3D, Integer > hashMap = new HashMap< Vector3D, Integer >();
+        // Assert loops do not contain any duplicate non-adjacent vertices
+        Map< Point, Integer > hashMap = new HashMap< Point, Integer >();
         for (int i = 0; i < vertices.size(); i++ ) {
+
             if ( !hashMap.containsKey(vertices.get(i))) {
                 hashMap.put( vertices.get(i), i );
-            } else {
+            } else if (i != vertices.size() && !vertices.get(i).equals(vertices.get(i+1))) {
                 return false;
             }
         }
@@ -105,8 +98,36 @@ public class Loop {
         boolean crosses = false;
 
         // Iterate through vertices, predict intersection for each vertex
-        for ( int i = 0; i < vertices.size(); i++ ) {
-            // still needs to implement
+        int numEdges = numVertices()-1;
+        for ( int i = 0; i < numEdges; i++ ) {
+
+
+            // If I am not at the last edge..
+            if ( i+2 < numVertices() ) {
+
+                // Compute Possible Intersections between Adjacent Edges
+                Vector3D a = TransformUtils.toVector(vertices.get(i));
+                Vector3D b = TransformUtils.toVector(vertices.get(i+1));
+                Vector3D c = TransformUtils.toVector(vertices.get(i+2));
+
+                // Check edge intersection
+                if ( IntersectUtils.edgeOrVertexIntersection(a, b, b, c) && !IntersectUtils.vertexIntersection(a, b, b, c) ) {
+                    return false;
+                }
+
+            } else {
+
+                // Compute Possible Intersections between Adjacent Edges
+                Vector3D a = TransformUtils.toVector(vertices.get(i));
+                Vector3D b = TransformUtils.toVector(vertices.get(i+1));
+                Vector3D c = TransformUtils.toVector(vertices.get(1));
+
+                // Check edge intersection
+                if ( IntersectUtils.edgeOrVertexIntersection(a, b, b, c)  && !IntersectUtils.vertexIntersection(a, b, b, c) ) {
+                    return false;
+                }
+
+            }
         }
 
        return true;
@@ -115,14 +136,14 @@ public class Loop {
     /**
      * Return the vertices currently contained in the loop
      */
-    public List< Vector3D > getVertices() {
+    public List< Point > getVertices() {
         return this.vertices;
     }
 
     /**
      * Return the cannonical first vertex of the loop
      */
-    public Vector3D getCanonicalFirstVertex() {
+    public Point getCanonicalFirstVertex() {
         assert( isValid() );
         return this.vertices.get(1);
     }
@@ -151,22 +172,15 @@ public class Loop {
     /**
      * Find a vertex of interest in the loop
      */
-    public Vector3D findVertex( Vector3D v ) {
+    public Point findVertex( Point v ) {
 
         for ( int i = 0; i < this.vertices.size(); i++ ) {
             if (this.vertices.get(i).equals(v)) return this.vertices.get(i);
         }
-        return new Vector3D(0, 0, 0); // otherwise, return a non-unit vector
+        return new PointImpl(0, 0, ctx);
     }
 
     ////// Compute Geometric Properties of the Loop ///////
-
-    /**
-     * Does the loop have area?
-     */
-    public boolean hasArea() {
-        return (getArea() > 0 );
-    }
 
     /**
      * Compute the area of the loop
@@ -176,17 +190,82 @@ public class Loop {
     }
 
     /**
-     * Compute the centroid of the loop
+     * Describe the Relationship between a polygon and another shape - determining
+     * within, contains, disjoint and intersection. If the shapes are equal, then the result
+     * contains or within will be returned.
      */
-    public Vector3D getCenter() {
-        throw new UnsupportedOperationException("Get centroid not yet implemented");
+    @Override
+    public SpatialRelation relate(Shape other) {
+        throw new UnsupportedOperationException(); // TODO Implement this
     }
 
     /**
-     * Get the Bounding Lat/Lon Rectangle of the Loop
+     * Compute the bounding box for the geodesic polygon. This means the
+     * shape is within the bounding box and that it touches each side of the
+     * rectangle
      */
+    @Override
     public Rectangle getBoundingBox() {
-        throw new UnsupportedOperationException("Get bounding bod not yet implemented");
+        throw new UnsupportedOperationException(); // TODO IMPLEMENT THIS
+    }
+
+    /**
+     * Does the Shape have area?
+     */
+    @Override
+    public boolean hasArea() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Calculate the area of the shape in square-degrees. If no spatial
+     * context is provided, then simple Euclidean calculations would be used
+     * This figure can be an estimate.
+     */
+    public double getArea(SpatialContext ctx) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Return the center point of the polygon. Typically the same as the centroid of the bounding box.
+     */
+    @Override
+    public Point getCenter() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns a buffered version of a polygon. Buffer is usually a rounded corner buffer - though some
+     * shapes might buffer differently.
+     */
+    @Override
+    public Shape getBuffered(double distance, SpatialContext ctx ) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+
+    /**
+     * Shapes can be 'empty' if underlying coordinates are NaN
+     */
+    @Override
+    public boolean isEmpty() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Implement HashCode method (unique hascode for the shape)
+     */
+    @Override
+    public int hashCode() {
+        return 0; // TODO implement this
+    }
+
+    /**
+     * To String - string representation of a polygon
+     */
+    @Override
+    public String toString() {
+        return "";
     }
 
 
@@ -220,6 +299,4 @@ public class Loop {
 
         return true;
     }
-
-
 }

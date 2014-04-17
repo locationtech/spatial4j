@@ -25,13 +25,6 @@ import javax.xml.crypto.dsig.Transform;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- * Project To Do List (Opened 3/5/14):
- *  - finish basic implementation of the loops class (representation) \
- *  - implement polyline as edge
- *  - implement required intersection utilities (+ tests)
- *  - implement area, has area, centroid, equals, bounding box, point in polygon
- */
 
 /**
  * Geodesic Polygon: A Geodesic Polyon is a composition of loops, which represent
@@ -218,6 +211,20 @@ public class GeoPolygon implements Shape {
      * void so it compiles for now
      */
     private void latLonBounding() {
+
+
+        // Grab the outermost ring of the polygon
+        Loop outerLoop = this.loops.get(1);
+
+        // Keep track of the greatest distance between the two points
+
+        for ( int i = 0; i < outerLoop.numVertices(); i++ ) {
+            for ( int j = 1; j < outerLoop.numVertices(); j++ ) {
+
+            }
+        }
+
+
 
         // grab the outermost ring of the polygon
 
