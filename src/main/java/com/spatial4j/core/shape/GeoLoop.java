@@ -15,20 +15,16 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.shape.graph;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
+package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.math.CCW;
-
 import com.spatial4j.core.math.IntersectUtils;
 import com.spatial4j.core.math.TransformUtils;
-import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.impl.PointImpl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A loop is a representation of a simple polygon on the surface of a sphere. Vertices
@@ -45,7 +41,7 @@ import com.spatial4j.core.shape.impl.PointImpl;
  *
  * Link: https://code.google.com/p/s2-geometry-library/
  */
-public class Loop implements Shape {
+public class GeoLoop implements Shape {
 
     // Data: Store Loop Vertices
     private List< Point > vertices;
@@ -59,7 +55,7 @@ public class Loop implements Shape {
     /**
      * Construct a geodesic loop from a list of latitude/longitude points
      */
-    public Loop( List< Point > vertices, int depth, boolean is_hole ) {
+    public Loop(List<Point> vertices, int depth, boolean is_hole) {
         this.ctx = SpatialContext.GEO;
         this.vertices = vertices;
         this.depth = depth;

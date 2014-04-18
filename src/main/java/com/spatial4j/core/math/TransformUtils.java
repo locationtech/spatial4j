@@ -18,7 +18,6 @@
 package com.spatial4j.core.math;
 
 import com.spatial4j.core.shape.Vector3D;
-import com.spatial4j.core.shape.impl.GeocentricPoint;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
 

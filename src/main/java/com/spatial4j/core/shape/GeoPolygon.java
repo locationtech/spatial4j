@@ -58,15 +58,8 @@ public class GeoPolygon implements Shape {
         // GeoPolygon always in a geodesic context
         this.ctx = SpatialContext.GEO;
 
-        // Make a list of vectors
-        List< Vector3D > vertices = new ArrayList<Vector3D>();
-        for ( int i = 0; i < points.size(); i++ ) {
-            Vector3D v = TransformUtils.toVector(points.get(i));
-            vertices.add(i, v);
-        }
-
         // Construct a single loop of depth = 0
-        Loop simpleLoop = new Loop( vertices, 0 , true );
+        Loop simpleLoop = new Loop( points, 0 , true );
         this.loops = new ArrayList< Loop >(1);
         this.loops.add(1, simpleLoop);
 
