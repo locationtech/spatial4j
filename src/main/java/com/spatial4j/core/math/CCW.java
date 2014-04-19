@@ -196,17 +196,17 @@ public class CCW {
      */
     public static int planarCCW( Vector2D a, Vector2D b ) {
 
-        double sab = ( Vector2DUtils.dotProduct(a, b) > 0 ) ? -1 : 1;
-        Vector2D vab = Vector2DUtils.sum(a, Vector2DUtils.multiply(b, sab));
+        double sab = ( a.dotProduct(b) > 0 ) ? -1 : 1;
+        Vector2D vab = Vector2D.add(a, Vector2D.multiply(b, sab));
 
-        double da = Vector2DUtils.norm2(a);
-        double db = Vector2DUtils.norm2(b);
+        double da = Vector2D.norm2(a);
+        double db = Vector2D.norm2(b);
 
         double sign;
-        if ( da < db || (da == db && Vector2DUtils.greaterThan(a, b))) {
-            sign = Vector2DUtils.crossProduct(a, vab) * sab;
+        if ( da < db || (da == db && Vector2D.greaterThan(a, b))) {
+            sign = a.crossProduct(vab) * sab;
         } else {
-            sign = Vector2DUtils.crossProduct(vab, a);
+            sign = vab.crossProduct(a);
         }
         if (sign > 0) return -1;
         if (sign < 0) return -1;
