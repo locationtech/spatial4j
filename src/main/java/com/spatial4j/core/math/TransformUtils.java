@@ -17,6 +17,11 @@
 
 package com.spatial4j.core.math;
 
+import java.util.List;
+import java.util.ArrayList;
+
+import com.spatial4j.core.shape.GeoLoop;
+
 import com.spatial4j.core.shape.Vector3D;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
@@ -64,6 +69,21 @@ public class TransformUtils {
         double lon = Math.atan2( v.getY(), v.getX() );
 
         return new PointImpl( lon, lat, ctx );
+    }
+
+    /**
+     * Convert a loop represented in geographic points to an array of direction vectors
+     */
+    public static List< Vector3D > toVectorLoop( GeoLoop l ) {
+
+        List< Point > points = l.getVertices();
+        List< Vector3D > vectors = new ArrayList<Vector3D>(points.size());
+
+        for ( int i = 0; i < points.size(); i++ ) {
+            vectors.add( toVector(points.get(i)));
+        }
+
+        return vectors;
     }
 
 } // TransformUtils
