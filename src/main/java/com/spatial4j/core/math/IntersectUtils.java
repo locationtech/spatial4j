@@ -54,14 +54,14 @@ public class IntersectUtils {
      */
     public static Vector3D getIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
-        Vector3D a_norm = Vector3DUtils.normalize(robustCrossProd(a, b));
-        Vector3D b_norm = Vector3DUtils.normalize(robustCrossProd(c, d));
-        Vector3D x = Vector3DUtils.normalize(robustCrossProd(a_norm, b_norm));
+        Vector3D a_norm = Vector3D.normalize(robustCrossProd(a, b));
+        Vector3D b_norm = Vector3D.normalize(robustCrossProd(c, d));
+        Vector3D x = Vector3D.normalize(robustCrossProd(a_norm, b_norm));
 
         // Check the intersection point is on the right side of the sphere. Since all
         // vertices are of unit length, edges are less than 180 degrees, needs to do this
-        if ( Vector3DUtils.dotProduct(x, (Vector3DUtils.sum(Vector3DUtils.sum(a, b), Vector3DUtils.sum(c, d)))) < 0 ) {
-            x = Vector3DUtils.multiply(x, -1);
+        if ( x.dotProduct(Vector3D.add(Vector3D.add(a,b), Vector3D.add(c,d))) < 0 ) {
+            x = Vector3D.multiply(x, -1);
         }
 
         // Calculation above is enough to ensure that x is within some intersection tolerance
@@ -104,10 +104,10 @@ public class IntersectUtils {
         // if any other pair of vertices is equal, there is a crossing iff orderedCCW indicates
         // that edge AB is further CCW around the shared vertex (either A or B) than edge CD, starting
         // from an arbitrary fixed reference point.
-        if ( a == d ) return CCW.orderedCCW(Vector3DUtils.ortho(a), c, b, a);
-        if ( b == c ) return CCW.orderedCCW(Vector3DUtils.ortho(b), d, a, b);
-        if ( a == c ) return CCW.orderedCCW(Vector3DUtils.ortho(a), d, b, a);
-        if ( b == d ) return CCW.orderedCCW(Vector3DUtils.ortho(b), c, a, b);
+        if ( a == d ) return CCW.orderedCCW(a.ortho(), c, b, a);
+        if ( b == c ) return CCW.orderedCCW(b.ortho(), d, a, b);
+        if ( a == c ) return CCW.orderedCCW(a.ortho(), d, b, a);
+        if ( b == d ) return CCW.orderedCCW(b.ortho(), c, a, b);
 
         // vertex crossing called with four distinct vertices (here they log fatal?)
         return false;
@@ -123,15 +123,15 @@ public class IntersectUtils {
      */
     public static boolean simpleIntersection(Vector3D a, Vector3D b, Vector3D c, Vector3D d) {
 
-        Vector3D ab = Vector3DUtils.crossProduct(a, b);
-        double acb = -1*Vector3DUtils.dotProduct(ab, c);
-        double bda = Vector3DUtils.dotProduct(ab, d);
+        Vector3D ab = a.crossProd(b);
+        double acb = -1*ab.dotProduct(c);
+        double bda = ab.dotProduct(d);
 
         if (acb * bda <= 0) return false;
 
-        Vector3D cd = Vector3DUtils.crossProduct(c, d);
-        double cbd = -1 * Vector3DUtils.dotProduct(cd, b);
-        double dac = Vector3DUtils.dotProduct(cd, a);
+        Vector3D cd = c.crossProd(d);
+        double cbd = -1 * cd.dotProduct(b);
+        double dac = cd.dotProduct(a);
 
         return (acb * cbd > 0) && (acb * dac > 0);
 
@@ -184,8 +184,8 @@ public class IntersectUtils {
      */
     private static void replaceIfCloser( Vector3D a, Vector3D b, double dmin, Vector3D vmin ) {
 
-        double d2 = Vector3DUtils.norm2(Vector3DUtils.difference(a, b));
-        if ( d2 < dmin || (d2 == dmin && Vector3DUtils.greaterThan(b, vmin))) {
+        double d2 = Vector3D.minus(a, b).norm2();
+        if ( d2 < dmin || (d2 == dmin && b.lessThan(vmin))) {
             dmin = d2;
             vmin = b;
         }
@@ -199,10 +199,8 @@ public class IntersectUtils {
      * (b-a) are always orthogonal.
      */
     private static Vector3D robustCrossProd( Vector3D a, Vector3D b ) {
-        Vector3D x = Vector3DUtils.crossProduct(
-                Vector3DUtils.sum(a, b),
-                Vector3DUtils.difference(b, a));
+        Vector3D x = (Vector3D.add(a, b)).crossProd(Vector3D.minus(b, a));
         if ( !x.equals(new Vector3D(0, 0, 0))) return x;
-        return Vector3DUtils.ortho(a);
+        return a.ortho();
     }
 }

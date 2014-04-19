@@ -62,18 +62,18 @@ public class IntersectionUtilsTest extends RandomizedTest {
 
 
         // Two Regular Edges that Cross on antipodal points
-        a = Vector3DUtils.normalize( new Vector3D( 1, 2, 1) );
-        b = Vector3DUtils.normalize( new Vector3D( 1, -3, 0.5) );
-        c = Vector3DUtils.normalize( new Vector3D( -1, 0.5, 3) );
-        d = Vector3DUtils.normalize( new Vector3D( -0.1, -0.5, -3) );
+        a = Vector3D.normalize( new Vector3D( 1, 2, 1) );
+        b = Vector3D.normalize( new Vector3D( 1, -3, 0.5) );
+        c = Vector3D.normalize( new Vector3D( -1, 0.5, 3) );
+        d = Vector3D.normalize( new Vector3D( -0.1, -0.5, -3) );
 
         assertTrue( !IntersectUtils.simpleIntersection(a, b, c, d ) );
 
         // Two Edges on the Same Great Cirlce
-        a = Vector3DUtils.normalize( new Vector3D( 0, 0, -1 ) );
-        b = Vector3DUtils.normalize( new Vector3D( 0, 1, 0 ) );
-        c = Vector3DUtils.normalize( new Vector3D( 0, 1, 1 ) );
-        d = Vector3DUtils.normalize( new Vector3D( 0, 0, 1 ) );
+        a = Vector3D.normalize( new Vector3D( 0, 0, -1 ) );
+        b = Vector3D.normalize( new Vector3D( 0, 1, 0 ) );
+        c = Vector3D.normalize( new Vector3D( 0, 1, 1 ) );
+        d = Vector3D.normalize( new Vector3D( 0, 0, 1 ) );
 
         assertTrue( !IntersectUtils.simpleIntersection(a, b, c, d ) );
 
@@ -98,19 +98,19 @@ public class IntersectionUtilsTest extends RandomizedTest {
         assertEquals( IntersectUtils.robustCrossing( a, c, b, d), -1 );
 
         // Two Regular Edges that Cross on antipodal points
-        a = Vector3DUtils.normalize( new Vector3D( 1, 2, 1) );
-        b = Vector3DUtils.normalize( new Vector3D( 1, -3, 0.5) );
-        c = Vector3DUtils.normalize( new Vector3D( -1, 0.5, 3) );
-        d = Vector3DUtils.normalize( new Vector3D( -0.1, -0.5, -3) );
+        a = Vector3D.normalize( new Vector3D( 1, 2, 1) );
+        b = Vector3D.normalize( new Vector3D( 1, -3, 0.5) );
+        c = Vector3D.normalize( new Vector3D( -1, 0.5, 3) );
+        d = Vector3D.normalize( new Vector3D( -0.1, -0.5, -3) );
 
         assertEquals( IntersectUtils.robustCrossing( a, b, c, d), -1 );
         assertEquals( IntersectUtils.robustCrossing( a, c, b, d), -1 );
 
         // Two Edges on the Same Great Cirlce
-        a = Vector3DUtils.normalize( new Vector3D( 0, 0, -1 ) );
-        b = Vector3DUtils.normalize( new Vector3D( 0, 1, 0 ) );
-        c = Vector3DUtils.normalize( new Vector3D( 0, 1, 1 ) );
-        d = Vector3DUtils.normalize( new Vector3D( 0, 0, 1 ) );
+        a = Vector3D.normalize( new Vector3D( 0, 0, -1 ) );
+        b = Vector3D.normalize( new Vector3D( 0, 1, 0 ) );
+        c = Vector3D.normalize( new Vector3D( 0, 1, 1 ) );
+        d = Vector3D.normalize( new Vector3D( 0, 0, 1 ) );
 
         assertEquals( IntersectUtils.robustCrossing( a, b, c, d), -1 );
         assertEquals( IntersectUtils.robustCrossing( a, c, b, d), -1 );

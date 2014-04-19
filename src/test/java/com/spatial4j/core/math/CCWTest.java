@@ -26,7 +26,6 @@ import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.math.CCW;
-import com.spatial4j.core.math.Vector3DUtils;
 import com.spatial4j.core.shape.Vector3D;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
@@ -71,14 +70,14 @@ public class CCWTest extends RandomizedTest {
         Vector3D b = new Vector3D(0.72571927877036835, 0.46058825605889098, 0.51106749730504852);
         Vector3D c = new Vector3D(0.72571927877036835, 0.46058825605889098, 0.51106749730504852);
 
-        assertTrue(CCW.robustCCW(a, b, c, Vector3DUtils.crossProduct(a, b)) == 0);
+        assertTrue(CCW.robustCCW(a, b, c, a.crossProd(b)) == 0);
         assertTrue(CCW.robustCCW(a, b, c) == 0);
 
         // Test robust Non-CCW on some n random point sets between 10-20
         for ( int i = 0; i <= 10; i++ ) {
             List< Vector3D > vectors = make_random_point_set(false);
            assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2)), -1 );
-           assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))), -1);
+           assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), vectors.get(0).crossProd(vectors.get(1))), -1);
         }
 
         // Test robust CCW on some n random point sets between 10-20
@@ -86,7 +85,7 @@ public class CCWTest extends RandomizedTest {
 
             List< Vector3D > vectors = make_random_point_set(true);
             assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2)), 1 );
-            assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), Vector3DUtils.crossProduct(vectors.get(0), vectors.get(1))), 1);
+            assertEquals( CCW.robustCCW(vectors.get(0), vectors.get(1), vectors.get(2), vectors.get(0).crossProd(vectors.get(1))), 1);
         }
 
         // Very "robust" Test Case from S2 Lib

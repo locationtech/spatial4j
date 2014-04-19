@@ -62,7 +62,7 @@ public class CCW {
     public static int robustCCW(Vector3D a, Vector3D b, Vector3D c, Vector3D aCrossB) {
 
         final double kMinAbsValue = 1.6e-15; // 2 * 14 * 2**-54
-        double det = Vector3DUtils.dotProduct(aCrossB, c);
+        double det = aCrossB.dotProduct(c);
 
         if ( det > kMinAbsValue ) return 1;
         if ( det < -kMinAbsValue ) return -1;
@@ -102,7 +102,7 @@ public class CCW {
      *  simpleCCW(a, b, c) then !simpleCCW(c, b, a) for all a, b, c
      */
     public static boolean simpleCCW( Vector3D a, Vector3D b, Vector3D c ) {
-        return Vector3DUtils.dotProduct( Vector3DUtils.crossProduct(a, c), b ) > 0;
+        return (a.crossProd(c)).dotProduct( b ) > 0;
     }
 
     /**
