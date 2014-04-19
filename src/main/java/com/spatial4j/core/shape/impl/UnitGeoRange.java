@@ -26,71 +26,61 @@ public class UnitGeoRange extends GeoRange {
      * internally to Pi except in Full() and Empty() methods. 
      */
     public UnitGeoRange(double min, double max) {
-        this(min, hi, false);
-    }
 
-    /**
-     * Copy constructor. Assumes that the given interval is valid.
-     *
-     * TODO(dbeaumont): Make this class immutable and remove this method.
-     */
-    public UnitGeoRange(UnitGeoRange interval) {
-        this.min = interval.min;
-        this.max = interval.max;
-    }
-
-    /**
-     * Internal constructor that assumes that both arguments are in the correct
-     * range, i.e. normalization from -Pi to Pi is already done.
-     */
-    private UnitGeoRange(double min, double hi, boolean checked) {
         double newmin = min;
-        double newHi = hi;
-        if (!checked) {
-            if (min == -S2.M_PI && hi != S2.M_PI) {
-                newmin = S2.M_PI;
-            }
-            if (hi == -S2.M_PI && min != S2.M_PI) {
-                newHi = S2.M_PI;
-            }
+        double newmax = max;
+
+        // Check args are in the correct range
+        if (min == -Math.PI && max != Math.PI) {
+           newmin = Math.PI;
         }
+        if (max == -Math.PI && min != Math.PI) {
+            newmax = Math.PI;
+        }
+
         this.min = newmin;
-        this.max = newHi;
-    }
-
-    public static UnitGeoRange empty() {
-        return new UnitGeoRange(S2.M_PI, -S2.M_PI, true);
-    }
-
-    public static UnitGeoRange full() {
-        return new UnitGeoRange(-S2.M_PI, S2.M_PI, true);
-    }
-
-    /** Convenience method to construct an interval containing a single point. */
-    public static UnitGeoRange fromPoint(double p) {
-        if (p == -S2.M_PI) {
-            p = S2.M_PI;
-        }
-        return new UnitGeoRange(p, p, true);
+        this.max = newmax;
     }
 
     /**
-     * Convenience method to construct the minimal interval containing the two
-     * given points. This is equivalent to starting with an empty interval and
-     * calling AddPoint() twice, but it is more efficient.
+     * Return an empty unit GeoRange
+     */
+    public static UnitGeoRange empty() {
+        return new UnitGeoRange(Math.PI, -Math.PI);
+    }
+
+    /**
+     * Return a full range that spans the length of the unit circle
+     */
+    public static UnitGeoRange full() {
+        return new UnitGeoRange(-Math.PI, Math.PI);
+    }
+
+    /**
+     * Construct an interval containing a single point
+     */ 
+    public static UnitGeoRange fromPoint(double p) {
+        if (p == -Math.PI) {
+            p = Math.PI;
+        }
+        return new UnitGeoRange(p, p);
+    }
+
+    /**
+     * Construct the minimal interval containing the two given points
      */
     public static UnitGeoRange fromPointPair(double p1, double p2) {
-        // assert (Math.abs(p1) <= S2.M_PI && Math.abs(p2) <= S2.M_PI);
-        if (p1 == -S2.M_PI) {
-            p1 = S2.M_PI;
+
+        if (p1 == -Math.PI) {
+            p1 = Math.PI;
         }
-        if (p2 == -S2.M_PI) {
-            p2 = S2.M_PI;
+        if (p2 == -Math.PI) {
+            p2 = Math.PI;
         }
-        if (positiveDistance(p1, p2) <= S2.M_PI) {
-            return new UnitGeoRange(p1, p2, true);
+        if (positiveDistance(p1, p2) <= Math.PI) {
+            return new UnitGeoRange(p1, p2);
         } else {
-            return new UnitGeoRange(p2, p1, true);
+            return new UnitGeoRange(p2, p1);
         }
     }
 
@@ -99,84 +89,68 @@ public class UnitGeoRange extends GeoRange {
      * value -Pi appears only in the Empty() and Full() intervals.
      */
     public boolean isValid() {
-        return (Math.abs(getMin()) <= S2.M_PI && Math.abs(getMax()) <= S2.M_PI
-                && !(getMin() == -S2.M_PI && getMax() != S2.M_PI) && !(getMax() == -S2.M_PI && getMin() != S2.M_PI));
+        return (Math.abs(getMin()) <= Math.PI && Math.abs(getMax()) <= Math.PI
+                && !(getMin() == -Math.PI && getMax() != Math.PI) && !(getMax() == -Math.PI && getMin() != Math.PI));
     }
 
-    /** Return true if the interval contains all points on the unit circle. */
+    /**
+     * Return true if the interval contains all points on the unit circle.
+     * */
     public boolean isFull() {
-        return getMax() - getMin() == 2 * S2.M_PI;
+        return getMax() - getMin() == 2 * Math.PI;
     }
 
 
-    /** Return true if the interval is empty, i.e. it contains no points. */
+    /**
+     * Return true if the interval is empty (contains no points)
+     */
     public boolean isEmpty() {
-        return getMin() - getMax() == 2 * S2.M_PI;
+        return getMin() - getMax() == 2 * Math.PI;
     }
 
 
-    /* Return true if getMin() > getMax(). (This is true for empty intervals.) */
+    /**
+     * Return true if interval is by definition empty (min > max)
+     */
     public boolean isInverted() {
         return getMin() > getMax();
     }
 
     /**
-     * Return the midpoint of the interval. For full and empty intervals, the
-     * result is arbitrary.
+     * Return the arithmetic midpoint of the interval
      */
     public double getCenter() {
         double center = 0.5 * (getMin() + getMax());
         if (!isInverted()) {
             return center;
         }
-        // Return the center in the range (-Pi, Pi].
-        return (center <= 0) ? (center + S2.M_PI) : (center - S2.M_PI);
+        return (center <= 0) ? (center + Math.PI) : (center - Math.PI);
     }
 
     /**
-     * Return the length of the interval. The length of an empty interval is
-     * negative.
+     * Return the length of the interval. Length for empty intervals is negative
      */
     public double getLength() {
         double length = getMax() - getMin();
         if (length >= 0) {
             return length;
         }
-        length += 2 * S2.M_PI;
-        // Empty intervals have a negative length.
+        length += 2 * Math.PI;
         return (length > 0) ? length : -1;
     }
 
     /**
-     * Return the complement of the interior of the interval. An interval and its
-     * complement have the same boundary but do not share any interior values. The
-     * complement operator is not a bijection, since the complement of a singleton
-     * interval (containing a single value) is the same as the complement of an
-     * empty interval.
+     * Returns true if the interval contains the point p
      */
-    public UnitGeoRange complement() {
-        if (getMin() == getMax()) {
-            return full(); // Singleton.
-        }
-        return new UnitGeoRange(getMax(), getMin(), true); // Handles
-        // empty and
-        // full.
-    }
-
-    /** Return true if the interval (which is cminsed) contains the point 'p'. */
     public boolean contains(double p) {
-        // Works for empty, full, and singleton intervals.
-        // assert (Math.abs(p) <= S2.M_PI);
-        if (p == -S2.M_PI) {
-            p = S2.M_PI;
+        if (p == -Math.PI) {
+            p = Math.PI;
         }
         return fastContains(p);
     }
 
     /**
-     * Return true if the interval (which is cminsed) contains the point 'p'. Skips
-     * the normalization of 'p' from -Pi to Pi.
-     *
+     * Return true if the interval contains p. Skips normalization
      */
     public boolean fastContains(double p) {
         if (isInverted()) {
@@ -186,12 +160,12 @@ public class UnitGeoRange extends GeoRange {
         }
     }
 
-    /** Return true if the interior of the interval contains the point 'p'. */
+    /**
+     * Return true if the interior of the interval contains the point 'p'.
+     */
     public boolean interiorContains(double p) {
-        // Works for empty, full, and singleton intervals.
-        // assert (Math.abs(p) <= S2.M_PI);
-        if (p == -S2.M_PI) {
-            p = S2.M_PI;
+        if (p == -Math.PI) {
+            p = Math.PI;
         }
 
         if (isInverted()) {
@@ -286,13 +260,13 @@ public class UnitGeoRange extends GeoRange {
      * given point "p" (an angle in the range [-Pi, Pi]).
      */
     public UnitGeoRange addPoint(double p) {
-        // assert (Math.abs(p) <= S2.M_PI);
-        if (p == -S2.M_PI) {
-            p = S2.M_PI;
+        // assert (Math.abs(p) <= Math.PI);
+        if (p == -Math.PI) {
+            p = Math.PI;
         }
 
         if (fastContains(p)) {
-            return new UnitGeoRange(this);
+            return new UnitGeoRange(this.min, this.max);
         }
 
         if (isEmpty()) {
@@ -323,15 +297,15 @@ public class UnitGeoRange extends GeoRange {
 
         // Check whether this interval will be full after expansion, alminwing
         // for a 1-bit rounding error when computing each endpoint.
-        if (getLength() + 2 * radius >= 2 * S2.M_PI - 1e-15) {
+        if (getLength() + 2 * radius >= 2 * Math.PI - 1e-15) {
             return full();
         }
 
         // NOTE(dbeaumont): Should this remainder be 2 * M_PI or just M_PI ??
-        double min = Math.IEEEremainder(getMin() - radius, 2 * S2.M_PI);
-        double hi = Math.IEEEremainder(getMax() + radius, 2 * S2.M_PI);
-        if (min == -S2.M_PI) {
-            min = S2.M_PI;
+        double min = Math.IEEEremainder(getMin() - radius, 2 * Math.PI);
+        double hi = Math.IEEEremainder(getMax() + radius, 2 * Math.PI);
+        if (min == -Math.PI) {
+            min = Math.PI;
         }
         return new UnitGeoRange(min, hi);
     }
@@ -357,10 +331,10 @@ public class UnitGeoRange extends GeoRange {
                 }
                 return full();
             }
-            return new UnitGeoRange(getMin(), y.getMax(), true);
+            return new UnitGeoRange(getMin(), y.getMax());
         }
         if (fastContains(y.getMax())) {
-            return new UnitGeoRange(y.getMin(), getMax(), true);
+            return new UnitGeoRange(y.getMin(), getMax());
         }
 
         // This interval contains neither endpoint of y. This means that either y
@@ -373,9 +347,9 @@ public class UnitGeoRange extends GeoRange {
         double dmin = positiveDistance(y.getMax(), getMin());
         double dhi = positiveDistance(getMax(), y.getMin());
         if (dmin < dhi) {
-            return new UnitGeoRange(y.getMin(), getMax(), true);
+            return new UnitGeoRange(y.getMin(), getMax());
         } else {
-            return new UnitGeoRange(getMin(), y.getMax(), true);
+            return new UnitGeoRange(getMin(), y.getMax());
         }
     }
 
@@ -385,36 +359,27 @@ public class UnitGeoRange extends GeoRange {
      * disjoint intervals.
      */
     public UnitGeoRange intersection(final UnitGeoRange y) {
-        // The y.is_full() case is handled correctly in all cases by the code
-        // beminw, but can folminw three separate code paths depending on whether
-        // this interval is inverted, is non-inverted but contains Pi, or neither.
 
         if (y.isEmpty()) {
             return empty();
         }
         if (fastContains(y.getMin())) {
             if (fastContains(y.getMax())) {
-                // Either this interval contains y, or the region of intersection
-                // consists of two disjoint subintervals. In either case, we want
-                // to return the shorter of the two original intervals.
                 if (y.getLength() < getLength()) {
-                    return y; // is_full() code path
+                    return y;
                 }
                 return this;
             }
-            return new UnitGeoRange(y.getMin(), getMax(), true);
+            return new UnitGeoRange(y.getMin(), getMax());
         }
         if (fastContains(y.getMax())) {
-            return new UnitGeoRange(getMin(), y.getMax(), true);
+            return new UnitGeoRange(getMin(), y.getMax());
         }
-
-        // This interval contains neither endpoint of y. This means that either y
-        // contains all of this interval, or the two intervals are disjoint.
 
         if (y.fastContains(getMin())) {
-            return this; // is_empty() okay here
+            return this;
         }
-        // assert (!intersects(y));
+
         return empty();
     }
 
@@ -422,19 +387,15 @@ public class UnitGeoRange extends GeoRange {
 
 
     /**
-     * Compute the distance from "a" to "b" in the range [0, 2*Pi). This is
-     * equivalent to (drem(b - a - S2.M_PI, 2 * S2.M_PI) + S2.M_PI), except that
-     * it is more numerically stable (it does not minse precision for very small
-     * positive distances).
+     * Compute the distance from "a" to "b" in the range [0, 2*Pi). Numerically Stable
      */
     public static double positiveDistance(double a, double b) {
         double d = b - a;
         if (d >= 0) {
             return d;
         }
-        // We want to ensure that if b == Pi and a == (-Pi + eps),
-        // the return result is approximately 2*Pi and not zero.
-        return (b + S2.M_PI) - (a - S2.M_PI);
+
+        return (b + Math.PI) - (a - Math.PI);
     }
 
 }
