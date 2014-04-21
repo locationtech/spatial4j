@@ -19,7 +19,7 @@ package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.math.TransformUtils;
-import com.spatial4j.core.shape.graph.Loop;
+import com.spatial4j.core.shape.GeoLoop;
 
 import javax.xml.crypto.dsig.Transform;
 import java.util.List;
@@ -40,7 +40,7 @@ public class GeoPolygon implements Shape {
 
     // Store a list of loops in the polygon which maintain their
     // own depth.
-    private List< Loop > loops;
+    private List< GeoLoop > loops;
     private SpatialContext ctx;
     private boolean isSimple;
 
@@ -59,8 +59,8 @@ public class GeoPolygon implements Shape {
         this.ctx = SpatialContext.GEO;
 
         // Construct a single loop of depth = 0
-        Loop simpleLoop = new Loop( points, 0 , true );
-        this.loops = new ArrayList< Loop >(1);
+        GeoLoop simpleLoop = new GeoLoop( points, 0 , true );
+        this.loops = new ArrayList< GeoLoop >(1);
         this.loops.add(1, simpleLoop);
 
         // Set is_simple == true
@@ -74,7 +74,7 @@ public class GeoPolygon implements Shape {
      * Construct a complex polygon from a user specified list of
      * loops
      */
-    public GeoPolygon( List< Loop > loops, boolean isSimple ) {
+    public GeoPolygon( List< GeoLoop > loops, boolean isSimple ) {
         this.ctx = SpatialContext.GEO;
         this.loops = loops;
         this.isSimple = isSimple;
@@ -113,7 +113,7 @@ public class GeoPolygon implements Shape {
      */
     @Override
     public Rectangle getBoundingBox() {
-        throw new UnsupportedOperationException(); // TODO IMPLEMENT THIS
+        return this.loops.get(1).getBoundingBox(); // return the bounding bod of the outermost loop
     }
 
     /**
@@ -156,7 +156,7 @@ public class GeoPolygon implements Shape {
      */
     @Override
     public boolean isEmpty() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
+        return this.loops.size() == 0;
     }
 
     /**
@@ -164,7 +164,27 @@ public class GeoPolygon implements Shape {
      */
     @Override
     public boolean equals(Object other) {
-        return false; // TODO implement this
+        return equals(this, other);
+    }
+
+    /**
+     * Equals method
+     */
+    public Boolean equals( GeoPolygon thiz, Object other ) {
+
+        assert thiz != null;
+        if (thiz == other) return true;
+        if (!(other instanceof GeoPolygon)) return false;
+
+        GeoPolygon polygon = (GeoPolygon) other;
+
+        if ( polygon.isSimple() != thiz.isSimple() ) return false;
+
+        for ( int i = 0; i <= this.loops.size(); i++ ) {
+            if (! polygon.equals(thiz) ) return false;
+        }
+
+        return true;
     }
 
 
@@ -199,42 +219,5 @@ public class GeoPolygon implements Shape {
 
     }
 
-    /**
-     * Pairwise Lat/Lon Method for Computing the Bounding Box
-     * void so it compiles for now
-     */
-    private void latLonBounding() {
-
-
-        // Grab the outermost ring of the polygon
-        Loop outerLoop = this.loops.get(1);
-
-        // Keep track of the greatest distance between the two points
-
-        for ( int i = 0; i < outerLoop.numVertices(); i++ ) {
-            for ( int j = 1; j < outerLoop.numVertices(); j++ ) {
-
-            }
-        }
-
-
-
-        // grab the outermost ring of the polygon
-
-        // for all combinations of vertices, find the greatest
-        // latitude span
-
-        // for all combinations of vertices, find the greatest
-        // longitude span
-
-        // return a latitude/longitude bounding box from these bounds
-
-        // formal way of checking validity of teh bod
-
-    }
-
-    /**
-     * S2 Method for Computing the bounding box
-     */
 
 }
