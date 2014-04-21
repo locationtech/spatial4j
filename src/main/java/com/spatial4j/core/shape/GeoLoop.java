@@ -20,6 +20,7 @@ package com.spatial4j.core.shape;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.math.IntersectUtils;
 import com.spatial4j.core.math.TransformUtils;
+import com.spatial4j.core.shape.impl.GeoCalc;
 import com.spatial4j.core.shape.impl.PointImpl;
 
 import java.util.HashMap;
@@ -50,12 +51,12 @@ public class GeoLoop implements Shape {
     private SpatialContext ctx;
 
     // Private Constructor - Must always construct a loop from vertices
-    private Loop() {}
+    private GeoLoop() {}
 
     /**
      * Construct a geodesic loop from a list of latitude/longitude points
      */
-    public Loop(List<Point> vertices, int depth, boolean is_hole) {
+    public GeoLoop(List<Point> vertices, int depth, boolean is_hole) {
         this.ctx = SpatialContext.GEO;
         this.vertices = vertices;
         this.depth = depth;
@@ -201,7 +202,7 @@ public class GeoLoop implements Shape {
      */
     @Override
     public Rectangle getBoundingBox() {
-        throw new UnsupportedOperationException(); // TODO IMPLEMENT THIS
+       return GeoCalc.computeLoopBBox(this);
     }
 
     /**
@@ -263,63 +264,6 @@ public class GeoLoop implements Shape {
         return "";
     }
 
-
-    /**
-     * Compute the lat/lon bounding box of this loop
-     * O(n^2) search for the longest latitude span
-     *
-     * can seriously make this better, but just doing it this way for now
-     */
-    public Rectangle latLonBoundingBox() {
-
-        double longest_lat = 0;
-        int leftLat = 1;
-        int rightLat = 1;
-
-        // Find the longest latitude span
-        for ( int i = 1; i <= vertices.size(); i++ ) {
-            for ( int j = 1; j <= vertices.size(); j++ ) {
-
-             // some utility that allows me to convert to a 2D vector and use the math there (would be pretty sweet!)
-                double x1 = vertices.get(i).getX();
-                double x2 = vertices.get(j).getX();
-
-                double dist = Math.sqrt( Math.pow(x1, 2) + Math.pow(x2, 2) );
-
-                if ( dist < longest_lat ) {
-                    leftLat = i;
-                    rightLat = j;
-                    longest_lat = dist;
-                }
-            }
-        }
-
-
-        double longest_lon = 0;
-        int topLon = 1;
-        int bottomLon = 1;
-        // Find the longest latitude span
-        for ( int i = 1; i <= vertices.size(); i++ ) {
-            for ( int j = 1; j <= vertices.size(); j++ ) {
-
-                // some utility that allows me to convert to a 2D vector and use the math there (would be pretty sweet!)
-                double x1 = vertices.get(i).getX();
-                double x2 = vertices.get(j).getX();
-
-                double dist = Math.sqrt( Math.pow(x1, 2) + Math.pow(x2, 2) );
-
-                if ( dist < longest_lat ) {
-                    leftLat = i;
-                    rightLat = j;
-                    longest_lat = dist;
-                }
-            }
-
-        }
-
-    }
-
-
     //// Useful Java Methods /////
 
     /**
@@ -333,12 +277,12 @@ public class GeoLoop implements Shape {
     /**
      * Determine loop equality
      */
-    public boolean equals( Loop thiz, Object other ) {
+    public boolean equals( GeoLoop thiz, Object other ) {
         assert thiz != null;
         if (thiz == other) return true;
-        if (!(other instanceof Loop)) return false;
+        if (!(other instanceof GeoLoop)) return false;
 
-        Loop l = (Loop) other;
+        GeoLoop l = (GeoLoop) other;
 
         if ( l.numVertices() != thiz.numVertices() ) return false;
         if ( l.isHole() != thiz.isHole() ) return false;
