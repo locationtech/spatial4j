@@ -59,4 +59,5 @@ public class GeoCalc {
         // Create a new bounding box from each range
         return new RectangleImpl( latRange.getMin(), latRange.getMax(), lonRange.getMin(), latRange.getMax(), ctx );
     }
+
 }

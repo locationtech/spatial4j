@@ -97,6 +97,13 @@ public class GeoPolygon implements Shape {
     }
 
     /**
+     * Return the loop on the outermost boundary of the polygon
+     */
+    public GeoLoop getBoundary() {
+        return this.loops.get(0); // the 0 loop should always be of depth = 0
+    }
+
+    /**
      * Describe the Relationship between a polygon and another shape - determining
      * within, contains, disjoint and intersection. If the shapes are equal, then the result
      * contains or within will be returned.
