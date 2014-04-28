@@ -61,7 +61,7 @@ public class GeoPolygon implements Shape {
         // Construct a single loop of depth = 0
         GeoLoop simpleLoop = new GeoLoop( points, 0 , true );
         this.loops = new ArrayList< GeoLoop >(1);
-        this.loops.add(1, simpleLoop);
+        this.loops.add(simpleLoop);
 
         // Set is_simple == true
         this.isSimple = true;
@@ -120,7 +120,7 @@ public class GeoPolygon implements Shape {
      */
     @Override
     public Rectangle getBoundingBox() {
-        return this.loops.get(1).getBoundingBox(); // return the bounding bod of the outermost loop
+        return this.loops.get(0).getBoundingBox(); // return the bounding bod of the outermost loop
     }
 
     /**
