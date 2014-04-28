@@ -18,10 +18,27 @@
 package com.spatial4j.core.algorithm;
 
 import java.util.List;
-import java.util.ArrayList;
+
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.math.IntersectUtils;
 
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.GeoPolygon;
+
+import com.spatial4j.core.math.TransformUtils;
+import com.spatial4j.core.shape.Vector3D;
+import com.spatial4j.core.shape.impl.PointImpl;
+
+import com.spatial4j.core.shape.impl.RealGeoRange;
+
+/**
+ * Development notes
+ * JTS currently uses monotone chains (i.e. chains that are strictly increasing
+ * or decreasing) to optimize the computation. This is nice because you only have to search
+ * intersections between these monotone chains. However, I think this is something I don't quite
+ * want to implement yet - it would give speed, but the +/- pole wrapping issues could get
+ * complicated in this scenario
+ */
 
 /**
  * Computes the relationship between a geographic (lat/lon) point
@@ -29,119 +46,59 @@ import com.spatial4j.core.shape.GeoPolygon;
  */
 public class PointInGeoPolygon {
 
-    /// pssshhh no idea
-    class MCSelecter extends MonotoneChainSelectAction
-    {
-        Coordinate p;
-
-        public MCSelecter(Coordinate p)
-        {
-            this.p = p;
-        }
-
-        public void select(LineSegment ls)
-        {
-            testLineSegment(p, ls);
-        }
-    }
-
+    private SpatialContext ctx = SpatialContext.GEO;
     private GeoPolygon polygon;
-    private Bintree tree; // optimization from JTS
     private int crossings = 0;
 
     /**
      * Constructor for PointInGeoPolygon method
      */
-    public PointInGeoPolygon( GeoPolygon polygon ) {
-        this.polygon = polygon;
-        buildIndex(); // build bintree for search
-    }
+    private PointInGeoPolygon() {}
 
-    private void buildIndex() {
-
-        tree = new Bintree();
-
-        // List of vertices
-        List< Point > pts = polygon.getBoundary().getVertices();
-        List< MonotoneChains > mclist = ChainBuilder.getChains(pts);
-
-        for ( int i = 0; i < mcList.size(); i++ ) {
-
-            MonotoneChain mc = mcList.get(i);
-            // get bounding box
-            // get min latitude
-            // get max latitude
-            // insert the interval and the chain into the binary tree
-        }
-    }
-
-    // Create a new interval
-
-    public boolean isInside( Point p ) {
+    /**
+     * Determine if the point p lies in the given polygon
+     */
+    public boolean relatePolygonToPoint( GeoPolygon polygon, Point p ) {
 
         crossings = 0;
 
-        // Test all segments intersected by the ray from pt in positive x direction
-        //Rectangle rayRectangle = new Rectangle( // min x, // max x, point get y, point get y);
+        // Get my list of points from the polygon
+        List< Point > pts = polygon.getBoundary().getVertices();
 
-        // Set y as the min and max in the new interval
+        // Create a set of points representing an infinite ray. In 2D, the ray would have
+        // bounds -inf, +inf but in Geodesic we bound in x -180, 180 around the world
+        Vector3D v1 = TransformUtils.toVector( new PointImpl(-180, p.getY(), ctx) );
+        Vector3D v2 = TransformUtils.toVector( new PointImpl(180, p.getY(), ctx) );
 
-        // query the tree for the interval and will return a list of segs (not sure what the list entails
+        // Create a new GeoRange where the latitude of point p represents the bounds of the interval
+        RealGeoRange interval = new RealGeoRange(p.getY(), p.getY());
 
-        // Select a new monotone chain from the point
-        // over the segments, test the monotone chain against selecter , mc and ray env
+        // Initialize Vectors
+        Vector3D v3 = null;
+        Vector3D v4 = null;
 
-        // If the number of crossings is odd, (crossings %2 = 2) return true. else return false
+        // Kill the tree, just iterate over every segment first
+        for (int i = 0; i <= pts.size(); i++) {
 
+            // Check the implicit closing
+            if (i == pts.size()) {
+                v3 = TransformUtils.toVector(pts.get(i));
+                v4 = TransformUtils.toVector(pts.get(0));
+            } else {
+                v3 = TransformUtils.toVector(pts.get(i));
+                v4 = TransformUtils.toVector(pts.get(i+1));
+            }
 
-    }
-
-    // Helper Method
-    private void testMonotoneChain( Box rayEnv, MCSelecter selecter, MonotoneChain mc ) {
-
-        mc.select(rayEnv, mcSelecter)
-    }
-
-    private void testSegment( Point p, Segment s) [
-    }
-
-    private void testLineSegment(Coordinate p, LineSegment seg) {
-        double xInt;  // x intersection of segment with ray
-        double x1;    // translated coordinates
-        double y1;
-        double x2;
-        double y2;
-
-    /*
-     *  Test if segment crosses ray from test point in positive x direction.
-     */
-        Coordinate p1 = seg.p0;
-        Coordinate p2 = seg.p1;
-        x1 = p1.x - p.x;
-        y1 = p1.y - p.y;
-        x2 = p2.x - p.x;
-        y2 = p2.y - p.y;
-
-        if (((y1 > 0) && (y2 <= 0)) ||
-                ((y2 > 0) && (y1 <= 0))) {
-        /*
-         *  segment straddles x axis, so compute intersection.
-         */
-            xInt = RobustDeterminant.signOfDet2x2(x1, y1, x2, y2) / (y2 - y1);
-            //xsave = xInt;
-        /*
-         *  crosses ray if strictly positive intersection.
-         */
-            if (0.0 < xInt) {
+            // Check intersection
+            if ( IntersectUtils.robustCrossing(v1, v2, v3, v4) == 1 ) {
                 crossings++;
             }
         }
+
+        // If the number of crossings is odd, (crossings %2 = 2) return true. else return false
+        if ((crossings % 2) == 1) {
+            return true;
+        }
+        return false;
     }
-
-}
-
-
-
-
-
 }
