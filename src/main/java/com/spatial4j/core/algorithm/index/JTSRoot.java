@@ -30,7 +30,7 @@ public class JTSRoot extends JTSNodeBase {
      */
     public void insert(RealGeoRange itemRange, Object item)
     {
-        int index = getSubnodeIndex(itemRange, origin);
+        int index = getSubNodeIndex(itemRange, origin);
         // if index is -1, itemEnv must contain the origin.
         if (index == -1) {
             add(item);
@@ -75,7 +75,7 @@ public class JTSRoot extends JTSNodeBase {
         if (isZeroArea)
             node = tree.find(itemRange);
         else
-            node = tree.getNode(itemRange;
+            node = tree.getNode(itemRange);
         node.add(item);
     }
 

@@ -19,7 +19,9 @@ package com.spatial4j.core.algorithm.index;
 import com.spatial4j.core.shape.impl.RealGeoRange;
 
 /**
- * JTSNode in a binTree for geodesic polygon indexing. Adapted from 2D JTS implementation
+ * A JTSNode represents a range which is a subsegment of the larger range represented by
+ * a JTSBinaryTree used in search. This implementation is adapted for use with Geodesic ranges
+ * from JTS 2D implementation
  */
 public class JTSNode extends JTSNodeBase {
 
@@ -28,29 +30,49 @@ public class JTSNode extends JTSNodeBase {
     private double center;
     private int level;
 
+    /**
+     * Create a JTS node given a range
+     */
     public static JTSNode createNode(RealGeoRange range) {
         JTSKey key = new JTSKey(range);
         JTSNode node = new JTSNode(key.getRange(), key.getLevel());
         return node;
     }
 
+    /**
+     * Create a JTS node expanded to a new range from a previous range
+     */
     public static JTSNode createExpanded(JTSNode node, RealGeoRange range) {
-        RealGeoRange expand = new RealGeoRange(range);
-        if (node != null ) expand.expanded(range.getLength());
 
-        JTSNode largerNode = createNode(expand);
+        RealGeoRange currRange = null;
+        if (node != null) {
+            currRange = node.getRange();
+            currRange.addPoint(range.getMin());
+            currRange.addPoint(range.getMax());
+        }
+
+        JTSNode largerNode = createNode(currRange);
         if (node != null) largerNode.insert(node);
         return largerNode;
     }
 
+    /**
+     * Create a new JTS node from a given range and computed level
+     */
     public JTSNode(RealGeoRange range, int level) {
         this.range = range;
         this.level = level;
         center = range.getCenter();
     }
 
+    /**
+     * Get the range represented by this node
+     */
     public RealGeoRange getRange() { return this.range; }
 
+    /**
+     * Determine if this range matches the query range
+     */
     protected boolean isSearchMatch(RealGeoRange range) {
         return this.range.contains(range);
     }
@@ -78,7 +100,7 @@ public class JTSNode extends JTSNodeBase {
             return this;
         }
         if (subnode[subnodeIndex] != null) {
-            JTSNode node = subnodeIndex[subnodeIndex];
+            JTSNode node = subnode[subnodeIndex];
             return node.find(searchRange);
         }
         return this;

@@ -6,11 +6,9 @@ import java.util.Collection;
 
 import com.spatial4j.core.shape.impl.RealGeoRange;
 
-// only implement what you need here
-
 /**
- * Base class for a node in a binary tree for indexing. This is a JTS impleemntation
- * adapted to use geodesic ranges intead of straight intervals
+ * Base class for a node in a binary tree for indexing. This is a JTS implementation
+ * adapted to use geodesic ranges instead of straight intervals
  */
 public abstract class JTSNodeBase {
 

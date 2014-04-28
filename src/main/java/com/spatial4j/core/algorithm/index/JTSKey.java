@@ -20,8 +20,8 @@ package com.spatial4j.core.algorithm.index;
 import com.spatial4j.core.shape.impl.RealGeoRange;
 
 /**
- * Unique identifiers for nodes in a binary tree. Implementation adapted from 2D JTSBinTree
- * in the Java Topology Suite.
+ * Unique key used to identify a node in a JTS Binary Tree. Adapted from
+ * a 2D implementation in JTS to be used with geodesic ranges
  */
 public class JTSKey {
 
