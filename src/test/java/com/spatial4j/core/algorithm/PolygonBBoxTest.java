@@ -115,6 +115,38 @@ public class PolygonBBoxTest extends RandomizedTest {
         assertEquals(bboxB.getMaxY(), 60, 0);
     }
 
+    /**
+     * Test box that crosses a dateline
+     */
+    @Test
+    public void testBBoxCrossDateline() {
+
+        List< Point > pts = new ArrayList<Point>();
+
+        Point p1 = new PointImpl(-10, 45, ctx);
+        Point p2 = new PointImpl(10, 45, ctx);
+        Point p3 = new PointImpl(-10, 30, ctx);
+        Point p4 = new PointImpl(10, 30, ctx);
+
+        pts.add(p1);
+        pts.add(p2);
+        pts.add(p3);
+        pts.add(p4);
+
+        // Build a polygon
+        GeoPolygon polygon = new GeoPolygon(pts);
+
+        // Compute bounding box
+        Rectangle rectangle = polygon.getBoundingBox();
+
+        assertEquals(rectangle.getMinX(), -10, 0);
+        assertEquals(rectangle.getMaxX(), 10, 0);
+        assertEquals( rectangle.getMinY(), 30, 0 );
+        assertEquals( rectangle.getMaxY(), 45, 0 );
+
+
+    }
+
 
 
 }
