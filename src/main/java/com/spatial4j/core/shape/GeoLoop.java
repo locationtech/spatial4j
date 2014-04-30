@@ -316,8 +316,6 @@ public class GeoLoop implements Shape {
         // For each point in the loop, expand the range
         for ( int i = 1; i < this.getVertices().size(); i++ ) {
 
-            System.out.println(this.getVertices().get(i).toString());
-
             double x = this.getVertices().get(i).getX();
             double y = this.getVertices().get(i).getY();
 

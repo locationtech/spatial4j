@@ -31,7 +31,7 @@ import org.junit.Assert.*;
 /**
  * Unit test suite for Spatial4j Geodesic Polygon
  */
-public class GeodesicPolygonTest extends RandomizedTest {
+public class GeoPolygonTest extends RandomizedTest {
 
 
     @Before

@@ -17,6 +17,8 @@
 
 package com.spatial4j.core.shape.impl;
 
+import com.spatial4j.core.shape.GeoRange;
+
 public class UnitGeoRange extends GeoRange {
 
     /**
@@ -380,9 +382,6 @@ public class UnitGeoRange extends GeoRange {
 
         return empty();
     }
-
-
-
 
     /**
      * Compute the distance from "a" to "b" in the range [0, 2*Pi). Numerically Stable

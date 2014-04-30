@@ -72,16 +72,47 @@ public class PolygonBBoxTest extends RandomizedTest {
         // Compute bounding box
         Rectangle rectangle = polygon.getBoundingBox();
 
-        assertEquals( rectangle.getMinX(), 50, 0 );
-        assertEquals( rectangle.getMaxX(), 60, 0 );
+        assertEquals(rectangle.getMinX(), 50, 0);
+        assertEquals(rectangle.getMaxX(), 60, 0);
         assertEquals( rectangle.getMinY(), 30, 0 );
         assertEquals( rectangle.getMaxY(), 45, 0 );
 
+    }
 
-        // Check point in polygon algorithm
-        Point testPt = new PointImpl(55, 35, ctx);
-        System.out.println(PointInGeoPolygon.relatePolygonToPoint(polygon, testPt));
+    /**
+     * Test a few cannonical cases
+     */
+    @Test
+    public void testCannonicalBox() {
 
+        // Bounding Box of Non-Trivial 4pt polygon
+        List< Point > ptsA = new ArrayList<Point>();
+        ptsA.add( new PointImpl(45, 60, ctx));
+        ptsA.add( new PointImpl(50, 70, ctx));
+        ptsA.add( new PointImpl(60, 30, ctx));
+        ptsA.add( new PointImpl(40, 20, ctx));
+
+        GeoPolygon polygonA = new GeoPolygon(ptsA);
+        Rectangle bboxA = polygonA.getBoundingBox();
+
+        assertEquals(bboxA.getMinX(), 40, 0);
+        assertEquals(bboxA.getMaxX(), 60, 0);
+        assertEquals(bboxA.getMinY(), 20, 0);
+        assertEquals(bboxA.getMaxY(), 70, 0);
+
+        // Bounding Box of Simplest Case - triangle
+        List< Point > ptsB = new ArrayList<Point>();
+        ptsB.add( new PointImpl( 30, 50, ctx));
+        ptsB.add( new PointImpl( 40, 55, ctx));
+        ptsB.add( new PointImpl( 50, 60, ctx));
+
+        GeoPolygon polygonB = new GeoPolygon(ptsB);
+        Rectangle bboxB = polygonB.getBoundingBox();
+
+        assertEquals(bboxB.getMinX(), 30, 0);
+        assertEquals(bboxB.getMaxX(), 50, 0);
+        assertEquals(bboxB.getMinY(), 50, 0);
+        assertEquals(bboxB.getMaxY(), 60, 0);
     }
 
 
