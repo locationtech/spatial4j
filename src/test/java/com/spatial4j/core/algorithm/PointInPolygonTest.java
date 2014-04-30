@@ -108,26 +108,39 @@ public class PointInPolygonTest extends RandomizedTest {
         assertTrue( PointInGeoPolygon.relatePolygonToPoint(polygon, testPt3) );
     }
 
+    /**
+     * Polygon crossing a dateline
+     */
+    @Test
+    public void testDatelineCrossingPolygon() {
 
+        List< Point > pts = new ArrayList< Point >();
+        pts.add( new PointImpl(-10, 20, ctx) );
+        pts.add( new PointImpl(12, 30, ctx) );
+        pts.add( new PointImpl(22, 23, ctx) );
+        pts.add( new PointImpl(30, 25, ctx) );
+        pts.add( new PointImpl(25, 15, ctx) );
+        pts.add( new PointImpl(15, 14, ctx) );
 
-    // convex polygon (point in)
+        GeoPolygon polygon = new GeoPolygon(pts);
 
-    // convex polygon (point out)
+        // Test point in polygon
+        Point testPt = new PointImpl(20, 20, ctx);
+        assertTrue( PointInGeoPolygon.relatePolygonToPoint(polygon, testPt) );
 
-    // polygon with boundaries on the same great circle
+        // Test point on the other side of the dateline
+        Point testPt1 = new PointImpl(-9, 20, ctx);
+        assertTrue( PointInGeoPolygon.relatePolygonToPoint(polygon, testPt1) );
 
-    // polygon crossing a dateline
+        // Test point outside polygon
+        Point testPt2 = new PointImpl(0, 0, ctx);
+        assertTrue(! PointInGeoPolygon.relatePolygonToPoint(polygon, testPt2) );
 
-    // point along edge of polygon
+        // test Point on vertex
+        Point testPt3 = new PointImpl(12, 30, ctx);
+        assertTrue( PointInGeoPolygon.relatePolygonToPoint(polygon, testPt3) );
+    }
 
-    // point on the dateline
-
-    // point on the poles
-
-    // point on a vertex
-
-    // generic point outside
-
-    // generic point inside
+    // polygon pole wrapping case?? TODO
 
 }
