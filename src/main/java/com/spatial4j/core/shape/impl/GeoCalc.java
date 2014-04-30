@@ -39,25 +39,33 @@ public class GeoCalc {
     // Compute Bounding Box Using Pairwise Latitude and Longitude Spans
     public static Rectangle computeLoopBBox( GeoLoop loop ) {
 
-        // Expand an R1 and S1 range
-        RealGeoRange latRange = RealGeoRange.empty();
-        UnitGeoRange lonRange = UnitGeoRange.empty();
+        // Initialize Ranges from first vertex in the loop
+        double firstX = loop.getCanonicalFirstVertex().getX();
+        double firstY = loop.getCanonicalFirstVertex().getY();
+
+        Range latRange = new Range(firstY, firstY);
+        Range lonRange = new Range(firstX, firstX);
 
         // For each point in the loop, expand the range
-        for ( int i = 0; i < loop.getVertices().size(); i++ ) {
+        for ( int i = 1; i < loop.getVertices().size(); i++ ) {
+
+            System.out.println(loop.getVertices().get(i).toString());
+
+            double x = loop.getVertices().get(i).getX();
+            double y = loop.getVertices().get(i).getY();
+
+            // Create ranges from the given point
+            Range xRange = new Range(x, x);
+            Range yRange = new Range(y, y);
 
             // Compute temporary ranges from point to union
-            RealGeoRange r = RealGeoRange.fromPoint( loop.getVertices().get(i).getX() );
-            UnitGeoRange u = UnitGeoRange.fromPoint( loop.getVertices().get(i).getY() );
-
-            // Union new point ranges with existing ranges
-            latRange.union(r);
-            lonRange.union(u);
+            lonRange = lonRange.expandTo( xRange );
+            latRange = latRange.expandTo( yRange );
 
         }
 
         // Create a new bounding box from each range
-        return new RectangleImpl( latRange.getMin(), latRange.getMax(), lonRange.getMin(), latRange.getMax(), ctx );
+        return new RectangleImpl(lonRange.getMin(), lonRange.getMax(), latRange.getMin(), latRange.getMax(), ctx);
     }
 
 }

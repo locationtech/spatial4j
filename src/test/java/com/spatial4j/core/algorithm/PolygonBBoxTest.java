@@ -72,8 +72,15 @@ public class PolygonBBoxTest extends RandomizedTest {
         // Compute bounding box
         Rectangle rectangle = polygon.getBoundingBox();
 
-        assert( rectangle.getMinX() == 50 );
-        assert( rectangle.getMaxX() == 60 );
+        assertEquals( rectangle.getMinX(), 50, 0 );
+        assertEquals( rectangle.getMaxX(), 60, 0 );
+        assertEquals( rectangle.getMinY(), 30, 0 );
+        assertEquals( rectangle.getMaxY(), 45, 0 );
+
+
+        // Check point in polygon algorithm
+        Point testPt = new PointImpl(55, 35, ctx);
+        System.out.println(PointInGeoPolygon.relatePolygonToPoint(polygon, testPt));
 
     }
 

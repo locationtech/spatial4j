@@ -82,7 +82,7 @@ public class GeoLoop implements Shape {
 
         // Assert loops do not contain any duplicate non-adjacent vertices
         Map< Point, Integer > hashMap = new HashMap< Point, Integer >();
-        for (int i = 0; i < vertices.size(); i++ ) {
+        for (int i = 0; i < vertices.size()-1; i++ ) {
 
             if ( !hashMap.containsKey(vertices.get(i))) {
                 hashMap.put( vertices.get(i), i );
@@ -141,7 +141,7 @@ public class GeoLoop implements Shape {
      */
     public Point getCanonicalFirstVertex() {
         assert( isValid() );
-        return this.vertices.get(1);
+        return this.vertices.get(0);
     }
 
     /**
@@ -173,7 +173,7 @@ public class GeoLoop implements Shape {
         for ( int i = 0; i < this.vertices.size(); i++ ) {
             if (this.vertices.get(i).equals(v)) return this.vertices.get(i);
         }
-        return new PointImpl(0, 0, ctx);
+        return new PointImpl(200, 200, ctx);
     }
 
     ////// Compute Geometric Properties of the Loop ///////
@@ -196,7 +196,7 @@ public class GeoLoop implements Shape {
     }
 
     /**
-     * Compute the bounding box for the geodesic polygon. This means the
+     * Compute the bounding box for the loop. This means the
      * shape is within the bounding box and that it touches each side of the
      * rectangle
      */
@@ -206,7 +206,7 @@ public class GeoLoop implements Shape {
     }
 
     /**
-     * Does the Shape have area?
+     * Does the Shape have area? Not yet implemented.
      */
     @Override
     public boolean hasArea() throws UnsupportedOperationException {
@@ -214,24 +214,22 @@ public class GeoLoop implements Shape {
     }
 
     /**
-     * Calculate the area of the shape in square-degrees. If no spatial
-     * context is provided, then simple Euclidean calculations would be used
-     * This figure can be an estimate.
+     * Calculate the area of the shape in square-degrees. Not yet implemented.
      */
     public double getArea(SpatialContext ctx) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * Return the center point of the polygon. Typically the same as the centroid of the bounding box.
+     * Return the center point of the loop. Currently approximates as the center of the bounding box
      */
     @Override
     public Point getCenter() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
+        return getBoundingBox().getCenter();
     }
 
     /**
-     * Returns a buffered version of a polygon. Buffer is usually a rounded corner buffer - though some
+     * Returns a buffered version of a loop. Buffer is usually a rounded corner buffer - though some
      * shapes might buffer differently.
      */
     @Override
@@ -249,11 +247,11 @@ public class GeoLoop implements Shape {
     }
 
     /**
-     * Implement HashCode method (unique hascode for the shape)
+     * Implement HashCode method (unique hash-code for the shape)
      */
     @Override
     public int hashCode() {
-        return 0; // TODO implement this
+        return 0; // TODO
     }
 
     /**
@@ -261,10 +259,16 @@ public class GeoLoop implements Shape {
      */
     @Override
     public String toString() {
-        return "";
-    }
 
-    //// Useful Java Methods /////
+        String pointstring = "Loop: [";
+        for ( int i = 0; i < vertices.size(); i++ ) {
+            pointstring = pointstring + " " + vertices.get(i).toString();
+        }
+        pointstring = pointstring + " ] ";
+
+        return pointstring;
+
+    }
 
     /**
      * All Loops maintain this .equals definition
