@@ -56,13 +56,17 @@ public class GeoLoop implements Shape {
 
     /**
      * Construct a geodesic loop from a list of latitude/longitude points
+     * Throws exception for illegally constructed geometries
      */
     public GeoLoop(List<Point> vertices, int depth, boolean is_hole) {
         this.ctx = SpatialContext.GEO;
         this.vertices = vertices;
         this.depth = depth;
         this.is_hole = is_hole;
-        assert( isValid() );
+
+        if ( !isValid() ) {
+            throw new IllegalStateException();
+        }
     }
 
     /**

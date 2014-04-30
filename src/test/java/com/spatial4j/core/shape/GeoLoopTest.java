@@ -17,10 +17,7 @@
 
 package com.spatial4j.core.shape;
 
-import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
-import com.spatial4j.core.shape.GeoPolygon;
-import com.spatial4j.core.shape.Rectangle;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -98,13 +95,47 @@ public class GeoLoopTest extends RandomizedTest {
     /**
      * Test Construction of loops with too few points
      */
+    @Test(expected=IllegalStateException.class)
+    public void testSmallPolygon() {
+
+        // Construct loop with the minimum vertices
+        List< Point > ptsB = new ArrayList<Point>();
+        ptsB.add( new PointImpl( 0, 0, ctx ));
+        ptsB.add( new PointImpl( 0, 40, ctx ));
+
+        GeoLoop LoopB = new GeoLoop(ptsB, 1, false);
+    }
 
     /**
      * Test construction of loops with intersecting edges
      */
+    @Test(expected=IllegalStateException.class)
+    public void testIntersectingEdgeLoop() {
+
+        // Construct loop with the minimum vertices
+        List< Point > ptsB = new ArrayList<Point>();
+        ptsB.add( new PointImpl( 10, 50, ctx ));
+        ptsB.add( new PointImpl( 20, 60, ctx )); // this edge intersects
+        ptsB.add( new PointImpl( 10, 49, ctx )); // with this edge
+        ptsB.add( new PointImpl( 20, 62, ctx ));
+
+        GeoLoop LoopB = new GeoLoop(ptsB, 1, false);
+
+    }
 
     /**
      * Test construction of loops with duplicate adjacent vertices
      */
+    @Test(expected=IllegalStateException.class)
+    public void testDuplicateVertices() {
 
+        // Check a loop that crosses the dateline
+        List< Point > ptsC = new ArrayList<Point>();
+        ptsC.add( new PointImpl( 10, -20, ctx ));
+        ptsC.add( new PointImpl( 10, 20, ctx ));
+        ptsC.add( new PointImpl( 10, 20, ctx ));
+        ptsC.add( new PointImpl( 50, 0, ctx ));
+
+        GeoLoop LoopC = new GeoLoop(ptsC, 1, false);
+    }
 }

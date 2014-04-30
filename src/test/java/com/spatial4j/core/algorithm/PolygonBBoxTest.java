@@ -144,9 +144,5 @@ public class PolygonBBoxTest extends RandomizedTest {
         assertEquals( rectangle.getMinY(), 30, 0 );
         assertEquals( rectangle.getMaxY(), 45, 0 );
 
-
     }
-
-
-
 }
