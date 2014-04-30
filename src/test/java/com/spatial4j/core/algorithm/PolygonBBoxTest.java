@@ -31,9 +31,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Test suite for computing the lat/lon bounding box of a polygon
+ */
 public class PolygonBBoxTest extends RandomizedTest {
 
-    // Required for backwards conversion
     private SpatialContext ctx;
 
     /**

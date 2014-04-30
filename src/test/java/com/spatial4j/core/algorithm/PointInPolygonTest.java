@@ -20,6 +20,7 @@ package com.spatial4j.core.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.spatial4j.core.shape.GeoLoop;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.GeoPolygon;
@@ -140,6 +141,9 @@ public class PointInPolygonTest extends RandomizedTest {
         Point testPt3 = new PointImpl(12, 30, ctx);
         assertTrue( PointInGeoPolygon.relatePolygonToPoint(polygon, testPt3) );
     }
+
+
+    // implementing polygons with holes TODO
 
     // polygon pole wrapping case?? TODO
 

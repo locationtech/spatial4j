@@ -97,6 +97,13 @@ public class GeoPolygon implements Shape {
     }
 
     /**
+     * Return list of loops contained in the polygon
+     */
+    public List< GeoLoop > getLoops() {
+        return this.loops;
+    }
+
+    /**
      * Return the loop on the outermost boundary of the polygon
      */
     public GeoLoop getBoundary() {

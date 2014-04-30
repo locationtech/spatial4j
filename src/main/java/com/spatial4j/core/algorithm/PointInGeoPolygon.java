@@ -94,22 +94,26 @@ public class PointInGeoPolygon {
         Vector3D v4 = null;
 
         // Kill the tree, just iterate over every segment first
-        for (int i = 0; i < pts.size(); i++) {
 
-            // Check the implicit closing
-            if (i == pts.size()-1) {
-                v3 = TransformUtils.toVector(pts.get(i));
-                v4 = TransformUtils.toVector(pts.get(0));
-            } else {
-                v3 = TransformUtils.toVector(pts.get(i));
-                v4 = TransformUtils.toVector(pts.get(i+1));
+         for (int i = 0; i < pts.size(); i++) {
+
+                // Check the implicit closing
+                if (i == pts.size()-1) {
+                    v3 = TransformUtils.toVector(pts.get(i));
+                    v4 = TransformUtils.toVector(pts.get(0));
+                } else {
+                    v3 = TransformUtils.toVector(pts.get(i));
+                    v4 = TransformUtils.toVector(pts.get(i+1));
+                }
+
+                // Check intersection
+                if ( IntersectUtils.edgeOrVertexIntersection(v1, v2, v3, v4) ) {
+                    crossings++;
+                }
             }
 
-            // Check intersection
-            if ( IntersectUtils.edgeOrVertexIntersection(v1, v2, v3, v4) ) {
-                crossings++;
-            }
-        }
+
+
 
         // If the number of crossings is odd, (crossings %2 = 2) return true. else return false
         if ((crossings % 2) == 1) {
