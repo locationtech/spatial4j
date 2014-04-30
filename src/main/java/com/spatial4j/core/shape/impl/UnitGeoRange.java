@@ -17,8 +17,6 @@
 
 package com.spatial4j.core.shape.impl;
 
-import com.spatial4j.core.shape.GeoRange;
-
 public class UnitGeoRange extends GeoRange {
 
     /**

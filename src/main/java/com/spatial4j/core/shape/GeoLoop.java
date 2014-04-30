@@ -20,8 +20,9 @@ package com.spatial4j.core.shape;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.math.IntersectUtils;
 import com.spatial4j.core.math.TransformUtils;
-import com.spatial4j.core.shape.impl.GeoCalc;
 import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.shape.impl.Range;
+import com.spatial4j.core.shape.impl.RectangleImpl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -202,7 +203,7 @@ public class GeoLoop implements Shape {
      */
     @Override
     public Rectangle getBoundingBox() {
-       return GeoCalc.computeLoopBBox(this);
+       return computeLoopBBox();
     }
 
     /**
@@ -297,5 +298,40 @@ public class GeoLoop implements Shape {
         }
 
         return true;
+    }
+
+    /**
+     * Method for Computing the Bounding Box of this Loop
+     */
+    // Compute Bounding Box Using Pairwise Latitude and Longitude Spans
+    private Rectangle computeLoopBBox() {
+
+        // Initialize Ranges from first vertex in the loop
+        double firstX = this.getCanonicalFirstVertex().getX();
+        double firstY = this.getCanonicalFirstVertex().getY();
+
+        Range latRange = new Range(firstY, firstY);
+        Range lonRange = new Range(firstX, firstX);
+
+        // For each point in the loop, expand the range
+        for ( int i = 1; i < this.getVertices().size(); i++ ) {
+
+            System.out.println(this.getVertices().get(i).toString());
+
+            double x = this.getVertices().get(i).getX();
+            double y = this.getVertices().get(i).getY();
+
+            // Create ranges from the given point
+            Range xRange = new Range(x, x);
+            Range yRange = new Range(y, y);
+
+            // Compute temporary ranges from point to union
+            lonRange = lonRange.expandTo( xRange );
+            latRange = latRange.expandTo( yRange );
+
+        }
+
+        // Create a new bounding box from each range
+        return new RectangleImpl(lonRange.getMin(), lonRange.getMax(), latRange.getMin(), latRange.getMax(), ctx);
     }
 }

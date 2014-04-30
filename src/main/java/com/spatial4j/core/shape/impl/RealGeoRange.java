@@ -17,8 +17,6 @@
 
 package com.spatial4j.core.shape.impl;
 
-import com.spatial4j.core.shape.GeoRange;
-
 /**
  * A range over a closed, bound interval on the real ine. Implementation from S2 Library
  */
