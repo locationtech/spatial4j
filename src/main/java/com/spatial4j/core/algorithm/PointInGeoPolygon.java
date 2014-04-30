@@ -106,9 +106,8 @@ public class PointInGeoPolygon {
             }
 
             // Check intersection
-            if ( IntersectUtils.robustCrossing(v1, v2, v3, v4) == 1 ) {
+            if ( IntersectUtils.edgeOrVertexIntersection(v1, v2, v3, v4) ) {
                 crossings++;
-                System.out.println(crossings);
             }
         }
 
