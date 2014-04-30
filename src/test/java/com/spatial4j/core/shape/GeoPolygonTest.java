@@ -53,34 +53,6 @@ public class GeoPolygonTest extends RandomizedTest {
 
     // polygon wrapping the pole (cry desperately?)
 
-    /**
-     * Testing of Point in Polygon
-     */
-
-
-    // concave polygon  (point in)
-
-    // concave polygon  (point out)
-
-    // convex polygon (point in)
-
-    // convex polygon (point out)
-
-    // polygon with boundaries on the same great circle
-
-    // polygon crossing a dateline
-
-    // point along edge of polygon
-
-    // point on the dateline
-
-    // point on the poles
-
-    // point on a vertex
-
-    // generic point outside
-
-    // generic point inside
 
 
 }

@@ -17,8 +17,58 @@
 
 package com.spatial4j.core.algorithm;
 
+import com.carrotsearch.randomizedtesting.RandomizedTest;
+import com.spatial4j.core.context.SpatialContext;
+import org.junit.After;
+import org.junit.Before;
+
 /**
  * Unit Test Suite for Computing teh Relationship between a point and a polygon
  */
-public class PointInPolygonTest {
+public class PointInPolygonTest extends RandomizedTest {
+
+    // Required for backwards conversion
+    private SpatialContext ctx;
+
+    /**
+     * Setup Spatial Context (Geodesic) Prior to running
+     * the test suite
+     */
+    @Before
+    public void setUp() {
+        ctx = SpatialContext.GEO;
+    }
+
+    @After
+    public void tearDown() {}
+
+    /**
+     * Testing of Point in Polygon
+     */
+
+
+    // concave polygon  (point in)
+
+    // concave polygon  (point out)
+
+    // convex polygon (point in)
+
+    // convex polygon (point out)
+
+    // polygon with boundaries on the same great circle
+
+    // polygon crossing a dateline
+
+    // point along edge of polygon
+
+    // point on the dateline
+
+    // point on the poles
+
+    // point on a vertex
+
+    // generic point outside
+
+    // generic point inside
+
 }
