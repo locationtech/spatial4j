@@ -18,6 +18,11 @@ package com.spatial4j.core.algorithm.index;
 
 import com.spatial4j.core.shape.impl.RealGeoRange;
 
+/**
+ * This code will hopefully be useful in optimizing the point in polygon algorithm. I am keeping
+ * this implementation here for now.
+ */
+
 public class JTSRoot extends JTSNodeBase {
 
     // the singleton root node is centred at the origin.

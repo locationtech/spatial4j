@@ -19,6 +19,11 @@ package com.spatial4j.core.algorithm.index;
 import com.spatial4j.core.shape.impl.RealGeoRange;
 
 /**
+ * This code will hopefully be useful in optimizing the point in polygon algorithm. I am keeping
+ * this implementation here for now.
+ */
+
+/**
  * A JTSNode represents a range which is a subsegment of the larger range represented by
  * a JTSBinaryTree used in search. This implementation is adapted for use with Geodesic ranges
  * from JTS 2D implementation

@@ -25,6 +25,11 @@ import java.util.ArrayList;
 import com.spatial4j.core.shape.impl.RealGeoRange;
 
 /**
+ * This code will hopefully be useful in optimizing the point in polygon algorithm. I am keeping
+ * this implementation here for now.
+ */
+
+/**
  * A Binary tree is used for easy searching of ranges and detecting intersection
  * between line segments. This implementation mirrors the original implementation of binary
  * trees over an interval in the Java Topology Suite (JTS) but here it is adapted to work with real

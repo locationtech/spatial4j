@@ -7,6 +7,11 @@ import java.util.Collection;
 import com.spatial4j.core.shape.impl.RealGeoRange;
 
 /**
+ * This code will hopefully be useful in optimizing the point in polygon algorithm. I am keeping
+ * this implementation here for now.
+ */
+
+/**
  * Base class for a node in a binary tree for indexing. This is a JTS implementation
  * adapted to use geodesic ranges instead of straight intervals
  */
