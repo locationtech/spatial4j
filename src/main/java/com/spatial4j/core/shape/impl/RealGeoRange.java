@@ -20,6 +20,11 @@ package com.spatial4j.core.shape.impl;
 import com.spatial4j.core.shape.GeoRange;
 
 /**
+ * Compared to the currently implemented ranges, these ranges will work better with S2 direciton
+ * cosine converted ranges. They are also expandable and can compute intersections internally
+ */
+
+/**
  * A range over a closed, bound interval on the real ine. Implementation from S2 Library
  */
 public class RealGeoRange extends GeoRange {

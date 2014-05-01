@@ -19,6 +19,14 @@ package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.shape.GeoRange;
 
+/**
+ * Compared to the currently implemented ranges, these ranges will work better with S2 direciton
+ * cosine converted ranges. They are also expandable and can compute intersections internally
+ */
+
+/**
+ * A range from -2pi to Pi defining a longitude range in direction cosine contexts
+ */
 public class UnitGeoRange extends GeoRange {
 
     /**
