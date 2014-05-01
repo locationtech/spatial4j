@@ -28,6 +28,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * This code was written to try generating some random polygons for testing. It never went anywhere
+ * because this method only generates concave polygons which most likely represents <1% of the known
+ * polygons, but could possibly be expanded in the future.
+ */
+
+/**
  * Module for generating random polygons in their Spatial4j internal representation - direction
  * cosine vectors. This class contains code for computing random vectors in both oriented and non
  * oriented conformations. It is not an extension of the randomized testing packages and just uses
