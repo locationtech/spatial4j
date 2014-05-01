@@ -18,6 +18,10 @@
 package com.spatial4j.core.shape;
 
 /**
+ * Base class for expandable geo ranges implemented in shape.impl.
+ */
+
+/**
  * Geodesic Range (Generic)
  */
 public class GeoRange {

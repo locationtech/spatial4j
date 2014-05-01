@@ -18,16 +18,10 @@
 package com.spatial4j.core.shape;
 
 /**
- * @file: Vector3D.java  (should update doucmentation and sort statics and noon statics)
- * @brief: Generic 3 Component Vector/Point (double)
- * @author: Rebecca Alford (ralford)
- *
- * @details This class provides a generic abstraction of a 3 component vector from the origin (0, 0, 0). This
+ * This class provides a generic abstraction of a 3 component vector from the origin (0, 0, 0). This
  * class is intended to be lightweight and allow easily abstraction for reuse of vector utilities. This class
  * might be used alone as a 3D vector and also as the base class for DirectionCosine Point and GeocentricPoint
  * which are both representations of a point on the spheroidal model of the earth.
- *
- * @note Last Modified: 2/8/14
  */
 public class Vector3D {
 
