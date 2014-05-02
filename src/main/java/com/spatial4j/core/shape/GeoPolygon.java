@@ -118,7 +118,7 @@ public class GeoPolygon implements Shape {
    */
   @Override
   public SpatialRelation relate(Shape other) {
-    throw new UnsupportedOperationException(); // TODO Implement this
+    throw new UnsupportedOperationException("TODO: Implement full spatial relation for geodesic polygons"); // TODO Implement this
   }
 
   /**
@@ -136,7 +136,7 @@ public class GeoPolygon implements Shape {
    */
   @Override
   public boolean hasArea() throws UnsupportedOperationException {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("TODO: Implement hasArea method for geodesic polygon");
   }
 
   /**
@@ -145,7 +145,7 @@ public class GeoPolygon implements Shape {
    * This figure can be an estimate.
    */
   public double getArea(SpatialContext ctx) throws UnsupportedOperationException {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("TODO: Implement area method for geodesic polygon");
   }
 
   /**
@@ -153,7 +153,7 @@ public class GeoPolygon implements Shape {
    */
   @Override
   public Point getCenter() throws UnsupportedOperationException {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("TODO: Implement approximaate get center method for geodesic polygon");
   }
 
   /**
@@ -162,7 +162,7 @@ public class GeoPolygon implements Shape {
    */
   @Override
   public Shape getBuffered(double distance, SpatialContext ctx) throws UnsupportedOperationException {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("TODO: Implement buffered polygon");
   }
 
 
@@ -170,7 +170,7 @@ public class GeoPolygon implements Shape {
    * Shapes can be 'empty' if underlying coordinates are NaN
    */
   @Override
-  public boolean isEmpty() throws UnsupportedOperationException {
+  public boolean isEmpty() {
     return this.loops.size() == 0;
   }
 
