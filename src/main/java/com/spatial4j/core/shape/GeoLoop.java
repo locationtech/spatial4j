@@ -198,7 +198,7 @@ public class GeoLoop implements Shape {
    */
   @Override
   public SpatialRelation relate(Shape other) {
-    throw new UnsupportedOperationException(); // TODO Implement this
+    throw new UnsupportedOperationException("TODO: Implement relate method upon impleemnting full spatial relation for geodesic loop"); // TODO Implement this
   }
 
   /**
@@ -216,14 +216,14 @@ public class GeoLoop implements Shape {
    */
   @Override
   public boolean hasArea() throws UnsupportedOperationException {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("TODO: Implement has area method for Goedesic Loop shape");
   }
 
   /**
    * Calculate the area of the shape in square-degrees. Not yet implemented.
    */
   public double getArea(SpatialContext ctx) throws UnsupportedOperationException {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("TODO: Implement area method for geodesic loop shape");
   }
 
   /**
@@ -240,7 +240,7 @@ public class GeoLoop implements Shape {
    */
   @Override
   public Shape getBuffered(double distance, SpatialContext ctx) throws UnsupportedOperationException {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("TODO: Implement buffered geodesic polygon");
   }
 
 
@@ -249,7 +249,7 @@ public class GeoLoop implements Shape {
    */
   @Override
   public boolean isEmpty() throws UnsupportedOperationException {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("TODO: Implement isEmpty method for polygon");
   }
 
   /**
