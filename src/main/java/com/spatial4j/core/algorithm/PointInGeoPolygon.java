@@ -44,6 +44,10 @@ import com.spatial4j.core.shape.Rectangle;
 /**
  * Computes the relationship between a geographic (lat/lon) point
  * and a geodesic polygon
+ *
+ * Note, an alternate approach to this computation that might avoid the pole wrapping edge case
+ * is the winding number algorithm. Information on this algorithm can be preliminarily found here:
+ * http://geomalgorithms.com/a03-_inclusion.html
  */
 public class PointInGeoPolygon {
 
