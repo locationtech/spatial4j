@@ -73,25 +73,13 @@ public class PointInGeoPolygon {
     // Compute the bounding box
     Rectangle box = polygon.getBoundingBox();
 
-    // Pick a span pont
-    Point span = box.getCenter();
-
-    // Pick a random point outside of the bounding box
-    // This is pseudo-random, but it works.
-    boolean rand = Math.random() < 0.5;
-    double x = 0;
-    double y = 0;
-    if (rand) {
-      x = -180 + Math.random() * box.getMinX();
-      y = box.getMaxY() + Math.random() * 90;
-    } else {
-      x = box.getMaxX() + Math.random() * 180;
-      y = -90 + box.getMinY() * Math.random();
-    }
+    // Extract the center of the bounding box and compute the antipodal point
+    Point center = box.getCenter();
+    Point antiPt = new PointImpl( center.getX()*-1, -(180-center.getY()), ctx);
 
     // Create a set of points representing an infinite ray. In 2D, the ray would have
     // bounds -inf, +inf but in Geodesic we bound in x -180, 180 around the world
-    Vector3D v1 = TransformUtils.toVector(new PointImpl(x, y, ctx));
+    Vector3D v1 = TransformUtils.toVector(antiPt);
     Vector3D v2 = TransformUtils.toVector(new PointImpl(p.getX(), p.getY(), ctx));
 
     // Initialize Vectors
