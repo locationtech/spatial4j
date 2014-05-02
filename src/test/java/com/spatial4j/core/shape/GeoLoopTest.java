@@ -33,109 +33,110 @@ import org.junit.Test;
  */
 public class GeoLoopTest extends RandomizedTest {
 
-    // Required for backwards conversion
-    private SpatialContext ctx;
+  // Required for backwards conversion
+  private SpatialContext ctx;
 
-    /**
-     * Setup Spatial Context (Geodesic) Prior to running
-     * the test suite
-     */
-    @Before
-    public void setUp() {
-        ctx = SpatialContext.GEO;
-    }
+  /**
+   * Setup Spatial Context (Geodesic) Prior to running
+   * the test suite
+   */
+  @Before
+  public void setUp() {
+    ctx = SpatialContext.GEO;
+  }
 
-    @After
-    public void tearDown() {}
+  @After
+  public void tearDown() {
+  }
 
-    /**
-     * Test construction of some valid GeoLoops
-     */
-    @Test
-    public void testValidLoops() {
+  /**
+   * Test construction of some valid GeoLoops
+   */
+  @Test
+  public void testValidLoops() {
 
-        // Construct loop with duplicate non-adjacent points
-        List< Point > ptsA = new ArrayList<Point>();
-        ptsA.add( new PointImpl( 30, 30, ctx ) );
-        ptsA.add( new PointImpl( 30, 40, ctx ) );
-        ptsA.add( new PointImpl( 40, 50, ctx ) );
-        ptsA.add( new PointImpl( 60, 80, ctx ) );
-        ptsA.add( new PointImpl( 40, 50, ctx ) );
+    // Construct loop with duplicate non-adjacent points
+    List<Point> ptsA = new ArrayList<Point>();
+    ptsA.add(new PointImpl(30, 30, ctx));
+    ptsA.add(new PointImpl(30, 40, ctx));
+    ptsA.add(new PointImpl(40, 50, ctx));
+    ptsA.add(new PointImpl(60, 80, ctx));
+    ptsA.add(new PointImpl(40, 50, ctx));
 
-        GeoLoop LoopA = new GeoLoop(ptsA, 1, false);
-        assertTrue( !LoopA.isHole() );
-        assertEquals( LoopA.depth(), 1, 0 );
-        assertTrue( LoopA.isValid() );
-        assertTrue( LoopA.getCanonicalFirstVertex().equals( new PointImpl(30, 30, ctx)));
+    GeoLoop LoopA = new GeoLoop(ptsA, 1, false);
+    assertTrue(!LoopA.isHole());
+    assertEquals(LoopA.depth(), 1, 0);
+    assertTrue(LoopA.isValid());
+    assertTrue(LoopA.getCanonicalFirstVertex().equals(new PointImpl(30, 30, ctx)));
 
-        System.out.println( LoopA.toString() );
+    System.out.println(LoopA.toString());
 
-        // Construct loop with the minimum vertices
-        List< Point > ptsB = new ArrayList<Point>();
-        ptsB.add( new PointImpl( 0, 0, ctx ));
-        ptsB.add( new PointImpl( 0, 40, ctx ));
-        ptsB.add( new PointImpl( 40, 50, ctx ));
+    // Construct loop with the minimum vertices
+    List<Point> ptsB = new ArrayList<Point>();
+    ptsB.add(new PointImpl(0, 0, ctx));
+    ptsB.add(new PointImpl(0, 40, ctx));
+    ptsB.add(new PointImpl(40, 50, ctx));
 
-        GeoLoop LoopB = new GeoLoop(ptsB, 1, false);
-        assertTrue( LoopB.isValid() );
-        assertTrue(LoopB.getCanonicalFirstVertex().equals(new PointImpl(0, 0, ctx)));
+    GeoLoop LoopB = new GeoLoop(ptsB, 1, false);
+    assertTrue(LoopB.isValid());
+    assertTrue(LoopB.getCanonicalFirstVertex().equals(new PointImpl(0, 0, ctx)));
 
-        // Check a loop that crosses the dateline
-        List< Point > ptsC = new ArrayList<Point>();
-        ptsC.add( new PointImpl( 10, -20, ctx ));
-        ptsC.add( new PointImpl( 10, 20, ctx ));
-        ptsC.add( new PointImpl( 50, 0, ctx ));
+    // Check a loop that crosses the dateline
+    List<Point> ptsC = new ArrayList<Point>();
+    ptsC.add(new PointImpl(10, -20, ctx));
+    ptsC.add(new PointImpl(10, 20, ctx));
+    ptsC.add(new PointImpl(50, 0, ctx));
 
-        GeoLoop LoopC = new GeoLoop(ptsC, 1, false);
-        assertTrue( LoopC.isValid() );
+    GeoLoop LoopC = new GeoLoop(ptsC, 1, false);
+    assertTrue(LoopC.isValid());
 
 
-    }
+  }
 
-    /**
-     * Test Construction of loops with too few points
-     */
-    @Test(expected=IllegalStateException.class)
-    public void testSmallPolygon() {
+  /**
+   * Test Construction of loops with too few points
+   */
+  @Test(expected = IllegalStateException.class)
+  public void testSmallPolygon() {
 
-        // Construct loop with the minimum vertices
-        List< Point > ptsB = new ArrayList<Point>();
-        ptsB.add( new PointImpl( 0, 0, ctx ));
-        ptsB.add( new PointImpl( 0, 40, ctx ));
+    // Construct loop with the minimum vertices
+    List<Point> ptsB = new ArrayList<Point>();
+    ptsB.add(new PointImpl(0, 0, ctx));
+    ptsB.add(new PointImpl(0, 40, ctx));
 
-        GeoLoop LoopB = new GeoLoop(ptsB, 1, false);
-    }
+    GeoLoop LoopB = new GeoLoop(ptsB, 1, false);
+  }
 
-    /**
-     * Test construction of loops with intersecting edges
-     */
-    @Test(expected=IllegalStateException.class)
-    public void testIntersectingEdgeLoop() {
+  /**
+   * Test construction of loops with intersecting edges
+   */
+  @Test(expected = IllegalStateException.class)
+  public void testIntersectingEdgeLoop() {
 
-        // Construct loop with the minimum vertices
-        List< Point > ptsB = new ArrayList<Point>();
-        ptsB.add( new PointImpl( 10, 50, ctx ));
-        ptsB.add( new PointImpl( 20, 60, ctx )); // this edge intersects
-        ptsB.add( new PointImpl( 10, 49, ctx )); // with this edge
-        ptsB.add( new PointImpl( 20, 62, ctx ));
+    // Construct loop with the minimum vertices
+    List<Point> ptsB = new ArrayList<Point>();
+    ptsB.add(new PointImpl(10, 50, ctx));
+    ptsB.add(new PointImpl(20, 60, ctx)); // this edge intersects
+    ptsB.add(new PointImpl(10, 49, ctx)); // with this edge
+    ptsB.add(new PointImpl(20, 62, ctx));
 
-        GeoLoop LoopB = new GeoLoop(ptsB, 1, false);
+    GeoLoop LoopB = new GeoLoop(ptsB, 1, false);
 
-    }
+  }
 
-    /**
-     * Test construction of loops with duplicate adjacent vertices
-     */
-    @Test(expected=IllegalStateException.class)
-    public void testDuplicateVertices() {
+  /**
+   * Test construction of loops with duplicate adjacent vertices
+   */
+  @Test(expected = IllegalStateException.class)
+  public void testDuplicateVertices() {
 
-        // Check a loop that crosses the dateline
-        List< Point > ptsC = new ArrayList<Point>();
-        ptsC.add( new PointImpl( 10, -20, ctx ));
-        ptsC.add( new PointImpl( 10, 20, ctx ));
-        ptsC.add( new PointImpl( 10, 20, ctx ));
-        ptsC.add( new PointImpl( 50, 0, ctx ));
+    // Check a loop that crosses the dateline
+    List<Point> ptsC = new ArrayList<Point>();
+    ptsC.add(new PointImpl(10, -20, ctx));
+    ptsC.add(new PointImpl(10, 20, ctx));
+    ptsC.add(new PointImpl(10, 20, ctx));
+    ptsC.add(new PointImpl(50, 0, ctx));
 
-        GeoLoop LoopC = new GeoLoop(ptsC, 1, false);
-    }
+    GeoLoop LoopC = new GeoLoop(ptsC, 1, false);
+  }
 }

@@ -37,57 +37,58 @@ import org.junit.Assert.*;
  */
 public class TransformUtilsTest extends RandomizedTest {
 
-    // Required for backwards conversion
-    private SpatialContext ctx;
+  // Required for backwards conversion
+  private SpatialContext ctx;
 
-    /**
-     * Setup Spatial Context (Geodesic) Prior to running
-     * the test suite
-     */
-    @Before
-    public void setUp() {
-       ctx = SpatialContext.GEO;
+  /**
+   * Setup Spatial Context (Geodesic) Prior to running
+   * the test suite
+   */
+  @Before
+  public void setUp() {
+    ctx = SpatialContext.GEO;
+  }
+
+  @After
+  public void tearDown() {
+  }
+
+  /**
+   * Test point to Vector3D conversion
+   */
+  @Test
+  public void testConversions() {
+
+    double pi_2 = Math.PI / 2;
+
+    // Test Points: poles and dateline in radians and degrees
+    Point dateline_deg = new PointImpl(65.0, 90.0, ctx);
+    Point poles_deg = new PointImpl(180.0, 12.2, ctx);
+
+    // Resulting points
+    Point dateline_deg_post = TransformUtils.toPoint(TransformUtils.toVector(dateline_deg), ctx);
+    Point poles_deg_post = TransformUtils.toPoint(TransformUtils.toVector(poles_deg), ctx);
+
+    // Test Dateline Radian Point
+    assertEquals(90.0, DistanceUtils.toDegrees(dateline_deg_post.getY()), 0.0001); // delta is 0 for now
+    assertEquals(12.2, DistanceUtils.toDegrees(poles_deg_post.getY()), 0.0001);
+    assertEquals(180.0, DistanceUtils.toDegrees(poles_deg_post.getX()), 0.0001);
+    assertEquals(65.0, DistanceUtils.toDegrees(dateline_deg_post.getX()), 0.0001);
+
+    // Test 10 random points for conversion accuracy
+    for (int i = 0; i <= 10; i++) {
+      // Create a random lat/lng point
+      double lat = randomInt(90);
+      double lng = randomInt(90);
+
+      Point p = new PointImpl(lng, lat, ctx);
+      Point p_post = TransformUtils.toPoint(TransformUtils.toVector(p), ctx);
+
+      assertEquals(lat, DistanceUtils.toDegrees(p_post.getY()), 0.0001);
+      assertEquals(lng, DistanceUtils.toDegrees(p_post.getX()), 0.0001);
+
     }
 
-    @After
-    public void tearDown() {}
-
-    /**
-     * Test point to Vector3D conversion
-     */
-    @Test
-    public void testConversions() {
-
-        double pi_2 = Math.PI/2;
-
-        // Test Points: poles and dateline in radians and degrees
-        Point dateline_deg = new PointImpl(65.0,  90.0, ctx);
-        Point poles_deg = new PointImpl(180.0, 12.2, ctx);
-
-        // Resulting points
-        Point dateline_deg_post = TransformUtils.toPoint(TransformUtils.toVector(dateline_deg), ctx);
-        Point poles_deg_post = TransformUtils.toPoint(TransformUtils.toVector(poles_deg), ctx);
-
-        // Test Dateline Radian Point
-        assertEquals( 90.0, DistanceUtils.toDegrees(dateline_deg_post.getY()), 0.0001); // delta is 0 for now
-        assertEquals( 12.2, DistanceUtils.toDegrees(poles_deg_post.getY()), 0.0001);
-        assertEquals( 180.0, DistanceUtils.toDegrees(poles_deg_post.getX()), 0.0001);
-        assertEquals( 65.0, DistanceUtils.toDegrees(dateline_deg_post.getX()), 0.0001);
-
-        // Test 10 random points for conversion accuracy
-        for ( int i = 0; i <= 10; i++ ) {
-            // Create a random lat/lng point
-            double lat = randomInt(90);
-            double lng = randomInt(90);
-
-            Point p = new PointImpl(lng, lat, ctx );
-            Point p_post = TransformUtils.toPoint( TransformUtils.toVector(p), ctx);
-
-            assertEquals(lat, DistanceUtils.toDegrees(p_post.getY()), 0.0001);
-            assertEquals(lng, DistanceUtils.toDegrees(p_post.getX()), 0.0001);
-
-        }
-
-    }
+  }
 
 }

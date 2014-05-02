@@ -36,115 +36,116 @@ import org.junit.Test;
  */
 public class PointInPolygonTest extends RandomizedTest {
 
-    // Required for backwards conversion
-    private SpatialContext ctx;
+  // Required for backwards conversion
+  private SpatialContext ctx;
 
-    /**
-     * Setup Spatial Context (Geodesic) Prior to running
-     * the test suite
-     */
-    @Before
-    public void setUp() {
-        ctx = SpatialContext.GEO;
-    }
+  /**
+   * Setup Spatial Context (Geodesic) Prior to running
+   * the test suite
+   */
+  @Before
+  public void setUp() {
+    ctx = SpatialContext.GEO;
+  }
 
-    @After
-    public void tearDown() {}
+  @After
+  public void tearDown() {
+  }
 
-    /**
-     * Test a regular convex polygon (no boundary crossing, etc)
-     */
-    @Test
-    public void testConvexPolygon() {
+  /**
+   * Test a regular convex polygon (no boundary crossing, etc)
+   */
+  @Test
+  public void testConvexPolygon() {
 
-        List< Point > pts = new ArrayList< Point >();
-        pts.add( new PointImpl(10, 20, ctx) );
-        pts.add( new PointImpl(12, 30, ctx) );
-        pts.add( new PointImpl(22, 35, ctx) );
-        pts.add( new PointImpl(30, 25, ctx) );
-        pts.add( new PointImpl(25, 15, ctx) );
-        pts.add( new PointImpl(15, 14, ctx) );
+    List<Point> pts = new ArrayList<Point>();
+    pts.add(new PointImpl(10, 20, ctx));
+    pts.add(new PointImpl(12, 30, ctx));
+    pts.add(new PointImpl(22, 35, ctx));
+    pts.add(new PointImpl(30, 25, ctx));
+    pts.add(new PointImpl(25, 15, ctx));
+    pts.add(new PointImpl(15, 14, ctx));
 
-        GeoPolygon polygon = new GeoPolygon(pts);
+    GeoPolygon polygon = new GeoPolygon(pts);
 
-        // Test point in polygon
-        Point testPt = new PointImpl(20, 20, ctx);
-        assertTrue( PointInGeoPolygon.relatePolygonToPoint(polygon, testPt) );
+    // Test point in polygon
+    Point testPt = new PointImpl(20, 20, ctx);
+    assertTrue(PointInGeoPolygon.relatePolygonToPoint(polygon, testPt));
 
-        // Test point outside polygon
-        Point testPt2 = new PointImpl(0, 0, ctx);
-        assertTrue(! PointInGeoPolygon.relatePolygonToPoint(polygon, testPt2) );
+    // Test point outside polygon
+    Point testPt2 = new PointImpl(0, 0, ctx);
+    assertTrue(!PointInGeoPolygon.relatePolygonToPoint(polygon, testPt2));
 
-        // test Point on vertex
-        Point testPt3 = new PointImpl(12, 30, ctx);
-        assertTrue( PointInGeoPolygon.relatePolygonToPoint(polygon, testPt3) );
-    }
+    // test Point on vertex
+    Point testPt3 = new PointImpl(12, 30, ctx);
+    assertTrue(PointInGeoPolygon.relatePolygonToPoint(polygon, testPt3));
+  }
 
-    /**
-     * Test Convex Polygon
-     */
-    @Test
-    public void testConcavePolygon() {
+  /**
+   * Test Convex Polygon
+   */
+  @Test
+  public void testConcavePolygon() {
 
-        List< Point > pts = new ArrayList< Point >();
-        pts.add( new PointImpl(10, 20, ctx) );
-        pts.add( new PointImpl(12, 30, ctx) );
-        pts.add( new PointImpl(22, 23, ctx) );
-        pts.add( new PointImpl(30, 25, ctx) );
-        pts.add( new PointImpl(25, 15, ctx) );
-        pts.add( new PointImpl(15, 14, ctx) );
+    List<Point> pts = new ArrayList<Point>();
+    pts.add(new PointImpl(10, 20, ctx));
+    pts.add(new PointImpl(12, 30, ctx));
+    pts.add(new PointImpl(22, 23, ctx));
+    pts.add(new PointImpl(30, 25, ctx));
+    pts.add(new PointImpl(25, 15, ctx));
+    pts.add(new PointImpl(15, 14, ctx));
 
-        GeoPolygon polygon = new GeoPolygon(pts);
+    GeoPolygon polygon = new GeoPolygon(pts);
 
-        // Test point in polygon
-        Point testPt = new PointImpl(20, 20, ctx);
-        assertTrue( PointInGeoPolygon.relatePolygonToPoint(polygon, testPt) );
+    // Test point in polygon
+    Point testPt = new PointImpl(20, 20, ctx);
+    assertTrue(PointInGeoPolygon.relatePolygonToPoint(polygon, testPt));
 
-        // Test point outside polygon
-        Point testPt2 = new PointImpl(0, 0, ctx);
-        assertTrue(! PointInGeoPolygon.relatePolygonToPoint(polygon, testPt2) );
+    // Test point outside polygon
+    Point testPt2 = new PointImpl(0, 0, ctx);
+    assertTrue(!PointInGeoPolygon.relatePolygonToPoint(polygon, testPt2));
 
-        // test Point on vertex
-        Point testPt3 = new PointImpl(12, 30, ctx);
-        assertTrue( PointInGeoPolygon.relatePolygonToPoint(polygon, testPt3) );
-    }
+    // test Point on vertex
+    Point testPt3 = new PointImpl(12, 30, ctx);
+    assertTrue(PointInGeoPolygon.relatePolygonToPoint(polygon, testPt3));
+  }
 
-    /**
-     * Polygon crossing a dateline
-     */
-    @Test
-    public void testDatelineCrossingPolygon() {
+  /**
+   * Polygon crossing a dateline
+   */
+  @Test
+  public void testDatelineCrossingPolygon() {
 
-        List< Point > pts = new ArrayList< Point >();
-        pts.add( new PointImpl(-10, 20, ctx) );
-        pts.add( new PointImpl(12, 30, ctx) );
-        pts.add( new PointImpl(22, 23, ctx) );
-        pts.add( new PointImpl(30, 25, ctx) );
-        pts.add( new PointImpl(25, 15, ctx) );
-        pts.add( new PointImpl(15, 14, ctx) );
+    List<Point> pts = new ArrayList<Point>();
+    pts.add(new PointImpl(-10, 20, ctx));
+    pts.add(new PointImpl(12, 30, ctx));
+    pts.add(new PointImpl(22, 23, ctx));
+    pts.add(new PointImpl(30, 25, ctx));
+    pts.add(new PointImpl(25, 15, ctx));
+    pts.add(new PointImpl(15, 14, ctx));
 
-        GeoPolygon polygon = new GeoPolygon(pts);
+    GeoPolygon polygon = new GeoPolygon(pts);
 
-        // Test point in polygon
-        Point testPt = new PointImpl(20, 20, ctx);
-        assertTrue( PointInGeoPolygon.relatePolygonToPoint(polygon, testPt) );
+    // Test point in polygon
+    Point testPt = new PointImpl(20, 20, ctx);
+    assertTrue(PointInGeoPolygon.relatePolygonToPoint(polygon, testPt));
 
-        // Test point on the other side of the dateline
-        Point testPt1 = new PointImpl(-9, 20, ctx);
-        assertTrue( PointInGeoPolygon.relatePolygonToPoint(polygon, testPt1) );
+    // Test point on the other side of the dateline
+    Point testPt1 = new PointImpl(-9, 20, ctx);
+    assertTrue(PointInGeoPolygon.relatePolygonToPoint(polygon, testPt1));
 
-        // Test point outside polygon
-        Point testPt2 = new PointImpl(0, 0, ctx);
-        assertTrue(! PointInGeoPolygon.relatePolygonToPoint(polygon, testPt2) );
+    // Test point outside polygon
+    Point testPt2 = new PointImpl(0, 0, ctx);
+    assertTrue(!PointInGeoPolygon.relatePolygonToPoint(polygon, testPt2));
 
-        // test Point on vertex
-        Point testPt3 = new PointImpl(12, 30, ctx);
-        assertTrue( PointInGeoPolygon.relatePolygonToPoint(polygon, testPt3) );
-    }
+    // test Point on vertex
+    Point testPt3 = new PointImpl(12, 30, ctx);
+    assertTrue(PointInGeoPolygon.relatePolygonToPoint(polygon, testPt3));
+  }
 
 
-    // implementing polygons with holes TODO
+  // implementing polygons with holes TODO
 
-    // polygon pole wrapping case?? TODO
+  // polygon pole wrapping case?? TODO
 
 }
