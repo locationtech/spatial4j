@@ -17,112 +17,111 @@ import com.spatial4j.core.shape.impl.RealGeoRange;
  */
 public abstract class JTSNodeBase {
 
-    protected List items = new ArrayList();
-    protected JTSNode[] subnode = new JTSNode[2];
+  protected List items = new ArrayList();
+  protected JTSNode[] subnode = new JTSNode[2];
 
-    /**
-     * Return index of the sub-node that contains a given interval. If not, return -1.
-     */
-    public static int getSubNodeIndex( RealGeoRange range, double center ) {
+  /**
+   * Return index of the sub-node that contains a given interval. If not, return -1.
+   */
+  public static int getSubNodeIndex(RealGeoRange range, double center) {
 
-        int subnodeIndex = -1;
+    int subnodeIndex = -1;
 
-        if (range.getMin() >= center) subnodeIndex = 1;
-        if (range.getMax() <= center) subnodeIndex = 0;
+    if (range.getMin() >= center) subnodeIndex = 1;
+    if (range.getMax() <= center) subnodeIndex = 0;
 
-        return subnodeIndex;
+    return subnodeIndex;
+  }
+
+  /**
+   * Constructor
+   */
+  public JTSNodeBase() {
+  }
+
+  /**
+   * Get List of items
+   */
+  public List getItems() {
+    return items;
+  }
+
+  /**
+   * Add item to the node base
+   */
+  public void add(Object item) {
+    items.add(item);
+  }
+
+  public List addAllItems(List items) {
+    items.addAll(this.items);
+    for (int i = 0; i < 2; i++) {
+      if (subnode[i] != null) {
+        subnode[i].addAllItems(items);
+      }
     }
+    return items;
+  }
 
-    /**
-     * Constructor
-     */
-    public JTSNodeBase() {}
+  protected abstract boolean isSearchMatch(RealGeoRange range);
 
-    /**
-     * Get List of items
-     */
-    public List getItems() { return items; }
+  /**
+   * Adds items in the tree which potentially overlap the query interval
+   * to the given collection. If query interval is null, add all items
+   */
+  public void addAllItemsFromOverlapping(RealGeoRange range, Collection resultItems) {
+    if (range != null && !isSearchMatch(range))
+      return;
 
-    /**
-     * Add item to the node base
-     */
-    public void add( Object item ) {
-        items.add(item);
+    // some of these may not actually overlap - this is allowed by the bintree contract
+    resultItems.addAll(items);
+
+    if (subnode[0] != null) subnode[0].addAllItemsFromOverlapping(range, resultItems);
+    if (subnode[1] != null) subnode[1].addAllItemsFromOverlapping(range, resultItems);
+  }
+
+  public boolean hasChildren() {
+    for (int i = 0; i < 2; i++) {
+      if (subnode[i] != null)
+        return true;
     }
+    return false;
+  }
 
-    public List addAllItems(List items)
-    {
-        items.addAll(this.items);
-        for (int i = 0; i < 2; i++) {
-            if (subnode[i] != null) {
-                subnode[i].addAllItems(items);
-            }
-        }
-        return items;
+  public boolean hasItems() {
+    return !items.isEmpty();
+  }
+
+  int depth() {
+    int maxSubDepth = 0;
+    for (int i = 0; i < 2; i++) {
+      if (subnode[i] != null) {
+        int sqd = subnode[i].depth();
+        if (sqd > maxSubDepth)
+          maxSubDepth = sqd;
+      }
     }
+    return maxSubDepth + 1;
+  }
 
-    protected abstract boolean isSearchMatch(RealGeoRange range);
-
-    /**
-     * Adds items in the tree which potentially overlap the query interval
-     * to the given collection. If query interval is null, add all items
-     */
-    public void addAllItemsFromOverlapping(RealGeoRange range, Collection resultItems)
-    {
-        if (range != null && ! isSearchMatch(range))
-            return;
-
-        // some of these may not actually overlap - this is allowed by the bintree contract
-        resultItems.addAll(items);
-
-        if (subnode[0] != null) subnode[0].addAllItemsFromOverlapping(range, resultItems);
-        if (subnode[1] != null) subnode[1].addAllItemsFromOverlapping(range, resultItems);
+  int size() {
+    int subSize = 0;
+    for (int i = 0; i < 2; i++) {
+      if (subnode[i] != null) {
+        subSize += subnode[i].size();
+      }
     }
+    return subSize + items.size();
+  }
 
-    public boolean hasChildren()
-    {
-        for (int i = 0; i < 2; i++) {
-            if (subnode[i] != null)
-                return true;
-        }
-        return false;
+  int nodeSize() {
+    int subSize = 0;
+    for (int i = 0; i < 2; i++) {
+      if (subnode[i] != null) {
+        subSize += subnode[i].nodeSize();
+      }
     }
-
-    public boolean hasItems() { return ! items.isEmpty(); }
-
-    int depth()
-    {
-        int maxSubDepth = 0;
-        for (int i = 0; i < 2; i++) {
-            if (subnode[i] != null) {
-                int sqd = subnode[i].depth();
-                if (sqd > maxSubDepth)
-                    maxSubDepth = sqd;
-            }
-        }
-        return maxSubDepth + 1;
-    }
-
-    int size()
-    {
-        int subSize = 0;
-        for (int i = 0; i < 2; i++) {
-            if (subnode[i] != null) {
-                subSize += subnode[i].size();
-            }
-        }
-        return subSize + items.size();
-    }
-
-    int nodeSize()
-    {
-        int subSize = 0;
-        for (int i = 0; i < 2; i++) {
-            if (subnode[i] != null) {
-                subSize += subnode[i].nodeSize();
-            }
-        }
-        return subSize + 1;
-    }
+    return subSize + 1;
+  }
 
 }

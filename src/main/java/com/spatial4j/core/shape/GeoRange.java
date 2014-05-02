@@ -26,50 +26,50 @@ package com.spatial4j.core.shape;
  */
 public class GeoRange {
 
-    protected double min;
-    protected double max;
+  protected double min;
+  protected double max;
 
-    public GeoRange() {
-        this.min = 0;
-        this.max = 0;
-    }
+  public GeoRange() {
+    this.min = 0;
+    this.max = 0;
+  }
 
-    public GeoRange( double min, double max ) {
-        this.min = min;
-        this.max = max;
-    }
+  public GeoRange(double min, double max) {
+    this.min = min;
+    this.max = max;
+  }
 
-    public double getMin() {
-        return min;
-    }
+  public double getMin() {
+    return min;
+  }
 
-    public double getMax() {
-        return max;
-    }
+  public double getMax() {
+    return max;
+  }
 
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
 
-        GeoRange range = (GeoRange) o;
+    GeoRange range = (GeoRange) o;
 
-        if (Double.compare(range.max, max) != 0) return false;
-        if (Double.compare(range.min, min) != 0) return false;
+    if (Double.compare(range.max, max) != 0) return false;
+    if (Double.compare(range.min, min) != 0) return false;
 
-        return true;
-    }
+    return true;
+  }
 
-    public int hashCode() {
-        int result;
-        long temp;
-        temp = min != +0.0d ? Double.doubleToLongBits(min) : 0L;
-        result = (int) (temp ^ (temp >>> 32));
-        temp = max != +0.0d ? Double.doubleToLongBits(max) : 0L;
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        return result;
-    }
+  public int hashCode() {
+    int result;
+    long temp;
+    temp = min != +0.0d ? Double.doubleToLongBits(min) : 0L;
+    result = (int) (temp ^ (temp >>> 32));
+    temp = max != +0.0d ? Double.doubleToLongBits(max) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
 
-    public String toString() {
-        return "GeoRange{" + min + " TO " + max + '}';
-    }
+  public String toString() {
+    return "GeoRange{" + min + " TO " + max + '}';
+  }
 }

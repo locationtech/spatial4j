@@ -37,113 +37,108 @@ import com.spatial4j.core.shape.impl.RealGeoRange;
  */
 public class JTSBinTree {
 
-    // Store the root of the binary tree
-    private JTSRoot root;
-    private double minExtent = 1.0;
+  // Store the root of the binary tree
+  private JTSRoot root;
+  private double minExtent = 1.0;
 
-    /**
-     * Check that the geo range for the inserted item has non-zero extends.
-     * Use the current minExtent to pad if necessary.
-     */
-    public static RealGeoRange ensureExtent(RealGeoRange range, double minExtent) {
+  /**
+   * Check that the geo range for the inserted item has non-zero extends.
+   * Use the current minExtent to pad if necessary.
+   */
+  public static RealGeoRange ensureExtent(RealGeoRange range, double minExtent) {
 
-        double min = range.getMin();
-        double max = range.getMax();
+    double min = range.getMin();
+    double max = range.getMax();
 
-        if ( min != max ) return range;
+    if (min != max) return range;
 
-        if ( min == max ) {
-            min = min - minExtent / 2.0;
-            max = min + minExtent / 2.0;
-        }
-
-        return new RealGeoRange(min, max);
+    if (min == max) {
+      min = min - minExtent / 2.0;
+      max = min + minExtent / 2.0;
     }
 
-    /**
-     * Construct a new binary tree with a fresh root
-     */
-    public JTSBinTree() {
-        root = new JTSRoot();
-    }
+    return new RealGeoRange(min, max);
+  }
 
-    /**
-     * Get the current depth of this binary tree
-     */
-    public int depth()
-    {
-        if (root != null) return root.depth();
-        return 0;
-    }
+  /**
+   * Construct a new binary tree with a fresh root
+   */
+  public JTSBinTree() {
+    root = new JTSRoot();
+  }
 
-    /**
-     * Get the current size of this binary tree
-     */
-    public int size()
-    {
-        if (root != null) return root.size();
-        return 0;
-    }
+  /**
+   * Get the current depth of this binary tree
+   */
+  public int depth() {
+    if (root != null) return root.depth();
+    return 0;
+  }
 
-    /**
-     * Compute the total number of nodes in the tree
-     */
-    public int nodeSize()
-    {
-        if (root != null) return root.nodeSize();
-        return 0;
-    }
+  /**
+   * Get the current size of this binary tree
+   */
+  public int size() {
+    if (root != null) return root.size();
+    return 0;
+  }
 
-    /**
-     * Insert a new range into the binary tree
-     */
-    public void insert(RealGeoRange newRange, Object item)
-    {
-        collectStats(newRange);
-        RealGeoRange insertInterval = ensureExtent(newRange, minExtent);
-        root.insert(insertInterval, item);
-    }
+  /**
+   * Compute the total number of nodes in the tree
+   */
+  public int nodeSize() {
+    if (root != null) return root.nodeSize();
+    return 0;
+  }
 
-    /**
-     * Iterate through the binary tree
-     */
-    public Iterator iterator() {
-        List foundItems = new ArrayList();
-        root.addAllItems(foundItems);
-        return foundItems.iterator();
-    }
+  /**
+   * Insert a new range into the binary tree
+   */
+  public void insert(RealGeoRange newRange, Object item) {
+    collectStats(newRange);
+    RealGeoRange insertInterval = ensureExtent(newRange, minExtent);
+    root.insert(insertInterval, item);
+  }
 
-    /**
-     * Search for a value in the interval
-     */
-    public List query(double x) {
-        return query(new RealGeoRange(x, x));
-    }
+  /**
+   * Iterate through the binary tree
+   */
+  public Iterator iterator() {
+    List foundItems = new ArrayList();
+    root.addAllItems(foundItems);
+    return foundItems.iterator();
+  }
 
-    /**
-     * Query the tree to find all candidate items which may overlap the query interval
-     */
-    public List query(RealGeoRange myRange) {
-        List foundItems = new ArrayList();
-        query(myRange, foundItems);
-        return foundItems;
-    }
+  /**
+   * Search for a value in the interval
+   */
+  public List query(double x) {
+    return query(new RealGeoRange(x, x));
+  }
 
-    /**
-     * Add items in the tree potentially overlapping the query interval
-     */
-    public void query(RealGeoRange range, Collection foundItems) {
-        root.addAllItemsFromOverlapping(range, foundItems);
-    }
+  /**
+   * Query the tree to find all candidate items which may overlap the query interval
+   */
+  public List query(RealGeoRange myRange) {
+    List foundItems = new ArrayList();
+    query(myRange, foundItems);
+    return foundItems;
+  }
 
-    /**
-     * Change minExtend based on the current interval
-     */
-    private void collectStats(RealGeoRange range)
-    {
-        double del = range.getLength();
-        if (del < minExtent && del > 0.0)
-            minExtent = del;
-    }
+  /**
+   * Add items in the tree potentially overlapping the query interval
+   */
+  public void query(RealGeoRange range, Collection foundItems) {
+    root.addAllItemsFromOverlapping(range, foundItems);
+  }
+
+  /**
+   * Change minExtend based on the current interval
+   */
+  private void collectStats(RealGeoRange range) {
+    double del = range.getLength();
+    if (del < minExtent && del > 0.0)
+      minExtent = del;
+  }
 
 }

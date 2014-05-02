@@ -30,137 +30,139 @@ import com.spatial4j.core.shape.impl.RealGeoRange;
  */
 public class JTSNode extends JTSNodeBase {
 
-    // Data
-    private RealGeoRange range;
-    private double center;
-    private int level;
+  // Data
+  private RealGeoRange range;
+  private double center;
+  private int level;
 
-    /**
-     * Create a JTS node given a range
-     */
-    public static JTSNode createNode(RealGeoRange range) {
-        JTSKey key = new JTSKey(range);
-        JTSNode node = new JTSNode(key.getRange(), key.getLevel());
-        return node;
+  /**
+   * Create a JTS node given a range
+   */
+  public static JTSNode createNode(RealGeoRange range) {
+    JTSKey key = new JTSKey(range);
+    JTSNode node = new JTSNode(key.getRange(), key.getLevel());
+    return node;
+  }
+
+  /**
+   * Create a JTS node expanded to a new range from a previous range
+   */
+  public static JTSNode createExpanded(JTSNode node, RealGeoRange range) {
+
+    RealGeoRange currRange = null;
+    if (node != null) {
+      currRange = node.getRange();
+      currRange.addPoint(range.getMin());
+      currRange.addPoint(range.getMax());
     }
 
-    /**
-     * Create a JTS node expanded to a new range from a previous range
-     */
-    public static JTSNode createExpanded(JTSNode node, RealGeoRange range) {
+    JTSNode largerNode = createNode(currRange);
+    if (node != null) largerNode.insert(node);
+    return largerNode;
+  }
 
-        RealGeoRange currRange = null;
-        if (node != null) {
-            currRange = node.getRange();
-            currRange.addPoint(range.getMin());
-            currRange.addPoint(range.getMax());
-        }
+  /**
+   * Create a new JTS node from a given range and computed level
+   */
+  public JTSNode(RealGeoRange range, int level) {
+    this.range = range;
+    this.level = level;
+    center = range.getCenter();
+  }
 
-        JTSNode largerNode = createNode(currRange);
-        if (node != null) largerNode.insert(node);
-        return largerNode;
+  /**
+   * Get the range represented by this node
+   */
+  public RealGeoRange getRange() {
+    return this.range;
+  }
+
+  /**
+   * Determine if this range matches the query range
+   */
+  protected boolean isSearchMatch(RealGeoRange range) {
+    return this.range.contains(range);
+  }
+
+  /**
+   * Return subnode containing the range
+   */
+  public JTSNode getNode(RealGeoRange searchRange) {
+    int subNodeIndex = getSubNodeIndex(searchRange, this.center);
+
+    if (subNodeIndex != -1) {
+      JTSNode node = getSubnode(subNodeIndex);
+      return node.getNode(searchRange);
+    } else {
+      return this;
     }
+  }
 
-    /**
-     * Create a new JTS node from a given range and computed level
-     */
-    public JTSNode(RealGeoRange range, int level) {
-        this.range = range;
-        this.level = level;
-        center = range.getCenter();
+  /**
+   * Return the smallest node containing the real geo range
+   */
+  public JTSNodeBase find(RealGeoRange searchRange) {
+    int subnodeIndex = getSubNodeIndex(searchRange, this.center);
+    if (subnodeIndex == -1) {
+      return this;
     }
-
-    /**
-     * Get the range represented by this node
-     */
-    public RealGeoRange getRange() { return this.range; }
-
-    /**
-     * Determine if this range matches the query range
-     */
-    protected boolean isSearchMatch(RealGeoRange range) {
-        return this.range.contains(range);
+    if (subnode[subnodeIndex] != null) {
+      JTSNode node = subnode[subnodeIndex];
+      return node.find(searchRange);
     }
+    return this;
+  }
 
-    /**
-     * Return subnode containing the range
-     */
-    public JTSNode getNode(RealGeoRange searchRange) {
-        int subNodeIndex = getSubNodeIndex(searchRange, this.center);
+  /**
+   * Insert a node into this existing node
+   */
+  public void insert(JTSNode node) {
 
-        if ( subNodeIndex != -1 ) {
-            JTSNode node = getSubnode(subNodeIndex);
-            return node.getNode(searchRange);
-        } else {
-            return this;
-        }
+    assert (range == null || range.contains(node.getRange()));
+
+    int index = getSubNodeIndex(node.getRange(), this.center);
+    if (node.level == level - 1) {
+      subnode[index] = node;
+    } else {
+      JTSNode child = createSubnode(index);
+      child.insert(node);
+      subnode[index] = child;
     }
+  }
 
-    /**
-     * Return the smallest node containing the real geo range
-     */
-    public JTSNodeBase find(RealGeoRange searchRange) {
-        int subnodeIndex = getSubNodeIndex(searchRange, this.center);
-        if (subnodeIndex == -1) {
-            return this;
-        }
-        if (subnode[subnodeIndex] != null) {
-            JTSNode node = subnode[subnodeIndex];
-            return node.find(searchRange);
-        }
-        return this;
+  /**
+   * Get the subnode for the index
+   */
+  private JTSNode getSubnode(int index) {
+
+    if (subnode[index] == null) {
+      subnode[index] = createSubnode(index);
     }
+    return subnode[index];
+  }
 
-    /**
-     * Insert a node into this existing node
-     */
-    public void insert(JTSNode node) {
 
-       assert(range == null || range.contains(node.getRange()));
+  /**
+   * Create a new subnode
+   */
+  private JTSNode createSubnode(int index) {
 
-        int index = getSubNodeIndex(node.getRange(), this.center);
-       if ( node.level == level -1 ) {
-           subnode[index] = node;
-       } else {
-           JTSNode child = createSubnode(index);
-           child.insert(node);
-           subnode[index] = child;
-       }
+    double min = 0.0;
+    double max = 0.0;
+
+    switch (index) {
+      case 0:
+        min = range.getMin();
+        max = center;
+        break;
+      case 1:
+        min = center;
+        max = range.getMax();
+        break;
     }
-
-    /**
-     * Get the subnode for the index
-     */
-    private JTSNode getSubnode( int index ) {
-
-        if (subnode[index] == null) {
-            subnode[index] = createSubnode(index);
-        }
-        return subnode[index];
-    }
-
-
-    /**
-     * Create a new subnode
-     */
-    private JTSNode createSubnode(int index) {
-
-        double min = 0.0;
-        double max = 0.0;
-
-        switch (index) {
-            case 0:
-                min = range.getMin();
-                max = center;
-                break;
-            case 1:
-                min = center;
-                max = range.getMax();
-                break;
-        }
-        RealGeoRange subInt = new RealGeoRange(min, max);
-        JTSNode node = new JTSNode(subInt, level - 1);
-        return node;
-    }
+    RealGeoRange subInt = new RealGeoRange(min, max);
+    JTSNode node = new JTSNode(subInt, level - 1);
+    return node;
+  }
 
 }
