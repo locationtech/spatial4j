@@ -56,6 +56,55 @@ public class TestDistances extends RandomizedTest {
 
     assertEquals(314.40338, dc().distance(pLL(1, 2), pLL(3, 4)) * DEG_TO_KM, EPS);
   }
+
+  @Test
+  public void testDistancesAgainstVincenty() {
+    DistanceCalculator vincenty = new GeodesicSphereDistCalc.Vincenty();
+    DistanceCalculator haversine = new GeodesicSphereDistCalc.Haversine();
+    DistanceCalculator lawOfCos = new GeodesicSphereDistCalc.LawOfCosines();
+
+    for (int i = 0; i < 10000000; i++) {
+      Point p1 = randomGeoPoint();
+      Point p2 = randomGeoPointFrom(p1);
+      double distV = vincenty.distance(p1, p2);
+
+      //Haversine: accurate to a centimeter if on same side of globe,
+      // otherwise possibly 1m apart (antipodal)
+      double havV = haversine.distance(p1, p2);
+      assertEquals(distV, havV, (distV <= 90) ? DistanceUtils.KM_TO_DEG * 0.00001 : DistanceUtils.KM_TO_DEG * 0.001);
+      //  Fractionally compared to truth, also favorably accurate.
+      if (distV != 0 && distV > 0.0000001)
+        assertEquals(1.0, havV/distV, 0.001);//0.1%
+
+      //LawOfCosines: accurate to within 1 meter (or better?)
+      double locV = lawOfCos.distance(p1, p2);
+      assertEquals(distV, locV, DistanceUtils.KM_TO_DEG * 0.001);
+    }
+  }
+
+  private Point randomGeoPoint() {
+    //not uniformly distributed but that's ok
+    return ctx.makePoint(randomDouble()*360 + -180, randomDouble()*180 + -90);
+  }
+
+  private Point randomGeoPointFrom(Point p1) {
+    int which = randomInt(10);//inclusive
+    double distDEG;
+    if (which <= 2) {
+      distDEG = 180 - randomDouble() * 0.001 / Math.pow(10, which);
+    } else if (which >= 8) {
+      distDEG = randomDouble() * 0.001 / Math.pow(10, 10-which);
+    } else {
+      distDEG = randomDouble()*180;
+    }
+    double bearingDEG = randomDouble() * 360;
+    Point p2RAD = DistanceUtils.pointOnBearingRAD(DistanceUtils.toRadians(p1.getY()), DistanceUtils.toRadians(p1.getX()),
+            DistanceUtils.toRadians(distDEG), DistanceUtils.toRadians(bearingDEG), ctx, null);
+    p2RAD.reset(DistanceUtils.toDegrees(p2RAD.getX()), DistanceUtils.toDegrees(p2RAD.getY()));
+    return p2RAD;//now it's in degrees
+  }
+
+
   @Test /** See #81 */
   public void testHaversineNaN() {
     assertEquals(180, new GeodesicSphereDistCalc.Haversine().distance(
