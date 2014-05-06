@@ -63,7 +63,8 @@ public class TestDistances extends RandomizedTest {
     DistanceCalculator haversine = new GeodesicSphereDistCalc.Haversine();
     DistanceCalculator lawOfCos = new GeodesicSphereDistCalc.LawOfCosines();
 
-    for (int i = 0; i < 10000000; i++) {
+    final int TRIES = 100000 * (int)multiplier();
+    for (int i = 0; i < TRIES; i++) {
       Point p1 = randomGeoPoint();
       Point p2 = randomGeoPointFrom(p1);
       double distV = vincenty.distance(p1, p2);
