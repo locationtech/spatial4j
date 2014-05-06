@@ -155,7 +155,7 @@ public class DistanceUtils {
   }
 
   /**
-   * Given a start point (startLat, startLon) and a bearing on a sphere, return the destination point.
+   * Given a start point (startLat, startLon), distance, and a bearing on a sphere, return the destination point.
    *
    * @param startLat The starting point latitude, in radians
    * @param startLon The starting point longitude, in radians
@@ -406,6 +406,8 @@ public class DistanceUtils {
     double hsinY = Math.sin((lat1 - lat2) * 0.5);
     double h = hsinY * hsinY +
             (Math.cos(lat1) * Math.cos(lat2) * hsinX * hsinX);
+    if (h > 1)//numeric robustness issue. If we didn't check, the answer would be NaN!
+      h = 1;
     return 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
   }
 

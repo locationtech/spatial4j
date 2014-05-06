@@ -56,6 +56,13 @@ public class TestDistances extends RandomizedTest {
 
     assertEquals(314.40338, dc().distance(pLL(1, 2), pLL(3, 4)) * DEG_TO_KM, EPS);
   }
+  @Test /** See #81 */
+  public void testHaversineNaN() {
+    assertEquals(180, new GeodesicSphereDistCalc.Haversine().distance(
+                    ctx.makePoint(-81.05206968336057, 71.82629271026536),
+                    98.9479297952497, -71.82629264390964),
+            0.00001);
+  }
 
   @Test
   public void testCalcBoxByDistFromPt() {
