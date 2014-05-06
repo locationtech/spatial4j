@@ -39,12 +39,11 @@ public class TestShapesGeo extends AbstractTestShapes {
 
   @ParametersFactory
   public static Iterable<Object[]> parameters() {
-
-    //TODO ENABLE LawOfCosines WHEN WORKING
-    //DistanceCalculator distCalcL = new GeodesicSphereDistCalc.Haversine(units.earthRadius());//default
+    final DistanceCalculator distCalcL = new GeodesicSphereDistCalc.LawOfCosines();
     final DistanceCalculator distCalcH = new GeodesicSphereDistCalc.Haversine();//default
     final DistanceCalculator distCalcV = new GeodesicSphereDistCalc.Vincenty();
     return Arrays.asList($$(
+        $(new SpatialContextFactory(){{geo = true; distCalc = new RoundingDistCalc(distCalcL);}}.newSpatialContext()),
         $(new SpatialContextFactory(){{geo = true; distCalc = new RoundingDistCalc(distCalcH);}}.newSpatialContext()),
         $(new SpatialContextFactory(){{geo = true; distCalc = new RoundingDistCalc(distCalcV);}}.newSpatialContext()),
         $(new JtsSpatialContextFactory(){{geo = true; distCalc = new RoundingDistCalc(distCalcH);}}.newSpatialContext()))
