@@ -71,6 +71,14 @@ public class GeoBufferedLine implements Shape, com.spatial4j.core.shape.LineSegm
 
   //TODO: Can a and b be the same point?
   public GeoBufferedLine(Point a, Point b, double buffer, SpatialContext ctx) {
+
+    double highestY = Math.max(Math.abs(a.getY()), Math.abs(b.getY()));
+    if((buffer + highestY) > 180) {
+      throw new InvalidShapeException("Buffer too large, buffer overlaps");
+    } else if (buffer < 0) {
+      throw new InvalidShapeException("A negative buffer does not make sense");
+    }
+
     this.a = a;
     this.b = b;
     this.buffer = buffer;

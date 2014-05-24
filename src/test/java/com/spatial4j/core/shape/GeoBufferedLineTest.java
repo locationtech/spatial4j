@@ -22,6 +22,7 @@ import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.spatial4j.core.TestLog;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.impl.GeoBufferedLine;
 import com.spatial4j.core.shape.impl.GreatCircle;
 import com.spatial4j.core.shape.impl.PointImpl;
@@ -173,7 +174,8 @@ public class GeoBufferedLineTest extends RandomizedTest {
   public void distance() {
     // TODO: FIX THIS CASE.... Might not be able to use great circle idea...?
     // TODO: Cross Track Distance might be what we need.
-    testDistToPoint(p(5,88),p(10,88),p(0,0),88);
+    testDistToPoint(p(5,88),p(5.000001,88),p(5,0),88);
+    testDistToPoint(p(0,20),p(0.00001,20),p(0,-40),60);
     testDistToPoint(p(0, 0), p(5, 0),p(0, 90), 90);
     testDistToPoint(p(0, 0), p(5, 0),p(0, 45), 45);
     testDistToPoint(p(0, 0), p(0, 5),p(5, 0), 5);
@@ -370,9 +372,24 @@ public class GeoBufferedLineTest extends RandomizedTest {
   }
 
   @Test
+  public void testInvalidBuffer() throws Exception {
+    try {
+      for(int i = 0; i < 10; i++) {
+        double random90 = randomDouble() * 90;
+        double total180 = 180-random90;
+        GeoBufferedLine line = new GeoBufferedLine(p(0, 0), p(45, random90), total180, ctx);
+      }
+    } catch(InvalidShapeException e) {
+      System.out.println(e.getMessage());
+    }
+    //System.out.println("Relate massive rect " + line.relate(rect));
+  }
+
+  @Test
   public void testMoment() throws Exception {
-    GeoBufferedLine line = new GeoBufferedLine(p(0,0),p(90,45),90,ctx);
-    Rectangle rect = ctx.makeRectangle(-50,-40,-90,-80);
+      GeoBufferedLine line = new GeoBufferedLine(p(0, 0), p(45, 0), 90, ctx);
+      Rectangle rect = ctx.makeRectangle(0, 90, 30, 60);
+
     System.out.println("Relate massive rect " + line.relate(rect));
   }
 
