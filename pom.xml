@@ -28,7 +28,7 @@
   <groupId>com.spatial4j</groupId>
   <artifactId>spatial4j</artifactId>
   <version>0.5-SNAPSHOT</version>
-  <packaging>bundle</packaging>
+  <packaging>bundle</packaging><!-- an OSGi thing; basically same as 'jar' -->
 
   <name>Spatial4J</name>
   <description>
@@ -36,12 +36,11 @@
     core capabilities are 3-fold: to provide common geospatially-aware shapes, to provide distance
     calculations and other math, and to read shapes in WKT format.
   </description>
+  <url>http://www.locationtech.org/projects/locationtech.spatial4j</url>
   <organization>
     <name>LocationTech</name>
-    <url>http://locationtech.org</url>
-    <!-- membership is pending: http://locationtech.org/proposals/spatial4j  -->
+    <url>http://www.locationtech.org/</url>
   </organization>
-  <url>https://github.com/spatial4j/spatial4j</url>
 
   <licenses>
     <license>
@@ -63,12 +62,15 @@
 
   <mailingLists>
     <mailingList>
-      <name>dev@lists.spatial4j.com</name>
-      <archive>http://spatial4j.16575.x6.nabble.com</archive>
+      <name>spatial4j-dev</name>
+      <archive>http://locationtech.org/mhonarc/lists/spatial4j-dev</archive>
       <otherArchives>
+        <!-- These two are for the pre-LocationTech traffic -->
+        <otherArchive>http://spatial4j.16575.x6.nabble.com</otherArchive>
         <otherArchive>http://lists.spatial4j.com/pipermail/dev-spatial4j.com/</otherArchive>
       </otherArchives>
-      <post>dev@lists.spatial4j.com</post>
+      <post>spatial4j-dev@locationtech.org</post>
+      <subscribe>https://locationtech.org/mailman/listinfo/spatial4j-dev</subscribe>
     </mailingList>
   </mailingLists>
 
