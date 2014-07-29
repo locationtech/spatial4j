@@ -238,6 +238,8 @@ public class DateLineOps {
             if (DETECT_AND_UNDO_BAD_SHIFTS && !isClosed) {
                 shiftHistory.undo();
                 shiftXPageMax = shiftXPageMin = 0;
+								isClosed = cseq.getCoordinate(0)
+                    .equals(cseq.getCoordinate(size - 1));
             }
 
             assert isClosed;
