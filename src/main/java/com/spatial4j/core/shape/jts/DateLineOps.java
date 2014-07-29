@@ -66,8 +66,8 @@ public class DateLineOps {
      * http://sourceforge.net/p/jts-topo-suite/mailman/message/32619267/
      */
     private static final GeometryFactory FACTORY = new GeometryFactory(
-        new PackedCoordinateSequenceFactory());
-    
+            new PackedCoordinateSequenceFactory());
+
     /* If true, keep track of the shift history, and undo it when an unclosed 
      * LinearRing is detected, which can occur when the heuristic for determining
      * a date-line cross fails.
@@ -90,9 +90,9 @@ public class DateLineOps {
      * @see com.spatial4j.core.shape.jts
      */
     public static int unwrapDateline(
-        Geometry geom,
-        final double xmin,
-        final double xmax) {
+            Geometry geom,
+            final double xmin,
+            final double xmax) {
 
         final double w2 = (xmax - xmin) / 2;// half width
 
@@ -105,7 +105,7 @@ public class DateLineOps {
             public void filter(Geometry geom) {
                 int cross = 0;
                 if (geom instanceof LineString) {// note: LinearRing extends
-                                                 // LineString
+                    // LineString
                     if (geom.getEnvelopeInternal().getWidth() < w2)
                         return;// can't possibly cross the dateline
                     cross = unwrapDateline((LineString) geom, xmin, xmax);
@@ -139,7 +139,7 @@ public class DateLineOps {
             for (int i = 0; i < poly.getNumInteriorRing(); i++) {
                 LineString innerLineString = poly.getInteriorRingN(i);
                 unwrapDateline(innerLineString, xmin, xmax);
-                
+
                 /* MMWW -- expensive check for validity can be ignored if we assume validity
                  * 
                 for (int shiftCount = 0; !exteriorRing.contains(innerLineString); shiftCount++) {
@@ -159,13 +159,13 @@ public class DateLineOps {
 
     /** See {@link #unwrapDateline(Geometry)}. */
     private static int unwrapDateline(
-        LineString lineString,
-        double xmin,
-        double xmax) {
-        
+            LineString lineString,
+            double xmin,
+            double xmax) {
+
         double w = xmax - xmin;
         double w2 = w / 2;
-        
+
         CoordinateSequence cseq = lineString.getCoordinateSequence();
         int size = cseq.size();
         if (size <= 1)
@@ -175,11 +175,11 @@ public class DateLineOps {
         int shiftXPage = 0;
         int shiftXPageMin = 0/* <= 0 */, shiftXPageMax = 0; /* >= 0 */
         double prevX = cseq.getX(0);
-        
+
         // track shifts -- if we come across an error, we can undo changes
         // to the geometry
         ShiftHistory shiftHistory = new ShiftHistory(lineString);
-             
+
         // let the first coordinate choose the default page -- MMWW
         if (prevX < xmin) {
             double pageDelta = w * (floor((xmax - prevX) / w));
@@ -190,29 +190,29 @@ public class DateLineOps {
             xmin += pageDelta;
             xmax += pageDelta;
         }
-        
+
         for (int i = 1; i < size; i++) {
             double thisX_orig = cseq.getX(i);
-            
+
             // MMWW -- Make sure all coordinates are in bounds so that dateline
             // crossings can be detected.
             {
-            	double shift = Double.NaN;
-            	if (thisX_orig < xmin) {
-                	shift = w * floor((xmax - thisX_orig) / w);
-            	} else if (thisX_orig > xmax) {
-            		shift = -w * floor((thisX_orig - xmin) / w);
-            	}
-            	
-            	if (!Double.isNaN(shift)) {
-            		thisX_orig += shift;
-            		cseq.setOrdinate(i, CoordinateSequence.X, thisX_orig);
-            		shiftHistory.record(i, shift);
+                double shift = Double.NaN;
+                if (thisX_orig < xmin) {
+                    shift = w * floor((xmax - thisX_orig) / w);
+                } else if (thisX_orig > xmax) {
+                    shift = -w * floor((thisX_orig - xmin) / w);
+                }
+
+                if (!Double.isNaN(shift)) {
+                    thisX_orig += shift;
+                    cseq.setOrdinate(i, CoordinateSequence.X, thisX_orig);
+                    shiftHistory.record(i, shift);
                 }
             }
-            
+
             //assert thisX_orig >= xmin && thisX_orig <= xmax : "X not in geo bounds"; -- MMWW: too strict now            
-            
+
             double thisX = thisX_orig + shiftX;
             if (prevX - thisX > w2) {// cross dateline from left to right
                 thisX += w;
@@ -232,14 +232,14 @@ public class DateLineOps {
             prevX = thisX;
         }
         if (lineString instanceof LinearRing) {
-        	boolean isClosed = cseq.getCoordinate(0)
+            boolean isClosed = cseq.getCoordinate(0)
                     .equals(cseq.getCoordinate(size - 1));
-        	
-        	if (DETECT_AND_UNDO_BAD_SHIFTS && !isClosed) {
-        		shiftHistory.undo();
-        		shiftXPageMax = shiftXPageMin = 0;
-        	}
-        	
+
+            if (DETECT_AND_UNDO_BAD_SHIFTS && !isClosed) {
+                shiftHistory.undo();
+                shiftXPageMax = shiftXPageMin = 0;
+            }
+
             assert isClosed;
             assert shiftXPage == 0;// starts and ends at 0
         }
@@ -252,7 +252,7 @@ public class DateLineOps {
             lineString.geometryChanged();
         return crossings;
     }
-    
+
     /**
      * Cuts the geometry into pieces, each of which is in between xmin and xmax.
      * This implies that the geometries "wrap".
@@ -269,7 +269,7 @@ public class DateLineOps {
             }
             return collect(geometries, geom.getFactory());
         }
-        
+
         double w = xmax - xmin;
 
         Envelope geomEnv = geom.getEnvelopeInternal();
@@ -287,13 +287,13 @@ public class DateLineOps {
                 break;
             }
             Geometry rect =
-                FACTORY.toGeometry(new Envelope(
-                    minX,
-                    minX + w,
-                    geomEnv.getMinY(),
-                    geomEnv.getMaxY()));
+                    FACTORY.toGeometry(new Envelope(
+                            minX,
+                            minX + w,
+                            geomEnv.getMinY(),
+                            geomEnv.getMaxY()));
             Geometry pageGeom = rect.intersection(geom);// JTS is doing some
-                                                        // hard work
+            // hard work
 
             DateLineOps.shiftGeomByX(pageGeom, page * -w);
             geomList.add(pageGeom);
@@ -301,7 +301,7 @@ public class DateLineOps {
 
         return collect(geomList, FACTORY);
     }
-    
+
     private static void shiftGeomByX(Geometry geom, final double xShift) {
         if (xShift == 0) {
             return;
@@ -326,16 +326,16 @@ public class DateLineOps {
     }
 
     /**
-	 * Like {@link GeometryFactory#buildGeometry(Collection)}, except that
-	 * Multi* may be flattened.
-	 * 
-	 * In general, the tightest possible type is chosen, except that the
-	 * presence of a concrete GeometryCollection (i.e. not a sub-class) will
-	 * always result in one, even if all geometries are otherwise of the same type.
-	 */
+     * Like {@link GeometryFactory#buildGeometry(Collection)}, except that
+     * Multi* may be flattened.
+     * 
+     * In general, the tightest possible type is chosen, except that the
+     * presence of a concrete GeometryCollection (i.e. not a sub-class) will
+     * always result in one, even if all geometries are otherwise of the same type.
+     */
     static Geometry collect(
-        Collection<Geometry> geometries,
-        GeometryFactory factory) {
+            Collection<Geometry> geometries,
+            GeometryFactory factory) {
 
         if (geometries.isEmpty()) {
             return factory.createGeometryCollection(new Geometry[] {});
@@ -381,12 +381,12 @@ public class DateLineOps {
 
             } else {
                 throw new UnsupportedOperationException(
-                    "Unsupported geometry: " + g.getGeometryType());
+                        "Unsupported geometry: " + g.getGeometryType());
             }
         }
 
         int types =
-            (hasPoint ? 1 : 0) + (hasLineString ? 1 : 0) + (hasPolygon ? 1 : 0);
+                (hasPoint ? 1 : 0) + (hasLineString ? 1 : 0) + (hasPolygon ? 1 : 0);
 
         if (types != 1 || hasHeterogenousCollection) {
             return factory.createGeometryCollection(GeometryFactory.toGeometryArray(geometries));
@@ -432,78 +432,79 @@ public class DateLineOps {
             geometries.add(g);
         }
     }
-    
+
     private static class ShiftHistory {
-    	
-		private final LineString lineString; 
-		
-		/* Marks the beginning of an interval, inclusive, in which coordinates 
-		 * are shifted. 
-		 */
-		private LinkedHashMap<Integer, Double> startShiftByIndex;
-		
-		/* Marks the end of an interval, inclusive, in which coordinates are 
-		 * shifted. 
-		 */
-		private LinkedHashMap<Integer, Double> endShiftByIndex;
-		
-    	public ShiftHistory(LineString lineString) {
-			this.lineString = lineString;
-		}
-		
-		/**
-		 * Record a shift of 'shift' at index 'i'.
-		 */
-		private void record(
-				int i, double shift) {
-			
-			if (DETECT_AND_UNDO_BAD_SHIFTS) {
-				
-				checkInit();
-				Double endShift = endShiftByIndex.get(i - 1);
-				if (endShift == null || endShift != shift) {
-					// start a new interval
-					startShiftByIndex.put(i, shift);
-					endShiftByIndex.put(i, shift);
-				} else {
-					// extend the current interval
-					endShiftByIndex.remove(i - 1); 
-					endShiftByIndex.put(i, shift);
-				}
-			}
-		}
 
-		private void undo() {
-			if (checkInit()) {
-				throw new IllegalStateException("Nothing to undo!");
-			}
+        private final LineString lineString; 
 
-			CoordinateSequence cseq = lineString.getCoordinateSequence();
-			Iterator<Entry<Integer, Double>> startItr = startShiftByIndex.entrySet().iterator();
-			Iterator<Entry<Integer, Double>> endItr = endShiftByIndex.entrySet().iterator();
+        /* Marks the beginning of an interval, inclusive, in which coordinates 
+         * are shifted. 
+         */
+        private LinkedHashMap<Integer, Double> startShiftByIndex;
 
-			while (startItr.hasNext()) {
-				Entry<Integer, Double> start = startItr.next();
-				Entry<Integer, Double> end = endItr.next();
-				if (!start.getValue().equals(end.getValue())) {
-					throw new IllegalStateException("Error in shift-history interval tracking.");
-				}
+        /* Marks the end of an interval, inclusive, in which coordinates are 
+         * shifted. 
+         */
+        private LinkedHashMap<Integer, Double> endShiftByIndex;
 
-				double shift = start.getValue();
-				for (int i = start.getKey(), j = end.getKey(); i <= j; i++) {
-					cseq.setOrdinate(i, CoordinateSequence.X, cseq.getX(i) - shift);
-				}
-			}
-		}
-		
-		private boolean checkInit() {
-			if (startShiftByIndex == null) {
-				// lazy initialization
-				startShiftByIndex = new LinkedHashMap<Integer, Double>();
-				endShiftByIndex = new LinkedHashMap<Integer, Double>();
-				return true;
-			}
-			return false;
-		}
+        public ShiftHistory(LineString lineString) {
+            this.lineString = lineString;
+        }
+
+        /**
+         * Record a shift of 'shift' at index 'i'.
+         */
+        private void record(
+                int i, double shift) {
+
+            if (DETECT_AND_UNDO_BAD_SHIFTS) {
+
+                checkInit();
+                Double endShift = endShiftByIndex.get(i - 1);
+                if (endShift == null || endShift != shift) {
+                    // start a new interval
+                    startShiftByIndex.put(i, shift);
+                    endShiftByIndex.put(i, shift);
+                } else {
+                    // extend the current interval
+                    endShiftByIndex.remove(i - 1); 
+                    endShiftByIndex.put(i, shift);
+                }
+            }
+        }
+
+        private void undo() {
+            if (checkInit()) {
+                throw new IllegalStateException("Nothing to undo!");
+            }
+
+            CoordinateSequence cseq = lineString.getCoordinateSequence();
+            Iterator<Entry<Integer, Double>> startItr = startShiftByIndex.entrySet().iterator();
+            Iterator<Entry<Integer, Double>> endItr = endShiftByIndex.entrySet().iterator();
+
+            while (startItr.hasNext()) {
+                Entry<Integer, Double> start = startItr.next();
+                Entry<Integer, Double> end = endItr.next();
+                if (!start.getValue().equals(end.getValue())) {
+                    throw new IllegalStateException("Error in shift-history interval tracking.");
+                }
+
+                double shift = start.getValue();
+                for (int i = start.getKey(), j = end.getKey(); i <= j; i++) {
+                    cseq.setOrdinate(i, CoordinateSequence.X, cseq.getX(i)
+                            - shift);
+                }
+            }
+        }
+
+        private boolean checkInit() {
+            if (startShiftByIndex == null) {
+                // lazy initialization
+                startShiftByIndex = new LinkedHashMap<Integer, Double>();
+                endShiftByIndex = new LinkedHashMap<Integer, Double>();
+                return true;
+            }
+            return false;
+        }
     }
 }
