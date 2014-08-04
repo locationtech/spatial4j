@@ -29,40 +29,24 @@ import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
  * Utilities for date-line logic.
  * 
  * {@link DateLineOps#unwrapDateline(Geometry, double, double)} detects
- * date-line crosses, and "unwraps" the geometry.
+ * date-line crosses, and "unwraps" the geometry.  It also handles coordinates
+ * outside of the bounds.
  * 
  * {@link DateLineOps#pageGeom(Geometry, double, double)} cuts a geometry, such
  * that each is between xmin and xmax.
- * 
- * Note that much of this code is copied from
- * https://github.com/spatial4j/spatial4j
- * /blob/185132fae6897f57faacdac91c0a98a92e380bfc
- * /src/main/java/com/spatial4j/core/shape/jts/JtsGeometry.java.
- * 
- * A few modifications have been made. Rather than unioning paged geometries,
- * they are merely "collected" into a single geometry (for efficiency's sake).
- * 
+ *
  * Moreover, the boundaries of the date-line have been generalized (in order to
  * work with generic projections).
  * 
- * These methods assume that geometries are valid (since they will be performing intersections).
- * Accordingly, the tests for holes-in-shells have been removed.
- * 
- * Fixed a bug in {@link DateLineOps#unwrapDateline(Geometry, double, double)}
- * that invokes {@link Geometry#geometryChanged()} for instances of
- * {@link GeometryCollection}.
- * 
- * Extended to handle concrete {@link GeometryCollection}s.
- * 
- * Extended {@link DateLineOps#unwrapDateline(Geometry, double, double)} to
- * handle coordinates outside of the bounds.
+ * These methods assume that geometries are valid.
  */
 public class DateLineOps {
 
+  private DateLineOps() {}
+
     /**
      * NOTE: This geometry factory servers as a work-around for a JTS bug. See
-     * @see TestJTSIntersectionAndCoordinateFilterBug
-     * 
+     *
      * http://sourceforge.net/p/jts-topo-suite/mailman/message/32619267/
      */
     private static final GeometryFactory FACTORY = new GeometryFactory(
@@ -79,11 +63,12 @@ public class DateLineOps {
     //
 
     /**
-     * If <code>geom</code> spans the dateline, then this modifies it to be a
-     * valid JTS geometry that extends to the right of the standard -180 to +180
-     * width such that some points are greater than +180 but some remain less.
-     * Takes care to invoke
-     * {@link com.vividsolutions.jts.geom.Geometry#geometryChanged()} if needed.
+     * If <code>geom</code> spans the dateline, then this un-wraps the coordinates such
+     * that it will exceed the bounds but be a valid geometry.  Dateline spanning is detected
+     * by looking for adjacent points that have an X value that is > half the world width
+     * apart.  Put another way, this assumes the line takes the shortest path around the world.
+     * After calling this, you should probably call {@link #pageGeom(Geometry, double, double)}.
+     * Takes care to invoke {@link Geometry#geometryChanged()} if needed.
      * 
      * @return The number of times the geometry spans the dateline. >= 0
      * 
@@ -118,15 +103,15 @@ public class DateLineOps {
                 crossings[0] = Math.max(crossings[0], cross);
             }
         });// geom.apply()
-        if (crossings[0] > 0 && geom instanceof GeometryCollection) {
-            geom.geometryChanged(); // mmww
+        if (crossings[0] > 0) {
+            geom.geometryChanged();
         }
 
         return crossings[0];
     }
 
     /**
-     * See {@link #unwrapDateline(Geometry)}.
+     * See {@link #unwrapDateline(Geometry, double, double)}.
      * 
      * @see com.spatial4j.core.shape.jts
      */
@@ -134,14 +119,11 @@ public class DateLineOps {
         LineString exteriorRing = poly.getExteriorRing();
         int cross = unwrapDateline(exteriorRing, xmin, xmax);
         if (cross > 0) {
-            // TODO TEST THIS! Maybe bug if doesn't cross but is in another
-            // page? -- MMWW (assume holes are in shell)
             for (int i = 0; i < poly.getNumInteriorRing(); i++) {
                 LineString innerLineString = poly.getInteriorRingN(i);
                 unwrapDateline(innerLineString, xmin, xmax);
 
-                /* MMWW -- expensive check for validity can be ignored if we assume validity
-                 * 
+                /* Expensive check for validity can be ignored since we assume validity
                 for (int shiftCount = 0; !exteriorRing.contains(innerLineString); shiftCount++) {
                     if (shiftCount > cross)
                         throw new IllegalArgumentException(
@@ -152,12 +134,11 @@ public class DateLineOps {
                     DateLineOps.shiftGeomByX(innerLineString, xmax - xmin);
                 }*/
             }
-            poly.geometryChanged();
         }
         return cross;
     }
 
-    /** See {@link #unwrapDateline(Geometry)}. */
+    /** See {@link #unwrapDateline(Geometry, double, double)}. */
     private static int unwrapDateline(
             LineString lineString,
             double xmin,
@@ -180,7 +161,7 @@ public class DateLineOps {
         // to the geometry
         ShiftHistory shiftHistory = new ShiftHistory(lineString);
 
-        // let the first coordinate choose the default page -- MMWW
+        // let the first coordinate choose the default page
         if (prevX < xmin) {
             double pageDelta = w * (floor((xmax - prevX) / w));
             xmin -= pageDelta;
@@ -194,9 +175,10 @@ public class DateLineOps {
         for (int i = 1; i < size; i++) {
             double thisX_orig = cseq.getX(i);
 
-            // MMWW -- Make sure all coordinates are in bounds so that dateline
+            // Make sure all coordinates are in bounds so that dateline
             // crossings can be detected.
             {
+                // TODO test
                 double shift = Double.NaN;
                 if (thisX_orig < xmin) {
                     shift = w * floor((xmax - thisX_orig) / w);
@@ -210,8 +192,6 @@ public class DateLineOps {
                     shiftHistory.record(i, shift);
                 }
             }
-
-            //assert thisX_orig >= xmin && thisX_orig <= xmax : "X not in geo bounds"; -- MMWW: too strict now            
 
             double thisX = thisX_orig + shiftX;
             if (prevX - thisX > w2) {// cross dateline from left to right
@@ -246,12 +226,8 @@ public class DateLineOps {
             assert shiftXPage == 0;// starts and ends at 0
         }
         assert shiftXPageMax >= 0 && shiftXPageMin <= 0;
-        // Unfortunately we are shifting again; it'd be nice to be smarter and
-        // shift once
-        //DateLineOps.shiftGeomByX(lineString, shiftXPageMin * -w);
+
         int crossings = shiftXPageMax - shiftXPageMin;
-        if (crossings > 0)
-            lineString.geometryChanged();
         return crossings;
     }
 
@@ -279,7 +255,7 @@ public class DateLineOps {
             return geom;
         }
 
-        int page = (int) Math.floor((geomEnv.getMinX() - xmin) / (xmax - xmin));
+        int page = (int) Math.floor((geomEnv.getMinX() - xmin) / w);
 
         List<Geometry> geomList = new ArrayList<Geometry>();
         // page 0 is the standard xmin to xmax range
@@ -357,7 +333,7 @@ public class DateLineOps {
             } else if (g instanceof MultiPoint) {
                 hasPoint = true;
                 hasHomogenousCollection = true;
-                sizeForDump += ((GeometryCollection) g).getNumGeometries() - 1;
+                sizeForDump += g.getNumGeometries() - 1;
 
             } else if (g instanceof LineString) {
                 hasLineString = true;
@@ -365,7 +341,7 @@ public class DateLineOps {
             } else if (g instanceof MultiLineString) {
                 hasLineString = true;
                 hasHomogenousCollection = true;
-                sizeForDump += ((GeometryCollection) g).getNumGeometries() - 1;
+                sizeForDump += g.getNumGeometries() - 1;
 
             } else if (g instanceof Polygon) {
                 hasPolygon = true;
@@ -373,7 +349,7 @@ public class DateLineOps {
             } else if (g instanceof MultiPolygon) {
                 hasPolygon = true;
                 hasHomogenousCollection = true;
-                sizeForDump += ((GeometryCollection) g).getNumGeometries() - 1;
+                sizeForDump += g.getNumGeometries() - 1;
 
             } else if (g instanceof GeometryCollection) {
                 hasHeterogenousCollection = true;
@@ -460,7 +436,6 @@ public class DateLineOps {
                 int i, double shift) {
 
             if (DETECT_AND_UNDO_BAD_SHIFTS) {
-
                 checkInit();
                 Double endShift = endShiftByIndex.get(i - 1);
                 if (endShift == null || endShift != shift) {

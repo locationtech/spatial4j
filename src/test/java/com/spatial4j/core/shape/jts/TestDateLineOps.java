@@ -37,16 +37,16 @@ public class TestDateLineOps {
     @Test
     public void testSphericalRingAKAAntarctica() throws ParseException {
         double xmin = -180, xmax = 180;
-
-        Geometry poly = fromWKT("POLYGON ((-180 -1, -180 0, -90 0, 0 0, 90 0, 180 0, 180 -1, -180 -1))");
+        final String wkt = "POLYGON ((-180 -1, -180 0, -90 0, 0 0, 90 0, 180 0, 180 -1, -180 -1))";
+        Geometry poly = fromWKT(wkt);
         Assert.assertEquals(unwrapDateline(poly, xmin, xmax), 0);
         assertEquals(
-                "POLYGON ((-180 -1, -180 0, -90 0, 0 0, 90 0, 180 0, 180 -1, -180 -1))",
+                wkt,
                 poly.toString());
 
         poly = DateLineOps.pageGeom(poly, xmin, xmax);
         assertEquals(
-                "POLYGON ((-180 -1, -180 0, -90 0, 0 0, 90 0, 180 0, 180 -1, -180 -1))",
+                wkt,
                 poly.toString());
     }
 
@@ -178,6 +178,7 @@ public class TestDateLineOps {
         return new WKTReader().read(wkt);
     }
 
+   //Note: the arg order is inconsistent with both makeRect and ENVELOPE
     private static Polygon box(double xmin, double ymin, double xmax,
             double ymax) {
         return (Polygon) F.toGeometry(new Envelope(xmin, xmax, ymin, ymax));
