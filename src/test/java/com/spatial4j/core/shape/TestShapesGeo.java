@@ -101,6 +101,9 @@ public class TestShapesGeo extends AbstractTestShapes {
     //Test geo rectangle intersections
     testRectIntersect();
 
+    //Bug #85   ** NOT FIXED YET **
+    //assertRelation(WITHIN, ctx.makeRectangle(-180, -180, -10, 10), ctx.makeRectangle(180, 180, -30, 30));
+
     //Test buffer
     assertEquals(ctx.makeRectangle(-10, 10, -10, 10), ctx.makeRectangle(0, 0, 0, 0).getBuffered(10, ctx));
     int MAX_TRIES = scaledRandomIntBetween(100, 1000);
