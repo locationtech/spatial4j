@@ -275,4 +275,12 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     } while (!bbox.relate(p).intersects());
     return p;
   }
+
+  /** Tests that {@code left} >= {@code right}, but may be less if within some tolerance. */
+  public static void assertGreaterOrEqual(double left, double right, double delta) {
+    if (left > right) {
+      return;
+    }
+    assertEquals(left, right, delta);
+  }
 }

@@ -81,7 +81,7 @@ public class RectangleImpl implements Rectangle {
       } else {
         //doesn't touch pole
         double latDistance = distance;
-        double closestToPoleY = (maxY - minY > 0) ? maxY : minY;
+        double closestToPoleY = Math.abs(maxY) > Math.abs(minY) ? maxY : minY;
         double lonDistance = DistanceUtils.calcBoxByDistFromPt_deltaLonDEG(
             closestToPoleY, minX, distance);//lat,lon order
         //could still wrap the world though...
