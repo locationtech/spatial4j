@@ -174,7 +174,7 @@ public class Range {
       }
       LongitudeRange newMin = b.contains(a.min) ? b : a;//usually 'a'
       LongitudeRange newMax = a.contains(b.max) ? a : b;//usually 'b'
-      if (newMin == newMax)
+      if (newMin.equals(newMax))
         return newMin;
       if (newMin == b && newMax == a)
         return WORLD_180E180W;
