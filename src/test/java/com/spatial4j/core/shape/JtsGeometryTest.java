@@ -85,6 +85,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
     testRelations(false);
     testRelations(true);
   }
+
   public void testRelations(boolean prepare) throws ParseException {
     assert !((JtsWktShapeParser)ctx.getWktShapeParser()).isAutoIndex();
     //base polygon
@@ -152,6 +153,23 @@ public class JtsGeometryTest extends AbstractTestShapes {
   }
 
   @Test
+  public void testPointNormalization() {
+    // pick a random point in world bounds
+    Point p1 = randomPoint();
+
+    // translate point outside world bounds (w/ random * 2pi)
+    double tLat = p1.getY() + (360.0D*randomIntBetween(2, 5));
+    double tLon = p1.getX() + (360.0D*randomIntBetween(2, 5));
+    Point p = new PointImpl(tLon, tLat, ctx);
+
+    // normalize the translated point (putting it back in world bounds)
+    ctx.normalizePoint(p);
+
+    assertEqualsRatio("actual lon: " + p.getX() + "\nexpected lon: " + p1.getX(), p.getX(), p1.getX());
+    assertEqualsRatio("actual lat: " + p.getY() + "\nexpected lat: " + p1.getY(), p.getY(), p1.getY());
+  }
+
+  @Test
   public void testWidthGreaterThan180() throws ParseException {
     //does NOT cross the dateline but is a wide shape >180
     JtsGeometry jtsGeo = (JtsGeometry) ctx.readShapeFromWkt("POLYGON((-161 49, 0 49, 20 49, 20 89.1, 0 89.1, -161 89.2, -161 49))");
@@ -159,7 +177,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
 
     //shift it to cross the dateline and check that it's still good
     jtsGeo = shiftPoly(jtsGeo, 180);
-    assertEquals(161+20,jtsGeo.getBoundingBox().getWidth(), 0.001);
+    assertEquals(161 + 20, jtsGeo.getBoundingBox().getWidth(), 0.001);
   }
 
   private void assertJtsConsistentRelate(Shape shape) {

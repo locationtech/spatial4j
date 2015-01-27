@@ -177,6 +177,15 @@ public class SpatialContext {
    * is called by {@link com.spatial4j.core.io.WktShapeParser} before creating a shape. */
   public double normY(double y) { return y; }
 
+  /**
+   * Normalize a point coordinate to fit within {@link #getWorldBounds()}. This correctly converts
+   * longitudes to their anti-podal location for latitude values >90 or >-90. Note: depending
+   * on the magnitude of the translation this could reduce precision at the 13th or 14th decimal place
+   */
+  public Point normalizePoint(Point p) {
+    return DistanceUtils.normPoint(p);
+  }
+
   /** Ensure fits in {@link #getWorldBounds()}. It's called by any shape factory method that
    * gets an 'x' dimension. */
   public void verifyX(double x) {
