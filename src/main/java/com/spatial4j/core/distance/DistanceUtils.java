@@ -214,7 +214,10 @@ public class DistanceUtils {
 
   /**
    * Puts in range -180 <= lon_deg <= +180.
+   * @deprecated
+   * use {@link com.spatial4j.core.crs.SphericalCRSDelegate#normalizeX} instead
    */
+  @Deprecated
   public static double normLonDEG(double lon_deg) {
     if (lon_deg >= -180 && lon_deg <= 180)
       return lon_deg;//common case, and avoids slight double precision shifting
@@ -229,51 +232,15 @@ public class DistanceUtils {
 
   /**
    * Puts in range -90 <= lat_deg <= 90.
+   * @deprecated
+   * use {@link com.spatial4j.core.crs.SphericalCRSDelegate#normalizeY} instead
    */
+  @Deprecated
   public static double normLatDEG(double lat_deg) {
     if (lat_deg >= -90 && lat_deg <= 90)
       return lat_deg;//common case, and avoids slight double precision shifting
     double off = Math.abs((lat_deg + 90) % 360);
     return (off <= 180 ? off : 360-off) - 90;
-  }
-
-  /**
-   * Normalizes a {@link Point} to fit within the standard world bounds
-   * If latitude is normalized from -90 < lat > 90, to -90 <= lat <= 90 then longitude needs
-   * to be normalized to its antipodal point, <code>normPoint</code> is intended to be used
-   * in place of <code>normLonDEG</code> and <code>normLatDEG</code> to keep lat/lon pairs
-   * consistent.
-   */
-  public static Point normPoint(Point pt) {
-    double lat = pt.getY();
-    double lon = pt.getX();
-    boolean normalized = false;
-
-    if (lat>90.0 || lat<-90.0) {
-      normalized = true;
-      // handle world wrapping and shift result 90 degrees
-      lat += 90.0D;
-
-      double off = (lat<0) ? ((lat % 360.0 + 360.0) % lat) : lat%360.0; // correct mod operator for negative numbers
-      // antipodal shift of longitude needed for lat results > 180 degrees
-      if (off > 180.0) {
-        // re-normalize the latitude and antipodal shift longitude
-        lat = (360.0 - off) - 90.0;
-        lon += 180.0;
-      } else {
-        lat = off - 90.0;
-      }
-    }
-
-    if (lon > 180.0  || lon <= -180.0) {
-      if (!normalized) normalized = true;
-      lon = normLonDEG(lon);
-    }
-
-    if (normalized) {
-      pt.reset(lon, lat);
-    }
-    return pt;
   }
 
   /**
@@ -298,8 +265,8 @@ public class DistanceUtils {
         //we have special logic for longitude
         minX = -180; maxX = 180;//world wrap: 360 deg
         if (maxY <= 90 && minY >= -90) {//doesn't pass either pole: 180 deg
-          minX = normLonDEG(lon - 90);
-          maxX = normLonDEG(lon + 90);
+          minX = ctx.normX(lon - 90, true);
+          maxX = ctx.normX(lon + 90, true);
         }
         if (maxY > 90)
           maxY = 90;
@@ -309,8 +276,8 @@ public class DistanceUtils {
         //--calc longitude bounds
         double lon_delta_deg = calcBoxByDistFromPt_deltaLonDEG(lat, lon, distDEG);
 
-        minX = normLonDEG(lon - lon_delta_deg);
-        maxX = normLonDEG(lon + lon_delta_deg);
+        minX = ctx.normX(lon - lon_delta_deg, true);
+        maxX = ctx.normX(lon + lon_delta_deg, true);
       }
     }
     if (reuse == null) {

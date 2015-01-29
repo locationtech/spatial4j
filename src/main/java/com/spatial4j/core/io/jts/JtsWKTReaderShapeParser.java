@@ -19,10 +19,10 @@ package com.spatial4j.core.io.jts;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsPoint;
+import com.spatial4j.core.crs.SphericalCRSDelegate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
 import com.vividsolutions.jts.geom.Geometry;
@@ -99,7 +99,7 @@ public class JtsWKTReaderShapeParser extends JtsWktShapeParser {
         //  those methods use the precisionModel, but WKTReader already
         //  used the precisionModel. It's be nice to turn that off somehow but alas.
         if (ctx.isGeo() && ctx.isNormWrapLongitude()) {
-          double xNorm = DistanceUtils.normLonDEG(x);
+          double xNorm = ctx.normX(x);
           if (Double.compare(x, xNorm) != 0) {//handles NaN
             changed = true;
             seq.setOrdinate(i, CoordinateSequence.X, xNorm);

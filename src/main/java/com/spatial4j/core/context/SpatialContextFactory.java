@@ -17,6 +17,9 @@
 
 package com.spatial4j.core.context;
 
+import com.spatial4j.core.crs.CRSDelegate;
+import com.spatial4j.core.crs.CartesianCRSDelegate;
+import com.spatial4j.core.crs.SphericalCRSDelegate;
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
@@ -66,6 +69,7 @@ public class SpatialContextFactory {
 
   public boolean geo = true;
   public DistanceCalculator distCalc;//defaults in SpatialContext c'tor based on geo
+  public CRSDelegate crsDelegate;// defaults in SpatialContext c'tor based on geo
   public Rectangle worldBounds;//defaults in SpatialContext c'tor based on geo
 
   public boolean normWrapLongitude = false;
@@ -113,6 +117,8 @@ public class SpatialContextFactory {
     initField("geo");
 
     initCalculator();
+
+    initCRSDelegate();
 
     //init wktParser before worldBounds because WB needs to be parsed
     initField("wktShapeParserClass");
@@ -175,6 +181,15 @@ public class SpatialContextFactory {
       distCalc = new CartesianDistCalc(true);
     } else {
       throw new RuntimeException("Unknown calculator: "+calcStr);
+    }
+  }
+
+  protected void initCRSDelegate() {
+    String crsStr = args.get("crsDelegate");
+    if (crsStr == null) {
+      crsDelegate = (geo) ? new SphericalCRSDelegate() : new CartesianCRSDelegate();
+    } else {
+      initField("crsDelegate");
     }
   }
 

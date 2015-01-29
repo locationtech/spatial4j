@@ -22,6 +22,7 @@ import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.SpatialRelation;
+import com.spatial4j.core.crs.SphericalCRSDelegate;
 
 import java.util.Formatter;
 import java.util.Locale;
@@ -52,8 +53,8 @@ public class GeoCircle extends CircleImpl {
       double backDistDEG = 180 - radiusDEG;
       if (backDistDEG > 0) {
         double backRadius = 180 - radiusDEG;
-        double backX = DistanceUtils.normLonDEG(getCenter().getX() + 180);
-        double backY = DistanceUtils.normLatDEG(getCenter().getY() + 180);
+        double backX = ctx.normX(getCenter().getX() + 180, true);
+        double backY = ctx.normY(getCenter().getY() + 180, true);
         //Shrink inverseCircle as small as possible to avoid accidental overlap.
         // Note that this is tricky business to come up with a value small enough
         // but not too small or else numerical conditioning issues become a problem.

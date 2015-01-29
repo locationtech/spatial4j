@@ -19,7 +19,6 @@ package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.impl.Range;
 
 import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
@@ -69,11 +68,11 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
   // it here.  These norm methods should be used when needed, not frivolously.
 
   protected double normX(double x) {
-    return ctx.isGeo() ? DistanceUtils.normLonDEG(x) : x;
+    return ctx.isGeo() ? ctx.normX(x, true) : x;
   }
 
   protected double normY(double y) {
-    return ctx.isGeo() ? DistanceUtils.normLatDEG(y) : y;
+    return ctx.isGeo() ? ctx.normY(y) : y;
   }
 
   protected Rectangle makeNormRect(double minX, double maxX, double minY, double maxY) {
@@ -82,8 +81,8 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
         minX = -180;
         maxX = 180;
       } else {
-        minX = DistanceUtils.normLonDEG(minX);
-        maxX = DistanceUtils.normLonDEG(maxX);
+        minX = normX(minX);
+        maxX = normX(maxX);
       }
 
     } else {
@@ -260,7 +259,7 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     double y = r.getMinY() + randomDouble()*r.getHeight();
     x = normX(x);
     y = normY(y);
-    Point p = ctx.makePoint(x,y);
+    Point p = ctx.makePoint(x, y);
     assertEquals(CONTAINS,r.relate(p));
     return p;
   }

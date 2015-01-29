@@ -17,9 +17,10 @@
 
 package com.spatial4j.core.context;
 
+import com.spatial4j.core.crs.CRSDelegate;
+import com.spatial4j.core.crs.CartesianCRSDelegate;
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.DistanceCalculator;
-import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.BinaryCodec;
@@ -35,6 +36,7 @@ import com.spatial4j.core.shape.impl.CircleImpl;
 import com.spatial4j.core.shape.impl.GeoCircle;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
+import com.spatial4j.core.crs.SphericalCRSDelegate;
 
 import java.text.ParseException;
 import java.util.List;
@@ -59,6 +61,7 @@ public class SpatialContext {
   //These are non-null
   private final boolean geo;
   private final DistanceCalculator calculator;
+  private final CRSDelegate crsDelegate;
   private final Rectangle worldBounds;
 
   private final WktShapeParser wktShapeParser;
@@ -74,23 +77,26 @@ public class SpatialContext {
    * @param worldBounds Optional; defaults to GEO_WORLDBOUNDS or MAX_WORLDBOUNDS depending on units.
    */
   @Deprecated
-  public SpatialContext(boolean geo, DistanceCalculator calculator, Rectangle worldBounds) {
-    this(initFromLegacyConstructor(geo, calculator, worldBounds));
+  public SpatialContext(boolean geo, DistanceCalculator calculator,
+                        CRSDelegate crsDelegate, Rectangle worldBounds) {
+    this(initFromLegacyConstructor(geo, calculator, crsDelegate, worldBounds));
   }
 
   private static SpatialContextFactory initFromLegacyConstructor(boolean geo,
                                                                  DistanceCalculator calculator,
+                                                                 CRSDelegate referenceDelegate,
                                                                  Rectangle worldBounds) {
     SpatialContextFactory factory = new SpatialContextFactory();
     factory.geo = geo;
     factory.distCalc = calculator;
+    factory.crsDelegate = referenceDelegate;
     factory.worldBounds = worldBounds;
     return factory;
   }
 
   @Deprecated
   public SpatialContext(boolean geo) {
-    this(initFromLegacyConstructor(geo, null, null));
+    this(initFromLegacyConstructor(geo, null, null, null));
   }
 
   /**
@@ -105,6 +111,15 @@ public class SpatialContext {
               : new CartesianDistCalc();
     } else {
       this.calculator = factory.distCalc;
+    }
+
+    // default to geospatial reference system (todo support generic cartesian)
+    if (factory.crsDelegate == null) {
+      this.crsDelegate = isGeo()
+              ? new SphericalCRSDelegate() :
+                new CartesianCRSDelegate();
+    } else {
+      this.crsDelegate = factory.crsDelegate;
     }
 
     //TODO remove worldBounds from Spatial4j: see Issue #55
@@ -132,6 +147,10 @@ public class SpatialContext {
 
   public DistanceCalculator getDistCalc() {
     return calculator;
+  }
+
+  public CRSDelegate getSpatialReferenceDelegate() {
+    return crsDelegate;
   }
 
   /** Convenience that uses {@link #getDistCalc()} */
@@ -165,17 +184,23 @@ public class SpatialContext {
     return geo;
   }
 
+  public double normX(double x) {
+    return normX(x, false);
+  }
+
   /** Normalize the 'x' dimension. Might reduce precision or wrap it to be within the bounds. This
    * is called by {@link com.spatial4j.core.io.WktShapeParser} before creating a shape. */
-  public double normX(double x) {
-    if (normWrapLongitude)
-      x = DistanceUtils.normLonDEG(x);
+  public double normX(double x, boolean overrideWrapLon) {
+    if (normWrapLongitude || overrideWrapLon)
+      x = crsDelegate.normalizeX(x);
     return x;
   }
 
+  public double normY(double y) { return normY(y, false); }
+
   /** Normalize the 'y' dimension. Might reduce precision or wrap it to be within the bounds. This
    * is called by {@link com.spatial4j.core.io.WktShapeParser} before creating a shape. */
-  public double normY(double y) { return y; }
+  public double normY(double y, boolean useCrs) { return (useCrs) ? crsDelegate.normalizeY(y) : y; }
 
   /**
    * Normalize a point coordinate to fit within {@link #getWorldBounds()}. This correctly converts
@@ -183,7 +208,7 @@ public class SpatialContext {
    * on the magnitude of the translation this could reduce precision at the 13th or 14th decimal place
    */
   public Point normalizePoint(Point p) {
-    return DistanceUtils.normPoint(p);
+    return crsDelegate.normalizePoint(p);
   }
 
   /** Ensure fits in {@link #getWorldBounds()}. It's called by any shape factory method that

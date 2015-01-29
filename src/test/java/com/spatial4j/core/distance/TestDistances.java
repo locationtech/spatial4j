@@ -252,7 +252,7 @@ public class TestDistances extends RandomizedTest {
   private void testDistCalcPointOnBearing(double distKm) {
     for(int angDEG = 0; angDEG < 360; angDEG += randomIntBetween(1,20)) {
       Point c = ctx.makePoint(
-              DistanceUtils.normLonDEG(randomInt(359)),
+              ctx.normX(randomInt(359), true),
               randomIntBetween(-90,90));
 
       //0 distance means same point
@@ -280,11 +280,11 @@ public class TestDistances extends RandomizedTest {
         {-90-180,90},{-90-360,-90},{90+180,-90},{90+360,90},
         {-12+180,12}};
     for (double[] pair : lats) {
-      assertEquals("input "+pair[0], pair[1], DistanceUtils.normLatDEG(pair[0]), 0);
+      assertEquals("input "+pair[0], pair[1], ctx.normY(pair[0], true), 0);
     }
 
     for(int i = -1000; i < 1000; i += randomInt(9)*10) {
-      double d = DistanceUtils.normLatDEG(i);
+      double d = ctx.normY(i, true);
       assertTrue(i + " " + d, d >= -90 && d <= 90);
     }
   }
@@ -297,11 +297,11 @@ public class TestDistances extends RandomizedTest {
         {-180-360,-180},{-180-720,-180},
         {180+360,+180},{180+720,+180}};
     for (double[] pair : lons) {
-      assertEquals("input " + pair[0], pair[1], DistanceUtils.normLonDEG(pair[0]), 0);
+      assertEquals("input " + pair[0], pair[1], ctx.normX(pair[0], true), 0);
     }
 
     for(int i = -1000; i < 1000; i += randomInt(9)*10) {
-      double d = DistanceUtils.normLonDEG(i);
+      double d = ctx.normX(i, true);
       assertTrue(i + " " + d, d >= -180 && d <= 180);
     }
   }
