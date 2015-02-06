@@ -4,4 +4,4 @@ jdk:
   - openjdk6
 notifications:
   email:
-    - dev@spatial4j.com
+    - spatial4j-dev@locationtech.org
