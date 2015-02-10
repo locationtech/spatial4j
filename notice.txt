@@ -1,0 +1,2 @@
+Note: This library contains algorithms from the S2-Geometry-Java library
+for spherical math. In such cases, Copyright 2005 Google Inc applies.
