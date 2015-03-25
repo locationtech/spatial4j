@@ -326,7 +326,7 @@ public class JtsWKTFormat extends WKTFormat {
 
   
   public String toString(Shape shape) {
-    if(shape instanceof JtsGeometry) {
+    if (shape instanceof JtsGeometry) {
       return((JtsGeometry)shape).getGeom().toText();
     }
     return super.toString(shape);

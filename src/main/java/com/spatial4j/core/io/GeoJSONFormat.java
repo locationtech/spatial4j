@@ -125,7 +125,7 @@ public class GeoJSONFormat extends BaseFormat {
   protected void readUntilEvent(JSONParser parser, final int event) throws IOException {
     while(true) {
       int evt = parser.nextEvent();
-      if(evt==event || evt == JSONParser.EOF) {
+      if (evt==event || evt == JSONParser.EOF) {
         return;
       }
     }
@@ -174,10 +174,10 @@ public class GeoJSONFormat extends BaseFormat {
         case JSONParser.NUMBER:
         case JSONParser.BIGNUMBER:
           coords[idx] = parser.getDouble();
-          if(coords[idx]>max[idx]) {
+          if (coords[idx]>max[idx]) {
             max[idx] = coords[idx];
           }
-          if(coords[idx]<min[idx]) {
+          if (coords[idx]<min[idx]) {
             min[idx] = coords[idx];
           }
           idx++;
@@ -204,11 +204,11 @@ public class GeoJSONFormat extends BaseFormat {
     while( evt != JSONParser.EOF ) {
       switch(evt) {
         case JSONParser.STRING:
-          if(parser.wasKey()) {
+          if (parser.wasKey()) {
             key = parser.getString();
           }
           else {
-            if("type".equals(key)) {
+            if ("type".equals(key)) {
               type = parser.getString();
             }
             else {
@@ -218,14 +218,14 @@ public class GeoJSONFormat extends BaseFormat {
           break;
 
         case JSONParser.ARRAY_START: 
-          if("coordinates".equals(key)) {
-            if("Point".equals(type)) {
+          if ("coordinates".equals(key)) {
+            if ("Point".equals(type)) {
               return readPoint(parser);
             }
-            if("LineString".equals(type)) {
+            if ("LineString".equals(type)) {
               return readLineString(parser);
             }
-            if("Polygon".equals(type)) {
+            if ("Polygon".equals(type)) {
               return readPolygon(parser);
             }
             System.out.println( "TODO, read sub geometries>>" +type);
@@ -233,7 +233,7 @@ public class GeoJSONFormat extends BaseFormat {
           break;
           
         case JSONParser.OBJECT_START:
-          if("geometries".equals(key)) {
+          if ("geometries".equals(key)) {
             System.out.println( "TODO, read sub geometries>>" +type);
           }
           break;
@@ -261,7 +261,7 @@ public class GeoJSONFormat extends BaseFormat {
   protected void write(Writer output, NumberFormat nf, double ... coords) throws IOException {
     output.write('[');
     for(int i=0;i<coords.length; i++) {
-      if(i>0) {
+      if (i>0) {
         output.append(',');
       }
       output.append(nf.format(coords[i]));
@@ -272,18 +272,18 @@ public class GeoJSONFormat extends BaseFormat {
   @Override
   public void write(Writer output, Shape shape) throws IOException 
   {
-    if(shape==null) {
+    if (shape==null) {
       throw new NullPointerException("Shape can not be null");
     }
     NumberFormat nf = LegacyShapeReadWriterFormat.makeNumberFormat(6);
-    if(shape instanceof Point) {
+    if (shape instanceof Point) {
       Point v = (Point)shape;
       output.append("{\"type\": \"Point\",\"coordinates\":");
       write(output, nf, v.getX(), v.getY());
       output.append('}');
       return;
     }
-    if(shape instanceof Rectangle) {
+    if (shape instanceof Rectangle) {
       Rectangle v = (Rectangle)shape;
       output.append("{\"type\": \"Polygon\",\"coordinates\": [");
       write(output, nf, v.getMinX(), v.getMinY()); output.append(',');
@@ -293,52 +293,52 @@ public class GeoJSONFormat extends BaseFormat {
       output.append("]}");
       return;
     }
-    if(shape instanceof BufferedLine) {
+    if (shape instanceof BufferedLine) {
       BufferedLine v = (BufferedLine)shape;
       output.append("{\"type\": \"LineString\",\"coordinates\": [");
       write(output, nf, v.getA().getX(), v.getA().getY()); output.append(',');
       write(output, nf, v.getB().getX(), v.getB().getY()); output.append(',');
       output.append("]");
-      if(v.getBuf()>0) {
+      if (v.getBuf()>0) {
         output.append("\"buffer\":");
         output.append(nf.format(v.getBuf()));
       }
       output.append('}');
       return;
     }
-    if(shape instanceof BufferedLineString) {
+    if (shape instanceof BufferedLineString) {
       BufferedLineString v = (BufferedLineString)shape;
       output.append("{\"type\": \"LineString\",\"coordinates\": [");
       BufferedLine last = null;
       Iterator<BufferedLine> iter = v.getSegments().iterator();
       while(iter.hasNext()) {
         BufferedLine seg = iter.next();
-        if(last!=null) {
+        if (last!=null) {
           output.append(',');
         }
         write(output, nf, seg.getA().getX(), seg.getA().getY());
         last = seg;
       }
-      if(last!=null) {
+      if (last!=null) {
         output.append(',');
         write(output, nf, last.getB().getX(), last.getB().getY());
       }
       output.append("]");
-      if(v.getBuf()>0) {
+      if (v.getBuf()>0) {
         output.append("\"buffer\":");
         output.append(nf.format(v.getBuf()));
       }
       output.append('}');
       return;
     }
-    if(shape instanceof Circle) {
+    if (shape instanceof Circle) {
       // See: https://github.com/geojson/geojson-spec/wiki/Proposal---Circles-and-Ellipses-Geoms
       Circle v = (Circle)shape;
       Point center = v.getCenter();
       output.append("{\"type\": \"Circle\",\"coordinates\": ");
       write(output, nf, center.getX(), center.getY());
       output.append("\"radius\":");
-      if(v instanceof GeoCircle) {
+      if (v instanceof GeoCircle) {
         double distKm = DistanceUtils.degrees2Dist(v.getRadius(),  DistanceUtils.EARTH_MEAN_RADIUS_KM);
         output.append(nf.format(distKm));
         output.append(",\"properties\": {");
@@ -349,11 +349,11 @@ public class GeoJSONFormat extends BaseFormat {
       }
       return;
     }
-    if(shape instanceof ShapeCollection) {
+    if (shape instanceof ShapeCollection) {
       ShapeCollection v = (ShapeCollection)shape;
       output.append("{\"type\": \"GeometryCollection\",\"geometries\": [");
       for(int i=0; i<v.size(); i++) {
-        if(i>0) {
+        if (i>0) {
           output.append(',');
         }
         write(output, v.get(i));
