@@ -17,6 +17,10 @@
 
 package com.spatial4j.core.context;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
+
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.DistanceUtils;
@@ -24,7 +28,8 @@ import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.BinaryCodec;
 import com.spatial4j.core.io.LegacyShapeReadWriterFormat;
-import com.spatial4j.core.io.WktShapeParser;
+import com.spatial4j.core.io.ShapeFormat;
+import com.spatial4j.core.io.WKTFormat;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -35,9 +40,6 @@ import com.spatial4j.core.shape.impl.CircleImpl;
 import com.spatial4j.core.shape.impl.GeoCircle;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
-
-import java.text.ParseException;
-import java.util.List;
 
 /**
  * This is a facade to most of Spatial4j, holding things like {@link DistanceCalculator},
@@ -61,8 +63,8 @@ public class SpatialContext {
   private final DistanceCalculator calculator;
   private final Rectangle worldBounds;
 
-  private final WktShapeParser wktShapeParser;
   private final BinaryCodec binaryCodec;
+  private final List<ShapeFormat> formats;
 
   private final boolean normWrapLongitude;
 
@@ -126,8 +128,17 @@ public class SpatialContext {
     }
 
     this.normWrapLongitude = factory.normWrapLongitude && this.isGeo();
-    this.wktShapeParser = factory.makeWktShapeParser(this);
     this.binaryCodec = factory.makeBinaryCodec(this);
+    this.formats = factory.makeFormatRegistry(this);
+  }
+  
+  public ShapeFormat getFormat(String key) {
+    for(ShapeFormat f : formats) {
+      if(key.equals(f.getFormatName())) {
+        return f;
+      }
+    }
+    return null;
   }
 
   public DistanceCalculator getDistCalc() {
@@ -280,8 +291,9 @@ public class SpatialContext {
   }
 
   /** The {@link com.spatial4j.core.io.WktShapeParser} used by {@link #readShapeFromWkt(String)}. */
-  public WktShapeParser getWktShapeParser() {
-    return wktShapeParser;
+  @Deprecated
+  public WKTFormat getWktShapeParser() {
+    return (WKTFormat)getFormat(WKTFormat.FORMAT);
   }
 
   /** Reads a shape from the string formatted in WKT.
@@ -290,32 +302,29 @@ public class SpatialContext {
    * @return non-null
    * @throws ParseException if it failed to parse.
    */
+  @Deprecated
   public Shape readShapeFromWkt(String wkt) throws ParseException {
-    return wktShapeParser.parse(wkt);
+    return getWktShapeParser().parse(wkt);
   }
 
   public BinaryCodec getBinaryCodec() { return binaryCodec; }
 
-  /** Reads the shape from a String using the old/deprecated
+  /** Reads the shape from a String using all supported formats.  If no formats match, it falls back to:
    * {@link com.spatial4j.core.io.LegacyShapeReadWriterFormat}.
-   * Instead you should use standard WKT via {@link #readShapeFromWkt(String)}. This method falls
-   * back on WKT if it's not in the legacy format.
-   * @param value non-null
-   * @return non-null
    */
-  @Deprecated
   public Shape readShape(String value) throws InvalidShapeException {
-    Shape s = LegacyShapeReadWriterFormat.readShapeOrNull(value, this);
-    if (s == null) {
+    for(ShapeFormat format : formats) {
       try {
-        s = readShapeFromWkt(value);
-      } catch (ParseException e) {
-        if (e.getCause() instanceof InvalidShapeException)
-          throw (InvalidShapeException) e.getCause();
-        throw new InvalidShapeException(e.toString(), e);
+        Shape v = format.read(value, false);
+        if(v!=null) {
+          return v;
+        }
       }
+      catch(IOException e) {} 
+      catch (ParseException e) {}
+      // Allow ShapeException to bubble up, that implies an invalid shape, not that we could not read it
     }
-    return s;
+    return LegacyShapeReadWriterFormat.readShapeOrNull(value, this);
   }
 
   /** Writes the shape to a String using the old/deprecated
@@ -329,7 +338,7 @@ public class SpatialContext {
   public String toString(Shape shape) {
     return LegacyShapeReadWriterFormat.writeShape(shape);
   }
-
+  
   @Override
   public String toString() {
     if (this.equals(GEO)) {
@@ -342,5 +351,4 @@ public class SpatialContext {
           '}';
     }
   }
-
 }

@@ -100,6 +100,12 @@
   </prerequisites>
 
   <dependencies>
+	  <!-- Used for GeoJSON parsing -->
+	  <dependency>
+	    <groupId>org.noggit</groupId>
+	    <artifactId>noggit</artifactId>
+	    <version>0.7</version>
+	  </dependency>
 
     <!-- JTS is essentially only used for polygons. -->
     <dependency>

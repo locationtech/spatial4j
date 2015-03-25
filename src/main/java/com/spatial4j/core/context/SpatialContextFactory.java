@@ -21,13 +21,18 @@ import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.io.BinaryCodec;
-import com.spatial4j.core.io.WktShapeParser;
+import com.spatial4j.core.io.ShapeFormat;
+import com.spatial4j.core.io.GeoJSONFormat;
+import com.spatial4j.core.io.WKTFormat;
 import com.spatial4j.core.shape.Rectangle;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Factory for a {@link SpatialContext} based on configuration data.  Call
@@ -70,8 +75,8 @@ public class SpatialContextFactory {
 
   public boolean normWrapLongitude = false;
   
-  public Class<? extends WktShapeParser> wktShapeParserClass = WktShapeParser.class;
   public Class<? extends BinaryCodec> binaryCodecClass = BinaryCodec.class;
+  public final List<Class<? extends ShapeFormat>> formats = new ArrayList<Class<? extends ShapeFormat>>();
 
   /**
    * Creates a new {@link SpatialContext} based on configuration in
@@ -115,7 +120,7 @@ public class SpatialContextFactory {
     initCalculator();
 
     //init wktParser before worldBounds because WB needs to be parsed
-    initField("wktShapeParserClass");
+    initFormats();
     initWorldBounds();
 
     initField("normWrapLongitude");
@@ -158,6 +163,11 @@ public class SpatialContextFactory {
       }
     }
   }
+  
+  public void setFormats(Class<? extends ShapeFormat> ... clazz) {
+    formats.clear();
+    formats.addAll(Arrays.asList(clazz));
+  }
 
   protected void initCalculator() {
     String calcStr = args.get("distCalculator");
@@ -178,6 +188,26 @@ public class SpatialContextFactory {
     }
   }
 
+
+  protected void initFormats() {
+    try {
+      // a parameter from when this was a raw class
+      String val = args.get("wktShapeParserClass");
+      if(val!=null) {
+        formats.add((Class<? extends ShapeFormat>) Class.forName(val.trim(), false, classLoader));
+      }
+      val = args.get("formats");
+      if(val!=null) {
+        for(String name : val.split(",")) {
+          formats.add((Class<? extends ShapeFormat>) Class.forName(name.trim(), false, classLoader));
+        }
+      }
+    }
+    catch(ClassNotFoundException ex) {
+      throw new RuntimeException("Unable to find format class", ex);
+    }
+  }
+  
   protected void initWorldBounds() {
     String worldBoundsStr = args.get("worldBounds");
     if (worldBoundsStr == null)
@@ -193,20 +223,54 @@ public class SpatialContextFactory {
     return new SpatialContext(this);
   }
 
-  public WktShapeParser makeWktShapeParser(SpatialContext ctx) {
-    return makeClassInstance(wktShapeParserClass, ctx, this);
-  }
-
   public BinaryCodec makeBinaryCodec(SpatialContext ctx) {
     return makeClassInstance(binaryCodecClass, ctx, this);
+  }
+
+  public List<ShapeFormat> makeFormatRegistry(SpatialContext ctx) {
+    List<ShapeFormat> registry = new CopyOnWriteArrayList<ShapeFormat>();
+    for(Class<? extends ShapeFormat> clazz : formats) {
+      try {
+        registry.add(makeClassInstance(clazz, ctx, this));
+      }
+      catch(Exception ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+    verifySupportedFormats(registry, ctx);
+    return registry;
+  }
+  // Make sure we have JSON and WKT
+  protected void verifySupportedFormats(List<ShapeFormat> registry, SpatialContext ctx) {
+    boolean hasWKT = false;
+    boolean hasGeoJSON = false;
+    for(ShapeFormat fmt : registry) {
+      if(GeoJSONFormat.FORMAT.equals(fmt.getFormatName())) {
+        hasGeoJSON = true;
+      }
+      else if(WKTFormat.FORMAT.equals(fmt.getFormatName())) {
+        hasWKT = true;
+      }
+    }
+    if(!hasGeoJSON) {
+      registry.add(new GeoJSONFormat(ctx, this));
+    }
+    if(!hasWKT) {
+      registry.add(new WKTFormat(ctx, this));
+    }
   }
 
   @SuppressWarnings("unchecked")
   private <T> T makeClassInstance(Class<? extends T> clazz, Object... ctorArgs) {
     try {
+      Constructor<?> empty = null;
+      
       //can't simply lookup constructor by arg type because might be subclass type
       ctorLoop: for (Constructor<?> ctor : clazz.getConstructors()) {
         Class[] parameterTypes = ctor.getParameterTypes();
+        if(parameterTypes.length == 0) {
+          empty = ctor; // the empty constructor;
+        }
         if (parameterTypes.length != ctorArgs.length)
           continue;
         for (int i = 0; i < ctorArgs.length; i++) {
@@ -215,6 +279,11 @@ public class SpatialContextFactory {
             continue ctorLoop;
         }
         return clazz.cast(ctor.newInstance(ctorArgs));
+      }
+    
+      // If an empty constructor exists, use that
+      if(empty!=null) {
+        return clazz.cast(empty.newInstance());
       }
     } catch (Exception e) {
       throw new RuntimeException(e);

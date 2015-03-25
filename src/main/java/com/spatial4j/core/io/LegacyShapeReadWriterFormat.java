@@ -92,7 +92,7 @@ public class LegacyShapeReadWriterFormat {
     NumberFormat nf = NumberFormat.getInstance(Locale.ROOT);//not thread-safe
     nf.setGroupingUsed(false);
     nf.setMaximumFractionDigits(fractionDigits);
-    nf.setMinimumFractionDigits(fractionDigits);
+    nf.setMinimumFractionDigits(0);
     return nf;
   }
 

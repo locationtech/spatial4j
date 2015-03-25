@@ -17,14 +17,20 @@
 
 package com.spatial4j.core.context.jts;
 
+import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.io.GeoJSONFormat;
+import com.spatial4j.core.io.ShapeFormat;
+import com.spatial4j.core.io.WKTFormat;
 import com.spatial4j.core.io.jts.JtsBinaryCodec;
-import com.spatial4j.core.io.jts.JtsWktShapeParser;
+import com.spatial4j.core.io.jts.JtsGeoJSONFormat;
+import com.spatial4j.core.io.jts.JtsWKTFormat;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,12 +41,12 @@ import java.util.Map;
  * <DL>
  * <DT>datelineRule</DT>
  * <DD>width180(default)|ccwRect|none
- *  -- see {@link com.spatial4j.core.io.jts.JtsWktShapeParser.DatelineRule}</DD>
+ *  -- see {@link com.spatial4j.core.io.jts.JtsWKTFormat.DatelineRule}</DD>
  * <DT>validationRule</DT>
  * <DD>error(default)|none|repairConvexHull|repairBuffer0
- *  -- see {@link com.spatial4j.core.io.jts.JtsWktShapeParser.ValidationRule}</DD>
+ *  -- see {@link com.spatial4j.core.io.jts.JtsWKTFormat.ValidationRule}</DD>
  * <DT>autoIndex</DT>
- * <DD>true|false(default) -- see {@link JtsWktShapeParser#isAutoIndex()}</DD>
+ * <DD>true|false(default) -- see {@link JtsWKTFormat#isAutoIndex()}</DD>
  * <DT>allowMultiOverlap</DT>
  * <DD>true|false(default) -- see {@link JtsSpatialContext#isAllowMultiOverlap()}</DD>
  * <DT>precisionModel</DT>
@@ -60,9 +66,9 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   public CoordinateSequenceFactory coordinateSequenceFactory = CoordinateArraySequenceFactory.instance();
 
   //ignored if geo=false
-  public JtsWktShapeParser.DatelineRule datelineRule = JtsWktShapeParser.DatelineRule.width180;
+  public JtsWKTFormat.DatelineRule datelineRule = JtsWKTFormat.DatelineRule.width180;
 
-  public JtsWktShapeParser.ValidationRule validationRule = JtsWktShapeParser.ValidationRule.error;
+  public JtsWKTFormat.ValidationRule validationRule = JtsWKTFormat.ValidationRule.error;
   public boolean autoIndex = false;
   public boolean allowMultiOverlap = false;//ignored if geo=false
 
@@ -71,7 +77,6 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   public boolean useJtsLineString = true;
 
   public JtsSpatialContextFactory() {
-    super.wktShapeParserClass = JtsWktShapeParser.class;
     super.binaryCodecClass = JtsBinaryCodec.class;
   }
   
@@ -106,6 +111,26 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
     }
   }
 
+  @Override
+  protected void verifySupportedFormats(List<ShapeFormat> registry, SpatialContext ctx) {
+    boolean hasWKT = false;
+    boolean hasGeoJSON = false;
+    for(ShapeFormat fmt : registry) {
+      if(GeoJSONFormat.FORMAT.equals(fmt.getFormatName())) {
+        hasGeoJSON = true;
+      }
+      else if(WKTFormat.FORMAT.equals(fmt.getFormatName())) {
+        hasWKT = true;
+      }
+    }
+    if(!hasGeoJSON) {
+      registry.add(new JtsGeoJSONFormat((JtsSpatialContext)ctx, this));
+    }
+    if(!hasWKT) {
+      registry.add(new JtsWKTFormat((JtsSpatialContext)ctx, this));
+    }
+  }
+  
   public GeometryFactory getGeometryFactory() {
     if (precisionModel == null || coordinateSequenceFactory == null)
       throw new IllegalStateException("precision model or coord seq factory can't be null");
