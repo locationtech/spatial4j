@@ -22,7 +22,9 @@ import java.io.Reader;
 import java.io.Writer;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,6 +41,7 @@ import com.spatial4j.core.shape.ShapeCollection;
 import com.spatial4j.core.shape.impl.BufferedLine;
 import com.spatial4j.core.shape.impl.BufferedLineString;
 import com.spatial4j.core.shape.impl.GeoCircle;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 
 
@@ -67,6 +70,43 @@ public class GeoJSONFormat extends BaseFormat {
   //--------------------------------------------------------------
   // Read GeoJSON
   //--------------------------------------------------------------
+  
+  public List<?> readCoordinates(JSONParser parser) throws IOException, ParseException {
+    assert(parser.lastEvent()==JSONParser.ARRAY_START);
+    
+    Deque<List> stack = new ArrayDeque<List>();
+    stack.push(new ArrayList());
+    int depth = 1;
+    
+    while( true ) {
+      int evt = parser.nextEvent();
+      switch(evt) {
+        case JSONParser.LONG:
+        case JSONParser.NUMBER:
+        case JSONParser.BIGNUMBER:
+          stack.peek().add( parser.getDouble() );
+          break;
+
+        case JSONParser.ARRAY_START:
+          stack.push(new ArrayList());
+          depth++;
+          break;
+
+        case JSONParser.ARRAY_END:
+          depth--;
+
+          List val = stack.pop();
+          if (depth == 0) {
+             return val;
+          }
+          stack.peek().add(val);
+          break;
+
+        default:
+          throw new ParseException("Unexpected "+JSONParser.getEventString(evt), (int)parser.getPosition());
+      }
+    }
+  }
   
   public double[] readCoordXY(JSONParser parser) throws IOException, ParseException {
     assert(parser.lastEvent()==JSONParser.ARRAY_START);
@@ -123,11 +163,12 @@ public class GeoJSONFormat extends BaseFormat {
   }
 
   protected void readUntilEvent(JSONParser parser, final int event) throws IOException {
+    int evt = parser.lastEvent();
     while(true) {
-      int evt = parser.nextEvent();
       if (evt==event || evt == JSONParser.EOF) {
         return;
       }
+      evt = parser.nextEvent();
     }
   }
 
@@ -154,8 +195,9 @@ public class GeoJSONFormat extends BaseFormat {
   
   /**
    * Default implementation just makes a bbox
+   * @throws ParseException 
    */
-  protected Shape readPolygon(JSONParser parser) throws IOException {
+  protected Shape readPolygon(JSONParser parser) throws IOException, ParseException {
     assert(parser.lastEvent()==JSONParser.ARRAY_START);
 
     double[] min = new double[] {Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE};
@@ -219,26 +261,52 @@ public class GeoJSONFormat extends BaseFormat {
 
         case JSONParser.ARRAY_START: 
           if ("coordinates".equals(key)) {
+            Shape shape = null;
             if ("Point".equals(type)) {
-              return readPoint(parser);
+              shape = readPoint(parser);
             }
-            if ("LineString".equals(type)) {
-              return readLineString(parser);
+            else if ("LineString".equals(type)) {
+              shape = readLineString(parser);
             }
-            if ("Polygon".equals(type)) {
-              return readPolygon(parser);
+            else {
+              shape = makeShapeFromCoords(type,
+                  readCoordinates(parser));
             }
-            System.out.println( "TODO, read sub geometries>>" +type);
+            if(shape!=null) {
+              readUntilEvent(parser, JSONParser.OBJECT_END);
+              return shape;
+            }
+            throw new ParseException("Unable to make shape type: "+type, (int)parser.getPosition());
           }
-          break;
-          
-        case JSONParser.OBJECT_START:
-          if ("geometries".equals(key)) {
-            System.out.println( "TODO, read sub geometries>>" +type);
+          else if ("geometries".equals(key)) {
+            List<Shape> shapes = new ArrayList<Shape>();
+            int sub = parser.nextEvent();
+            while(sub!=JSONParser.EOF) {
+              if(sub==JSONParser.OBJECT_START) {
+                Shape s = readShape(parser);
+                if(s!=null) {
+                  shapes.add(s);
+                }
+              }
+              else if(sub == JSONParser.OBJECT_END) {
+                break;
+              }
+              sub = parser.nextEvent();
+            }
+            if(shapes.isEmpty()) {
+              throw new ParseException("Shape Collection with now geometries!", (int)parser.getPosition());
+            }
+            return ctx.makeCollection(shapes);
           }
           break;
           
         case JSONParser.ARRAY_END:
+          break;
+
+        case JSONParser.OBJECT_START:
+          if(key!=null) {
+            System.out.println("Unexpected object: "+key);
+          }
           break;
           
         case JSONParser.LONG:
@@ -247,7 +315,7 @@ public class GeoJSONFormat extends BaseFormat {
         case JSONParser.BOOLEAN:
         case JSONParser.NULL:
         case JSONParser.OBJECT_END:
-          System.out.println(">>>>>"+JSONParser.getEventString(evt));
+          System.out.println(">>>>>"+JSONParser.getEventString(evt)  + " :: " + key);
           break;
           
         default:
@@ -258,6 +326,10 @@ public class GeoJSONFormat extends BaseFormat {
     throw new RuntimeException("unable to parse shape");
   }
   
+  protected Shape makeShapeFromCoords(String type, List coords) {
+    return null;  // default is unsupported
+  }
+
   protected void write(Writer output, NumberFormat nf, double ... coords) throws IOException {
     output.write('[');
     for(int i=0;i<coords.length; i++) {
@@ -285,12 +357,12 @@ public class GeoJSONFormat extends BaseFormat {
     }
     if (shape instanceof Rectangle) {
       Rectangle v = (Rectangle)shape;
-      output.append("{\"type\": \"Polygon\",\"coordinates\": [");
+      output.append("{\"type\": \"Polygon\",\"coordinates\": [[");
       write(output, nf, v.getMinX(), v.getMinY()); output.append(',');
       write(output, nf, v.getMinX(), v.getMaxY()); output.append(',');
       write(output, nf, v.getMaxX(), v.getMaxY()); output.append(',');
       write(output, nf, v.getMaxX(), v.getMinY()); 
-      output.append("]}");
+      output.append("]]}");
       return;
     }
     if (shape instanceof BufferedLine) {

@@ -71,7 +71,7 @@ import java.util.List;
 public class WKTFormat extends BaseFormat {
   public static final String FORMAT = "WKT";
 
-  //TODO support SRID:  "SRID=4326;pointPOINT(1,2)
+  //TODO support SRID:  "SRID=4326;POINT(1,2)
 
   /** This constructor is required by {@link com.spatial4j.core.context.SpatialContextFactory#makeWktShapeParser(com.spatial4j.core.context.SpatialContext)}. */
   public WKTFormat(SpatialContext ctx, SpatialContextFactory factory) {
