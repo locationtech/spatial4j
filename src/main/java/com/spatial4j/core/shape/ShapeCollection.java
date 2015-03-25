@@ -50,6 +50,7 @@ import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
  */
 public class ShapeCollection<S extends Shape> extends AbstractList<S> implements Shape {
 
+  protected final SpatialContext ctx;
   protected final List<S> shapes;
   protected final Rectangle bbox;
 
@@ -62,6 +63,7 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
     if (!(shapes instanceof RandomAccess))
       throw new IllegalArgumentException("Shapes arg must implement RandomAccess: "+shapes.getClass());
     this.shapes = shapes;
+    this.ctx = ctx;
     this.bbox = computeBoundingBox(shapes, ctx);
   }
 
@@ -244,4 +246,8 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
     return shapes.hashCode();
   }
 
+  @Override
+  public SpatialContext getContext() {
+    return ctx;
+  }
 }

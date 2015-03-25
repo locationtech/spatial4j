@@ -29,9 +29,8 @@ import com.spatial4j.core.shape.SpatialRelation;
  * wrap-around. When minX > maxX, this will assume it is world coordinates that
  * cross the date line using degrees. Immutable & threadsafe.
  */
-public class RectangleImpl implements Rectangle {
+public class RectangleImpl extends BaseShape implements Rectangle {
 
-  private final SpatialContext ctx;
   private double minX;
   private double maxX;
   private double minY;
@@ -39,8 +38,8 @@ public class RectangleImpl implements Rectangle {
 
   /** A simple constructor without normalization / validation. */
   public RectangleImpl(double minX, double maxX, double minY, double maxY, SpatialContext ctx) {
+    super(ctx);
     //TODO change to West South East North to be more consistent with OGC?
-    this.ctx = ctx;
     reset(minX, maxX, minY, maxY);
   }
 

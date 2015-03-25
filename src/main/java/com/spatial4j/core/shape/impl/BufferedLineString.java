@@ -34,7 +34,7 @@ import java.util.List;
  * resulting in what some call a "Track" or "Polyline" (ESRI terminology).
  * The buffer can be 0.  Note that BufferedLine isn't yet aware of geodesics (e.g. the dateline).
  */
-public class BufferedLineString implements Shape {
+public class BufferedLineString extends BaseShape {
 
   //TODO add some geospatial awareness like:
   // segment that spans at the dateline (split it at DL?).
@@ -62,6 +62,7 @@ public class BufferedLineString implements Shape {
    */
   public BufferedLineString(List<Point> points, double buf, boolean expandBufForLongitudeSkew,
                             SpatialContext ctx) {
+    super(ctx);
     this.buf = buf;
 
     if (points.isEmpty()) {

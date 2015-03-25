@@ -19,6 +19,7 @@ package com.spatial4j.core.shape.jts;
 
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -41,6 +42,11 @@ public class JtsPoint implements Point {
     this.empty = pointGeom.isEmpty();
   }
 
+  @Override
+  public SpatialContext getContext() {
+    return ctx;
+  }
+  
   public com.vividsolutions.jts.geom.Point getGeom() {
     return pointGeom;
   }

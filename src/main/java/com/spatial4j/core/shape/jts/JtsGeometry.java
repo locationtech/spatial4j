@@ -89,6 +89,11 @@ public class JtsGeometry implements Shape {
     this.hasArea = !((geom instanceof Lineal) || (geom instanceof Puntal));
   }
 
+  @Override
+  public JtsSpatialContext getContext() {
+    return ctx;
+  }
+  
   /** called via assertion */
   private boolean assertValidate() {
     String assertValidate = System.getProperty(SYSPROP_ASSERT_VALIDATE);

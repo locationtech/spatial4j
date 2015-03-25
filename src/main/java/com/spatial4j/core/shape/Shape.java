@@ -103,5 +103,11 @@ public interface Shape {
    * & y. */
   @Override
   public boolean equals(Object other);
+  
+  
+  /**
+   * Get the SpatialContext that created the Shape
+   */
+  public SpatialContext getContext();
 }
 
