@@ -25,8 +25,10 @@ import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.ShapeCollection;
 import com.spatial4j.core.shape.impl.BufferedLine;
 import com.spatial4j.core.shape.impl.BufferedLineString;
+
 import java.io.IOException;
 import java.io.Writer;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Iterator;
 
@@ -52,11 +54,17 @@ public class WKTWriter implements ShapeWriter {
       return append(buffer.append("POINT("),(Point)shape,nf).append(")").toString();
     }
     if (shape instanceof Rectangle) {
+      NumberFormat nfMIN = nf;
+      NumberFormat nfMAX = LegacyShapeReadWriterFormat.makeNumberFormat(6);
+
+      nfMIN.setRoundingMode( RoundingMode.FLOOR );
+      nfMAX.setRoundingMode( RoundingMode.CEILING );
+      
       Rectangle rect = (Rectangle)shape;
       return "ENVELOPE(" +
           // '(' x1 ',' x2 ',' y2 ',' y1 ')'
-        nf.format(rect.getMinX()) + ", " + nf.format(rect.getMaxX()) + ", "+
-        nf.format(rect.getMaxY()) + ", " + nf.format(rect.getMinY()) + ")";
+        nfMIN.format(rect.getMinX()) + ", " + nfMAX.format(rect.getMaxX()) + ", "+
+        nfMAX.format(rect.getMaxY()) + ", " + nfMIN.format(rect.getMinY()) + ")";
 //      
 //      return "POLYGON(( "+
 //         nf.format(rect.getMinX()) + " " + nf.format(rect.getMinY()) + ", "+

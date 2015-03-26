@@ -17,24 +17,18 @@
 
 package com.spatial4j.core.context.jts;
 
-import com.spatial4j.core.context.SpatialContext;
+import java.util.Map;
+
 import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.io.GeoJSONReader;
-import com.spatial4j.core.io.GeoJSONWriter;
-import com.spatial4j.core.io.WKTReader;
-import com.spatial4j.core.io.WKTWriter;
+import com.spatial4j.core.io.jts.GeoJSONReaderJTS;
 import com.spatial4j.core.io.jts.GeoJSONWriterJTS;
 import com.spatial4j.core.io.jts.JtsBinaryCodec;
-import com.spatial4j.core.io.jts.GeoJSONReaderJTS;
 import com.spatial4j.core.io.jts.WKTReaderJTS;
 import com.spatial4j.core.io.jts.WKTWriterJTS;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * See {@link SpatialContextFactory#makeSpatialContext(java.util.Map, ClassLoader)}.
