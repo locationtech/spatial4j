@@ -5,15 +5,14 @@ import java.io.Writer;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
 import org.noggit.JSONParser;
 
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.io.LegacyShapeReadWriterFormat;
 import com.spatial4j.core.io.GeoJSONFormat;
+import com.spatial4j.core.io.LegacyShapeReadWriterFormat;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -202,52 +201,56 @@ public class JtsGeoJSONFormat extends GeoJSONFormat {
     NumberFormat nf = LegacyShapeReadWriterFormat.makeNumberFormat(6);
     if(geom instanceof Point) {
       Point v = (Point)geom;
-      output.append("{\"type\": \"Point\",\"coordinates\": ");
+      output.append("{\"type\":\"Point\",\"coordinates\":");
       write(output,nf,v.getCoordinateSequence());
       output.append("}");
       return;
     }
     else if(geom instanceof Polygon) { 
-      output.append("{\"type\": \"Polygon\",\"coordinates\": ");
+      output.append("{\"type\":\"Polygon\",\"coordinates\":");
       write(output,nf,(Polygon)geom);
       output.append("}");
       return;
     }
     else if(geom instanceof LineString) {
       LineString v = (LineString)geom;
-      output.append("{\"type\": \"LineString\",\"coordinates\": ");
+      output.append("{\"type\":\"LineString\",\"coordinates\":");
       write(output,nf,v.getCoordinateSequence());
       output.append("}");
       return;
     }
     else if(geom instanceof MultiPoint) {
       MultiPoint v = (MultiPoint)geom;
-      output.append("{\"type\": \"MultiPoint\",\"coordinates\": ");
+      output.append("{\"type\":\"MultiPoint\",\"coordinates\":");
       write(output,nf,v.getCoordinates());
       output.append("}");
       return;
     }
     else if(geom instanceof MultiLineString) {
-      output.append("{\"type\": \"MultiLineString\",\"coordinates\": ");
-      write(output,nf,geom.getCoordinates());
-      output.append("}");
-    }
-    else if(geom instanceof MultiLineString) {
-      output.append("{\"type\": \"MultiLineString\",\"coordinates\": ");
-      write(output,nf,geom.getCoordinates());
-      output.append("}");
+      MultiLineString v = (MultiLineString)geom;
+      output.append("{\"type\":\"MultiLineString\",\"coordinates\":[");
+      for(int i=0; i<v.getNumGeometries(); i++) {
+        if(i>0) {
+          output.append(',');
+        }
+        write(output,nf,v.getGeometryN(i).getCoordinates());
+      }
+      output.append("]}");
     }
     else if(geom instanceof MultiPolygon) {
       MultiPolygon v = (MultiPolygon)geom;
-      output.append("{\"type\": \"MultiPolygon\",\"coordinates\": [");
+      output.append("{\"type\":\"MultiPolygon\",\"coordinates\":[");
       for(int i=0; i<v.getNumGeometries(); i++) {
+        if(i>0) {
+          output.append(',');
+        }
         write(output,nf,(Polygon)v.getGeometryN(i));
       }
       output.append("]}");
     }
     else if(geom instanceof GeometryCollection) {
       GeometryCollection v = (GeometryCollection)geom;
-      output.append("{\"type\": \"GeometryCollection\",\"geometries\": ");
+      output.append("{\"type\":\"GeometryCollection\",\"geometries\":");
       for(int i=0; i<v.getNumGeometries(); i++) {
         write(output, v.getGeometryN(i));
       }

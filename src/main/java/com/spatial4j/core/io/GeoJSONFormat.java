@@ -41,7 +41,6 @@ import com.spatial4j.core.shape.ShapeCollection;
 import com.spatial4j.core.shape.impl.BufferedLine;
 import com.spatial4j.core.shape.impl.BufferedLineString;
 import com.spatial4j.core.shape.impl.GeoCircle;
-import com.vividsolutions.jts.geom.GeometryFactory;
 
 
 
@@ -350,14 +349,14 @@ public class GeoJSONFormat extends BaseFormat {
     NumberFormat nf = LegacyShapeReadWriterFormat.makeNumberFormat(6);
     if (shape instanceof Point) {
       Point v = (Point)shape;
-      output.append("{\"type\": \"Point\",\"coordinates\":");
+      output.append("{\"type\":\"Point\",\"coordinates\":");
       write(output, nf, v.getX(), v.getY());
       output.append('}');
       return;
     }
     if (shape instanceof Rectangle) {
       Rectangle v = (Rectangle)shape;
-      output.append("{\"type\": \"Polygon\",\"coordinates\": [[");
+      output.append("{\"type\":\"Polygon\",\"coordinates\": [[");
       write(output, nf, v.getMinX(), v.getMinY()); output.append(',');
       write(output, nf, v.getMinX(), v.getMaxY()); output.append(',');
       write(output, nf, v.getMaxX(), v.getMaxY()); output.append(',');
@@ -367,7 +366,7 @@ public class GeoJSONFormat extends BaseFormat {
     }
     if (shape instanceof BufferedLine) {
       BufferedLine v = (BufferedLine)shape;
-      output.append("{\"type\": \"LineString\",\"coordinates\": [");
+      output.append("{\"type\":\"LineString\",\"coordinates\": [");
       write(output, nf, v.getA().getX(), v.getA().getY()); output.append(',');
       write(output, nf, v.getB().getX(), v.getB().getY()); output.append(',');
       output.append("]");
@@ -380,7 +379,7 @@ public class GeoJSONFormat extends BaseFormat {
     }
     if (shape instanceof BufferedLineString) {
       BufferedLineString v = (BufferedLineString)shape;
-      output.append("{\"type\": \"LineString\",\"coordinates\": [");
+      output.append("{\"type\":\"LineString\",\"coordinates\": [");
       BufferedLine last = null;
       Iterator<BufferedLine> iter = v.getSegments().iterator();
       while(iter.hasNext()) {
@@ -407,14 +406,14 @@ public class GeoJSONFormat extends BaseFormat {
       // See: https://github.com/geojson/geojson-spec/wiki/Proposal---Circles-and-Ellipses-Geoms
       Circle v = (Circle)shape;
       Point center = v.getCenter();
-      output.append("{\"type\": \"Circle\",\"coordinates\": ");
+      output.append("{\"type\":\"Circle\",\"coordinates\":");
       write(output, nf, center.getX(), center.getY());
       output.append("\"radius\":");
       if (v instanceof GeoCircle) {
         double distKm = DistanceUtils.degrees2Dist(v.getRadius(),  DistanceUtils.EARTH_MEAN_RADIUS_KM);
         output.append(nf.format(distKm));
-        output.append(",\"properties\": {");
-        output.append(",\"radius_units\": \"km\"}}");
+        output.append(",\"properties\":{");
+        output.append(",\"radius_units\":\"km\"}}");
       }
       else {
         output.append(nf.format(v.getRadius())).append('}');
@@ -423,7 +422,7 @@ public class GeoJSONFormat extends BaseFormat {
     }
     if (shape instanceof ShapeCollection) {
       ShapeCollection v = (ShapeCollection)shape;
-      output.append("{\"type\": \"GeometryCollection\",\"geometries\": [");
+      output.append("{\"type\":\"GeometryCollection\",\"geometries\": [");
       for(int i=0; i<v.size(); i++) {
         if (i>0) {
           output.append(',');
@@ -434,7 +433,7 @@ public class GeoJSONFormat extends BaseFormat {
       return;
     }
     
-    output.append("{\"type\": \"Unknown\",\"wkt\": \"");
+    output.append("{\"type\":\"Unknown\",\"wkt\":\"");
     output.append( LegacyShapeReadWriterFormat.writeShape(shape));
     output.append("\"}");
   }
