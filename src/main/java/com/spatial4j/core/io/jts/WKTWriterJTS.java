@@ -15,27 +15,27 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.io;
+package com.spatial4j.core.io.jts;
 
-
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
+import com.spatial4j.core.io.WKTWriter;
 import com.spatial4j.core.shape.Shape;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.spatial4j.core.shape.jts.JtsGeometry;
 
 /**
- * 
+ * Writes the WKT using JTS directly
  */
-@Deprecated
-public class WktShapeParser extends WKTReader {
-
-  /** This constructor is required by {@link com.spatial4j.core.context.SpatialContextFactory#makeWktShapeParser(com.spatial4j.core.context.SpatialContext)}. */
-  public WktShapeParser(SpatialContext ctx, SpatialContextFactory factory) {
-    super(ctx,factory);
+public class WKTWriterJTS extends WKTWriter {
+  
+  public WKTWriterJTS(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
+    
+  }
+  
+  public String toString(Shape shape) {
+    if (shape instanceof JtsGeometry) {
+      return((JtsGeometry)shape).getGeom().toText();
+    }
+    return super.toString(shape);
   }
 }

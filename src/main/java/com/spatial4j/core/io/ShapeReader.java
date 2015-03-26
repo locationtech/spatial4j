@@ -19,18 +19,12 @@ package com.spatial4j.core.io;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
 import java.text.ParseException;
 
 import com.spatial4j.core.shape.Shape;
 
 
-public interface ShapeFormat {
-  /**
-   * @return the format name
-   */
-  public String getFormatName();
-  
+public interface ShapeReader extends ShapeIO {
   /**
    * @param value -- the input value
    * @param error -- flag if we should throw an error or not (true will throw an error)
@@ -43,14 +37,4 @@ public interface ShapeFormat {
    * Read an input stream
    */
   public Shape read(Reader reader) throws IOException, ParseException;
-  
-  /**
-   * Write a shape to the output writer
-   */
-  public void write(Writer output, Shape shape) throws IOException;
-
-  /**
-   * Write a shape to String
-   */
-  public String toString(Shape shape);
 }

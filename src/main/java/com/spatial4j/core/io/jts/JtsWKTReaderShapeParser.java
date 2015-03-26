@@ -31,7 +31,7 @@ import com.vividsolutions.jts.io.WKTReader;
 import java.text.ParseException;
 
 /**
- * This is an extension of {@link JtsWKTFormat} that processes the entire
+ * This is an extension of {@link WKTReaderJTS} that processes the entire
  * string with JTS's {@link com.vividsolutions.jts.io.WKTReader}.  Some differences:
  * <ul>
  *   <li>No support for ENVELOPE and BUFFER</li>
@@ -41,7 +41,7 @@ import java.text.ParseException;
  * </ul>
  *
  */
-public class JtsWKTReaderShapeParser extends JtsWKTFormat {
+public class JtsWKTReaderShapeParser extends WKTReaderJTS {
 
   //Note: Historically, the code here originated from the defunct JtsShapeReadWriter.
 

@@ -46,7 +46,8 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
 
   private static SpatialContext makeCtx() {
     SpatialContextFactory factory = new SpatialContextFactory();
-    factory.setFormats( MyWKTShapeParser.class );
+    factory.readers.clear();
+    factory.readers.add( MyWKTShapeParser.class );
     return factory.newSpatialContext();
   }
 

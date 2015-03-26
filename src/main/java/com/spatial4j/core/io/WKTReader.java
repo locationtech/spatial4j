@@ -62,20 +62,20 @@ import java.util.List;
  *
  * <p />
  * To support more shapes, extend this class and override
- * {@link #parseShapeByType(WKTFormat.State, String)}. It's also possible to delegate to
+ * {@link #parseShapeByType(WKTReader.State, String)}. It's also possible to delegate to
  * a WKTParser by also delegating {@link #newState(String)}.
  *
  * <p />
  * Note, instances of this base class are threadsafe.
  */
-public class WKTFormat extends BaseFormat {
-  public static final String FORMAT = "WKT";
+public class WKTReader implements ShapeReader {
+  protected final SpatialContext ctx;
 
   //TODO support SRID:  "SRID=4326;POINT(1,2)
 
   /** This constructor is required by {@link com.spatial4j.core.context.SpatialContextFactory#makeWktShapeParser(com.spatial4j.core.context.SpatialContext)}. */
-  public WKTFormat(SpatialContext ctx, SpatialContextFactory factory) {
-    super(ctx);
+  public WKTReader(SpatialContext ctx, SpatialContextFactory factory) {
+    this.ctx = ctx;
   }
 
 
@@ -140,7 +140,7 @@ public class WKTFormat extends BaseFormat {
    * (internal) Parses the remainder of a shape definition following the shape's name
    * given as {@code shapeType} already consumed via
    * {@link State#nextWord()}. If
-   * it's able to parse the shape, {@link WKTFormat.State#offset}
+   * it's able to parse the shape, {@link WKTReader.State#offset}
    * should be advanced beyond
    * it (e.g. to the ',' or ')' or EOF in general). The default implementation
    * checks the name against some predefined names and calls corresponding
@@ -150,7 +150,7 @@ public class WKTFormat extends BaseFormat {
    * <p />
    * When writing a parse method that reacts to a specific shape type, remember to handle the
    * dimension and EMPTY token via
-   * {@link com.spatial4j.core.io.WKTFormat.State#nextIfEmptyAndSkipZM()}.
+   * {@link com.spatial4j.core.io.WKTReader.State#nextIfEmptyAndSkipZM()}.
    *
    * @param state
    * @param shapeType Non-Null string; could have mixed case. The first character is a letter.
@@ -210,7 +210,7 @@ public class WKTFormat extends BaseFormat {
    *   '(' coordinate ')'
    * </pre>
    *
-   * @see #point(WKTFormat.State)
+   * @see #point(WKTReader.State)
    */
   protected Shape parsePointShape(State state) throws ParseException {
     if (state.nextIfEmptyAndSkipZM())
@@ -228,7 +228,7 @@ public class WKTFormat extends BaseFormat {
    * </pre>
    * Furthermore, coordinate can optionally be wrapped in parenthesis.
    *
-   * @see #point(WKTFormat.State)
+   * @see #point(WKTReader.State)
    */
   protected Shape parseMultiPointShape(State state) throws ParseException {
     if (state.nextIfEmptyAndSkipZM())
@@ -275,7 +275,7 @@ public class WKTFormat extends BaseFormat {
    *   coordinateSequence
    * </pre>
    *
-   * @see #pointList(WKTFormat.State)
+   * @see #pointList(WKTReader.State)
    */
   protected Shape parseLineStringShape(State state) throws ParseException {
     if (state.nextIfEmptyAndSkipZM())
@@ -290,7 +290,7 @@ public class WKTFormat extends BaseFormat {
    *   '(' coordinateSequence (',' coordinateSequence )* ')'
    * </pre>
    *
-   * @see #parseLineStringShape(com.spatial4j.core.io.WKTFormat.State)
+   * @see #parseLineStringShape(com.spatial4j.core.io.WKTReader.State)
    */
   protected Shape parseMultiLineStringShape(State state) throws ParseException {
     if (state.nextIfEmptyAndSkipZM())
@@ -323,7 +323,7 @@ public class WKTFormat extends BaseFormat {
   }
 
   /** Reads a shape from the current position, starting with the name of the shape. It
-   * calls {@link #parseShapeByType(com.spatial4j.core.io.WKTFormat.State, String)}
+   * calls {@link #parseShapeByType(com.spatial4j.core.io.WKTReader.State, String)}
    * and throws an exception if the shape wasn't supported. */
   protected Shape shape(State state) throws ParseException {
     String type = state.nextWord();
@@ -339,7 +339,7 @@ public class WKTFormat extends BaseFormat {
    *   '(' coordinate (',' coordinate )* ')'
    * </pre>
    *
-   * @see #point(WKTFormat.State)
+   * @see #point(WKTReader.State)
    */
   protected List<Point> pointList(State state) throws ParseException {
     List<Point> sequence = new ArrayList<Point>();
@@ -380,7 +380,7 @@ public class WKTFormat extends BaseFormat {
 
     public SpatialContext getCtx() { return ctx; }
 
-    public WKTFormat getParser() { return WKTFormat.this; }
+    public WKTReader getParser() { return WKTReader.this; }
 
     /**
      * Reads the word starting at the current character position. The word
@@ -577,7 +577,7 @@ public class WKTFormat extends BaseFormat {
 
   @Override
   public String getFormatName() {
-    return FORMAT;
+    return ShapeIO.WKT;
   }
 
   @Override
@@ -598,84 +598,5 @@ public class WKTFormat extends BaseFormat {
     }
     reader.close();
     return parse(buffer.toString());
-  }
-
-  protected StringBuilder append(StringBuilder buffer, Point p, NumberFormat nf) {
-    return buffer.append(nf.format(p.getX())).append(' ').append( nf.format(p.getY()));
-  }
-  
-  @Override
-  public String toString(Shape shape) {
-    NumberFormat nf = LegacyShapeReadWriterFormat.makeNumberFormat(6);
-    if (shape instanceof Point) {
-      StringBuilder buffer = new StringBuilder();
-      return append(buffer.append("POINT("),(Point)shape,nf).append(")").toString();
-    }
-    if (shape instanceof Rectangle) {
-      Rectangle rect = (Rectangle)shape;
-      return "ENVELOPE(" +
-          // '(' x1 ',' x2 ',' y2 ',' y1 ')'
-        nf.format(rect.getMinX()) + ", " + nf.format(rect.getMaxX()) + ", "+
-        nf.format(rect.getMaxY()) + ", " + nf.format(rect.getMinY()) + ")";
-//      
-//      return "POLYGON(( "+
-//         nf.format(rect.getMinX()) + " " + nf.format(rect.getMinY()) + ", "+
-//         nf.format(rect.getMinX()) + " " + nf.format(rect.getMaxY()) + ", "+
-//         nf.format(rect.getMaxX()) + " " + nf.format(rect.getMaxY()) + ", "+
-//         nf.format(rect.getMaxX()) + " " + nf.format(rect.getMinY()) + ", "+
-//         nf.format(rect.getMinX()) + " " + nf.format(rect.getMinY()) + "))";
-    }
-    if (shape instanceof Circle) {
-      Circle c = (Circle) shape;
-      return "Circle(" +
-          nf.format(c.getCenter().getX()) + " " +
-          nf.format(c.getCenter().getY()) + " " +
-          "d=" + nf.format(c.getRadius()) +
-          ")";
-    }
-    if (shape instanceof BufferedLineString) {
-      BufferedLineString line = (BufferedLineString) shape;
-      StringBuilder str = new StringBuilder();
-      str.append("LINESTRING(");
-      Iterator<BufferedLine> iter = line.getSegments().iterator();
-      while(iter.hasNext()) {
-        BufferedLine seg = iter.next();
-        append(str,seg.getA(),nf).append(", ");
-        if(!iter.hasNext()) {
-          append(str,seg.getB(),nf);
-        }
-      }
-      str.append(")");
-      return str.toString();
-    }
-    if(shape instanceof ShapeCollection) {
-      StringBuilder buffer = new StringBuilder();
-      buffer.append("GEOMETRYCOLLECTION(");
-      boolean first = true;
-      for(Shape sub : ((ShapeCollection<? extends Shape>)shape).getShapes()) {
-        if(!first) {
-          buffer.append(",");
-        }
-        buffer.append(toString(sub));
-        first = false;
-      }
-      buffer.append(")");
-      return buffer.toString();
-    }
-    return LegacyShapeReadWriterFormat.writeShape(shape, nf);
-  }
-  
-  @Override
-  public void write(Writer output, Shape shape) throws IOException {
-    output.append( toString(shape) );
-  }
-  
-  @Override
-  public boolean formatMatchs(String input) {
-    int idx = input.indexOf('(');
-    if(idx<2) {
-      return false;
-    }
-    return input.endsWith(")");
   }
 }

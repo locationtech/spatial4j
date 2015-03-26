@@ -28,8 +28,10 @@ import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.BinaryCodec;
 import com.spatial4j.core.io.LegacyShapeReadWriterFormat;
-import com.spatial4j.core.io.ShapeFormat;
-import com.spatial4j.core.io.WKTFormat;
+import com.spatial4j.core.io.ShapeIO;
+import com.spatial4j.core.io.ShapeReader;
+import com.spatial4j.core.io.ShapeWriter;
+import com.spatial4j.core.io.WKTReader;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -64,7 +66,8 @@ public class SpatialContext {
   private final Rectangle worldBounds;
 
   private final BinaryCodec binaryCodec;
-  private final List<ShapeFormat> formats;
+  private final List<ShapeReader> readers;
+  private final List<ShapeWriter> writers;
 
   private final boolean normWrapLongitude;
 
@@ -129,11 +132,22 @@ public class SpatialContext {
 
     this.normWrapLongitude = factory.normWrapLongitude && this.isGeo();
     this.binaryCodec = factory.makeBinaryCodec(this);
-    this.formats = factory.makeFormatRegistry(this);
+    
+    this.readers = factory.makeReaders(this);
+    this.writers = factory.makeWriters(this);
   }
   
-  public ShapeFormat getFormat(String key) {
-    for(ShapeFormat f : formats) {
+  public ShapeReader getReader(String key) {
+    for(ShapeReader f : readers) {
+      if(key.equals(f.getFormatName())) {
+        return f;
+      }
+    }
+    return null;
+  }
+
+  public ShapeWriter getWriter(String key) {
+    for(ShapeWriter f : writers) {
       if(key.equals(f.getFormatName())) {
         return f;
       }
@@ -292,8 +306,8 @@ public class SpatialContext {
 
   /** The {@link com.spatial4j.core.io.WktShapeParser} used by {@link #readShapeFromWkt(String)}. */
   @Deprecated
-  public WKTFormat getWktShapeParser() {
-    return (WKTFormat)getFormat(WKTFormat.FORMAT);
+  public WKTReader getWktShapeParser() {
+    return (WKTReader)getReader(ShapeIO.WKT);
   }
 
   /** Reads a shape from the string formatted in WKT.
@@ -313,7 +327,7 @@ public class SpatialContext {
    * {@link com.spatial4j.core.io.LegacyShapeReadWriterFormat}.
    */
   public Shape readShape(String value) throws InvalidShapeException {
-    for(ShapeFormat format : formats) {
+    for(ShapeReader format : readers) {
       try {
         Shape v = format.read(value, false);
         if(v!=null) {

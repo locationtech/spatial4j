@@ -25,7 +25,7 @@ import java.util.List;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import com.spatial4j.core.io.WKTFormat;
+import com.spatial4j.core.io.WKTReader;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
@@ -41,7 +41,7 @@ import com.vividsolutions.jts.geom.Polygon;
 /**
  * Extends {@link com.spatial4j.core.io.WktShapeParser} adding support for polygons, using JTS.
  */
-public class JtsWKTFormat extends WKTFormat {
+public class WKTReaderJTS extends WKTReader {
 
   protected final JtsSpatialContext ctx;
 
@@ -49,7 +49,7 @@ public class JtsWKTFormat extends WKTFormat {
   protected final ValidationRule validationRule;
   protected final boolean autoIndex;
 
-  public JtsWKTFormat(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
+  public WKTReaderJTS(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
     super(ctx, factory);
     this.ctx = ctx;
     this.datelineRule = factory.datelineRule;
@@ -57,7 +57,7 @@ public class JtsWKTFormat extends WKTFormat {
     this.autoIndex = factory.autoIndex;
   }
 
-  /** @see JtsWKTFormat.ValidationRule */
+  /** @see WKTReaderJTS.ValidationRule */
   public ValidationRule getValidationRule() {
     return validationRule;
   }
@@ -85,7 +85,7 @@ public class JtsWKTFormat extends WKTFormat {
   }
 
   @Override
-  protected Shape parseShapeByType(WKTFormat.State state, String shapeType) throws ParseException {
+  protected Shape parseShapeByType(WKTReader.State state, String shapeType) throws ParseException {
     if (shapeType.equalsIgnoreCase("POLYGON")) {
       return parsePolygonShape(state);
     } else if (shapeType.equalsIgnoreCase("MULTIPOLYGON")) {
@@ -98,7 +98,7 @@ public class JtsWKTFormat extends WKTFormat {
    * efficiently get the LineString without creating a {@code List<Point>}.
    */
   @Override
-  protected Shape parseLineStringShape(WKTFormat.State state) throws ParseException {
+  protected Shape parseLineStringShape(WKTReader.State state) throws ParseException {
     if (!ctx.useJtsLineString())
       return super.parseLineStringShape(state);
 
@@ -118,7 +118,7 @@ public class JtsWKTFormat extends WKTFormat {
    *   coordinateSequenceList
    * </pre>
    */
-  protected Shape parsePolygonShape(WKTFormat.State state) throws ParseException {
+  protected Shape parsePolygonShape(WKTReader.State state) throws ParseException {
     Geometry geometry;
     if (state.nextIfEmptyAndSkipZM()) {
       GeometryFactory geometryFactory = ctx.getGeometryFactory();
@@ -155,7 +155,7 @@ public class JtsWKTFormat extends WKTFormat {
   /**
    * Reads a polygon, returning a JTS polygon.
    */
-  protected Polygon polygon(WKTFormat.State state) throws ParseException {
+  protected Polygon polygon(WKTReader.State state) throws ParseException {
     GeometryFactory geometryFactory = ctx.getGeometryFactory();
 
     List<Coordinate[]> coordinateSequenceList = coordinateSequenceList(state);
@@ -179,7 +179,7 @@ public class JtsWKTFormat extends WKTFormat {
    *   '(' polygon (',' polygon )* ')'
    * </pre>
    */
-  protected Shape parseMulitPolygonShape(WKTFormat.State state) throws ParseException {
+  protected Shape parseMulitPolygonShape(WKTReader.State state) throws ParseException {
     if (state.nextIfEmptyAndSkipZM())
       return ctx.makeCollection(Collections.EMPTY_LIST);
 
@@ -200,7 +200,7 @@ public class JtsWKTFormat extends WKTFormat {
    *   '(' coordinateSequence (',' coordinateSequence )* ')'
    * </pre>
    */
-  protected List<Coordinate[]> coordinateSequenceList(WKTFormat.State state) throws ParseException {
+  protected List<Coordinate[]> coordinateSequenceList(WKTReader.State state) throws ParseException {
     List<Coordinate[]> sequenceList = new ArrayList<Coordinate[]>();
     state.nextExpect('(');
     do {
@@ -216,7 +216,7 @@ public class JtsWKTFormat extends WKTFormat {
    *   '(' coordinate (',' coordinate )* ')'
    * </pre>
    */
-  protected Coordinate[] coordinateSequence(WKTFormat.State state) throws ParseException {
+  protected Coordinate[] coordinateSequence(WKTReader.State state) throws ParseException {
     List<Coordinate> sequence = new ArrayList<Coordinate>();
     state.nextExpect('(');
     do {
@@ -228,10 +228,10 @@ public class JtsWKTFormat extends WKTFormat {
 
   /**
    * Reads a {@link com.vividsolutions.jts.geom.Coordinate} from the current position.
-   * It's akin to {@link #point(com.spatial4j.core.io.WKTFormat.State)} but for
+   * It's akin to {@link #point(com.spatial4j.core.io.WKTReader.State)} but for
    * a JTS Coordinate.  Only the first 2 numbers are parsed; any remaining are ignored.
    */
-  protected Coordinate coordinate(WKTFormat.State state) throws ParseException {
+  protected Coordinate coordinate(WKTReader.State state) throws ParseException {
     double x = ctx.normX(state.nextDouble());
     ctx.verifyX(x);
     double y = ctx.normY(state.nextDouble());
@@ -322,13 +322,5 @@ public class JtsWKTFormat extends WKTFormat {
      * operation may keep the small lobe and discard the "valid" large lobe).
      * </p> */
     repairBuffer0
-  }
-
-  
-  public String toString(Shape shape) {
-    if (shape instanceof JtsGeometry) {
-      return((JtsGeometry)shape).getGeom().toText();
-    }
-    return super.toString(shape);
   }
 }

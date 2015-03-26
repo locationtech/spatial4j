@@ -30,7 +30,9 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 
 public class GeoJSONReadWriteTest {
 
-  ShapeFormat format;
+  ShapeReader reader;
+  ShapeWriter writer;
+  
   GeometryFactory gf;
   GeomBuilder gb;
   JtsSpatialContext ctx;
@@ -38,81 +40,82 @@ public class GeoJSONReadWriteTest {
   @Before
   public void setUp() {
     ctx = JtsSpatialContext.GEO;
-    format = ctx.getFormat(GeoJSONFormat.FORMAT);
     gb = new GeomBuilder();
+    reader = ctx.getReader(ShapeIO.GeoJSON);
+    writer = ctx.getWriter(ShapeIO.GeoJSON);
   }
 
   @Test
   public void testParsePoint() throws Exception {
-    Shape v = format.read(pointText(), true);
+    Shape v = reader.read(pointText(), true);
     assertTrue(point().equals(v));
   }
 
   @Test
   public void testEncodePoint() throws Exception {
-    assertEquals(pointText(), format.toString(point()));
+    assertEquals(pointText(), writer.toString(point()));
   }
 
   @Test
   public void testParseLineString() throws Exception {
-    assertTrue(line().equals(format.read(lineText(), true)));
+    assertTrue(line().equals(reader.read(lineText(), true)));
   }
 
   @Test
   public void testEncodeLineString() throws Exception {
-    assertEquals(lineText(), format.toString(line()));
+    assertEquals(lineText(), writer.toString(line()));
   }
 
   @Test
   public void testParsePolygon() throws Exception {
-    assertTrue(polygon1().equals(format.read(polygonText1(),true)));
-    assertTrue(polygon2().equals(format.read(polygonText2(),true)));
+    assertTrue(polygon1().equals(reader.read(polygonText1(),true)));
+    assertTrue(polygon2().equals(reader.read(polygonText2(),true)));
   }
 
   @Test
   public void testEncodePolygon() throws Exception {
-    assertEquals(polygonText1(), format.toString(polygon1()));
-    assertEquals(polygonText2(), format.toString(polygon2()));
+    assertEquals(polygonText1(), writer.toString(polygon1()));
+    assertEquals(polygonText2(), writer.toString(polygon2()));
   }
 
   @Test
   public void testParseMultiPoint() throws Exception {
-    assertTrue(multiPoint().equals(format.read(multiPointText(),true)));
+    assertTrue(multiPoint().equals(reader.read(multiPointText(),true)));
   }
 
   @Test
   public void testEncodeMultiPoint() throws Exception {
-    assertEquals(multiPointText(), format.toString(multiPoint()));
+    assertEquals(multiPointText(), writer.toString(multiPoint()));
   }
 
   @Test
   public void testParseMultiLineString() throws Exception {
-    assertTrue(multiLine().equals(format.read(multiLineText(),true)));
+    assertTrue(multiLine().equals(reader.read(multiLineText(),true)));
   }
 
   @Test
   public void testEncodeMultiLineString() throws Exception {
-    assertEquals(multiLineText(), format.toString(multiLine()));
+    assertEquals(multiLineText(), writer.toString(multiLine()));
   }
 
   @Test
   public void testParseMultiPolygon() throws Exception {
-    assertTrue(multiPolygon().equals(format.read(multiPolygonText(),true)));
+    assertTrue(multiPolygon().equals(reader.read(multiPolygonText(),true)));
   }
 
   @Test
   public void testEncodeMultiPolygon() throws Exception {
-    assertEquals(multiPolygonText(), format.toString(multiPolygon()));
+    assertEquals(multiPolygonText(), writer.toString(multiPolygon()));
   }
 
 //  @Test
 //  public void testParseGeometryCollection() throws Exception {
-//    assertEquals(collection(), format.read(collectionText(),true));
+//    assertEquals(collection(), reader.read(collectionText(),true));
 //  }
 //
 //  @Test
 //  public void testEncodeGeometryCollection() throws Exception {
-//    assertEquals(collectionText(), format.toString(collection()));
+//    assertEquals(collectionText(), writer.toString(collection()));
 //  }
 
   String pointText() {

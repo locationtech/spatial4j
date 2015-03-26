@@ -30,6 +30,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import sun.misc.IOUtils;
+
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.Shape;
@@ -39,37 +41,40 @@ import com.spatial4j.core.shape.Shape;
  */
 public class ShapeFormatTest {
   
-  public Shape testReadAndWriteTheSame(Shape shape, ShapeFormat format) throws IOException, ParseException {
+  public Shape testReadAndWriteTheSame(Shape shape, ShapeReader reader,ShapeWriter writer) throws IOException, ParseException {
     assertNotNull(shape);
     
     StringWriter str = new StringWriter();
-    format.write(str, shape);
+    writer.write(str, shape);
   //  System.out.println( "OUT: "+str.toString());
     
-    Shape out = format.read(new StringReader(str.toString()));
+    Shape out = reader.read(new StringReader(str.toString()));
     
     StringWriter copy = new StringWriter();
-    format.write(copy, out);
+    writer.write(copy, out);
     assertEquals(str.toString(), copy.toString());
     return out;
   }
   
   public void testCommon(SpatialContext ctx, String name) throws Exception {
-    ShapeFormat format = ctx.getFormat(name);
-    assertNotNull(format);
-    testReadAndWriteTheSame(ctx.makePoint(10, 20),format);
+    ShapeReader reader = ctx.getReader(name);
+    ShapeWriter writer = ctx.getWriter(name);
+    assertNotNull(reader);
+    assertNotNull(writer);
+    testReadAndWriteTheSame(ctx.makePoint(10, 20),reader,writer);
     testReadAndWriteTheSame(ctx.makeLineString(
         Arrays.asList(
             ctx.makePoint(1, 2),
             ctx.makePoint(3, 4),
             ctx.makePoint(5, 6)
-        )),format);
+        )),reader,writer);
     
    // testReadAndWriteTheSame(ctx.makeRectangle(10, 20, 30, 40),format);
   }
 
   public void testJTS(JtsSpatialContext ctx, String name) throws Exception {
-    ShapeFormat format = ctx.getFormat(name);
+    ShapeReader reader = ctx.getReader(name);
+    ShapeWriter writer = ctx.getWriter(name);
     Shape shape = null;
     
 //    String wkt = readFirstLineFromRsrc("/fiji.wkt.txt");
@@ -85,36 +90,35 @@ public class ShapeFormatTest {
   //  testReadAndWriteTheSame(shape,format);
 
     shape = ctx.readShape("POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10))");
-    testReadAndWriteTheSame(shape,format);
+    testReadAndWriteTheSame(shape,reader,writer);
     
     shape = ctx.readShape("POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10),(20 30, 35 35, 30 20, 20 30))");
-    testReadAndWriteTheSame(shape,format);
+    testReadAndWriteTheSame(shape,reader,writer);
 
     shape = ctx.readShape("MULTIPOINT ((10 40), (40 30), (20 20), (30 10))");
-    testReadAndWriteTheSame(shape,format);
+    testReadAndWriteTheSame(shape,reader,writer);
 
     shape = ctx.readShape("MULTIPOINT (10 40, 40 30, 20 20, 30 10)");
-    testReadAndWriteTheSame(shape,format);
+    testReadAndWriteTheSame(shape,reader,writer);
     
     shape = ctx.readShape("MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
-    testReadAndWriteTheSame(shape,format);
+    testReadAndWriteTheSame(shape,reader,writer);
 
     shape = ctx.readShape("MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))");
-    testReadAndWriteTheSame(shape,format);
+    testReadAndWriteTheSame(shape,reader,writer);
   }
 
   @Test
   public void testReadAndWriteTheSame() throws Exception {
     // GeoJSON
-    testCommon(SpatialContext.GEO, GeoJSONFormat.FORMAT);
-    testCommon(JtsSpatialContext.GEO, GeoJSONFormat.FORMAT);
-    testJTS(JtsSpatialContext.GEO, GeoJSONFormat.FORMAT);
+    testCommon(SpatialContext.GEO, ShapeIO.GeoJSON);
+    testCommon(JtsSpatialContext.GEO, ShapeIO.GeoJSON);
+    testJTS(JtsSpatialContext.GEO, ShapeIO.GeoJSON);
     
     // WKT
-    testCommon(SpatialContext.GEO, WKTFormat.FORMAT);
-    testCommon(JtsSpatialContext.GEO, WKTFormat.FORMAT);
-    testJTS(JtsSpatialContext.GEO, WKTFormat.FORMAT);
-    testJTS(JtsSpatialContext.GEO, GeoJSONFormat.FORMAT);
+    testCommon(SpatialContext.GEO, ShapeIO.WKT);
+    testCommon(JtsSpatialContext.GEO, ShapeIO.WKT);
+    testJTS(JtsSpatialContext.GEO, ShapeIO.WKT);
   }
   
 

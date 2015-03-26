@@ -17,25 +17,20 @@
 
 package com.spatial4j.core.io;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.text.ParseException;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-/**
- * 
- */
-@Deprecated
-public class WktShapeParser extends WKTReader {
-
-  /** This constructor is required by {@link com.spatial4j.core.context.SpatialContextFactory#makeWktShapeParser(com.spatial4j.core.context.SpatialContext)}. */
-  public WktShapeParser(SpatialContext ctx, SpatialContextFactory factory) {
-    super(ctx,factory);
-  }
+public interface ShapeIO {
+  public static final String WKT = "WKT";
+  public static final String GeoJSON = "GeoJSON";
+  
+  /**
+   * @return the format name
+   */
+  public String getFormatName();
 }

@@ -17,22 +17,26 @@
 
 package com.spatial4j.core.context;
 
-import com.spatial4j.core.distance.CartesianDistCalc;
-import com.spatial4j.core.distance.DistanceCalculator;
-import com.spatial4j.core.distance.GeodesicSphereDistCalc;
-import com.spatial4j.core.io.BinaryCodec;
-import com.spatial4j.core.io.ShapeFormat;
-import com.spatial4j.core.io.GeoJSONFormat;
-import com.spatial4j.core.io.WKTFormat;
-import com.spatial4j.core.shape.Rectangle;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+
+//import org.slf4j.LoggerFactory;
+
+import com.spatial4j.core.distance.CartesianDistCalc;
+import com.spatial4j.core.distance.DistanceCalculator;
+import com.spatial4j.core.distance.GeodesicSphereDistCalc;
+import com.spatial4j.core.io.BinaryCodec;
+import com.spatial4j.core.io.GeoJSONReader;
+import com.spatial4j.core.io.GeoJSONWriter;
+import com.spatial4j.core.io.ShapeReader;
+import com.spatial4j.core.io.ShapeWriter;
+import com.spatial4j.core.io.WKTReader;
+import com.spatial4j.core.io.WKTWriter;
+import com.spatial4j.core.shape.Rectangle;
 
 /**
  * Factory for a {@link SpatialContext} based on configuration data.  Call
@@ -76,8 +80,29 @@ public class SpatialContextFactory {
   public boolean normWrapLongitude = false;
   
   public Class<? extends BinaryCodec> binaryCodecClass = BinaryCodec.class;
-  public final List<Class<? extends ShapeFormat>> formats = new ArrayList<Class<? extends ShapeFormat>>();
-
+  public final List<Class<? extends ShapeReader>> readers = new ArrayList<Class<? extends ShapeReader>>();
+  public final List<Class<? extends ShapeWriter>> writers = new ArrayList<Class<? extends ShapeWriter>>();
+  public boolean hasFormatConfig = false;
+  
+  public SpatialContextFactory() {
+    addReaderIfNoggitExists(GeoJSONReader.class);
+    readers.add(WKTReader.class);
+    writers.add(WKTWriter.class);
+    writers.add(GeoJSONWriter.class);
+  }
+  
+  public void addReaderIfNoggitExists(Class<? extends ShapeReader> reader)
+  {
+    try {
+      Class.forName("org.noggit.JSONParser");
+      readers.add(reader);
+    } 
+    catch(ClassNotFoundException e) {
+      //LoggerFactory.getLogger(getClass()).warn("Unable to support GeoJSON Without Noggit");
+    }
+  }
+  
+  
   /**
    * Creates a new {@link SpatialContext} based on configuration in
    * <code>args</code>.  See the class definition for what keys are looked up
@@ -164,10 +189,6 @@ public class SpatialContextFactory {
     }
   }
   
-  public void setFormats(Class<? extends ShapeFormat> ... clazz) {
-    formats.clear();
-    formats.addAll(Arrays.asList(clazz));
-  }
 
   protected void initCalculator() {
     String calcStr = args.get("distCalculator");
@@ -188,18 +209,31 @@ public class SpatialContextFactory {
     }
   }
 
-
+  /**
+   * By default, we support GeoJSON and WKT.  If any formats are specified in the config
+   * we expect it to configure the readers and writers
+   */
   protected void initFormats() {
     try {
       // a parameter from when this was a raw class
       String val = args.get("wktShapeParserClass");
       if(val!=null) {
-        formats.add((Class<? extends ShapeFormat>) Class.forName(val.trim(), false, classLoader));
+        readers.clear();
+        //LoggerFactory.getLogger(getClass()).warn("Using deprecated argument: wktShapeParserClass={}", val);
+        readers.add((Class<? extends ShapeReader>) Class.forName(val.trim(), false, classLoader));
       }
-      val = args.get("formats");
+      val = args.get("readers");
       if(val!=null) {
+        readers.clear();
         for(String name : val.split(",")) {
-          formats.add((Class<? extends ShapeFormat>) Class.forName(name.trim(), false, classLoader));
+          readers.add((Class<? extends ShapeReader>) Class.forName(name.trim(), false, classLoader));
+        }
+      }
+      val = args.get("writers");
+      if(val!=null) {
+        writers.clear();
+        for(String name : val.split(",")) {
+          writers.add((Class<? extends ShapeWriter>) Class.forName(name.trim(), false, classLoader));
         }
       }
     }
@@ -227,9 +261,9 @@ public class SpatialContextFactory {
     return makeClassInstance(binaryCodecClass, ctx, this);
   }
 
-  public List<ShapeFormat> makeFormatRegistry(SpatialContext ctx) {
-    List<ShapeFormat> registry = new CopyOnWriteArrayList<ShapeFormat>();
-    for(Class<? extends ShapeFormat> clazz : formats) {
+  public List<ShapeReader> makeReaders(SpatialContext ctx) {
+    List<ShapeReader> registry = new ArrayList<ShapeReader>();
+    for(Class<? extends ShapeReader> clazz : readers) {
       try {
         registry.add(makeClassInstance(clazz, ctx, this));
       }
@@ -237,28 +271,22 @@ public class SpatialContextFactory {
         throw new RuntimeException(ex);
       }
     }
-    verifySupportedFormats(registry, ctx);
-    return registry;
+    return java.util.Collections.unmodifiableList(registry);
   }
-  // Make sure we have JSON and WKT
-  protected void verifySupportedFormats(List<ShapeFormat> registry, SpatialContext ctx) {
-    boolean hasWKT = false;
-    boolean hasGeoJSON = false;
-    for(ShapeFormat fmt : registry) {
-      if(GeoJSONFormat.FORMAT.equals(fmt.getFormatName())) {
-        hasGeoJSON = true;
+
+  public List<ShapeWriter> makeWriters(SpatialContext ctx) {
+    List<ShapeWriter> registry = new ArrayList<ShapeWriter>();
+    for(Class<? extends ShapeWriter> clazz : writers) {
+      try {
+        registry.add(makeClassInstance(clazz, ctx, this));
       }
-      else if(WKTFormat.FORMAT.equals(fmt.getFormatName())) {
-        hasWKT = true;
+      catch(Exception ex) {
+        throw new RuntimeException(ex);
       }
     }
-    if(!hasGeoJSON) {
-      registry.add(new GeoJSONFormat(ctx, this));
-    }
-    if(!hasWKT) {
-      registry.add(new WKTFormat(ctx, this));
-    }
+    return java.util.Collections.unmodifiableList(registry);
   }
+  
 
   @SuppressWarnings("unchecked")
   private <T> T makeClassInstance(Class<? extends T> clazz, Object... ctorArgs) {

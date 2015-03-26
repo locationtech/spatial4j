@@ -54,7 +54,7 @@ public class WktShapeParserTest extends RandomizedTest {
 
   @Test
   public void testNoOp() throws ParseException {
-    WKTFormat wktShapeParser = ctx.getWktShapeParser();
+    WKTReader wktShapeParser = ctx.getWktShapeParser();
     assertNull(wktShapeParser.parseIfSupported(""));
     assertNull(wktShapeParser.parseIfSupported("  "));
     assertNull(wktShapeParser.parseIfSupported("BogusShape()"));

@@ -19,12 +19,15 @@ package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.io.GeoJSONFormat;
-import com.spatial4j.core.io.ShapeFormat;
-import com.spatial4j.core.io.WKTFormat;
+import com.spatial4j.core.io.GeoJSONReader;
+import com.spatial4j.core.io.GeoJSONWriter;
+import com.spatial4j.core.io.WKTReader;
+import com.spatial4j.core.io.WKTWriter;
+import com.spatial4j.core.io.jts.GeoJSONWriterJTS;
 import com.spatial4j.core.io.jts.JtsBinaryCodec;
-import com.spatial4j.core.io.jts.JtsGeoJSONFormat;
-import com.spatial4j.core.io.jts.JtsWKTFormat;
+import com.spatial4j.core.io.jts.GeoJSONReaderJTS;
+import com.spatial4j.core.io.jts.WKTReaderJTS;
+import com.spatial4j.core.io.jts.WKTWriterJTS;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -41,12 +44,12 @@ import java.util.Map;
  * <DL>
  * <DT>datelineRule</DT>
  * <DD>width180(default)|ccwRect|none
- *  -- see {@link com.spatial4j.core.io.jts.JtsWKTFormat.DatelineRule}</DD>
+ *  -- see {@link com.spatial4j.core.io.jts.WKTReaderJTS.DatelineRule}</DD>
  * <DT>validationRule</DT>
  * <DD>error(default)|none|repairConvexHull|repairBuffer0
- *  -- see {@link com.spatial4j.core.io.jts.JtsWKTFormat.ValidationRule}</DD>
+ *  -- see {@link com.spatial4j.core.io.jts.WKTReaderJTS.ValidationRule}</DD>
  * <DT>autoIndex</DT>
- * <DD>true|false(default) -- see {@link JtsWKTFormat#isAutoIndex()}</DD>
+ * <DD>true|false(default) -- see {@link WKTReaderJTS#isAutoIndex()}</DD>
  * <DT>allowMultiOverlap</DT>
  * <DD>true|false(default) -- see {@link JtsSpatialContext#isAllowMultiOverlap()}</DD>
  * <DT>precisionModel</DT>
@@ -66,9 +69,9 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   public CoordinateSequenceFactory coordinateSequenceFactory = CoordinateArraySequenceFactory.instance();
 
   //ignored if geo=false
-  public JtsWKTFormat.DatelineRule datelineRule = JtsWKTFormat.DatelineRule.width180;
+  public WKTReaderJTS.DatelineRule datelineRule = WKTReaderJTS.DatelineRule.width180;
 
-  public JtsWKTFormat.ValidationRule validationRule = JtsWKTFormat.ValidationRule.error;
+  public WKTReaderJTS.ValidationRule validationRule = WKTReaderJTS.ValidationRule.error;
   public boolean autoIndex = false;
   public boolean allowMultiOverlap = false;//ignored if geo=false
 
@@ -78,6 +81,14 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
 
   public JtsSpatialContextFactory() {
     super.binaryCodecClass = JtsBinaryCodec.class;
+    
+    // Don't use the default formats
+    readers.clear();
+    writers.clear();
+    addReaderIfNoggitExists(GeoJSONReaderJTS.class);
+    readers.add(WKTReaderJTS.class);
+    writers.add(WKTWriterJTS.class);
+    writers.add(GeoJSONWriterJTS.class);
   }
   
   @Override
@@ -108,26 +119,6 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
       } else {
         throw new RuntimeException("Unknown precisionModel: "+modelStr);
       }
-    }
-  }
-
-  @Override
-  protected void verifySupportedFormats(List<ShapeFormat> registry, SpatialContext ctx) {
-    boolean hasWKT = false;
-    boolean hasGeoJSON = false;
-    for(ShapeFormat fmt : registry) {
-      if(GeoJSONFormat.FORMAT.equals(fmt.getFormatName())) {
-        hasGeoJSON = true;
-      }
-      else if(WKTFormat.FORMAT.equals(fmt.getFormatName())) {
-        hasWKT = true;
-      }
-    }
-    if(!hasGeoJSON) {
-      registry.add(new JtsGeoJSONFormat((JtsSpatialContext)ctx, this));
-    }
-    if(!hasWKT) {
-      registry.add(new JtsWKTFormat((JtsSpatialContext)ctx, this));
     }
   }
   
