@@ -105,6 +105,7 @@
 	    <groupId>org.noggit</groupId>
 	    <artifactId>noggit</artifactId>
 	    <version>0.7</version>
+      <optional>true</optional>
 	  </dependency>
 
     <!-- JTS is essentially only used for polygons. -->
