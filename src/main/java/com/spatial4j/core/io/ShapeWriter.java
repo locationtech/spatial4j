@@ -18,10 +18,7 @@
 package com.spatial4j.core.io;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Writer;
-import java.text.ParseException;
-
 import com.spatial4j.core.shape.Shape;
 
 

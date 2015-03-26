@@ -23,10 +23,7 @@ import org.junit.Test;
 import com.spatial4j.core.GeomBuilder;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.Shape;
-import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPolygon;
 
 public class GeoJSONReadWriteTest {
 

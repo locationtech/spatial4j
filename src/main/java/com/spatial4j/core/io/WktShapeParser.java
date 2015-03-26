@@ -20,13 +20,6 @@ package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Shape;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * 

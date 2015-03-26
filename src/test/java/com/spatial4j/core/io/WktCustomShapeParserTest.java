@@ -80,6 +80,7 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
       super(ctx, factory);
     }
 
+    @Override
     protected State newState(String wkt) {
       //First few lines compile, despite newState() being protected. Just proving extensibility.
       WktShapeParser other = null;

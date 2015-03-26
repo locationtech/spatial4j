@@ -32,6 +32,7 @@ public class WKTWriterJTS extends WKTWriter {
     
   }
   
+  @Override
   public String toString(Shape shape) {
     if (shape instanceof JtsGeometry) {
       return((JtsGeometry)shape).getGeom().toText();

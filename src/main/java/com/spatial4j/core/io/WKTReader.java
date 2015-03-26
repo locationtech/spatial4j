@@ -20,21 +20,13 @@ package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.ShapeCollection;
-import com.spatial4j.core.shape.impl.BufferedLine;
-import com.spatial4j.core.shape.impl.BufferedLineString;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**

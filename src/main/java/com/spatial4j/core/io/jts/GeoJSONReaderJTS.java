@@ -1,8 +1,6 @@
 package com.spatial4j.core.io.jts;
 
 import java.io.IOException;
-import java.io.Writer;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +11,7 @@ import org.noggit.JSONParser;
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.io.GeoJSONReader;
-import com.spatial4j.core.io.LegacyShapeReadWriterFormat;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
@@ -123,6 +119,7 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
     return ctx.makeShape(createPolygon(gf, readCoordinates(parser)));
   }
 
+  @Override
   protected Shape makeShapeFromCoords(String type, List coords) {
     GeometryFactory gf = ctx.getGeometryFactory();
     

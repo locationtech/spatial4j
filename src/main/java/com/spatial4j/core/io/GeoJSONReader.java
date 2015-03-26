@@ -20,28 +20,18 @@ package com.spatial4j.core.io;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.Writer;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.List;
 
 import org.noggit.JSONParser;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.ShapeCollection;
-import com.spatial4j.core.shape.impl.BufferedLine;
-import com.spatial4j.core.shape.impl.BufferedLineString;
-import com.spatial4j.core.shape.impl.GeoCircle;
 
 
 

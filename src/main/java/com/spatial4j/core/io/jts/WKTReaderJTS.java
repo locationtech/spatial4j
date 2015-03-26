@@ -17,7 +17,6 @@
 
 package com.spatial4j.core.io.jts;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;

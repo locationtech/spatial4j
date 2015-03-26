@@ -30,8 +30,6 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import sun.misc.IOUtils;
-
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.Shape;

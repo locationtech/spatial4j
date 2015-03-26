@@ -18,19 +18,10 @@
 package com.spatial4j.core.io;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
 import java.util.Iterator;
-import java.util.List;
-
-import org.noggit.JSONParser;
-
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.distance.DistanceUtils;

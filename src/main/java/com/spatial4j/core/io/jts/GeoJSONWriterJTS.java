@@ -3,15 +3,8 @@ package com.spatial4j.core.io.jts;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.noggit.JSONParser;
-
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.io.GeoJSONReader;
 import com.spatial4j.core.io.GeoJSONWriter;
 import com.spatial4j.core.io.LegacyShapeReadWriterFormat;
 import com.spatial4j.core.shape.Shape;
@@ -20,15 +13,12 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
 
 public class GeoJSONWriterJTS extends GeoJSONWriter {
 
@@ -159,6 +149,7 @@ public class GeoJSONWriterJTS extends GeoJSONWriter {
     }
   }
 
+  @Override
   public void write(Writer output, Shape shape) throws IOException {
     if(shape==null) {
       throw new NullPointerException("Shape can not be null");
