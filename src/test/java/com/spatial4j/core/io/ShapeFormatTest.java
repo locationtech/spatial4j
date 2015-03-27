@@ -17,9 +17,12 @@
 
 package com.spatial4j.core.io;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.ParseException;
@@ -36,38 +39,97 @@ import com.spatial4j.core.shape.Shape;
  */
 public class ShapeFormatTest {
   
-  public Shape testReadAndWriteTheSame(Shape shape, ShapeFormat format) throws IOException, ParseException {
+  public Shape testReadAndWriteTheSame(Shape shape, ShapeReader reader,ShapeWriter writer) throws IOException, ParseException {
+    assertNotNull(shape);
+    
     StringWriter str = new StringWriter();
-    format.write(str, shape);
+    writer.write(str, shape);
   //  System.out.println( "OUT: "+str.toString());
     
-    Shape out = format.read(new StringReader(str.toString()));
+    Shape out = reader.read(new StringReader(str.toString()));
     
     StringWriter copy = new StringWriter();
-    format.write(copy, out);
+    writer.write(copy, out);
     assertEquals(str.toString(), copy.toString());
     return out;
   }
   
   public void testCommon(SpatialContext ctx, String name) throws Exception {
-    ShapeFormat format = ctx.getFormat(name);
-    testReadAndWriteTheSame(ctx.makePoint(10, 20),format);
+    ShapeReader reader = ctx.getReader(name);
+    ShapeWriter writer = ctx.getWriter(name);
+    assertNotNull(reader);
+    assertNotNull(writer);
+    testReadAndWriteTheSame(ctx.makePoint(10, 20),reader,writer);
     testReadAndWriteTheSame(ctx.makeLineString(
         Arrays.asList(
             ctx.makePoint(1, 2),
             ctx.makePoint(3, 4),
             ctx.makePoint(5, 6)
-        )),format);
+        )),reader,writer);
     
-    testReadAndWriteTheSame(ctx.makeRectangle(10, 20, 30, 40),format);
+   // testReadAndWriteTheSame(ctx.makeRectangle(10, 20, 30, 40),format);
+  }
+
+  public void testJTS(JtsSpatialContext ctx, String name) throws Exception {
+    ShapeReader reader = ctx.getReader(name);
+    ShapeWriter writer = ctx.getWriter(name);
+    Shape shape = null;
+    
+//    String wkt = readFirstLineFromRsrc("/fiji.wkt.txt");
+//    shape = ctx.readShape(wkt);
+//  //  testReadAndWriteTheSame(shape,format);
+//    
+//    wkt = readFirstLineFromRsrc("/russia.wkt.txt");
+//    shape = ctx.readShape(wkt);
+//  //  testReadAndWriteTheSame(shape,format);
+    
+    // Examples from Wikipedia
+    shape = ctx.readShape("LINESTRING (30 10, 10 30, 40 40)");
+  //  testReadAndWriteTheSame(shape,format);
+
+    shape = ctx.readShape("POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10))");
+    testReadAndWriteTheSame(shape,reader,writer);
+    
+    shape = ctx.readShape("POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10),(20 30, 35 35, 30 20, 20 30))");
+    testReadAndWriteTheSame(shape,reader,writer);
+
+    shape = ctx.readShape("MULTIPOINT ((10 40), (40 30), (20 20), (30 10))");
+    testReadAndWriteTheSame(shape,reader,writer);
+
+    shape = ctx.readShape("MULTIPOINT (10 40, 40 30, 20 20, 30 10)");
+    testReadAndWriteTheSame(shape,reader,writer);
+    
+    shape = ctx.readShape("MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
+    testReadAndWriteTheSame(shape,reader,writer);
+
+    shape = ctx.readShape("MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))");
+    testReadAndWriteTheSame(shape,reader,writer);
   }
 
   @Test
   public void testReadAndWriteTheSame() throws Exception {
-//    testCommon(SpatialContext.GEO, GeoJSONFormat.FORMAT);
-//    testCommon(JtsSpatialContext.GEO, GeoJSONFormat.FORMAT);
+    // GeoJSON
+    String format = ShapeIO.GeoJSON;
+    testCommon(SpatialContext.GEO, format);
+    testCommon(JtsSpatialContext.GEO, format);
+    testJTS(JtsSpatialContext.GEO, format);
     
-    testCommon(SpatialContext.GEO, WKTFormat.FORMAT);
-    testCommon(JtsSpatialContext.GEO, WKTFormat.FORMAT);
+    // WKT
+    format = ShapeIO.WKT;
+    testCommon(SpatialContext.GEO, format);
+    testCommon(JtsSpatialContext.GEO, format);
+    testJTS(JtsSpatialContext.GEO, format);
+  }
+  
+
+  private String readFirstLineFromRsrc(String wktRsrcPath) throws IOException {
+    InputStream is = getClass().getResourceAsStream(wktRsrcPath);
+    assertNotNull(is);
+    try {
+      BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+      return br.readLine();
+    } finally {
+      is.close();
+    }
   }
 }

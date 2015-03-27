@@ -17,7 +17,6 @@
 
 package com.spatial4j.core.context;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
@@ -27,9 +26,11 @@ import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.BinaryCodec;
-import com.spatial4j.core.io.LegacyShapeReadWriterFormat;
-import com.spatial4j.core.io.ShapeFormat;
-import com.spatial4j.core.io.WKTFormat;
+import com.spatial4j.core.io.LegacyShapeWriter;
+import com.spatial4j.core.io.ShapeIO;
+import com.spatial4j.core.io.ShapeReader;
+import com.spatial4j.core.io.ShapeWriter;
+import com.spatial4j.core.io.WKTReader;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -43,7 +44,7 @@ import com.spatial4j.core.shape.impl.RectangleImpl;
 
 /**
  * This is a facade to most of Spatial4j, holding things like {@link DistanceCalculator},
- * {@link com.spatial4j.core.io.WktShapeParser}, and acting as a factory for the {@link Shape}s.
+ * {@link com.spatial4j.core.io.ShapeIO}, and acting as a factory for the {@link Shape}s.
  * <p/>
  * If you want a typical geodetic context, just reference {@link #GEO}.  Otherwise,
  * You should either create and configure a {@link SpatialContextFactory} and then call
@@ -64,7 +65,8 @@ public class SpatialContext {
   private final Rectangle worldBounds;
 
   private final BinaryCodec binaryCodec;
-  private final List<ShapeFormat> formats;
+  private final List<ShapeReader> readers;
+  private final List<ShapeWriter> writers;
 
   private final boolean normWrapLongitude;
 
@@ -129,11 +131,23 @@ public class SpatialContext {
 
     this.normWrapLongitude = factory.normWrapLongitude && this.isGeo();
     this.binaryCodec = factory.makeBinaryCodec(this);
-    this.formats = factory.makeFormatRegistry(this);
+    
+    factory.checkDefaultFormats();
+    this.readers = factory.makeReaders(this);
+    this.writers = factory.makeWriters(this);
   }
   
-  public ShapeFormat getFormat(String key) {
-    for(ShapeFormat f : formats) {
+  public ShapeReader getReader(String key) {
+    for(ShapeReader f : readers) {
+      if(key.equals(f.getFormatName())) {
+        return f;
+      }
+    }
+    return null;
+  }
+
+  public ShapeWriter getWriter(String key) {
+    for(ShapeWriter f : writers) {
       if(key.equals(f.getFormatName())) {
         return f;
       }
@@ -177,7 +191,7 @@ public class SpatialContext {
   }
 
   /** Normalize the 'x' dimension. Might reduce precision or wrap it to be within the bounds. This
-   * is called by {@link com.spatial4j.core.io.WktShapeParser} before creating a shape. */
+   * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
   public double normX(double x) {
     if (normWrapLongitude)
       x = DistanceUtils.normLonDEG(x);
@@ -185,7 +199,7 @@ public class SpatialContext {
   }
 
   /** Normalize the 'y' dimension. Might reduce precision or wrap it to be within the bounds. This
-   * is called by {@link com.spatial4j.core.io.WktShapeParser} before creating a shape. */
+   * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
   public double normY(double y) { return y; }
 
   /** Ensure fits in {@link #getWorldBounds()}. It's called by any shape factory method that
@@ -290,45 +304,42 @@ public class SpatialContext {
     return new ShapeCollection<S>(coll, this);
   }
 
-  /** The {@link com.spatial4j.core.io.WktShapeParser} used by {@link #readShapeFromWkt(String)}. */
-  @Deprecated
-  public WKTFormat getWktShapeParser() {
-    return (WKTFormat)getFormat(WKTFormat.FORMAT);
+  /** The {@link com.spatial4j.core.io.WKTReader} used by {@link #readShapeFromWkt(String)}. */
+  public WKTReader getWktShapeParser() {
+    return (WKTReader)getReader(ShapeIO.WKT);
   }
 
   /** Reads a shape from the string formatted in WKT.
-   * @see com.spatial4j.core.io.WktShapeParser
+   * @see com.spatial4j.core.io.WKTReader
    * @param wkt non-null WKT.
    * @return non-null
    * @throws ParseException if it failed to parse.
    */
-  @Deprecated
   public Shape readShapeFromWkt(String wkt) throws ParseException {
     return getWktShapeParser().parse(wkt);
   }
 
   public BinaryCodec getBinaryCodec() { return binaryCodec; }
 
-  /** Reads the shape from a String using all supported formats.  If no formats match, it falls back to:
-   * {@link com.spatial4j.core.io.LegacyShapeReadWriterFormat}.
+  /**
+   * Try to read a shape from any supported formats
+   * 
+   * @param value
+   * @return shape or null if unable to parse any shape
+   * @throws InvalidShapeException
    */
   public Shape readShape(String value) throws InvalidShapeException {
-    for(ShapeFormat format : formats) {
-      try {
-        Shape v = format.read(value, false);
-        if(v!=null) {
-          return v;
-        }
+    for(ShapeReader format : readers) {
+      Shape v = format.readIfSupported(value);
+      if(v!=null) {
+        return v;
       }
-      catch(IOException e) {} 
-      catch (ParseException e) {}
-      // Allow ShapeException to bubble up, that implies an invalid shape, not that we could not read it
     }
-    return LegacyShapeReadWriterFormat.readShapeOrNull(value, this);
+    return null;
   }
 
   /** Writes the shape to a String using the old/deprecated
-   * {@link com.spatial4j.core.io.LegacyShapeReadWriterFormat}. The JTS based subclass will write it
+   * {@link com.spatial4j.core.io.LegacyShapeWriter}. The JTS based subclass will write it
    * to WKT if the legacy format doesn't support that shape.
    * <b>Spatial4j in the near future won't support writing shapes to strings.</b>
    * @param shape non-null
@@ -336,7 +347,7 @@ public class SpatialContext {
    */
   @Deprecated
   public String toString(Shape shape) {
-    return LegacyShapeReadWriterFormat.writeShape(shape);
+    return LegacyShapeWriter.writeShape(shape);
   }
   
   @Override

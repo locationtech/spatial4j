@@ -15,35 +15,19 @@
  * limitations under the License.
  */
 
+
 package com.spatial4j.core.io;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Writer;
-import java.text.ParseException;
-
 import com.spatial4j.core.shape.Shape;
 
 
-public interface ShapeFormat {
-  /**
-   * @return the format name
-   */
-  public String getFormatName();
-  
-  /**
-   * @param value -- the input value
-   * @param error -- flag if we should throw an error or not (true will throw an error)
-   * @return a shape or null, if we could not make one
-   * @throws ParseException 
-   */
-  public Shape read(Object value, boolean error) throws IOException, ParseException;
-  
-  /**
-   * Read an input stream
-   */
-  public Shape read(Reader reader) throws IOException, ParseException;
-  
+/**
+ * Implementations are expected to be thread safe
+ */
+public interface ShapeWriter extends ShapeIO {
+
   /**
    * Write a shape to the output writer
    */

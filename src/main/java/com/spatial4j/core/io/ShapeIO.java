@@ -15,20 +15,17 @@
  * limitations under the License.
  */
 
+
 package com.spatial4j.core.io;
 
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
+public interface ShapeIO {
+  public static final String WKT = "WKT";
+  public static final String GeoJSON = "GeoJSON";
+  public static final String LEGACY = "LEGACY";
 
-/**
- * 
- */
-@Deprecated
-public class WktShapeParser extends WKTReader {
-
-  /** This constructor is required by {@link com.spatial4j.core.context.SpatialContextFactory#makeWktShapeParser(com.spatial4j.core.context.SpatialContext)}. */
-  public WktShapeParser(SpatialContext ctx, SpatialContextFactory factory) {
-    super(ctx,factory);
-  }
+  /**
+   * @return the format name
+   */
+  public String getFormatName();
 }

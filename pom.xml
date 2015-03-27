@@ -105,6 +105,7 @@
 	    <groupId>org.noggit</groupId>
 	    <artifactId>noggit</artifactId>
 	    <version>0.7</version>
+      <optional>true</optional>
 	  </dependency>
 
     <!-- JTS is essentially only used for polygons. -->
@@ -201,7 +202,7 @@
       <plugin>
         <groupId>de.thetaphi</groupId>
         <artifactId>forbiddenapis</artifactId>
-        <version>1.4</version>
+        <version>1.7</version>
         <executions>
           <execution>
             <goals>
@@ -213,6 +214,7 @@
           <!-- disallow undocumented classes like sun.misc.Unsafe: -->
           <internalRuntimeForbidden>true</internalRuntimeForbidden>
           <bundledSignatures>
+            <bundledSignature>jdk-system-out</bundledSignature>
             <bundledSignature>jdk-unsafe</bundledSignature>
             <bundledSignature>jdk-deprecated</bundledSignature>
           </bundledSignatures>

@@ -46,7 +46,8 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
 
   private static SpatialContext makeCtx() {
     SpatialContextFactory factory = new SpatialContextFactory();
-    factory.setFormats( MyWKTShapeParser.class );
+    factory.readers.clear();
+    factory.readers.add( MyWKTShapeParser.class );
     return factory.newSpatialContext();
   }
 
@@ -59,7 +60,7 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
   @Test
   public void testNextSubShapeString() throws ParseException {
 
-    WktShapeParser.State state = ctx.getWktShapeParser().newState("OUTER(INNER(3, 5))");
+    WKTReader.State state = ctx.getWktShapeParser().newState("OUTER(INNER(3, 5))");
     state.offset = 0;
 
     assertEquals("OUTER(INNER(3, 5))", state.nextSubShapeString());
@@ -74,11 +75,12 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
     assertEquals("OUTER(INNER(3".length(), state.offset);
   }
 
-  public static class MyWKTShapeParser extends WktShapeParser {
+  public static class MyWKTShapeParser extends WKTReader {
     public MyWKTShapeParser(SpatialContext ctx, SpatialContextFactory factory) {
       super(ctx, factory);
     }
 
+    @Override
     protected State newState(String wkt) {
       //First few lines compile, despite newState() being protected. Just proving extensibility.
       WktShapeParser other = null;
