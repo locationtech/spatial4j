@@ -18,6 +18,7 @@
 package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.BaseShape;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
@@ -34,7 +35,7 @@ import java.util.List;
  * resulting in what some call a "Track" or "Polyline" (ESRI terminology).
  * The buffer can be 0.  Note that BufferedLine isn't yet aware of geodesics (e.g. the dateline).
  */
-public class BufferedLineString extends BaseShape {
+public class BufferedLineString extends BaseShape<SpatialContext> {
 
   //TODO add some geospatial awareness like:
   // segment that spans at the dateline (split it at DL?).

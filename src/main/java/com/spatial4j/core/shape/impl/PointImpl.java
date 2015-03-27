@@ -18,6 +18,7 @@
 package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.BaseShape;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -25,7 +26,7 @@ import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.SpatialRelation;
 
 /** A basic 2D implementation of a Point. */
-public class PointImpl extends BaseShape implements Point {
+public class PointImpl extends BaseShape<SpatialContext> implements Point {
 
   private double x;
   private double y;

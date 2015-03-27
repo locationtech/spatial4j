@@ -14,21 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spatial4j.core.shape.impl;
+package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Shape;
 
-public abstract class BaseShape implements Shape {
+public abstract class BaseShape<T extends SpatialContext> implements Shape {
 
-  protected final SpatialContext ctx;
+  protected final T ctx;
   
-  public BaseShape(SpatialContext ctx) {
+  public BaseShape(T ctx) {
     this.ctx = ctx;
   }
 
   @Override
-  public SpatialContext getContext() {
+  public T getContext() {
     return ctx;
   }
 }

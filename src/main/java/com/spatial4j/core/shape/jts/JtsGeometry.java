@@ -40,19 +40,18 @@ import java.util.List;
  * JTS does a great deal of the hard work, but there is work here in handling
  * dateline wrap.
  */
-public class JtsGeometry implements Shape {
+public class JtsGeometry extends BaseShape<JtsSpatialContext> {
   /** System property boolean that can disable auto validation in an assert. */
   public static final String SYSPROP_ASSERT_VALIDATE = "spatial4j.JtsGeometry.assertValidate";
 
   private final Geometry geom;//cannot be a direct instance of GeometryCollection as it doesn't support relate()
   private final boolean hasArea;
   private final Rectangle bbox;
-  protected final JtsSpatialContext ctx;
   protected PreparedGeometry preparedGeometry;
   protected boolean validated = false;
 
   public JtsGeometry(Geometry geom, JtsSpatialContext ctx, boolean dateline180Check, boolean allowMultiOverlap) {
-    this.ctx = ctx;
+    super(ctx);
     //GeometryCollection isn't supported in relate()
     if (geom.getClass().equals(GeometryCollection.class))
       throw new IllegalArgumentException("JtsGeometry does not support GeometryCollection but does support its subclasses.");
@@ -87,11 +86,6 @@ public class JtsGeometry implements Shape {
     assert assertValidate();//kinda expensive but caches valid state
 
     this.hasArea = !((geom instanceof Lineal) || (geom instanceof Puntal));
-  }
-
-  @Override
-  public JtsSpatialContext getContext() {
-    return ctx;
   }
   
   /** called via assertion */

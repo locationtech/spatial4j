@@ -19,6 +19,7 @@ package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.shape.BaseShape;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
@@ -29,7 +30,7 @@ import com.spatial4j.core.shape.SpatialRelation;
  * wrap-around. When minX > maxX, this will assume it is world coordinates that
  * cross the date line using degrees. Immutable & threadsafe.
  */
-public class RectangleImpl extends BaseShape implements Rectangle {
+public class RectangleImpl extends BaseShape<SpatialContext> implements Rectangle {
 
   private double minX;
   private double maxX;

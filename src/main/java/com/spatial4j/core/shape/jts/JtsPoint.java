@@ -20,6 +20,7 @@ package com.spatial4j.core.shape.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.shape.BaseShape;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -29,24 +30,18 @@ import com.spatial4j.core.shape.impl.PointImpl;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 
 /** Wraps a {@link com.vividsolutions.jts.geom.Point}. */
-public class JtsPoint implements Point {
+public class JtsPoint extends BaseShape<JtsSpatialContext> implements Point {
 
-  private final SpatialContext ctx;
   private com.vividsolutions.jts.geom.Point pointGeom;
   private final boolean empty;//cached
 
   /** A simple constructor without normalization / validation. */
-  public JtsPoint(com.vividsolutions.jts.geom.Point pointGeom, SpatialContext ctx) {
-    this.ctx = ctx;
+  public JtsPoint(com.vividsolutions.jts.geom.Point pointGeom, JtsSpatialContext ctx) {
+    super(ctx);
     this.pointGeom = pointGeom;
     this.empty = pointGeom.isEmpty();
   }
 
-  @Override
-  public SpatialContext getContext() {
-    return ctx;
-  }
-  
   public com.vividsolutions.jts.geom.Point getGeom() {
     return pointGeom;
   }
