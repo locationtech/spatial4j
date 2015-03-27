@@ -100,13 +100,13 @@
   </prerequisites>
 
   <dependencies>
-	  <!-- Used for GeoJSON parsing -->
-	  <dependency>
-	    <groupId>org.noggit</groupId>
-	    <artifactId>noggit</artifactId>
-	    <version>0.7</version>
+    <!-- Used for GeoJSON parsing -->
+    <dependency>
+      <groupId>org.noggit</groupId>
+      <artifactId>noggit</artifactId>
+      <version>0.7</version>
       <optional>true</optional>
-	  </dependency>
+    </dependency>
 
     <!-- JTS is essentially only used for polygons. -->
     <dependency>
@@ -136,6 +136,13 @@
       <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
+        
+    <dependency>
+      <groupId>org.jeo</groupId>
+      <artifactId>jeo</artifactId>
+      <version>0.5</version>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>com.carrotsearch.randomizedtesting</groupId>
@@ -145,6 +152,14 @@
     </dependency>
 
   </dependencies>
+  
+  <repositories>
+    <repository>
+      <id>boundless</id>
+      <name>Boundless Maven Repository</name>
+      <url>http://repo.boundlessgeo.com/main</url>
+    </repository>
+  </repositories>
   
   <build>
     
@@ -255,8 +270,8 @@
           <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>
           <content>${project.reporting.outputDirectory}</content>
           <skipDeletedFiles>true</skipDeletedFiles>
-		  <!-- scm:git:https://github.com:spatial4j/spatial4j.git -->
-		  <pubScmUrl>scm:git:file://${project.basedir}</pubScmUrl>
+          <!-- scm:git:https://github.com:spatial4j/spatial4j.git -->
+          <pubScmUrl>scm:git:file://${project.basedir}</pubScmUrl>
           <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
         </configuration>
       </plugin>
