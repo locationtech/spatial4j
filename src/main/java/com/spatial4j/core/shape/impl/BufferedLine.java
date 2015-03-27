@@ -19,6 +19,7 @@ package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.shape.BaseShape;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
@@ -35,7 +36,7 @@ import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
  * a point. BufferedLine isn't yet aware of geodesics (e.g. the dateline); it operates in Euclidean
  * space.
  */
-public class BufferedLine implements Shape {
+public class BufferedLine extends BaseShape<SpatialContext> {
 
   private final Point pA, pB;
   private final double buf;
@@ -60,6 +61,7 @@ public class BufferedLine implements Shape {
    * @param ctx
    */
   public BufferedLine(Point pA, Point pB, double buf, SpatialContext ctx) {
+    super(ctx);
     assert buf >= 0;//TODO support buf=0 via another class ?
 
     /**
