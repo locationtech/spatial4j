@@ -20,6 +20,8 @@ package com.spatial4j.core.context.jts;
 import java.util.Map;
 
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.io.LegacyShapeReader;
+import com.spatial4j.core.io.LegacyShapeWriter;
 import com.spatial4j.core.io.jts.JtsGeoJSONReader;
 import com.spatial4j.core.io.jts.JtsGeoJSONWriter;
 import com.spatial4j.core.io.jts.JtsBinaryCodec;
@@ -79,13 +81,15 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
 
   @Override
   protected void checkDefaultFormats() {
-    if (readers.isEmpty()){
+    if (readers.isEmpty() ) {
       addReaderIfNoggitExists(JtsGeoJSONReader.class);
       readers.add(JtsWKTReader.class);
+      readers.add(LegacyShapeReader.class);
     }
     if (writers.isEmpty()) {
       writers.add(JtsGeoJSONWriter.class);
       writers.add(JtsWKTWriter.class);
+      writers.add(LegacyShapeWriter.class);
     }
   }
   

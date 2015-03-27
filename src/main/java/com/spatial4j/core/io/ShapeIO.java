@@ -22,6 +22,7 @@ package com.spatial4j.core.io;
 public interface ShapeIO {
   public static final String WKT = "WKT";
   public static final String GeoJSON = "GeoJSON";
+  public static final String LEGACY = "LEGACY";
 
   /**
    * @return the format name

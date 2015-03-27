@@ -26,7 +26,7 @@ import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.BinaryCodec;
-import com.spatial4j.core.io.LegacyShapeReadWriterFormat;
+import com.spatial4j.core.io.LegacyShapeWriter;
 import com.spatial4j.core.io.ShapeIO;
 import com.spatial4j.core.io.ShapeReader;
 import com.spatial4j.core.io.ShapeWriter;
@@ -323,8 +323,12 @@ public class SpatialContext {
 
   public BinaryCodec getBinaryCodec() { return binaryCodec; }
 
-  /** Reads the shape from a String using all supported formats.  If no formats match, it falls back to:
-   * {@link com.spatial4j.core.io.LegacyShapeReadWriterFormat}.
+  /**
+   * Try to read a shape from any supported formats
+   * 
+   * @param value
+   * @return shape or null if unable to parse any shape
+   * @throws InvalidShapeException
    */
   public Shape readShape(String value) throws InvalidShapeException {
     for(ShapeReader format : readers) {
@@ -333,11 +337,11 @@ public class SpatialContext {
         return v;
       }
     }
-    return LegacyShapeReadWriterFormat.readShapeOrNull(value, this);
+    return null;
   }
 
   /** Writes the shape to a String using the old/deprecated
-   * {@link com.spatial4j.core.io.LegacyShapeReadWriterFormat}. The JTS based subclass will write it
+   * {@link com.spatial4j.core.io.LegacyShapeWriter}. The JTS based subclass will write it
    * to WKT if the legacy format doesn't support that shape.
    * <b>Spatial4j in the near future won't support writing shapes to strings.</b>
    * @param shape non-null
@@ -345,7 +349,7 @@ public class SpatialContext {
    */
   @Deprecated
   public String toString(Shape shape) {
-    return LegacyShapeReadWriterFormat.writeShape(shape);
+    return LegacyShapeWriter.writeShape(shape);
   }
   
   @Override

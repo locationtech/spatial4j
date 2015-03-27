@@ -23,7 +23,7 @@ import java.text.NumberFormat;
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.io.GeoJSONWriter;
-import com.spatial4j.core.io.LegacyShapeReadWriterFormat;
+import com.spatial4j.core.io.LegacyShapeWriter;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -104,7 +104,7 @@ public class JtsGeoJSONWriter extends GeoJSONWriter {
   }
 
   public void write(Writer output, Geometry geom) throws IOException {
-    NumberFormat nf = LegacyShapeReadWriterFormat.makeNumberFormat(6);
+    NumberFormat nf = LegacyShapeWriter.makeNumberFormat(6);
     if (geom instanceof Point) {
       Point v = (Point) geom;
       output.append("{\"type\":\"Point\",\"coordinates\":");

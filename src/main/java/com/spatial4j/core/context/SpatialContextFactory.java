@@ -221,10 +221,12 @@ public class SpatialContextFactory {
     if (readers.isEmpty()) {
       addReaderIfNoggitExists(GeoJSONReader.class);
       readers.add(WKTReader.class);
+      readers.add(LegacyShapeReader.class);
     }
     if (writers.isEmpty()) {
       writers.add(GeoJSONWriter.class);
       writers.add(WKTWriter.class);
+      writers.add(LegacyShapeWriter.class);
     }
   }
 

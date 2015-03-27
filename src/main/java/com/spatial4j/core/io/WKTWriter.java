@@ -48,14 +48,14 @@ public class WKTWriter implements ShapeWriter {
   
   @Override
   public String toString(Shape shape) {
-    NumberFormat nf = LegacyShapeReadWriterFormat.makeNumberFormat(6);
+    NumberFormat nf = LegacyShapeWriter.makeNumberFormat(6);
     if (shape instanceof Point) {
       StringBuilder buffer = new StringBuilder();
       return append(buffer.append("POINT("),(Point)shape,nf).append(")").toString();
     }
     if (shape instanceof Rectangle) {
       NumberFormat nfMIN = nf;
-      NumberFormat nfMAX = LegacyShapeReadWriterFormat.makeNumberFormat(6);
+      NumberFormat nfMAX = LegacyShapeWriter.makeNumberFormat(6);
 
       nfMIN.setRoundingMode( RoundingMode.FLOOR );
       nfMAX.setRoundingMode( RoundingMode.CEILING );
@@ -110,7 +110,7 @@ public class WKTWriter implements ShapeWriter {
       buffer.append(")");
       return buffer.toString();
     }
-    return LegacyShapeReadWriterFormat.writeShape(shape, nf);
+    return LegacyShapeWriter.writeShape(shape, nf);
   }
   
   @Override

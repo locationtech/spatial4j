@@ -64,7 +64,7 @@ public class GeoJSONWriter implements ShapeWriter {
     if (shape == null) {
       throw new NullPointerException("Shape can not be null");
     }
-    NumberFormat nf = LegacyShapeReadWriterFormat.makeNumberFormat(6);
+    NumberFormat nf = LegacyShapeWriter.makeNumberFormat(6);
     if (shape instanceof Point) {
       Point v = (Point) shape;
       output.append("{\"type\":\"Point\",\"coordinates\":");
@@ -156,7 +156,7 @@ public class GeoJSONWriter implements ShapeWriter {
       return;
     }
     output.append("{\"type\":\"Unknown\",\"wkt\":\"");
-    output.append(LegacyShapeReadWriterFormat.writeShape(shape));
+    output.append(LegacyShapeWriter.writeShape(shape));
     output.append("\"}");
   }
 

@@ -595,16 +595,20 @@ public class WKTReader implements ShapeReader {
   public String getFormatName() {
     return ShapeIO.WKT;
   }
-
-  @Override
-  public Shape read(Reader reader) throws IOException, ParseException {
+  
+  static String readString(Reader reader) throws IOException {
     char[] arr = new char[1024];
     StringBuilder buffer = new StringBuilder();
     int numCharsRead;
     while ((numCharsRead = reader.read(arr, 0, arr.length)) != -1) {
       buffer.append(arr, 0, numCharsRead);
     }
-    return parse(buffer.toString());
+    return buffer.toString();
+  }
+
+  @Override
+  public Shape read(Reader reader) throws IOException, ParseException {
+    return parse(readString(reader));
   }
 
   @Override

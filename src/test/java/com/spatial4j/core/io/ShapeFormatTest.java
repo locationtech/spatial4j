@@ -109,14 +109,16 @@ public class ShapeFormatTest {
   @Test
   public void testReadAndWriteTheSame() throws Exception {
     // GeoJSON
-    testCommon(SpatialContext.GEO, ShapeIO.GeoJSON);
-    testCommon(JtsSpatialContext.GEO, ShapeIO.GeoJSON);
-    testJTS(JtsSpatialContext.GEO, ShapeIO.GeoJSON);
+    String format = ShapeIO.GeoJSON;
+    testCommon(SpatialContext.GEO, format);
+    testCommon(JtsSpatialContext.GEO, format);
+    testJTS(JtsSpatialContext.GEO, format);
     
     // WKT
-    testCommon(SpatialContext.GEO, ShapeIO.WKT);
-    testCommon(JtsSpatialContext.GEO, ShapeIO.WKT);
-    testJTS(JtsSpatialContext.GEO, ShapeIO.WKT);
+    format = ShapeIO.WKT;
+    testCommon(SpatialContext.GEO, format);
+    testCommon(JtsSpatialContext.GEO, format);
+    testJTS(JtsSpatialContext.GEO, format);
   }
   
 
