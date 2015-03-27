@@ -170,8 +170,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.7</source>
+          <target>1.7</target>
           <optimize>true</optimize>
           <showDeprecation>true</showDeprecation>
         </configuration>
@@ -238,7 +238,7 @@
             The checker simply passes by default and only prints a warning.
            -->
           <failOnUnsupportedJava>false</failOnUnsupportedJava>
-          <targetVersion>1.6</targetVersion>
+          <targetVersion>1.7</targetVersion>
         </configuration>
       </plugin>
 
@@ -297,7 +297,7 @@
         <configuration>
           <linkXRef>true</linkXRef>
           <minimumTokens>100</minimumTokens>
-          <targetJdk>1.6</targetJdk>
+          <targetJdk>1.7</targetJdk>
         </configuration>
       </plugin>
 

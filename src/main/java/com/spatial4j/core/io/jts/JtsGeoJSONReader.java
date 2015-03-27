@@ -142,18 +142,18 @@ public class JtsGeoJSONReader extends GeoJSONReader {
   @Override
   protected Shape makeShapeFromCoords(String type, List coords) {
     GeometryFactory gf = ctx.getGeometryFactory();
-
-    if ("Polygon".equals(type)) {
-      return ctx.makeShape(createPolygon(gf, coords));
-    }
-    if ("MultiPoint".equals(type)) {
-      return ctx.makeShape(createMultiPoint(gf, coords));
-    }
-    if ("MultiLineString".equals(type)) {
-      return ctx.makeShape(createMultiLineString(gf, coords));
-    }
-    if ("MultiPolygon".equals(type)) {
-      return ctx.makeShape(createMultiPolygon(gf, coords));
+    switch(type) {
+      case "Polygon":
+        return ctx.makeShape(createPolygon(gf, coords));
+        
+      case "MultiPoint":
+        return ctx.makeShape(createMultiPoint(gf, coords));
+    
+      case "MultiLineString":
+        return ctx.makeShape(createMultiLineString(gf, coords));
+        
+      case "MultiPolygon":
+        return ctx.makeShape(createMultiPolygon(gf, coords));
     }
     return null;
   }

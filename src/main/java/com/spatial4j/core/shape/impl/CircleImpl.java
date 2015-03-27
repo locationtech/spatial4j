@@ -18,6 +18,7 @@
 package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.BaseShape;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -30,9 +31,7 @@ import com.spatial4j.core.shape.SpatialRelation;
  * implementation should work for both cartesian 2D and geodetic sphere
  * surfaces.
  */
-public class CircleImpl implements Circle {
-
-  protected final SpatialContext ctx;
+public class CircleImpl extends BaseShape<SpatialContext> implements Circle {
 
   protected final Point point;
   protected double radiusDEG;
@@ -41,8 +40,8 @@ public class CircleImpl implements Circle {
   protected Rectangle enclosingBox;
 
   public CircleImpl(Point p, double radiusDEG, SpatialContext ctx) {
+    super(ctx);
     //We assume any validation of params already occurred (including bounding dist)
-    this.ctx = ctx;
     this.point = p;
     this.radiusDEG = point.isEmpty() ? Double.NaN : radiusDEG;
     this.enclosingBox = point.isEmpty() ? ctx.makeRectangle(Double.NaN, Double.NaN, Double.NaN, Double.NaN) :
