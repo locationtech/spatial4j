@@ -44,7 +44,7 @@ public class GeoJSONReadWriteTest {
 
   @Test
   public void testParsePoint() throws Exception {
-    Shape v = reader.read(pointText(), true);
+    Shape v = reader.read(pointText());
     assertTrue(point().equals(v));
   }
 
@@ -55,7 +55,7 @@ public class GeoJSONReadWriteTest {
 
   @Test
   public void testParseLineString() throws Exception {
-    assertTrue(line().equals(reader.read(lineText(), true)));
+    assertTrue(line().equals(reader.read(lineText())));
   }
 
   @Test
@@ -65,8 +65,8 @@ public class GeoJSONReadWriteTest {
 
   @Test
   public void testParsePolygon() throws Exception {
-    assertTrue(polygon1().equals(reader.read(polygonText1(),true)));
-    assertTrue(polygon2().equals(reader.read(polygonText2(),true)));
+    assertTrue(polygon1().equals(reader.read(polygonText1())));
+    assertTrue(polygon2().equals(reader.read(polygonText2())));
   }
 
   @Test
@@ -77,7 +77,7 @@ public class GeoJSONReadWriteTest {
 
   @Test
   public void testParseMultiPoint() throws Exception {
-    assertTrue(multiPoint().equals(reader.read(multiPointText(),true)));
+    assertTrue(multiPoint().equals(reader.read(multiPointText())));
   }
 
   @Test
@@ -87,7 +87,7 @@ public class GeoJSONReadWriteTest {
 
   @Test
   public void testParseMultiLineString() throws Exception {
-    assertTrue(multiLine().equals(reader.read(multiLineText(),true)));
+    assertTrue(multiLine().equals(reader.read(multiLineText())));
   }
 
   @Test
@@ -97,7 +97,7 @@ public class GeoJSONReadWriteTest {
 
   @Test
   public void testParseMultiPolygon() throws Exception {
-    assertTrue(multiPolygon().equals(reader.read(multiPolygonText(),true)));
+    assertTrue(multiPolygon().equals(reader.read(multiPolygonText())));
   }
 
   @Test

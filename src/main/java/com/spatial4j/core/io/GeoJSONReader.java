@@ -30,6 +30,7 @@ import org.noggit.JSONParser;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 
@@ -53,15 +54,23 @@ public class GeoJSONReader implements ShapeReader {
   }
 
   @Override
-  public Shape read(Object value, boolean error) throws IOException, ParseException {
+  public Shape read(Object value) throws IOException, ParseException, InvalidShapeException {
+    String v = value.toString().trim();
+    return read(new StringReader(v));
+  }
+
+  @Override
+  public Shape readIfSupported(Object value) throws InvalidShapeException {
     String v = value.toString().trim();
     if(!(v.startsWith("{")&&v.endsWith("}"))) {
-      if(error) {
-        throw new ParseException("Invalid JSON", 0);
-      }
       return null;
     }
-    return read(new StringReader(v));
+    try {
+      return read(new StringReader(v));
+    }
+    catch(IOException ex) {} 
+    catch (ParseException e) {}
+    return null;
   }
   
   //--------------------------------------------------------------
@@ -324,6 +333,6 @@ public class GeoJSONReader implements ShapeReader {
   }
   
   protected Shape makeShapeFromCoords(String type, List coords) {
-    return null;  // default is unsupported
+    throw new RuntimeException("Unsupported: "+type); // JTS Supports this
   }
 }

@@ -328,15 +328,10 @@ public class SpatialContext {
    */
   public Shape readShape(String value) throws InvalidShapeException {
     for(ShapeReader format : readers) {
-      try {
-        Shape v = format.read(value, false);
-        if(v!=null) {
-          return v;
-        }
+      Shape v = format.readIfSupported(value);
+      if(v!=null) {
+        return v;
       }
-      catch(IOException e) {} 
-      catch (ParseException e) {}
-      // Allow ShapeException to bubble up, that implies an invalid shape, not that we could not read it
     }
     return LegacyShapeReadWriterFormat.readShapeOrNull(value, this);
   }

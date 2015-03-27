@@ -20,8 +20,10 @@ package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.text.ParseException;
@@ -573,14 +575,6 @@ public class WKTReader implements ShapeReader {
   }
 
   @Override
-  public Shape read(Object value, boolean error) throws IOException, ParseException {
-    if(error) {
-      return parse(value.toString());
-    }
-    return parseIfSupported(value.toString());
-  }
-
-  @Override
   public Shape read(Reader reader) throws IOException, ParseException {
     char[] arr = new char[1024];
     StringBuilder buffer = new StringBuilder();
@@ -588,7 +582,20 @@ public class WKTReader implements ShapeReader {
     while ((numCharsRead = reader.read(arr, 0, arr.length)) != -1) {
         buffer.append(arr, 0, numCharsRead);
     }
-    reader.close();
     return parse(buffer.toString());
+  }
+
+  @Override
+  public Shape read(Object value) throws IOException, ParseException, InvalidShapeException {
+    return parse(value.toString());
+  }
+
+  @Override
+  public Shape readIfSupported(Object value) throws InvalidShapeException {
+    try {
+      return parseIfSupported(value.toString()) ;
+    } 
+    catch (ParseException e) {}
+    return null;
   }
 }

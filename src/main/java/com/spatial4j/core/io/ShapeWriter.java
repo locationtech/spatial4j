@@ -22,6 +22,9 @@ import java.io.Writer;
 import com.spatial4j.core.shape.Shape;
 
 
+/**
+ * Implementations are expected to be thread safe
+ */
 public interface ShapeWriter extends ShapeIO {
   
   /**
