@@ -164,15 +164,15 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
   // https://github.com/jeo/jeo/blob/master/core/src/main/java/org/jeo/geojson/parser/GeometryHandler.java#L111
   // --------------------------------------------------------------
 
-  Point createPoint(GeometryFactory gf, List list) {
+  protected Point createPoint(GeometryFactory gf, List list) {
     return gf.createPoint(coord(list));
   }
 
-  LineString createLineString(GeometryFactory gf, List list) {
+  protected LineString createLineString(GeometryFactory gf, List list) {
     return gf.createLineString(coordseq(list));
   }
 
-  Polygon createPolygon(GeometryFactory gf, List list) {
+  protected Polygon createPolygon(GeometryFactory gf, List list) {
     LinearRing shell = gf.createLinearRing(coordseq((List) ensureSize(list, 1).get(0)));
     LinearRing[] holes = list.size() > 1 ? new LinearRing[list.size() - 1] : null;
 
@@ -182,11 +182,11 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
     return gf.createPolygon(shell, holes);
   }
 
-  MultiPoint createMultiPoint(GeometryFactory gf, List list) {
+  protected MultiPoint createMultiPoint(GeometryFactory gf, List list) {
     return gf.createMultiPoint(coordseq(list));
   }
 
-  MultiLineString createMultiLineString(GeometryFactory gf, List list) {
+  protected MultiLineString createMultiLineString(GeometryFactory gf, List list) {
     LineString[] lines = new LineString[ensureSize(list, 1).size()];
     for (int i = 0; i < list.size(); i++) {
       lines[i] = createLineString(gf, (List) list.get(i));
@@ -194,7 +194,7 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
     return gf.createMultiLineString(lines);
   }
 
-  MultiPolygon createMultiPolygon(GeometryFactory gf, List list) {
+  protected MultiPolygon createMultiPolygon(GeometryFactory gf, List list) {
     Polygon[] polys = new Polygon[ensureSize(list, 1).size()];
     for (int i = 0; i < list.size(); i++) {
       polys[i] = createPolygon(gf, (List) list.get(i));
@@ -202,11 +202,11 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
     return gf.createMultiPolygon(polys);
   }
 
-  GeometryCollection createGeometryCollection(GeometryFactory gf, List geoms) {
+  protected GeometryCollection createGeometryCollection(GeometryFactory gf, List geoms) {
     return gf.createGeometryCollection((Geometry[]) geoms.toArray(new Geometry[geoms.size()]));
   }
 
-  Coordinate coord(List list) {
+  protected Coordinate coord(List list) {
     ensureSize(list, 2);
 
     double x = number(list.get(0));
@@ -220,7 +220,7 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
     return c;
   }
 
-  CoordinateSequence coordseq(List list) {
+  protected CoordinateSequence coordseq(List list) {
     ensureSize(list, 1);
 
     int dim = ensureSize((List) list.get(0), 2).size();
@@ -241,11 +241,11 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
     return seq;
   }
 
-  double number(Object obj) {
+  protected double number(Object obj) {
     return ((Number) obj).doubleValue();
   }
 
-  List ensureSize(List list, int size) {
+  protected List ensureSize(List list, int size) {
     if (list.size() < size) {
       throw new IllegalArgumentException(String.format(Locale.ROOT,
           "expected coordinate arary of size %d but is of size %d", size, list.size()));
