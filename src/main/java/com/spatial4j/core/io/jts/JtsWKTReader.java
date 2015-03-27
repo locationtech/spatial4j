@@ -39,7 +39,7 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
- * Extends {@link com.spatial4j.core.io.WktShapeParser} adding support for polygons, using JTS.
+ * Extends {@link com.spatial4j.core.io.WKTReader} adding support for polygons, using JTS.
  */
 public class JtsWKTReader extends WKTReader {
 

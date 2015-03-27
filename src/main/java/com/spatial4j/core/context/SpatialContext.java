@@ -44,7 +44,7 @@ import com.spatial4j.core.shape.impl.RectangleImpl;
 
 /**
  * This is a facade to most of Spatial4j, holding things like {@link DistanceCalculator},
- * {@link com.spatial4j.core.io.WktShapeParser}, and acting as a factory for the {@link Shape}s.
+ * {@link com.spatial4j.core.io.ShapeIO}, and acting as a factory for the {@link Shape}s.
  * <p/>
  * If you want a typical geodetic context, just reference {@link #GEO}.  Otherwise,
  * You should either create and configure a {@link SpatialContextFactory} and then call
@@ -191,7 +191,7 @@ public class SpatialContext {
   }
 
   /** Normalize the 'x' dimension. Might reduce precision or wrap it to be within the bounds. This
-   * is called by {@link com.spatial4j.core.io.WktShapeParser} before creating a shape. */
+   * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
   public double normX(double x) {
     if (normWrapLongitude)
       x = DistanceUtils.normLonDEG(x);
@@ -199,7 +199,7 @@ public class SpatialContext {
   }
 
   /** Normalize the 'y' dimension. Might reduce precision or wrap it to be within the bounds. This
-   * is called by {@link com.spatial4j.core.io.WktShapeParser} before creating a shape. */
+   * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
   public double normY(double y) { return y; }
 
   /** Ensure fits in {@link #getWorldBounds()}. It's called by any shape factory method that
@@ -304,19 +304,17 @@ public class SpatialContext {
     return new ShapeCollection<S>(coll, this);
   }
 
-  /** The {@link com.spatial4j.core.io.WktShapeParser} used by {@link #readShapeFromWkt(String)}. */
-  @Deprecated
+  /** The {@link com.spatial4j.core.io.WKTReader} used by {@link #readShapeFromWkt(String)}. */
   public WKTReader getWktShapeParser() {
     return (WKTReader)getReader(ShapeIO.WKT);
   }
 
   /** Reads a shape from the string formatted in WKT.
-   * @see com.spatial4j.core.io.WktShapeParser
+   * @see com.spatial4j.core.io.WKTReader
    * @param wkt non-null WKT.
    * @return non-null
    * @throws ParseException if it failed to parse.
    */
-  @Deprecated
   public Shape readShapeFromWkt(String wkt) throws ParseException {
     return getWktShapeParser().parse(wkt);
   }

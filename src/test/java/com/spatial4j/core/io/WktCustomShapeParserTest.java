@@ -60,7 +60,7 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
   @Test
   public void testNextSubShapeString() throws ParseException {
 
-    WktShapeParser.State state = ctx.getWktShapeParser().newState("OUTER(INNER(3, 5))");
+    WKTReader.State state = ctx.getWktShapeParser().newState("OUTER(INNER(3, 5))");
     state.offset = 0;
 
     assertEquals("OUTER(INNER(3, 5))", state.nextSubShapeString());
@@ -75,7 +75,7 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
     assertEquals("OUTER(INNER(3".length(), state.offset);
   }
 
-  public static class MyWKTShapeParser extends WktShapeParser {
+  public static class MyWKTShapeParser extends WKTReader {
     public MyWKTShapeParser(SpatialContext ctx, SpatialContextFactory factory) {
       super(ctx, factory);
     }

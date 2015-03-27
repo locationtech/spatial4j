@@ -49,8 +49,10 @@ import java.util.*;
  * <DD>{@code ENVELOPE(xMin, xMax, yMax, yMin)} -- see {@link SpatialContext#getWorldBounds()}</DD>
  * <DT>normWrapLongitude</DT>
  * <DD>true | false (default) -- see {@link SpatialContext#isNormWrapLongitude()}</DD>
- * <DT>wktShapeParserClass</DT>
- * <DD>Java class of the {@link com.spatial4j.core.io.WktShapeParser}</DD>
+ * <DT>readers</DT>
+ * <DD>Comma separated list of {@link com.spatial4j.core.io.ShapeReader} class names</DD>
+ * <DT>writers</DT>
+ * <DD>Comma separated list of {@link com.spatial4j.core.io.ShapeWriter} class names</DD>
  * <DT>binaryCodecClass</DT>
  * <DD>Java class of the {@link com.spatial4j.core.io.BinaryCodec}</DD>
  * </DL>
