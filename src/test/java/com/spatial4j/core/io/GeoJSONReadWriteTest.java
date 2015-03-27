@@ -17,6 +17,7 @@ package com.spatial4j.core.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,6 +41,9 @@ public class GeoJSONReadWriteTest {
     gb = new GeomBuilder();
     reader = ctx.getReader(ShapeIO.GeoJSON);
     writer = ctx.getWriter(ShapeIO.GeoJSON);
+
+    Assert.assertNotNull(reader);
+    Assert.assertNotNull(writer);
   }
 
   @Test

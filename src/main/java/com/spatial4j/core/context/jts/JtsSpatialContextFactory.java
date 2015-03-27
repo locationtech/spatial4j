@@ -75,14 +75,18 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
 
   public JtsSpatialContextFactory() {
     super.binaryCodecClass = JtsBinaryCodec.class;
-    
-    // Don't use the default formats
-    readers.clear();
-    writers.clear();
-    addReaderIfNoggitExists(GeoJSONReaderJTS.class);
-    readers.add(WKTReaderJTS.class);
-    writers.add(WKTWriterJTS.class);
-    writers.add(GeoJSONWriterJTS.class);
+  }
+
+  @Override
+  protected void checkDefaultFormats() {
+    if (readers.isEmpty()){
+      addReaderIfNoggitExists(GeoJSONReaderJTS.class);
+      readers.add(WKTReaderJTS.class);
+    }
+    if (writers.isEmpty()) {
+      writers.add(GeoJSONWriterJTS.class);
+      writers.add(WKTWriterJTS.class);
+    }
   }
   
   @Override

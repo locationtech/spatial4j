@@ -26,6 +26,7 @@ import java.util.Map;
 
 //import org.slf4j.LoggerFactory;
 
+
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
@@ -85,21 +86,7 @@ public class SpatialContextFactory {
   public boolean hasFormatConfig = false;
   
   public SpatialContextFactory() {
-    addReaderIfNoggitExists(GeoJSONReader.class);
-    readers.add(WKTReader.class);
-    writers.add(WKTWriter.class);
-    writers.add(GeoJSONWriter.class);
-  }
-  
-  public void addReaderIfNoggitExists(Class<? extends ShapeReader> reader)
-  {
-    try {
-      Class.forName("org.noggit.JSONParser");
-      readers.add(reader);
-    } 
-    catch(ClassNotFoundException e) {
-      //LoggerFactory.getLogger(getClass()).warn("Unable to support GeoJSON Without Noggit");
-    }
+    
   }
   
   
@@ -214,6 +201,8 @@ public class SpatialContextFactory {
    * we expect it to configure the readers and writers
    */
   protected void initFormats() {
+    checkDefaultFormats();
+    
     try {
       // a parameter from when this was a raw class
       String val = args.get("wktShapeParserClass");
@@ -236,9 +225,35 @@ public class SpatialContextFactory {
           writers.add((Class<? extends ShapeWriter>) Class.forName(name.trim(), false, classLoader));
         }
       }
-    }
-    catch(ClassNotFoundException ex) {
+    } catch(ClassNotFoundException ex) {
       throw new RuntimeException("Unable to find format class", ex);
+    }
+  }
+  
+  // Makes sure we have the default readers
+  protected void checkDefaultFormats() {
+    if (readers.isEmpty()) {
+      addReaderIfNoggitExists(GeoJSONReader.class);
+      readers.add(WKTReader.class);
+    }
+    if (writers.isEmpty()) {
+      writers.add(WKTWriter.class);
+      writers.add(GeoJSONWriter.class);
+    }
+  }
+  
+  public void addReaderIfNoggitExists(Class<? extends ShapeReader> reader)
+  {
+    try {
+      if(classLoader==null) {
+        Class.forName("org.noggit.JSONParser");
+      }
+      else {
+        Class.forName("org.noggit.JSONParser", true, classLoader);
+      }
+      readers.add(reader);
+    } catch(ClassNotFoundException e) {
+      //LoggerFactory.getLogger(getClass()).warn("Unable to support GeoJSON Without Noggit");
     }
   }
   
@@ -266,8 +281,7 @@ public class SpatialContextFactory {
     for(Class<? extends ShapeReader> clazz : readers) {
       try {
         registry.add(makeClassInstance(clazz, ctx, this));
-      }
-      catch(Exception ex) {
+      } catch(Exception ex) {
         throw new RuntimeException(ex);
       }
     }
@@ -279,8 +293,7 @@ public class SpatialContextFactory {
     for(Class<? extends ShapeWriter> clazz : writers) {
       try {
         registry.add(makeClassInstance(clazz, ctx, this));
-      }
-      catch(Exception ex) {
+      } catch(Exception ex) {
         throw new RuntimeException(ex);
       }
     }

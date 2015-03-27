@@ -17,7 +17,6 @@
 
 package com.spatial4j.core.context;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
@@ -133,6 +132,7 @@ public class SpatialContext {
     this.normWrapLongitude = factory.normWrapLongitude && this.isGeo();
     this.binaryCodec = factory.makeBinaryCodec(this);
     
+    factory.checkDefaultFormats();
     this.readers = factory.makeReaders(this);
     this.writers = factory.makeWriters(this);
   }
