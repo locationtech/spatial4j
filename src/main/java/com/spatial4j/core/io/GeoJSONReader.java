@@ -204,7 +204,12 @@ public class GeoJSONReader implements ShapeReader {
   }
 
   /**
-   * Default implementation just makes a bbox
+   * This method takes a polygon and makes a bbox from it
+   * 
+   * NOTE: not currently used!  polygon is currently implemented in:
+   *   {@link GeoJSONReader#makeShapeFromCoords(String, List)}
+   *   
+   * We could add a 'strict' or 'leinent' mode that would try the best it can
    * 
    * @throws ParseException
    */
@@ -335,6 +340,7 @@ public class GeoJSONReader implements ShapeReader {
   }
 
   protected Shape makeShapeFromCoords(String type, List coords) {
+    // TODO?: we could default to making a bbox rather than throwing an error
     throw new RuntimeException("Unsupported: " + type); // JTS Supports this
   }
 }
