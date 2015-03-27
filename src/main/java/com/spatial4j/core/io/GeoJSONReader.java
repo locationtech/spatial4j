@@ -312,7 +312,7 @@ public class GeoJSONReader implements ShapeReader {
 
         case JSONParser.OBJECT_START:
           if (key != null) {
-            System.out.println("Unexpected object: " + key);
+           // System.out.println("Unexpected object: " + key);
           }
           break;
 
@@ -322,7 +322,7 @@ public class GeoJSONReader implements ShapeReader {
         case JSONParser.BOOLEAN:
         case JSONParser.NULL:
         case JSONParser.OBJECT_END:
-          System.out.println(">>>>>" + JSONParser.getEventString(evt) + " :: " + key);
+         // System.out.println(">>>>>" + JSONParser.getEventString(evt) + " :: " + key);
           break;
 
         default:
