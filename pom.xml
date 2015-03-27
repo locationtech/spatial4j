@@ -136,6 +136,12 @@
       <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
+		    
+		<dependency>
+		  <groupId>org.jeo</groupId>
+		  <artifactId>jeo</artifactId>
+		  <version>0.5</version>
+		</dependency>
 
     <dependency>
       <groupId>com.carrotsearch.randomizedtesting</groupId>
@@ -145,6 +151,14 @@
     </dependency>
 
   </dependencies>
+  
+  <repositories>
+	  <repository>
+	    <id>boundless</id>
+	    <name>Boundless Maven Repository</name>
+	    <url>http://repo.boundlessgeo.com/main</url>
+	  </repository>
+	</repositories>
   
   <build>
     
