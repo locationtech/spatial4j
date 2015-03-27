@@ -44,6 +44,7 @@ import com.spatial4j.core.shape.Shape;
  *   </li>
  * </ul>
  */
+@Deprecated
 public class LegacyShapeReader implements ShapeReader {
 
   final SpatialContext ctx;
