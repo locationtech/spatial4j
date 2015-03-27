@@ -184,30 +184,27 @@ public class SpatialContextFactory {
   }
 
   /**
-   * By default, we support GeoJSON and WKT.  If any formats are specified in the config
-   * we expect it to configure the readers and writers
+   * Check args for 'readers' and 'writers'.  The value should be a comma separated list
+   * of class names.
+   * 
+   * The legacy parameter 'wktShapeParserClass' is also supported to add a specific WKT prarser
    */
   protected void initFormats() {
-    checkDefaultFormats();
-
     try {
       String val = args.get("readers");
       if (val != null) {
-        readers.clear();
         for (String name : val.split(",")) {
           readers.add(Class.forName(name.trim(), false, classLoader).asSubclass(ShapeReader.class));
         }
       } else {//deprecated; a parameter from when this was a raw class
         val = args.get("wktShapeParserClass");
         if (val != null) {
-          readers.clear();
           //LoggerFactory.getLogger(getClass()).warn("Using deprecated argument: wktShapeParserClass={}", val);
           readers.add(Class.forName(val.trim(), false, classLoader).asSubclass(ShapeReader.class));
         }
       }
       val = args.get("writers");
       if (val != null) {
-        writers.clear();
         for (String name : val.split(",")) {
           writers.add(Class.forName(name.trim(), false, classLoader).asSubclass(ShapeWriter.class));
         }
@@ -217,15 +214,17 @@ public class SpatialContextFactory {
     }
   }
 
-  // Makes sure we have the default readers
+  /**
+   * If no formats were defined in the config, this will make sure GeoJSON and WKT are registered
+   */
   protected void checkDefaultFormats() {
     if (readers.isEmpty()) {
       addReaderIfNoggitExists(GeoJSONReader.class);
       readers.add(WKTReader.class);
     }
     if (writers.isEmpty()) {
-      writers.add(WKTWriter.class);
       writers.add(GeoJSONWriter.class);
+      writers.add(WKTWriter.class);
     }
   }
 
