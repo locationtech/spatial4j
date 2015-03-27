@@ -22,7 +22,7 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.jts.JtsWKTReaderShapeParser;
-import com.spatial4j.core.io.jts.JtsWktShapeParser;
+import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import org.junit.Test;
@@ -34,8 +34,9 @@ public class JtsWKTReaderShapeParserTest extends RandomizedTest {
   final SpatialContext ctx;
   {
     JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
-    factory.datelineRule = JtsWktShapeParser.DatelineRule.ccwRect;
-    factory.wktShapeParserClass = JtsWKTReaderShapeParser.class;
+    factory.datelineRule = JtsWKTReader.DatelineRule.ccwRect;
+    factory.readers.clear();
+    factory.readers.add( JtsWKTReaderShapeParser.class );
     ctx = factory.newSpatialContext();
   }
 

@@ -21,7 +21,7 @@ import com.carrotsearch.randomizedtesting.RandomizedContext;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import com.spatial4j.core.io.jts.JtsWktShapeParser;
+import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -86,7 +86,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
     testRelations(true);
   }
   public void testRelations(boolean prepare) throws ParseException {
-    assert !((JtsWktShapeParser)ctx.getWktShapeParser()).isAutoIndex();
+    assert !((JtsWKTReader)ctx.getWktShapeParser()).isAutoIndex();
     //base polygon
     JtsGeometry base = (JtsGeometry) ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 5 5, 0 0))");
     //shares only "10 0" with base

@@ -15,20 +15,26 @@
  * limitations under the License.
  */
 
+
 package com.spatial4j.core.io;
 
+import java.io.IOException;
+import java.io.Writer;
+import com.spatial4j.core.shape.Shape;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
 
 /**
- * 
+ * Implementations are expected to be thread safe
  */
-@Deprecated
-public class WktShapeParser extends WKTReader {
+public interface ShapeWriter extends ShapeIO {
 
-  /** This constructor is required by {@link com.spatial4j.core.context.SpatialContextFactory#makeWktShapeParser(com.spatial4j.core.context.SpatialContext)}. */
-  public WktShapeParser(SpatialContext ctx, SpatialContextFactory factory) {
-    super(ctx,factory);
-  }
+  /**
+   * Write a shape to the output writer
+   */
+  public void write(Writer output, Shape shape) throws IOException;
+
+  /**
+   * Write a shape to String
+   */
+  public String toString(Shape shape);
 }

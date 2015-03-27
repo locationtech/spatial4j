@@ -21,8 +21,10 @@ import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
-import com.spatial4j.core.io.jts.JtsWktShapeParser;
+import com.spatial4j.core.io.ShapeIO;
+import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.impl.RectangleImpl;
+
 import org.junit.After;
 import org.junit.Test;
 
@@ -94,10 +96,10 @@ public class SpatialContextFactoryTest {
     assertTrue(ctx.isNormWrapLongitude());
     assertEquals(2.0, ctx.getGeometryFactory().getPrecisionModel().getScale(), 0.0);
     assertTrue(CustomWktShapeParser.once);//cheap way to test it was created
-    assertEquals(JtsWktShapeParser.DatelineRule.ccwRect,
-        ((JtsWktShapeParser)ctx.getWktShapeParser()).getDatelineRule());
-    assertEquals(JtsWktShapeParser.ValidationRule.repairConvexHull,
-        ((JtsWktShapeParser)ctx.getWktShapeParser()).getValidationRule());
+    assertEquals(JtsWKTReader.DatelineRule.ccwRect,
+        ((JtsWKTReader)ctx.getWktShapeParser()).getDatelineRule());
+    assertEquals(JtsWKTReader.ValidationRule.repairConvexHull,
+        ((JtsWKTReader)ctx.getWktShapeParser()).getValidationRule());
 
     //ensure geo=false with worldbounds works -- fixes #72
     ctx = (JtsSpatialContext) call(
@@ -111,6 +113,16 @@ public class SpatialContextFactoryTest {
         "validationRule", "repairConvexHull",
         "autoIndex", "true");
     assertEquals(300, ctx.getWorldBounds().getMaxY(), 0.0);
+  }
+  
+
+  @Test
+  public void testFormatsConfig() {
+    JtsSpatialContext ctx = (JtsSpatialContext) call(
+        "spatialContextFactory", JtsSpatialContextFactory.class.getName(),
+        "readers", CustomWktShapeParser.class.getName());
+    
+    assertTrue( ctx.getReader(ShapeIO.WKT) instanceof CustomWktShapeParser );
   }
   
   @Test
@@ -128,7 +140,7 @@ public class SpatialContextFactoryTest {
     }
   }
 
-  public static class CustomWktShapeParser extends JtsWktShapeParser {
+  public static class CustomWktShapeParser extends JtsWKTReader {
     static boolean once = false;//cheap way to test it was created
     public CustomWktShapeParser(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
       super(ctx, factory);
