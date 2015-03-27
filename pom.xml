@@ -141,6 +141,7 @@
 		  <groupId>org.jeo</groupId>
 		  <artifactId>jeo</artifactId>
 		  <version>0.5</version>
+      <scope>test</scope>
 		</dependency>
 
     <dependency>
