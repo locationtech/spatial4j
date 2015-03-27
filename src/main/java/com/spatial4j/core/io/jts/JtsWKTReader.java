@@ -41,7 +41,7 @@ import com.vividsolutions.jts.geom.Polygon;
 /**
  * Extends {@link com.spatial4j.core.io.WktShapeParser} adding support for polygons, using JTS.
  */
-public class WKTReaderJTS extends WKTReader {
+public class JtsWKTReader extends WKTReader {
 
   protected final JtsSpatialContext ctx;
 
@@ -49,7 +49,7 @@ public class WKTReaderJTS extends WKTReader {
   protected final ValidationRule validationRule;
   protected final boolean autoIndex;
 
-  public WKTReaderJTS(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
+  public JtsWKTReader(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
     super(ctx, factory);
     this.ctx = ctx;
     this.datelineRule = factory.datelineRule;
@@ -57,7 +57,7 @@ public class WKTReaderJTS extends WKTReader {
     this.autoIndex = factory.autoIndex;
   }
 
-  /** @see WKTReaderJTS.ValidationRule */
+  /** @see JtsWKTReader.ValidationRule */
   public ValidationRule getValidationRule() {
     return validationRule;
   }

@@ -37,11 +37,11 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-public class GeoJSONWriterJTS extends GeoJSONWriter {
+public class JtsGeoJSONWriter extends GeoJSONWriter {
 
   protected final JtsSpatialContext ctx;
 
-  public GeoJSONWriterJTS(JtsSpatialContext ctx, SpatialContextFactory factory) {
+  public JtsGeoJSONWriter(JtsSpatialContext ctx, SpatialContextFactory factory) {
     super(ctx, factory);
     this.ctx = ctx;
   }

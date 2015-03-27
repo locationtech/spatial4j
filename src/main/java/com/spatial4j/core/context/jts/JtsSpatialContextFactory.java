@@ -20,11 +20,11 @@ package com.spatial4j.core.context.jts;
 import java.util.Map;
 
 import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.io.jts.GeoJSONReaderJTS;
-import com.spatial4j.core.io.jts.GeoJSONWriterJTS;
+import com.spatial4j.core.io.jts.JtsGeoJSONReader;
+import com.spatial4j.core.io.jts.JtsGeoJSONWriter;
 import com.spatial4j.core.io.jts.JtsBinaryCodec;
-import com.spatial4j.core.io.jts.WKTReaderJTS;
-import com.spatial4j.core.io.jts.WKTWriterJTS;
+import com.spatial4j.core.io.jts.JtsWKTReader;
+import com.spatial4j.core.io.jts.JtsWKTWriter;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -38,12 +38,12 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
  * <DL>
  * <DT>datelineRule</DT>
  * <DD>width180(default)|ccwRect|none
- *  -- see {@link com.spatial4j.core.io.jts.WKTReaderJTS.DatelineRule}</DD>
+ *  -- see {@link com.spatial4j.core.io.jts.JtsWKTReader.DatelineRule}</DD>
  * <DT>validationRule</DT>
  * <DD>error(default)|none|repairConvexHull|repairBuffer0
- *  -- see {@link com.spatial4j.core.io.jts.WKTReaderJTS.ValidationRule}</DD>
+ *  -- see {@link com.spatial4j.core.io.jts.JtsWKTReader.ValidationRule}</DD>
  * <DT>autoIndex</DT>
- * <DD>true|false(default) -- see {@link WKTReaderJTS#isAutoIndex()}</DD>
+ * <DD>true|false(default) -- see {@link JtsWKTReader#isAutoIndex()}</DD>
  * <DT>allowMultiOverlap</DT>
  * <DD>true|false(default) -- see {@link JtsSpatialContext#isAllowMultiOverlap()}</DD>
  * <DT>precisionModel</DT>
@@ -63,9 +63,9 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   public CoordinateSequenceFactory coordinateSequenceFactory = CoordinateArraySequenceFactory.instance();
 
   //ignored if geo=false
-  public WKTReaderJTS.DatelineRule datelineRule = WKTReaderJTS.DatelineRule.width180;
+  public JtsWKTReader.DatelineRule datelineRule = JtsWKTReader.DatelineRule.width180;
 
-  public WKTReaderJTS.ValidationRule validationRule = WKTReaderJTS.ValidationRule.error;
+  public JtsWKTReader.ValidationRule validationRule = JtsWKTReader.ValidationRule.error;
   public boolean autoIndex = false;
   public boolean allowMultiOverlap = false;//ignored if geo=false
 
@@ -80,12 +80,12 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   @Override
   protected void checkDefaultFormats() {
     if (readers.isEmpty()){
-      addReaderIfNoggitExists(GeoJSONReaderJTS.class);
-      readers.add(WKTReaderJTS.class);
+      addReaderIfNoggitExists(JtsGeoJSONReader.class);
+      readers.add(JtsWKTReader.class);
     }
     if (writers.isEmpty()) {
-      writers.add(GeoJSONWriterJTS.class);
-      writers.add(WKTWriterJTS.class);
+      writers.add(JtsGeoJSONWriter.class);
+      writers.add(JtsWKTWriter.class);
     }
   }
   

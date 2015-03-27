@@ -43,11 +43,11 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
 
-public class GeoJSONReaderJTS extends GeoJSONReader {
+public class JtsGeoJSONReader extends GeoJSONReader {
 
   protected final JtsSpatialContext ctx;
 
-  public GeoJSONReaderJTS(JtsSpatialContext ctx, SpatialContextFactory factory) {
+  public JtsGeoJSONReader(JtsSpatialContext ctx, SpatialContextFactory factory) {
     super(ctx, factory);
     this.ctx = ctx;
   }

@@ -26,9 +26,9 @@ import com.spatial4j.core.shape.jts.JtsGeometry;
 /**
  * Writes the WKT using JTS directly
  */
-public class WKTWriterJTS extends WKTWriter {
+public class JtsWKTWriter extends WKTWriter {
 
-  public WKTWriterJTS(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
+  public JtsWKTWriter(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
 
   }
 

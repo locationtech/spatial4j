@@ -22,7 +22,7 @@ import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.io.ShapeIO;
-import com.spatial4j.core.io.jts.WKTReaderJTS;
+import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 
 import org.junit.After;
@@ -96,10 +96,10 @@ public class SpatialContextFactoryTest {
     assertTrue(ctx.isNormWrapLongitude());
     assertEquals(2.0, ctx.getGeometryFactory().getPrecisionModel().getScale(), 0.0);
     assertTrue(CustomWktShapeParser.once);//cheap way to test it was created
-    assertEquals(WKTReaderJTS.DatelineRule.ccwRect,
-        ((WKTReaderJTS)ctx.getWktShapeParser()).getDatelineRule());
-    assertEquals(WKTReaderJTS.ValidationRule.repairConvexHull,
-        ((WKTReaderJTS)ctx.getWktShapeParser()).getValidationRule());
+    assertEquals(JtsWKTReader.DatelineRule.ccwRect,
+        ((JtsWKTReader)ctx.getWktShapeParser()).getDatelineRule());
+    assertEquals(JtsWKTReader.ValidationRule.repairConvexHull,
+        ((JtsWKTReader)ctx.getWktShapeParser()).getValidationRule());
 
     //ensure geo=false with worldbounds works -- fixes #72
     ctx = (JtsSpatialContext) call(
@@ -140,7 +140,7 @@ public class SpatialContextFactoryTest {
     }
   }
 
-  public static class CustomWktShapeParser extends WKTReaderJTS {
+  public static class CustomWktShapeParser extends JtsWKTReader {
     static boolean once = false;//cheap way to test it was created
     public CustomWktShapeParser(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
       super(ctx, factory);
