@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+
 package com.spatial4j.core.io;
 
 
@@ -32,22 +33,22 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * An extensible parser for <a href="http://en.wikipedia.org/wiki/Well-known_text">
- * Well Known Text (WKT)</a>.
- * The shapes supported by this class are:
+ * An extensible parser for <a href="http://en.wikipedia.org/wiki/Well-known_text"> Well Known Text
+ * (WKT)</a>. The shapes supported by this class are:
  * <ul>
- *   <li>POINT</li>
- *   <li>MULTIPOINT</li>
- *   <li>ENVELOPE</li> (strictly isn't WKT but is defined by OGC's
- *   <a href="http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html">Common Query Language (CQL)</a>)
- *   <li>LINESTRING</li>
- *   <li>MULTILINESTRING</li>
- *   <li>GEOMETRYCOLLECTION</li>
- *   <li>BUFFER</li> (non-standard Spatial4j operation)
+ * <li>POINT</li>
+ * <li>MULTIPOINT</li>
+ * <li>ENVELOPE</li> (strictly isn't WKT but is defined by OGC's <a
+ * href="http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html">Common Query
+ * Language (CQL)</a>)
+ * <li>LINESTRING</li>
+ * <li>MULTILINESTRING</li>
+ * <li>GEOMETRYCOLLECTION</li>
+ * <li>BUFFER</li> (non-standard Spatial4j operation)
  * </ul>
  * 'EMPTY' is supported. Specifying 'Z', 'M', or any other dimensionality in the WKT is effectively
- * ignored.  Thus, you can specify any number of numbers in the coordinate points but only the first
- * two take effect.  The javadocs for the <code>parse___Shape</code> methods further describe these
+ * ignored. Thus, you can specify any number of numbers in the coordinate points but only the first
+ * two take effect. The javadocs for the <code>parse___Shape</code> methods further describe these
  * shapes, or you
  *
  * <p />
@@ -56,8 +57,8 @@ import java.util.List;
  *
  * <p />
  * To support more shapes, extend this class and override
- * {@link #parseShapeByType(WKTReader.State, String)}. It's also possible to delegate to
- * a WKTParser by also delegating {@link #newState(String)}.
+ * {@link #parseShapeByType(WKTReader.State, String)}. It's also possible to delegate to a WKTParser
+ * by also delegating {@link #newState(String)}.
  *
  * <p />
  * Note, instances of this base class are threadsafe.
@@ -65,9 +66,13 @@ import java.util.List;
 public class WKTReader implements ShapeReader {
   protected final SpatialContext ctx;
 
-  //TODO support SRID:  "SRID=4326;POINT(1,2)
+  // TODO support SRID: "SRID=4326;POINT(1,2)
 
-  /** This constructor is required by {@link com.spatial4j.core.context.SpatialContextFactory#makeWktShapeParser(com.spatial4j.core.context.SpatialContext)}. */
+  /**
+   * This constructor is required by
+   * {@link com.spatial4j.core.context.SpatialContextFactory#makeWktShapeParser(com.spatial4j.core.context.SpatialContext)}
+   * .
+   */
   public WKTReader(SpatialContext ctx, SpatialContextFactory factory) {
     this.ctx = ctx;
   }
@@ -79,19 +84,20 @@ public class WKTReader implements ShapeReader {
    * @return Non-null Shape defined in the String
    * @throws ParseException Thrown if there is an error in the Shape definition
    */
-  public Shape parse(String wktString)  throws ParseException {
-    Shape shape = parseIfSupported(wktString);//sets rawString & offset
+  public Shape parse(String wktString) throws ParseException {
+    Shape shape = parseIfSupported(wktString);// sets rawString & offset
     if (shape != null)
       return shape;
-    String shortenedString = (wktString.length() <= 128 ? wktString : wktString.substring(0, 128-3)+"...");
+    String shortenedString =
+        (wktString.length() <= 128 ? wktString : wktString.substring(0, 128 - 3) + "...");
     throw new ParseException("Unknown Shape definition [" + shortenedString + "]", 0);
   }
 
   /**
-   * Parses the wktString, returning the defined Shape. If it can't because the
-   * shape name is unknown or an empty or blank string was passed, then it returns null.
-   * If the WKT starts with a supported shape but contains an inner unsupported shape then
-   * it will result in a {@link ParseException}.
+   * Parses the wktString, returning the defined Shape. If it can't because the shape name is
+   * unknown or an empty or blank string was passed, then it returns null. If the WKT starts with a
+   * supported shape but contains an inner unsupported shape then it will result in a
+   * {@link ParseException}.
    *
    * @param wktString non-null, can be empty or have surrounding whitespace
    * @return Shape, null if unknown / unsupported shape.
@@ -99,10 +105,10 @@ public class WKTReader implements ShapeReader {
    */
   public Shape parseIfSupported(String wktString) throws ParseException {
     State state = newState(wktString);
-    state.nextIfWhitespace();//leading
+    state.nextIfWhitespace();// leading
     if (state.eof())
       return null;
-    //shape types must start with a letter
+    // shape types must start with a letter
     if (!Character.isLetter(state.rawString.charAt(state.offset)))
       return null;
     String shapeType = state.nextWord();
@@ -111,7 +117,7 @@ public class WKTReader implements ShapeReader {
       result = parseShapeByType(state, shapeType);
     } catch (ParseException e) {
       throw e;
-    } catch (Exception e) {//most likely InvalidShapeException
+    } catch (Exception e) {// most likely InvalidShapeException
       ParseException pe = new ParseException(e.toString(), state.offset);
       pe.initCause(e);
       throw pe;
@@ -121,26 +127,24 @@ public class WKTReader implements ShapeReader {
     return result;
   }
 
-  /** (internal) Creates a new State with the given String. It's only called by
-   * {@link #parseIfSupported(String)}. This is an extension point for subclassing. */
+  /**
+   * (internal) Creates a new State with the given String. It's only called by
+   * {@link #parseIfSupported(String)}. This is an extension point for subclassing.
+   */
   protected State newState(String wktString) {
-    //NOTE: if we wanted to re-use old States to reduce object allocation, we might do that
+    // NOTE: if we wanted to re-use old States to reduce object allocation, we might do that
     // here. But in the scheme of things, it doesn't seem worth the bother as it complicates the
     // thread-safety story of the API for too little of a gain.
     return new State(wktString);
   }
 
   /**
-   * (internal) Parses the remainder of a shape definition following the shape's name
-   * given as {@code shapeType} already consumed via
-   * {@link State#nextWord()}. If
-   * it's able to parse the shape, {@link WKTReader.State#offset}
-   * should be advanced beyond
-   * it (e.g. to the ',' or ')' or EOF in general). The default implementation
-   * checks the name against some predefined names and calls corresponding
-   * parse methods to handle the rest. Overriding this method is an
-   * excellent extension point for additional shape types. Or, use this class by delegation to this
-   * method.
+   * (internal) Parses the remainder of a shape definition following the shape's name given as
+   * {@code shapeType} already consumed via {@link State#nextWord()}. If it's able to parse the
+   * shape, {@link WKTReader.State#offset} should be advanced beyond it (e.g. to the ',' or ')' or
+   * EOF in general). The default implementation checks the name against some predefined names and
+   * calls corresponding parse methods to handle the rest. Overriding this method is an excellent
+   * extension point for additional shape types. Or, use this class by delegation to this method.
    * <p />
    * When writing a parse method that reacts to a specific shape type, remember to handle the
    * dimension and EMPTY token via
@@ -151,7 +155,7 @@ public class WKTReader implements ShapeReader {
    * @return The shape or null if not supported / unknown.
    */
   protected Shape parseShapeByType(State state, String shapeType) throws ParseException {
-    assert Character.isLetter(shapeType.charAt(0)) : "Shape must start with letter: "+shapeType;
+    assert Character.isLetter(shapeType.charAt(0)) : "Shape must start with letter: " + shapeType;
 
     if (shapeType.equalsIgnoreCase("POINT")) {
       return parsePointShape(state);
@@ -166,7 +170,7 @@ public class WKTReader implements ShapeReader {
     } else if (shapeType.equalsIgnoreCase("MULTILINESTRING")) {
       return parseMultiLineStringShape(state);
     }
-    //extension
+    // extension
     if (shapeType.equalsIgnoreCase("BUFFER")) {
       return parseBufferShape(state);
     }
@@ -177,9 +181,11 @@ public class WKTReader implements ShapeReader {
 
   /**
    * Parses the BUFFER operation applied to a parsed shape.
+   * 
    * <pre>
    *   '(' shape ',' number ')'
    * </pre>
+   * 
    * Whereas 'number' is the distance to buffer the shape by.
    */
   protected Shape parseBufferShape(State state) throws ParseException {
@@ -191,15 +197,17 @@ public class WKTReader implements ShapeReader {
     return shape.getBuffered(distance, ctx);
   }
 
-  /** Called to normalize a value that isn't X or Y. X & Y or normalized via
+  /**
+   * Called to normalize a value that isn't X or Y. X & Y or normalized via
    * {@link com.spatial4j.core.context.SpatialContext#normX(double)} & normY.
    */
-  protected double normDist(double v) {//TODO should this be added to ctx?
+  protected double normDist(double v) {// TODO should this be added to ctx?
     return v;
   }
 
   /**
    * Parses a POINT shape from the raw string.
+   * 
    * <pre>
    *   '(' coordinate ')'
    * </pre>
@@ -217,9 +225,11 @@ public class WKTReader implements ShapeReader {
 
   /**
    * Parses a MULTIPOINT shape from the raw string -- a collection of points.
+   * 
    * <pre>
    *   '(' coordinate (',' coordinate )* ')'
    * </pre>
+   * 
    * Furthermore, coordinate can optionally be wrapped in parenthesis.
    *
    * @see #point(WKTReader.State)
@@ -245,12 +255,13 @@ public class WKTReader implements ShapeReader {
    * <p />
    * Source: OGC "Catalogue Services Specification", the "CQL" (Common Query Language) sub-spec.
    * <em>Note the inconsistent order of the min & max values between x & y!</em>
+   * 
    * <pre>
    *   '(' x1 ',' x2 ',' y2 ',' y1 ')'
    * </pre>
    */
   protected Shape parseEnvelopeShape(State state) throws ParseException {
-    //FYI no dimension or EMPTY
+    // FYI no dimension or EMPTY
     state.nextExpect('(');
     double x1 = state.nextDouble();
     state.nextExpect(',');
@@ -265,8 +276,9 @@ public class WKTReader implements ShapeReader {
 
   /**
    * Parses a LINESTRING shape from the raw string -- an ordered sequence of points.
+   * 
    * <pre>
-   *   coordinateSequence
+   * coordinateSequence
    * </pre>
    *
    * @see #pointList(WKTReader.State)
@@ -280,6 +292,7 @@ public class WKTReader implements ShapeReader {
 
   /**
    * Parses a MULTILINESTRING shape from the raw string -- a collection of line strings.
+   * 
    * <pre>
    *   '(' coordinateSequence (',' coordinateSequence )* ')'
    * </pre>
@@ -300,6 +313,7 @@ public class WKTReader implements ShapeReader {
 
   /**
    * Parses a GEOMETRYCOLLECTION shape from the raw string.
+   * 
    * <pre>
    *   '(' shape (',' shape )* ')'
    * </pre>
@@ -316,19 +330,22 @@ public class WKTReader implements ShapeReader {
     return ctx.makeCollection(shapes);
   }
 
-  /** Reads a shape from the current position, starting with the name of the shape. It
-   * calls {@link #parseShapeByType(com.spatial4j.core.io.WKTReader.State, String)}
-   * and throws an exception if the shape wasn't supported. */
+  /**
+   * Reads a shape from the current position, starting with the name of the shape. It calls
+   * {@link #parseShapeByType(com.spatial4j.core.io.WKTReader.State, String)} and throws an
+   * exception if the shape wasn't supported.
+   */
   protected Shape shape(State state) throws ParseException {
     String type = state.nextWord();
     Shape shape = parseShapeByType(state, type);
     if (shape == null)
-      throw new ParseException("Shape of type "+type+" is unknown", state.offset);
+      throw new ParseException("Shape of type " + type + " is unknown", state.offset);
     return shape;
   }
 
   /**
    * Reads a list of Points (AKA CoordinateSequence) from the current position.
+   * 
    * <pre>
    *   '(' coordinate (',' coordinate )* ')'
    * </pre>
@@ -347,7 +364,8 @@ public class WKTReader implements ShapeReader {
 
   /**
    * Reads a raw Point (AKA Coordinate) from the current position. Only the first 2 numbers are
-   * used.  The values are normalized.
+   * used. The values are normalized.
+   * 
    * <pre>
    *   number number number*
    * </pre>
@@ -372,21 +390,25 @@ public class WKTReader implements ShapeReader {
       this.rawString = rawString;
     }
 
-    public SpatialContext getCtx() { return ctx; }
+    public SpatialContext getCtx() {
+      return ctx;
+    }
 
-    public WKTReader getParser() { return WKTReader.this; }
+    public WKTReader getParser() {
+      return WKTReader.this;
+    }
 
     /**
-     * Reads the word starting at the current character position. The word
-     * terminates once {@link Character#isJavaIdentifierPart(char)} returns false (or EOF).
-     * {@link #offset} is advanced past whitespace.
+     * Reads the word starting at the current character position. The word terminates once
+     * {@link Character#isJavaIdentifierPart(char)} returns false (or EOF). {@link #offset} is
+     * advanced past whitespace.
      *
      * @return Non-null non-empty String.
      */
     public String nextWord() throws ParseException {
       int startOffset = offset;
-      while (offset < rawString.length() &&
-          Character.isJavaIdentifierPart(rawString.charAt(offset))) {
+      while (offset < rawString.length()
+          && Character.isJavaIdentifierPart(rawString.charAt(offset))) {
         offset++;
       }
       if (startOffset == offset)
@@ -397,11 +419,13 @@ public class WKTReader implements ShapeReader {
     }
 
     /**
-     * Skips over a dimensionality token (e.g. 'Z' or 'M') if found, storing in
-     * {@link #dimension}, and then looks for EMPTY, consuming that and whitespace.
+     * Skips over a dimensionality token (e.g. 'Z' or 'M') if found, storing in {@link #dimension},
+     * and then looks for EMPTY, consuming that and whitespace.
+     * 
      * <pre>
      *   dimensionToken? 'EMPTY'?
      * </pre>
+     * 
      * @return True if EMPTY was found.
      */
     public boolean nextIfEmptyAndSkipZM() throws ParseException {
@@ -413,7 +437,7 @@ public class WKTReader implements ShapeReader {
       String word = nextWord();
       if (word.equalsIgnoreCase("EMPTY"))
         return true;
-      //we figure this word is Z or ZM or some other dimensionality signifier. We skip it.
+      // we figure this word is Z or ZM or some other dimensionality signifier. We skip it.
       this.dimension = word;
 
       if (eof())
@@ -424,14 +448,13 @@ public class WKTReader implements ShapeReader {
       word = nextWord();
       if (word.equalsIgnoreCase("EMPTY"))
         return true;
-      throw new ParseException("Expected EMPTY because found dimension; but got ["+word+"]",
+      throw new ParseException("Expected EMPTY because found dimension; but got [" + word + "]",
           offset);
     }
 
     /**
      * Reads in a double from the String. Parses digits with an optional decimal, sign, or exponent.
-     * NaN and Infinity are not supported.
-     * {@link #offset} is advanced past whitespace.
+     * NaN and Infinity are not supported. {@link #offset} is advanced past whitespace.
      *
      * @return Double value
      */
@@ -456,7 +479,7 @@ public class WKTReader implements ShapeReader {
       for (; offset < rawString.length(); offset++) {
         char c = rawString.charAt(offset);
         if (!(Character.isDigit(c) || c == '.' || c == '-' || c == '+')) {
-          //'e' is okay as long as it isn't first
+          // 'e' is okay as long as it isn't first
           if (offset != startOffset && (c == 'e' || c == 'E'))
             continue;
           break;
@@ -476,9 +499,8 @@ public class WKTReader implements ShapeReader {
     }
 
     /**
-     * Verifies that the current character is of the expected value.
-     * If the character is the expected value, then it is consumed and
-     * {@link #offset} is advanced past whitespace.
+     * Verifies that the current character is of the expected value. If the character is the
+     * expected value, then it is consumed and {@link #offset} is advanced past whitespace.
      *
      * @param expected The expected char.
      */
@@ -527,28 +549,28 @@ public class WKTReader implements ShapeReader {
     }
 
     /**
-     * Returns the next chunk of text till the next ',' or ')' (non-inclusive)
-     * or EOF. If a '(' is encountered, then it looks past its matching ')',
-     * taking care to handle nested matching parenthesis too. It's designed to be
-     * of use to subclasses that wish to get the entire subshape at the current
-     * position as a string so that it might be passed to other software that
-     * will parse it.
+     * Returns the next chunk of text till the next ',' or ')' (non-inclusive) or EOF. If a '(' is
+     * encountered, then it looks past its matching ')', taking care to handle nested matching
+     * parenthesis too. It's designed to be of use to subclasses that wish to get the entire
+     * subshape at the current position as a string so that it might be passed to other software
+     * that will parse it.
      * <p/>
      * Example:
+     * 
      * <pre>
-     *   OUTER(INNER(3, 5))
+     * OUTER(INNER(3, 5))
      * </pre>
-     * If this is called when offset is at the first character, then it will
-     * return this whole string.  If called at the "I" then it will return
-     * "INNER(3, 5)".  If called at "3", then it will return "3".  In all cases,
-     * offset will be positioned at the next position following the returned
-     * substring.
+     * 
+     * If this is called when offset is at the first character, then it will return this whole
+     * string. If called at the "I" then it will return "INNER(3, 5)". If called at "3", then it
+     * will return "3". In all cases, offset will be positioned at the next position following the
+     * returned substring.
      *
      * @return non-null substring.
      */
     public String nextSubShapeString() throws ParseException {
       int startOffset = offset;
-      int parenStack = 0;//how many parenthesis levels are we in?
+      int parenStack = 0;// how many parenthesis levels are we in?
       for (; offset < rawString.length(); offset++) {
         char c = rawString.charAt(offset);
         if (c == ',') {
@@ -567,7 +589,7 @@ public class WKTReader implements ShapeReader {
       return rawString.substring(startOffset, offset);
     }
 
-  }//class State
+  }// class State
 
   @Override
   public String getFormatName() {
@@ -580,7 +602,7 @@ public class WKTReader implements ShapeReader {
     StringBuilder buffer = new StringBuilder();
     int numCharsRead;
     while ((numCharsRead = reader.read(arr, 0, arr.length)) != -1) {
-        buffer.append(arr, 0, numCharsRead);
+      buffer.append(arr, 0, numCharsRead);
     }
     return parse(buffer.toString());
   }
@@ -593,9 +615,9 @@ public class WKTReader implements ShapeReader {
   @Override
   public Shape readIfSupported(Object value) throws InvalidShapeException {
     try {
-      return parseIfSupported(value.toString()) ;
-    } 
-    catch (ParseException e) {}
+      return parseIfSupported(value.toString());
+    } catch (ParseException e) {
+    }
     return null;
   }
 }

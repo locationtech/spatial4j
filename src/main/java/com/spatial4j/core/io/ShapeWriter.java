@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+
 package com.spatial4j.core.io;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ import com.spatial4j.core.shape.Shape;
  * Implementations are expected to be thread safe
  */
 public interface ShapeWriter extends ShapeIO {
-  
+
   /**
    * Write a shape to the output writer
    */

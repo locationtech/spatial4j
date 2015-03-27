@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
+
 package com.spatial4j.core.io;
 
 
 public interface ShapeIO {
   public static final String WKT = "WKT";
   public static final String GeoJSON = "GeoJSON";
-  
+
   /**
    * @return the format name
    */

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+
 package com.spatial4j.core.io.jts;
 
 import java.text.ParseException;
@@ -71,6 +72,7 @@ public class WKTReaderJTS extends WKTReader {
 
   /**
    * If JtsGeometry shapes should be automatically prepared (i.e. optimized) when read via WKT.
+   * 
    * @see com.spatial4j.core.shape.jts.JtsGeometry#index()
    */
   public boolean isAutoIndex() {
@@ -93,7 +95,8 @@ public class WKTReaderJTS extends WKTReader {
     return super.parseShapeByType(state, shapeType);
   }
 
-  /** Bypasses {@link JtsSpatialContext#makeLineString(java.util.List)} so that we can more
+  /**
+   * Bypasses {@link JtsSpatialContext#makeLineString(java.util.List)} so that we can more
    * efficiently get the LineString without creating a {@code List<Point>}.
    */
   @Override
@@ -111,22 +114,25 @@ public class WKTReaderJTS extends WKTReader {
   }
 
   /**
-   * Parses a POLYGON shape from the raw string. It might return a {@link com.spatial4j.core.shape.Rectangle}
-   * if the polygon is one.
+   * Parses a POLYGON shape from the raw string. It might return a
+   * {@link com.spatial4j.core.shape.Rectangle} if the polygon is one.
+   * 
    * <pre>
-   *   coordinateSequenceList
+   * coordinateSequenceList
    * </pre>
    */
   protected Shape parsePolygonShape(WKTReader.State state) throws ParseException {
     Geometry geometry;
     if (state.nextIfEmptyAndSkipZM()) {
       GeometryFactory geometryFactory = ctx.getGeometryFactory();
-      geometry = geometryFactory.createPolygon(geometryFactory.createLinearRing(
-          new Coordinate[]{}), null);
+      geometry =
+          geometryFactory
+              .createPolygon(geometryFactory.createLinearRing(new Coordinate[] {}), null);
     } else {
       geometry = polygon(state);
       if (geometry.isRectangle()) {
-        //TODO although, might want to never convert if there's a semantic difference (e.g. geodetically)
+        // TODO although, might want to never convert if there's a semantic difference (e.g.
+        // geodetically)
         return makeRectFromPoly(geometry);
       }
     }
@@ -140,7 +146,7 @@ public class WKTReaderJTS extends WKTReader {
     if (ctx.isGeo() && getDatelineRule() != DatelineRule.none) {
       if (getDatelineRule() == DatelineRule.ccwRect) {
         // If JTS says it is clockwise, then it's actually a dateline crossing rectangle.
-        crossesDateline = ! CGAlgorithms.isCCW(geometry.getCoordinates());
+        crossesDateline = !CGAlgorithms.isCCW(geometry.getCoordinates());
       } else {
         crossesDateline = env.getWidth() > 180;
       }
@@ -159,8 +165,7 @@ public class WKTReaderJTS extends WKTReader {
 
     List<Coordinate[]> coordinateSequenceList = coordinateSequenceList(state);
 
-    LinearRing shell = geometryFactory.createLinearRing
-        (coordinateSequenceList.get(0));
+    LinearRing shell = geometryFactory.createLinearRing(coordinateSequenceList.get(0));
 
     LinearRing[] holes = null;
     if (coordinateSequenceList.size() > 1) {
@@ -174,6 +179,7 @@ public class WKTReaderJTS extends WKTReader {
 
   /**
    * Parses a MULTIPOLYGON shape from the raw string.
+   * 
    * <pre>
    *   '(' polygon (',' polygon )* ')'
    * </pre>
@@ -195,6 +201,7 @@ public class WKTReaderJTS extends WKTReader {
 
   /**
    * Reads a list of JTS Coordinate sequences from the current position.
+   * 
    * <pre>
    *   '(' coordinateSequence (',' coordinateSequence )* ')'
    * </pre>
@@ -211,6 +218,7 @@ public class WKTReaderJTS extends WKTReader {
 
   /**
    * Reads a JTS Coordinate sequence from the current position.
+   * 
    * <pre>
    *   '(' coordinate (',' coordinate )* ')'
    * </pre>
@@ -226,9 +234,9 @@ public class WKTReaderJTS extends WKTReader {
   }
 
   /**
-   * Reads a {@link com.vividsolutions.jts.geom.Coordinate} from the current position.
-   * It's akin to {@link #point(com.spatial4j.core.io.WKTReader.State)} but for
-   * a JTS Coordinate.  Only the first 2 numbers are parsed; any remaining are ignored.
+   * Reads a {@link com.vividsolutions.jts.geom.Coordinate} from the current position. It's akin to
+   * {@link #point(com.spatial4j.core.io.WKTReader.State)} but for a JTS Coordinate. Only the first
+   * 2 numbers are parsed; any remaining are ignored.
    */
   protected Coordinate coordinate(WKTReader.State state) throws ParseException {
     double x = ctx.normX(state.nextDouble());
@@ -253,14 +261,15 @@ public class WKTReaderJTS extends WKTReader {
       if (isAutoValidate())
         jtsGeom.validate();
     } catch (RuntimeException e) {
-      //repair:
+      // repair:
       if (validationRule == ValidationRule.repairConvexHull) {
         jtsGeom = ctx.makeShape(geometry.convexHull(), dateline180Check, ctx.isAllowMultiOverlap());
       } else if (validationRule == ValidationRule.repairBuffer0) {
         jtsGeom = ctx.makeShape(geometry.buffer(0), dateline180Check, ctx.isAllowMultiOverlap());
       } else {
-        //TODO there are other smarter things we could do like repairing inner holes and subtracting
-        //  from outer repaired shell; but we needn't try too hard.
+        // TODO there are other smarter things we could do like repairing inner holes and
+        // subtracting
+        // from outer repaired shell; but we needn't try too hard.
         throw e;
       }
     }
@@ -277,13 +286,14 @@ public class WKTReaderJTS extends WKTReader {
     /** No polygon will cross the dateline. */
     none,
 
-    /** Adjacent points with an x (longitude) difference that spans more than half
-     * way around the globe will be interpreted as going the other (shorter) way, and thus cross the
-     * dateline.
+    /**
+     * Adjacent points with an x (longitude) difference that spans more than half way around the
+     * globe will be interpreted as going the other (shorter) way, and thus cross the dateline.
      */
-    width180,//TODO is there a better name that doesn't have '180' in it?
+    width180, // TODO is there a better name that doesn't have '180' in it?
 
-    /** For rectangular polygons, the point order is interpreted as being counter-clockwise (CCW).
+    /**
+     * For rectangular polygons, the point order is interpreted as being counter-clockwise (CCW).
      * However, non-rectangular polygons or other shapes aren't processed this way; they use the
      * {@link #width180} rule instead. The CCW rule is specified by OGC Simple Features
      * Specification v. 1.2.0 section 6.1.11.1.
@@ -291,35 +301,46 @@ public class WKTReaderJTS extends WKTReader {
     ccwRect
   }
 
-  /** Indicates how JTS geometries (notably polygons but applies to other geometries too) are
+  /**
+   * Indicates how JTS geometries (notably polygons but applies to other geometries too) are
    * validated (if at all) and repaired (if at all).
    */
   public enum ValidationRule {
-    /** Geometries will not be validated (because it's kinda expensive to calculate). You may or may
+    /**
+     * Geometries will not be validated (because it's kinda expensive to calculate). You may or may
      * not ultimately get an error at some point; results are undefined. However, note that
      * coordinates will still be validated for falling within the world boundaries.
-     * @see com.vividsolutions.jts.geom.Geometry#isValid(). */
+     * 
+     * @see com.vividsolutions.jts.geom.Geometry#isValid().
+     */
     none,
 
-    /** Geometries will be explicitly validated on creation, possibly resulting in an exception:
-     * {@link com.spatial4j.core.exception.InvalidShapeException}. */
+    /**
+     * Geometries will be explicitly validated on creation, possibly resulting in an exception:
+     * {@link com.spatial4j.core.exception.InvalidShapeException}.
+     */
     error,
 
-    /** Invalid Geometries are repaired by taking the convex hull. The result will very likely be a
-     * larger shape that matches false-positives, but no false-negatives.
-     * See {@link com.vividsolutions.jts.geom.Geometry#convexHull()}. */
+    /**
+     * Invalid Geometries are repaired by taking the convex hull. The result will very likely be a
+     * larger shape that matches false-positives, but no false-negatives. See
+     * {@link com.vividsolutions.jts.geom.Geometry#convexHull()}.
+     */
     repairConvexHull,
 
-    /** Invalid polygons are repaired using the {@code buffer(0)} technique. From the <a
+    /**
+     * Invalid polygons are repaired using the {@code buffer(0)} technique. From the <a
      * href="http://tsusiatsoftware.net/jts/jts-faq/jts-faq.html">JTS FAQ</a>:
-     * <p>The buffer operation is fairly insensitive to topological invalidity, and the act of
+     * <p>
+     * The buffer operation is fairly insensitive to topological invalidity, and the act of
      * computing the buffer can often resolve minor issues such as self-intersecting rings. However,
      * in some situations the computed result may not be what is desired (i.e. the buffer operation
      * may be "confused" by certain topologies, and fail to produce a result which is close to the
      * original. An example where this can happen is a "bow-tie: or "figure-8" polygon, with one
      * very small lobe and one large one. Depending on the orientations of the lobes, the buffer(0)
      * operation may keep the small lobe and discard the "valid" large lobe).
-     * </p> */
+     * </p>
+     */
     repairBuffer0
   }
 }

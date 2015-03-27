@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.spatial4j.core.io.jts;
 
 import java.io.IOException;
@@ -29,25 +46,25 @@ import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
 public class GeoJSONReaderJTS extends GeoJSONReader {
 
   protected final JtsSpatialContext ctx;
-  
-  public GeoJSONReaderJTS(JtsSpatialContext ctx,  SpatialContextFactory factory) {
+
+  public GeoJSONReaderJTS(JtsSpatialContext ctx, SpatialContextFactory factory) {
     super(ctx, factory);
     this.ctx = ctx;
   }
 
-  //--------------------------------------------------------------
+  // --------------------------------------------------------------
   // Read GeoJSON
-  //--------------------------------------------------------------
-  
+  // --------------------------------------------------------------
+
   public Coordinate readCoord(JSONParser parser) throws IOException, ParseException {
-    assert(parser.lastEvent()==JSONParser.ARRAY_START);
-    
+    assert (parser.lastEvent() == JSONParser.ARRAY_START);
+
     Coordinate coord = new Coordinate();
     int idx = 0;
-    
+
     int evt = parser.nextEvent();
-    while( evt != JSONParser.EOF ) {
-      switch(evt) {
+    while (evt != JSONParser.EOF) {
+      switch (evt) {
         case JSONParser.LONG:
         case JSONParser.NUMBER:
         case JSONParser.BIGNUMBER:
@@ -64,7 +81,8 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
         case JSONParser.OBJECT_END:
         case JSONParser.ARRAY_START:
         default:
-          throw new ParseException("Unexpected "+JSONParser.getEventString(evt), (int)parser.getPosition());
+          throw new ParseException("Unexpected " + JSONParser.getEventString(evt),
+              (int) parser.getPosition());
       }
       evt = parser.nextEvent();
     }
@@ -72,12 +90,12 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
   }
 
   public List<Coordinate> readCoordList(JSONParser parser) throws IOException, ParseException {
-    assert(parser.lastEvent()==JSONParser.ARRAY_START);
-    
+    assert (parser.lastEvent() == JSONParser.ARRAY_START);
+
     List<Coordinate> coords = new ArrayList<Coordinate>();
     int evt = parser.nextEvent();
-    while( evt != JSONParser.EOF ) {
-      switch(evt) {
+    while (evt != JSONParser.EOF) {
+      switch (evt) {
         case JSONParser.ARRAY_START:
           coords.add(readCoord(parser));
           break;
@@ -86,35 +104,37 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
           return coords;
 
         default:
-          throw new ParseException("Unexpected "+JSONParser.getEventString(evt), (int)parser.getPosition());
+          throw new ParseException("Unexpected " + JSONParser.getEventString(evt),
+              (int) parser.getPosition());
       }
       evt = parser.nextEvent();
     }
     return coords;
   }
-  
+
   @Override
   protected Shape readPoint(JSONParser parser) throws IOException, ParseException {
-    assert(parser.lastEvent()==JSONParser.ARRAY_START);
+    assert (parser.lastEvent() == JSONParser.ARRAY_START);
     Coordinate coord = readCoord(parser);
     return ctx.makePoint(coord.x, coord.y);
   }
 
   @Override
   protected Shape readLineString(JSONParser parser) throws IOException, ParseException {
-    assert(parser.lastEvent()==JSONParser.ARRAY_START);
+    assert (parser.lastEvent() == JSONParser.ARRAY_START);
     List<Coordinate> coords = readCoordList(parser);
-    
+
     GeometryFactory factory = ctx.getGeometryFactory();
-    CoordinateSequence seq = factory.getCoordinateSequenceFactory()
-        .create(coords.toArray(new Coordinate[coords.size()]));
+    CoordinateSequence seq =
+        factory.getCoordinateSequenceFactory()
+            .create(coords.toArray(new Coordinate[coords.size()]));
     LineString geo = ctx.getGeometryFactory().createLineString(seq);
     return ctx.makeShape(geo);
   }
 
   @Override
   protected Shape readPolygon(JSONParser parser) throws IOException, ParseException {
-    assert(parser.lastEvent()==JSONParser.ARRAY_START);
+    assert (parser.lastEvent() == JSONParser.ARRAY_START);
     GeometryFactory gf = ctx.getGeometryFactory();
     return ctx.makeShape(createPolygon(gf, readCoordinates(parser)));
   }
@@ -122,27 +142,27 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
   @Override
   protected Shape makeShapeFromCoords(String type, List coords) {
     GeometryFactory gf = ctx.getGeometryFactory();
-    
+
     if ("Polygon".equals(type)) {
-      return ctx.makeShape(createPolygon(gf,coords));
+      return ctx.makeShape(createPolygon(gf, coords));
     }
     if ("MultiPoint".equals(type)) {
-      return ctx.makeShape(createMultiPoint(gf,coords));
+      return ctx.makeShape(createMultiPoint(gf, coords));
     }
     if ("MultiLineString".equals(type)) {
-      return ctx.makeShape(createMultiLineString(gf,coords));
+      return ctx.makeShape(createMultiLineString(gf, coords));
     }
-    if("MultiPolygon".equals(type)) {
-      return ctx.makeShape(createMultiPolygon(gf,coords));
+    if ("MultiPolygon".equals(type)) {
+      return ctx.makeShape(createMultiPolygon(gf, coords));
     }
     return null;
   }
 
 
-  //--------------------------------------------------------------
+  // --------------------------------------------------------------
   // FROM JEO.ORG:
   // https://github.com/jeo/jeo/blob/master/core/src/main/java/org/jeo/geojson/parser/GeometryHandler.java#L111
-  //--------------------------------------------------------------
+  // --------------------------------------------------------------
 
   Point createPoint(GeometryFactory gf, List list) {
     return gf.createPoint(coord(list));
@@ -153,11 +173,11 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
   }
 
   Polygon createPolygon(GeometryFactory gf, List list) {
-    LinearRing shell = gf.createLinearRing(coordseq((List)ensureSize(list, 1).get(0)));
-    LinearRing[] holes = list.size() > 1 ? new LinearRing[list.size()-1] : null;
+    LinearRing shell = gf.createLinearRing(coordseq((List) ensureSize(list, 1).get(0)));
+    LinearRing[] holes = list.size() > 1 ? new LinearRing[list.size() - 1] : null;
 
     for (int i = 1; i < list.size(); i++) {
-      holes[i-1] = gf.createLinearRing(coordseq((List) list.get(i))); 
+      holes[i - 1] = gf.createLinearRing(coordseq((List) list.get(i)));
     }
     return gf.createPolygon(shell, holes);
   }
@@ -167,7 +187,7 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
   }
 
   MultiLineString createMultiLineString(GeometryFactory gf, List list) {
-    LineString[] lines =  new LineString[ensureSize(list, 1).size()];
+    LineString[] lines = new LineString[ensureSize(list, 1).size()];
     for (int i = 0; i < list.size(); i++) {
       lines[i] = createLineString(gf, (List) list.get(i));
     }
@@ -175,7 +195,7 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
   }
 
   MultiPolygon createMultiPolygon(GeometryFactory gf, List list) {
-    Polygon[] polys =  new Polygon[ensureSize(list, 1).size()];
+    Polygon[] polys = new Polygon[ensureSize(list, 1).size()];
     for (int i = 0; i < list.size(); i++) {
       polys[i] = createPolygon(gf, (List) list.get(i));
     }
@@ -183,7 +203,7 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
   }
 
   GeometryCollection createGeometryCollection(GeometryFactory gf, List geoms) {
-    return gf.createGeometryCollection((Geometry[])geoms.toArray(new Geometry[geoms.size()]));
+    return gf.createGeometryCollection((Geometry[]) geoms.toArray(new Geometry[geoms.size()]));
   }
 
   Coordinate coord(List list) {
@@ -204,7 +224,7 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
     ensureSize(list, 1);
 
     int dim = ensureSize((List) list.get(0), 2).size();
-    
+
     CoordinateSequence seq =
         PackedCoordinateSequenceFactory.DOUBLE_FACTORY.create(list.size(), dim);
 
@@ -222,12 +242,12 @@ public class GeoJSONReaderJTS extends GeoJSONReader {
   }
 
   double number(Object obj) {
-    return ((Number)obj).doubleValue();
+    return ((Number) obj).doubleValue();
   }
 
   List ensureSize(List list, int size) {
     if (list.size() < size) {
-      throw new IllegalArgumentException(String.format( Locale.ROOT,
+      throw new IllegalArgumentException(String.format(Locale.ROOT,
           "expected coordinate arary of size %d but is of size %d", size, list.size()));
     }
     return list;

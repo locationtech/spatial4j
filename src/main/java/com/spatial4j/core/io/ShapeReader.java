@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+
 package com.spatial4j.core.io;
 
 import java.io.IOException;
@@ -35,20 +36,21 @@ public interface ShapeReader extends ShapeIO {
    * @return a shape valid shape (not null)
    */
   public Shape read(Object value) throws IOException, ParseException, InvalidShapeException;
-  
+
   /**
    * @param value -- the input value, could be a String or other object
    * @param error -- flag if we should throw an error or not (true will throw an error)
    * @return a shape or null, if the input was un readable.
    * 
-   * This will throw {@link InvalidShapeException} when we could read a shape, but it was invalid
+   *         This will throw {@link InvalidShapeException} when we could read a shape, but it was
+   *         invalid
    */
   public Shape readIfSupported(Object value) throws InvalidShapeException;
-  
+
   /**
-   * Read a {@link Shape} from the reader.  
+   * Read a {@link Shape} from the reader.
    * 
-   * @param reader -- the input.  Note, it will not be closed by this function
+   * @param reader -- the input. Note, it will not be closed by this function
    * @return a valid Shape (never null)
    * @throws IOException
    * @throws ParseException

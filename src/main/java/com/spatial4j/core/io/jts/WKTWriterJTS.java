@@ -27,15 +27,15 @@ import com.spatial4j.core.shape.jts.JtsGeometry;
  * Writes the WKT using JTS directly
  */
 public class WKTWriterJTS extends WKTWriter {
-  
+
   public WKTWriterJTS(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
-    
+
   }
-  
+
   @Override
   public String toString(Shape shape) {
     if (shape instanceof JtsGeometry) {
-      return((JtsGeometry)shape).getGeom().toText();
+      return ((JtsGeometry) shape).getGeom().toText();
     }
     return super.toString(shape);
   }
