@@ -315,7 +315,7 @@ public class SpatialContext {
    * @return non-null
    * @throws ParseException if it failed to parse.
    */
-  public Shape readShapeFromWkt(String wkt) throws ParseException {
+  public Shape readShapeFromWkt(String wkt) throws ParseException, InvalidShapeException {
     return getWktShapeParser().parse(wkt);
   }
 
