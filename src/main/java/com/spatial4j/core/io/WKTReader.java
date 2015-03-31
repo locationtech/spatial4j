@@ -84,7 +84,7 @@ public class WKTReader implements ShapeReader {
    * @return Non-null Shape defined in the String
    * @throws ParseException Thrown if there is an error in the Shape definition
    */
-  public Shape parse(String wktString) throws ParseException {
+  public Shape parse(String wktString) throws ParseException, InvalidShapeException {
     Shape shape = parseIfSupported(wktString);// sets rawString & offset
     if (shape != null)
       return shape;
@@ -103,7 +103,7 @@ public class WKTReader implements ShapeReader {
    * @return Shape, null if unknown / unsupported shape.
    * @throws ParseException Thrown if there is an error in the Shape definition
    */
-  public Shape parseIfSupported(String wktString) throws ParseException {
+  public Shape parseIfSupported(String wktString) throws ParseException, InvalidShapeException {
     State state = newState(wktString);
     state.nextIfWhitespace();// leading
     if (state.eof())
@@ -117,7 +117,11 @@ public class WKTReader implements ShapeReader {
       result = parseShapeByType(state, shapeType);
     } catch (ParseException e) {
       throw e;
-    } catch (Exception e) {// most likely InvalidShapeException
+    } catch (InvalidShapeException e) {
+      throw e;
+    } catch (IllegalArgumentException e) { // JTS Throws IllegalArgment for bad WKT
+      throw new InvalidShapeException(e.getMessage(), e);
+    } catch (Exception e) {
       ParseException pe = new ParseException(e.toString(), state.offset);
       pe.initCause(e);
       throw pe;

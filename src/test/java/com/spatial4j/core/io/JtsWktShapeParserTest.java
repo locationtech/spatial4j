@@ -19,6 +19,7 @@ package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
+import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
@@ -26,6 +27,7 @@ import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -143,20 +145,20 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   }
 
   @Test
-  public void testWrapTopologyException() {
+  public void testWrapTopologyException() throws Exception {
     //test that we can catch ParseException without having to detect TopologyException too
     assert ((JtsWKTReader)ctx.getWktShapeParser()).isAutoValidate();
     try {
       ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 10 20))");//doesn't connect around
       fail();
-    } catch (ParseException e) {
+    } catch (InvalidShapeException e) {
       //expected
     }
 
     try {
       ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 10 20, 5 -5, 0 20, 0 0))");//Topology self-intersect
       fail();
-    } catch (ParseException e) {
+    } catch (InvalidShapeException e) {
       //expected
     }
   }

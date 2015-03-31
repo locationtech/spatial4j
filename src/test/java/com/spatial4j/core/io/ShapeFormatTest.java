@@ -32,6 +32,8 @@ import org.junit.Test;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.Shape;
 
 /**
@@ -75,9 +77,6 @@ public class ShapeFormatTest {
     ShapeWriter writer = ctx.getWriter(name);
     Shape shape = null;
     
-//    String wkt = readFirstLineFromRsrc("/fiji.wkt.txt");
-//    shape = ctx.readShape(wkt);
-//  //  testReadAndWriteTheSame(shape,format);
 //    
 //    wkt = readFirstLineFromRsrc("/russia.wkt.txt");
 //    shape = ctx.readShape(wkt);
@@ -119,6 +118,43 @@ public class ShapeFormatTest {
     testCommon(SpatialContext.GEO, format);
     testCommon(JtsSpatialContext.GEO, format);
     testJTS(JtsSpatialContext.GEO, format);
+  }
+  
+  public void testParseVsInvalidExceptions(WKTReader reader) throws Exception
+  {
+    String txt = null;
+    try {
+      txt = "garbage";
+      reader.read(txt);
+      fail("should throw invalid exception");
+    } catch(ParseException ex) { 
+      //expected
+    }
+    
+    try {
+      txt = "POINT(-1000 1000)";
+      reader.read(txt);
+      fail("should throw invalid shape");
+    } catch(InvalidShapeException ex) { 
+      //expected
+    }
+    
+    if(reader instanceof JtsWKTReader) {
+      try {
+        txt = readFirstLineFromRsrc("/fiji.wkt.txt");
+        reader.read(txt);
+        fail("should throw invalid exception");
+      } catch(InvalidShapeException ex) { 
+        //expected
+      }
+    }
+  }
+
+  @Test
+  public void testParseVsInvalidExceptions() throws Exception
+  {
+    testParseVsInvalidExceptions(SpatialContext.GEO.getWktShapeParser());
+    testParseVsInvalidExceptions(JtsSpatialContext.GEO.getWktShapeParser());
   }
   
 
