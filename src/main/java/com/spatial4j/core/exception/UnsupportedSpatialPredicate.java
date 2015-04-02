@@ -1,4 +1,6 @@
-package com.spatial4j.core.query;
+package com.spatial4j.core.exception;
+
+import com.spatial4j.core.SpatialPredicate;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -20,9 +22,9 @@ package com.spatial4j.core.query;
 /**
  * Exception thrown when the {@link org.apache.lucene.spatial.SpatialStrategy} cannot implement the requested operation.
  */
-public class UnsupportedSpatialOperation extends UnsupportedOperationException {
+public class UnsupportedSpatialPredicate extends UnsupportedOperationException {
 
-  public UnsupportedSpatialOperation(SpatialPredicate op) {
+  public UnsupportedSpatialPredicate(SpatialPredicate op) {
     super(op.getName());
   }
 }

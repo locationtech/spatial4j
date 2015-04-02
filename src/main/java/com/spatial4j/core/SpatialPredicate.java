@@ -1,4 +1,4 @@
-package com.spatial4j.core.query;
+package com.spatial4j.core;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
