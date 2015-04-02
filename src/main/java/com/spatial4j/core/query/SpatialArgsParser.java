@@ -40,8 +40,6 @@ import java.util.StringTokenizer;
  * In the future it would be good to support something at least semi-standardized like a
  * variant of <a href="http://docs.geoserver.org/latest/en/user/filter/ecql_reference.html#spatial-predicate">
  *   [E]CQL</a>.
- *
- * @lucene.experimental
  */
 public class SpatialArgsParser {
 

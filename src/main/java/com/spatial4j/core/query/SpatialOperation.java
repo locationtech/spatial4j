@@ -40,8 +40,6 @@ import java.util.Map;
  * @see <a href="http://en.wikipedia.org/wiki/DE-9IM">DE-9IM at Wikipedia, based on OGC specs</a>
  * @see <a href="http://edndoc.esri.com/arcsde/9.1/general_topics/understand_spatial_relations.htm">
  *   ESRIs docs on spatial relations</a>
- *
- * @lucene.experimental
  */
 public abstract class SpatialOperation implements Serializable {
   //TODO rename to SpatialPredicate. Use enum?  LUCENE-5771
