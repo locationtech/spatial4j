@@ -41,24 +41,24 @@ import java.util.Map;
  * @see <a href="http://edndoc.esri.com/arcsde/9.1/general_topics/understand_spatial_relations.htm">
  *   ESRIs docs on spatial relations</a>
  */
-public abstract class SpatialOperation implements Serializable {
-  //TODO rename to SpatialPredicate. Use enum?  LUCENE-5771
+public abstract class SpatialPredicate implements Serializable {
+  //TODO? Use enum?  LUCENE-5771
 
   // Private registry
-  private static final Map<String, SpatialOperation> registry = new HashMap<>();//has aliases
-  private static final List<SpatialOperation> list = new ArrayList<>();
+  private static final Map<String, SpatialPredicate> registry = new HashMap<>();//has aliases
+  private static final List<SpatialPredicate> list = new ArrayList<>();
 
   // Geometry Operations
 
   /** Bounding box of the *indexed* shape, then {@link #Intersects}. */
-  public static final SpatialOperation BBoxIntersects = new SpatialOperation("BBoxIntersects") {
+  public static final SpatialPredicate BBoxIntersects = new SpatialPredicate("BBoxIntersects") {
     @Override
     public boolean evaluate(Shape indexedShape, Shape queryShape) {
       return indexedShape.getBoundingBox().relate(queryShape).intersects();
     }
   };
   /** Bounding box of the *indexed* shape, then {@link #IsWithin}. */
-  public static final SpatialOperation BBoxWithin     = new SpatialOperation("BBoxWithin") {
+  public static final SpatialPredicate BBoxWithin     = new SpatialPredicate("BBoxWithin") {
     {
       register("BBoxCoveredBy");//alias -- the better name
     }
@@ -69,7 +69,7 @@ public abstract class SpatialOperation implements Serializable {
     }
   };
   /** Meets the "Covers" OGC definition (boundary-neutral). */
-  public static final SpatialOperation Contains       = new SpatialOperation("Contains") {
+  public static final SpatialPredicate Contains       = new SpatialPredicate("Contains") {
     {
       register("Covers");//alias -- the better name
     }
@@ -79,14 +79,14 @@ public abstract class SpatialOperation implements Serializable {
     }
   };
   /** Meets the "Intersects" OGC definition. */
-  public static final SpatialOperation Intersects     = new SpatialOperation("Intersects") {
+  public static final SpatialPredicate Intersects     = new SpatialPredicate("Intersects") {
     @Override
     public boolean evaluate(Shape indexedShape, Shape queryShape) {
       return indexedShape.relate(queryShape).intersects();
     }
   };
   /** Meets the "Equals" OGC definition. */
-  public static final SpatialOperation IsEqualTo      = new SpatialOperation("Equals") {
+  public static final SpatialPredicate IsEqualTo      = new SpatialPredicate("Equals") {
     {
       register("IsEqualTo");//alias (deprecated)
     }
@@ -96,7 +96,7 @@ public abstract class SpatialOperation implements Serializable {
     }
   };
   /** Meets the "Disjoint" OGC definition. */
-  public static final SpatialOperation IsDisjointTo   = new SpatialOperation("Disjoint") {
+  public static final SpatialPredicate IsDisjointTo   = new SpatialPredicate("Disjoint") {
     {
       register("IsDisjointTo");//alias (deprecated)
     }
@@ -106,7 +106,7 @@ public abstract class SpatialOperation implements Serializable {
     }
   };
   /** Meets the "CoveredBy" OGC definition (boundary-neutral). */
-  public static final SpatialOperation IsWithin       = new SpatialOperation("Within") {
+  public static final SpatialPredicate IsWithin       = new SpatialPredicate("Within") {
     {
       register("IsWithin");//alias (deprecated)
       register("CoveredBy");//alias -- the more appropriate name.
@@ -117,7 +117,7 @@ public abstract class SpatialOperation implements Serializable {
     }
   };
   /** Almost meets the "Overlaps" OGC definition, but boundary-neutral (boundary==interior). */
-  public static final SpatialOperation Overlaps       = new SpatialOperation("Overlaps") {
+  public static final SpatialPredicate Overlaps       = new SpatialPredicate("Overlaps") {
     @Override
     public boolean evaluate(Shape indexedShape, Shape queryShape) {
       return indexedShape.relate(queryShape) == SpatialRelation.INTERSECTS;//not Contains or Within or Disjoint
@@ -126,7 +126,7 @@ public abstract class SpatialOperation implements Serializable {
 
   private final String name;
 
-  protected SpatialOperation(String name) {
+  protected SpatialPredicate(String name) {
     this.name = name;
     register(name);
     list.add( this );
@@ -137,8 +137,8 @@ public abstract class SpatialOperation implements Serializable {
     registry.put(name.toUpperCase(Locale.ROOT), this);
   }
 
-  public static SpatialOperation get( String v ) {
-    SpatialOperation op = registry.get( v );
+  public static SpatialPredicate get( String v ) {
+    SpatialPredicate op = registry.get( v );
     if( op == null ) {
       op = registry.get(v.toUpperCase(Locale.ROOT));
     }
@@ -148,12 +148,12 @@ public abstract class SpatialOperation implements Serializable {
     return op;
   }
 
-  public static List<SpatialOperation> values() {
+  public static List<SpatialPredicate> values() {
     return list;
   }
 
-  public static boolean is( SpatialOperation op, SpatialOperation ... tst ) {
-    for( SpatialOperation t : tst ) {
+  public static boolean is( SpatialPredicate op, SpatialPredicate ... tst ) {
+    for( SpatialPredicate t : tst ) {
       if( op == t ) {
         return true;
       }

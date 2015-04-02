@@ -23,19 +23,19 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 
 /**
- * Principally holds the query {@link Shape} and the {@link SpatialOperation}.
+ * Principally holds the query {@link Shape} and the {@link SpatialPredicate}.
  * It's used as an argument to some methods on {@link org.apache.lucene.spatial.SpatialStrategy}.
  */
 public class SpatialArgs {
 
   public static final double DEFAULT_DISTERRPCT = 0.025d;
 
-  private SpatialOperation operation;
+  private SpatialPredicate operation;
   private Shape shape;
   private Double distErrPct;
   private Double distErr;
 
-  public SpatialArgs(SpatialOperation operation, Shape shape) {
+  public SpatialArgs(SpatialPredicate operation, Shape shape) {
     if (operation == null || shape == null)
       throw new NullPointerException("operation and shape are required");
     this.operation = operation;
@@ -98,11 +98,11 @@ public class SpatialArgs {
   // Getters & Setters
   //------------------------------------------------
 
-  public SpatialOperation getOperation() {
+  public SpatialPredicate getOperation() {
     return operation;
   }
 
-  public void setOperation(SpatialOperation operation) {
+  public void setOperation(SpatialPredicate operation) {
     this.operation = operation;
   }
 

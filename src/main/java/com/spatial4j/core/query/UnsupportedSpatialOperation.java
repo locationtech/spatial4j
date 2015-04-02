@@ -22,7 +22,7 @@ package com.spatial4j.core.query;
  */
 public class UnsupportedSpatialOperation extends UnsupportedOperationException {
 
-  public UnsupportedSpatialOperation(SpatialOperation op) {
+  public UnsupportedSpatialOperation(SpatialPredicate op) {
     super(op.getName());
   }
 }

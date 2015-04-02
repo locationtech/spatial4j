@@ -29,7 +29,7 @@ import java.util.StringTokenizer;
 
 /**
  * Parses a string that usually looks like "OPERATION(SHAPE)" into a {@link SpatialArgs}
- * object. The set of operations supported are defined in {@link SpatialOperation}, such
+ * object. The set of operations supported are defined in {@link SpatialPredicate}, such
  * as "Intersects" being a common one. The shape portion is defined by WKT {@link com.spatial4j.core.io.WktShapeParser},
  * but it can be overridden/customized via {@link #parseShape(String, com.spatial4j.core.context.SpatialContext)}.
  * There are some optional name-value pair parameters that follow the closing parenthesis.  Example:
@@ -78,7 +78,7 @@ public class SpatialArgsParser {
       throw new ParseException("missing parens: " + v, -1);
     }
 
-    SpatialOperation op = SpatialOperation.get(v.substring(0, idx).trim());
+    SpatialPredicate op = SpatialPredicate.get(v.substring(0, idx).trim());
 
     String body = v.substring(idx + 1, edx).trim();
     if (body.length() < 1) {
@@ -102,7 +102,7 @@ public class SpatialArgsParser {
     return args;
   }
 
-  protected SpatialArgs newSpatialArgs(SpatialOperation op, Shape shape) {
+  protected SpatialArgs newSpatialArgs(SpatialPredicate op, Shape shape) {
     return new SpatialArgs(op, shape);
   }
 

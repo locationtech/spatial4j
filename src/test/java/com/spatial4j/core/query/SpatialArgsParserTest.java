@@ -37,20 +37,20 @@ public class SpatialArgsParserTest extends RandomizedTest {
   public void testArgsParser() throws Exception {
     SpatialArgsParser parser = new SpatialArgsParser();
 
-    String arg = SpatialOperation.IsWithin + "(Envelope(-10, 10, 20, -20))";
+    String arg = SpatialPredicate.IsWithin + "(Envelope(-10, 10, 20, -20))";
     SpatialArgs out = parser.parse(arg, ctx);
-    assertEquals(SpatialOperation.IsWithin, out.getOperation());
+    assertEquals(SpatialPredicate.IsWithin, out.getOperation());
     Rectangle bounds = (Rectangle) out.getShape();
     assertEquals(-10.0, bounds.getMinX(), 0D);
     assertEquals(10.0, bounds.getMaxX(), 0D);
 
     // Disjoint should not be scored
-    arg = SpatialOperation.IsDisjointTo + " (Envelope(-10,-20,20,10))";
+    arg = SpatialPredicate.IsDisjointTo + " (Envelope(-10,-20,20,10))";
     out = parser.parse(arg, ctx);
-    assertEquals(SpatialOperation.IsDisjointTo, out.getOperation());
+    assertEquals(SpatialPredicate.IsDisjointTo, out.getOperation());
 
     try {
-      parser.parse(SpatialOperation.IsDisjointTo + "[ ]", ctx);
+      parser.parse(SpatialPredicate.IsDisjointTo + "[ ]", ctx);
       fail("spatial operations need args");
     }
     catch (Exception ex) {//expected
@@ -63,16 +63,16 @@ public class SpatialArgsParserTest extends RandomizedTest {
     catch (Exception ex) {//expected
     }
 
-    assertAlias(SpatialOperation.IsWithin, "CoveredBy");
-    assertAlias(SpatialOperation.IsWithin, "COVEREDBY");
-    assertAlias(SpatialOperation.IsWithin, "coveredBy");
-    assertAlias(SpatialOperation.IsWithin, "Within");
-    assertAlias(SpatialOperation.IsEqualTo, "Equals");
-    assertAlias(SpatialOperation.IsDisjointTo, "disjoint");
-    assertAlias(SpatialOperation.Contains, "Covers");
+    assertAlias(SpatialPredicate.IsWithin, "CoveredBy");
+    assertAlias(SpatialPredicate.IsWithin, "COVEREDBY");
+    assertAlias(SpatialPredicate.IsWithin, "coveredBy");
+    assertAlias(SpatialPredicate.IsWithin, "Within");
+    assertAlias(SpatialPredicate.IsEqualTo, "Equals");
+    assertAlias(SpatialPredicate.IsDisjointTo, "disjoint");
+    assertAlias(SpatialPredicate.Contains, "Covers");
   }
 
-  private void assertAlias(SpatialOperation op, final String name) throws ParseException {
+  private void assertAlias(SpatialPredicate op, final String name) throws ParseException {
     String arg;
     SpatialArgs out;
     arg = name + "(Point(0 0))";
