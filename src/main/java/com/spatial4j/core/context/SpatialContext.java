@@ -27,9 +27,7 @@ import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.BinaryCodec;
 import com.spatial4j.core.io.LegacyShapeWriter;
-import com.spatial4j.core.io.ShapeIO;
-import com.spatial4j.core.io.ShapeReader;
-import com.spatial4j.core.io.ShapeWriter;
+import com.spatial4j.core.io.SupportedFormats;
 import com.spatial4j.core.io.WKTReader;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
@@ -65,8 +63,7 @@ public class SpatialContext {
   private final Rectangle worldBounds;
 
   private final BinaryCodec binaryCodec;
-  private final List<ShapeReader> readers;
-  private final List<ShapeWriter> writers;
+  private final SupportedFormats formats;
 
   private final boolean normWrapLongitude;
 
@@ -133,26 +130,11 @@ public class SpatialContext {
     this.binaryCodec = factory.makeBinaryCodec(this);
     
     factory.checkDefaultFormats();
-    this.readers = factory.makeReaders(this);
-    this.writers = factory.makeWriters(this);
+    this.formats = factory.makeFormats(this);
   }
   
-  public ShapeReader getReader(String key) {
-    for(ShapeReader f : readers) {
-      if(key.equals(f.getFormatName())) {
-        return f;
-      }
-    }
-    return null;
-  }
-
-  public ShapeWriter getWriter(String key) {
-    for(ShapeWriter f : writers) {
-      if(key.equals(f.getFormatName())) {
-        return f;
-      }
-    }
-    return null;
+  public SupportedFormats getFormats() {
+    return formats;
   }
 
   public DistanceCalculator getDistCalc() {
@@ -305,8 +287,9 @@ public class SpatialContext {
   }
 
   /** The {@link com.spatial4j.core.io.WKTReader} used by {@link #readShapeFromWkt(String)}. */
+  @Deprecated
   public WKTReader getWktShapeParser() {
-    return (WKTReader)getReader(ShapeIO.WKT);
+    return (WKTReader)formats.getWktReader();
   }
 
   /** Reads a shape from the string formatted in WKT.
@@ -315,6 +298,7 @@ public class SpatialContext {
    * @return non-null
    * @throws ParseException if it failed to parse.
    */
+  @Deprecated
   public Shape readShapeFromWkt(String wkt) throws ParseException, InvalidShapeException {
     return getWktShapeParser().parse(wkt);
   }
@@ -328,14 +312,9 @@ public class SpatialContext {
    * @return shape or null if unable to parse any shape
    * @throws InvalidShapeException
    */
+  @Deprecated
   public Shape readShape(String value) throws InvalidShapeException {
-    for(ShapeReader format : readers) {
-      Shape v = format.readIfSupported(value);
-      if(v!=null) {
-        return v;
-      }
-    }
-    return null;
+    return formats.read(value);
   }
 
   /** Writes the shape to a String using the old/deprecated

@@ -122,7 +122,7 @@ public class SpatialContextFactoryTest {
         "spatialContextFactory", JtsSpatialContextFactory.class.getName(),
         "readers", CustomWktShapeParser.class.getName());
     
-    assertTrue( ctx.getReader(ShapeIO.WKT) instanceof CustomWktShapeParser );
+    assertTrue( ctx.getFormats().getReader(ShapeIO.WKT) instanceof CustomWktShapeParser );
   }
   
   @Test

@@ -39,8 +39,8 @@ public class GeoJSONReadWriteTest {
   public void setUp() {
     ctx = JtsSpatialContext.GEO;
     gb = new GeomBuilder();
-    reader = ctx.getReader(ShapeIO.GeoJSON);
-    writer = ctx.getWriter(ShapeIO.GeoJSON);
+    reader = ctx.getFormats().getReader(ShapeIO.GeoJSON);
+    writer = ctx.getFormats().getWriter(ShapeIO.GeoJSON);
 
     Assert.assertNotNull(reader);
     Assert.assertNotNull(writer);
