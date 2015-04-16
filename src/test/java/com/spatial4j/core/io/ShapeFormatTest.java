@@ -57,8 +57,8 @@ public class ShapeFormatTest {
   }
   
   public void testCommon(SpatialContext ctx, String name) throws Exception {
-    ShapeReader reader = ctx.getReader(name);
-    ShapeWriter writer = ctx.getWriter(name);
+    ShapeReader reader = ctx.getFormats().getReader(name);
+    ShapeWriter writer = ctx.getFormats().getWriter(name);
     assertNotNull(reader);
     assertNotNull(writer);
     testReadAndWriteTheSame(ctx.makePoint(10, 20),reader,writer);
@@ -73,8 +73,8 @@ public class ShapeFormatTest {
   }
 
   public void testJTS(JtsSpatialContext ctx, String name) throws Exception {
-    ShapeReader reader = ctx.getReader(name);
-    ShapeWriter writer = ctx.getWriter(name);
+    ShapeReader reader = ctx.getFormats().getReader(name);
+    ShapeWriter writer = ctx.getFormats().getWriter(name);
     Shape shape = null;
     
 //    

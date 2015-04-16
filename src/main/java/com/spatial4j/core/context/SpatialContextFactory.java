@@ -215,6 +215,33 @@ public class SpatialContextFactory {
       throw new RuntimeException("Unable to find format class", ex);
     }
   }
+  
+
+  public SupportedFormats makeFormats(SpatialContext ctx) {
+    checkDefaultFormats();  // easy to override
+    
+    List<ShapeReader> read = new ArrayList<ShapeReader>(readers.size());
+    for (Class<? extends ShapeReader> clazz : readers) {
+      try {
+        read.add(makeClassInstance(clazz, ctx, this));
+      } catch (Exception ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+    
+    List<ShapeWriter> write = new ArrayList<ShapeWriter>(writers.size());
+    for (Class<? extends ShapeWriter> clazz : writers) {
+      try {
+        write.add(makeClassInstance(clazz, ctx, this));
+      } catch (Exception ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+    
+    return new SupportedFormats(
+        Collections.unmodifiableList(read), 
+        Collections.unmodifiableList(write));
+  }
 
   /**
    * If no formats were defined in the config, this will make sure GeoJSON and WKT are registered
@@ -262,30 +289,6 @@ public class SpatialContextFactory {
 
   public BinaryCodec makeBinaryCodec(SpatialContext ctx) {
     return makeClassInstance(binaryCodecClass, ctx, this);
-  }
-
-  public List<ShapeReader> makeReaders(SpatialContext ctx) {
-    List<ShapeReader> registry = new ArrayList<ShapeReader>(readers.size());
-    for (Class<? extends ShapeReader> clazz : readers) {
-      try {
-        registry.add(makeClassInstance(clazz, ctx, this));
-      } catch (Exception ex) {
-        throw new RuntimeException(ex);
-      }
-    }
-    return Collections.unmodifiableList(registry);
-  }
-
-  public List<ShapeWriter> makeWriters(SpatialContext ctx) {
-    List<ShapeWriter> registry = new ArrayList<ShapeWriter>(writers.size());
-    for (Class<? extends ShapeWriter> clazz : writers) {
-      try {
-        registry.add(makeClassInstance(clazz, ctx, this));
-      } catch (Exception ex) {
-        throw new RuntimeException(ex);
-      }
-    }
-    return Collections.unmodifiableList(registry);
   }
 
 
