@@ -109,6 +109,11 @@ public class GeoJSONReadWriteTest {
     assertEquals(multiPolygonText(), writer.toString(multiPolygon()));
   }
 
+  @Test
+  public void testEncodeRectangle() throws Exception {
+    assertEquals(rectangleText(), writer.toString(polygon1().getBoundingBox()));
+  }
+
 //  @Test
 //  public void testParseGeometryCollection() throws Exception {
 //    assertEquals(collection(), reader.read(collectionText(),true));
@@ -207,6 +212,13 @@ public class GeoJSONReadWriteTest {
       .toMultiPolygon());
   }
 
+  String rectangleText() {
+    return strip(
+      "{" +
+      "'type':'Polygon'," +
+      "'coordinates': [[[100.1,0.1], [100.1,1.1], [101.1,1.1], [101.1,0.1], [100.1,0.1]]]" +
+      "}");
+  }
 
   String collectionText() {
     return strip(
