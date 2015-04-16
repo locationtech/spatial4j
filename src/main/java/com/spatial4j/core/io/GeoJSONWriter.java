@@ -74,7 +74,7 @@ public class GeoJSONWriter implements ShapeWriter {
     }
     if (shape instanceof Rectangle) {
       Rectangle v = (Rectangle) shape;
-      output.append("{\"type\":\"Polygon\",\"coordinates\": [[");
+      output.append("{\"type\":\"Polygon\",\"coordinates\":[[");
       write(output, nf, v.getMinX(), v.getMinY());
       output.append(',');
       write(output, nf, v.getMinX(), v.getMaxY());
@@ -82,6 +82,8 @@ public class GeoJSONWriter implements ShapeWriter {
       write(output, nf, v.getMaxX(), v.getMaxY());
       output.append(',');
       write(output, nf, v.getMaxX(), v.getMinY());
+      output.append(',');
+      write(output, nf, v.getMinX(), v.getMinY());
       output.append("]]}");
       return;
     }
