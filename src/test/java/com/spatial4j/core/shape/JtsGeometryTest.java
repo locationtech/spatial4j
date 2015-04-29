@@ -27,7 +27,12 @@ import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateFilter;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.IntersectionMatrix;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import org.jeo.geom.Geom;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -240,5 +245,49 @@ public class JtsGeometryTest extends AbstractTestShapes {
     } finally {
       is.close();
     }
+  }
+
+  @Test
+  public void testNarrowGeometryCollection() {
+    // test points
+    GeometryCollection gcol = Geom.build()
+      .point(1, 1).point()
+      .point(2, 3).point()
+      .toCollection();
+    assertFalse(gcol instanceof MultiPoint);
+
+    JtsGeometry geom = JtsSpatialContext.GEO.makeShape(gcol);
+    assertTrue(geom.getGeom() instanceof MultiPoint);
+
+    // test lines
+    gcol = Geom.build()
+      .point(1,1).point(2,2).lineString()
+      .point(3,3).point(4,4).lineString()
+      .toCollection();
+
+    geom = JtsSpatialContext.GEO.makeShape(gcol);
+    assertTrue(geom.getGeom() instanceof MultiLineString);
+
+    // test polygons
+    gcol = Geom.build()
+      .point(1,1).point().buffer(1)
+      .point(2,3).point().buffer(1)
+      .toCollection();
+
+    geom = JtsSpatialContext.GEO.makeShape(gcol);
+    assertTrue(geom.getGeom() instanceof MultiPolygon);
+
+    // test heterogenous
+    gcol = Geom.build()
+        .point(0,0).point()
+        .point(1,1).point(2,2).lineString()
+        .toCollection();
+    try {
+      JtsSpatialContext.GEO.makeShape(gcol);
+      fail("heterogenous geometry collection should throw exception");
+    }
+    catch(IllegalArgumentException expected) {
+    }
+
   }
 }
