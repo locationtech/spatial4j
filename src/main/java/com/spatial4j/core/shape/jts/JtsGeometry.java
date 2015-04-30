@@ -33,6 +33,7 @@ import com.vividsolutions.jts.operation.union.UnaryUnionOp;
 import com.vividsolutions.jts.operation.valid.IsValidOp;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -53,8 +54,12 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
   public JtsGeometry(Geometry geom, JtsSpatialContext ctx, boolean dateline180Check, boolean allowMultiOverlap) {
     super(ctx);
     //GeometryCollection isn't supported in relate()
-    if (geom.getClass().equals(GeometryCollection.class))
-      throw new IllegalArgumentException("JtsGeometry does not support GeometryCollection but does support its subclasses.");
+    if (geom.getClass().equals(GeometryCollection.class)) {
+      geom = narrowCollectionIfPossible((GeometryCollection)geom);
+      if (geom == null) {
+        throw new IllegalArgumentException("JtsGeometry does not support GeometryCollection but does support its subclasses.");
+      }
+    }
 
     //NOTE: All this logic is fairly expensive. There are some short-circuit checks though.
     if (ctx.isGeo()) {
@@ -87,7 +92,27 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
 
     this.hasArea = !((geom instanceof Lineal) || (geom instanceof Puntal));
   }
-  
+
+  /**
+   * Attempts to retype a geometry collection under the following circumstances, returning
+   * null if the collection can not be retyped.
+   * <ul>
+   *    <li>Single object collections are collapsed down to the object.</li>
+   *    <li>Homogenous collections are recast as the appropriate subclass.</li>
+   * </ul>
+   *
+   * @see GeometryFactory#buildGeometry(Collection)
+   */
+  private Geometry narrowCollectionIfPossible(GeometryCollection gc) {
+    List<Geometry> geoms = new ArrayList<>();
+    for (int i = 0; i < gc.getNumGeometries(); i++) {
+      geoms.add(gc.getGeometryN(i));
+    }
+
+    Geometry result = gc.getFactory().buildGeometry(geoms);
+    return !result.getClass().equals(GeometryCollection.class) ? result : null;
+  }
+
   /** called via assertion */
   private boolean assertValidate() {
     String assertValidate = System.getProperty(SYSPROP_ASSERT_VALIDATE);
