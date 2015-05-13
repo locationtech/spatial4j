@@ -1,14 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2015 Voyager Search and MITRE
+ * Copyright (c) 2015 ElasticSearch and MITRE
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Apache License, Version 2.0 which
  * accompanies this distribution and is available at
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  *
  * Contributors:
- *    Ryan McKinley - initial API and implementation
+ *    Chris Male - initial API and implementation
  *    David Smiley
  ******************************************************************************/
+
+// A derivative of commit 14bc4dee08355048d6a94e33834b919a3999a06e
+//  at https://github.com/chrismale/elasticsearch
 
 package org.locationtech.spatial4j.io.jts;
 
