@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// NOTE: we keep the header as it came from ASF; it did not originate in Spatial4j
+
 package org.locationtech.spatial4j.distance;
 
 import org.locationtech.spatial4j.context.SpatialContext;
