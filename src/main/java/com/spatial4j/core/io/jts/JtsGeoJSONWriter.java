@@ -150,8 +150,11 @@ public class JtsGeoJSONWriter extends GeoJSONWriter {
       output.append("]}");
     } else if (geom instanceof GeometryCollection) {
       GeometryCollection v = (GeometryCollection) geom;
-      output.append("{\"type\":\"GeometryCollection\",\"geometries\":");
+      output.append("{\"type\":\"GeometryCollection\",\"geometries\":[");
       for (int i = 0; i < v.getNumGeometries(); i++) {
+        if (i > 0) {
+          output.append(',');
+        }
         write(output, v.getGeometryN(i));
       }
       output.append("]}");
