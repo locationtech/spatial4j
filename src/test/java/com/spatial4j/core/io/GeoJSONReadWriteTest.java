@@ -113,21 +113,6 @@ public class GeoJSONReadWriteTest {
   public void testEncodeRectangle() throws Exception {
     assertEquals(rectangleText(), writer.toString(polygon1().getBoundingBox()));
   }
-
-
-  @Test
-  public void testReadWritePolygon() throws Exception
-  {
-    String val = "{\"type\":\"Polygon\",\"coordinates\":[[[-179.992676,17.25],[-179.992676,68.68866],[180,68.68866],[180,17.25],[-179.992676,17.25]]]}";
-    
-    ShapeReader reader = JtsSpatialContext.GEO.getFormats().getGeoJsonReader();
-    ShapeWriter writer = JtsSpatialContext.GEO.getFormats().getGeoJsonWriter();
-    
-    Shape shape = reader.read(val);
-    String out = writer.toString(shape);
-    
-    //System.out.println( "OUT:"+out );
-  }
   
   
 //  @Test
