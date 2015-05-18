@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import org.jeo.geom.GeomBuilder;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
@@ -114,7 +115,7 @@ public class GeoJSONReadWriteTest {
     assertEquals(rectangleText(), writer.toString(polygon1().getBoundingBox()));
   }
 
-
+  @Ignore
   @Test
   public void testReadWritePolygon() throws Exception
   {
