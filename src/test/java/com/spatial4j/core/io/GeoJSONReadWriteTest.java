@@ -126,7 +126,10 @@ public class GeoJSONReadWriteTest {
     Shape shape = reader.read(val);
     String out = writer.toString(shape);
     
-    //System.out.println( "OUT:"+out );
+    // somehow this gets converted to???
+//    {"type":"GeometryCollection","geometries":[{"type":"LineString","coordinates":[[180,68.68866],[180,17.25]]},{"type":"Polygon","coordinates":[[[-180,17.25],[-180,68.68866],[-179.992676,68.68866],[-179.992676,17.25],[-180,17.25]]]}]}
+
+    assertEquals(val, out);
   }
   
   
