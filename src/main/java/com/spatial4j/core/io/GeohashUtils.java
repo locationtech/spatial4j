@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// NOTE: we keep the header as it came from ASF; it did not originate in Spatial4j
+
 package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.SpatialContext;
