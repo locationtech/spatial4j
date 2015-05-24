@@ -1,7 +1,3 @@
-package com.spatial4j.core.exception;
-
-import com.spatial4j.core.SpatialPredicate;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,6 +14,10 @@ import com.spatial4j.core.SpatialPredicate;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package com.spatial4j.core.exception;
+
+import com.spatial4j.core.SpatialPredicate;
 
 /**
  * Exception thrown when the {@link org.apache.lucene.spatial.SpatialStrategy} cannot implement the requested operation.
