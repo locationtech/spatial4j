@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2015 MITRE
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Apache License, Version 2.0 which
+ * accompanies this distribution and is available at
+ *    http://www.apache.org/licenses/LICENSE-2.0.txt
+ *
+ * Contributors:
+ *    David Smiley - initial API and implementation
+ ******************************************************************************/
+
 package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
