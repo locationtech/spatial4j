@@ -17,6 +17,11 @@ package com.spatial4j.core.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
+import com.spatial4j.core.io.jts.JtsWKTReader.DatelineRule;
+import com.spatial4j.core.shape.jts.JtsGeometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.Polygon;
 import org.jeo.geom.GeomBuilder;
 import org.junit.Assert;
 import org.junit.Before;
@@ -113,8 +118,20 @@ public class GeoJSONReadWriteTest {
   public void testEncodeRectangle() throws Exception {
     assertEquals(rectangleText(), writer.toString(polygon1().getBoundingBox()));
   }
-  
-  
+
+  @Test
+  public void testRespectDatelineRule() throws Exception {
+    Shape shp = reader.read(dlPolygonText());
+    assertTrue(shp instanceof JtsGeometry);
+    assertTrue(((JtsGeometry)shp).getGeom() instanceof GeometryCollection);
+
+    JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
+    factory.datelineRule = DatelineRule.none;
+    shp = factory.newSpatialContext().getFormats().getGeoJsonReader().read(dlPolygonText());
+    assertTrue(shp instanceof JtsGeometry);
+    assertTrue(((JtsGeometry)shp).getGeom() instanceof Polygon);
+  }
+
 //  @Test
 //  public void testParseGeometryCollection() throws Exception {
 //    assertEquals(collection(), reader.read(collectionText(),true));
@@ -159,6 +176,17 @@ public class GeoJSONReadWriteTest {
     "  'coordinates': ["+
     "    [ [100.1, 0.1], [101.1, 0.1], [101.1, 1.1], [100.1, 1.1], [100.1, 0.1] ],"+
     "    [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]"+
+    "    ]"+
+    "   }");
+  }
+
+  /*
+   * Polygon with consecutive coordinates > 180 degrees apart.
+   */
+  String dlPolygonText() {
+    return strip("{ 'type': 'Polygon',"+
+    "  'coordinates': ["+
+    "    [ [-179, -90], [179, -90], [179, 90], [-179, 90], [-179,-90] ]"+
     "    ]"+
     "   }");
   }
