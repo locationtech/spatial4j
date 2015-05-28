@@ -23,9 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
+import com.spatial4j.core.io.jts.JtsWKTReader.DatelineRule;
 import org.noggit.JSONParser;
 
-import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.io.GeoJSONReader;
 import com.spatial4j.core.shape.Shape;
@@ -46,10 +47,12 @@ import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
 public class JtsGeoJSONReader extends GeoJSONReader {
 
   protected final JtsSpatialContext ctx;
+  protected final DatelineRule datelineRule;
 
-  public JtsGeoJSONReader(JtsSpatialContext ctx, SpatialContextFactory factory) {
+  public JtsGeoJSONReader(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
     super(ctx, factory);
     this.ctx = ctx;
+    this.datelineRule = factory.datelineRule;
   }
 
   // --------------------------------------------------------------
@@ -129,35 +132,42 @@ public class JtsGeoJSONReader extends GeoJSONReader {
         factory.getCoordinateSequenceFactory()
             .create(coords.toArray(new Coordinate[coords.size()]));
     LineString geo = ctx.getGeometryFactory().createLineString(seq);
-    return ctx.makeShape(geo);
+    return ctx.makeShape(geo, checkDateline(), ctx.isAllowMultiOverlap());
   }
 
   @Override
   protected Shape readPolygon(JSONParser parser) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
     GeometryFactory gf = ctx.getGeometryFactory();
-    return ctx.makeShape(createPolygon(gf, readCoordinates(parser)));
+    return ctx.makeShape(createPolygon(gf, readCoordinates(parser)), checkDateline(), ctx.isAllowMultiOverlap());
   }
 
   @Override
   protected Shape makeShapeFromCoords(String type, List coords) {
     GeometryFactory gf = ctx.getGeometryFactory();
+
     switch(type) {
       case "Polygon":
-        return ctx.makeShape(createPolygon(gf, coords));
+        return ctx.makeShape(createPolygon(gf, coords), checkDateline(), ctx.isAllowMultiOverlap());
         
       case "MultiPoint":
-        return ctx.makeShape(createMultiPoint(gf, coords));
+        return ctx.makeShape(createMultiPoint(gf, coords), checkDateline(), ctx.isAllowMultiOverlap());
     
       case "MultiLineString":
-        return ctx.makeShape(createMultiLineString(gf, coords));
+        return ctx.makeShape(createMultiLineString(gf, coords), checkDateline(), ctx.isAllowMultiOverlap());
         
       case "MultiPolygon":
-        return ctx.makeShape(createMultiPolygon(gf, coords));
+        return ctx.makeShape(createMultiPolygon(gf, coords), checkDateline(), ctx.isAllowMultiOverlap());
     }
     return null;
   }
 
+  /*
+   * Helper method to check the dateline rule.
+   */
+  private boolean checkDateline() {
+    return datelineRule != DatelineRule.none;
+  }
 
   // --------------------------------------------------------------
   // FROM JEO.ORG:
