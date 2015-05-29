@@ -20,6 +20,7 @@ package com.spatial4j.core.io;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.context.jts.DatelineRule;
 import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
@@ -101,7 +102,7 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
 
   @Test
   public void polyToRectCcwRule() throws ParseException {
-    JtsSpatialContext ctx = new JtsSpatialContextFactory() { { datelineRule = JtsWKTReader.DatelineRule.ccwRect;} }.newSpatialContext();
+    JtsSpatialContext ctx = new JtsSpatialContextFactory() { { datelineRule = DatelineRule.ccwRect;} }.newSpatialContext();
     //counter-clockwise
     assertEquals(ctx.readShapeFromWkt("POLYGON((160 0, -170 0, -170 10, 160 10, 160 0))"),
         ctx.makeRectangle(160, -170, 0, 10));

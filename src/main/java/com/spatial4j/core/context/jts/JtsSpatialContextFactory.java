@@ -40,7 +40,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
  * <DL>
  * <DT>datelineRule</DT>
  * <DD>width180(default)|ccwRect|none
- *  -- see {@link com.spatial4j.core.io.jts.JtsWKTReader.DatelineRule}</DD>
+ *  -- see {@link DatelineRule}</DD>
  * <DT>validationRule</DT>
  * <DD>error(default)|none|repairConvexHull|repairBuffer0
  *  -- see {@link com.spatial4j.core.io.jts.JtsWKTReader.ValidationRule}</DD>
@@ -65,7 +65,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   public CoordinateSequenceFactory coordinateSequenceFactory = CoordinateArraySequenceFactory.instance();
 
   //ignored if geo=false
-  public JtsWKTReader.DatelineRule datelineRule = JtsWKTReader.DatelineRule.width180;
+  public DatelineRule datelineRule = DatelineRule.width180;
 
   public JtsWKTReader.ValidationRule validationRule = JtsWKTReader.ValidationRule.error;
   public boolean autoIndex = false;

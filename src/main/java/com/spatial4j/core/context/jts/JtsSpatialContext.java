@@ -52,6 +52,7 @@ public class JtsSpatialContext extends SpatialContext {
   protected final boolean allowMultiOverlap;
   protected final boolean useJtsPoint;
   protected final boolean useJtsLineString;
+  protected final DatelineRule datelineRule;
 
   /**
    * Called by {@link com.spatial4j.core.context.jts.JtsSpatialContextFactory#newSpatialContext()}.
@@ -63,6 +64,7 @@ public class JtsSpatialContext extends SpatialContext {
     this.allowMultiOverlap = factory.allowMultiOverlap;
     this.useJtsPoint = factory.useJtsPoint;
     this.useJtsLineString = factory.useJtsLineString;
+    this.datelineRule = factory.datelineRule;
   }
 
   /**
@@ -74,6 +76,13 @@ public class JtsSpatialContext extends SpatialContext {
    */
   public boolean isAllowMultiOverlap() {
     return allowMultiOverlap;
+  }
+
+  /**
+   * Returns the rule used to handle geometry objects that have dateline crossing considerations.
+   */
+  public DatelineRule getDatelineRule() {
+    return datelineRule;
   }
 
   @Override
@@ -209,7 +218,7 @@ public class JtsSpatialContext extends SpatialContext {
    * needs to have done some verification/normalization of the coordinates by now, if any.
    */
   public JtsGeometry makeShape(Geometry geom) {
-    return makeShape(geom, true/*dateline180Check*/, allowMultiOverlap);
+    return makeShape(geom, datelineRule != DatelineRule.none, allowMultiOverlap);
   }
 
   public GeometryFactory getGeometryFactory() {
