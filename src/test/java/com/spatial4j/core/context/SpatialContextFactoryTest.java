@@ -22,6 +22,7 @@ import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.io.ShapeIO;
+import com.spatial4j.core.context.jts.DatelineRule;
 import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 
@@ -96,7 +97,7 @@ public class SpatialContextFactoryTest {
     assertTrue(ctx.isNormWrapLongitude());
     assertEquals(2.0, ctx.getGeometryFactory().getPrecisionModel().getScale(), 0.0);
     assertTrue(CustomWktShapeParser.once);//cheap way to test it was created
-    assertEquals(JtsWKTReader.DatelineRule.ccwRect,
+    assertEquals(DatelineRule.ccwRect,
         ((JtsWKTReader)ctx.getWktShapeParser()).getDatelineRule());
     assertEquals(JtsWKTReader.ValidationRule.repairConvexHull,
         ((JtsWKTReader)ctx.getWktShapeParser()).getValidationRule());

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.spatial4j.core.context.jts.DatelineRule;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.io.WKTReader;
@@ -45,14 +46,12 @@ public class JtsWKTReader extends WKTReader {
 
   protected final JtsSpatialContext ctx;
 
-  protected final DatelineRule datelineRule;
   protected final ValidationRule validationRule;
   protected final boolean autoIndex;
 
   public JtsWKTReader(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
     super(ctx, factory);
     this.ctx = ctx;
-    this.datelineRule = factory.datelineRule;
     this.validationRule = factory.validationRule;
     this.autoIndex = factory.autoIndex;
   }
@@ -82,7 +81,7 @@ public class JtsWKTReader extends WKTReader {
 
   /** @see DatelineRule */
   public DatelineRule getDatelineRule() {
-    return datelineRule;
+    return ctx.getDatelineRule();
   }
 
   @Override
@@ -254,18 +253,17 @@ public class JtsWKTReader extends WKTReader {
 
   /** Creates the JtsGeometry, potentially validating, repairing, and preparing. */
   protected JtsGeometry makeShapeFromGeometry(Geometry geometry) {
-    final boolean dateline180Check = getDatelineRule() != DatelineRule.none;
     JtsGeometry jtsGeom;
     try {
-      jtsGeom = ctx.makeShape(geometry, dateline180Check, ctx.isAllowMultiOverlap());
+      jtsGeom = ctx.makeShape(geometry);
       if (isAutoValidate())
         jtsGeom.validate();
     } catch (RuntimeException e) {
       // repair:
       if (validationRule == ValidationRule.repairConvexHull) {
-        jtsGeom = ctx.makeShape(geometry.convexHull(), dateline180Check, ctx.isAllowMultiOverlap());
+        jtsGeom = ctx.makeShape(geometry.convexHull());
       } else if (validationRule == ValidationRule.repairBuffer0) {
-        jtsGeom = ctx.makeShape(geometry.buffer(0), dateline180Check, ctx.isAllowMultiOverlap());
+        jtsGeom = ctx.makeShape(geometry.buffer(0));
       } else {
         // TODO there are other smarter things we could do like repairing inner holes and
         // subtracting
@@ -276,29 +274,6 @@ public class JtsWKTReader extends WKTReader {
     if (isAutoIndex())
       jtsGeom.index();
     return jtsGeom;
-  }
-
-  /**
-   * Indicates the algorithm used to process JTS Polygons and JTS LineStrings for detecting dateline
-   * crossings. It only applies when geo=true.
-   */
-  public enum DatelineRule {
-    /** No polygon will cross the dateline. */
-    none,
-
-    /**
-     * Adjacent points with an x (longitude) difference that spans more than half way around the
-     * globe will be interpreted as going the other (shorter) way, and thus cross the dateline.
-     */
-    width180, // TODO is there a better name that doesn't have '180' in it?
-
-    /**
-     * For rectangular polygons, the point order is interpreted as being counter-clockwise (CCW).
-     * However, non-rectangular polygons or other shapes aren't processed this way; they use the
-     * {@link #width180} rule instead. The CCW rule is specified by OGC Simple Features
-     * Specification v. 1.2.0 section 6.1.11.1.
-     */
-    ccwRect
   }
 
   /**
