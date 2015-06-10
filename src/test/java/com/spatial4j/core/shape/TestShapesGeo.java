@@ -97,13 +97,11 @@ public class TestShapesGeo extends AbstractTestShapes {
       }
     }
 
-    TestShapes2D.testCircleReset(ctx);
-
     //Test geo rectangle intersections
     testRectIntersect();
 
-    //Bug #85   ** NOT FIXED YET ** TODO
-    //assertRelation(WITHIN, ctx.makeRectangle(-180, -180, -10, 10), ctx.makeRectangle(180, 180, -30, 30));
+    //Ambiguous vertical line at dateline; -180 vs +180.  Bug #85
+    assertRelation(WITHIN, ctx.makeRectangle(-180, -180, -10, 10), ctx.makeRectangle(180, 180, -30, 30));
 
     //Test buffer
     assertEquals(ctx.makeRectangle(-10, 10, -10, 10), ctx.makeRectangle(0, 0, 0, 0).getBuffered(10, ctx));
@@ -216,6 +214,9 @@ public class TestShapesGeo extends AbstractTestShapes {
         ctx.makeCircle(-64,32,180).relate(ctx.makeRectangle(47, 47, -14, 90)));
 
     //--Now proceed with systematic testing:
+
+    TestShapes2D.testCircleReset(ctx);
+
     assertEquals(ctx.getWorldBounds(), ctx.makeCircle(0,0,180).getBoundingBox());
     //assertEquals(ctx.makeCircle(0,0,180/2 - 500).getBoundingBox());
 

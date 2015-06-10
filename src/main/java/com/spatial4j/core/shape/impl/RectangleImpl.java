@@ -214,12 +214,26 @@ public class RectangleImpl extends BaseShape<SpatialContext> implements Rectangl
       return xIntersect;
 
     //if one side is equal, return the other
-    if (getMinX() == rect.getMinX() && getMaxX() == rect.getMaxX())
-      return yIntersect;
     if (getMinY() == rect.getMinY() && getMaxY() == rect.getMaxY())
       return xIntersect;
+    if (getMinX() == rect.getMinX() && getMaxX() == rect.getMaxX()
+            || (ctx.isGeo() && verticalAtDateline(this, rect))) {
+      return yIntersect;
+    }
 
     return SpatialRelation.INTERSECTS;
+  }
+
+  //note: if vertical lines at the dateline were normalized (say to -180.0) then this method wouldn't be necessary.
+  private static boolean verticalAtDateline(RectangleImpl rect1, Rectangle rect2) {
+    if (rect1.getMinX() == rect1.getMaxX() && rect2.getMinX() == rect2.getMaxX()) {
+      if (rect1.getMinX() == -180) {
+        return rect2.getMinX() == +180;
+      } else if (rect1.getMinX() == +180) {
+        return rect2.getMinX() == -180;
+      }
+    }
+    return false;
   }
 
   //TODO might this utility move to SpatialRelation ?

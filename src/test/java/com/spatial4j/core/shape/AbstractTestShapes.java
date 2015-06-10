@@ -92,7 +92,7 @@ public abstract class AbstractTestShapes extends RandomizedShapeTest {
     // method ensures the rect is valid.
     final double INCR = 45;
     final double Y = 20;
-    for(double left = -180; left < 180; left += INCR) {
+    for(double left = -180; left <= 180; left += INCR) {
       for(double right = left; right - left <= 360; right += INCR) {
         Rectangle r = makeNormRect(left, right, -Y, Y);
 
