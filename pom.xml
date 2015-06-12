@@ -138,9 +138,9 @@
     </dependency>
         
     <dependency>
-      <groupId>org.jeo</groupId>
+      <groupId>io.jeo</groupId>
       <artifactId>jeo</artifactId>
-      <version>0.5</version>
+      <version>0.6</version>
       <scope>test</scope>
     </dependency>
 
@@ -152,14 +152,6 @@
     </dependency>
 
   </dependencies>
-  
-  <repositories>
-    <repository>
-      <id>boundless</id>
-      <name>Boundless Maven Repository</name>
-      <url>http://repo.boundlessgeo.com/main</url>
-    </repository>
-  </repositories>
   
   <build>
     
