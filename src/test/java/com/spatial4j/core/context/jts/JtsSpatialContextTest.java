@@ -19,7 +19,7 @@ package com.spatial4j.core.context.jts;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygon;
-import org.jeo.geom.Geom;
+import io.jeo.geom.Geom;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

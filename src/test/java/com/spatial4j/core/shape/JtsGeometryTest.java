@@ -32,7 +32,7 @@ import com.vividsolutions.jts.geom.IntersectionMatrix;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
-import org.jeo.geom.Geom;
+import io.jeo.geom.Geom;
 import org.junit.Test;
 
 import java.io.BufferedReader;
