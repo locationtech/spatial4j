@@ -1,5 +1,7 @@
 # Spatial4j
 
+[![Build](https://travis-ci.org/locationtech/spatial4j.svg)](https://travis-ci.org/locationtech/spatial4j)
+
 Spatial4j is a general purpose spatial / geospatial [ASL](http://www.apache.org/licenses/LICENSE-2.0.html) licensed open-source Java library. It's core capabilities are 3-fold: to provide common shapes that can work in Euclidean and geodesic (surface of sphere) world models, to provide distance calculations and other math, and to read shapes from [WKT](http://en.wikipedia.org/wiki/Well-known_text) formatted strings.  Spatial4j is a [pending](http://www.locationtech.org/proposals/spatial4j) member of the [LocationTech](http://www.locationtech.org) Industry Working Group family of projects.
 
 If you are working with spatial grid-square indexing schemes, be it [Geohash](http://en.wikipedia.org/wiki/Geohash) or something custom, then you are likely to find especially high utility from Spatial4j -- doubly-so for Apache Software Foundation projects due to restrictions on use of LGPL software there.
