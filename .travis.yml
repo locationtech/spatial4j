@@ -7,3 +7,5 @@ jdk:
 notifications:
   email:
     - spatial4j-dev@locationtech.org
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
