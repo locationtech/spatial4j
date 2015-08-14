@@ -1,11 +1,17 @@
 language: java
-script: mvn -Drandomized.multiplier=10 clean verify
+
+sudo: false
+
+script: mvn -Drandomized.multiplier=10 clean verify jacoco:report
+
 jdk:
   - openjdk7
   - oraclejdk8
   - oraclejdk7
+
 notifications:
   email:
     - spatial4j-dev@locationtech.org
+
 after_success:
   - bash <(curl -s https://codecov.io/bash)

@@ -3,7 +3,7 @@
 [![Build](https://travis-ci.org/locationtech/spatial4j.svg)](https://travis-ci.org/locationtech/spatial4j)
 [![Coverage](https://img.shields.io/codecov/c/github/locationtech/spatial4j.svg)](https://travis-ci.org/locationtech/spatial4j)
 [![Maven](https://img.shields.io/maven-central/v/com.spatial4j/spatial4j.svg)](https://maven-badges.herokuapp.com/maven-central/com.spatial4j/spatial4j/)
-[![License](https://img.shields.io/github/license/locationtech/spatial4j.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/locationtech/spatial4j.svg)](LICENSE.txt)
 
 
 Spatial4j is a general purpose spatial / geospatial [ASL](http://www.apache.org/licenses/LICENSE-2.0.html) licensed open-source Java library. It's core capabilities are 3-fold: to provide common shapes that can work in Euclidean and geodesic (surface of sphere) world models, to provide distance calculations and other math, and to read shapes from [WKT](http://en.wikipedia.org/wiki/Well-known_text) formatted strings.  Spatial4j is a member of the [LocationTech](http://www.locationtech.org) Industry Working Group family of projects.
