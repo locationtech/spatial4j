@@ -1,7 +1,7 @@
 # Spatial4j
 
 [![Build](https://travis-ci.org/locationtech/spatial4j.svg)](https://travis-ci.org/locationtech/spatial4j)
-[![Coverage](https://img.shields.io/codecov/c/github/locationtech/spatial4j.svg)](https://travis-ci.org/locationtech/spatial4j)
+[![Coverage](https://img.shields.io/codecov/c/github/locationtech/spatial4j.svg)](https://codecov.io/github/locationtech/spatial4j/)
 [![Maven](https://img.shields.io/maven-central/v/com.spatial4j/spatial4j.svg)](https://maven-badges.herokuapp.com/maven-central/com.spatial4j/spatial4j/)
 [![License](https://img.shields.io/github/license/locationtech/spatial4j.svg)](LICENSE.txt)
 
