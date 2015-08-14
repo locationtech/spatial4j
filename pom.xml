@@ -197,13 +197,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.16</version>
-        <configuration>
-          <!-- This is a small project that should have no problem with tests
-          running in the maven JVM. This also conveniently means system
-          properties pass through. -->
-          <forkCount>0</forkCount>
-        </configuration>
+        <version>2.18</version>
       </plugin>
 
       <plugin>
@@ -250,6 +244,20 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
         <version>3.3</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.7.2.201409121644</version>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <!-- http://blog.progs.be/517/publishing-javadoc-to-github-using-maven -->
