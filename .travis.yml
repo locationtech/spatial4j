@@ -14,4 +14,6 @@ notifications:
     - spatial4j-dev@locationtech.org
 
 after_success:
+  - du -hs target/site/jacoco/jacoco.xml
   - bash <(curl -s https://codecov.io/bash)
+  
