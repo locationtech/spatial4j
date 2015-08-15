@@ -17,6 +17,8 @@ package com.spatial4j.core;
  * limitations under the License.
  */
 
+// NOTE: we keep the header as it came from ASF; it did not originate in Spatial4j
+
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.SpatialRelation;
