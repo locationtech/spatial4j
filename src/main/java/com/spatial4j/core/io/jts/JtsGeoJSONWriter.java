@@ -99,7 +99,7 @@ public class JtsGeoJSONWriter extends GeoJSONWriter {
     if (geom instanceof Point) {
       Point v = (Point) geom;
       output.append("{\"type\":\"Point\",\"coordinates\":");
-      write(output, nf, v.getCoordinateSequence());
+      write(output, nf, v.getCoordinate());
       output.append("}");
       return;
     } else if (geom instanceof Polygon) {
