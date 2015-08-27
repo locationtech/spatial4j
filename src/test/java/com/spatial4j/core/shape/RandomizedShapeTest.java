@@ -263,7 +263,7 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     Point p;
     do {
       p = randomPointIn(bbox);
-    } while (!bbox.relate(p).intersects());
+    } while (!shape.relate(p).intersects());
     return p;
   }
 
