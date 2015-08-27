@@ -20,6 +20,9 @@ import static com.spatial4j.core.shape.SpatialRelation.*;
  */
 public class InfBufLine {
 
+  /** Error epsilon. */
+  private static final double EPS = 10e-14;
+
   //TODO consider removing support for vertical line -- let caller
   // do something else.  BufferedLine could have a factory method
   // that returns a rectangle, for example.
@@ -72,7 +75,7 @@ public class InfBufLine {
   }
 
   boolean contains(Point p) {
-    return (distanceUnbuffered(p) <= buf);
+    return (distanceUnbuffered(p) <= buf + EPS);
   }
 
   /** INTERNAL AKA lineToPointDistance */
