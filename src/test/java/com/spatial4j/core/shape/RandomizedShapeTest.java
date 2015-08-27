@@ -267,6 +267,19 @@ public abstract class RandomizedShapeTest extends RandomizedTest {
     return p;
   }
 
+  protected Point randomPointInOrNull(Shape shape) {
+    if (!shape.hasArea())// or try the center?
+      throw new UnsupportedOperationException("Need area to define shape!");
+    Rectangle bbox = shape.getBoundingBox();
+    for (int i = 0; i < 1000; i++) {
+      Point p = randomPointIn(bbox);
+      if (shape.relate(p).intersects()) {
+        return p;
+      }
+    }
+    return null;//tried too many times and failed
+  }
+
   /** Tests that {@code left} >= {@code right}, but may be less if within some tolerance. */
   public static void assertGreaterOrEqual(double left, double right, double delta) {
     if (left > right) {
