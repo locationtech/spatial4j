@@ -16,6 +16,8 @@ import com.spatial4j.core.io.LegacyShapeWriter;
 import com.spatial4j.core.io.jts.JtsGeoJSONReader;
 import com.spatial4j.core.io.jts.JtsGeoJSONWriter;
 import com.spatial4j.core.io.jts.JtsBinaryCodec;
+import com.spatial4j.core.io.jts.JtsPolyshapeReader;
+import com.spatial4j.core.io.jts.JtsPolyshapeWriter;
 import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.io.jts.JtsWKTWriter;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
@@ -75,11 +77,13 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
     if (readers.isEmpty() ) {
       addReaderIfNoggitExists(JtsGeoJSONReader.class);
       readers.add(JtsWKTReader.class);
+      readers.add(JtsPolyshapeReader.class);
       readers.add(LegacyShapeReader.class);
     }
     if (writers.isEmpty()) {
       writers.add(JtsGeoJSONWriter.class);
       writers.add(JtsWKTWriter.class);
+      writers.add(JtsPolyshapeWriter.class);
       writers.add(LegacyShapeWriter.class);
     }
   }
