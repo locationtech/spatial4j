@@ -9,6 +9,7 @@
 package com.spatial4j.core.io;
 
 import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
+import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.shape.Shape;
@@ -16,26 +17,18 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
+
 import org.junit.Test;
 
 import java.util.Arrays;
 
 public class JtsBinaryCodecTest extends BinaryCodecTest {
 
-  @ParametersFactory
-  public static Iterable<Object[]> parameters() {
-    //try floats
+  @Override
+  public SpatialContext initContext() {
     JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
     factory.precisionModel = new PrecisionModel(PrecisionModel.FLOATING_SINGLE);
-
-    return Arrays.asList($$(
-        $(JtsSpatialContext.GEO),//doubles
-        $(factory.newSpatialContext())//floats
-    ));
-  }
-
-  public JtsBinaryCodecTest(JtsSpatialContext ctx) {
-    super(ctx);
+    return factory.newSpatialContext();
   }
 
   @Test

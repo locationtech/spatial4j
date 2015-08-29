@@ -8,40 +8,24 @@
 
 package com.spatial4j.core.io;
 
-import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.ShapeCollection;
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Arrays;
 
-public class BinaryCodecTest extends RandomizedTest {
+import org.junit.Test;
 
-  final SpatialContext ctx;
-  private BinaryCodec binaryCodec;
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.ShapeCollection;
 
-  protected BinaryCodecTest(SpatialContext ctx) {
-    this.ctx = ctx;
-    binaryCodec = ctx.getBinaryCodec();//stateless
-  }
+public class BinaryCodecTest extends BaseRoundTripTest<SpatialContext> {
 
-  public BinaryCodecTest() {
-    this(SpatialContext.GEO);
-  }
-
-  //This test uses WKT to specify the shapes because the Jts based subclass tests will test
-  // using floats instead of doubles, and WKT is normalized whereas ctx.makeXXX is not.
-
-  @Test
-  public void testPoint() {
-    assertRoundTrip(wkt("POINT(-10 80.3)"));
+  @Override
+  public SpatialContext initContext() {
+    return SpatialContext.GEO;
   }
 
   @Test
@@ -66,23 +50,7 @@ public class BinaryCodecTest extends RandomizedTest {
     assertRoundTrip(s);
   }
 
-  protected Shape wkt(String wkt) {
-    try {
-      return ctx.readShapeFromWkt(wkt);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  protected Shape randomShape() {
-    switch (randomInt(2)) {//inclusive
-      case 0: return wkt("POINT(-10 80.3)");
-      case 1: return wkt("ENVELOPE(-10, 180, 42.3, 0)");
-      case 2: return wkt("BUFFER(POINT(-10 30), 5.2)");
-      default: throw new Error();
-    }
-  }
-
+  @Override
   protected void assertRoundTrip(Shape shape) {
     try {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -93,4 +61,5 @@ public class BinaryCodecTest extends RandomizedTest {
       throw new RuntimeException(e);
     }
   }
+
 }

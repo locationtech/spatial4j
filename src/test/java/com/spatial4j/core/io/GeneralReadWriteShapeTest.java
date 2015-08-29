@@ -31,28 +31,31 @@ import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Shape;
 
-public abstract class GeneralReadWriteShapeTest {
+public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpatialContext> {
 
   protected GeomBuilder gb;
-  protected JtsSpatialContext ctx;
 
   @Before
   public void setUp() {
     gb = new GeomBuilder();
-    
+  }
+
+  @Override
+  public JtsSpatialContext initContext() {
     // Like the out-of-the-box GEO, but it wraps datelines
     JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
     factory.geo = true;
     factory.normWrapLongitude = true;
-    ctx = new JtsSpatialContext(factory);
+    return new JtsSpatialContext(factory);
   }
+  
   
   protected abstract ShapeReader getShapeReader();
   protected abstract ShapeWriter getShapeWriter();
 
   protected abstract ShapeWriter getShapeWriterForTests();
   
-
+  @Override
   protected void assertRoundTrip(Shape shape) {
     try {
       Shape out = getShapeReader().read(getShapeWriter().toString(shape));
