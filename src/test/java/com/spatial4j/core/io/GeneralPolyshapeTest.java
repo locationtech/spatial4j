@@ -17,8 +17,16 @@
 
 package com.spatial4j.core.io;
 
+import java.io.IOException;
+import java.text.ParseException;
+
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
+
+import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.impl.GeoCircle;
 
 public class GeneralPolyshapeTest extends GeneralReadWriteShapeTest {
 
@@ -54,5 +62,10 @@ public class GeneralPolyshapeTest extends GeneralReadWriteShapeTest {
   @Override
   protected ShapeWriter getShapeWriterForTests() {
     return writerForTests;
+  }
+  
+  @Test
+  public void testCircle() {
+    assertRoundTrip(wkt("BUFFER(POINT(-10 30), 40)"));
   }
 }

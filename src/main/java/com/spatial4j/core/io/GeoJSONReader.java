@@ -21,7 +21,9 @@ import org.noggit.JSONParser;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 
@@ -191,6 +193,44 @@ public class GeoJSONReader implements ShapeReader {
     return out;
   }
 
+  protected Circle readCircle(JSONParser parser) throws IOException, ParseException {
+    assert (parser.lastEvent() == JSONParser.ARRAY_START);
+    double[] coord = readCoordXY(parser);
+    Point point = ctx.makePoint(coord[0], coord[1]);
+    
+    double radius = 0;
+    
+    String key = null;
+    
+    int event = JSONParser.OBJECT_END;
+    int evt = parser.lastEvent();
+    while (true) {
+      if (evt == event || evt == JSONParser.EOF) {
+        break;
+      }
+      evt = parser.nextEvent();
+      if(parser.wasKey()) {
+        key = parser.getString();
+      }
+      else if(evt==JSONParser.NUMBER) {
+        if("radius".equals(key)) {
+          radius = parser.getDouble();
+        }
+      }
+      else if(evt==JSONParser.STRING) {
+        if("radius_units".equals(key)) {
+          String units = parser.getString();
+          if("km".equals(units)) {
+            // Convert KM to degrees
+            radius =
+                DistanceUtils.dist2Degrees(radius, DistanceUtils.EARTH_MEAN_RADIUS_KM);
+          }
+        }
+      }
+    }
+    return ctx.makeCircle(point, radius);
+  }
+
   /**
    * This method takes a polygon and makes a bbox from it
    * 
@@ -269,7 +309,9 @@ public class GeoJSONReader implements ShapeReader {
               shape = readPoint(parser);
             } else if ("LineString".equals(type)) {
               shape = readLineString(parser);
-            } else {
+            } else if ("Circle".equals(type)) {
+              shape = readCircle(parser);
+            }else {
               shape = makeShapeFromCoords(type, readCoordinates(parser));
             }
             if (shape != null) {
@@ -298,7 +340,10 @@ public class GeoJSONReader implements ShapeReader {
             }
             return ctx.makeCollection(shapes);
           }
-          break;
+          else {
+            throw new ParseException("Unknown type: "+type,
+                (int) parser.getPosition());
+          }
 
         case JSONParser.ARRAY_END:
           break;

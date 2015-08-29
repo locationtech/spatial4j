@@ -104,10 +104,6 @@ public class PolyshapeWriter implements ShapeWriter {
       Circle v = (Circle) shape;
       Point center = v.getCenter();
       double radius = v.getRadius();
-      if (v instanceof GeoCircle) {
-        radius = DistanceUtils.degrees2Dist(radius, DistanceUtils.EARTH_MEAN_RADIUS_KM);
-      }
-
       enc.write(KEY_CIRCLE);
       enc.writeArg(radius);
       enc.write(center.getX(), center.getY());

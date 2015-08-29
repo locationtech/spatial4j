@@ -144,9 +144,14 @@ public class PolyshapeReader implements ShapeReader {
             throw new IllegalArgumentException("the input should have a radius argument");
           }
           last = ctx.makeCircle(reader.readLat(), reader.readLng(), arg.doubleValue());
+          break;
         }
         case PolyshapeWriter.KEY_POLYGON: {
           last = readPolygon(reader);
+          break;
+        }
+        default: {
+          throw new ParseException("unhandled key: "+event, -1);
         }
       }
     }

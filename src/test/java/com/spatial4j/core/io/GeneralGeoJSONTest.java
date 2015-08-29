@@ -19,6 +19,7 @@ package com.spatial4j.core.io;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 
 
 public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
@@ -55,5 +56,11 @@ public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
   @Override
   protected ShapeWriter getShapeWriterForTests() {
     return writerForTests;
+  }
+  
+
+  @Test
+  public void testCircle() {
+    assertRoundTrip(wkt("BUFFER(POINT(-10 30), 40)"));
   }
 }

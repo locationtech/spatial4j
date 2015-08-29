@@ -58,7 +58,8 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
   @Override
   protected void assertRoundTrip(Shape shape) {
     try {
-      Shape out = getShapeReader().read(getShapeWriter().toString(shape));
+      String str = getShapeWriter().toString(shape);
+      Shape out = getShapeReader().read(str);
 
       // GeoJSON has limited numberic precision so the off by .0000001 does not affect its equals
       ShapeWriter writer = getShapeWriterForTests();
