@@ -47,7 +47,8 @@ public class ShapeCollectionTest extends RandomizedShapeTest {
     Rectangle r2 = ctx.makeRectangle(130, 172, -10, 10);
     Rectangle r3 = ctx.makeRectangle(172, -60, -10, 10);
     ShapeCollection<Rectangle> s = new ShapeCollection<Rectangle>(Arrays.asList(r1,r2,r3), ctx);
-    assertEquals(WORLD180, getLonRangeString(s.getBoundingBox()));
+    assertEquals("130.0 90.0", getLonRangeString(s.getBoundingBox()));
+    // note: BBoxCalculatorTest thoroughly tests the longitude range
   }
 
 

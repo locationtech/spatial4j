@@ -16,6 +16,7 @@ import com.spatial4j.core.shape.Rectangle;
  * Perhaps this class could become 1st class citizen extending Shape but not now.
  * Only public so is accessible from tests in another package.
  */
+@Deprecated // See BBoxCalculator
 public class Range {
   protected final double min, max;
 
@@ -95,6 +96,7 @@ public class Range {
     return max3 - min3;
   }
 
+  @Deprecated // See BBoxCalculator
   public static class LongitudeRange extends Range {
 
     public static final LongitudeRange WORLD_180E180W = new LongitudeRange(-180, 180);

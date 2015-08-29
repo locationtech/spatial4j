@@ -1,145 +1,217 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*******************************************************************************
+ * Copyright (c) 2015 David Smiley
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Apache License, Version 2.0 which
+ * accompanies this distribution and is available at
+ *    http://www.apache.org/licenses/LICENSE-2.0.txt
+ ******************************************************************************/
 
 package com.spatial4j.core.shape.impl;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Rectangle;
 
+import java.util.Iterator;
 import java.util.Map;
-import java.util.NavigableMap;
 import java.util.TreeMap;
 
+/**
+ * (INTERNAL) Calculates the minimum bounding box given a bunch of rectangles (ranges).  It's a temporary object and not
+ * thread-safe; throw it away when done.
+ * For a cartesian space, the calculations are trivial but it is not for geodetic.  For
+ * geodetic, it must maintain an ordered set of disjoint ranges as each range is provided.
+ */
 public class BBoxCalculator {
   
-  SpatialContext ctx;
-  double minX = Double.POSITIVE_INFINITY;
-  double maxX = Double.NEGATIVE_INFINITY;
-  double minY = Double.POSITIVE_INFINITY;
-  double maxY = Double.NEGATIVE_INFINITY;
+  private final SpatialContext ctx;
 
-  TreeMap<Double, Double> ranges;
-  boolean worldWrapped = false;
+  private double minY = Double.POSITIVE_INFINITY;
+  private double maxY = Double.NEGATIVE_INFINITY;
 
-  public void expandRange(double minX, double maxX, double minY, double maxY) {
+  private double minX = Double.POSITIVE_INFINITY;
+  private double maxX = Double.NEGATIVE_INFINITY;
+
+  /** Sorted list of <em>disjoint</em> X ranges keyed by maxX and with minX stored as the "value". */
+  private TreeMap<Double, Double> ranges; // maxX -> minX
+
+  // note: The use of a TreeMap of Double objects is a bit heavy for the points-only use-case.  In such a case,
+  //  we could instead maintain an array of longitudes we just add onto during expandXRange(). A simplified version
+  //  of the processRanges() method could be used that initially sorts and then proceeds in a similar but simplified
+  //  fashion.
+
+  public BBoxCalculator(SpatialContext ctx) {
+    this.ctx = ctx;
+  }
+
+  public void expandRange(Rectangle rect) {
+    expandRange(rect.getMinX(), rect.getMaxX(), rect.getMinY(), rect.getMaxY());
+  }
+
+  public void expandRange(final double minX, final double maxX, double minY, double maxY) {
     this.minY = Math.min(this.minY, minY);
     this.maxY = Math.max(this.maxY, maxY);
+
+    expandXRange(minX, maxX);
+  }//expandRange
+
+  public void expandXRange(double minX, double maxX) {
     if (!ctx.isGeo()) {
       this.minX = Math.min(this.minX, minX);
       this.maxX = Math.max(this.maxX, maxX);
       return;
     }
 
-    if (worldWrapped)
+    if (doesXWorldWrap())
       return;
 
     if (ranges == null) {
-      ranges = new TreeMap<Double, Double>();
+      ranges = new TreeMap<>();
       ranges.put(maxX, minX);
       return;
     }
     assert !ranges.isEmpty();
     //now the hard part!
 
-    //Get a subMap where the first entry either contains minX or it's to the right.
-    NavigableMap<Double,Double> iterMap = ranges.tailMap(minX, true/*inclusive*/);//Log(N)
-    if (iterMap.isEmpty()) {
-      iterMap = ranges;//wrapped across dateline
+    //Get an iterator starting from the first entry that either contains minX or it's to the right of minX
+    Iterator<Map.Entry<Double, Double>> entryIter = ranges.tailMap(minX, true/*inclusive*/).entrySet().iterator();
+    if (!entryIter.hasNext()) {
+      entryIter = ranges.entrySet().iterator();//wrapped across dateline
     }
-    final Map.Entry<Double, Double> firstEntry = iterMap.firstEntry();
+    Map.Entry<Double, Double> entry = entryIter.next();
 
-    Double firstEntryMin = firstEntry.getValue();
-    Double firstEntryMax = firstEntry.getKey();
+    Double entryMin = entry.getValue();
+    Double entryMax = entry.getKey();
 
-    //See if firstEntry contains maxX
-    if (containsPt(firstEntryMin, firstEntryMax, maxX)) {
+    //See if entry contains maxX
+    if (rangeContains(entryMin, entryMax, maxX)) {
+      // Easy: either minX is also within this entry in which case nothing to do, or it's below in which case
+      // we just need to update the minX of this entry.
 
-      //See if firstEntry contains minX
-      if (containsPt(firstEntryMin, firstEntryMax, minX)) {
+      //See if entry contains minX
+      if (rangeContains(entryMin, entryMax, minX)) {
 
-        //Done: either world-wrap or we're within an existing range
-        if ( (minX != firstEntryMin || maxX != firstEntryMax) //ranges not equal
-            && containsPt(minX, maxX, firstEntryMin) && containsPt(minX, maxX, firstEntryMax)) {
-          worldWrapped = true;
+        // This entry & the new range together might wrap the world.
+        if ( (minX != entryMin || maxX != entryMax) //ranges not equal
+            && rangeContains(minX, maxX, entryMin) && rangeContains(minX, maxX, entryMax)) {
+          this.minX = -180;
+          this.maxX = +180;
           ranges = null;
         }
-        //optimization: check for existing world-wrap
-        if (firstEntryMin == -180 && firstEntryMax == 180) {
-          worldWrapped = true;
-          ranges = null;
-        }
-
-        return;
-      }
-
-      //Done: Update firstEntry's start to be minX
-      firstEntry.setValue(minX);
-
-    } else {//firstEntry does NOT contain maxX
-
-      final Double newMinX;//of new range to insert
-
-      //See if firstEntry does NOT contains minX
-      if (!containsPt(firstEntryMin, firstEntryMax, minX)) {
-
-        //if minX-MaxX doesn't cross into firstEntry, just add the range
-        if (!containsPt(minX, maxX, firstEntryMin)) {
-          //doesn't intersect any ranges
-          ranges.put(minX, maxX);
-          return;
-        }
-        //else remove to the right then add...
-        newMinX = minX;
-
+        // Done; nothing to do.
       } else {
-        //firstEntry DOES contains minX (but not maxX)
-        //remove to the right then add...
-        newMinX = firstEntryMin;
+        //Done: Update entry's start to be minX
+        // note:  TreeMap's Map.Entry doesn't support setting the value :-(  So we remove & add the entry.
+        entryIter.remove();
+        ranges.put(entryMax, minX);
       }
+
+    } else {//entry does NOT contain maxX:
+
+      // We're going to insert an entry.  Determine it's min & max.  While finding the max, we'll delete entries
+      //  that overlap with the new entry.
+
+      // newMinX is basically the lower of minX & entryMin
+      final Double newMinX  = rangeContains(entryMin, entryMax, minX) ? entryMin : minX;
 
       Double newMaxX = maxX;
-      //The remove-right loop
-      iterMap.pollFirstEntry();//remove firstEntry
-      while (!ranges.isEmpty()) {
-        final Map.Entry<Double, Double> entry = iterMap.firstEntry();
-        if (entry == null) {
-          //wrap around (will only happen once)
-          iterMap = ranges;
-          continue;
-        }
-        final Double entryMin = entry.getValue();
-        if (!containsPt(newMinX, newMaxX, entryMin))
-          break;
-        final Double entryMax = entry.getKey();
-        iterMap.pollFirstEntry();//remove entry
-        if (!containsPt(minX, maxX, entryMax)) {
+      //Loop through entries (starting with current) to see if we should remove it.  At the last one, update newMaxX.
+      while (rangeContains(newMinX, newMaxX, entryMin)) {
+        entryIter.remove();//remove entry!
+        if (!rangeContains(minX, maxX, entryMax)) {
           newMaxX = entryMax;//adjust newMaxX and stop.
           break;
         }
+        // get new entry:
+        if (!entryIter.hasNext()) {
+          if (ranges.isEmpty()) {
+            break;
+          }
+          //wrap around (can only happen once)
+          entryIter = ranges.entrySet().iterator();
+        }
+        entry = entryIter.next();
+        entryMin = entry.getValue();
+        entryMax = entry.getKey();
       }
-      //Add entry
-      ranges.put(newMinX, newMaxX);
-    }
-  }//expandRange
 
-  private static boolean containsPt(double minX, double maxX, double x) {
+      //Add entry
+      ranges.put(newMaxX, newMinX);
+    }
+  }
+
+  private void processRanges() {
+    if (ranges.size() == 1) { // an optimization
+      Map.Entry<Double, Double> rangeEntry = ranges.firstEntry();
+      minX = rangeEntry.getValue();
+      maxX = rangeEntry.getKey();
+    } else {
+      // Find the biggest gap. Whenever we do, update minX & maxX for the rect opposite of the gap.
+      Map.Entry<Double, Double> prevRange = ranges.lastEntry();
+      double biggestGap = 0;
+      double possibleRemainingGap = 360;  //calculating this enables us to exit early; often on the first lap!
+      for (Map.Entry<Double, Double> range : ranges.entrySet()) {
+        // calc width of this range and the gap before it.
+        double widthPlusGap = range.getKey() - prevRange.getKey();// this max - last max
+        if (widthPlusGap < 0) {
+          widthPlusGap += 360;
+        }
+        double gap = range.getValue() - prevRange.getKey(); // this min - last max
+        if (gap < 0) {
+          gap += 360;
+        }
+        // reduce possibleRemainingGap by this range width and trailing gap.
+        possibleRemainingGap -= widthPlusGap;
+        if (gap > biggestGap) {
+          biggestGap = gap;
+          minX = range.getValue();
+          maxX = prevRange.getKey();
+          if (possibleRemainingGap <= biggestGap) {
+            break;// no point in continuing
+          }
+        }
+        prevRange = range;
+      }
+    }
+    // Null out the ranges to signify we processed them
+    ranges = null;
+  }
+
+  private static boolean rangeContains(double minX, double maxX, double x) {
     if (minX <= maxX)
       return x >= minX && x <= maxX;
     else
-      return x <= minX || x >= maxX;
+      return x >= minX || x <= maxX;
   }
 
+  public boolean doesXWorldWrap() {
+    assert ctx.isGeo();
+    //note: not dependent on "ranges", since once we expand to world bounds then ranges is null'ed out
+    return minX == -180 && maxX == 180;
+  }
+
+  public Rectangle getBoundary() {
+    return ctx.makeRectangle(getMinX(), getMaxX(), getMinY(), getMaxY());
+  }
+
+  public double getMinX() {
+    if (ranges != null) {
+      processRanges();
+    }
+    return minX;
+  }
+
+  public double getMaxX() {
+    if (ranges != null) {
+      processRanges();
+    }
+    return maxX;
+  }
+
+  public double getMinY() {
+    return minY;
+  }
+
+  public double getMaxY() {
+    return maxY;
+  }
 }

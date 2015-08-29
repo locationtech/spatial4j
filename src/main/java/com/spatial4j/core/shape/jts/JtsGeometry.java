@@ -13,9 +13,9 @@ import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.impl.BBoxCalculator;
 import com.spatial4j.core.shape.impl.BufferedLineString;
 import com.spatial4j.core.shape.impl.PointImpl;
-import com.spatial4j.core.shape.impl.Range;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
@@ -151,21 +151,16 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
     if (geoms.isEmpty())
       return new RectangleImpl(Double.NaN, Double.NaN, Double.NaN, Double.NaN, ctx);
     final Envelope env = geoms.getEnvelopeInternal();//for minY & maxY (simple)
-    if (env.getWidth() > 180 && geoms.getNumGeometries() > 1)  {
+    if (ctx.isGeo() && env.getWidth() > 180 && geoms.getNumGeometries() > 1)  {
       // This is ShapeCollection's bbox algorithm
-      Range xRange = null;
+      BBoxCalculator bboxCalc = new BBoxCalculator(ctx);
       for (int i = 0; i < geoms.getNumGeometries(); i++ ) {
         Envelope envI = geoms.getGeometryN(i).getEnvelopeInternal();
-        Range xRange2 = new Range.LongitudeRange(envI.getMinX(), envI.getMaxX());
-        if (xRange == null) {
-          xRange = xRange2;
-        } else {
-          xRange = xRange.expandTo(xRange2);
-        }
-        if (xRange == Range.LongitudeRange.WORLD_180E180W)
+        bboxCalc.expandXRange(envI.getMinX(), envI.getMaxX());
+        if (bboxCalc.doesXWorldWrap())
           break; // can't grow any bigger
       }
-      return new RectangleImpl(xRange.getMin(), xRange.getMax(), env.getMinY(), env.getMaxY(), ctx);
+      return new RectangleImpl(bboxCalc.getMinX(), bboxCalc.getMaxX(), env.getMinY(), env.getMaxY(), ctx);
     } else {
       return new RectangleImpl(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY(), ctx);
     }

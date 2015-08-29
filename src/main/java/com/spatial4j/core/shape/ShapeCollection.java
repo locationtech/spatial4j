@@ -9,13 +9,9 @@
 package com.spatial4j.core.shape;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.impl.Range;
+import com.spatial4j.core.shape.impl.BBoxCalculator;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.RandomAccess;
+import java.util.*;
 
 import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
 import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
@@ -61,22 +57,11 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
   protected Rectangle computeBoundingBox(Collection<? extends Shape> shapes, SpatialContext ctx) {
     if (shapes.isEmpty())
       return ctx.makeRectangle(Double.NaN, Double.NaN, Double.NaN, Double.NaN);
-    Range xRange = null;
-    double minY = Double.POSITIVE_INFINITY;
-    double maxY = Double.NEGATIVE_INFINITY;
+    BBoxCalculator bboxCalc = new BBoxCalculator(ctx);
     for (Shape geom : shapes) {
-      Rectangle r = geom.getBoundingBox();
-
-      Range xRange2 = Range.xRange(r, ctx);
-      if (xRange == null) {
-        xRange = xRange2;
-      } else {
-        xRange = xRange.expandTo(xRange2);
-      }
-      minY = Math.min(minY, r.getMinY());
-      maxY = Math.max(maxY, r.getMaxY());
+      bboxCalc.expandRange(geom.getBoundingBox());
     }
-    return ctx.makeRectangle(xRange.getMin(), xRange.getMax(), minY, maxY);
+    return bboxCalc.getBoundary();
   }
 
   public List<S> getShapes() {
