@@ -37,6 +37,7 @@ Spatial4j has a variety of shapes that operate in Euclidean-space -- i.e. a flat
 
 * Read and write Shapes as [WKT](http://en.wikipedia.org/wiki/Well-known_text).  Include the ENVELOPE extension from CQL, plus a Spatial4j custom BUFFER operation. Buffering a point gets you a Circle.
 * Read and write Shapes as [GeoJSON](http://geojson.org/geojson-spec.html#geometry-objects). 
+* Read and write Shapes as [Polyshape](FORMATS.md#polyshape). 
 * 3 great-circle distance calculators: Law of Cosines, Haversine, Vincenty
 * The code is well tested; it's monitored via [Travis-CI](https://travis-ci.org/locationtech/spatial4j) continuous integration and we use [Codecov](https://codecov.io/github/locationtech/spatial4j/) for code coverage.
 * Spatial4j has no dependencies on other libraries except for JTS, which is only triggered if you use Polygons, or obviously if you use any of the classes prefixed with "Jts".
