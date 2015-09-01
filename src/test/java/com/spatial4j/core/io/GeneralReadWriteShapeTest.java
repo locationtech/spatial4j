@@ -24,6 +24,7 @@ import java.text.ParseException;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
@@ -113,10 +114,11 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
     assertRoundTrip(polygon1().getBoundingBox(), false);
   }
   
-//  @Test
-//  public void testWriteThenReadCollection() throws Exception {
-//    assertRoundTrip(collection());
-//  }
+  @Ignore // "JtsGeometry does not support GeometryCollection but does support its subclasses."
+  @Test
+  public void testWriteThenReadCollection() throws Exception {
+    assertRoundTrip(collection());
+  }
 
   String pointText() {
     return strip("{'type': 'Point','coordinates':[100.1,0.1]}");
