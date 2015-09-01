@@ -30,6 +30,9 @@ public abstract class BaseRoundTripTest<T extends SpatialContext> extends Random
   
   public abstract T initContext();
   
+  public boolean shouldBeEqualAfterRoundTrip() {
+    return true;
+  }
 
   //This test uses WKT to specify the shapes because the Jts based subclass tests will test
   // using floats instead of doubles, and WKT is normalized whereas ctx.makeXXX is not.
@@ -56,5 +59,9 @@ public abstract class BaseRoundTripTest<T extends SpatialContext> extends Random
     }
   }
 
-  protected abstract void assertRoundTrip(Shape shape);
+  protected final void assertRoundTrip(Shape shape) {
+    assertRoundTrip(shape, shouldBeEqualAfterRoundTrip()); 
+  }
+
+  protected abstract void assertRoundTrip(Shape shape, boolean andEquals);
 }

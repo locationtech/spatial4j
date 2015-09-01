@@ -56,7 +56,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
   protected abstract ShapeWriter getShapeWriterForTests();
   
   @Override
-  protected void assertRoundTrip(Shape shape) {
+  protected void assertRoundTrip(Shape shape, boolean andEquals) {
     try {
       String str = getShapeWriter().toString(shape);
       Shape out = getShapeReader().read(str);
@@ -65,7 +65,9 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
       ShapeWriter writer = getShapeWriterForTests();
       Assert.assertEquals(writer.toString(shape), writer.toString(out));
       
-     // Assert.assertEquals(shape, out);
+      if(andEquals) {
+        Assert.assertEquals(shape, out);
+      }
     } catch (IOException e) {
       throw new RuntimeException(e);
     } catch (InvalidShapeException e) {
@@ -108,7 +110,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
 
   @Test
   public void testWriteThenReadRectangle() throws Exception {
-    assertRoundTrip(polygon1().getBoundingBox());
+    assertRoundTrip(polygon1().getBoundingBox(), false);
   }
   
 //  @Test

@@ -51,7 +51,7 @@ public class BinaryCodecTest extends BaseRoundTripTest<SpatialContext> {
   }
 
   @Override
-  protected void assertRoundTrip(Shape shape) {
+  protected void assertRoundTrip(Shape shape, boolean andEquals) {
     try {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       binaryCodec.writeShape(new DataOutputStream(baos), shape);

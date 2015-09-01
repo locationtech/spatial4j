@@ -63,6 +63,11 @@ public class GeneralPolyshapeTest extends GeneralReadWriteShapeTest {
   protected ShapeWriter getShapeWriterForTests() {
     return writerForTests;
   }
+
+  @Override
+  public boolean shouldBeEqualAfterRoundTrip() {
+    return false; // the polyline values will be off by a small fraction -- everything is rounded to: Math.round(value * 1e5)
+  }
   
   @Test
   public void testCircle() {

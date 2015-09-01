@@ -61,6 +61,6 @@ public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
 
   @Test
   public void testCircle() {
-    assertRoundTrip(wkt("BUFFER(POINT(-10 30), 40)"));
+    assertRoundTrip(wkt("BUFFER(POINT(-10 30), 40)"), false);
   }
 }
