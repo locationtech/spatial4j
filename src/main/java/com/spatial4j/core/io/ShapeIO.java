@@ -12,6 +12,7 @@ package com.spatial4j.core.io;
 public interface ShapeIO {
   public static final String WKT = "WKT";
   public static final String GeoJSON = "GeoJSON";
+  public static final String POLY = "POLY";
   public static final String LEGACY = "LEGACY";
 
   /**

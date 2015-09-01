@@ -121,13 +121,13 @@ public class GeoJSONWriter implements ShapeWriter {
       Point center = v.getCenter();
       output.append("{\"type\":\"Circle\",\"coordinates\":");
       write(output, nf, center.getX(), center.getY());
-      output.append("\"radius\":");
+      output.append(",\"radius\":");
       if (v instanceof GeoCircle) {
         double distKm =
             DistanceUtils.degrees2Dist(v.getRadius(), DistanceUtils.EARTH_MEAN_RADIUS_KM);
         output.append(nf.format(distKm));
         output.append(",\"properties\":{");
-        output.append(",\"radius_units\":\"km\"}}");
+        output.append("\"radius_units\":\"km\"}}");
       } else {
         output.append(nf.format(v.getRadius())).append('}');
       }
