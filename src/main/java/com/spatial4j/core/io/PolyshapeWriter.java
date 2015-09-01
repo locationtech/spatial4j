@@ -35,11 +35,14 @@ import com.spatial4j.core.shape.impl.BufferedLineString;
 
 
 /**
- * Use the 'Encoded Polyline Algorithm Format' defined in: 
+ * Wrap the 'Encoded Polyline Algorithm Format' defined in: 
  * <a href="https://developers.google.com/maps/documentation/utilities/polylinealgorithm">Google Maps API</a>
- * to encode various Shapes:  Point, Line, Polygon, etc
+ * with flags to encode various Shapes:  Point, Line, Polygon, etc
  * 
- * @see <a href="https://github.com/locationtech/spatial4j/blob/master/FORMATS.md#polyshape">FORMATS.md</a>
+ * For more details, see <a href="https://github.com/locationtech/spatial4j/blob/master/FORMATS.md#polyshape">FORMATS.md</a>
+ * 
+ * This format works well for geographic shapes (-180...+180 / -90...+90), but is not appropriate for other coordinate systems
+ * 
  * @see <a href="https://developers.google.com/maps/documentation/utilities/polylinealgorithm">Google Maps API</a>
  * @see PolyshapeReader
  */

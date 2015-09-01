@@ -33,12 +33,6 @@ import com.spatial4j.core.shape.Shape;
 
 
 /**
- * Use the 'Encoded Polyline Algorithm Format' defined in: 
- * <a href="https://developers.google.com/maps/documentation/utilities/polylinealgorithm">Google Maps API</a>
- * to decode various Shapes:  Point, Line, Polygon, etc
- * 
- * @see <a href="https://github.com/locationtech/spatial4j/blob/master/FORMATS.md#polyshape">FORMATS.md</a>
- * @see <a href="https://developers.google.com/maps/documentation/utilities/polylinealgorithm">Google Maps API</a>
  * @see PolyshapeWriter
  */
 public class PolyshapeReader implements ShapeReader {
