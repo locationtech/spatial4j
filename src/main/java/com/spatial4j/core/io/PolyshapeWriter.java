@@ -25,7 +25,6 @@ import java.util.Iterator;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -33,10 +32,17 @@ import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.ShapeCollection;
 import com.spatial4j.core.shape.impl.BufferedLine;
 import com.spatial4j.core.shape.impl.BufferedLineString;
-import com.spatial4j.core.shape.impl.GeoCircle;
 
 
-
+/**
+ * Use the 'Encoded Polyline Algorithm Format' defined in: 
+ * <a href="https://developers.google.com/maps/documentation/utilities/polylinealgorithm">Google Maps API</a>
+ * to encode various Shapes:  Point, Line, Polygon, etc
+ * 
+ * @see <a href="https://github.com/locationtech/spatial4j/blob/master/FORMATS.md#polyshape">FORMATS.md</a>
+ * @see <a href="https://developers.google.com/maps/documentation/utilities/polylinealgorithm">Google Maps API</a>
+ * @see PolyshapeReader
+ */
 public class PolyshapeWriter implements ShapeWriter {
 
   public PolyshapeWriter(SpatialContext ctx, SpatialContextFactory factory) {
