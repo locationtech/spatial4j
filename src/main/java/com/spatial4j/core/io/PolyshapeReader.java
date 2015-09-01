@@ -48,7 +48,7 @@ public class PolyshapeReader implements ShapeReader {
   /**
    * Subclass may try to make multiple points into a MultiPoint
    */
-  protected Shape makeCollection(List<Shape> shapes) {
+  protected Shape makeCollection(List<? extends Shape> shapes) {
     return ctx.makeCollection(shapes);
   }
   
@@ -81,7 +81,7 @@ public class PolyshapeReader implements ShapeReader {
     XReader reader = new XReader(r);
     Double arg = null;
     
-    Shape last = null;
+    Shape lastShape = null;
     List<Shape> shapes = null;
     while(!reader.isDone()) {
       char event = reader.readKey();
@@ -92,11 +92,11 @@ public class PolyshapeReader implements ShapeReader {
         throw new ParseException("expecting a shape key.  not '"+event+"'", -1);
       }
 
-      if(last!=null) {
+      if(lastShape!=null) {
         if(shapes==null) {
           shapes = new ArrayList<Shape>();
         }
-        shapes.add(last);
+        shapes.add(lastShape);
       }
       arg = null;
       
@@ -113,41 +113,38 @@ public class PolyshapeReader implements ShapeReader {
       
       switch(event) {
         case PolyshapeWriter.KEY_POINT: {
-          last = ctx.makePoint(reader.readLat(), reader.readLng());
+          lastShape = ctx.makePoint(reader.readLat(), reader.readLng());
           break;
         }
         case PolyshapeWriter.KEY_LINE: {
           if(arg!=null) {
-            last = ctx.makeBufferedLineString(reader.readPoints(ctx), arg.doubleValue());
+            lastShape = ctx.makeBufferedLineString(reader.readPoints(ctx), arg.doubleValue());
           }
           else {
-            last = ctx.makeLineString(reader.readPoints(ctx));
+            lastShape = ctx.makeLineString(reader.readPoints(ctx));
           }
           break;
         }
         case PolyshapeWriter.KEY_BOX: {
           Point lowerLeft = ctx.makePoint(reader.readLat(), reader.readLng());
           Point upperRight = ctx.makePoint(reader.readLat(), reader.readLng());
-          last = ctx.makeRectangle(lowerLeft, upperRight);
+          lastShape = ctx.makeRectangle(lowerLeft, upperRight);
           break;
         }
         case PolyshapeWriter.KEY_MULTIPOINT : {
           List<Point> points = reader.readPoints(ctx);
-          if(shapes==null) {
-            shapes = new ArrayList<Shape>(points.size()+1);
-          }
-          shapes.addAll(points);
+          lastShape = makeCollection(points);
           break;
         }
         case PolyshapeWriter.KEY_CIRCLE : {
           if(arg==null) {
             throw new IllegalArgumentException("the input should have a radius argument");
           }
-          last = ctx.makeCircle(reader.readLat(), reader.readLng(), arg.doubleValue());
+          lastShape = ctx.makeCircle(reader.readLat(), reader.readLng(), arg.doubleValue());
           break;
         }
         case PolyshapeWriter.KEY_POLYGON: {
-          last = readPolygon(reader);
+          lastShape = readPolygon(reader);
           break;
         }
         default: {
@@ -157,12 +154,12 @@ public class PolyshapeReader implements ShapeReader {
     }
     
     if(shapes!=null) {
-      if(last!=null) {
-        shapes.add(last);
+      if(lastShape!=null) {
+        shapes.add(lastShape);
       }
       return makeCollection(shapes);
     }
-    return last;
+    return lastShape;
   }
   
   protected Shape readPolygon(XReader reader) throws IOException {

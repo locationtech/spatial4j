@@ -46,7 +46,7 @@ public class JtsPolyshapeReader extends PolyshapeReader {
   
 
   @Override
-  protected Shape makeCollection(List<Shape> shapes) {
+  protected Shape makeCollection(List<? extends Shape> shapes) {
     Class<?> last = null;
     List<Geometry> geoms = new ArrayList<>(shapes.size());
     for(Shape s : shapes) {
