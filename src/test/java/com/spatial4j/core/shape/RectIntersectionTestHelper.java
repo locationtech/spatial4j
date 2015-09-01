@@ -167,9 +167,6 @@ public abstract class RectIntersectionTestHelper<S extends Shape> extends Random
                 pointR = pointRNew;
               } else if (pointR != pointRNew) {
                 break;
-              } else if (j >= MAX_TRIES) {
-                //TODO consider logging instead of failing
-                fail("Tried intersection brute-force too many times without success");
               }
             }
 
