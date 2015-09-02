@@ -11,11 +11,7 @@
 
 package com.spatial4j.core.io.jts;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.DatelineRule;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
@@ -24,13 +20,14 @@ import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
+import com.spatial4j.core.shape.jts.JtsPoint;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.*;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Extends {@link com.spatial4j.core.io.WKTReader} adding support for polygons, using JTS.
@@ -244,8 +241,45 @@ public class JtsWKTReader extends WKTReader {
     return ctx.getGeometryFactory().getPrecisionModel().makePrecise(v);
   }
 
-  /** Creates the JtsGeometry, potentially validating, repairing, and preparing. */
-  protected JtsGeometry makeShapeFromGeometry(Geometry geometry) {
+  /**
+   * Usually creates a JtsGeometry, potentially validating, repairing, and preparing.
+   *
+   * If given a direct instance of {@link GeometryCollection} then it's contents will be
+   * recursively converted and then the resulting list will be passed to
+   * {@link SpatialContext#makeCollection(List)} and returned.
+   *
+   * If given a {@link com.vividsolutions.jts.geom.Point} then {@link SpatialContext#makePoint(double, double)}
+   * is called, which will return a {@link JtsPoint} if {@link JtsSpatialContext#useJtsPoint()}; otherwise
+   * a standard Spatial4j Point is returned.
+   *
+   * If given a {@link LineString} and if {@link JtsSpatialContext#useJtsLineString()} is true then
+   * then the geometry's parts are exposed to call {@link SpatialContext#makeLineString(List)}.
+   */
+  public Shape makeShapeFromGeometry(Geometry geometry) {
+    // Direct instances of GeometryCollection can't be wrapped in JtsGeometry but can be expanded into
+    //  a ShapeCollection.
+    if (geometry.getClass() == GeometryCollection.class) {
+      List<Shape> shapes = new ArrayList<>(geometry.getNumGeometries());
+      for (int i = 0; i < geometry.getNumGeometries(); i++) {
+        Geometry geomN = geometry.getGeometryN(i);
+        shapes.add(makeShapeFromGeometry(geomN));//recursion
+      }
+      return ctx.makeCollection(shapes);
+    }
+    if (geometry instanceof com.vividsolutions.jts.geom.Point) {
+      com.vividsolutions.jts.geom.Point pt = (com.vividsolutions.jts.geom.Point) geometry;
+      return ctx.makePoint(pt.getX(), pt.getY());
+    }
+    if (!ctx.useJtsLineString() && geometry instanceof LineString) {
+      LineString lineString = (LineString) geometry;
+      List<Point> points = new ArrayList<>(lineString.getNumPoints());
+      for (int i = 0; i < lineString.getNumPoints(); i++) {
+        Coordinate coord = lineString.getCoordinateN(i);
+        points.add(ctx.makePoint(coord.x, coord.y));
+      }
+      return ctx.makeLineString(points);
+    }
+
     JtsGeometry jtsGeom;
     try {
       jtsGeom = ctx.makeShape(geometry);

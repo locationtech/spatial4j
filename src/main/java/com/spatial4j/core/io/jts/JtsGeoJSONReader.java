@@ -8,31 +8,19 @@
 
 package com.spatial4j.core.io.jts;
 
+import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.io.GeoJSONReader;
+import com.spatial4j.core.shape.Shape;
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
+import org.noggit.JSONParser;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import org.noggit.JSONParser;
-
-import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.io.GeoJSONReader;
-import com.spatial4j.core.shape.Shape;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
 
 public class JtsGeoJSONReader extends GeoJSONReader {
 
@@ -135,16 +123,16 @@ public class JtsGeoJSONReader extends GeoJSONReader {
     GeometryFactory gf = ctx.getGeometryFactory();
     switch(type) {
       case "Polygon":
-        return ctx.makeShape(createPolygon(gf, coords));
+        return ctx.makeShapeFromGeometry(createPolygon(gf, coords));
         
       case "MultiPoint":
-        return ctx.makeShape(createMultiPoint(gf, coords));
+        return ctx.makeShapeFromGeometry(createMultiPoint(gf, coords));
     
       case "MultiLineString":
-        return ctx.makeShape(createMultiLineString(gf, coords));
+        return ctx.makeShapeFromGeometry(createMultiLineString(gf, coords));
         
       case "MultiPolygon":
-        return ctx.makeShape(createMultiPolygon(gf, coords));
+        return ctx.makeShapeFromGeometry(createMultiPolygon(gf, coords));
     }
     return null;
   }

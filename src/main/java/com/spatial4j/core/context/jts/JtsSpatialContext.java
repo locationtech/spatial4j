@@ -10,6 +10,7 @@ package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -189,6 +190,17 @@ public class JtsSpatialContext extends SpatialContext {
   }
 
   /**
+   * INTERNAL: See {@link JtsWKTReader#makeShapeFromGeometry(Geometry)}.  This method is particularly
+   * suitable when the geometry has come from user input.
+   */
+  public Shape makeShapeFromGeometry(Geometry geom) {
+    // note: the arrangement here is clearly a hack in that we reference a method (and validate/repair
+    //  config state) on the WKT instance even though it's not related to WKT.  TODO fix this.
+    JtsWKTReader jtsWKTReader = (JtsWKTReader) getFormats().getWktReader();
+    return jtsWKTReader.makeShapeFromGeometry(geom); // will in turn call makeShape(geom) above
+  }
+
+  /**
    * INTERNAL
    * @see #makeShape(com.vividsolutions.jts.geom.Geometry)
    *
@@ -206,7 +218,11 @@ public class JtsSpatialContext extends SpatialContext {
   /**
    * INTERNAL: Creates a {@link Shape} from a JTS {@link Geometry}. Generally, this shouldn't be
    * called when one of the other factory methods are available, such as for points. The caller
-   * needs to have done some verification/normalization of the coordinates by now, if any.
+   * needs to have done some verification/normalization of the coordinates by now, if any.  Also,
+   * note that direct instances of {@link GeometryCollection} isn't supported.
+   *
+   * Instead of calling this method, consider {@link JtsWKTReader#makeShapeFromGeometry(Geometry)}
+   * which
    */
   public JtsGeometry makeShape(Geometry geom) {
     return makeShape(geom, datelineRule != DatelineRule.none, allowMultiOverlap);

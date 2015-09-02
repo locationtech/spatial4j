@@ -17,10 +17,6 @@
 
 package com.spatial4j.core.io.jts;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.io.PolyshapeReader;
@@ -28,12 +24,12 @@ import com.spatial4j.core.io.PolyshapeWriter;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JtsPolyshapeReader extends PolyshapeReader {
 
@@ -68,6 +64,8 @@ public class JtsPolyshapeReader extends PolyshapeReader {
     if(result.getClass().equals(GeometryCollection.class)) {
       return super.makeCollection(shapes);
     }
+    // *not* calling makeShapeFromGeometry() since the underlying geometries here have
+    //  already been converted to shapes via that method (or equivalent).
     return ctx.makeShape(result);
   }
 
@@ -102,6 +100,6 @@ public class JtsPolyshapeReader extends PolyshapeReader {
       }
       holes = list.toArray(new LinearRing[list.size()]);
     }
-    return ctx.makeShape(gf.createPolygon(shell, holes));
+    return ctx.makeShapeFromGeometry(gf.createPolygon(shell, holes));
   }
 }

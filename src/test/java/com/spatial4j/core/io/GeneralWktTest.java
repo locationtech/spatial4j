@@ -20,11 +20,8 @@ package com.spatial4j.core.io;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 
-/**
- * TODO: The WKT read/writer should try to flatten to the origianl type (not GeometryCollection)
- */
-@Ignore
 public class GeneralWktTest extends GeneralReadWriteShapeTest {
 
   ShapeReader reader;
@@ -59,5 +56,24 @@ public class GeneralWktTest extends GeneralReadWriteShapeTest {
   @Override
   protected ShapeWriter getShapeWriterForTests() {
     return writerForTests;
+  }
+
+
+  //TODO: Either the WKT read/writer should try to flatten to the original type (not GeometryCollection)
+  //  and/or ShapeCollection needs to become typed.
+
+  @Ignore @Test @Override
+  public void testWriteThenReadMultiPoint() throws Exception {
+    super.testWriteThenReadMultiPoint();
+  }
+
+  @Ignore @Test @Override
+  public void testWriteThenReadMultiLineString() throws Exception {
+    super.testWriteThenReadMultiLineString();
+  }
+
+  @Ignore @Test @Override
+  public void testWriteThenReadMultiPolygon() throws Exception {
+    super.testWriteThenReadMultiPolygon();
   }
 }
