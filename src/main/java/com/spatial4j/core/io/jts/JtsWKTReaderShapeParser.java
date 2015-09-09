@@ -65,7 +65,7 @@ public class JtsWKTReaderShapeParser extends JtsWKTReader {
         else
           return ctx.makePoint(ptGeom.getX(), ptGeom.getY());
       } else if (geom.isRectangle()) {
-        return super.makeRectFromPoly(geom);
+        return super.ctx.makeRectFromRectangularPoly(geom);
       } else {
         return super.makeShapeFromGeometry(geom);
       }

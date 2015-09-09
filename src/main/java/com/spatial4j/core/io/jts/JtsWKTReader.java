@@ -17,11 +17,9 @@ import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.io.WKTReader;
 import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
-import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.*;
 
 import java.text.ParseException;
@@ -120,30 +118,10 @@ public class JtsWKTReader extends WKTReader {
     } else {
       geometry = polygon(state);
       if (geometry.isRectangle()) {
-        // TODO although, might want to never convert if there's a semantic difference (e.g.
-        // geodetically)
-        return makeRectFromPoly(geometry);
+        return ctx.makeRectFromRectangularPoly(geometry);
       }
     }
     return makeShapeFromGeometry(geometry);
-  }
-
-  protected Rectangle makeRectFromPoly(Geometry geometry) {
-    assert geometry.isRectangle();
-    Envelope env = geometry.getEnvelopeInternal();
-    boolean crossesDateline = false;
-    if (ctx.isGeo() && getDatelineRule() != DatelineRule.none) {
-      if (getDatelineRule() == DatelineRule.ccwRect) {
-        // If JTS says it is clockwise, then it's actually a dateline crossing rectangle.
-        crossesDateline = !CGAlgorithms.isCCW(geometry.getCoordinates());
-      } else {
-        crossesDateline = env.getWidth() > 180;
-      }
-    }
-    if (crossesDateline)
-      return ctx.makeRectangle(env.getMaxX(), env.getMinX(), env.getMinY(), env.getMaxY());
-    else
-      return ctx.makeRectangle(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
   }
 
   /**

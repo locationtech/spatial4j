@@ -123,7 +123,12 @@ public class JtsGeoJSONReader extends GeoJSONReader {
     GeometryFactory gf = ctx.getGeometryFactory();
     switch(type) {
       case "Polygon":
-        return ctx.makeShapeFromGeometry(createPolygon(gf, coords));
+        Polygon polygon = createPolygon(gf, coords);
+        if (polygon.isRectangle()) {
+          return ctx.makeRectFromRectangularPoly(polygon);
+        } else {
+          return ctx.makeShapeFromGeometry(polygon);
+        }
         
       case "MultiPoint":
         return ctx.makeShapeFromGeometry(createMultiPoint(gf, coords));

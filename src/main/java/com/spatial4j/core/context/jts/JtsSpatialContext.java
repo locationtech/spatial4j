@@ -17,6 +17,7 @@ import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
+import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
@@ -241,4 +242,29 @@ public class JtsSpatialContext extends SpatialContext {
     }
   }
 
+  /**
+   * INTERNAL: Returns a Rectangle of the JTS {@link Envelope} (bounding box) of the given {@code geom}.  This asserts
+   * that {@link Geometry#isRectangle()} is true.  This method reacts to the {@link DatelineRule} setting.
+   * @param geom non-null
+   * @return null equivalent Rectangle.
+   */
+  public Rectangle makeRectFromRectangularPoly(Geometry geom) {
+    // TODO although, might want to never convert if there's a semantic difference (e.g.
+    //  geodetically)? Should have a setting for that.
+    assert geom.isRectangle();
+    Envelope env = geom.getEnvelopeInternal();
+    boolean crossesDateline = false;
+    if (isGeo() && getDatelineRule() != DatelineRule.none) {
+      if (getDatelineRule() == DatelineRule.ccwRect) {
+        // If JTS says it is clockwise, then it's actually a dateline crossing rectangle.
+        crossesDateline = !CGAlgorithms.isCCW(geom.getCoordinates());
+      } else {
+        crossesDateline = env.getWidth() > 180;
+      }
+    }
+    if (crossesDateline)
+      return makeRectangle(env.getMaxX(), env.getMinX(), env.getMinY(), env.getMaxY());
+    else
+      return makeRectangle(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
+  }
 }

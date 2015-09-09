@@ -20,6 +20,7 @@ package com.spatial4j.core.io;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import io.jeo.geom.GeomBuilder;
 import org.junit.Assert;
@@ -108,7 +109,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
 
   @Test
   public void testWriteThenReadRectangle() throws Exception {
-    assertRoundTrip(polygon1().getBoundingBox(), false);
+    assertRoundTrip(polygon1().getBoundingBox());
   }
   
   @Test
@@ -141,7 +142,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
   String polygonText1() {
     return strip("{ 'type': 'Polygon',"+
     "'coordinates': ["+
-    "  [ [100.1, 0.1], [101.1, 0.1], [101.1, 1.1], [100.1, 1.1], [100.1, 0.1] ]"+
+    "  [ [100.1, 0.1], [101.2, 0.1], [101.1, 1.1], [100.1, 1.1], [100.1, 0.1] ]"+
     "  ]"+
      "}");
   }
@@ -191,8 +192,8 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
     return strip(
     "{ 'type': 'MultiPolygon',"+
     "  'coordinates': ["+
-    "    [[[102.1, 2.1], [103.1, 2.1], [103.1, 3.1], [102.1, 3.1], [102.1, 2.1]]],"+
-    "    [[[100.1, 0.1], [101.1, 0.1], [101.1, 1.1], [100.1, 1.1], [100.1, 0.1]],"+
+    "    [[[102.1, 2.1], [103.1, 2.1], [103.1, 3.1], [102.1, 3.1], [102.1, 2.1]]],"+// rect
+    "    [[[100.1, 0.1], [101.1, 0.1], [101.1, 1.1], [100.1, 1.1], [100.1, 0.1]],"+ // rect with rect hole
     "     [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]]"+
     "    ]"+
     "  }");
@@ -200,10 +201,14 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
 
   Shape multiPolygon() {
     return ctx.makeShape(
-            gb.points(102.1, 2.1, 103.2, 2.1, 103.1, 3.1, 102.1, 3.1, 102.1, 2.1).ring().polygon() // almost rect
+            gb.points(102.1, 2.1, 103.1, 2.1, 103.1, 3.1, 102.1, 3.1, 102.1, 2.1).ring().polygon()
                     .points(100.1, 0.1, 101.1, 0.1, 101.1, 1.1, 100.1, 1.1, 100.1, 0.1).ring()
                     .points(100.2, 0.2, 100.8, 0.2, 100.8, 0.8, 100.2, 0.8, 100.2, 0.2).ring().polygon()
                     .toMultiPolygon());
+  }
+
+  Rectangle rectangle() {
+    return ctx.makeRectangle(100.1, 101.1, 0.1, 1.1);
   }
 
   String rectangleText() {
