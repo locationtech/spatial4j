@@ -8,22 +8,19 @@
 
 package com.spatial4j.core.io;
 
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.impl.BufferedLine;
+import com.spatial4j.core.shape.impl.BufferedLineString;
+import com.spatial4j.core.shape.impl.GeoCircle;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.text.NumberFormat;
 import java.util.Iterator;
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.ShapeCollection;
-import com.spatial4j.core.shape.impl.BufferedLine;
-import com.spatial4j.core.shape.impl.BufferedLineString;
-import com.spatial4j.core.shape.impl.GeoCircle;
 
 public class GeoJSONWriter implements ShapeWriter {
 
@@ -62,7 +59,7 @@ public class GeoJSONWriter implements ShapeWriter {
     }
     if (shape instanceof Rectangle) {
       Rectangle v = (Rectangle) shape;
-      output.append("{\"type\":\"Polygon\",\"coordinates\":[[");
+      output.append("{\"type\":\"Polygon\",\"coordinates\": [[");
       write(output, nf, v.getMinX(), v.getMinY());
       output.append(',');
       write(output, nf, v.getMinX(), v.getMaxY());
