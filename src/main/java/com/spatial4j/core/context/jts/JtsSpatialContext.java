@@ -10,12 +10,14 @@ package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
+import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
@@ -189,6 +191,17 @@ public class JtsSpatialContext extends SpatialContext {
   }
 
   /**
+   * INTERNAL: See {@link JtsWKTReader#makeShapeFromGeometry(Geometry)}.  This method is particularly
+   * suitable when the geometry has come from user input.
+   */
+  public Shape makeShapeFromGeometry(Geometry geom) {
+    // note: the arrangement here is clearly a hack in that we reference a method (and validate/repair
+    //  config state) on the WKT instance even though it's not related to WKT.  TODO fix this.
+    JtsWKTReader jtsWKTReader = (JtsWKTReader) getFormats().getWktReader();
+    return jtsWKTReader.makeShapeFromGeometry(geom); // will in turn call makeShape(geom) above
+  }
+
+  /**
    * INTERNAL
    * @see #makeShape(com.vividsolutions.jts.geom.Geometry)
    *
@@ -206,7 +219,11 @@ public class JtsSpatialContext extends SpatialContext {
   /**
    * INTERNAL: Creates a {@link Shape} from a JTS {@link Geometry}. Generally, this shouldn't be
    * called when one of the other factory methods are available, such as for points. The caller
-   * needs to have done some verification/normalization of the coordinates by now, if any.
+   * needs to have done some verification/normalization of the coordinates by now, if any.  Also,
+   * note that direct instances of {@link GeometryCollection} isn't supported.
+   *
+   * Instead of calling this method, consider {@link JtsWKTReader#makeShapeFromGeometry(Geometry)}
+   * which
    */
   public JtsGeometry makeShape(Geometry geom) {
     return makeShape(geom, datelineRule != DatelineRule.none, allowMultiOverlap);
@@ -225,4 +242,29 @@ public class JtsSpatialContext extends SpatialContext {
     }
   }
 
+  /**
+   * INTERNAL: Returns a Rectangle of the JTS {@link Envelope} (bounding box) of the given {@code geom}.  This asserts
+   * that {@link Geometry#isRectangle()} is true.  This method reacts to the {@link DatelineRule} setting.
+   * @param geom non-null
+   * @return null equivalent Rectangle.
+   */
+  public Rectangle makeRectFromRectangularPoly(Geometry geom) {
+    // TODO although, might want to never convert if there's a semantic difference (e.g.
+    //  geodetically)? Should have a setting for that.
+    assert geom.isRectangle();
+    Envelope env = geom.getEnvelopeInternal();
+    boolean crossesDateline = false;
+    if (isGeo() && getDatelineRule() != DatelineRule.none) {
+      if (getDatelineRule() == DatelineRule.ccwRect) {
+        // If JTS says it is clockwise, then it's actually a dateline crossing rectangle.
+        crossesDateline = !CGAlgorithms.isCCW(geom.getCoordinates());
+      } else {
+        crossesDateline = env.getWidth() > 180;
+      }
+    }
+    if (crossesDateline)
+      return makeRectangle(env.getMaxX(), env.getMinX(), env.getMinY(), env.getMaxY());
+    else
+      return makeRectangle(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
+  }
 }
