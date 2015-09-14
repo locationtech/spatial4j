@@ -1,3 +1,69 @@
+## VERSION 0.5
+
+DATE: 15 September 2015
+
+### User/API changes & Notes:
+
+ * \#96: Java 1.7 is now the minimum version supported by Spatial4j.
+ 
+ * Spatial4j supports more formats now; see "FORMATS.md".  More info below.
+ 
+ * \#107: The DatelineRule enum was moved to the com.spatial4j.context.jts package, and the
+   current setting is exposed on JtsSpatialContext.  
+   
+TODO move ValidationRule too!
+ 
+ * \#92: Shape now exposes the SpatialContext
+   
+ * Given a JTS Geometry instance and the desire to have a Spatial4j equivalent Shape, consider
+   using JtsSpatialContext.createShapeFromGeometry(geometry) vs. makeShape(geometry).  See the
+   javadocs.
+   
+ * WktShapeParser was renamed to WKTReader, although WktShapeParser still exists as a deprecated
+   subclass of WKTReader.  SpatialContext.getWktShapeParser returns WKTReader.  JtsWktShapeParser
+   was renamed to JtsWKTReader.
+   
+ * \#90: Publish the test-jar. (Nick Knize)    
+ 
+ * The internal class "Range" is deprecated, unused, and will be removed in a future release.
+
+### Features:
+
+ * \#91: SpatialContext.getFormats() returns a new SupportedFormats which lists the supported
+   Shape formats for readers & writers.  (Ryan McKinley)
+
+ * \#94: WKT writing support. (Ryan McKinley)
+
+ * \#94: GeoJSON format support; both reading & writing. (Ryan McKinley, Justin Deoliveira)
+ 
+ * \#117: Polyshape format support; both reading & writing. (Ryan McKinley, Justin Deoliveira)
+ 
+ * \#98: SpatialPredicate class -- moved from Lucene Spatial. (Ryan McKinley)
+ 
+### Improvements:
+ 
+ * \#103: JtsGeometry now accepts GeometryCollection if it's component geometry types are
+   homogeneous. (Justin Deoliveira)  
+   note: for non-homogeneous ones, see JtsSpatialContext.createShapeFromGeometry
+ 
+ * \#97: More consistent use of ParseException vs InvalidShapeException (Ryan McKinley)
+
+### Bugs:
+
+ * \#104: DistanceUtils.distHaversineRAD could return NaN given anti-podal points. (David Smiley)
+ 
+ * \#77: When ShapeCollection & JtsGeometry computed the bounding box for multiple shapes
+   longitudinally, it could sometimes produce a world-wrap longitude instead of the minimal
+   enclosing span. (David Smiley)
+
+ * \#86: Rectangle.getBuffered() in geo mode was sometimes slightly off in the southern hemisphere.
+   (David Smiley)
+ 
+ * \#85: Vertical line Rectangles at the dateline should relate with another such Rectangle
+   consistently if one is declared at -180 longitude and the other at +180 longitude.  Before this
+   fix, INTERSECTS would sometimes be returned instead of CONTAINS or WITHIN more accurately.
+   (David Smiley)
+
 ## VERSION 0.4
 
 DATE: 20 January 2014
