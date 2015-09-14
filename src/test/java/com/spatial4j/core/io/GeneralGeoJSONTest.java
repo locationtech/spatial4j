@@ -146,4 +146,10 @@ public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
   public void testEncodeGeometryCollection() throws Exception {
     assertEquals(collectionText(), strip(writer.toString(collection())));
   }
+
+  @Test
+  public void testEncodeBufferedLineString() throws Exception {
+    assertEquals(bufferedLineText(), strip(writer.toString(bufferedLine())));
+  }
+
 }

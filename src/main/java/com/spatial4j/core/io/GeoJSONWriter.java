@@ -81,6 +81,7 @@ public class GeoJSONWriter implements ShapeWriter {
       output.append(',');
       output.append("]");
       if (v.getBuf() > 0) {
+        output.append(',');
         output.append("\"buffer\":");
         output.append(nf.format(v.getBuf()));
       }
@@ -106,6 +107,7 @@ public class GeoJSONWriter implements ShapeWriter {
       }
       output.append("]");
       if (v.getBuf() > 0) {
+        output.append(',');
         output.append("\"buffer\":");
         output.append(nf.format(v.getBuf()));
       }

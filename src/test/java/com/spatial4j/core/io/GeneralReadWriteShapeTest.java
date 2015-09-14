@@ -27,6 +27,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.io.IOException;
 import java.text.ParseException;
 
@@ -235,6 +236,16 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
 
   Shape collection() {
     return ctx.makeShapeFromGeometry(gb.point(100.1, 0.1).point().points(101.1, 0.1, 102.1, 1.1).lineString().toCollection());
+  }
+
+  String bufferedLineText() {
+    return strip(
+        "{'type': 'LineString', 'coordinates': [[100.1,0.1],[101.1,1.1]], 'buffer': 10}");
+  }
+
+  Shape bufferedLine() {
+    return ctx.makeBufferedLineString(Arrays.asList(ctx.makePoint(100.1, 0.1),
+        ctx.makePoint(101.1, 1.1)), 10);
   }
 
   String strip(String json) {
