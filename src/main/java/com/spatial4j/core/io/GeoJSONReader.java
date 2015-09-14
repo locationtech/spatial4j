@@ -28,6 +28,10 @@ import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 
 public class GeoJSONReader implements ShapeReader {
+
+  protected static final String BUFFER = "buffer";
+  protected static final String BUFFER_UNITS = "buffer_units";
+
   final SpatialContext ctx;
 
   public GeoJSONReader(SpatialContext ctx, SpatialContextFactory factory) {
@@ -188,7 +192,11 @@ public class GeoJSONReader implements ShapeReader {
     for (double[] coord : coords) {
       points.add(ctx.makePoint(coord[0], coord[1]));
     }
-    Shape out = ctx.makeLineString(points);
+
+    // check for buffer field
+    double buf = readDistance(BUFFER, BUFFER_UNITS, parser);
+
+    Shape out = buf == 0d ? ctx.makeLineString(points) : ctx.makeBufferedLineString(points, buf);
     readUntilEvent(parser, JSONParser.OBJECT_END);
     return out;
   }
@@ -197,11 +205,23 @@ public class GeoJSONReader implements ShapeReader {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
     double[] coord = readCoordXY(parser);
     Point point = ctx.makePoint(coord[0], coord[1]);
-    
-    double radius = 0;
-    
+
+    return ctx.makeCircle(point, readDistance("radius", "radius_units", parser));
+  }
+
+  /**
+   * Helper method to read a up until a distance value (radius, buffer) and it's corresponding unit are found.
+   * <p>
+   * This method returns 0 if no distance value is found. This method currently only handles distance units of "km".
+   * </p>
+   * @param distProperty The name of the property containing the distance value.
+   * @param distUnitsProperty The name of the property containing the distance unit. 
+   */
+  protected double readDistance(String distProperty, String distUnitsProperty, JSONParser parser) throws IOException {
+    double dist = 0;
+
     String key = null;
-    
+
     int event = JSONParser.OBJECT_END;
     int evt = parser.lastEvent();
     while (true) {
@@ -212,23 +232,25 @@ public class GeoJSONReader implements ShapeReader {
       if(parser.wasKey()) {
         key = parser.getString();
       }
-      else if(evt==JSONParser.NUMBER) {
-        if("radius".equals(key)) {
-          radius = parser.getDouble();
+      else if(evt==JSONParser.NUMBER || evt==JSONParser.LONG) {
+        if(distProperty.equals(key)) {
+          dist = parser.getDouble();
         }
       }
       else if(evt==JSONParser.STRING) {
-        if("radius_units".equals(key)) {
+        if(distUnitsProperty.equals(key)) {
           String units = parser.getString();
+          //TODO: support for more units?
           if("km".equals(units)) {
             // Convert KM to degrees
-            radius =
-                DistanceUtils.dist2Degrees(radius, DistanceUtils.EARTH_MEAN_RADIUS_KM);
+            dist =
+                DistanceUtils.dist2Degrees(dist, DistanceUtils.EARTH_MEAN_RADIUS_KM);
           }
         }
       }
     }
-    return ctx.makeCircle(point, radius);
+
+    return dist;
   }
 
   /**

@@ -118,6 +118,11 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
     assertRoundTrip(collection());
   }
 
+  @Test
+  public void testWriteThenReadBufferedLine() throws Exception {
+    assertRoundTrip(bufferedLine());
+  }
+
   String pointText() {
     return strip("{'type': 'Point','coordinates':[100.1,0.1]}");
   }

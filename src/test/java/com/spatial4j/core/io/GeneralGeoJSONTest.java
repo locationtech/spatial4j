@@ -65,6 +65,12 @@ public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
     assertRoundTrip(wkt("BUFFER(POINT(-10 30), 40)"), false);
   }
 
+  @Override
+  public void testWriteThenReadBufferedLine() throws Exception {
+    // jts context leads jts LineString buffered to a polygon, rather than a BufferedLineString 
+    assertTrue(getShapeReader().read(getShapeWriter().toString(bufferedLine())).hasArea());
+  }
+
   //
   // Below ported from GeoJSONReadWriteTest:
   //
