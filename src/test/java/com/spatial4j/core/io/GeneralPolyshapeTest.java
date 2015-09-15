@@ -42,7 +42,7 @@ public class GeneralPolyshapeTest extends GeneralReadWriteShapeTest {
     
     reader = ctx.getFormats().getReader(ShapeIO.POLY);
     writer = ctx.getFormats().getWriter(ShapeIO.POLY);
-    writerForTests = ctx.getFormats().getWriter(ShapeIO.GeoJSON);
+    writerForTests = writer;
 
     Assert.assertNotNull(reader);
     Assert.assertNotNull(writer);
