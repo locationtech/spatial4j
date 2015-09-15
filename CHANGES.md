@@ -8,10 +8,9 @@ DATE: 15 September 2015
  
  * Spatial4j supports more formats now; see "FORMATS.md".  More info below.
  
- * \#107: The DatelineRule enum was moved to the com.spatial4j.context.jts package, and the
-   current setting is exposed on JtsSpatialContext.  
-   
-TODO move ValidationRule too!
+ * \#107: The DatelineRule and ValidationRule enums were moved to the com.spatial4j.context.jts package, and the
+   current setting is exposed on JtsSpatialContext. The autoIndex boolean was moved there too.
+   These things used to be defined in JtsWktShapeParser. (Justin Deoliveira & David Smiley)
  
  * \#92: Shape now exposes the SpatialContext
    

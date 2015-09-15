@@ -8,18 +8,17 @@
 
 package com.spatial4j.core.io;
 
+import com.spatial4j.core.context.jts.DatelineRule;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
+import com.spatial4j.core.context.jts.ValidationRule;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.context.jts.DatelineRule;
-import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -139,7 +138,7 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   @Test
   public void testWrapTopologyException() throws Exception {
     //test that we can catch ParseException without having to detect TopologyException too
-    assert ((JtsWKTReader)ctx.getWktShapeParser()).isAutoValidate();
+    assert ctx.getValidationRule() != ValidationRule.none;
     try {
       ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 10 20))");//doesn't connect around
       fail();
@@ -166,13 +165,13 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
     String wkt = "POLYGON((0 0, 10 0, 10 20, 5 -5, 0 20, 0 0))";//Topology self-intersect
 
     JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
-    factory.validationRule = JtsWKTReader.ValidationRule.repairBuffer0;
+    factory.validationRule = ValidationRule.repairBuffer0;
     JtsSpatialContext ctx = factory.newSpatialContext();
     Shape buffer0 = ctx.readShapeFromWkt(wkt);
     assertTrue(buffer0.getArea(ctx) > 0);
 
     factory = new JtsSpatialContextFactory();
-    factory.validationRule = JtsWKTReader.ValidationRule.repairConvexHull;
+    factory.validationRule = ValidationRule.repairConvexHull;
     ctx = factory.newSpatialContext();
     Shape cvxHull = ctx.readShapeFromWkt(wkt);
     assertTrue(cvxHull.getArea(ctx) > 0);
@@ -180,7 +179,7 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
     assertEquals(SpatialRelation.CONTAINS, cvxHull.relate(buffer0));
 
     factory = new JtsSpatialContextFactory();
-    factory.validationRule = JtsWKTReader.ValidationRule.none;
+    factory.validationRule = ValidationRule.none;
     ctx = factory.newSpatialContext();
     ctx.readShapeFromWkt(wkt);//doesn't throw
   }

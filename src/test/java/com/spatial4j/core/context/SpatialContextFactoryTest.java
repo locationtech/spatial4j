@@ -8,15 +8,15 @@
 
 package com.spatial4j.core.context;
 
+import com.spatial4j.core.context.jts.DatelineRule;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
+import com.spatial4j.core.context.jts.ValidationRule;
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.io.ShapeIO;
-import com.spatial4j.core.context.jts.DatelineRule;
 import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.impl.RectangleImpl;
-
 import org.junit.After;
 import org.junit.Test;
 
@@ -89,9 +89,9 @@ public class SpatialContextFactoryTest {
     assertEquals(2.0, ctx.getGeometryFactory().getPrecisionModel().getScale(), 0.0);
     assertTrue(CustomWktShapeParser.once);//cheap way to test it was created
     assertEquals(DatelineRule.ccwRect,
-        ((JtsWKTReader)ctx.getWktShapeParser()).getDatelineRule());
-    assertEquals(JtsWKTReader.ValidationRule.repairConvexHull,
-        ((JtsWKTReader)ctx.getWktShapeParser()).getValidationRule());
+        ctx.getDatelineRule());
+    assertEquals(ValidationRule.repairConvexHull,
+        ctx.getValidationRule());
 
     //ensure geo=false with worldbounds works -- fixes #72
     ctx = (JtsSpatialContext) call(
