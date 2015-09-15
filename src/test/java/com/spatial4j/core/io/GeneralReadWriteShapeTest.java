@@ -245,7 +245,10 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
 
   String bufferedLineText() {
     return strip(
-        "{'type': 'LineString', 'coordinates': [[100.1,0.1],[101.1,1.1]], 'buffer': 10}");
+        "{'type': 'LineString', " +
+            "'coordinates': [[100.1,0.1],[101.1,1.1]], " +
+            "'buffer': 1111.950797, " +
+            "'properties': {'buffer_units': 'km'}}");
   }
 
   Shape bufferedLine() {

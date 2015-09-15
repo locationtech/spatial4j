@@ -22,6 +22,9 @@ import java.io.Writer;
 import java.text.NumberFormat;
 import java.util.Iterator;
 
+import static com.spatial4j.core.io.GeoJSONReader.BUFFER;
+import static com.spatial4j.core.io.GeoJSONReader.BUFFER_UNITS;
+
 public class GeoJSONWriter implements ShapeWriter {
 
   public GeoJSONWriter(SpatialContext ctx, SpatialContextFactory factory) {
@@ -107,9 +110,7 @@ public class GeoJSONWriter implements ShapeWriter {
       }
       output.append("]");
       if (v.getBuf() > 0) {
-        output.append(',');
-        output.append("\"buffer\":");
-        output.append(nf.format(v.getBuf()));
+        writeDistance(output, nf, v.getBuf(), shape.getContext().isGeo(), BUFFER, BUFFER_UNITS);
       }
       output.append('}');
       return;
@@ -120,16 +121,8 @@ public class GeoJSONWriter implements ShapeWriter {
       Point center = v.getCenter();
       output.append("{\"type\":\"Circle\",\"coordinates\":");
       write(output, nf, center.getX(), center.getY());
-      output.append(",\"radius\":");
-      if (v instanceof GeoCircle) {
-        double distKm =
-            DistanceUtils.degrees2Dist(v.getRadius(), DistanceUtils.EARTH_MEAN_RADIUS_KM);
-        output.append(nf.format(distKm));
-        output.append(",\"properties\":{");
-        output.append("\"radius_units\":\"km\"}}");
-      } else {
-        output.append(nf.format(v.getRadius())).append('}');
-      }
+      writeDistance(output, nf, v.getRadius(), v instanceof GeoCircle, "radius", "radius_units");
+      output.append("}");
       return;
     }
     if (shape instanceof ShapeCollection) {
@@ -147,6 +140,35 @@ public class GeoJSONWriter implements ShapeWriter {
     output.append("{\"type\":\"Unknown\",\"wkt\":\"");
     output.append(LegacyShapeWriter.writeShape(shape));
     output.append("\"}");
+  }
+
+  /**
+   * Helper method to encode a distance property (with optional unit). 
+   * <p>
+   *  The distance unit is only encoded when <tt>isGeo</tt> is true, and it is converted to km. 
+   * </p>
+   * <p>
+   *  The distance unit is encoded within a properties object.
+   * </p>
+   * @param output The writer.
+   * @param nf The number format.
+   * @param dist The distance value to encode.
+   * @param isGeo The flag determining 
+   * @param distProperty The distance property name.
+   * @param distUnitsProperty The distance unit property name.
+   */
+  void writeDistance(Writer output, NumberFormat nf, double dist, boolean isGeo, String distProperty, String distUnitsProperty) 
+      throws IOException {
+    output.append(",\"").append(distProperty).append("\":");
+    if (isGeo) {
+      double distKm =
+          DistanceUtils.degrees2Dist(dist, DistanceUtils.EARTH_MEAN_RADIUS_KM);
+      output.append(nf.format(distKm));
+      output.append(",\"properties\":{");
+      output.append("\"").append(distUnitsProperty).append("\":\"km\"}");
+    } else {
+      output.append(nf.format(dist));
+    }
   }
 
   @Override
