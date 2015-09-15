@@ -58,12 +58,6 @@ public class GeneralWktTest extends GeneralReadWriteShapeTest {
     return writerForTests;
   }
 
-  @Override
-  public void testWriteThenReadBufferedLine() throws Exception {
-    // jts context leads jts LineString buffered to a polygon, rather than a BufferedLineString
-    assertTrue(getShapeReader().read(getShapeWriter().toString(bufferedLine())).hasArea());
-  }
-
   //TODO: Either the WKT read/writer should try to flatten to the original type (not GeometryCollection)
   //  and/or ShapeCollection needs to become typed.
 

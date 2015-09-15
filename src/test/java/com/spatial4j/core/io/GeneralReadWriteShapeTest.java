@@ -27,9 +27,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Arrays;
 
 public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpatialContext> {
 
@@ -46,6 +46,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
     JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
     factory.geo = true;
     factory.normWrapLongitude = true;
+    factory.useJtsLineString = false; // false so that buffering lineString round-trips
     return new JtsSpatialContext(factory);
   }
   
@@ -142,7 +143,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
   }
 
   Shape line() {
-    return ctx.makeShape(gb.points(100.1, 0.1, 101.1,1.1).toLineString());
+    return ctx.makeLineString(Arrays.asList(ctx.makePoint(100.1, 0.1), ctx.makePoint(101.1, 1.1)));
   }
 
   Shape polygon1() {
@@ -180,7 +181,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
   }
 
   Shape multiPoint() {
-    return ctx.makeShape( gb.points(100.1, 0.1, 101.1, 1.1).toMultiPoint() );
+    return ctx.makeShape(gb.points(100.1, 0.1, 101.1, 1.1).toMultiPoint());
   }
   
 
