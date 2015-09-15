@@ -10,6 +10,7 @@ package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.io.ShapeReader;
 import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
@@ -46,6 +47,8 @@ public class JtsSpatialContext extends SpatialContext {
   protected final boolean useJtsPoint;
   protected final boolean useJtsLineString;
   protected final DatelineRule datelineRule;
+  protected final ValidationRule validationRule;
+  protected final boolean autoIndex;
 
   /**
    * Called by {@link com.spatial4j.core.context.jts.JtsSpatialContextFactory#newSpatialContext()}.
@@ -58,6 +61,8 @@ public class JtsSpatialContext extends SpatialContext {
     this.useJtsPoint = factory.useJtsPoint;
     this.useJtsLineString = factory.useJtsLineString;
     this.datelineRule = factory.datelineRule;
+    this.validationRule = factory.validationRule;
+    this.autoIndex = factory.autoIndex;
   }
 
   /**
@@ -76,6 +81,23 @@ public class JtsSpatialContext extends SpatialContext {
    */
   public DatelineRule getDatelineRule() {
     return datelineRule;
+  }
+
+  /**
+   * Returns the rule used to handle errors when creating a JTS {@link Geometry}, particularly after it has been
+   * read from one of the {@link ShapeReader}s.
+   */
+  public ValidationRule getValidationRule() {
+    return validationRule;
+  }
+
+  /**
+   * If JtsGeometry shapes should be automatically "prepared" (i.e. optimized) when read via from a {@link ShapeReader}.
+   *
+   * @see com.spatial4j.core.shape.jts.JtsGeometry#index()
+   */
+  public boolean isAutoIndex() {
+    return autoIndex;
   }
 
   @Override
@@ -191,14 +213,66 @@ public class JtsSpatialContext extends SpatialContext {
   }
 
   /**
-   * INTERNAL: See {@link JtsWKTReader#makeShapeFromGeometry(Geometry)}.  This method is particularly
-   * suitable when the geometry has come from user input.
+   * INTERNAL Usually creates a JtsGeometry, potentially validating, repairing, and indexing ("preparing"). This method
+   * is intended for use by {@link ShapeReader} instances.
+   *
+   * If given a direct instance of {@link GeometryCollection} then it's contents will be
+   * recursively converted and then the resulting list will be passed to
+   * {@link SpatialContext#makeCollection(List)} and returned.
+   *
+   * If given a {@link com.vividsolutions.jts.geom.Point} then {@link SpatialContext#makePoint(double, double)}
+   * is called, which will return a {@link JtsPoint} if {@link JtsSpatialContext#useJtsPoint()}; otherwise
+   * a standard Spatial4j Point is returned.
+   *
+   * If given a {@link LineString} and if {@link JtsSpatialContext#useJtsLineString()} is true then
+   * then the geometry's parts are exposed to call {@link SpatialContext#makeLineString(List)}.
    */
   public Shape makeShapeFromGeometry(Geometry geom) {
-    // note: the arrangement here is clearly a hack in that we reference a method (and validate/repair
-    //  config state) on the WKT instance even though it's not related to WKT.  TODO fix this.
-    JtsWKTReader jtsWKTReader = (JtsWKTReader) getFormats().getWktReader();
-    return jtsWKTReader.makeShapeFromGeometry(geom); // will in turn call makeShape(geom) above
+    // Direct instances of GeometryCollection can't be wrapped in JtsGeometry but can be expanded into
+    //  a ShapeCollection.
+    if (geom.getClass() == GeometryCollection.class) {
+      List<Shape> shapes = new ArrayList<>(geom.getNumGeometries());
+      for (int i = 0; i < geom.getNumGeometries(); i++) {
+        Geometry geomN = geom.getGeometryN(i);
+        shapes.add(makeShapeFromGeometry(geomN));//recursion
+      }
+      return makeCollection(shapes);
+    }
+    if (geom instanceof com.vividsolutions.jts.geom.Point) {
+      com.vividsolutions.jts.geom.Point pt = (com.vividsolutions.jts.geom.Point) geom;
+      return makePoint(pt.getX(), pt.getY());
+    }
+    if (!useJtsLineString() && geom instanceof LineString) {
+      LineString lineString = (LineString) geom;
+      List<Point> points = new ArrayList<>(lineString.getNumPoints());
+      for (int i = 0; i < lineString.getNumPoints(); i++) {
+        Coordinate coord = lineString.getCoordinateN(i);
+        points.add(makePoint(coord.x, coord.y));
+      }
+      return makeLineString(points);
+    }
+
+    JtsGeometry jtsGeom;
+    try {
+      jtsGeom = makeShape(geom);
+      if (getValidationRule() != ValidationRule.none)
+        jtsGeom.validate();
+    } catch (RuntimeException e) {
+      // repair:
+      if (getValidationRule() == ValidationRule.repairConvexHull) {
+        jtsGeom = makeShape(geom.convexHull());
+      } else if (getValidationRule() == ValidationRule.repairBuffer0) {
+        jtsGeom = makeShape(geom.buffer(0));
+      } else {
+        // TODO there are other smarter things we could do like repairing inner holes and
+        // subtracting
+        // from outer repaired shell; but we needn't try too hard.
+        throw e;
+      }
+    }
+    if (isAutoIndex())
+      jtsGeom.index();
+    return jtsGeom;
   }
 
   /**

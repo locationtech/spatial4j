@@ -11,15 +11,12 @@
 
 package com.spatial4j.core.io.jts;
 
-import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.DatelineRule;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.io.WKTReader;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.spatial4j.core.shape.jts.JtsPoint;
 import com.vividsolutions.jts.geom.*;
 
 import java.text.ParseException;
@@ -34,36 +31,9 @@ public class JtsWKTReader extends WKTReader {
 
   protected final JtsSpatialContext ctx;
 
-  protected final ValidationRule validationRule;
-  protected final boolean autoIndex;
-
   public JtsWKTReader(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
     super(ctx, factory);
     this.ctx = ctx;
-    this.validationRule = factory.validationRule;
-    this.autoIndex = factory.autoIndex;
-  }
-
-  /** @see JtsWKTReader.ValidationRule */
-  public ValidationRule getValidationRule() {
-    return validationRule;
-  }
-
-  /**
-   * JtsGeometry shapes are automatically validated when {@link #getValidationRule()} isn't
-   * {@code none}.
-   */
-  public boolean isAutoValidate() {
-    return validationRule != ValidationRule.none;
-  }
-
-  /**
-   * If JtsGeometry shapes should be automatically prepared (i.e. optimized) when read via WKT.
-   * 
-   * @see com.spatial4j.core.shape.jts.JtsGeometry#index()
-   */
-  public boolean isAutoIndex() {
-    return autoIndex;
   }
 
 
@@ -97,7 +67,7 @@ public class JtsWKTReader extends WKTReader {
     GeometryFactory geometryFactory = ctx.getGeometryFactory();
 
     Coordinate[] coordinates = coordinateSequence(state);
-    return makeShapeFromGeometry(geometryFactory.createLineString(coordinates));
+    return ctx.makeShapeFromGeometry(geometryFactory.createLineString(coordinates));
   }
 
   /**
@@ -121,7 +91,7 @@ public class JtsWKTReader extends WKTReader {
         return ctx.makeRectFromRectangularPoly(geometry);
       }
     }
-    return makeShapeFromGeometry(geometry);
+    return ctx.makeShapeFromGeometry(geometry);
   }
 
   /**
@@ -219,108 +189,4 @@ public class JtsWKTReader extends WKTReader {
     return ctx.getGeometryFactory().getPrecisionModel().makePrecise(v);
   }
 
-  /**
-   * Usually creates a JtsGeometry, potentially validating, repairing, and preparing.
-   *
-   * If given a direct instance of {@link GeometryCollection} then it's contents will be
-   * recursively converted and then the resulting list will be passed to
-   * {@link SpatialContext#makeCollection(List)} and returned.
-   *
-   * If given a {@link com.vividsolutions.jts.geom.Point} then {@link SpatialContext#makePoint(double, double)}
-   * is called, which will return a {@link JtsPoint} if {@link JtsSpatialContext#useJtsPoint()}; otherwise
-   * a standard Spatial4j Point is returned.
-   *
-   * If given a {@link LineString} and if {@link JtsSpatialContext#useJtsLineString()} is true then
-   * then the geometry's parts are exposed to call {@link SpatialContext#makeLineString(List)}.
-   */
-  public Shape makeShapeFromGeometry(Geometry geometry) {
-    // Direct instances of GeometryCollection can't be wrapped in JtsGeometry but can be expanded into
-    //  a ShapeCollection.
-    if (geometry.getClass() == GeometryCollection.class) {
-      List<Shape> shapes = new ArrayList<>(geometry.getNumGeometries());
-      for (int i = 0; i < geometry.getNumGeometries(); i++) {
-        Geometry geomN = geometry.getGeometryN(i);
-        shapes.add(makeShapeFromGeometry(geomN));//recursion
-      }
-      return ctx.makeCollection(shapes);
-    }
-    if (geometry instanceof com.vividsolutions.jts.geom.Point) {
-      com.vividsolutions.jts.geom.Point pt = (com.vividsolutions.jts.geom.Point) geometry;
-      return ctx.makePoint(pt.getX(), pt.getY());
-    }
-    if (!ctx.useJtsLineString() && geometry instanceof LineString) {
-      LineString lineString = (LineString) geometry;
-      List<Point> points = new ArrayList<>(lineString.getNumPoints());
-      for (int i = 0; i < lineString.getNumPoints(); i++) {
-        Coordinate coord = lineString.getCoordinateN(i);
-        points.add(ctx.makePoint(coord.x, coord.y));
-      }
-      return ctx.makeLineString(points);
-    }
-
-    JtsGeometry jtsGeom;
-    try {
-      jtsGeom = ctx.makeShape(geometry);
-      if (isAutoValidate())
-        jtsGeom.validate();
-    } catch (RuntimeException e) {
-      // repair:
-      if (validationRule == ValidationRule.repairConvexHull) {
-        jtsGeom = ctx.makeShape(geometry.convexHull());
-      } else if (validationRule == ValidationRule.repairBuffer0) {
-        jtsGeom = ctx.makeShape(geometry.buffer(0));
-      } else {
-        // TODO there are other smarter things we could do like repairing inner holes and
-        // subtracting
-        // from outer repaired shell; but we needn't try too hard.
-        throw e;
-      }
-    }
-    if (isAutoIndex())
-      jtsGeom.index();
-    return jtsGeom;
-  }
-
-  /**
-   * Indicates how JTS geometries (notably polygons but applies to other geometries too) are
-   * validated (if at all) and repaired (if at all).
-   */
-  public enum ValidationRule {
-    /**
-     * Geometries will not be validated (because it's kinda expensive to calculate). You may or may
-     * not ultimately get an error at some point; results are undefined. However, note that
-     * coordinates will still be validated for falling within the world boundaries.
-     * 
-     * @see com.vividsolutions.jts.geom.Geometry#isValid().
-     */
-    none,
-
-    /**
-     * Geometries will be explicitly validated on creation, possibly resulting in an exception:
-     * {@link com.spatial4j.core.exception.InvalidShapeException}.
-     */
-    error,
-
-    /**
-     * Invalid Geometries are repaired by taking the convex hull. The result will very likely be a
-     * larger shape that matches false-positives, but no false-negatives. See
-     * {@link com.vividsolutions.jts.geom.Geometry#convexHull()}.
-     */
-    repairConvexHull,
-
-    /**
-     * Invalid polygons are repaired using the {@code buffer(0)} technique. From the <a
-     * href="http://tsusiatsoftware.net/jts/jts-faq/jts-faq.html">JTS FAQ</a>:
-     * <p>
-     * The buffer operation is fairly insensitive to topological invalidity, and the act of
-     * computing the buffer can often resolve minor issues such as self-intersecting rings. However,
-     * in some situations the computed result may not be what is desired (i.e. the buffer operation
-     * may be "confused" by certain topologies, and fail to produce a result which is close to the
-     * original. An example where this can happen is a "bow-tie: or "figure-8" polygon, with one
-     * very small lobe and one large one. Depending on the orientations of the lobes, the buffer(0)
-     * operation may keep the small lobe and discard the "valid" large lobe).
-     * </p>
-     */
-    repairBuffer0
-  }
 }

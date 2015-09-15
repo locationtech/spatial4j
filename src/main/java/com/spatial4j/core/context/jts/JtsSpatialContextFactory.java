@@ -8,22 +8,16 @@
 
 package com.spatial4j.core.context.jts;
 
-import java.util.Map;
-
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.io.LegacyShapeReader;
 import com.spatial4j.core.io.LegacyShapeWriter;
-import com.spatial4j.core.io.jts.JtsGeoJSONReader;
-import com.spatial4j.core.io.jts.JtsGeoJSONWriter;
-import com.spatial4j.core.io.jts.JtsBinaryCodec;
-import com.spatial4j.core.io.jts.JtsPolyshapeReader;
-import com.spatial4j.core.io.jts.JtsPolyshapeWriter;
-import com.spatial4j.core.io.jts.JtsWKTReader;
-import com.spatial4j.core.io.jts.JtsWKTWriter;
+import com.spatial4j.core.io.jts.*;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
+
+import java.util.Map;
 
 /**
  * See {@link SpatialContextFactory#makeSpatialContext(java.util.Map, ClassLoader)}.
@@ -36,7 +30,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
  *  -- see {@link DatelineRule}</DD>
  * <DT>validationRule</DT>
  * <DD>error(default)|none|repairConvexHull|repairBuffer0
- *  -- see {@link com.spatial4j.core.io.jts.JtsWKTReader.ValidationRule}</DD>
+ *  -- see {@link ValidationRule}</DD>
  * <DT>autoIndex</DT>
  * <DD>true|false(default) -- see {@link JtsWKTReader#isAutoIndex()}</DD>
  * <DT>allowMultiOverlap</DT>
@@ -60,7 +54,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   //ignored if geo=false
   public DatelineRule datelineRule = DatelineRule.width180;
 
-  public JtsWKTReader.ValidationRule validationRule = JtsWKTReader.ValidationRule.error;
+  public ValidationRule validationRule = ValidationRule.error;
   public boolean autoIndex = false;
   public boolean allowMultiOverlap = false;//ignored if geo=false
 
