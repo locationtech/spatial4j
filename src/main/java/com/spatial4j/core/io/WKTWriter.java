@@ -63,11 +63,15 @@ public class WKTWriter implements ShapeWriter {
     }
     if (shape instanceof Circle) {
       Circle c = (Circle) shape;
-      return "Circle(" +
-          nf.format(c.getCenter().getX()) + " " +
-          nf.format(c.getCenter().getY()) + " " +
-          "d=" + nf.format(c.getRadius()) +
-          ")";
+
+      StringBuilder str = new StringBuilder();
+      str.append("BUFFER (POINT (")
+        .append(nf.format(c.getCenter().getX())).append(" ")
+        .append(nf.format(c.getCenter().getY()))
+        .append("), ")
+        .append(nf.format(c.getRadius()))
+        .append(")");
+      return str.toString();
     }
     if (shape instanceof BufferedLineString) {
       BufferedLineString line = (BufferedLineString) shape;
@@ -90,7 +94,7 @@ public class WKTWriter implements ShapeWriter {
       str.append(")");
 
       if (buf > 0d) {
-        str.append(", ").append(buf).append(")");
+        str.append(", ").append(nf.format(buf)).append(")");
       }
       return str.toString();
     }
