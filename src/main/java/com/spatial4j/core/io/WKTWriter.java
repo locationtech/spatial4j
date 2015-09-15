@@ -72,6 +72,12 @@ public class WKTWriter implements ShapeWriter {
     if (shape instanceof BufferedLineString) {
       BufferedLineString line = (BufferedLineString) shape;
       StringBuilder str = new StringBuilder();
+
+      double buf = line.getBuf();
+      if (buf > 0d) {
+        str.append("BUFFER (");
+      }
+
       str.append("LINESTRING (");
       Iterator<BufferedLine> iter = line.getSegments().iterator();
       while(iter.hasNext()) {
@@ -82,6 +88,10 @@ public class WKTWriter implements ShapeWriter {
         }
       }
       str.append(")");
+
+      if (buf > 0d) {
+        str.append(", ").append(buf).append(")");
+      }
       return str.toString();
     }
     if(shape instanceof ShapeCollection) {
