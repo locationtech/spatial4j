@@ -39,7 +39,7 @@ public class WKTWriter implements ShapeWriter {
     NumberFormat nf = LegacyShapeWriter.makeNumberFormat(6);
     if (shape instanceof Point) {
       StringBuilder buffer = new StringBuilder();
-      return append(buffer.append("POINT("),(Point)shape,nf).append(")").toString();
+      return append(buffer.append("POINT ("),(Point)shape,nf).append(")").toString();
     }
     if (shape instanceof Rectangle) {
       NumberFormat nfMIN = nf;
@@ -49,7 +49,7 @@ public class WKTWriter implements ShapeWriter {
       nfMAX.setRoundingMode( RoundingMode.CEILING );
       
       Rectangle rect = (Rectangle)shape;
-      return "ENVELOPE(" +
+      return "ENVELOPE (" +
           // '(' x1 ',' x2 ',' y2 ',' y1 ')'
         nfMIN.format(rect.getMinX()) + ", " + nfMAX.format(rect.getMaxX()) + ", "+
         nfMAX.format(rect.getMaxY()) + ", " + nfMIN.format(rect.getMinY()) + ")";
@@ -63,16 +63,26 @@ public class WKTWriter implements ShapeWriter {
     }
     if (shape instanceof Circle) {
       Circle c = (Circle) shape;
-      return "Circle(" +
-          nf.format(c.getCenter().getX()) + " " +
-          nf.format(c.getCenter().getY()) + " " +
-          "d=" + nf.format(c.getRadius()) +
-          ")";
+
+      StringBuilder str = new StringBuilder();
+      str.append("BUFFER (POINT (")
+        .append(nf.format(c.getCenter().getX())).append(" ")
+        .append(nf.format(c.getCenter().getY()))
+        .append("), ")
+        .append(nf.format(c.getRadius()))
+        .append(")");
+      return str.toString();
     }
     if (shape instanceof BufferedLineString) {
       BufferedLineString line = (BufferedLineString) shape;
       StringBuilder str = new StringBuilder();
-      str.append("LINESTRING(");
+
+      double buf = line.getBuf();
+      if (buf > 0d) {
+        str.append("BUFFER (");
+      }
+
+      str.append("LINESTRING (");
       Iterator<BufferedLine> iter = line.getSegments().iterator();
       while(iter.hasNext()) {
         BufferedLine seg = iter.next();
@@ -82,11 +92,15 @@ public class WKTWriter implements ShapeWriter {
         }
       }
       str.append(")");
+
+      if (buf > 0d) {
+        str.append(", ").append(nf.format(buf)).append(")");
+      }
       return str.toString();
     }
     if(shape instanceof ShapeCollection) {
       StringBuilder buffer = new StringBuilder();
-      buffer.append("GEOMETRYCOLLECTION(");
+      buffer.append("GEOMETRYCOLLECTION (");
       boolean first = true;
       for(Shape sub : ((ShapeCollection<? extends Shape>)shape).getShapes()) {
         if(!first) {

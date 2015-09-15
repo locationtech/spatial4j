@@ -118,6 +118,16 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
     assertRoundTrip(collection());
   }
 
+  @Test
+  public void testWriteThenReadBufferedLine() throws Exception {
+    assertRoundTrip(bufferedLine());
+  }
+
+  @Test
+  public void testWriteThenReadCircle() throws Exception {
+    assertRoundTrip(circle(), false);
+  }
+
   String pointText() {
     return strip("{'type': 'Point','coordinates':[100.1,0.1]}");
   }
@@ -240,12 +250,19 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
 
   String bufferedLineText() {
     return strip(
-        "{'type': 'LineString', 'coordinates': [[100.1,0.1],[101.1,1.1]], 'buffer': 10}");
+        "{'type': 'LineString', " +
+            "'coordinates': [[100.1,0.1],[101.1,1.1]], " +
+            "'buffer': 1111.950797, " +
+            "'properties': {'buffer_units': 'km'}}");
   }
 
   Shape bufferedLine() {
     return ctx.makeBufferedLineString(Arrays.asList(ctx.makePoint(100.1, 0.1),
         ctx.makePoint(101.1, 1.1)), 10);
+  }
+
+  Shape circle() {
+    return ctx.makeCircle(1, 2, 10);
   }
 
   String strip(String json) {
