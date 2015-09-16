@@ -19,7 +19,6 @@ package com.spatial4j.core.io;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import io.jeo.geom.GeomBuilder;
@@ -27,8 +26,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.Arrays;
 
 public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpatialContext> {
@@ -57,24 +54,16 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
   protected abstract ShapeWriter getShapeWriterForTests();
   
   @Override
-  protected void assertRoundTrip(Shape shape, boolean andEquals) {
-    try {
-      String str = getShapeWriter().toString(shape);
-      Shape out = getShapeReader().read(str);
+  protected void assertRoundTrip(Shape shape, boolean andEquals) throws Exception {
+    String str = getShapeWriter().toString(shape);
+    Shape out = getShapeReader().read(str);
 
-      // GeoJSON has limited numberic precision so the off by .0000001 does not affect its equals
-      ShapeWriter writer = getShapeWriterForTests();
-      Assert.assertEquals(writer.toString(shape), writer.toString(out));
-      
-      if(andEquals) {
-        Assert.assertEquals(shape, out);
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    } catch (InvalidShapeException e) {
-      throw new RuntimeException(e);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
+    // GeoJSON has limited numeric precision so the off by .0000001 does not affect its equals
+    ShapeWriter writer = getShapeWriterForTests();
+    Assert.assertEquals(writer.toString(shape), writer.toString(out));
+
+    if(andEquals) {
+      Assert.assertEquals(shape, out);
     }
   }
   
@@ -126,7 +115,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
 
   @Test
   public void testWriteThenReadCircle() throws Exception {
-    assertRoundTrip(circle(), false);
+    assertRoundTrip(circle());
   }
 
   String pointText() {
@@ -183,7 +172,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
   Shape multiPoint() {
     return ctx.makeShape(gb.points(100.1, 0.1, 101.1, 1.1).toMultiPoint());
   }
-  
+
 
   String multiLineText() {
     return strip(
@@ -199,7 +188,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
     return ctx.makeShape(gb.points(100.1, 0.1, 101.1, 1.1).lineString()
       .points(102.1, 2.1, 103.1, 3.1).lineString().toMultiLineString());
   }
-  
+
   String multiPolygonText() {
     return strip(
     "{ 'type': 'MultiPolygon',"+

@@ -58,17 +58,17 @@ public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
   protected ShapeWriter getShapeWriterForTests() {
     return writerForTests;
   }
-  
 
-  @Test
-  public void testCircle() {
-    assertRoundTrip(wkt("BUFFER(POINT(-10 30), 40)"), false);
+  @Test @Override
+  public void testWriteThenReadCircle() throws Exception {
+    //don't test shape equality; rounding issue in 'km' conversion
+    assertRoundTrip(circle(), false);
   }
 
-  @Override
+  @Test @Override
   public void testWriteThenReadBufferedLine() throws Exception {
-    // jts context leads jts LineString buffered to a polygon, rather than a BufferedLineString 
-    assertTrue(getShapeReader().read(getShapeWriter().toString(bufferedLine())).hasArea());
+    //don't test shape equality; rounding issue in 'km' conversion
+    assertRoundTrip(bufferedLine(), false);
   }
 
   //
