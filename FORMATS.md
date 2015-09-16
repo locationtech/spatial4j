@@ -2,7 +2,7 @@
 
 Spatial4j supports reading and writing Shapes to and from strings in the following formats:
 
- * Well Known Text
+ * Well Known Text (WKT)
  * GeoJSON
  * Polyshape
 
@@ -20,21 +20,24 @@ Reading and writing polygons requires a reader/writer obtained from `JtsSpatialC
 ## Well Known Text
 
 Well-Known-Text (WKT) is a simple to read text based format for representing spatial objects. It is
-defined by the [OGC Simple Feature Specification](http://www.opengeospatial.org/standards/sfa).
+defined by the [OGC Simple Feature Specification](http://www.opengeospatial.org/standards/sfa).  [Wikipedia's page](https://en.wikipedia.org/wiki/Well-known_text) on it is pretty decent.
 
 The following table shows the various shape types encoded as WKT:
 
 | Shape           | WKT                                                   |
 | ----------------|-------------------------------------------------------|
 | Point           | `POINT(1 2)`                                          |
-| Rectangle       | `ENVELOPE(1, 2, 4, 3)`                                |
-| Circle          | `CIRCLE(1 2 d=1)`                                     |
+| Rectangle       | `ENVELOPE(1, 2, 4, 3)`      _(minX, maxX, maxY, minY)_|
+| Circle          | `BUFFER(POINT(-10 30), 5.2)`                          |
 | LineString      | `LINESTRING(1 2, 3 4)`                                |
-| Buffered L/S    | ?                                                     |
+| Buffered L/S    | `BUFFER(LINESTRING(1 2, 3 4), 0.5)`                   |
 | Polygon         | `POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))`                 |
 | ShapeCollection | `GEOMETRYCOLLECTION(POINT(1 2),LINESTRING(1 2, 3 4))` |
 
-`Rectangle` and `Circle` shapes are encoded with non-official extensions to the WKT spec.
+The `ENVELOPE` keyword/syntax was borrowed from OGC's [Common Query Language (CQL)](http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html) standard, a superset of WKT.  Note the odd argument order.  It's not widely used.  Alternatively a rectangular polygon can be used, which will be recognized as-such when
+it is read and turned into a Rectangle instance.
+
+The `BUFFER` keyword is a Spatial4j extension to the WKT spec.  It's used to produce a circle by buffering a point, and to buffer shapes generally.  The 2nd argument is the buffer distance in degrees.
 
 ## GeoJSON
 
