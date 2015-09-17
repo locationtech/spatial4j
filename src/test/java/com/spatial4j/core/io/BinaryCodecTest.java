@@ -8,18 +8,13 @@
 
 package com.spatial4j.core.io;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-
-import org.junit.Test;
-
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.ShapeCollection;
+import org.junit.Test;
+
+import java.io.*;
+import java.util.Arrays;
 
 public class BinaryCodecTest extends BaseRoundTripTest<SpatialContext> {
 
@@ -29,17 +24,17 @@ public class BinaryCodecTest extends BaseRoundTripTest<SpatialContext> {
   }
 
   @Test
-  public void testRect() {
+  public void testRect() throws Exception {
     assertRoundTrip(wkt("ENVELOPE(-10, 180, 42.3, 0)"));
   }
 
   @Test
-  public void testCircle() {
+  public void testCircle() throws Exception {
     assertRoundTrip(wkt("BUFFER(POINT(-10 30), 5.2)"));
   }
 
   @Test
-  public void testCollection() {
+  public void testCollection() throws Exception {
     ShapeCollection s = ctx.makeCollection(
         Arrays.asList(
             randomShape(),
@@ -51,15 +46,11 @@ public class BinaryCodecTest extends BaseRoundTripTest<SpatialContext> {
   }
 
   @Override
-  protected void assertRoundTrip(Shape shape, boolean andEquals) {
-    try {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      binaryCodec.writeShape(new DataOutputStream(baos), shape);
-      ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-      assertEquals(shape, binaryCodec.readShape(new DataInputStream(bais)));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  protected void assertRoundTrip(Shape shape, boolean andEquals) throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    binaryCodec.writeShape(new DataOutputStream(baos), shape);
+    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+    assertEquals(shape, binaryCodec.readShape(new DataInputStream(bais)));
   }
 
 }

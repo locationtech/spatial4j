@@ -100,28 +100,6 @@ public class JtsGeoJSONReader extends GeoJSONReader {
   }
 
   @Override
-  protected Shape readLineString(JSONParser parser) throws IOException, ParseException {
-    assert (parser.lastEvent() == JSONParser.ARRAY_START);
-    List<Coordinate> coords = readCoordList(parser);
-
-    GeometryFactory factory = ctx.getGeometryFactory();
-    CoordinateSequence seq =
-        factory.getCoordinateSequenceFactory()
-            .create(coords.toArray(new Coordinate[coords.size()]));
-
-    LineString geo = ctx.getGeometryFactory().createLineString(seq);
-    Shape shp = ctx.makeShape(geo);
-
-    // check for buffer
-    double buf = readDistance(BUFFER, BUFFER_UNITS, parser);
-    if (buf != 0d) {
-      shp = shp.getBuffered(buf, ctx);
-    }
-
-    return shp;
-  }
-
-  @Override
   protected Shape readPolygon(JSONParser parser) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
     GeometryFactory gf = ctx.getGeometryFactory();

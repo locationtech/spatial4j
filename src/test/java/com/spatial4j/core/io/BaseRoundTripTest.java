@@ -8,15 +8,12 @@
 
 package com.spatial4j.core.io;
 
-import java.text.ParseException;
-import java.util.Arrays;
-
-import org.junit.Test;
-
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.ShapeCollection;
+import org.junit.Test;
+
+import java.text.ParseException;
 
 public abstract class BaseRoundTripTest<T extends SpatialContext> extends RandomizedTest {
 
@@ -38,7 +35,7 @@ public abstract class BaseRoundTripTest<T extends SpatialContext> extends Random
   // using floats instead of doubles, and WKT is normalized whereas ctx.makeXXX is not.
 
   @Test
-  public void testPoint() {
+  public void testPoint() throws Exception {
     assertRoundTrip(wkt("POINT(-10 80.3)"));
   }
 
@@ -59,9 +56,9 @@ public abstract class BaseRoundTripTest<T extends SpatialContext> extends Random
     }
   }
 
-  protected final void assertRoundTrip(Shape shape) {
+  protected final void assertRoundTrip(Shape shape) throws Exception {
     assertRoundTrip(shape, shouldBeEqualAfterRoundTrip()); 
   }
 
-  protected abstract void assertRoundTrip(Shape shape, boolean andEquals);
+  protected abstract void assertRoundTrip(Shape shape, boolean andEquals) throws Exception;
 }

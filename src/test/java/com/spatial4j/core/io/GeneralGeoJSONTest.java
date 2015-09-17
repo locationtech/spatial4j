@@ -58,17 +58,17 @@ public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
   protected ShapeWriter getShapeWriterForTests() {
     return writerForTests;
   }
-  
 
-  @Test
-  public void testCircle() {
-    assertRoundTrip(wkt("BUFFER(POINT(-10 30), 40)"), false);
+  @Test @Override
+  public void testWriteThenReadCircle() throws Exception {
+    //don't test shape equality; rounding issue in 'km' conversion
+    assertRoundTrip(circle(), false);
   }
 
-  @Override
+  @Test @Override
   public void testWriteThenReadBufferedLine() throws Exception {
-    // jts context leads jts LineString buffered to a polygon, rather than a BufferedLineString 
-    assertTrue(getShapeReader().read(getShapeWriter().toString(bufferedLine())).hasArea());
+    //don't test shape equality; rounding issue in 'km' conversion
+    assertRoundTrip(bufferedLine(), false);
   }
 
   //
@@ -88,18 +88,18 @@ public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
 
   @Test
   public void testParseLineString() throws Exception {
-    assertTrue(line().equals(reader.read(lineText())));
+    assertEquals(line(), reader.read(lineText()));
   }
 
   @Test
   public void testEncodeLineString() throws Exception {
-    assertEquals(lineText(), writer.toString(line()));
+    assertEquals(lineText(), strip(writer.toString(line())));
   }
 
   @Test
   public void testParsePolygon() throws Exception {
-    assertTrue(polygon1().equals(reader.read(polygonText1())));
-    assertTrue(polygon2().equals(reader.read(polygonText2())));
+    assertEquals(polygon1(), reader.read(polygonText1()));
+    assertEquals(polygon2(), reader.read(polygonText2()));
   }
 
   @Test
@@ -110,7 +110,7 @@ public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
 
   @Test
   public void testParseMultiPoint() throws Exception {
-    assertTrue(multiPoint().equals(reader.read(multiPointText())));
+    assertEquals(multiPoint(), reader.read(multiPointText()));
   }
 
   @Test
@@ -120,7 +120,7 @@ public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
 
   @Test
   public void testParseMultiLineString() throws Exception {
-    assertTrue(multiLine().equals(reader.read(multiLineText())));
+    assertEquals(multiLine(), reader.read(multiLineText()));
   }
 
   @Test
@@ -130,7 +130,7 @@ public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
 
   @Test
   public void testParseMultiPolygon() throws Exception {
-    assertTrue(multiPolygon().equals(reader.read(multiPolygonText())));
+    assertEquals(multiPolygon(), reader.read(multiPolygonText()));
   }
 
   @Test
