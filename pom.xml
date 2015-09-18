@@ -17,7 +17,7 @@
   
   <groupId>com.spatial4j</groupId>
   <artifactId>spatial4j</artifactId>
-  <version>0.6-SNAPSHOT</version>
+  <version>0.5-SNAPSHOT</version>
   <packaging>bundle</packaging><!-- an OSGi thing; basically same as 'jar' -->
 
   <name>Spatial4J</name>
