@@ -9,6 +9,8 @@ Spatial4j is a general purpose spatial / geospatial [ASL](http://www.apache.org/
 
 If you are working with spatial grid-square indexing schemes, be it [Geohash](http://en.wikipedia.org/wiki/Geohash) or something custom, then you are likely to find especially high utility from Spatial4j -- doubly-so for Apache Software Foundation projects due to restrictions on use of LGPL software there.
 
+Spatial4j is well tested; it's monitored via [Travis-CI](https://travis-ci.org/locationtech/spatial4j) continuous integration and we use [Codecov](https://codecov.io/github/locationtech/spatial4j/) for code coverage.
+
 ## Shapes and Other Features
 
 The main part of Spatial4j is its collection of shapes.  Shapes in Spatial4j have these features:
@@ -39,10 +41,14 @@ Spatial4j has a variety of shapes that operate in Euclidean-space -- i.e. a flat
 * Read and write Shapes as [GeoJSON](http://geojson.org/geojson-spec.html#geometry-objects). 
 * Read and write Shapes as [Polyshape](FORMATS.md#polyshape). 
 * 3 great-circle distance calculators: Law of Cosines, Haversine, Vincenty
-* The code is well tested; it's monitored via [Travis-CI](https://travis-ci.org/locationtech/spatial4j) continuous integration and we use [Codecov](https://codecov.io/github/locationtech/spatial4j/) for code coverage.
-* Spatial4j has no dependencies on other libraries except for JTS, which is only triggered if you use Polygons, or obviously if you use any of the classes prefixed with "Jts".
 
 For more information on the formats supported, see [FORMATS.md](FORMATS.md).
+
+## Dependencies
+
+Spatial4j runs on Java -- version 1.7 or better.  Otherwise, all dependencies listed in the maven [pom.xml](pom.xml) are either marked optional or for testing. The optional dependencies are:
+* [JTS](https://sourceforge.net/projects/jts-topo-suite/):  You need JTS if you use polygons, or obviously if you use any of the classes prefixed with "Jts".
+* [Noggit](https://github.com/yonik/noggit): The Noggit JSON parsing library is only needed for GeoJSON parsing (not required for writing).
 
 ## Why not use JTS? Why should you use Spatial4j?
 
