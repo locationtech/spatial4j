@@ -5,7 +5,7 @@
 [![Maven](https://img.shields.io/maven-central/v/com.spatial4j/spatial4j.svg)](https://maven-badges.herokuapp.com/maven-central/com.spatial4j/spatial4j/)
 
 
-Spatial4j is a general purpose spatial / geospatial [ASL](http://www.apache.org/licenses/LICENSE-2.0.html) licensed open-source Java library. It's core capabilities are 3-fold: to provide common shapes that can work in Euclidean and geodesic (surface of sphere) world models, to provide distance calculations and other math, and to read & write shapes from strings in formats like [WKT](http://en.wikipedia.org/wiki/Well-known_text) and [GeoJSON](http://geojson.org/geojson-spec.html#geometry-objects).  Spatial4j is a member of the [LocationTech](http://www.locationtech.org) Industry Working Group family of projects.
+Spatial4j is a general purpose spatial / geospatial [ASL](http://www.apache.org/licenses/LICENSE-2.0.html) licensed open-source Java library. It's core capabilities are 3-fold: to provide common shapes that can work in Euclidean and geodesic (surface of sphere) world models, to provide distance calculations and other math, and to read & write shapes from formats like [WKT](http://en.wikipedia.org/wiki/Well-known_text) and [GeoJSON](http://geojson.org/geojson-spec.html#geometry-objects).  Spatial4j is a project of the [LocationTech](http://www.locationtech.org) Industry Working Group of the Eclipse Foundation. _(Current status: Incubation)_.
 
 If you are working with spatial grid-square indexing schemes, be it [Geohash](http://en.wikipedia.org/wiki/Geohash) or something custom, then you are likely to find especially high utility from Spatial4j -- doubly-so for Apache Software Foundation projects due to restrictions on use of LGPL software there.
 
@@ -42,6 +42,8 @@ Spatial4j has a variety of shapes that operate in Euclidean-space -- i.e. a flat
 * The code is well tested; it's monitored via [Travis-CI](https://travis-ci.org/locationtech/spatial4j) continuous integration and we use [Codecov](https://codecov.io/github/locationtech/spatial4j/) for code coverage.
 * Spatial4j has no dependencies on other libraries except for JTS, which is only triggered if you use Polygons, or obviously if you use any of the classes prefixed with "Jts".
 
+For more information on the formats supported, see [FORMATS.md](FORMATS.md).
+
 ## Why not use JTS? Why should you use Spatial4j?
 
 Spatial4j was born out of an unmet need from other open-source Java software.
@@ -71,7 +73,7 @@ Spatial4j has been ported to .NET (C#) where it is appropriately named [Spatial4
 ### Future Road Map Ideas
 
 * Support for projections by incorporating Proj4j
-* More surface-of-sphere implemented shapes (LineString, Polygon)
+* More surface-of-sphere implemented shapes (LineString, Polygon), such as by using Geo3D
 * Polygon pole wrap
 * Multi-dimensional?
 
