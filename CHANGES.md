@@ -1,6 +1,6 @@
 ## VERSION 0.5
 
-DATE: 15 September 2015
+DATE: 18 September 2015
 
 ### User/API changes & Notes:
 
@@ -62,6 +62,9 @@ DATE: 15 September 2015
    consistently if one is declared at -180 longitude and the other at +180 longitude.  Before this
    fix, INTERSECTS would sometimes be returned instead of CONTAINS or WITHIN more accurately.
    (David Smiley)
+
+
+---------------------------------------
 
 ## VERSION 0.4
 
