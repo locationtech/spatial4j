@@ -24,13 +24,15 @@
   <description>
     Spatial4j is a general purpose spatial / geospatial ASL licensed open-source Java library. It's
     core capabilities are 3-fold: to provide common geospatially-aware shapes, to provide distance
-    calculations and other math, and to read shapes in WKT format.
+    calculations and other math, and to read shape formats like WKT and GeoJSON.
   </description>
-  <url>http://www.locationtech.org/projects/locationtech.spatial4j</url>
-  <organization>
-    <name>LocationTech</name>
-    <url>http://www.locationtech.org/</url>
-  </organization>
+
+  <!-- Spatial4j is in incubation at this time. Once it's not, we'll uncomment this: -->
+  <!--<url>http://www.locationtech.org/projects/locationtech.spatial4j</url>-->
+  <!--<organization>-->
+    <!--<name>LocationTech</name>-->
+    <!--<url>http://www.locationtech.org/</url>-->
+  <!--</organization>-->
 
   <licenses>
     <license>
@@ -42,12 +44,12 @@
 
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/spatial4j/spatial4j/issues</url>
+    <url>https://github.com/locationtech/spatial4j/issues</url>
   </issueManagement>
 
   <ciManagement>
     <system>Travis-CI</system>
-    <url>https://travis-ci.org/spatial4j/spatial4j</url>
+    <url>https://travis-ci.org/locationtech/spatial4j</url>
   </ciManagement>
 
   <mailingLists>
@@ -66,27 +68,26 @@
 
   <!--
   <contributors>
-    See for yourself: https://github.com/spatial4j/spatial4j/graphs/contributors
+    See for yourself: https://github.com/locationtech/spatial4j/graphs/contributors
   </contributors>
   -->
 
   <scm>
-    <connection>scm:git:git@github.com:spatial4j/spatial4j.git</connection>
-    <developerConnection>scm:git:git@github.com:spatial4j/spatial4j.git</developerConnection>
-    <url>https://github.com/spatial4j/spatial4j</url>
+    <connection>scm:git:git@github.com:locationtech/spatial4j.git</connection>
+    <developerConnection>scm:git:git@github.com:locationtech/spatial4j.git</developerConnection>
+    <url>https://github.com/locationtech/spatial4j</url>
   </scm>
 
   <properties>
     <!-- this magic system property is honored by many plugins: http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <slf4j.version>1.7.5</slf4j.version>
-
   </properties>
 
   <!-- To check for new plugins and dependencies:
-  mvn org.codehaus.mojo:versions-maven-plugin:2.1:display-plugin-updates
-                                                  display-dependency-updates -->
+  mvn org.codehaus.mojo:versions-maven-plugin:2.2:display-plugin-updates
+  mvn org.codehaus.mojo:versions-maven-plugin:2.2:display-dependency-updates
+  -->
   <prerequisites>
     <maven>2.2.1</maven>
   </prerequisites>
@@ -118,14 +119,14 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
     
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>${slf4j.version}</version>
+      <version>1.7.12</version>
       <scope>test</scope>
     </dependency>
         
@@ -139,7 +140,7 @@
     <dependency>
       <groupId>com.carrotsearch.randomizedtesting</groupId>
       <artifactId>randomizedtesting-runner</artifactId>
-      <version>2.0.15</version>
+      <version>2.1.16</version>
       <scope>test</scope>
     </dependency>
 
