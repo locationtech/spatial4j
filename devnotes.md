@@ -48,11 +48,24 @@ http://central.sonatype.org/pages/releasing-the-deployment.html
 
 ## Publish Javadoc HTML
 
-We publish the Javadocs on GitHub, and we link to them from the readme and others might too.
+We publish the Maven "site" HTML on GitHub, and we link to it from the readme and others might too.  The site
+includes the javadoc API.
 
 Instructions:
 http://blog.progs.be/517/publishing-javadoc-to-github-using-maven
 
-Test out the generated site before publishing it.
+Summary:
 
-note: use Java 8 to get nicer javadocs
+First checkout the release tag (e.g. spatial4j-0.5) or modify pom.xml temporarily to have this version.  The site
+reports reference the version, so this is why.
+
+    mvn clean site
+    mvn scm-publish:publish-scm
+
+When site completes, open the target/site/index.html to view it to see if it's reasonable.  Then continue to the publish
+step.  The publish step will require your username & password for GitHub.  Observe the final published content online:
+
+https://locationtech.github.io/spatial4j/
+
+note: Java 8 probably has nicer javadocs, but it's more strict about symbols that need to use HTML entities and
+currently results in an error.
