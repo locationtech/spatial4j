@@ -263,8 +263,7 @@
           <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>
           <content>${project.reporting.outputDirectory}</content>
           <skipDeletedFiles>true</skipDeletedFiles>
-          <!-- scm:git:https://github.com:spatial4j/spatial4j.git -->
-          <pubScmUrl>scm:git:file://${project.basedir}</pubScmUrl>
+          <pubScmUrl>scm:git:https://github.com/locationtech/spatial4j.git</pubScmUrl>
           <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
         </configuration>
       </plugin>
