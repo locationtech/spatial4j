@@ -1,0 +1,86 @@
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ Copyright (c) 2015 Voyager Search and others
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the Apache License, Version 2.0 which
+  ~ accompanies this distribution and is available at
+  ~    http://www.apache.org/licenses/LICENSE-2.0.txt
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>com.spatial4j</groupId>
+    <artifactId>spatial4j-parent</artifactId>
+    <version>0.6-SNAPSHOT</version>
+  </parent>
+  
+  <groupId>com.spatial4j</groupId>
+  <artifactId>spatial4j</artifactId>
+  <version>0.6-SNAPSHOT</version>
+  <packaging>bundle</packaging><!-- an OSGi thing; basically same as 'jar' -->
+
+  <name>Spatial4J Core</name>
+  <description>
+    Spatial4j is a general purpose spatial / geospatial ASL licensed open-source Java library. It's
+    core capabilities are 3-fold: to provide common geospatially-aware shapes, to provide distance
+    calculations and other math, and to read shape formats like WKT and GeoJSON.
+  </description>
+
+
+  <dependencies>
+
+    <!-- Used for GeoJSON parsing -->
+    <dependency>
+      <groupId>org.noggit</groupId>
+      <artifactId>noggit</artifactId>
+      <version>0.7</version>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- JTS is essentially only used for polygons. -->
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <!-- last I checked, it still works with 1.12 -->
+      <version>1.13</version>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.12</version>
+      <scope>test</scope>
+    </dependency>
+        
+    <dependency>
+      <groupId>io.jeo</groupId>
+      <artifactId>jeo</artifactId>
+      <version>0.6</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.carrotsearch.randomizedtesting</groupId>
+      <artifactId>randomizedtesting-runner</artifactId>
+      <version>2.1.16</version>
+      <scope>test</scope>
+    </dependency>
+    
+  </dependencies>
+  
+
+</project>

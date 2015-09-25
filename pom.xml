@@ -16,23 +16,17 @@
   </parent>
   
   <groupId>com.spatial4j</groupId>
-  <artifactId>spatial4j</artifactId>
+  <artifactId>spatial4j-parent</artifactId>
   <version>0.6-SNAPSHOT</version>
-  <packaging>bundle</packaging><!-- an OSGi thing; basically same as 'jar' -->
+  <packaging>pom</packaging>
 
-  <name>Spatial4J</name>
-  <description>
-    Spatial4j is a general purpose spatial / geospatial ASL licensed open-source Java library. It's
-    core capabilities are 3-fold: to provide common geospatially-aware shapes, to provide distance
-    calculations and other math, and to read shape formats like WKT and GeoJSON.
-  </description>
+  <name>Spatial4J Parent</name>
 
-  <!-- Spatial4j is in incubation at this time. Once it's not, we'll uncomment this: -->
-  <!--<url>http://www.locationtech.org/projects/locationtech.spatial4j</url>-->
-  <!--<organization>-->
-    <!--<name>LocationTech</name>-->
-    <!--<url>http://www.locationtech.org/</url>-->
-  <!--</organization>-->
+  <url>http://www.locationtech.org/projects/locationtech.spatial4j</url>
+  <organization>
+    <name>LocationTech</name>
+    <url>http://www.locationtech.org/</url>
+  </organization>
 
   <licenses>
     <license>
@@ -92,59 +86,6 @@
     <maven>2.2.1</maven>
   </prerequisites>
 
-  <dependencies>
-    <!-- Used for GeoJSON parsing -->
-    <dependency>
-      <groupId>org.noggit</groupId>
-      <artifactId>noggit</artifactId>
-      <version>0.7</version>
-      <optional>true</optional>
-    </dependency>
-
-    <!-- JTS is essentially only used for polygons. -->
-    <dependency>
-      <groupId>com.vividsolutions</groupId>
-      <artifactId>jts</artifactId>
-      <!-- last I checked, it still works with 1.12 -->
-      <version>1.13</version>
-      <optional>true</optional>
-      <exclusions>
-        <exclusion>
-          <groupId>xerces</groupId>
-          <artifactId>xercesImpl</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>1.7.12</version>
-      <scope>test</scope>
-    </dependency>
-        
-    <dependency>
-      <groupId>io.jeo</groupId>
-      <artifactId>jeo</artifactId>
-      <version>0.6</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.carrotsearch.randomizedtesting</groupId>
-      <artifactId>randomizedtesting-runner</artifactId>
-      <version>2.1.16</version>
-      <scope>test</scope>
-    </dependency>
-
-  </dependencies>
   
   <build>
     
@@ -346,5 +287,12 @@
 
     </plugins>
   </reporting>
+
+
+  <modules>
+   <module>core</module>
+   <module>jackson</module>
+  </modules>
+
 
 </project>

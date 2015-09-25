@@ -1,0 +1,136 @@
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ Copyright (c) 2015 Voyager Search and others
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the Apache License, Version 2.0 which
+  ~ accompanies this distribution and is available at
+  ~    http://www.apache.org/licenses/LICENSE-2.0.txt
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+    <relativePath />
+  </parent>
+  
+  <groupId>com.spatial4j</groupId>
+  <artifactId>spatial4j-jackson-databind</artifactId>
+  <version>0.6-SNAPSHOT</version>
+  <packaging>jar</packaging><!-- ???? bundle did not work! an OSGi thing; basically same as 'jar' -->
+
+  <name>Spatial4J Jackson Bindings</name>
+  <description>
+    Bind Shapes and Geometry to Jackson
+  </description>
+
+  <properties>
+    <version.jackson.annotations>2.6.0</version.jackson.annotations>
+    <version.jackson.core>2.6.2</version.jackson.core>
+
+    <!-- Configuration properties for the OSGi maven-bundle-plugin -->
+    <osgi.export>${project.groupId}.jackson.*</osgi.export>
+    <osgi.versionpolicy>${range;[===,+);${@}}</osgi.versionpolicy>
+
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>com.spatial4j</groupId>
+      <artifactId>spatial4j</artifactId>
+      <version>0.6-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${version.jackson.annotations}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${version.jackson.core}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${version.jackson.core}</version>
+    </dependency>
+
+    <!-- And obviously also depends on Joda lib -->
+    <dependency>
+        <groupId>joda-time</groupId>
+        <artifactId>joda-time</artifactId>
+        <!-- Upgraded to 2.2 for Jackson 2.4: but let's try not to call any 2.2 methods
+          -->
+        <version>2.2</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <version>1.13</version>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    
+  </dependencies>
+  
+
+  <build>
+    <plugins>
+      <plugin>
+        <!-- Generate PackageVersion.java.-->
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <version>1.5.3</version>
+        <executions>
+          <execution>
+            <id>process-packageVersion</id>
+            <phase>generate-sources</phase>
+            <goals>
+                <goal>replace</goal>
+            </goals>                    
+          </execution>
+        </executions>
+        <configuration>
+          <file>${basedir}/src/main/java/org/locationtech/spatial4j/jackson/PackageVersion.java.in</file>
+          <outputFile>${generatedSourcesDir}/src/main/java/org/locationtech/spatial4j/jackson/PackageVersion.java</outputFile>
+          <replacements>
+            <replacement>
+              <token>@package@</token>
+              <value>${packageVersion.package}</value>
+            </replacement>
+            <replacement>
+              <token>@projectversion@</token>
+              <value>${project.version}</value>
+            </replacement>
+            <replacement>
+              <token>@projectgroupid@</token>
+              <value>${project.groupId}</value>
+            </replacement>
+            <replacement>
+              <token>@projectartifactid@</token>
+              <value>${project.artifactId}</value>
+            </replacement>
+          </replacements>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
