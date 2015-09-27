@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.datatype.joda;
+package org.locationtech.spatial4j.jackson;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;

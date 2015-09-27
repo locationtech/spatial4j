@@ -6,3 +6,5 @@ target/
 .classpath
 .project
 .settings/
+
+jackson/src/main/java/org/locationtech/spatial4j/jackson/PackageVersion.java

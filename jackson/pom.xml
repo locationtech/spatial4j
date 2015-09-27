@@ -9,10 +9,9 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
-    <relativePath />
+    <groupId>com.spatial4j</groupId>
+    <artifactId>spatial4j-parent</artifactId>
+    <version>0.6-SNAPSHOT</version>
   </parent>
   
   <groupId>com.spatial4j</groupId>
@@ -28,11 +27,6 @@
   <properties>
     <version.jackson.annotations>2.6.0</version.jackson.annotations>
     <version.jackson.core>2.6.2</version.jackson.core>
-
-    <!-- Configuration properties for the OSGi maven-bundle-plugin -->
-    <osgi.export>${project.groupId}.jackson.*</osgi.export>
-    <osgi.versionpolicy>${range;[===,+);${@}}</osgi.versionpolicy>
-
   </properties>
 
   <dependencies>
@@ -109,7 +103,7 @@
         </executions>
         <configuration>
           <file>${basedir}/src/main/java/org/locationtech/spatial4j/jackson/PackageVersion.java.in</file>
-          <outputFile>${generatedSourcesDir}/src/main/java/org/locationtech/spatial4j/jackson/PackageVersion.java</outputFile>
+          <outputFile>${basedir}/src/main/java/org/locationtech/spatial4j/jackson/PackageVersion.java</outputFile>
           <replacements>
             <replacement>
               <token>@package@</token>
