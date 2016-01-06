@@ -44,14 +44,14 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
 
   @Test
   public void testCustomShape() throws ParseException {
-    assertEquals("customShape", ((CustomShape)ctx.readShapeFromWkt("customShape()")).name);
-    assertEquals("custom3d", ((CustomShape)ctx.readShapeFromWkt("custom3d ()")).name);//number supported
+    assertEquals("customShape", ((CustomShape) wkt("customShape()")).name);
+    assertEquals("custom3d", ((CustomShape) wkt("custom3d ()")).name);//number supported
   }
 
   @Test
   public void testNextSubShapeString() throws ParseException {
 
-    WKTReader.State state = ctx.getWktShapeParser().newState("OUTER(INNER(3, 5))");
+    WKTReader.State state = ((WKTReader)ctx.getFormats().getWktReader()).newState("OUTER(INNER(3, 5))");
     state.offset = 0;
 
     assertEquals("OUTER(INNER(3, 5))", state.nextSubShapeString());
@@ -74,7 +74,7 @@ public class WktCustomShapeParserTest extends WktShapeParserTest {
     @Override
     protected State newState(String wkt) {
       //First few lines compile, despite newState() being protected. Just proving extensibility.
-      WktShapeParser other = null;
+      WKTReader other = null;
       if (false)
         other.newState(wkt);
 

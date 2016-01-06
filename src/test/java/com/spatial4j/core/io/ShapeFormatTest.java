@@ -8,24 +8,20 @@
 
 package com.spatial4j.core.io;
 
-import static org.junit.Assert.*;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.text.ParseException;
-import java.util.Arrays;
-
-import org.junit.Test;
-
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.Shape;
+import org.junit.Test;
+
+import java.io.*;
+import java.text.ParseException;
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for {@link ShapeFormat}
@@ -66,7 +62,7 @@ public class ShapeFormatTest {
   public void testJTS(JtsSpatialContext ctx, String name) throws Exception {
     ShapeReader reader = ctx.getFormats().getReader(name);
     ShapeWriter writer = ctx.getFormats().getWriter(name);
-    Shape shape = null;
+    Shape shape;
     
 //    
 //    wkt = readFirstLineFromRsrc("/russia.wkt.txt");
@@ -74,25 +70,25 @@ public class ShapeFormatTest {
 //  //  testReadAndWriteTheSame(shape,format);
     
     // Examples from Wikipedia
-    shape = ctx.readShape("LINESTRING (30 10, 10 30, 40 40)");
+    shape = wkt(ctx,"LINESTRING (30 10, 10 30, 40 40)");
   //  testReadAndWriteTheSame(shape,format);
 
-    shape = ctx.readShape("POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10))");
+    shape = wkt(ctx,"POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10))");
     testReadAndWriteTheSame(shape,reader,writer);
     
-    shape = ctx.readShape("POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10),(20 30, 35 35, 30 20, 20 30))");
+    shape = wkt(ctx,"POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10),(20 30, 35 35, 30 20, 20 30))");
     testReadAndWriteTheSame(shape,reader,writer);
 
-    shape = ctx.readShape("MULTIPOINT ((10 40), (40 30), (20 20), (30 10))");
+    shape = wkt(ctx,"MULTIPOINT ((10 40), (40 30), (20 20), (30 10))");
     testReadAndWriteTheSame(shape,reader,writer);
 
-    shape = ctx.readShape("MULTIPOINT (10 40, 40 30, 20 20, 30 10)");
+    shape = wkt(ctx,"MULTIPOINT (10 40, 40 30, 20 20, 30 10)");
     testReadAndWriteTheSame(shape,reader,writer);
     
-    shape = ctx.readShape("MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
+    shape = wkt(ctx,"MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
     testReadAndWriteTheSame(shape,reader,writer);
 
-    shape = ctx.readShape("MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))");
+    shape = wkt(ctx,"MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))");
     testReadAndWriteTheSame(shape,reader,writer);
   }
 
@@ -111,7 +107,7 @@ public class ShapeFormatTest {
     testJTS(JtsSpatialContext.GEO, format);
   }
   
-  public void testParseVsInvalidExceptions(WKTReader reader) throws Exception
+  public void testParseVsInvalidExceptions(ShapeReader reader) throws Exception
   {
     String txt = null;
     try {
@@ -144,8 +140,8 @@ public class ShapeFormatTest {
   @Test
   public void testParseVsInvalidExceptions() throws Exception
   {
-    testParseVsInvalidExceptions(SpatialContext.GEO.getWktShapeParser());
-    testParseVsInvalidExceptions(JtsSpatialContext.GEO.getWktShapeParser());
+    testParseVsInvalidExceptions(SpatialContext.GEO.getFormats().getWktReader());
+    testParseVsInvalidExceptions(JtsSpatialContext.GEO.getFormats().getWktReader());
   }
   
 
@@ -158,5 +154,10 @@ public class ShapeFormatTest {
     } finally {
       is.close();
     }
+  }
+
+  /** Convenience to read static data. */
+  protected Shape wkt(SpatialContext ctx, String wkt) throws IOException, ParseException {
+    return ctx.getFormats().getWktReader().read(wkt);
   }
 }

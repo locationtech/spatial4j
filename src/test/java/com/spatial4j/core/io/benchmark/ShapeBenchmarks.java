@@ -1,18 +1,14 @@
 package com.spatial4j.core.io.benchmark;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.text.NumberFormat;
-
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.io.LegacyShapeWriter;
 import com.spatial4j.core.io.ShapeIO;
 import com.spatial4j.core.io.ShapeWriter;
 import com.spatial4j.core.shape.Shape;
+
+import java.io.*;
+import java.text.NumberFormat;
 
 public class ShapeBenchmarks {
   
@@ -35,8 +31,8 @@ public class ShapeBenchmarks {
         if(line.startsWith("#") || line.length()==0) {
           continue;
         }
-        
-        Shape shape = ctx.readShapeFromWkt(line);
+
+        Shape shape = ctx.getFormats().getWktReader().read(line);
         
         double poly = ctx.getFormats().getWriter(ShapeIO.POLY).toString(shape).getBytes().length;
 

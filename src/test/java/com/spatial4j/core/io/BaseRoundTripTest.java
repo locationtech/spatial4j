@@ -13,8 +13,6 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
 import org.junit.Test;
 
-import java.text.ParseException;
-
 public abstract class BaseRoundTripTest<T extends SpatialContext> extends RandomizedTest {
 
   protected T ctx;
@@ -39,10 +37,13 @@ public abstract class BaseRoundTripTest<T extends SpatialContext> extends Random
     assertRoundTrip(wkt("POINT(-10 80.3)"));
   }
 
+  /** Convenience to read static data. */
   protected Shape wkt(String wkt) {
     try {
-      return ctx.readShapeFromWkt(wkt);
-    } catch (ParseException e) {
+      return ctx.getFormats().getWktReader().read(wkt);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }

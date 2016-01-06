@@ -94,10 +94,10 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   public void polyToRectCcwRule() throws ParseException {
     JtsSpatialContext ctx = new JtsSpatialContextFactory() { { datelineRule = DatelineRule.ccwRect;} }.newSpatialContext();
     //counter-clockwise
-    assertEquals(ctx.readShapeFromWkt("POLYGON((160 0, -170 0, -170 10, 160 10, 160 0))"),
+    assertEquals(wkt(ctx, "POLYGON((160 0, -170 0, -170 10, 160 10, 160 0))"),
         ctx.makeRectangle(160, -170, 0, 10));
     //clockwise
-    assertEquals(ctx.readShapeFromWkt("POLYGON((160 10, -170 10, -170 0, 160 0, 160 10))"),
+    assertEquals(wkt(ctx, "POLYGON((160 10, -170 10, -170 0, 160 0, 160 10))"),
         ctx.makeRectangle(-170, 160, 0, 10));
   }
 
@@ -131,7 +131,7 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   @Test
   public void testLineStringDateline() throws ParseException {
     //works because we use JTS (JtsGeometry); BufferedLineString doesn't yet do DL wrap.
-    Shape s = ctx.readShapeFromWkt("LINESTRING(160 10, -170 15)");
+    Shape s = wkt("LINESTRING(160 10, -170 15)");
     assertEquals(30, s.getBoundingBox().getWidth(), 0.0 );
   }
 
@@ -140,14 +140,14 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
     //test that we can catch ParseException without having to detect TopologyException too
     assert ctx.getValidationRule() != ValidationRule.none;
     try {
-      ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 10 20))");//doesn't connect around
+      wkt("POLYGON((0 0, 10 0, 10 20))");
       fail();
     } catch (InvalidShapeException e) {
       //expected
     }
 
     try {
-      ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 10 20, 5 -5, 0 20, 0 0))");//Topology self-intersect
+      wkt("POLYGON((0 0, 10 0, 10 20, 5 -5, 0 20, 0 0))");
       fail();
     } catch (InvalidShapeException e) {
       //expected
@@ -167,13 +167,13 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
     JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
     factory.validationRule = ValidationRule.repairBuffer0;
     JtsSpatialContext ctx = factory.newSpatialContext();
-    Shape buffer0 = ctx.readShapeFromWkt(wkt);
+    Shape buffer0 = wkt(ctx,wkt);
     assertTrue(buffer0.getArea(ctx) > 0);
 
     factory = new JtsSpatialContextFactory();
     factory.validationRule = ValidationRule.repairConvexHull;
     ctx = factory.newSpatialContext();
-    Shape cvxHull = ctx.readShapeFromWkt(wkt);
+    Shape cvxHull = wkt(ctx,wkt);
     assertTrue(cvxHull.getArea(ctx) > 0);
 
     assertEquals(SpatialRelation.CONTAINS, cvxHull.relate(buffer0));
@@ -181,7 +181,7 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
     factory = new JtsSpatialContextFactory();
     factory.validationRule = ValidationRule.none;
     ctx = factory.newSpatialContext();
-    ctx.readShapeFromWkt(wkt);//doesn't throw
+    wkt(ctx,wkt);
   }
 
 }

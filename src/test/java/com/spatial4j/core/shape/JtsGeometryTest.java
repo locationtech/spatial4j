@@ -10,8 +10,10 @@ package com.spatial4j.core.shape;
 
 import com.carrotsearch.randomizedtesting.RandomizedContext;
 import com.carrotsearch.randomizedtesting.annotations.Repeat;
+import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
+import com.spatial4j.core.io.WKTReader;
 import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.*;
@@ -41,7 +43,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
 
   public JtsGeometryTest() throws ParseException {
     super(JtsSpatialContext.GEO);
-    POLY_SHAPE = (JtsGeometry) ctx.readShapeFromWkt(POLY_STR);
+    POLY_SHAPE = (JtsGeometry) wkt(ctx, POLY_STR);
 
     if (ctx.isGeo()) {
       POLY_SHAPE_DL = shiftPoly(POLY_SHAPE, DL_SHIFT);
@@ -65,7 +67,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
     });
     pGeom.geometryChanged();
     assertFalse(pGeom.isValid());
-    return (JtsGeometry) ctx.readShapeFromWkt(pGeom.toText());
+    return (JtsGeometry) wkt(ctx, pGeom.toText());
   }
 
   @Test
@@ -73,20 +75,21 @@ public class JtsGeometryTest extends AbstractTestShapes {
     testRelations(false);
     testRelations(true);
   }
+
   public void testRelations(boolean prepare) throws ParseException {
     assert !((JtsSpatialContext)ctx).isAutoIndex();
     //base polygon
-    JtsGeometry base = (JtsGeometry) ctx.readShapeFromWkt("POLYGON((0 0, 10 0, 5 5, 0 0))");
+    JtsGeometry base = (JtsGeometry) wkt(ctx, "POLYGON((0 0, 10 0, 5 5, 0 0))");
     //shares only "10 0" with base
-    JtsGeometry polyI = (JtsGeometry) ctx.readShapeFromWkt("POLYGON((10 0, 20 0, 15 5, 10 0))");
+    JtsGeometry polyI = (JtsGeometry) wkt(ctx, "POLYGON((10 0, 20 0, 15 5, 10 0))");
     //within base: differs from base by one point is within
-    JtsGeometry polyW = (JtsGeometry) ctx.readShapeFromWkt("POLYGON((0 0, 9 0, 5 5, 0 0))");
+    JtsGeometry polyW = (JtsGeometry) wkt(ctx, "POLYGON((0 0, 9 0, 5 5, 0 0))");
     //a boundary point of base
     Point pointB = ctx.makePoint(0, 0);
     //a shared boundary line of base
-    JtsGeometry lineB = (JtsGeometry) ctx.readShapeFromWkt("LINESTRING(0 0, 10 0)");
+    JtsGeometry lineB = (JtsGeometry) wkt(ctx, "LINESTRING(0 0, 10 0)");
     //a line sharing only one point with base
-    JtsGeometry lineI = (JtsGeometry) ctx.readShapeFromWkt("LINESTRING(10 0, 20 0)");
+    JtsGeometry lineI = (JtsGeometry) wkt(ctx, "LINESTRING(10 0, 20 0)");
 
     if (prepare) base.index();
     assertRelation(CONTAINS, base, base);//preferred result as there is no EQUALS
@@ -102,7 +105,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
 
   @Test
   public void testEmpty() throws ParseException {
-    Shape emptyGeom = ctx.readShapeFromWkt("POLYGON EMPTY");
+    Shape emptyGeom = wkt(ctx, "POLYGON EMPTY");
     testEmptiness(emptyGeom);
     assertRelation("EMPTY", DISJOINT, emptyGeom, POLY_SHAPE);
   }
@@ -142,7 +145,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
   @Test
   public void testWidthGreaterThan180() throws ParseException {
     //does NOT cross the dateline but is a wide shape >180
-    JtsGeometry jtsGeo = (JtsGeometry) ctx.readShapeFromWkt("POLYGON((-161 49, 0 49, 20 49, 20 89.1, 0 89.1, -161 89.2, -161 49))");
+    JtsGeometry jtsGeo = (JtsGeometry) wkt(ctx, "POLYGON((-161 49, 0 49, 20 49, 20 89.1, 0 89.1, -161 89.2, -161 49))");
     assertEquals(161+20,jtsGeo.getBoundingBox().getWidth(), 0.001);
 
     //shift it to cross the dateline and check that it's still good
@@ -196,7 +199,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
 
     JtsSpatialContext ctx = factory.newSpatialContext();
 
-    Shape shape = ctx.readShapeFromWkt(wktStr);
+    Shape shape = wkt(ctx, wktStr);
     //System.out.println("Russia Area: "+shape.getArea(ctx));
   }
 
@@ -209,7 +212,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
     factory.normWrapLongitude = true;
     JtsSpatialContext ctx = factory.newSpatialContext();
 
-    Shape shape = ctx.readShapeFromWkt(wktStr);
+    Shape shape = wkt(ctx, wktStr);
 
     assertRelation(null,SpatialRelation.CONTAINS, shape,
             ctx.makePoint(-179.99,-16.9));
@@ -273,4 +276,9 @@ public class JtsGeometryTest extends AbstractTestShapes {
     }
 
   }
+
+  private Shape wkt(SpatialContext ctx, String wkt) throws ParseException {
+    return ((WKTReader) ctx.getFormats().getWktReader()).parse(wkt);
+  }
+
 }
