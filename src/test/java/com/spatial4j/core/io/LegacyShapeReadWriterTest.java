@@ -19,8 +19,10 @@ import java.io.IOException;
 import java.util.Arrays;
 
 
-@SuppressWarnings("unchecked")
-public class ShapeReadWriterTest extends RandomizedTest {
+public class LegacyShapeReadWriterTest extends RandomizedTest {
+
+  private final LegacyShapeReader reader;
+  private final LegacyShapeWriter writer;
 
   @ParametersFactory
   public static Iterable<Object[]> parameters() {
@@ -32,28 +34,35 @@ public class ShapeReadWriterTest extends RandomizedTest {
 
   private final SpatialContext ctx;
 
-  public ShapeReadWriterTest(SpatialContext ctx) {
+  public LegacyShapeReadWriterTest(SpatialContext ctx) {
     this.ctx = ctx;
+    this.reader = new LegacyShapeReader(ctx, null);
+    this.writer = new LegacyShapeWriter(ctx, null);
   }
 
-  private <T extends Shape> T writeThenRead( T s ) throws IOException {
-    String buff = ctx.toString( s );
-    return (T) ctx.readShape( buff );
+  @SuppressWarnings("unchecked")
+  private <T extends Shape> T writeThenRead(T s ) throws IOException {
+    String buff = writer.toString( s );
+    return (T) read( buff );
   }
-
+  
+  private Shape read(String value) {
+    return reader.readIfSupported(value);
+  }
+  
   @Test
   public void testPoint() throws IOException {
-    Shape s = ctx.readShape("10 20");
+    Shape s = read("10 20");
     assertEquals(ctx.makePoint(10,20),s);
     assertEquals(s,writeThenRead(s));
-    assertEquals(s,ctx.readShape("20,10"));//check comma for y,x format
-    assertEquals(s,ctx.readShape("20, 10"));//test space
+    assertEquals(s,read("20,10"));//check comma for y,x format
+    assertEquals(s,read("20, 10"));//test space
     assertFalse(s.hasArea());
   }
 
   @Test
   public void testRectangle() throws IOException {
-    Shape s = ctx.readShape("-10 -20 10 20");
+    Shape s = read("-10 -20 10 20");
     assertEquals(ctx.makeRectangle(-10, 10, -20, 20),s);
     assertEquals(s,writeThenRead(s));
     assertTrue(s.hasArea());
@@ -61,10 +70,10 @@ public class ShapeReadWriterTest extends RandomizedTest {
 
   @Test
   public void testCircle() throws IOException {
-    Shape s = ctx.readShape("Circle(1.23 4.56 distance=7.89)");
+    Shape s = read("Circle(1.23 4.56 distance=7.89)");
     assertEquals(ctx.makeCircle(1.23, 4.56, 7.89),s);
     assertEquals(s,writeThenRead(s));
-    assertEquals(s,ctx.readShape("CIRCLE( 4.56,1.23 d=7.89 )")); // use lat,lon and use 'd' abbreviation
+    assertEquals(s,read("CIRCLE( 4.56,1.23 d=7.89 )")); // use lat,lon and use 'd' abbreviation
     assertTrue(s.hasArea());
   }
 
