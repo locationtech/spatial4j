@@ -69,7 +69,8 @@ public enum SpatialRelation {
   /**
    * If you were to call aShape.relate(bShape) and aShape.relate(cShape), you
    * could call this to merge the intersect results as if bShape & cShape were
-   * combined into {@link ShapeCollection}.
+   * combined into {@link ShapeCollection}.  If {@code other} is null then the
+   * result is "this".
    */
   public SpatialRelation combine(SpatialRelation other) {
     // You can think of this algorithm as a state transition / automata.
@@ -78,9 +79,9 @@ public enum SpatialRelation {
     // 3. A DISJOINT + WITHIN == INTERSECTS (done).
     // 4. A DISJOINT + CONTAINS == CONTAINS.
     // 5. A CONTAINS + WITHIN == INTERSECTS (done). (weird scenario)
-    // 6. X + X == X.
-
-    if (other == this)
+    // 6. X + X == X.)
+    // 7. X + null == X;
+    if (other == this || other == null)
       return this;
     if (this == DISJOINT && other == CONTAINS
         || this == CONTAINS && other == DISJOINT)
