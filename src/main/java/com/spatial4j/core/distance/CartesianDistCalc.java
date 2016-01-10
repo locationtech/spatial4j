@@ -18,6 +18,9 @@ import com.spatial4j.core.shape.Rectangle;
  */
 public class CartesianDistCalc extends AbstractDistanceCalculator {
 
+  public static final CartesianDistCalc INSTANCE = new CartesianDistCalc();
+  public static final CartesianDistCalc INSTANCE_SQUARED = new CartesianDistCalc(true);
+
   private final boolean squared;
 
   public CartesianDistCalc() {
@@ -37,14 +40,47 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
 
   @Override
   public double distance(Point from, double toX, double toY) {
-    double deltaX = from.getX() - toX;
-    double deltaY = from.getY() - toY;
-    double xSquaredPlusYSquared = deltaX*deltaX + deltaY*deltaY;
-
+    double xSquaredPlusYSquared = distanceSquared(from.getX(), from.getY(), toX, toY);
     if (squared)
       return xSquaredPlusYSquared;
 
     return Math.sqrt(xSquaredPlusYSquared);
+  }
+
+  private static double distanceSquared(double fromX, double fromY, double toX, double toY) {
+    double deltaX = fromX - toX;
+    double deltaY = fromY - toY;
+    return deltaX*deltaX + deltaY*deltaY;
+  }
+
+  /**
+   * Distance from point to a line segment formed between points 'v' and 'w'.
+   * It respects the "squared" option.
+   */
+  // TODO add to generic DistanceCalculator and develop geo versions.
+  public double distanceToLineSegment(Point point, double vX, double vY, double wX, double wY) {
+    // Translated from: http://bl.ocks.org/mbostock/4218871
+    double d = distanceSquared(vX, vY, wX, wY);
+    double toX;
+    double toY;
+    if (d <= 0) {
+      toX = vX;
+      toY = vY;
+    } else {
+      // t = ((point[0] - v[0]) * (w[0] - v[0]) + (point[1] - v[1]) * (w[1] - v[1])) / d
+      double t = ((point.getX() - vX) * (wX - vX) + (point.getY() - vY) * (wY - vY)) / d;
+      if (t < 0) {
+        toX = vX;
+        toY = vY;
+      } else if (t > 1) {
+        toX = wX;
+        toY = wY;
+      } else {
+        toX = vX + t * (wX - vX);
+        toY = vY + t * (wY - vY);
+      }
+    }
+    return distance(point, toX, toY);
   }
 
   @Override
