@@ -10,12 +10,12 @@ package com.spatial4j.core.shape.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.impl.BBoxCalculator;
 import com.spatial4j.core.shape.impl.BufferedLineString;
-import com.spatial4j.core.shape.impl.PointImpl;
 import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
@@ -238,30 +238,117 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
     return relate(ctx.getGeometryFrom(rectangle));
   }
 
-  public SpatialRelation relate(Circle circle) {
+  public SpatialRelation relate(final Circle circle) {
     SpatialRelation bboxR = bbox.relate(circle);
     if (bboxR == SpatialRelation.WITHIN || bboxR == SpatialRelation.DISJOINT)
       return bboxR;
+    // The result could be anything still.
 
-    //Test each point to see how many of them are outside of the circle.
-    //TODO consider instead using geom.apply(CoordinateSequenceFilter) -- maybe faster since avoids Coordinate[] allocation
-    Coordinate[] coords = geom.getCoordinates();
-    int outside = 0;
-    int i = 0;
-    for (Coordinate coord : coords) {
-      i++;
-      SpatialRelation sect = circle.relate(new PointImpl(coord.x, coord.y, ctx));
-      if (sect == SpatialRelation.DISJOINT)
-        outside++;
-      if (i != outside && outside != 0)//short circuit: partially outside, partially inside
-        return SpatialRelation.INTERSECTS;
-    }
-    if (i == outside) {
-      return (relate(circle.getCenter()) == SpatialRelation.DISJOINT)
-          ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
-    }
-    assert outside == 0;
-    return SpatialRelation.WITHIN;
+    final SpatialRelation[] result = {null};
+    // Visit each geometry (this geom might contain others).
+    geom.apply(new GeometryFilter() {
+
+      // We use cartesian math.  It's a limitation/assumption when working with JTS.  When geo=true (i.e. we're using
+      //   WGS84 instead of a projected coordinate system), the errors here will be pretty terrible east-west.  At
+      //   60 degrees latitude, the circle will work as if it has half the width it should.
+      //   Instead, consider converting the circle to a polygon first (not great but better), or projecting both first.
+      //   Ideally, use Geo3D.
+      final CartesianDistCalc calcSqd = CartesianDistCalc.INSTANCE_SQUARED;
+      final double radiusSquared = circle.getRadius() * circle.getRadius();
+      final Geometry ctrGeom = ctx.getGeometryFrom(circle.getCenter());
+
+      @Override
+      public void filter(Geometry geom) {
+        if (result[0] == SpatialRelation.INTERSECTS || result[0] == SpatialRelation.CONTAINS) {
+          // a previous filter(geom) call had a result that won't be changed no matter how this geom relates
+          return;
+        }
+
+        if (geom instanceof Polygon) {
+          Polygon polygon = (Polygon) geom;
+          SpatialRelation rel = relateEnclosedRing((LinearRing) polygon.getExteriorRing());
+          // if rel == INTERSECTS or WITHIN or DISJOINT; done.  But CONTAINS...
+          if (rel == SpatialRelation.CONTAINS) {
+            // if the poly outer ring contains the circle, check the holes. Could become DISJOINT or INTERSECTS.
+            HOLE_LOOP: for (int i = 0; i < polygon.getNumInteriorRing(); i++){
+              // TODO short-circuit based on the hole's bbox if it's disjoint or within the circle.
+              switch (relateEnclosedRing((LinearRing) polygon.getInteriorRingN(i))) {
+                case WITHIN:// fall through
+                case INTERSECTS:
+                  rel = SpatialRelation.INTERSECTS;
+                  break HOLE_LOOP;
+                case CONTAINS:
+                  rel = SpatialRelation.DISJOINT;
+                  break HOLE_LOOP;
+                //case DISJOINT: break; // continue hole loop
+              }
+            }
+          }
+          result[0] = rel.combine(result[0]);
+        } else if (geom instanceof LineString) {
+          LineString lineString = (LineString) geom;
+          SpatialRelation rel = relateLineString(lineString);
+          result[0] = rel.combine(result[0]);
+        } else if (geom instanceof com.vividsolutions.jts.geom.Point) {
+          com.vividsolutions.jts.geom.Point point = (com.vividsolutions.jts.geom.Point) geom;
+          SpatialRelation rel =
+                  calcSqd.distance(circle.getCenter(), point.getX(), point.getY()) > radiusSquared
+                          ? SpatialRelation.DISJOINT : SpatialRelation.WITHIN;
+          result[0] = rel.combine(result[0]);
+        }
+        // else it's going to be some GeometryCollection and we'll visit the contents.
+      }
+
+      /** As if the ring is the outer ring of a polygon */
+      SpatialRelation relateEnclosedRing(LinearRing ring) {
+        SpatialRelation rel = relateLineString(ring);
+        if (rel == SpatialRelation.DISJOINT
+                && ctx.getGeometryFactory().createPolygon(ring).contains(ctrGeom)) {
+          // If it contains the circle center point, then the result is CONTAINS
+          rel = SpatialRelation.CONTAINS;
+        }
+        return rel;
+      }
+
+      SpatialRelation relateLineString(LineString lineString) {
+        final CoordinateSequence seq = lineString.getCoordinateSequence();
+        final boolean isRing = lineString instanceof LinearRing;
+        int numOutside = 0;
+        // Compare the coordinates:
+        for (int i = 0, numComparisons = 0; i < seq.size(); i++) {
+          if (i == 0 && isRing) {
+            continue;
+          }
+          numComparisons++;
+          boolean outside = calcSqd.distance(circle.getCenter(), seq.getX(i), seq.getY(i)) > radiusSquared;
+          if (outside) {
+            numOutside++;
+          }
+          // If the comparisons have a mix of outside/inside, then we can short-circuit INTERSECTS.
+          if (numComparisons != numOutside && numOutside != 0) {
+            assert numComparisons > 1;
+            return SpatialRelation.INTERSECTS;
+          }
+        }
+        // Either all vertices are outside or inside, by this stage.
+        if (numOutside == 0) { // all inside
+          return SpatialRelation.WITHIN.combine(result[0]);
+        }
+        // They are all outside.
+        // Check the edges (line segments) to see if any are inside.
+        for (int i = 1; i < seq.size(); i++) {
+          boolean outside = calcSqd.distanceToLineSegment(
+                  circle.getCenter(), seq.getX(i-1), seq.getY(i-1), seq.getX(i), seq.getY(i))
+                  > radiusSquared;
+          if (!outside) {
+            return SpatialRelation.INTERSECTS;
+          }
+        }
+        return SpatialRelation.DISJOINT;
+      }
+    });
+
+    return result[0] == null ? SpatialRelation.DISJOINT : result[0];
   }
 
   public SpatialRelation relate(JtsGeometry jtsGeometry) {

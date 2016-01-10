@@ -15,6 +15,7 @@ import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.io.WKTReader;
 import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.shape.impl.RectangleImpl;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.*;
 import io.jeo.geom.Geom;
@@ -30,6 +31,7 @@ import java.util.Random;
 import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
 import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
 import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
+import static com.spatial4j.core.shape.SpatialRelation.WITHIN;
 
 /** Tests {@link com.spatial4j.core.shape.jts.JtsGeometry} and some other code related
  * to {@link com.spatial4j.core.context.jts.JtsSpatialContext}.
@@ -40,6 +42,7 @@ public class JtsGeometryTest extends AbstractTestShapes {
   private JtsGeometry POLY_SHAPE;
   private final int DL_SHIFT = 180;//since POLY_SHAPE contains 0 0, I know a shift of 180 will make it cross the DL.
   private JtsGeometry POLY_SHAPE_DL;//POLY_SHAPE shifted by DL_SHIFT to cross the dateline
+  final JtsSpatialContext ctxNotGeo;
 
   public JtsGeometryTest() throws ParseException {
     super(JtsSpatialContext.GEO);
@@ -49,6 +52,11 @@ public class JtsGeometryTest extends AbstractTestShapes {
       POLY_SHAPE_DL = shiftPoly(POLY_SHAPE, DL_SHIFT);
       assertTrue(POLY_SHAPE_DL.getBoundingBox().getCrossesDateLine());
     }
+
+    JtsSpatialContextFactory ctxFactory = new JtsSpatialContextFactory();
+    ctxFactory.geo = false;
+    ctxFactory.worldBounds = new RectangleImpl(-1000, 1000, -1000, 1000, null);
+    ctxNotGeo = ctxFactory.newSpatialContext();
   }
 
   private JtsGeometry shiftPoly(JtsGeometry poly, final int lon_shift) throws ParseException {
@@ -275,6 +283,46 @@ public class JtsGeometryTest extends AbstractTestShapes {
     catch(IllegalArgumentException expected) {
     }
 
+  }
+
+  @Test
+  public void testPolyRelatesToCircle() throws ParseException {
+    // The polygon is a triangle with a 90-degree angle and two equal sides, and with
+    // a rectangular hole in the middle.
+    Shape poly = wkt(ctxNotGeo, "POLYGON ((1 1, 1 50, 50 1, 1 1), (10 10, 10 15, 15 15, 15 10, 10 10))");
+
+    assertRelation(WITHIN, poly, ctxNotGeo.makeCircle(25, 25, 40));
+    assertRelation(CONTAINS, poly, ctxNotGeo.makeCircle(10, 25, 5));
+    assertRelation(DISJOINT, poly, ctxNotGeo.makeCircle(35, 35, 5));
+    assertRelation(DISJOINT, poly, ctxNotGeo.makeCircle(12, 12, 1)); // inside the hole
+
+    // Intersects, or almost intersects and is something else
+    //                                                                  The circle...
+    assertRelation(INTERSECTS, poly, ctxNotGeo.makeCircle(25, 25, 34)); // not *quite* within
+    assertRelation(INTERSECTS, poly, ctxNotGeo.makeCircle(30, 30, 10)); // crosses into the long angle
+    assertRelation(DISJOINT,   poly, ctxNotGeo.makeCircle(30, 30, 5)); // almost crosses into the long angle
+    assertRelation(INTERSECTS, poly, ctxNotGeo.makeCircle(25, -5, 10)); // crosses into the bottom edge
+    assertRelation(DISJOINT,   poly, ctxNotGeo.makeCircle(25, -5, 1)); // almost crosses into the bottom edge
+    assertRelation(INTERSECTS, poly, ctxNotGeo.makeCircle(0, 0, 10)); // encloses a corner
+    assertRelation(INTERSECTS, poly, ctxNotGeo.makeCircle(10, 35, 5)); // inside but sticks out at the angle
+    assertRelation(INTERSECTS, poly, ctxNotGeo.makeCircle(12, 12, 10)); // encloses the hole but otherwise inside the triangle
+  }
+
+  @Test
+  public void testMultiLineStringRelatesToCircle() throws com.vividsolutions.jts.io.ParseException {
+    // use JTS WKTReader to ensure we get one Geometry in the end
+    com.vividsolutions.jts.io.WKTReader wktReader = new com.vividsolutions.jts.io.WKTReader();
+    Shape poly = ctxNotGeo.makeShape(wktReader.read("MULTILINESTRING ((5 20, 5 5, 20 5), (20 25, 30 15))"));
+    assertEquals(JtsGeometry.class, poly.getClass());
+
+    assertRelation(WITHIN, poly, ctxNotGeo.makeCircle(15, 15, 20));
+    assertRelation(DISJOINT, poly, ctxNotGeo.makeCircle(15, 15, 5)); // much smaller now; doesn't touch anything
+
+    assertRelation(INTERSECTS, poly, ctxNotGeo.makeCircle(5, 5, 16)); // circle encloses the left lineString
+    assertRelation(INTERSECTS, poly, ctxNotGeo.makeCircle(25, 20, 10)); // circle encloses the right lineString
+    assertRelation(INTERSECTS, poly, ctxNotGeo.makeCircle(5, 20, 1)); // circle encloses first point
+    assertRelation(INTERSECTS, poly, ctxNotGeo.makeCircle(26, 21, 2)); // only intersects an edge of 2nd
+    // not CONTAINS is impossible with a circle; line strings don't contain anything
   }
 
   private Shape wkt(SpatialContext ctx, String wkt) throws ParseException {
