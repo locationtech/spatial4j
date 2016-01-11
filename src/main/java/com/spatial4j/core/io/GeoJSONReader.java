@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 VoyagerSearch
+ * Copyright (c) 2015 VoyagerSearch and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Apache License, Version 2.0 which
  * accompanies this distribution and is available at
@@ -12,11 +12,11 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.ParseException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
+import com.spatial4j.core.shape.ShapeFactory;
+import com.spatial4j.core.shape.impl.BufferedLineString;
 import org.noggit.JSONParser;
 
 import com.spatial4j.core.context.SpatialContext;
@@ -32,10 +32,12 @@ public class GeoJSONReader implements ShapeReader {
   protected static final String BUFFER = "buffer";
   protected static final String BUFFER_UNITS = "buffer_units";
 
-  final SpatialContext ctx;
+  protected final SpatialContext ctx;
+  protected final ShapeFactory shapeFactory;
 
   public GeoJSONReader(SpatialContext ctx, SpatialContextFactory factory) {
     this.ctx = ctx;
+    this.shapeFactory = ctx.getShapeFactory();
   }
 
   @Override
@@ -72,48 +74,11 @@ public class GeoJSONReader implements ShapeReader {
   // Read GeoJSON
   // --------------------------------------------------------------
 
-  public List<?> readCoordinates(JSONParser parser) throws IOException, ParseException {
+
+  protected void readCoordXYZ(JSONParser parser, ShapeFactory.PointsBuilder pointsBuilder) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
 
-    Deque<List> stack = new ArrayDeque<List>();
-    stack.push(new ArrayList());
-    int depth = 1;
-
-    while (true) {
-      int evt = parser.nextEvent();
-      switch (evt) {
-        case JSONParser.LONG:
-        case JSONParser.NUMBER:
-        case JSONParser.BIGNUMBER:
-          stack.peek().add(parser.getDouble());
-          break;
-
-        case JSONParser.ARRAY_START:
-          stack.push(new ArrayList());
-          depth++;
-          break;
-
-        case JSONParser.ARRAY_END:
-          depth--;
-
-          List val = stack.pop();
-          if (depth == 0) {
-            return val;
-          }
-          stack.peek().add(val);
-          break;
-
-        default:
-          throw new ParseException("Unexpected " + JSONParser.getEventString(evt),
-              (int) parser.getPosition());
-      }
-    }
-  }
-
-  public double[] readCoordXY(JSONParser parser) throws IOException, ParseException {
-    assert (parser.lastEvent() == JSONParser.ARRAY_START);
-
-    double[] coord = new double[3];
+    double x = Double.NaN, y = Double.NaN, z = Double.NaN;
     int idx = 0;
 
     int evt = parser.nextEvent();
@@ -122,11 +87,22 @@ public class GeoJSONReader implements ShapeReader {
         case JSONParser.LONG:
         case JSONParser.NUMBER:
         case JSONParser.BIGNUMBER:
-          coord[idx++] = parser.getDouble();
+          double value = parser.getDouble();
+          switch(idx) {
+            case 0: x = value; break;
+            case 1: y = value; break;
+            case 2: z = value; break;
+          }
+          idx++;
           break;
 
         case JSONParser.ARRAY_END:
-          return coord;
+          if (idx <= 2) { // don't have a 'z'
+            pointsBuilder.pointXY(x, y);
+          } else {
+            pointsBuilder.pointXYZ(x, y, z);
+          }
+          return;
 
         case JSONParser.STRING:
         case JSONParser.BOOLEAN:
@@ -140,22 +116,21 @@ public class GeoJSONReader implements ShapeReader {
       }
       evt = parser.nextEvent();
     }
-    return coord;
+    return;
   }
 
-  public List<double[]> readCoordListXY(JSONParser parser) throws IOException, ParseException {
+  protected void readCoordListXYZ(JSONParser parser, ShapeFactory.PointsBuilder pointsBuilder) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
 
-    List<double[]> coords = new ArrayList<double[]>();
     int evt = parser.nextEvent();
     while (evt != JSONParser.EOF) {
       switch (evt) {
         case JSONParser.ARRAY_START:
-          coords.add(readCoordXY(parser));
+          readCoordXYZ(parser, pointsBuilder); // reads until ARRAY_END
           break;
 
         case JSONParser.ARRAY_END:
-          return coords;
+          return;
 
         default:
           throw new ParseException("Unexpected " + JSONParser.getEventString(evt),
@@ -163,7 +138,6 @@ public class GeoJSONReader implements ShapeReader {
       }
       evt = parser.nextEvent();
     }
-    return coords;
   }
 
   protected void readUntilEvent(JSONParser parser, final int event) throws IOException {
@@ -176,37 +150,53 @@ public class GeoJSONReader implements ShapeReader {
     }
   }
 
+  private class OnePointsBuilder implements ShapeFactory.PointsBuilder<OnePointsBuilder> {
+    Point point;
+
+    @Override
+    public OnePointsBuilder pointXY(double x, double y) {
+      assert point == null;
+      point = shapeFactory.pointXY(x, y);
+      return this;
+    }
+
+    @Override
+    public OnePointsBuilder pointXYZ(double x, double y, double z) {
+      assert point == null;
+      point = shapeFactory.pointXYZ(x, y, z);
+      return this;
+    }
+  }
+
   protected Shape readPoint(JSONParser parser) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
-    double[] coord = readCoordXY(parser);
-    Shape v = ctx.makePoint(coord[0], coord[1]);
+    OnePointsBuilder onePointsBuilder = new OnePointsBuilder();
+    readCoordXYZ(parser, onePointsBuilder);
+    Point v = onePointsBuilder.point;
     readUntilEvent(parser, JSONParser.OBJECT_END);
     return v;
   }
 
   protected Shape readLineString(JSONParser parser) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
-    List<double[]> coords = readCoordListXY(parser);
-
-    List<Point> points = new ArrayList<Point>(coords.size());
-    for (double[] coord : coords) {
-      points.add(ctx.makePoint(coord[0], coord[1]));
-    }
+    ShapeFactory.LineStringBuilder builder = shapeFactory.lineString();
+    readCoordListXYZ(parser, builder);
 
     // check for buffer field
-    double buf = readDistance(BUFFER, BUFFER_UNITS, parser);
+    builder.buffer(readDistance(BUFFER, BUFFER_UNITS, parser));
 
-    Shape out = buf == 0d ? ctx.makeLineString(points) : ctx.makeBufferedLineString(points, buf);
+    Shape out = builder.build();
     readUntilEvent(parser, JSONParser.OBJECT_END);
     return out;
   }
 
   protected Circle readCircle(JSONParser parser) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
-    double[] coord = readCoordXY(parser);
-    Point point = ctx.makePoint(coord[0], coord[1]);
+    OnePointsBuilder onePointsBuilder = new OnePointsBuilder();
+    readCoordXYZ(parser, onePointsBuilder);
+    Point point = onePointsBuilder.point;
 
-    return ctx.makeCircle(point, readDistance("radius", "radius_units", parser));
+    return shapeFactory.circle(point, readDistance("radius", "radius_units", parser));
   }
 
   /**
@@ -253,58 +243,7 @@ public class GeoJSONReader implements ShapeReader {
     return dist;
   }
 
-  /**
-   * This method takes a polygon and makes a bbox from it
-   * 
-   * NOTE: not currently used!  polygon is currently implemented in:
-   *   {@link GeoJSONReader#makeShapeFromCoords(String, List)}
-   *   
-   * We could add a 'strict' or 'leinent' mode that would try the best it can
-   * 
-   * @throws ParseException
-   */
-  protected Shape readPolygon(JSONParser parser) throws IOException, ParseException {
-    assert (parser.lastEvent() == JSONParser.ARRAY_START);
-
-    double[] min = new double[] {Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE};
-    double[] max = new double[] {Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
-
-    // Just get all coords and expand
-    double[] coords = new double[3];
-    int idx = 0;
-
-
-    int evt = parser.nextEvent();
-    while (evt != JSONParser.EOF) {
-      // System.out.println( ">> "+JSONParser.getEventString(evt));
-      switch (evt) {
-        case JSONParser.LONG:
-        case JSONParser.NUMBER:
-        case JSONParser.BIGNUMBER:
-          coords[idx] = parser.getDouble();
-          if (coords[idx] > max[idx]) {
-            max[idx] = coords[idx];
-          }
-          if (coords[idx] < min[idx]) {
-            min[idx] = coords[idx];
-          }
-          idx++;
-          break;
-
-        case JSONParser.ARRAY_END:
-          idx = 0;
-          break;
-
-        case JSONParser.OBJECT_END: {
-          return ctx.makeRectangle(min[0], max[0], min[1], max[1]);
-        }
-      }
-      evt = parser.nextEvent();
-    }
-    throw new RuntimeException("Could not find polygon");
-  }
-
-  public Shape readShape(JSONParser parser) throws IOException, ParseException {
+  protected Shape readShape(JSONParser parser) throws IOException, ParseException {
     String type = null;
 
     String key = null;
@@ -319,29 +258,16 @@ public class GeoJSONReader implements ShapeReader {
               type = parser.getString();
             } else {
               throw new ParseException("Unexpected String Value for key: " + key,
-                  (int) parser.getPosition());
+                      (int) parser.getPosition());
             }
           }
           break;
 
         case JSONParser.ARRAY_START:
           if ("coordinates".equals(key)) {
-            Shape shape = null;
-            if ("Point".equals(type)) {
-              shape = readPoint(parser);
-            } else if ("LineString".equals(type)) {
-              shape = readLineString(parser);
-            } else if ("Circle".equals(type)) {
-              shape = readCircle(parser);
-            }else {
-              shape = makeShapeFromCoords(type, readCoordinates(parser));
-            }
-            if (shape != null) {
-              readUntilEvent(parser, JSONParser.OBJECT_END);
-              return shape;
-            }
-            throw new ParseException("Unable to make shape type: " + type,
-                (int) parser.getPosition());
+            Shape shape = readShapeFromCoordinates(type, parser);
+            readUntilEvent(parser, JSONParser.OBJECT_END);
+            return shape;
           } else if ("geometries".equals(key)) {
             List<Shape> shapes = new ArrayList<Shape>();
             int sub = parser.nextEvent();
@@ -357,7 +283,7 @@ public class GeoJSONReader implements ShapeReader {
               sub = parser.nextEvent();
             }
             if (shapes.isEmpty()) {
-              throw new ParseException("Shape Collection with now geometries!",
+              throw new ParseException("Shape Collection with no geometries!",
                   (int) parser.getPosition());
             }
             return ctx.makeCollection(shapes);
@@ -394,8 +320,117 @@ public class GeoJSONReader implements ShapeReader {
     throw new RuntimeException("unable to parse shape");
   }
 
-  protected Shape makeShapeFromCoords(String type, List coords) {
-    // TODO?: we could default to making a bbox rather than throwing an error
-    throw new RuntimeException("Unsupported: " + type); // JTS Supports this
+  protected Shape readShapeFromCoordinates(String type, JSONParser parser) throws IOException, ParseException {
+    switch(type) {
+      case "Point":
+        return readPoint(parser);
+      case "LineString":
+        return readLineString(parser);
+      case "Circle":
+        return readCircle(parser);
+      case "Polygon":
+        return readPolygon(parser).buildOrRect();
+
+      case "MultiPoint":
+        return readMultiPoint(parser);
+
+      case "MultiLineString":
+        return readMultiLineString(parser);
+
+      case "MultiPolygon":
+        return readMultiPolygon(parser);
+      default:
+        throw new ParseException("Unable to make shape type: " + type,
+                (int) parser.getPosition());
+    }
+  }
+
+  protected ShapeFactory.PolygonBuilder readPolygon(JSONParser parser) throws IOException, ParseException {
+    assert (parser.lastEvent() == JSONParser.ARRAY_START);
+    ShapeFactory.PolygonBuilder polygonBuilder = shapeFactory.polygon();
+    boolean firstRing = true;
+    int evt = parser.nextEvent();
+    while (true) {
+      switch (evt) {
+        case JSONParser.ARRAY_START:
+          if (firstRing) {
+            readCoordListXYZ(parser, polygonBuilder);
+            firstRing = false;
+          } else {
+            ShapeFactory.PolygonBuilder.HoleBuilder holeBuilder = polygonBuilder.hole();
+            readCoordListXYZ(parser, holeBuilder);
+            holeBuilder.endHole();
+          }
+          break;
+        case JSONParser.ARRAY_END:
+          return polygonBuilder;
+        default:
+          throw new ParseException("Unexpected " + JSONParser.getEventString(evt),
+                  (int) parser.getPosition());
+      }
+      evt = parser.nextEvent();
+    }
+  }
+
+  protected Shape readMultiPoint(JSONParser parser) throws IOException, ParseException {
+    assert (parser.lastEvent() == JSONParser.ARRAY_START);
+    final ShapeFactory.MultiShapeBuilder<Point> builder = shapeFactory.multiShape(Point.class);
+    readCoordListXYZ(parser, new ShapeFactory.PointsBuilder() {
+      @Override
+      public Object pointXY(double x, double y) {
+        builder.add(shapeFactory.pointXY(x, y));
+        return this;
+      }
+
+      @Override
+      public Object pointXYZ(double x, double y, double z) {
+        builder.add(shapeFactory.pointXYZ(x, y, z));
+        return this;
+      }
+    });
+    return builder.build();
+  }
+
+  protected Shape readMultiLineString(JSONParser parser) throws IOException, ParseException {
+    assert (parser.lastEvent() == JSONParser.ARRAY_START);
+    // TODO need Spatial4j LineString interface
+    ShapeFactory.MultiShapeBuilder<Shape> builder = shapeFactory.multiShape(Shape.class);
+    int evt = parser.nextEvent();
+    while (true) {
+      switch (evt) {
+        case JSONParser.ARRAY_START:
+          ShapeFactory.LineStringBuilder lineStringBuilder = shapeFactory.lineString();
+          readCoordListXYZ(parser, lineStringBuilder);
+          builder.add(lineStringBuilder.build());
+          break;
+        case JSONParser.ARRAY_END:
+          return builder.build();
+        default:
+          throw new ParseException("Unexpected " + JSONParser.getEventString(evt),
+                  (int) parser.getPosition());
+      }
+      evt = parser.nextEvent();
+    }
+  }
+
+  protected Shape readMultiPolygon(JSONParser parser) throws IOException, ParseException {
+    assert (parser.lastEvent() == JSONParser.ARRAY_START);
+    // TODO need Spatial4j Polygon interface
+    ShapeFactory.MultiShapeBuilder<Shape> builder = shapeFactory.multiShape(Shape.class);
+    int evt = parser.nextEvent();
+    while (true) {
+      switch (evt) {
+        case JSONParser.ARRAY_START:
+          ShapeFactory.PolygonBuilder polygonBuilder = readPolygon(parser);
+          builder.add(polygonBuilder.build());
+          break;
+        case JSONParser.ARRAY_END:
+          return builder.build();
+        default:
+          throw new ParseException("Unexpected " + JSONParser.getEventString(evt),
+                  (int) parser.getPosition());
+      }
+      evt = parser.nextEvent();
+    }
   }
 }

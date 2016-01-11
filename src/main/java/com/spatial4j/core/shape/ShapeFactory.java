@@ -112,12 +112,18 @@ public interface ShapeFactory {
   interface PolygonBuilder<T extends PolygonBuilder> extends PointsBuilder<T> {
     // TODO add dimensionality hint method?
 
+    /** Starts a new hole. You must add at least 4 points; furthermore the first and last must be the same.
+     * And don't forget to call {@link HoleBuilder#endHole()}! */
     HoleBuilder<?, T> hole();
 
+    /** Builds the polygon and renders this builder instance invalid.
+     */
     Shape build();// never a Rect
+
     Shape buildOrRect();
 
     interface HoleBuilder<T extends HoleBuilder, P extends PolygonBuilder> extends PointsBuilder<T> {
+      /** Finishes the hole and returns the {@link PolygonBuilder}. Calling this is optional.*/
       P endHole();
     }
   }
@@ -127,7 +133,8 @@ public interface ShapeFactory {
 
     MultiShapeBuilder<T> add(T shape);
 
-    ShapeCollection<T> build();
+    //ShapeCollection<T> build(); TODO wait till it's a typed interface
+    Shape build();
   }
 
   /*
