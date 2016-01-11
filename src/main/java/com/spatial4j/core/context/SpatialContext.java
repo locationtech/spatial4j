@@ -184,12 +184,12 @@ public class SpatialContext {
 
   /** Construct a point. */
   public Point makePoint(double x, double y) {
-    return shapeFactory.makePoint(x, y);
+    return shapeFactory.pointXY(x, y);
   }
 
   /** Construct a rectangle. */
   public Rectangle makeRectangle(Point lowerLeft, Point upperRight) {
-    return shapeFactory.makeRectangle(lowerLeft, upperRight);
+    return shapeFactory.rect(lowerLeft, upperRight);
   }
 
   /**
@@ -198,35 +198,35 @@ public class SpatialContext {
    * dateline.
    */
   public Rectangle makeRectangle(double minX, double maxX, double minY, double maxY) {
-    return shapeFactory.makeRectangle(minX, maxX, minY, maxY);
+    return shapeFactory.rect(minX, maxX, minY, maxY);
   }
 
   /** Construct a circle. The units of "distance" should be the same as x & y. */
   public Circle makeCircle(double x, double y, double distance) {
-    return shapeFactory.makeCircle(x, y, distance);
+    return shapeFactory.circle(x, y, distance);
   }
 
   /** Construct a circle. The units of "distance" should be the same as x & y. */
   public Circle makeCircle(Point point, double distance) {
-    return shapeFactory.makeCircle(point, distance);
+    return shapeFactory.circle(point, distance);
   }
 
   /** Constructs a line string. It's an ordered sequence of connected vertexes. There
    * is no official shape/interface for it yet so we just return Shape. */
   public Shape makeLineString(List<Point> points) {
-    return shapeFactory.makeLineString(points);
+    return shapeFactory.lineString(points, 0);
   }
 
   /** Constructs a buffered line string. It's an ordered sequence of connected vertexes,
    * with a buffer distance along the line in all directions. There
    * is no official shape/interface for it so we just return Shape. */
   public Shape makeBufferedLineString(List<Point> points, double buf) {
-    return shapeFactory.makeBufferedLineString(points, buf);
+    return shapeFactory.lineString(points, buf);
   }
 
   /** Construct a ShapeCollection, analogous to an OGC GeometryCollection. */
   public <S extends Shape> ShapeCollection<S> makeCollection(List<S> coll) {
-    return shapeFactory.makeCollection(coll);
+    return shapeFactory.multiShape(coll);
   }
 
   /** The {@link com.spatial4j.core.io.WKTReader} used by {@link #readShapeFromWkt(String)}. */

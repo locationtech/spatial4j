@@ -8,10 +8,17 @@
 
 package com.spatial4j.core.shape;
 
+import com.spatial4j.core.context.SpatialContext;
+
 import java.util.List;
 
-/** A factory for {@link Shape}s. */
+/**
+ * A factory for {@link Shape}s.
+ * Stateless and Threadsafe, except for any returned builders.
+ */
 public interface ShapeFactory {
+
+  SpatialContext getSpatialContext();
 
   /** If true then {@link #normX(double)} will wrap longitudes outside of the standard
    * geodetic boundary into it. Example: 181 will become -179. */
@@ -34,33 +41,116 @@ public interface ShapeFactory {
   void verifyY(double y);
 
   /** Construct a point. */
-  Point makePoint(double x, double y);
+  Point pointXY(double x, double y);
+
+  /** Construct a point of 3 dimensions.  The implementation might ignore unsupported
+   * dimensions or throw an error. */
+  Point pointXYZ(double x, double y, double z);
 
   /** Construct a rectangle. */
-  Rectangle makeRectangle(Point lowerLeft, Point upperRight);
+  Rectangle rect(Point lowerLeft, Point upperRight);
 
   /**
    * Construct a rectangle. If just one longitude is on the dateline (+/- 180)
    * then potentially adjust its sign to ensure the rectangle does not cross the
    * dateline.
    */
-  Rectangle makeRectangle(double minX, double maxX, double minY, double maxY);
+  Rectangle rect(double minX, double maxX, double minY, double maxY);
 
   /** Construct a circle. The units of "distance" should be the same as x & y. */
-  Circle makeCircle(double x, double y, double distance);
+  Circle circle(double x, double y, double distance);
 
   /** Construct a circle. The units of "distance" should be the same as x & y. */
-  Circle makeCircle(Point point, double distance);
+  Circle circle(Point point, double distance);
 
-  /** Constructs a line string. It's an ordered sequence of connected vertexes. There
-   * is no official shape/interface for it yet so we just return Shape. */
-  Shape makeLineString(List<Point> points);
-
-  /** Constructs a buffered line string. It's an ordered sequence of connected vertexes,
+  /** Constructs a line string with a possible buffer. It's an ordered sequence of connected vertexes,
    * with a buffer distance along the line in all directions. There
    * is no official shape/interface for it so we just return Shape. */
-  Shape makeBufferedLineString(List<Point> points, double buf);
+  @Deprecated
+  Shape lineString(List<Point> points, double buf);
 
   /** Construct a ShapeCollection, analogous to an OGC GeometryCollection. */
-  <S extends Shape> ShapeCollection<S> makeCollection(List<S> coll);
+  <S extends Shape> ShapeCollection<S> multiShape(List<S> coll);
+
+  // BUILDERS:
+
+  /** (Builder) Constructs a line string, with a possible buffer.
+   * It's an ordered sequence of connected vertexes.
+   * There is no official shape/interface for it yet so we just return Shape. */
+  LineStringBuilder lineString();
+
+  /** (Builder) Constructs a polygon.
+   * There is no official shape/interface for it yet so we just return Shape. */
+  PolygonBuilder polygon();
+
+  /** (Builder) Constructs a Shape aggregate in which each component/member
+   * is an instance of the specified class.
+   */
+  <T extends Shape> MultiShapeBuilder<T> multiShape(Class<T> shapeClass);
+
+  // misc:
+  //Shape buffer(Shape shape);  ?
+
+  // TODO need Polygon shape
+  // TODO need LineString shape
+  // TODO need BufferedLineString shape
+  // TODO need ShapeCollection to be typed
+
+  interface PointsBuilder<T> {
+    T pointXY(double x, double y);
+    T pointXYZ(double x, double y, double z);
+  }
+
+  interface LineStringBuilder<T extends LineStringBuilder> extends PointsBuilder<T> {
+    // TODO add dimensionality hint method?
+
+    LineStringBuilder buffer(double distance);
+
+    Shape build();
+  }
+
+  interface PolygonBuilder<T extends PolygonBuilder> extends PointsBuilder<T> {
+    // TODO add dimensionality hint method?
+
+    HoleBuilder<?, T> hole();
+
+    Shape build();// never a Rect
+    Shape buildOrRect();
+
+    interface HoleBuilder<T extends HoleBuilder, P extends PolygonBuilder> extends PointsBuilder<T> {
+      P endHole();
+    }
+  }
+
+  interface MultiShapeBuilder<T extends Shape> {
+    // TODO add dimensionality hint method?
+
+    MultiShapeBuilder<T> add(T shape);
+
+    ShapeCollection<T> build();
+  }
+
+  /*
+    // TODO should normWrapLongitude, normX, normY, verifyX, verifyY be here too?
+  // TODO use make* style?
+
+  Point pointXY(double x, double y);
+  Point pointXYZ(double x, double y, double z);
+
+  Rectangle rect(Point lowerLeft, Point upperRight);
+  Rectangle rect(double minX, double maxX, double minY, double maxY);
+
+  Circle circle(double x, double y, double distance);
+  Circle circle(Point point, double distance);
+
+  LineStringBuilder lineString();
+  LineStringBuilder bufferedLineString(double distance);
+
+  PolygonBuilder polygon();
+
+  <T extends Shape> MultiShapeBuilder<T> multiShape(Class<T> shapeClass);
+
+
+
+   */
 }

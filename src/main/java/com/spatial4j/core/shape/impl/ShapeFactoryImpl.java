@@ -14,6 +14,7 @@ import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** The default {@link com.spatial4j.core.shape.ShapeFactory}. */
@@ -26,6 +27,11 @@ public class ShapeFactoryImpl implements ShapeFactory {
   public ShapeFactoryImpl(SpatialContext ctx, SpatialContextFactory factory) {
     this.ctx = ctx;
     this.normWrapLongitude = ctx.isGeo() && factory.normWrapLongitude;
+  }
+
+  @Override
+  public SpatialContext getSpatialContext() {
+    return ctx;
   }
 
   @Override
@@ -58,20 +64,25 @@ public class ShapeFactoryImpl implements ShapeFactory {
   }
 
   @Override
-  public Point makePoint(double x, double y) {
+  public Point pointXY(double x, double y) {
     verifyX(x);
     verifyY(y);
     return new PointImpl(x, y, ctx);
   }
 
   @Override
-  public Rectangle makeRectangle(Point lowerLeft, Point upperRight) {
-    return makeRectangle(lowerLeft.getX(), upperRight.getX(),
+  public Point pointXYZ(double x, double y, double z) {
+    return pointXY(x, y); // or throw?
+  }
+
+  @Override
+  public Rectangle rect(Point lowerLeft, Point upperRight) {
+    return rect(lowerLeft.getX(), upperRight.getX(),
             lowerLeft.getY(), upperRight.getY());
   }
 
   @Override
-  public Rectangle makeRectangle(double minX, double maxX, double minY, double maxY) {
+  public Rectangle rect(double minX, double maxX, double minY, double maxY) {
     Rectangle bounds = ctx.getWorldBounds();
     // Y
     if (minY < bounds.getMinY() || maxY > bounds.getMaxY())//NaN will pass
@@ -101,12 +112,12 @@ public class ShapeFactoryImpl implements ShapeFactory {
   }
 
   @Override
-  public Circle makeCircle(double x, double y, double distance) {
-    return makeCircle(makePoint(x, y), distance);
+  public Circle circle(double x, double y, double distance) {
+    return circle(pointXY(x, y), distance);
   }
 
   @Override
-  public Circle makeCircle(Point point, double distance) {
+  public Circle circle(Point point, double distance) {
     if (distance < 0)
       throw new InvalidShapeException("distance must be >= 0; got " + distance);
     if (ctx.isGeo()) {
@@ -122,18 +133,70 @@ public class ShapeFactoryImpl implements ShapeFactory {
   }
 
   @Override
-  public Shape makeLineString(List<Point> points) {
-    return new BufferedLineString(points, 0, false, ctx);
-  }
-
-  @Override
-  public Shape makeBufferedLineString(List<Point> points, double buf) {
+  public Shape lineString(List<Point> points, double buf) {
     return new BufferedLineString(points, buf, ctx.isGeo(), ctx);
   }
 
   @Override
-  public <S extends Shape> ShapeCollection<S> makeCollection(List<S> coll) {
+  public LineStringBuilder lineString() {
+    return new LineStringBuilder() {
+      final List<Point> points = new ArrayList<>();
+      double bufferDistance = 0;
+
+      @Override
+      public LineStringBuilder buffer(double distance) {
+        this.bufferDistance = distance;
+        return this;
+      }
+
+      @Override
+      public LineStringBuilder pointXY(double x, double y) {
+        points.add(ShapeFactoryImpl.this.pointXY(x, y));
+        return this;
+      }
+
+      @Override
+      public LineStringBuilder pointXYZ(double x, double y, double z) {
+        points.add(ShapeFactoryImpl.this.pointXYZ(x, y, z));
+        return this;
+      }
+
+      @Override
+      public Shape build() {
+        return new BufferedLineString(points, bufferDistance, false, ctx);
+      }
+    };
+  }
+
+
+
+  @Override
+  public <S extends Shape> ShapeCollection<S> multiShape(List<S> coll) {
     return new ShapeCollection<S>(coll, ctx);
   }
+
+  @Override
+  public <T extends Shape> MultiShapeBuilder<T> multiShape(Class<T> shapeClass) {
+    return new MultiShapeBuilder<T>() {
+      List<T> shapes = new ArrayList<>();
+      @Override
+      public MultiShapeBuilder<T> add(T shape) {
+        shapes.add(shape);
+        return this;
+      }
+
+      @Override
+      public ShapeCollection<T> build() {
+        return new ShapeCollection<>(shapes, ctx);
+      }
+    };
+  }
+
+  @Override
+  public PolygonBuilder polygon() {
+    throw new UnsupportedOperationException("Unsupported shape of this SpatialContext. Try JTS or Geo3D.");
+  }
+
+
 
 }

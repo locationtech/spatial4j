@@ -15,10 +15,8 @@ import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.context.jts.ValidationRule;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReader;
-import com.spatial4j.core.shape.Circle;
+import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.impl.ShapeFactoryImpl;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.*;
@@ -35,6 +33,8 @@ import java.util.List;
  * vanilla JTS which only has a Euclidean (flat plane) model.
  */
 public class JtsShapeFactory extends ShapeFactoryImpl {
+
+  protected static final LinearRing[] EMPTY_HOLES = new LinearRing[0];
 
   protected final GeometryFactory geometryFactory;
 
@@ -154,23 +154,29 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
     throw new InvalidShapeException("can't make Geometry from: " + shape);
   }
 
-  /** Should {@link #makePoint(double, double)} return {@link JtsPoint}? */
+  /** Should {@link #pointXY(double, double)} return {@link JtsPoint}? */
   public boolean useJtsPoint() {
     return useJtsPoint;
   }
 
   @Override
-  public Point makePoint(double x, double y) {
+  public Point pointXY(double x, double y) {
+    return pointXYZ(x, y, Coordinate.NULL_ORDINATE);
+  }
+
+  @Override
+  public Point pointXYZ(double x, double y, double z) {
     if (!useJtsPoint())
-      return super.makePoint(x, y);
+      return super.pointXY(x, y);// ignore z
     //A Jts Point is fairly heavyweight!  TODO could/should we optimize this? SingleCoordinateSequence
     verifyX(x);
     verifyY(y);
-    Coordinate coord = Double.isNaN(x) ? null : new Coordinate(x, y);
+    // verifyZ(z)?
+    Coordinate coord = Double.isNaN(x) ? null : new Coordinate(x, y, z);
     return new JtsPoint(geometryFactory.createPoint(coord), (JtsSpatialContext) ctx);
   }
 
-  /** Should {@link #makeLineString(java.util.List)} return {@link JtsGeometry}? */
+  /** Should {@link #lineString(java.util.List,double)} return {@link JtsGeometry}? */
   public boolean useJtsLineString() {
     //BufferedLineString doesn't yet do dateline cross, and can't yet be relate()'ed with a
     // JTS geometry
@@ -178,9 +184,9 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
   }
 
   @Override
-  public Shape makeLineString(List<Point> points) {
+  public Shape lineString(List<Point> points, double bufferDistance) {
     if (!useJtsLineString())
-      return super.makeLineString(points);
+      return super.lineString(points, bufferDistance);
     //convert List<Point> to Coordinate[]
     Coordinate[] coords = new Coordinate[points.size()];
     for (int i = 0; i < coords.length; i++) {
@@ -192,8 +198,140 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
         coords[i] = new Coordinate(p.getX(), p.getY());
       }
     }
-    LineString lineString = geometryFactory.createLineString(coords);
-    return makeShape(lineString);
+    JtsGeometry shape = makeShape(geometryFactory.createLineString(coords));
+    return bufferDistance != 0 ? shape.getBuffered(0, ctx) : shape;
+  }
+
+  @Override
+  public LineStringBuilder lineString() {
+    if (!useJtsLineString())
+      return super.lineString();
+    return new JtsLineStringBuilder();
+  }
+
+  private class JtsLineStringBuilder extends CoordinatesAccumulator<JtsLineStringBuilder>
+          implements LineStringBuilder<JtsLineStringBuilder> {
+    protected double bufDistance;
+
+    public JtsLineStringBuilder() {
+    }
+
+    @Override
+    public LineStringBuilder buffer(double distance) {
+      this.bufDistance = distance;
+      return this;
+    }
+
+    @Override
+    public Shape build() {
+      Geometry geom = geometryFactory.createLineString(getCoordsArray());
+      if (bufDistance != 0.0) {
+        geom = geom.buffer(bufDistance);
+      }
+      return makeShape(geom);
+    }
+  }
+
+  @Override
+  public PolygonBuilder polygon() {
+    return new JtsPolygonBuilder();
+  }
+
+  private class JtsPolygonBuilder extends CoordinatesAccumulator<JtsPolygonBuilder>
+          implements PolygonBuilder<JtsPolygonBuilder> {
+
+    List<LinearRing> holes;// lazy instantiated
+
+    @Override
+    public JtsHoleBuilder hole() {
+      return new JtsHoleBuilder();
+    }
+
+    private class JtsHoleBuilder extends CoordinatesAccumulator<JtsHoleBuilder>
+            implements PolygonBuilder.HoleBuilder<JtsHoleBuilder, JtsPolygonBuilder> {
+
+      @Override
+      public JtsPolygonBuilder endHole() {
+        LinearRing linearRing = geometryFactory.createLinearRing(getCoordsArray());
+        if (JtsPolygonBuilder.this.holes == null) {
+          JtsPolygonBuilder.this.holes = new ArrayList<>(4);//short
+        }
+        JtsPolygonBuilder.this.holes.add(linearRing);
+        return JtsPolygonBuilder.this;
+      }
+    }
+
+    @Override
+    public Shape build() {
+      return makeShape(buildPolygonGeom());
+    }
+
+    @Override
+    public Shape buildOrRect() {
+      Polygon geom = buildPolygonGeom();
+      if (geom.isRectangle()) {
+        return makeRectFromRectangularPoly(geom);
+      }
+      return makeShape(geom);
+    }
+
+    private Polygon buildPolygonGeom() {
+      LinearRing outerRing = geometryFactory.createLinearRing(getCoordsArray());
+      LinearRing[] holeRings = holes == null ? EMPTY_HOLES : holes.toArray(new LinearRing[this.holes.size()]);
+      return geometryFactory.createPolygon(outerRing, holeRings);
+    }
+
+    private JtsGeometry makeShape(Geometry geom) {
+      JtsGeometry jtsGeom;
+      try {
+        jtsGeom = JtsShapeFactory.this.makeShape(geom);
+        if (getValidationRule() != ValidationRule.none)
+          jtsGeom.validate();
+      } catch (RuntimeException e) { // includes InvalidShapeException
+        // repair:
+        if (getValidationRule() == ValidationRule.repairConvexHull) {
+          jtsGeom = makeShape(geom.convexHull());
+        } else if (getValidationRule() == ValidationRule.repairBuffer0) {
+          jtsGeom = makeShape(geom.buffer(0));
+        } else {
+          // TODO there are other smarter things we could do like repairing inner holes and
+          // subtracting
+          // from outer repaired shell; but we needn't try too hard.
+          throw e;
+        }
+      }
+      if (isAutoIndex())
+        jtsGeom.index();
+      return jtsGeom;
+    }
+
+  } // class JtsPolygonBuilder
+
+  private abstract class CoordinatesAccumulator<T extends CoordinatesAccumulator> {
+    protected List<Coordinate> coordinates = new ArrayList<>();
+
+    public T pointXY(double x, double y) {
+      return pointXYZ(x, y, Coordinate.NULL_ORDINATE);
+    }
+
+    public T pointXYZ(double x, double y, double z) {
+      verifyX(x);
+      verifyY(y);
+      coordinates.add(new Coordinate(x, y, z));
+      return getThis();
+    }
+
+    // TODO would be be useful to add other ways of providing points?  e.g. point(Coordinate)?
+
+    // TODO consider wrapping the List<Coordinate> in a custom CoordinateSequence and then (conditionally) use
+    //  geometryFactory's coordinateSequenceFactory to create a new CS if configured to do so.
+    //  Also consider instead natively storing the double[] and then auto-expanding on pointXY* as needed.
+    protected Coordinate[] getCoordsArray() {
+      return coordinates.toArray(new Coordinate[coordinates.size()]);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected T getThis() { return (T) this; }
   }
 
   /**
@@ -220,20 +358,20 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
         Geometry geomN = geom.getGeometryN(i);
         shapes.add(makeShapeFromGeometry(geomN));//recursion
       }
-      return makeCollection(shapes);
+      return multiShape(shapes);
     }
     if (geom instanceof com.vividsolutions.jts.geom.Point) {
       com.vividsolutions.jts.geom.Point pt = (com.vividsolutions.jts.geom.Point) geom;
-      return makePoint(pt.getX(), pt.getY());
+      return pointXY(pt.getX(), pt.getY());
     }
     if (!useJtsLineString() && geom instanceof LineString) {
       LineString lineString = (LineString) geom;
       List<Point> points = new ArrayList<>(lineString.getNumPoints());
       for (int i = 0; i < lineString.getNumPoints(); i++) {
         Coordinate coord = lineString.getCoordinateN(i);
-        points.add(makePoint(coord.x, coord.y));
+        points.add(pointXY(coord.x, coord.y));
       }
-      return makeLineString(points);
+      return lineString(points, 0);
     }
 
     JtsGeometry jtsGeom;
@@ -295,7 +433,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
    * INTERNAL: Returns a Rectangle of the JTS {@link Envelope} (bounding box) of the given {@code geom}.  This asserts
    * that {@link Geometry#isRectangle()} is true.  This method reacts to the {@link DatelineRule} setting.
    * @param geom non-null
-   * @return null equivalent Rectangle.
+   * @return the equivalent Rectangle.
    */
   public Rectangle makeRectFromRectangularPoly(Geometry geom) {
     // TODO although, might want to never convert if there's a semantic difference (e.g.
@@ -312,8 +450,8 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
       }
     }
     if (crossesDateline)
-      return makeRectangle(env.getMaxX(), env.getMinX(), env.getMinY(), env.getMaxY());
+      return rect(env.getMaxX(), env.getMinX(), env.getMinY(), env.getMaxY());
     else
-      return makeRectangle(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
+      return rect(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
   }
 }
