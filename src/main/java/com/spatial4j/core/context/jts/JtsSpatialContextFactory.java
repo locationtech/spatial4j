@@ -12,6 +12,7 @@ import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.io.LegacyShapeReader;
 import com.spatial4j.core.io.LegacyShapeWriter;
 import com.spatial4j.core.io.jts.*;
+import com.spatial4j.core.shape.jts.JtsShapeFactory;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -63,6 +64,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   public boolean useJtsLineString = true;
 
   public JtsSpatialContextFactory() {
+    super.shapeFactoryClass = JtsShapeFactory.class;
     super.binaryCodecClass = JtsBinaryCodec.class;
   }
 

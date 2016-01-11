@@ -6,18 +6,20 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.context.jts;
+package com.spatial4j.core.shape.jts;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.jts.DatelineRule;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
+import com.spatial4j.core.context.jts.ValidationRule;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReader;
-import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.spatial4j.core.shape.jts.JtsPoint;
+import com.spatial4j.core.shape.impl.ShapeFactoryImpl;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
@@ -27,19 +29,12 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Enhances the default {@link SpatialContext} with support for Polygons (and
- * other geometries) using <a href="https://sourceforge.net/projects/jts-topo-suite/">JTS</a>.
+ * Enhances {@link ShapeFactoryImpl} with support for Polygons
+ * using <a href="https://sourceforge.net/projects/jts-topo-suite/">JTS</a>.
  * To the extent possible, our {@link JtsGeometry} adds some amount of geodetic support over
  * vanilla JTS which only has a Euclidean (flat plane) model.
  */
-public class JtsSpatialContext extends SpatialContext {
-
-  public static final JtsSpatialContext GEO;
-  static {
-    JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
-    factory.geo = true;
-    GEO = new JtsSpatialContext(factory);
-  }
+public class JtsShapeFactory extends ShapeFactoryImpl {
 
   protected final GeometryFactory geometryFactory;
 
@@ -53,8 +48,8 @@ public class JtsSpatialContext extends SpatialContext {
   /**
    * Called by {@link com.spatial4j.core.context.jts.JtsSpatialContextFactory#newSpatialContext()}.
    */
-  public JtsSpatialContext(JtsSpatialContextFactory factory) {
-    super(factory);
+  public JtsShapeFactory(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
+    super(ctx, factory);
     this.geometryFactory = factory.getGeometryFactory();
 
     this.allowMultiOverlap = factory.allowMultiOverlap;
@@ -112,17 +107,6 @@ public class JtsSpatialContext extends SpatialContext {
     return geometryFactory.getPrecisionModel().makePrecise(y);
   }
 
-  @Override
-  public String toString(Shape shape) {
-    //Note: this logic is from the defunct JtsShapeReadWriter
-    if (shape instanceof JtsGeometry) {
-      JtsGeometry jtsGeom = (JtsGeometry) shape;
-      return jtsGeom.getGeom().toText();
-    }
-    //Note: doesn't handle ShapeCollection or BufferedLineString
-    return super.toString(shape);
-  }
-
   /**
    * Gets a JTS {@link Geometry} for the given {@link Shape}. Some shapes hold a
    * JTS geometry whereas new ones must be created for the rest.
@@ -143,11 +127,11 @@ public class JtsSpatialContext extends SpatialContext {
     if (shape instanceof Rectangle) {
       Rectangle r = (Rectangle)shape;
       if (r.getCrossesDateLine()) {
-        Collection<Geometry> pair = new ArrayList<Geometry>(2);
+        Collection<Geometry> pair = new ArrayList<>(2);
         pair.add(geometryFactory.toGeometry(new Envelope(
-                r.getMinX(), getWorldBounds().getMaxX(), r.getMinY(), r.getMaxY())));
+                r.getMinX(), ctx.getWorldBounds().getMaxX(), r.getMinY(), r.getMaxY())));
         pair.add(geometryFactory.toGeometry(new Envelope(
-                getWorldBounds().getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY())));
+                ctx.getWorldBounds().getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY())));
         return geometryFactory.buildGeometry(pair);//a MultiPolygon or MultiLineString
       } else {
         return geometryFactory.toGeometry(new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY()));
@@ -183,7 +167,7 @@ public class JtsSpatialContext extends SpatialContext {
     verifyX(x);
     verifyY(y);
     Coordinate coord = Double.isNaN(x) ? null : new Coordinate(x, y);
-    return new JtsPoint(geometryFactory.createPoint(coord), this);
+    return new JtsPoint(geometryFactory.createPoint(coord), (JtsSpatialContext) ctx);
   }
 
   /** Should {@link #makeLineString(java.util.List)} return {@link JtsGeometry}? */
@@ -280,14 +264,14 @@ public class JtsSpatialContext extends SpatialContext {
    * @see #makeShape(com.vividsolutions.jts.geom.Geometry)
    *
    * @param geom Non-null
-   * @param dateline180Check if both this is true and {@link #isGeo()}, then JtsGeometry will check
+   * @param dateline180Check if both this is true and {@link SpatialContext#isGeo()}, then JtsGeometry will check
    *                         for adjacent coordinates greater than 180 degrees longitude apart, and
    *                         it will do tricks to make that line segment (and the shape as a whole)
    *                         cross the dateline even though JTS doesn't have geodetic support.
    * @param allowMultiOverlap See {@link #isAllowMultiOverlap()}.
    */
   public JtsGeometry makeShape(Geometry geom, boolean dateline180Check, boolean allowMultiOverlap) {
-    return new JtsGeometry(geom, this, dateline180Check, allowMultiOverlap);
+    return new JtsGeometry(geom, (JtsSpatialContext) ctx, dateline180Check, allowMultiOverlap);
   }
 
   /**
@@ -296,7 +280,7 @@ public class JtsSpatialContext extends SpatialContext {
    * needs to have done some verification/normalization of the coordinates by now, if any.  Also,
    * note that direct instances of {@link GeometryCollection} isn't supported.
    *
-   * Instead of calling this method, consider {@link JtsWKTReader#makeShapeFromGeometry(Geometry)}
+   * Instead of calling this method, consider {@link #makeShapeFromGeometry(Geometry)}
    * which
    */
   public JtsGeometry makeShape(Geometry geom) {
@@ -305,15 +289,6 @@ public class JtsSpatialContext extends SpatialContext {
 
   public GeometryFactory getGeometryFactory() {
     return geometryFactory;
-  }
-
-  @Override
-  public String toString() {
-    if (this.equals(GEO)) {
-      return GEO.getClass().getSimpleName()+".GEO";
-    } else {
-      return super.toString();
-    }
   }
 
   /**
@@ -328,7 +303,7 @@ public class JtsSpatialContext extends SpatialContext {
     assert geom.isRectangle();
     Envelope env = geom.getEnvelopeInternal();
     boolean crossesDateline = false;
-    if (isGeo() && getDatelineRule() != DatelineRule.none) {
+    if (ctx.isGeo() && getDatelineRule() != DatelineRule.none) {
       if (getDatelineRule() == DatelineRule.ccwRect) {
         // If JTS says it is clockwise, then it's actually a dateline crossing rectangle.
         crossesDateline = !CGAlgorithms.isCCW(geom.getCoordinates());

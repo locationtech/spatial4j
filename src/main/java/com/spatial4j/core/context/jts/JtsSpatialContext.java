@@ -9,21 +9,15 @@
 package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReader;
 import com.spatial4j.core.io.jts.JtsWKTReader;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
-import com.vividsolutions.jts.algorithm.CGAlgorithms;
+import com.spatial4j.core.shape.jts.JtsShapeFactory;
 import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.util.GeometricShapeFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -41,28 +35,17 @@ public class JtsSpatialContext extends SpatialContext {
     GEO = new JtsSpatialContext(factory);
   }
 
-  protected final GeometryFactory geometryFactory;
-
-  protected final boolean allowMultiOverlap;
-  protected final boolean useJtsPoint;
-  protected final boolean useJtsLineString;
-  protected final DatelineRule datelineRule;
-  protected final ValidationRule validationRule;
-  protected final boolean autoIndex;
-
   /**
    * Called by {@link com.spatial4j.core.context.jts.JtsSpatialContextFactory#newSpatialContext()}.
    */
   public JtsSpatialContext(JtsSpatialContextFactory factory) {
     super(factory);
-    this.geometryFactory = factory.getGeometryFactory();
+  }
 
-    this.allowMultiOverlap = factory.allowMultiOverlap;
-    this.useJtsPoint = factory.useJtsPoint;
-    this.useJtsLineString = factory.useJtsLineString;
-    this.datelineRule = factory.datelineRule;
-    this.validationRule = factory.validationRule;
-    this.autoIndex = factory.autoIndex;
+  // TODO I expect to delete this eventually once the other deprecated methods in this class disappear
+  @Override
+  public JtsShapeFactory getShapeFactory() {
+    return (JtsShapeFactory) super.getShapeFactory();
   }
 
   /**
@@ -72,23 +55,26 @@ public class JtsSpatialContext extends SpatialContext {
    * doesn't care but it has a method related to this
    * {@link com.spatial4j.core.shape.ShapeCollection#relateContainsShortCircuits()}.
    */
+  @Deprecated
   public boolean isAllowMultiOverlap() {
-    return allowMultiOverlap;
+    return getShapeFactory().isAllowMultiOverlap();
   }
 
   /**
    * Returns the rule used to handle geometry objects that have dateline crossing considerations.
    */
+  @Deprecated
   public DatelineRule getDatelineRule() {
-    return datelineRule;
+    return getShapeFactory().getDatelineRule();
   }
 
   /**
    * Returns the rule used to handle errors when creating a JTS {@link Geometry}, particularly after it has been
    * read from one of the {@link ShapeReader}s.
    */
+  @Deprecated
   public ValidationRule getValidationRule() {
-    return validationRule;
+    return getShapeFactory().getValidationRule();
   }
 
   /**
@@ -96,31 +82,9 @@ public class JtsSpatialContext extends SpatialContext {
    *
    * @see com.spatial4j.core.shape.jts.JtsGeometry#index()
    */
+  @Deprecated
   public boolean isAutoIndex() {
-    return autoIndex;
-  }
-
-  @Override
-  public double normX(double x) {
-    x = super.normX(x);
-    return geometryFactory.getPrecisionModel().makePrecise(x);
-  }
-
-  @Override
-  public double normY(double y) {
-    y = super.normY(y);
-    return geometryFactory.getPrecisionModel().makePrecise(y);
-  }
-
-  @Override
-  public String toString(Shape shape) {
-    //Note: this logic is from the defunct JtsShapeReadWriter
-    if (shape instanceof JtsGeometry) {
-      JtsGeometry jtsGeom = (JtsGeometry) shape;
-      return jtsGeom.getGeom().toText();
-    }
-    //Note: doesn't handle ShapeCollection or BufferedLineString
-    return super.toString(shape);
+    return getShapeFactory().isAutoIndex();
   }
 
   /**
@@ -129,87 +93,21 @@ public class JtsSpatialContext extends SpatialContext {
    * @param shape Not null
    * @return Not null
    */
+  @Deprecated
   public Geometry getGeometryFrom(Shape shape) {
-    if (shape instanceof JtsGeometry) {
-      return ((JtsGeometry)shape).getGeom();
-    }
-    if (shape instanceof JtsPoint) {
-      return ((JtsPoint) shape).getGeom();
-    }
-    if (shape instanceof Point) {
-      Point point = (Point) shape;
-      return geometryFactory.createPoint(new Coordinate(point.getX(),point.getY()));
-    }
-    if (shape instanceof Rectangle) {
-      Rectangle r = (Rectangle)shape;
-      if (r.getCrossesDateLine()) {
-        Collection<Geometry> pair = new ArrayList<Geometry>(2);
-        pair.add(geometryFactory.toGeometry(new Envelope(
-                r.getMinX(), getWorldBounds().getMaxX(), r.getMinY(), r.getMaxY())));
-        pair.add(geometryFactory.toGeometry(new Envelope(
-                getWorldBounds().getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY())));
-        return geometryFactory.buildGeometry(pair);//a MultiPolygon or MultiLineString
-      } else {
-        return geometryFactory.toGeometry(new Envelope(r.getMinX(), r.getMaxX(), r.getMinY(), r.getMaxY()));
-      }
-    }
-    if (shape instanceof Circle) {
-      // FYI Some interesting code for this is here:
-      //  http://docs.codehaus.org/display/GEOTDOC/01+How+to+Create+a+Geometry#01HowtoCreateaGeometry-CreatingaCircle
-      //TODO This should ideally have a geodetic version
-      Circle circle = (Circle)shape;
-      if (circle.getBoundingBox().getCrossesDateLine())
-        throw new IllegalArgumentException("Doesn't support dateline cross yet: "+circle);//TODO
-      GeometricShapeFactory gsf = new GeometricShapeFactory(geometryFactory);
-      gsf.setSize(circle.getBoundingBox().getWidth());
-      gsf.setNumPoints(4*25);//multiple of 4 is best
-      gsf.setCentre(new Coordinate(circle.getCenter().getX(), circle.getCenter().getY()));
-      return gsf.createCircle();
-    }
-    //TODO add BufferedLineString
-    throw new InvalidShapeException("can't make Geometry from: " + shape);
+    return getShapeFactory().getGeometryFrom(shape);
   }
 
   /** Should {@link #makePoint(double, double)} return {@link JtsPoint}? */
+  @Deprecated
   public boolean useJtsPoint() {
-    return useJtsPoint;
-  }
-
-  @Override
-  public Point makePoint(double x, double y) {
-    if (!useJtsPoint())
-      return super.makePoint(x, y);
-    //A Jts Point is fairly heavyweight!  TODO could/should we optimize this? SingleCoordinateSequence
-    verifyX(x);
-    verifyY(y);
-    Coordinate coord = Double.isNaN(x) ? null : new Coordinate(x, y);
-    return new JtsPoint(geometryFactory.createPoint(coord), this);
+    return getShapeFactory().useJtsPoint();
   }
 
   /** Should {@link #makeLineString(java.util.List)} return {@link JtsGeometry}? */
+  @Deprecated
   public boolean useJtsLineString() {
-    //BufferedLineString doesn't yet do dateline cross, and can't yet be relate()'ed with a
-    // JTS geometry
-    return useJtsLineString;
-  }
-
-  @Override
-  public Shape makeLineString(List<Point> points) {
-    if (!useJtsLineString())
-      return super.makeLineString(points);
-    //convert List<Point> to Coordinate[]
-    Coordinate[] coords = new Coordinate[points.size()];
-    for (int i = 0; i < coords.length; i++) {
-      Point p = points.get(i);
-      if (p instanceof JtsPoint) {
-        JtsPoint jtsPoint = (JtsPoint) p;
-        coords[i] = jtsPoint.getGeom().getCoordinate();
-      } else {
-        coords[i] = new Coordinate(p.getX(), p.getY());
-      }
-    }
-    LineString lineString = geometryFactory.createLineString(coords);
-    return makeShape(lineString);
+    return getShapeFactory().useJtsLineString();
   }
 
   /**
@@ -227,52 +125,9 @@ public class JtsSpatialContext extends SpatialContext {
    * If given a {@link LineString} and if {@link JtsSpatialContext#useJtsLineString()} is true then
    * then the geometry's parts are exposed to call {@link SpatialContext#makeLineString(List)}.
    */
+  @Deprecated
   public Shape makeShapeFromGeometry(Geometry geom) {
-    // Direct instances of GeometryCollection can't be wrapped in JtsGeometry but can be expanded into
-    //  a ShapeCollection.
-    if (geom.getClass() == GeometryCollection.class) {
-      List<Shape> shapes = new ArrayList<>(geom.getNumGeometries());
-      for (int i = 0; i < geom.getNumGeometries(); i++) {
-        Geometry geomN = geom.getGeometryN(i);
-        shapes.add(makeShapeFromGeometry(geomN));//recursion
-      }
-      return makeCollection(shapes);
-    }
-    if (geom instanceof com.vividsolutions.jts.geom.Point) {
-      com.vividsolutions.jts.geom.Point pt = (com.vividsolutions.jts.geom.Point) geom;
-      return makePoint(pt.getX(), pt.getY());
-    }
-    if (!useJtsLineString() && geom instanceof LineString) {
-      LineString lineString = (LineString) geom;
-      List<Point> points = new ArrayList<>(lineString.getNumPoints());
-      for (int i = 0; i < lineString.getNumPoints(); i++) {
-        Coordinate coord = lineString.getCoordinateN(i);
-        points.add(makePoint(coord.x, coord.y));
-      }
-      return makeLineString(points);
-    }
-
-    JtsGeometry jtsGeom;
-    try {
-      jtsGeom = makeShape(geom);
-      if (getValidationRule() != ValidationRule.none)
-        jtsGeom.validate();
-    } catch (RuntimeException e) {
-      // repair:
-      if (getValidationRule() == ValidationRule.repairConvexHull) {
-        jtsGeom = makeShape(geom.convexHull());
-      } else if (getValidationRule() == ValidationRule.repairBuffer0) {
-        jtsGeom = makeShape(geom.buffer(0));
-      } else {
-        // TODO there are other smarter things we could do like repairing inner holes and
-        // subtracting
-        // from outer repaired shell; but we needn't try too hard.
-        throw e;
-      }
-    }
-    if (isAutoIndex())
-      jtsGeom.index();
-    return jtsGeom;
+    return getShapeFactory().makeShapeFromGeometry(geom);
   }
 
   /**
@@ -286,8 +141,9 @@ public class JtsSpatialContext extends SpatialContext {
    *                         cross the dateline even though JTS doesn't have geodetic support.
    * @param allowMultiOverlap See {@link #isAllowMultiOverlap()}.
    */
+  @Deprecated
   public JtsGeometry makeShape(Geometry geom, boolean dateline180Check, boolean allowMultiOverlap) {
-    return new JtsGeometry(geom, this, dateline180Check, allowMultiOverlap);
+    return getShapeFactory().makeShape(geom, dateline180Check, allowMultiOverlap);
   }
 
   /**
@@ -299,12 +155,14 @@ public class JtsSpatialContext extends SpatialContext {
    * Instead of calling this method, consider {@link JtsWKTReader#makeShapeFromGeometry(Geometry)}
    * which
    */
+  @Deprecated
   public JtsGeometry makeShape(Geometry geom) {
-    return makeShape(geom, datelineRule != DatelineRule.none, allowMultiOverlap);
+    return getShapeFactory().makeShape(geom);
   }
 
+  @Deprecated
   public GeometryFactory getGeometryFactory() {
-    return geometryFactory;
+    return getShapeFactory().getGeometryFactory();
   }
 
   @Override
@@ -322,23 +180,8 @@ public class JtsSpatialContext extends SpatialContext {
    * @param geom non-null
    * @return null equivalent Rectangle.
    */
+  @Deprecated
   public Rectangle makeRectFromRectangularPoly(Geometry geom) {
-    // TODO although, might want to never convert if there's a semantic difference (e.g.
-    //  geodetically)? Should have a setting for that.
-    assert geom.isRectangle();
-    Envelope env = geom.getEnvelopeInternal();
-    boolean crossesDateline = false;
-    if (isGeo() && getDatelineRule() != DatelineRule.none) {
-      if (getDatelineRule() == DatelineRule.ccwRect) {
-        // If JTS says it is clockwise, then it's actually a dateline crossing rectangle.
-        crossesDateline = !CGAlgorithms.isCCW(geom.getCoordinates());
-      } else {
-        crossesDateline = env.getWidth() > 180;
-      }
-    }
-    if (crossesDateline)
-      return makeRectangle(env.getMaxX(), env.getMinX(), env.getMinY(), env.getMaxY());
-    else
-      return makeRectangle(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
+    return getShapeFactory().makeRectFromRectangularPoly(geom);
   }
 }
