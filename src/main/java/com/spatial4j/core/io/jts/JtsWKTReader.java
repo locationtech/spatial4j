@@ -15,7 +15,6 @@ import com.spatial4j.core.context.jts.DatelineRule;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.io.WKTReader;
-import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 import com.vividsolutions.jts.geom.*;
 
@@ -50,24 +49,6 @@ public class JtsWKTReader extends WKTReader {
       return parseMulitPolygonShape(state);
     }
     return super.parseShapeByType(state, shapeType);
-  }
-
-  /**
-   * Bypasses {@link JtsSpatialContext#makeLineString(java.util.List)} so that we can more
-   * efficiently get the LineString without creating a {@code List<Point>}.
-   */
-  @Override
-  protected Shape parseLineStringShape(WKTReader.State state) throws ParseException {
-    if (!ctx.useJtsLineString())
-      return super.parseLineStringShape(state);
-
-    if (state.nextIfEmptyAndSkipZM())
-      return ctx.makeLineString(Collections.<Point>emptyList());
-
-    GeometryFactory geometryFactory = ctx.getGeometryFactory();
-
-    Coordinate[] coordinates = coordinateSequence(state);
-    return ctx.makeShapeFromGeometry(geometryFactory.createLineString(coordinates));
   }
 
   /**
@@ -172,7 +153,7 @@ public class JtsWKTReader extends WKTReader {
 
   /**
    * Reads a {@link com.vividsolutions.jts.geom.Coordinate} from the current position. It's akin to
-   * {@link #point(com.spatial4j.core.io.WKTReader.State)} but for a JTS Coordinate. Only the first
+   * {@link WKTReader#point(State, com.spatial4j.core.shape.ShapeFactory.PointsBuilder)} but for a JTS Coordinate. Only the first
    * 2 numbers are parsed; any remaining are ignored.
    */
   protected Coordinate coordinate(WKTReader.State state) throws ParseException {

@@ -16,10 +16,10 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.ShapeFactory;
 import org.junit.Test;
 
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Collections;
 
 public class WktShapeParserTest extends RandomizedTest {
@@ -103,16 +103,15 @@ public class WktShapeParserTest extends RandomizedTest {
 
   @Test
   public void testParseMultiPoint() throws ParseException {
-    Shape s1 = ctx.makeCollection(Collections.singletonList(ctx.makePoint(10, 40)));
+    Shape s1 = ctx.getShapeFactory().multiPoint().pointXY(10, 40).build();
     assertParses("MULTIPOINT (10 40)", s1);
 
-    Shape s4 = ctx.makeCollection(Arrays.asList(
-        ctx.makePoint(10, 40), ctx.makePoint(40, 30),
-        ctx.makePoint(20, 20), ctx.makePoint(30, 10)));
+    Shape s4 = ctx.getShapeFactory().multiPoint()
+            .pointXY(10, 40).pointXY(40, 30).pointXY(20, 20).pointXY(30, 10).build();
     assertParses("MULTIPOINT ((10 40), (40 30), (20 20), (30 10))", s4);
     assertParses("MULTIPOINT (10 40, 40 30, 20 20, 30 10)", s4);
 
-    assertParses("MULTIPOINT Z EMPTY", ctx.makeCollection(Collections.EMPTY_LIST));
+    assertParses("MULTIPOINT Z EMPTY", ctx.getShapeFactory().multiPoint().build());
   }
 
   @Test
@@ -125,10 +124,7 @@ public class WktShapeParserTest extends RandomizedTest {
 
   @Test
   public void testLineStringShape() throws ParseException {
-    Point p1 = ctx.makePoint(1, 10);
-    Point p2 = ctx.makePoint(2, 20);
-    Point p3 = ctx.makePoint(3, 30);
-    Shape ls = ctx.makeLineString(Arrays.asList(p1, p2, p3));
+    Shape ls = ctx.getShapeFactory().lineString().pointXY(1, 10).pointXY(2, 20).pointXY(3, 30).build();
     assertParses("LINESTRING (1 10, 2 20, 3 30)", ls);
 
     assertParses("LINESTRING EMPTY", ctx.makeLineString(Collections.<Point>emptyList()));
@@ -136,31 +132,29 @@ public class WktShapeParserTest extends RandomizedTest {
 
   @Test
   public void testMultiLineStringShape() throws ParseException {
-    Shape s = ctx.makeCollection(Arrays.asList(
-       ctx.makeLineString(Arrays.asList(
-            ctx.makePoint(10, 10), ctx.makePoint(20, 20), ctx.makePoint(10, 40))),
-        ctx.makeLineString(Arrays.asList(
-            ctx.makePoint(40, 40), ctx.makePoint(30, 30), ctx.makePoint(40, 20), ctx.makePoint(30, 10)))
-    ));
+    ShapeFactory.MultiLineStringBuilder builder = ctx.getShapeFactory().multiLineString();
+    builder.add(builder.lineString().pointXY(10, 10).pointXY(20, 20).pointXY(10, 40));
+    builder.add(builder.lineString().pointXY(40, 40).pointXY(30, 30).pointXY(40, 20).pointXY(30, 10));
+    Shape s = builder.build();
     assertParses("MULTILINESTRING ((10 10, 20 20, 10 40),\n" +
         "(40 40, 30 30, 40 20, 30 10))", s);
 
-    assertParses("MULTILINESTRING M EMPTY", ctx.makeCollection(Collections.EMPTY_LIST));
+    assertParses("MULTILINESTRING M EMPTY", ctx.getShapeFactory().multiLineString().build());
   }
 
   @Test
   public void testGeomCollection() throws ParseException {
-    Shape s1 = ctx.makeCollection(Arrays.asList(ctx.makePoint(1, 2)));
-    Shape s2 = ctx.makeCollection(
-        Arrays.asList(ctx.makeRectangle(1, 2, 3, 4),
-            ctx.makePoint(-1, -2)) );
+    ShapeFactory shapeFactory = ctx.getShapeFactory();
+    Shape s1 = shapeFactory.multiShape(Shape.class).add(shapeFactory.pointXY(1, 2)).build();
+    Shape s2 = shapeFactory.multiShape(Shape.class)
+            .add(shapeFactory.rect(1, 2, 3, 4)).add(shapeFactory.pointXY(-1, -2)).build();
     assertParses("GEOMETRYCOLLECTION (POINT (1 2) )", s1);
     assertParses("GEOMETRYCOLLECTION ( ENVELOPE(1,2,4,3), POINT(-1 -2)) ", s2);
 
-    assertParses("GEOMETRYCOLLECTION EMPTY", ctx.makeCollection(Collections.EMPTY_LIST));
+    assertParses("GEOMETRYCOLLECTION EMPTY", shapeFactory.multiShape(Shape.class).build());
 
     assertParses("GEOMETRYCOLLECTION ( POINT EMPTY )",
-        ctx.makeCollection(Arrays.asList(ctx.makePoint(Double.NaN, Double.NaN))));
+            shapeFactory.multiShape(Shape.class).add(shapeFactory.pointXY(Double.NaN, Double.NaN)).build());
   }
 
   @Test
