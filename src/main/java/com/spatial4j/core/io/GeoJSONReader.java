@@ -8,17 +8,6 @@
 
 package com.spatial4j.core.io;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.spatial4j.core.shape.ShapeFactory;
-import com.spatial4j.core.shape.impl.BufferedLineString;
-import org.noggit.JSONParser;
-
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.distance.DistanceUtils;
@@ -26,6 +15,15 @@ import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.ShapeFactory;
+import org.noggit.JSONParser;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GeoJSONReader implements ShapeReader {
 
@@ -329,14 +327,11 @@ public class GeoJSONReader implements ShapeReader {
       case "Circle":
         return readCircle(parser);
       case "Polygon":
-        return readPolygon(parser).buildOrRect();
-
+        return readPolygon(parser, shapeFactory.polygon()).buildOrRect();
       case "MultiPoint":
         return readMultiPoint(parser);
-
       case "MultiLineString":
         return readMultiLineString(parser);
-
       case "MultiPolygon":
         return readMultiPolygon(parser);
       default:
@@ -345,9 +340,8 @@ public class GeoJSONReader implements ShapeReader {
     }
   }
 
-  protected ShapeFactory.PolygonBuilder readPolygon(JSONParser parser) throws IOException, ParseException {
+  protected ShapeFactory.PolygonBuilder readPolygon(JSONParser parser, ShapeFactory.PolygonBuilder polygonBuilder) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
-    ShapeFactory.PolygonBuilder polygonBuilder = shapeFactory.polygon();
     boolean firstRing = true;
     int evt = parser.nextEvent();
     while (true) {
@@ -374,34 +368,22 @@ public class GeoJSONReader implements ShapeReader {
 
   protected Shape readMultiPoint(JSONParser parser) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
-    final ShapeFactory.MultiShapeBuilder<Point> builder = shapeFactory.multiShape(Point.class);
-    readCoordListXYZ(parser, new ShapeFactory.PointsBuilder() {
-      @Override
-      public Object pointXY(double x, double y) {
-        builder.add(shapeFactory.pointXY(x, y));
-        return this;
-      }
-
-      @Override
-      public Object pointXYZ(double x, double y, double z) {
-        builder.add(shapeFactory.pointXYZ(x, y, z));
-        return this;
-      }
-    });
+    ShapeFactory.MultiPointBuilder builder = shapeFactory.multiPoint();
+    readCoordListXYZ(parser, builder);
     return builder.build();
   }
 
   protected Shape readMultiLineString(JSONParser parser) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
     // TODO need Spatial4j LineString interface
-    ShapeFactory.MultiShapeBuilder<Shape> builder = shapeFactory.multiShape(Shape.class);
+    ShapeFactory.MultiLineStringBuilder builder = shapeFactory.multiLineString();
     int evt = parser.nextEvent();
     while (true) {
       switch (evt) {
         case JSONParser.ARRAY_START:
-          ShapeFactory.LineStringBuilder lineStringBuilder = shapeFactory.lineString();
+          ShapeFactory.LineStringBuilder lineStringBuilder = builder.lineString();
           readCoordListXYZ(parser, lineStringBuilder);
-          builder.add(lineStringBuilder.build());
+          builder.add(lineStringBuilder);
           break;
         case JSONParser.ARRAY_END:
           return builder.build();
@@ -416,13 +398,13 @@ public class GeoJSONReader implements ShapeReader {
   protected Shape readMultiPolygon(JSONParser parser) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
     // TODO need Spatial4j Polygon interface
-    ShapeFactory.MultiShapeBuilder<Shape> builder = shapeFactory.multiShape(Shape.class);
+    ShapeFactory.MultiPolygonBuilder builder = shapeFactory.multiPolygon();
     int evt = parser.nextEvent();
     while (true) {
       switch (evt) {
         case JSONParser.ARRAY_START:
-          ShapeFactory.PolygonBuilder polygonBuilder = readPolygon(parser);
-          builder.add(polygonBuilder.build());
+          ShapeFactory.PolygonBuilder polygonBuilder = readPolygon(parser, builder.polygon());
+          builder.add(polygonBuilder);
           break;
         case JSONParser.ARRAY_END:
           return builder.build();

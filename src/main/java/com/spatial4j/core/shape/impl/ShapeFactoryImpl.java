@@ -17,7 +17,7 @@ import com.spatial4j.core.shape.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/** The default {@link com.spatial4j.core.shape.ShapeFactory}. */
+/** The default {@link com.spatial4j.core.shape.ShapeFactory}.  It does not support polygon shapes. */
 public class ShapeFactoryImpl implements ShapeFactory {
 
   protected final SpatialContext ctx;
@@ -168,28 +168,29 @@ public class ShapeFactoryImpl implements ShapeFactory {
     };
   }
 
-
-
   @Override
   public <S extends Shape> ShapeCollection<S> multiShape(List<S> coll) {
-    return new ShapeCollection<S>(coll, ctx);
+    return new ShapeCollection<>(coll, ctx);
   }
 
   @Override
   public <T extends Shape> MultiShapeBuilder<T> multiShape(Class<T> shapeClass) {
-    return new MultiShapeBuilder<T>() {
-      List<T> shapes = new ArrayList<>();
-      @Override
-      public MultiShapeBuilder<T> add(T shape) {
-        shapes.add(shape);
-        return this;
-      }
+    return new GeneralShapeMultiShapeBuilder<>();
+  }
 
-      @Override
-      public ShapeCollection<T> build() {
-        return new ShapeCollection<>(shapes, ctx);
-      }
-    };
+  @Override
+  public MultiPointBuilder multiPoint() {
+    return new GeneralShapeMultiShapeBuilder<>();
+  }
+
+  @Override
+  public MultiLineStringBuilder multiLineString() {
+    return new GeneralShapeMultiShapeBuilder<>();
+  }
+
+  @Override
+  public MultiPolygonBuilder multiPolygon() {
+    return new GeneralShapeMultiShapeBuilder<>();
   }
 
   @Override
@@ -197,6 +198,53 @@ public class ShapeFactoryImpl implements ShapeFactory {
     throw new UnsupportedOperationException("Unsupported shape of this SpatialContext. Try JTS or Geo3D.");
   }
 
+  private class GeneralShapeMultiShapeBuilder<T extends Shape> implements MultiShapeBuilder<T>,
+      MultiPointBuilder, MultiLineStringBuilder, MultiPolygonBuilder {
+    List<Shape> shapes = new ArrayList<>();
 
+    @Override
+    public MultiShapeBuilder<T> add(T shape) {
+      shapes.add(shape);
+      return this;
+    }
 
+    @Override
+    public MultiPointBuilder pointXY(double x, double y) {
+      shapes.add(ShapeFactoryImpl.this.pointXY(x, y));
+      return this;
+    }
+
+    @Override
+    public MultiPointBuilder pointXYZ(double x, double y, double z) {
+      shapes.add(ShapeFactoryImpl.this.pointXYZ(x, y, z));
+      return this;
+    }
+
+    @Override
+    public LineStringBuilder lineString() {
+      return ShapeFactoryImpl.this.lineString();
+    }
+
+    @Override
+    public MultiLineStringBuilder add(LineStringBuilder lineStringBuilder) {
+      shapes.add(lineStringBuilder.build());
+      return this;
+    }
+
+    @Override
+    public PolygonBuilder polygon() {
+      return ShapeFactoryImpl.this.polygon();
+    }
+
+    @Override
+    public MultiPolygonBuilder add(PolygonBuilder polygonBuilder) {
+      shapes.add(polygonBuilder.build());
+      return this;
+    }
+
+    @Override
+    public Shape build() {
+      return new ShapeCollection<>(shapes, ctx);
+    }
+  }
 }

@@ -88,6 +88,12 @@ public interface ShapeFactory {
    */
   <T extends Shape> MultiShapeBuilder<T> multiShape(Class<T> shapeClass);
 
+  MultiPointBuilder multiPoint();
+
+  MultiLineStringBuilder multiLineString();
+
+  MultiPolygonBuilder multiPolygon();
+
   // misc:
   //Shape buffer(Shape shape);  ?
 
@@ -128,6 +134,8 @@ public interface ShapeFactory {
     }
   }
 
+  // TODO add dimensionality hint method to the multi* builders?
+
   interface MultiShapeBuilder<T extends Shape> {
     // TODO add dimensionality hint method?
 
@@ -135,6 +143,29 @@ public interface ShapeFactory {
 
     //ShapeCollection<T> build(); TODO wait till it's a typed interface
     Shape build();
+  }
+
+  interface MultiPointBuilder extends PointsBuilder<MultiPointBuilder> {
+
+    Shape build();  // TODO MultiShape<Point>
+  }
+
+  interface MultiLineStringBuilder {
+
+    LineStringBuilder lineString();
+
+    MultiLineStringBuilder add(LineStringBuilder lineStringBuilder);
+
+    Shape build(); // TODO MultiShape<LineString>
+  }
+
+  interface MultiPolygonBuilder {
+
+    PolygonBuilder polygon();
+
+    MultiPolygonBuilder add(PolygonBuilder polygonBuilder);
+
+    Shape build(); // TODO MultiShape<Polygon>
   }
 
   /*
