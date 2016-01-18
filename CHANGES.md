@@ -1,3 +1,12 @@
+## VERSION ?
+
+### Bugs:
+
+ * If tried to use an "empty" JTS geometry when geo=false, it would throw an exception. (David Smiley)
+
+
+---------------------------------------
+
 ## VERSION 0.5
 
 DATE: 18 September 2015
