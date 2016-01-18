@@ -53,7 +53,9 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
     }
 
     //NOTE: All this logic is fairly expensive. There are some short-circuit checks though.
-    if (ctx.isGeo()) {
+    if (geom.isEmpty()) {
+      bbox = new RectangleImpl(Double.NaN, Double.NaN, Double.NaN, Double.NaN, this.ctx);
+    } else if (ctx.isGeo()) {
       //Unwraps the geometry across the dateline so it exceeds the standard geo bounds (-180 to +180).
       if (dateline180Check)
         unwrapDateline(geom);//potentially modifies geom
@@ -141,15 +143,13 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
 
   @Override
   public boolean isEmpty() {
-    return geom.isEmpty();
+    return bbox.isEmpty(); // fast
   }
 
   /** Given {@code geoms} which has already been checked for being in world
    * bounds, return the minimal longitude range of the bounding box.
    */
   protected Rectangle computeGeoBBox(Geometry geoms) {
-    if (geoms.isEmpty())
-      return new RectangleImpl(Double.NaN, Double.NaN, Double.NaN, Double.NaN, ctx);
     final Envelope env = geoms.getEnvelopeInternal();//for minY & maxY (simple)
     if (ctx.isGeo() && env.getWidth() > 180 && geoms.getNumGeometries() > 1)  {
       // This is ShapeCollection's bbox algorithm
