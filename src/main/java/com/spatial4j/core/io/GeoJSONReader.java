@@ -148,31 +148,13 @@ public class GeoJSONReader implements ShapeReader {
     }
   }
 
-  private class OnePointsBuilder implements ShapeFactory.PointsBuilder<OnePointsBuilder> {
-    Point point;
-
-    @Override
-    public OnePointsBuilder pointXY(double x, double y) {
-      assert point == null;
-      point = shapeFactory.pointXY(x, y);
-      return this;
-    }
-
-    @Override
-    public OnePointsBuilder pointXYZ(double x, double y, double z) {
-      assert point == null;
-      point = shapeFactory.pointXYZ(x, y, z);
-      return this;
-    }
-  }
-
   protected Shape readPoint(JSONParser parser) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
-    OnePointsBuilder onePointsBuilder = new OnePointsBuilder();
+    OnePointsBuilder onePointsBuilder = new OnePointsBuilder(shapeFactory);
     readCoordXYZ(parser, onePointsBuilder);
-    Point v = onePointsBuilder.point;
+    Point point = onePointsBuilder.getPoint();
     readUntilEvent(parser, JSONParser.OBJECT_END);
-    return v;
+    return point;
   }
 
   protected Shape readLineString(JSONParser parser) throws IOException, ParseException {
@@ -190,9 +172,9 @@ public class GeoJSONReader implements ShapeReader {
 
   protected Circle readCircle(JSONParser parser) throws IOException, ParseException {
     assert (parser.lastEvent() == JSONParser.ARRAY_START);
-    OnePointsBuilder onePointsBuilder = new OnePointsBuilder();
+    OnePointsBuilder onePointsBuilder = new OnePointsBuilder(shapeFactory);
     readCoordXYZ(parser, onePointsBuilder);
-    Point point = onePointsBuilder.point;
+    Point point = onePointsBuilder.getPoint();
 
     return shapeFactory.circle(point, readDistance("radius", "radius_units", parser));
   }
