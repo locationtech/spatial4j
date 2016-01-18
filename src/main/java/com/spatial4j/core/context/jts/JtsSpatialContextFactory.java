@@ -42,6 +42,8 @@ import java.util.Map;
  *  -- see {@link com.vividsolutions.jts.geom.PrecisionModel}.
  * If {@code fixed} then you must also provide {@code precisionScale}
  *  -- see {@link com.vividsolutions.jts.geom.PrecisionModel#getScale()}</DD>
+ * <DT>useJtsPoint, useJtsLineString, useJtsMulti</DT>
+ * <DD>All default to true. See corresponding methods on {@link JtsShapeFactory}.</DD>
  * </DL>
  */
 public class JtsSpatialContextFactory extends SpatialContextFactory {
@@ -63,6 +65,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   //kinda advanced options:
   public boolean useJtsPoint = true;
   public boolean useJtsLineString = true;
+  public boolean useJtsMulti = true;
 
   public JtsSpatialContextFactory() {
     super.shapeFactoryClass = JtsShapeFactory.class;
@@ -95,6 +98,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
     initField("allowMultiOverlap");
     initField("useJtsPoint");
     initField("useJtsLineString");
+    initField("useJtsMulti");
 
     String scaleStr = args.get("precisionScale");
     String modelStr = args.get("precisionModel");

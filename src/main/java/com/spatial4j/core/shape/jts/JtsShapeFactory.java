@@ -15,8 +15,10 @@ import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.context.jts.ValidationRule;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.ShapeReader;
-import com.spatial4j.core.shape.*;
+import com.spatial4j.core.shape.Circle;
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.impl.ShapeFactoryImpl;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.*;
@@ -41,6 +43,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
   protected final boolean allowMultiOverlap;
   protected final boolean useJtsPoint;
   protected final boolean useJtsLineString;
+  protected final boolean useJtsMulti;
   protected final DatelineRule datelineRule;
   protected final ValidationRule validationRule;
   protected final boolean autoIndex;
@@ -55,6 +58,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
     this.allowMultiOverlap = factory.allowMultiOverlap;
     this.useJtsPoint = factory.useJtsPoint;
     this.useJtsLineString = factory.useJtsLineString;
+    this.useJtsMulti = factory.useJtsMulti;
     this.datelineRule = factory.datelineRule;
     this.validationRule = factory.validationRule;
     this.autoIndex = factory.autoIndex;
@@ -224,11 +228,15 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
 
     @Override
     public Shape build() {
-      Geometry geom = geometryFactory.createLineString(getCoordsArray());
+      Geometry geom = buildLineStringGeom();
       if (bufDistance != 0.0) {
         geom = geom.buffer(bufDistance);
       }
       return makeShape(geom);
+    }
+
+    LineString buildLineStringGeom() {
+      return geometryFactory.createLineString(getCoordsArray());
     }
   }
 
@@ -263,7 +271,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
 
     @Override
     public Shape build() {
-      return makeShape(buildPolygonGeom());
+      return makeShapeFromGeometry(buildPolygonGeom());
     }
 
     @Override
@@ -272,37 +280,13 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
       if (geom.isRectangle()) {
         return makeRectFromRectangularPoly(geom);
       }
-      return makeShape(geom);
+      return makeShapeFromGeometry(geom);
     }
 
-    private Polygon buildPolygonGeom() {
+    Polygon buildPolygonGeom() {
       LinearRing outerRing = geometryFactory.createLinearRing(getCoordsArray());
       LinearRing[] holeRings = holes == null ? EMPTY_HOLES : holes.toArray(new LinearRing[this.holes.size()]);
       return geometryFactory.createPolygon(outerRing, holeRings);
-    }
-
-    private JtsGeometry makeShape(Geometry geom) {
-      JtsGeometry jtsGeom;
-      try {
-        jtsGeom = JtsShapeFactory.this.makeShape(geom);
-        if (getValidationRule() != ValidationRule.none)
-          jtsGeom.validate();
-      } catch (RuntimeException e) { // includes InvalidShapeException
-        // repair:
-        if (getValidationRule() == ValidationRule.repairConvexHull) {
-          jtsGeom = makeShape(geom.convexHull());
-        } else if (getValidationRule() == ValidationRule.repairBuffer0) {
-          jtsGeom = makeShape(geom.buffer(0));
-        } else {
-          // TODO there are other smarter things we could do like repairing inner holes and
-          // subtracting
-          // from outer repaired shell; but we needn't try too hard.
-          throw e;
-        }
-      }
-      if (isAutoIndex())
-        jtsGeom.index();
-      return jtsGeom;
     }
 
   } // class JtsPolygonBuilder
@@ -334,6 +318,84 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
     protected T getThis() { return (T) this; }
   }
 
+  /** Whether {@link #multiPoint()}, {@link #multiLineString()}, and {@link #multiPolygon()} should all use JTS's
+   * subclasses of {@link GeometryCollection} instead of Spatial4j's basic impl.  The general {@link #multiShape(Class)}
+   * will never use {@link GeometryCollection} because that class doesn't support relations. */
+  public boolean useJtsMulti() {
+    return useJtsMulti;
+  }
+
+  @Override
+  public MultiPointBuilder multiPoint() {
+    if (!useJtsMulti) {
+      return super.multiPoint();
+    }
+    return new JtsMultiPointBuilder();
+  }
+
+  private class JtsMultiPointBuilder extends CoordinatesAccumulator<JtsMultiPointBuilder> implements MultiPointBuilder {
+    @Override
+    public Shape build() {
+      return makeShape(geometryFactory.createMultiPoint(getCoordsArray()));
+    }
+  }
+
+  @Override
+  public MultiLineStringBuilder multiLineString() {
+    if (!useJtsMulti) {
+      return super.multiLineString();
+    }
+    return new JtsMultiLineStringBuilder();
+  }
+
+  private class JtsMultiLineStringBuilder implements MultiLineStringBuilder {
+    List<LineString> geoms = new ArrayList<>();
+
+    @Override
+    public LineStringBuilder lineString() {
+      return new JtsLineStringBuilder();
+    }
+
+    @Override
+    public MultiLineStringBuilder add(LineStringBuilder lineStringBuilder) {
+      geoms.add(((JtsLineStringBuilder)lineStringBuilder).buildLineStringGeom());
+      return this;
+    }
+
+    @Override
+    public Shape build() {
+      return makeShape(geometryFactory.createMultiLineString(geoms.toArray(new LineString[geoms.size()])));
+    }
+  }
+
+  @Override
+  public MultiPolygonBuilder multiPolygon() {
+    if (!useJtsMulti) {
+      return super.multiPolygon();
+    }
+    return new JtsMultiPolygonBuilder();
+  }
+
+  private class JtsMultiPolygonBuilder implements MultiPolygonBuilder {
+    List<Polygon> geoms = new ArrayList<>();
+
+    @Override
+    public PolygonBuilder polygon() {
+      return new JtsPolygonBuilder();
+    }
+
+    @Override
+    public MultiPolygonBuilder add(PolygonBuilder polygonBuilder) {
+      geoms.add(((JtsPolygonBuilder)polygonBuilder).buildPolygonGeom());
+      return this;
+    }
+
+    @Override
+    public Shape build() {
+      return makeShape(geometryFactory.createMultiPolygon(geoms.toArray(new Polygon[geoms.size()])));
+    }
+  }
+
   /**
    * INTERNAL Usually creates a JtsGeometry, potentially validating, repairing, and indexing ("preparing"). This method
    * is intended for use by {@link ShapeReader} instances.
@@ -349,29 +411,33 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
    * If given a {@link LineString} and if {@link JtsSpatialContext#useJtsLineString()} is true then
    * then the geometry's parts are exposed to call {@link SpatialContext#makeLineString(List)}.
    */
+  // TODO nocommit NEED TO DECIDE ON makeShapeFromGeometry being called always (consistent but sometimes not needed?)
+  //   v.s. only from a ShapeReader (pre-ShapeFactory behavior)
   public Shape makeShapeFromGeometry(Geometry geom) {
-    // Direct instances of GeometryCollection can't be wrapped in JtsGeometry but can be expanded into
-    //  a ShapeCollection.
-    if (geom.getClass() == GeometryCollection.class) {
-      List<Shape> shapes = new ArrayList<>(geom.getNumGeometries());
-      for (int i = 0; i < geom.getNumGeometries(); i++) {
-        Geometry geomN = geom.getGeometryN(i);
-        shapes.add(makeShapeFromGeometry(geomN));//recursion
+    if (geom instanceof GeometryCollection) {
+      // Direct instances of GeometryCollection can't be wrapped in JtsGeometry but can be expanded into
+      //  a ShapeCollection.
+      if (!useJtsMulti || geom.getClass() == GeometryCollection.class) {
+        List<Shape> shapes = new ArrayList<>(geom.getNumGeometries());
+        for (int i = 0; i < geom.getNumGeometries(); i++) {
+          Geometry geomN = geom.getGeometryN(i);
+          shapes.add(makeShapeFromGeometry(geomN));//recursion
+        }
+        return multiShape(shapes);
       }
-      return multiShape(shapes);
-    }
-    if (geom instanceof com.vividsolutions.jts.geom.Point) {
+    } else if (geom instanceof com.vividsolutions.jts.geom.Point) {
       com.vividsolutions.jts.geom.Point pt = (com.vividsolutions.jts.geom.Point) geom;
       return pointXY(pt.getX(), pt.getY());
-    }
-    if (!useJtsLineString() && geom instanceof LineString) {
-      LineString lineString = (LineString) geom;
-      List<Point> points = new ArrayList<>(lineString.getNumPoints());
-      for (int i = 0; i < lineString.getNumPoints(); i++) {
-        Coordinate coord = lineString.getCoordinateN(i);
-        points.add(pointXY(coord.x, coord.y));
+    } else if (geom instanceof LineString) {
+      if (!useJtsLineString()) {
+        LineString lineString = (LineString) geom;
+        List<Point> points = new ArrayList<>(lineString.getNumPoints());
+        for (int i = 0; i < lineString.getNumPoints(); i++) {
+          Coordinate coord = lineString.getCoordinateN(i);
+          points.add(pointXY(coord.x, coord.y));
+        }
+        return lineString(points, 0);
       }
-      return lineString(points, 0);
     }
 
     JtsGeometry jtsGeom;
@@ -454,4 +520,5 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
     else
       return rect(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
   }
+
 }
