@@ -33,6 +33,8 @@ import java.text.ParseException;
  * Language (CQL)</a>)
  * <li>LINESTRING</li>
  * <li>MULTILINESTRING</li>
+ * <LI>POLYGON</LI>
+ * <LI>MULTIPOLYGON</LI>
  * <li>GEOMETRYCOLLECTION</li>
  * <li>BUFFER</li> (non-standard Spatial4j operation)
  * </ul>
@@ -107,11 +109,9 @@ public class WKTReader implements ShapeReader {
     Shape result = null;
     try {
       result = parseShapeByType(state, shapeType);
-    } catch (ParseException e) {
+    } catch (ParseException | InvalidShapeException e) {
       throw e;
-    } catch (InvalidShapeException e) {
-      throw e;
-    } catch (IllegalArgumentException e) { // JTS Throws IllegalArgment for bad WKT
+    } catch (IllegalArgumentException e) { // NOTE: JTS Throws IAE for bad WKT
       throw new InvalidShapeException(e.getMessage(), e);
     } catch (Exception e) {
       ParseException pe = new ParseException(e.toString(), state.offset);
@@ -159,12 +159,16 @@ public class WKTReader implements ShapeReader {
       return parseMultiPointShape(state);
     } else if (shapeType.equalsIgnoreCase("ENVELOPE")) {
       return parseEnvelopeShape(state);
-    } else if (shapeType.equalsIgnoreCase("GEOMETRYCOLLECTION")) {
-      return parseGeometryCollectionShape(state);
     } else if (shapeType.equalsIgnoreCase("LINESTRING")) {
       return parseLineStringShape(state);
+    } else if (shapeType.equalsIgnoreCase("POLYGON")) {
+      return parsePolygonShape(state);
+    } else if (shapeType.equalsIgnoreCase("GEOMETRYCOLLECTION")) {
+      return parseGeometryCollectionShape(state);
     } else if (shapeType.equalsIgnoreCase("MULTILINESTRING")) {
       return parseMultiLineStringShape(state);
+    } else if (shapeType.equalsIgnoreCase("MULTIPOLYGON")) {
+      return parseMulitPolygonShape(state);
     }
     // extension
     if (shapeType.equalsIgnoreCase("BUFFER")) {
@@ -290,14 +294,49 @@ public class WKTReader implements ShapeReader {
    */
   protected Shape parseMultiLineStringShape(State state) throws ParseException {
     ShapeFactory.MultiLineStringBuilder multiLineStringBuilder = shapeFactory.multiLineString();
-    if (state.nextIfEmptyAndSkipZM())
-      return multiLineStringBuilder.build();
-    state.nextExpect('(');
-    do {
-      multiLineStringBuilder.add(pointList(state, multiLineStringBuilder.lineString()));
-    } while (state.nextIf(','));
-    state.nextExpect(')');
+    if (!state.nextIfEmptyAndSkipZM()) {
+      state.nextExpect('(');
+      do {
+        multiLineStringBuilder.add(pointList(state, multiLineStringBuilder.lineString()));
+      } while (state.nextIf(','));
+      state.nextExpect(')');
+    }
     return multiLineStringBuilder.build();
+  }
+
+  /**
+   * Parses a POLYGON shape from the raw string. It might return a
+   * {@link com.spatial4j.core.shape.Rectangle} if the polygon is one.
+   *
+   * <pre>
+   * coordinateSequenceList
+   * </pre>
+   */
+  protected Shape parsePolygonShape(WKTReader.State state) throws ParseException {
+    ShapeFactory.PolygonBuilder polygonBuilder = shapeFactory.polygon();
+    if (!state.nextIfEmptyAndSkipZM()) {
+      polygonBuilder = polygon(state, polygonBuilder);
+    }
+    return polygonBuilder.buildOrRect();
+  }
+
+  /**
+   * Parses a MULTIPOLYGON shape from the raw string.
+   *
+   * <pre>
+   *   '(' polygon (',' polygon )* ')'
+   * </pre>
+   */
+  protected Shape parseMulitPolygonShape(WKTReader.State state) throws ParseException {
+    ShapeFactory.MultiPolygonBuilder multiPolygonBuilder = shapeFactory.multiPolygon();
+    if (!state.nextIfEmptyAndSkipZM()) {
+      state.nextExpect('(');
+      do {
+        multiPolygonBuilder.add(polygon(state, multiPolygonBuilder.polygon()));
+      } while (state.nextIf(','));
+      state.nextExpect(')');
+    }
+    return multiPolygonBuilder.build();
   }
 
   /**
@@ -364,6 +403,21 @@ public class WKTReader implements ShapeReader {
     state.skipNextDoubles();//TODO capture to call pointXYZ
     pointsBuilder.pointXY(shapeFactory.normX(x), shapeFactory.normY(y));
     return pointsBuilder;
+  }
+
+  /**
+   * Reads a polygon
+   */
+  protected ShapeFactory.PolygonBuilder polygon(WKTReader.State state, ShapeFactory.PolygonBuilder polygonBuilder) throws ParseException {
+    state.nextExpect('(');
+    pointList(state, polygonBuilder); // outer ring
+    while (state.nextIf(',')) {
+      ShapeFactory.PolygonBuilder.HoleBuilder holeBuilder = polygonBuilder.hole();
+      pointList(state, holeBuilder);
+      holeBuilder.endHole();
+    }
+    state.nextExpect(')');
+    return polygonBuilder;
   }
 
   /** The parse state. */

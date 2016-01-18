@@ -12,6 +12,7 @@ import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.io.GeoJSONReader;
 import com.spatial4j.core.io.LegacyShapeReader;
 import com.spatial4j.core.io.LegacyShapeWriter;
+import com.spatial4j.core.io.WKTReader;
 import com.spatial4j.core.io.jts.*;
 import com.spatial4j.core.shape.jts.JtsShapeFactory;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
@@ -34,7 +35,7 @@ import java.util.Map;
  * <DD>error(default)|none|repairConvexHull|repairBuffer0
  *  -- see {@link ValidationRule}</DD>
  * <DT>autoIndex</DT>
- * <DD>true|false(default) -- see {@link JtsWKTReader#isAutoIndex()}</DD>
+ * <DD>true|false(default) -- see {@link JtsShapeFactory#isAutoIndex()}</DD>
  * <DT>allowMultiOverlap</DT>
  * <DD>true|false(default) -- see {@link JtsSpatialContext#isAllowMultiOverlap()}</DD>
  * <DT>precisionModel</DT>
@@ -76,7 +77,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   protected void checkDefaultFormats() {
     if (readers.isEmpty() ) {
       addReaderIfNoggitExists(GeoJSONReader.class);
-      readers.add(JtsWKTReader.class);
+      readers.add(WKTReader.class);
       readers.add(JtsPolyshapeReader.class);
       readers.add(LegacyShapeReader.class);
     }

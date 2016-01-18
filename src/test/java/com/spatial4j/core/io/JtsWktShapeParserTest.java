@@ -15,15 +15,13 @@ import com.spatial4j.core.context.jts.ValidationRule;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.ShapeFactory;
 import com.spatial4j.core.shape.SpatialRelation;
 import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import org.junit.Test;
 
 import java.text.ParseException;
 import java.util.Arrays;
-import java.util.Collections;
 
 public class JtsWktShapeParserTest extends WktShapeParserTest {
 
@@ -38,12 +36,12 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
 
   @Test
   public void testParsePolygon() throws ParseException {
-    Shape polygonNoHoles = new PolygonBuilder(ctx)
-        .point(100, 0)
-        .point(101, 0)
-        .point(101, 1)
-        .point(100, 2)
-        .point(100, 0)
+    Shape polygonNoHoles = ctx.getShapeFactory().polygon()
+        .pointXY(100, 0)
+        .pointXY(101, 0)
+        .pointXY(101, 1)
+        .pointXY(100, 2)
+        .pointXY(100, 0)
         .build();
     String polygonNoHolesSTR = "POLYGON ((100 0, 101 0, 101 1, 100 2, 100 0))";
     assertParses(polygonNoHolesSTR, polygonNoHoles);
@@ -52,26 +50,23 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
     assertParses("GEOMETRYCOLLECTION ( "+polygonNoHolesSTR+")",
         ctx.makeCollection(Arrays.asList(polygonNoHoles)));
 
-    Shape polygonWithHoles = new PolygonBuilder(ctx)
-        .point(100, 0)
-        .point(101, 0)
-        .point(101, 1)
-        .point(100, 1)
-        .point(100, 0)
-        .newHole()
-        .point(100.2, 0.2)
-        .point(100.8, 0.2)
-        .point(100.8, 0.8)
-        .point(100.2, 0.8)
-        .point(100.2, 0.2)
+    Shape polygonWithHoles = ctx.getShapeFactory().polygon()
+        .pointXY(100, 0)
+        .pointXY(101, 0)
+        .pointXY(101, 1)
+        .pointXY(100, 1)
+        .pointXY(100, 0)
+        .hole()
+        .pointXY(100.2, 0.2)
+        .pointXY(100.8, 0.2)
+        .pointXY(100.8, 0.8)
+        .pointXY(100.2, 0.8)
+        .pointXY(100.2, 0.2)
         .endHole()
         .build();
     assertParses("POLYGON ((100 0, 101 0, 101 1, 100 1, 100 0), (100.2 0.2, 100.8 0.2, 100.8 0.8, 100.2 0.8, 100.2 0.2))", polygonWithHoles);
 
-    GeometryFactory gf = ctx.getGeometryFactory();
-    assertParses("POLYGON EMPTY", ctx.makeShape(
-        gf.createPolygon(gf.createLinearRing(new Coordinate[]{}), null)
-    ));
+    assertParses("POLYGON EMPTY", ctx.getShapeFactory().polygon().build());
   }
 
   @Test
@@ -103,29 +98,26 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
 
   @Test
   public void testParseMultiPolygon() throws ParseException {
-    Shape p1 = new PolygonBuilder(ctx)
-        .point(100, 0)
-        .point(101, 0)//101
-        .point(101, 2)//101
-        .point(100, 1)
-        .point(100, 0)
-        .build();
-    Shape p2 = new PolygonBuilder(ctx)
-        .point(100, 0)
-        .point(102, 0)//102
-        .point(102, 2)//102
-        .point(100, 1)
-        .point(100, 0)
-        .build();
-    Shape s = ctx.makeCollection(
-        Arrays.asList(p1, p2)
-    );
+    ShapeFactory.MultiPolygonBuilder multiPolygonBuilder = ctx.getShapeFactory().multiPolygon();
+    multiPolygonBuilder.add(multiPolygonBuilder.polygon()
+        .pointXY(100, 0)
+        .pointXY(101, 0)//101
+        .pointXY(101, 2)//101
+        .pointXY(100, 1)
+        .pointXY(100, 0));
+    multiPolygonBuilder.add(multiPolygonBuilder.polygon()
+        .pointXY(  0, 0)
+        .pointXY(  2, 0)
+        .pointXY(  2, 2)
+        .pointXY(  0, 1)
+        .pointXY(  0, 0));
+    Shape s = multiPolygonBuilder.build();
     assertParses("MULTIPOLYGON(" +
         "((100 0, 101 0, 101 2, 100 1, 100 0))" + ',' +
-        "((100 0, 102 0, 102 2, 100 1, 100 0))" +
+        "((0 0, 2 0, 2 2, 0 1, 0 0))" +
         ")", s);
 
-    assertParses("MULTIPOLYGON EMPTY", ctx.makeCollection(Collections.EMPTY_LIST));
+    assertParses("MULTIPOLYGON EMPTY", ctx.getShapeFactory().multiPolygon().build());
   }
 
   @Test

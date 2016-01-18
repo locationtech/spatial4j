@@ -10,7 +10,6 @@ package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.io.ShapeReader;
-import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
@@ -152,7 +151,7 @@ public class JtsSpatialContext extends SpatialContext {
    * needs to have done some verification/normalization of the coordinates by now, if any.  Also,
    * note that direct instances of {@link GeometryCollection} isn't supported.
    *
-   * Instead of calling this method, consider {@link JtsWKTReader#makeShapeFromGeometry(Geometry)}
+   * Instead of calling this method, consider {@link JtsShapeFactory#makeShapeFromGeometry(Geometry)}
    * which
    */
   @Deprecated
