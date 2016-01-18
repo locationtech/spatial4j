@@ -165,9 +165,4 @@ public class JtsWKTReader extends WKTReader {
     return new Coordinate(x, y);
   }
 
-  @Override
-  protected double normDist(double v) {
-    return ctx.getGeometryFactory().getPrecisionModel().makePrecise(v);
-  }
-
 }

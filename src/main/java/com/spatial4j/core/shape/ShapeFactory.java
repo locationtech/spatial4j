@@ -24,6 +24,11 @@ public interface ShapeFactory {
    * geodetic boundary into it. Example: 181 will become -179. */
   boolean isNormWrapLongitude();
 
+  // nocommit annoying that a ShapeReader must remember to call norm* methods.  Perhaps
+  //  there should be another shapeFactory impl for shape reading?  :-/  Or not.
+  //  Also TODO modify ShapeFactory javadocs to mention this is called by all ShapeReaders
+  //  (and ensure we do!) not just WKTReader.
+
   /** Normalize the 'x' dimension. Might reduce precision or wrap it to be within the bounds. This
    * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
   double normX(double x);
@@ -32,7 +37,12 @@ public interface ShapeFactory {
    * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
   double normY(double y);
 
-  // TODO nocommit normDistance()
+  /**
+   * Called to normalize a value that isn't X or Y. X & Y or normalized via
+   * {@link com.spatial4j.core.context.SpatialContext#normX(double)} & normY. This
+   * is called by a {@link com.spatial4j.core.io.WKTReader} before creating a shape.
+   */
+  double normDist(double d);
 
   /** Ensure fits in the world bounds. It's called by any shape factory method that
    * gets an 'x' dimension. */

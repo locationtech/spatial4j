@@ -111,6 +111,11 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
     return geometryFactory.getPrecisionModel().makePrecise(y);
   }
 
+  @Override
+  public double normDist(double d) {
+    return geometryFactory.getPrecisionModel().makePrecise(d);
+  }
+
   /**
    * Gets a JTS {@link Geometry} for the given {@link Shape}. Some shapes hold a
    * JTS geometry whereas new ones must be created for the rest.

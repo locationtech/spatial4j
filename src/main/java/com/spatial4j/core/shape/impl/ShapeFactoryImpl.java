@@ -50,6 +50,11 @@ public class ShapeFactoryImpl implements ShapeFactory {
   public double normY(double y) { return y; }
 
   @Override
+  public double normDist(double d) {
+    return d;
+  }
+
+  @Override
   public void verifyX(double x) {
     Rectangle bounds = ctx.getWorldBounds();
     if (x < bounds.getMinX() || x > bounds.getMaxX())//NaN will pass

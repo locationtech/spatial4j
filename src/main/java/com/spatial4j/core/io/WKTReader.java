@@ -188,17 +188,9 @@ public class WKTReader implements ShapeReader {
     state.nextExpect('(');
     Shape shape = shape(state);
     state.nextExpect(',');
-    double distance = normDist(state.nextDouble());
+    double distance = shapeFactory.normDist(state.nextDouble());
     state.nextExpect(')');
     return shape.getBuffered(distance, ctx);
-  }
-
-  /**
-   * Called to normalize a value that isn't X or Y. X & Y or normalized via
-   * {@link com.spatial4j.core.context.SpatialContext#normX(double)} & normY.
-   */
-  protected double normDist(double v) {// TODO should this be added to ctx?
-    return v;
   }
 
   /**
@@ -267,10 +259,6 @@ public class WKTReader implements ShapeReader {
     state.nextExpect(',');
     double y1 = state.nextDouble();
     state.nextExpect(')');
-    // nocommit annoying that a ShapeReader must remember to call norm* methods.  Perhaps
-    //  there should be another shapeFactory impl for shape reading?  :-/
-    //  Also TODO modify ShapeFactory javadocs to mention this is called by all ShapeReaders
-    //  (and ensure we do!) not just WKTReader.
     return shapeFactory.rect(shapeFactory.normX(x1), shapeFactory.normX(x2),
             shapeFactory.normY(y1), shapeFactory.normY(y2));
   }
