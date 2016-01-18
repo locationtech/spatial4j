@@ -32,6 +32,8 @@ public interface ShapeFactory {
    * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
   double normY(double y);
 
+  // TODO nocommit normDistance()
+
   /** Ensure fits in the world bounds. It's called by any shape factory method that
    * gets an 'x' dimension. */
   void verifyX(double x);
@@ -107,7 +109,7 @@ public interface ShapeFactory {
     T pointXYZ(double x, double y, double z);
   }
 
-  interface LineStringBuilder<T extends LineStringBuilder> extends PointsBuilder<T> {
+  interface LineStringBuilder extends PointsBuilder<LineStringBuilder> {
     // TODO add dimensionality hint method?
 
     LineStringBuilder buffer(double distance);
@@ -115,12 +117,12 @@ public interface ShapeFactory {
     Shape build();
   }
 
-  interface PolygonBuilder<T extends PolygonBuilder> extends PointsBuilder<T> {
+  interface PolygonBuilder extends PointsBuilder<PolygonBuilder> {
     // TODO add dimensionality hint method?
 
     /** Starts a new hole. You must add at least 4 points; furthermore the first and last must be the same.
      * And don't forget to call {@link HoleBuilder#endHole()}! */
-    HoleBuilder<?, T> hole();
+    HoleBuilder hole();
 
     /** Builds the polygon and renders this builder instance invalid.
      */
@@ -128,9 +130,9 @@ public interface ShapeFactory {
 
     Shape buildOrRect();
 
-    interface HoleBuilder<T extends HoleBuilder, P extends PolygonBuilder> extends PointsBuilder<T> {
-      /** Finishes the hole and returns the {@link PolygonBuilder}. Calling this is optional.*/
-      P endHole();
+    interface HoleBuilder extends PointsBuilder<HoleBuilder> {
+      /** Finishes the hole and returns the {@link PolygonBuilder}.*/
+      PolygonBuilder endHole();
     }
   }
 

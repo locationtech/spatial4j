@@ -214,7 +214,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
   }
 
   private class JtsLineStringBuilder extends CoordinatesAccumulator<JtsLineStringBuilder>
-          implements LineStringBuilder<JtsLineStringBuilder> {
+          implements LineStringBuilder {
     protected double bufDistance;
 
     public JtsLineStringBuilder() {
@@ -246,7 +246,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
   }
 
   private class JtsPolygonBuilder extends CoordinatesAccumulator<JtsPolygonBuilder>
-          implements PolygonBuilder<JtsPolygonBuilder> {
+          implements PolygonBuilder {
 
     List<LinearRing> holes;// lazy instantiated
 
@@ -256,7 +256,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
     }
 
     private class JtsHoleBuilder extends CoordinatesAccumulator<JtsHoleBuilder>
-            implements PolygonBuilder.HoleBuilder<JtsHoleBuilder, JtsPolygonBuilder> {
+            implements PolygonBuilder.HoleBuilder {
 
       @Override
       public JtsPolygonBuilder endHole() {
