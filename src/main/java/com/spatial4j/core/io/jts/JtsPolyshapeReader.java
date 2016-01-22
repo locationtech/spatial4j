@@ -20,14 +20,11 @@ package com.spatial4j.core.io.jts;
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.io.PolyshapeReader;
-import com.spatial4j.core.io.PolyshapeWriter;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
 import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,39 +64,5 @@ public class JtsPolyshapeReader extends PolyshapeReader {
     // *not* calling makeShapeFromGeometry() since the underlying geometries here have
     //  already been converted to shapes via that method (or equivalent).
     return ctx.makeShape(result);
-  }
-
-  // --------------------------------------------------------------
-  // Read GeoJSON
-  // --------------------------------------------------------------
-
-  protected CoordinateSequence coordseq(List<double[]> list) {
-    CoordinateSequence seq =
-        PackedCoordinateSequenceFactory.DOUBLE_FACTORY.create(list.size(), 2);
-
-    for (int i = 0; i < list.size(); i++) {
-      double[] point = list.get(i);
-      seq.setOrdinate(i, 0, point[0]);
-      seq.setOrdinate(i, 1, point[1]);
-    }
-    return seq;
-  }
-  
-  @Override
-  protected Shape readPolygon(XReader reader) throws IOException {
-    GeometryFactory gf = ctx.getGeometryFactory();
-    List<double[]> outer = reader.readPoints();
-
-    LinearRing shell = gf.createLinearRing(coordseq(outer));
-    LinearRing[] holes = null;
-    if(!reader.isDone() && reader.peek()==PolyshapeWriter.KEY_ARG_START) {
-      List<LinearRing> list = new ArrayList<LinearRing>();
-      while(reader.isEvent() && reader.peek()==PolyshapeWriter.KEY_ARG_START) {
-        reader.readKey(); // eat the event;
-        list.add(gf.createLinearRing(coordseq(reader.readPoints())));
-      }
-      holes = list.toArray(new LinearRing[list.size()]);
-    }
-    return ctx.makeShapeFromGeometry(gf.createPolygon(shell, holes));
   }
 }

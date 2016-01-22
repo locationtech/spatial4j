@@ -30,6 +30,9 @@ import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.ShapeFactory;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 
 
 /**
@@ -37,9 +40,11 @@ import com.spatial4j.core.shape.Shape;
  */
 public class PolyshapeReader implements ShapeReader {
   final SpatialContext ctx;
+  final ShapeFactory shpFactory;
 
   public PolyshapeReader(SpatialContext ctx, SpatialContextFactory factory) {
     this.ctx = ctx;
+    this.shpFactory = ctx.getShapeFactory();
   }
 
   @Override
@@ -51,7 +56,7 @@ public class PolyshapeReader implements ShapeReader {
    * Subclass may try to make multiple points into a MultiPoint
    */
   protected Shape makeCollection(List<? extends Shape> shapes) {
-    return ctx.makeCollection(shapes);
+    return shpFactory.multiShape(shapes);
   }
   
   @Override
@@ -115,34 +120,34 @@ public class PolyshapeReader implements ShapeReader {
       
       switch(event) {
         case PolyshapeWriter.KEY_POINT: {
-          lastShape = ctx.makePoint(reader.readLat(), reader.readLng());
+          lastShape = shpFactory.pointXY(reader.readLat(), reader.readLng());
           break;
         }
         case PolyshapeWriter.KEY_LINE: {
+          ShapeFactory.LineStringBuilder lineBuilder = shpFactory.lineString();
+          reader.readPoints(lineBuilder);
+          
           if(arg!=null) {
-            lastShape = ctx.makeBufferedLineString(reader.readPoints(ctx), arg.doubleValue());
+            lineBuilder.buffer(arg);
           }
-          else {
-            lastShape = ctx.makeLineString(reader.readPoints(ctx));
-          }
+          lastShape = lineBuilder.build();
           break;
         }
         case PolyshapeWriter.KEY_BOX: {
-          Point lowerLeft = ctx.makePoint(reader.readLat(), reader.readLng());
-          Point upperRight = ctx.makePoint(reader.readLat(), reader.readLng());
-          lastShape = ctx.makeRectangle(lowerLeft, upperRight);
+          double lat1 = reader.readLat();
+          double lon1 = reader.readLng();
+          lastShape = shpFactory.rect(lat1, reader.readLat(), lon1, reader.readLng());
           break;
         }
         case PolyshapeWriter.KEY_MULTIPOINT : {
-          List<Point> points = reader.readPoints(ctx);
-          lastShape = makeCollection(points);
+          lastShape = reader.readPoints(shpFactory.multiPoint()).build();
           break;
         }
         case PolyshapeWriter.KEY_CIRCLE : {
           if(arg==null) {
             throw new IllegalArgumentException("the input should have a radius argument");
           }
-          lastShape = ctx.makeCircle(reader.readLat(), reader.readLng(), arg.doubleValue());
+          lastShape = shpFactory.circle(reader.readLat(), reader.readLng(), arg.doubleValue());
           break;
         }
         case PolyshapeWriter.KEY_POLYGON: {
@@ -165,7 +170,19 @@ public class PolyshapeReader implements ShapeReader {
   }
   
   protected Shape readPolygon(XReader reader) throws IOException {
-    throw new IllegalArgumentException("This reader does not support polygons");
+    ShapeFactory.PolygonBuilder polyBuilder = shpFactory.polygon();
+    
+    reader.readPoints(polyBuilder);
+
+    if(!reader.isDone() && reader.peek()==PolyshapeWriter.KEY_ARG_START) {
+      List<LinearRing> list = new ArrayList<LinearRing>();
+      while(reader.isEvent() && reader.peek()==PolyshapeWriter.KEY_ARG_START) {
+        reader.readKey(); // eat the event;
+        reader.readPoints(polyBuilder.hole()).endHole();
+      }
+    }
+
+    return polyBuilder.build();
   }
 
   /**
@@ -184,22 +201,13 @@ public class PolyshapeReader implements ShapeReader {
       head = input.read();
     }
     
-    public List<Point> readPoints(SpatialContext ctx) throws IOException {
-      List<Point> points = new ArrayList<Point>();
+    public <T extends ShapeFactory.PointsBuilder> T readPoints(T builder) throws IOException {
       while(isData()) {
-        points.add(ctx.makePoint(readLat(), readLng()));
+        builder.pointXY(readLat(), readLng());
       }
-      return points;
+      return builder;
     }
-    
-    public List<double[]> readPoints() throws IOException {
-      List<double[]> points = new ArrayList<double[]>();
-      while(isData()) {
-        points.add(new double[]{readLat(), readLng()});
-      }
-      return points;
-    }
-    
+
     public double readLat() throws IOException {
       lat += readInt();
       return lat * 1e-5;
