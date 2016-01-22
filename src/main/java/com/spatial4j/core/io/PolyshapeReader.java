@@ -85,7 +85,7 @@ public class PolyshapeReader implements ShapeReader {
   @Override
   public final Shape read(Reader r) throws ParseException, IOException
   {
-    XReader reader = new XReader(r);
+    XReader reader = new XReader(r, shpFactory);
     Double arg = null;
     
     Shape lastShape = null;
@@ -120,7 +120,7 @@ public class PolyshapeReader implements ShapeReader {
       
       switch(event) {
         case PolyshapeWriter.KEY_POINT: {
-          lastShape = shpFactory.pointXY(reader.readLat(), reader.readLng());
+          lastShape = shpFactory.pointXY(shpFactory.normX(reader.readLat()), shpFactory.normY(reader.readLng()));
           break;
         }
         case PolyshapeWriter.KEY_LINE: {
@@ -128,15 +128,16 @@ public class PolyshapeReader implements ShapeReader {
           reader.readPoints(lineBuilder);
           
           if(arg!=null) {
-            lineBuilder.buffer(arg);
+            lineBuilder.buffer(shpFactory.normDist(arg));
           }
           lastShape = lineBuilder.build();
           break;
         }
         case PolyshapeWriter.KEY_BOX: {
-          double lat1 = reader.readLat();
-          double lon1 = reader.readLng();
-          lastShape = shpFactory.rect(lat1, reader.readLat(), lon1, reader.readLng());
+          double lat1 = shpFactory.normX(reader.readLat());
+          double lon1 = shpFactory.normY(reader.readLng());
+          lastShape = shpFactory.rect(lat1, shpFactory.normX(reader.readLat()), 
+                  lon1, shpFactory.normY(reader.readLng()));
           break;
         }
         case PolyshapeWriter.KEY_MULTIPOINT : {
@@ -147,7 +148,8 @@ public class PolyshapeReader implements ShapeReader {
           if(arg==null) {
             throw new IllegalArgumentException("the input should have a radius argument");
           }
-          lastShape = shpFactory.circle(reader.readLat(), reader.readLng(), arg.doubleValue());
+          lastShape = shpFactory.circle(shpFactory.normX(reader.readLat()), shpFactory.normY(reader.readLng()), 
+                shpFactory.normDist(arg.doubleValue()));
           break;
         }
         case PolyshapeWriter.KEY_POLYGON: {
@@ -195,15 +197,17 @@ public class PolyshapeReader implements ShapeReader {
     
     int head = -1;
     final Reader input;
-    
-    public XReader(final Reader input) throws IOException {
+    final ShapeFactory shpFactory;
+
+    public XReader(final Reader input, ShapeFactory shpFactory) throws IOException {
       this.input = input;
+      this.shpFactory = shpFactory;
       head = input.read();
     }
     
     public <T extends ShapeFactory.PointsBuilder> T readPoints(T builder) throws IOException {
       while(isData()) {
-        builder.pointXY(readLat(), readLng());
+        builder.pointXY(shpFactory.normX(readLat()), shpFactory.normY(readLng()));
       }
       return builder;
     }
