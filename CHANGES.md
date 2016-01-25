@@ -1,3 +1,12 @@
+## VERSION ?
+
+### Bugs:
+
+ * \#127: JtsGeometry.relate(Circle) was incorrect. (David Smiley)
+
+
+---------------------------------------
+
 ## VERSION 0.5
 
 DATE: 18 September 2015
