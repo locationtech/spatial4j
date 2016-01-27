@@ -50,6 +50,9 @@ public class ShapeFactoryImpl implements ShapeFactory {
   public double normY(double y) { return y; }
 
   @Override
+  public double normZ(double z) { return z; }
+
+  @Override
   public double normDist(double d) {
     return d;
   }
@@ -66,6 +69,10 @@ public class ShapeFactoryImpl implements ShapeFactory {
     Rectangle bounds = ctx.getWorldBounds();
     if (y < bounds.getMinY() || y > bounds.getMaxY())//NaN will pass
       throw new InvalidShapeException("Bad Y value "+y+" is not in boundary "+bounds);
+  }
+
+  @Override
+  public void verifyZ(double z) { // bounds has no 'z' for this simple shapeFactory
   }
 
   @Override

@@ -112,6 +112,12 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
   }
 
   @Override
+  public double normZ(double z) {
+    z = super.normZ(z);
+    return geometryFactory.getPrecisionModel().makePrecise(z);
+  }
+
+  @Override
   public double normDist(double d) {
     return geometryFactory.getPrecisionModel().makePrecise(d);
   }
@@ -180,6 +186,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
     //A Jts Point is fairly heavyweight!  TODO could/should we optimize this? SingleCoordinateSequence
     verifyX(x);
     verifyY(y);
+    verifyZ(z);
     // verifyZ(z)?
     Coordinate coord = Double.isNaN(x) ? null : new Coordinate(x, y, z);
     return new JtsPoint(geometryFactory.createPoint(coord), (JtsSpatialContext) ctx);

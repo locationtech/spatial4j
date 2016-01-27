@@ -26,16 +26,17 @@ public interface ShapeFactory {
 
   // nocommit annoying that a ShapeReader must remember to call norm* methods.  Perhaps
   //  there should be another shapeFactory impl for shape reading?  :-/  Or not.
-  //  Also TODO modify ShapeFactory javadocs to mention this is called by all ShapeReaders
-  //  (and ensure we do!) not just WKTReader.
 
   /** Normalize the 'x' dimension. Might reduce precision or wrap it to be within the bounds. This
-   * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
+   * is called by {@link com.spatial4j.core.io.ShapeReader}s before creating a shape. */
   double normX(double x);
 
-  /** Normalize the 'y' dimension. Might reduce precision or wrap it to be within the bounds. This
-   * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
+  /** @see #normX(double)  */
   double normY(double y);
+
+  /** (disclaimer: the Z dimension isn't fully supported)
+   * @see #normX(double) */
+  double normZ(double z);
 
   /**
    * Called to normalize a value that isn't X or Y. X & Y or normalized via
@@ -48,15 +49,18 @@ public interface ShapeFactory {
    * gets an 'x' dimension. */
   void verifyX(double x);
 
-  /** Ensure fits in the world bounds. It's called by any shape factory method that
-   * gets a 'y' dimension. */
+  /** @see #verifyX(double)  */
   void verifyY(double y);
+
+  /** (disclaimer: the Z dimension isn't fully supported)
+   *  @see #verifyX(double)  */
+  void verifyZ(double z);
 
   /** Construct a point. */
   Point pointXY(double x, double y);
 
   /** Construct a point of 3 dimensions.  The implementation might ignore unsupported
-   * dimensions or throw an error. */
+   * dimensions like 'z' or throw an error. */
   Point pointXYZ(double x, double y, double z);
 
   /** Construct a rectangle. */

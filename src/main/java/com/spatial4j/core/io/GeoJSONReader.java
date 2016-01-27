@@ -96,9 +96,9 @@ public class GeoJSONReader implements ShapeReader {
 
         case JSONParser.ARRAY_END:
           if (idx <= 2) { // don't have a 'z'
-            pointsBuilder.pointXY(x, y);
+            pointsBuilder.pointXY(shapeFactory.normX(x), shapeFactory.normY(y));
           } else {
-            pointsBuilder.pointXYZ(x, y, z);
+            pointsBuilder.pointXYZ(shapeFactory.normX(x), shapeFactory.normY(y), shapeFactory.normZ(z));
           }
           return;
 
@@ -220,7 +220,7 @@ public class GeoJSONReader implements ShapeReader {
       }
     }
 
-    return dist;
+    return shapeFactory.normDist(dist);
   }
 
   protected Shape readShape(JSONParser parser) throws IOException, ParseException {
