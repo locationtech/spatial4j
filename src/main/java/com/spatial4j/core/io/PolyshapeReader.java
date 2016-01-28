@@ -28,10 +28,8 @@ import java.util.List;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.ShapeFactory;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 
 
@@ -52,13 +50,6 @@ public class PolyshapeReader implements ShapeReader {
     return ShapeIO.POLY;
   }
 
-  /**
-   * Subclass may try to make multiple points into a MultiPoint
-   */
-  protected Shape makeCollection(List<? extends Shape> shapes) {
-    return shpFactory.multiShape(shapes);
-  }
-  
   @Override
   public Shape read(Object value) throws IOException, ParseException, InvalidShapeException {
     return read(new StringReader(value.toString().trim()));
@@ -166,7 +157,13 @@ public class PolyshapeReader implements ShapeReader {
       if(lastShape!=null) {
         shapes.add(lastShape);
       }
-      return makeCollection(shapes);
+
+      ShapeFactory.MultiShapeBuilder<Shape> multiBuilder = shpFactory.multiShape(Shape.class); 
+      for (Shape shp : shapes) {
+        multiBuilder.add(shp);
+      }
+
+      return multiBuilder.build();
     }
     return lastShape;
   }

@@ -12,6 +12,7 @@ import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.io.GeoJSONReader;
 import com.spatial4j.core.io.LegacyShapeReader;
 import com.spatial4j.core.io.LegacyShapeWriter;
+import com.spatial4j.core.io.PolyshapeReader;
 import com.spatial4j.core.io.WKTReader;
 import com.spatial4j.core.io.jts.*;
 import com.spatial4j.core.shape.jts.JtsShapeFactory;
@@ -78,7 +79,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
     if (readers.isEmpty() ) {
       addReaderIfNoggitExists(GeoJSONReader.class);
       readers.add(WKTReader.class);
-      readers.add(JtsPolyshapeReader.class);
+      readers.add(PolyshapeReader.class);
       readers.add(LegacyShapeReader.class);
     }
     if (writers.isEmpty()) {

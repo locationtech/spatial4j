@@ -30,8 +30,15 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   final JtsSpatialContext ctx;//note: masks superclass
 
   public JtsWktShapeParserTest() {
-    super(JtsSpatialContext.GEO);
+    super(createSpatialContext());
     this.ctx = (JtsSpatialContext) super.ctx;
+  }
+
+  static JtsSpatialContext createSpatialContext() {
+    JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
+
+    factory.useJtsMulti = false;
+    return factory.newSpatialContext();
   }
 
   @Test

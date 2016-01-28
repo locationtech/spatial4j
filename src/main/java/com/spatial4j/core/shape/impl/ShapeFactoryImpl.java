@@ -210,9 +210,9 @@ public class ShapeFactoryImpl implements ShapeFactory {
     throw new UnsupportedOperationException("Unsupported shape of this SpatialContext. Try JTS or Geo3D.");
   }
 
-  private class GeneralShapeMultiShapeBuilder<T extends Shape> implements MultiShapeBuilder<T>,
+  protected class GeneralShapeMultiShapeBuilder<T extends Shape> implements MultiShapeBuilder<T>,
       MultiPointBuilder, MultiLineStringBuilder, MultiPolygonBuilder {
-    List<Shape> shapes = new ArrayList<>();
+    protected List<Shape> shapes = new ArrayList<>();
 
     @Override
     public MultiShapeBuilder<T> add(T shape) {
