@@ -8,32 +8,24 @@
 
 package com.spatial4j.core.context;
 
-import java.text.ParseException;
-import java.util.List;
-
 import com.spatial4j.core.distance.CartesianDistCalc;
 import com.spatial4j.core.distance.DistanceCalculator;
-import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.io.BinaryCodec;
 import com.spatial4j.core.io.LegacyShapeWriter;
 import com.spatial4j.core.io.SupportedFormats;
 import com.spatial4j.core.io.WKTReader;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.ShapeCollection;
-import com.spatial4j.core.shape.impl.BufferedLineString;
-import com.spatial4j.core.shape.impl.CircleImpl;
-import com.spatial4j.core.shape.impl.GeoCircle;
-import com.spatial4j.core.shape.impl.PointImpl;
+import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.impl.RectangleImpl;
+
+import java.text.ParseException;
+import java.util.List;
 
 /**
  * This is a facade to most of Spatial4j, holding things like {@link DistanceCalculator},
- * {@link com.spatial4j.core.io.ShapeIO}, and acting as a factory for the {@link Shape}s.
+ * {@link ShapeFactory},
+ * {@link com.spatial4j.core.io.ShapeIO}.
  * <p/>
  * If you want a typical geodetic context, just reference {@link #GEO}.  Otherwise,
  * You should either create and configure a {@link SpatialContextFactory} and then call
@@ -50,13 +42,11 @@ public class SpatialContext {
 
   //These are non-null
   private final boolean geo;
+  private final ShapeFactory shapeFactory;
   private final DistanceCalculator calculator;
   private final Rectangle worldBounds;
-
   private final BinaryCodec binaryCodec;
   private final SupportedFormats formats;
-
-  private final boolean normWrapLongitude;
 
   /**
    * Consider using {@link com.spatial4j.core.context.SpatialContextFactory} instead.
@@ -91,6 +81,8 @@ public class SpatialContext {
   public SpatialContext(SpatialContextFactory factory) {
     this.geo = factory.geo;
 
+    this.shapeFactory = factory.makeShapeFactory(this);
+
     if (factory.distCalc == null) {
       this.calculator = isGeo()
               ? new GeodesicSphereDistCalc.Haversine()
@@ -117,13 +109,17 @@ public class SpatialContext {
       this.worldBounds = new RectangleImpl(bounds, this);
     }
 
-    this.normWrapLongitude = factory.normWrapLongitude && this.isGeo();
     this.binaryCodec = factory.makeBinaryCodec(this);
     
     factory.checkDefaultFormats();
     this.formats = factory.makeFormats(this);
   }
-  
+
+  /** A factory for {@link Shape}s. */
+  public ShapeFactory getShapeFactory() {
+    return shapeFactory;
+  }
+
   public SupportedFormats getFormats() {
     return formats;
   }
@@ -152,8 +148,9 @@ public class SpatialContext {
 
   /** If true then {@link #normX(double)} will wrap longitudes outside of the standard
    * geodetic boundary into it. Example: 181 will become -179. */
+  @Deprecated
   public boolean isNormWrapLongitude() {
-    return normWrapLongitude;
+    return shapeFactory.isNormWrapLongitude();
   }
 
   /** Is the mathematical world model based on a sphere, or is it a flat plane? The word
@@ -165,43 +162,40 @@ public class SpatialContext {
 
   /** Normalize the 'x' dimension. Might reduce precision or wrap it to be within the bounds. This
    * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
+  @Deprecated
   public double normX(double x) {
-    if (normWrapLongitude)
-      x = DistanceUtils.normLonDEG(x);
-    return x;
+    return shapeFactory.normX(x);
   }
 
   /** Normalize the 'y' dimension. Might reduce precision or wrap it to be within the bounds. This
    * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
-  public double normY(double y) { return y; }
+  @Deprecated
+  public double normY(double y) { return shapeFactory.normY(y); }
 
   /** Ensure fits in {@link #getWorldBounds()}. It's called by any shape factory method that
    * gets an 'x' dimension. */
+  @Deprecated
   public void verifyX(double x) {
-    Rectangle bounds = getWorldBounds();
-    if (x < bounds.getMinX() || x > bounds.getMaxX())//NaN will pass
-      throw new InvalidShapeException("Bad X value "+x+" is not in boundary "+bounds);
+    shapeFactory.verifyX(x);
   }
 
   /** Ensure fits in {@link #getWorldBounds()}. It's called by any shape factory method that
    * gets a 'y' dimension. */
+  @Deprecated
   public void verifyY(double y) {
-    Rectangle bounds = getWorldBounds();
-    if (y < bounds.getMinY() || y > bounds.getMaxY())//NaN will pass
-      throw new InvalidShapeException("Bad Y value "+y+" is not in boundary "+bounds);
+    shapeFactory.verifyY(y);
   }
 
   /** Construct a point. */
+  @Deprecated
   public Point makePoint(double x, double y) {
-    verifyX(x);
-    verifyY(y);
-    return new PointImpl(x, y, this);
+    return shapeFactory.pointXY(x, y);
   }
 
   /** Construct a rectangle. */
+  @Deprecated
   public Rectangle makeRectangle(Point lowerLeft, Point upperRight) {
-    return makeRectangle(lowerLeft.getX(), upperRight.getX(),
-            lowerLeft.getY(), upperRight.getY());
+    return shapeFactory.rect(lowerLeft, upperRight);
   }
 
   /**
@@ -209,72 +203,42 @@ public class SpatialContext {
    * then potentially adjust its sign to ensure the rectangle does not cross the
    * dateline.
    */
+  @Deprecated
   public Rectangle makeRectangle(double minX, double maxX, double minY, double maxY) {
-    Rectangle bounds = getWorldBounds();
-    // Y
-    if (minY < bounds.getMinY() || maxY > bounds.getMaxY())//NaN will pass
-      throw new InvalidShapeException("Y values ["+minY+" to "+maxY+"] not in boundary "+bounds);
-    if (minY > maxY)
-      throw new InvalidShapeException("maxY must be >= minY: " + minY + " to " + maxY);
-    // X
-    if (isGeo()) {
-      verifyX(minX);
-      verifyX(maxX);
-      //TODO consider removing this logic so that there is no normalization here
-      //if (minX != maxX) {   USUALLY TRUE, inline check below
-      //If an edge coincides with the dateline then don't make this rect cross it
-      if (minX == 180 && minX != maxX) {
-        minX = -180;
-      } else if (maxX == -180 && minX != maxX) {
-        maxX = 180;
-      }
-      //}
-    } else {
-      if (minX < bounds.getMinX() || maxX > bounds.getMaxX())//NaN will pass
-        throw new InvalidShapeException("X values ["+minX+" to "+maxX+"] not in boundary "+bounds);
-      if (minX > maxX)
-        throw new InvalidShapeException("maxX must be >= minX: " + minX + " to " + maxX);
-    }
-    return new RectangleImpl(minX, maxX, minY, maxY, this);
+    return shapeFactory.rect(minX, maxX, minY, maxY);
   }
 
   /** Construct a circle. The units of "distance" should be the same as x & y. */
+  @Deprecated
   public Circle makeCircle(double x, double y, double distance) {
-    return makeCircle(makePoint(x, y), distance);
+    return shapeFactory.circle(x, y, distance);
   }
 
   /** Construct a circle. The units of "distance" should be the same as x & y. */
+  @Deprecated
   public Circle makeCircle(Point point, double distance) {
-    if (distance < 0)
-      throw new InvalidShapeException("distance must be >= 0; got " + distance);
-    if (isGeo()) {
-      if (distance > 180) {
-        // (it's debatable whether to error or not)
-        //throw new InvalidShapeException("distance must be <= 180; got " + distance);
-        distance = 180;
-      }
-      return new GeoCircle(point, distance, this);
-    } else {
-      return new CircleImpl(point, distance, this);
-    }
+    return shapeFactory.circle(point, distance);
   }
 
   /** Constructs a line string. It's an ordered sequence of connected vertexes. There
    * is no official shape/interface for it yet so we just return Shape. */
+  @Deprecated
   public Shape makeLineString(List<Point> points) {
-    return new BufferedLineString(points, 0, false, this);
+    return shapeFactory.lineString(points, 0);
   }
 
   /** Constructs a buffered line string. It's an ordered sequence of connected vertexes,
    * with a buffer distance along the line in all directions. There
    * is no official shape/interface for it so we just return Shape. */
+  @Deprecated
   public Shape makeBufferedLineString(List<Point> points, double buf) {
-    return new BufferedLineString(points, buf, isGeo(), this);
+    return shapeFactory.lineString(points, buf);
   }
 
   /** Construct a ShapeCollection, analogous to an OGC GeometryCollection. */
+  @Deprecated
   public <S extends Shape> ShapeCollection<S> makeCollection(List<S> coll) {
-    return new ShapeCollection<S>(coll, this);
+    return shapeFactory.multiShape(coll);
   }
 
   /** The {@link com.spatial4j.core.io.WKTReader} used by {@link #readShapeFromWkt(String)}. */

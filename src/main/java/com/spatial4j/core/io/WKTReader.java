@@ -15,15 +15,12 @@ package com.spatial4j.core.io;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.ShapeFactory;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * An extensible parser for <a href="http://en.wikipedia.org/wiki/Well-known_text"> Well Known Text
@@ -36,6 +33,8 @@ import java.util.List;
  * Language (CQL)</a>)
  * <li>LINESTRING</li>
  * <li>MULTILINESTRING</li>
+ * <LI>POLYGON</LI>
+ * <LI>MULTIPOLYGON</LI>
  * <li>GEOMETRYCOLLECTION</li>
  * <li>BUFFER</li> (non-standard Spatial4j operation)
  * </ul>
@@ -58,6 +57,7 @@ import java.util.List;
  */
 public class WKTReader implements ShapeReader {
   protected final SpatialContext ctx;
+  protected final ShapeFactory shapeFactory;
 
   // TODO support SRID: "SRID=4326;POINT(1,2)
 
@@ -68,6 +68,7 @@ public class WKTReader implements ShapeReader {
    */
   public WKTReader(SpatialContext ctx, SpatialContextFactory factory) {
     this.ctx = ctx;
+    this.shapeFactory = ctx.getShapeFactory();
   }
 
 
@@ -108,11 +109,9 @@ public class WKTReader implements ShapeReader {
     Shape result = null;
     try {
       result = parseShapeByType(state, shapeType);
-    } catch (ParseException e) {
+    } catch (ParseException | InvalidShapeException e) {
       throw e;
-    } catch (InvalidShapeException e) {
-      throw e;
-    } catch (IllegalArgumentException e) { // JTS Throws IllegalArgment for bad WKT
+    } catch (IllegalArgumentException e) { // NOTE: JTS Throws IAE for bad WKT
       throw new InvalidShapeException(e.getMessage(), e);
     } catch (Exception e) {
       ParseException pe = new ParseException(e.toString(), state.offset);
@@ -160,12 +159,16 @@ public class WKTReader implements ShapeReader {
       return parseMultiPointShape(state);
     } else if (shapeType.equalsIgnoreCase("ENVELOPE")) {
       return parseEnvelopeShape(state);
-    } else if (shapeType.equalsIgnoreCase("GEOMETRYCOLLECTION")) {
-      return parseGeometryCollectionShape(state);
     } else if (shapeType.equalsIgnoreCase("LINESTRING")) {
       return parseLineStringShape(state);
+    } else if (shapeType.equalsIgnoreCase("POLYGON")) {
+      return parsePolygonShape(state);
+    } else if (shapeType.equalsIgnoreCase("GEOMETRYCOLLECTION")) {
+      return parseGeometryCollectionShape(state);
     } else if (shapeType.equalsIgnoreCase("MULTILINESTRING")) {
       return parseMultiLineStringShape(state);
+    } else if (shapeType.equalsIgnoreCase("MULTIPOLYGON")) {
+      return parseMulitPolygonShape(state);
     }
     // extension
     if (shapeType.equalsIgnoreCase("BUFFER")) {
@@ -189,17 +192,9 @@ public class WKTReader implements ShapeReader {
     state.nextExpect('(');
     Shape shape = shape(state);
     state.nextExpect(',');
-    double distance = normDist(state.nextDouble());
+    double distance = shapeFactory.normDist(state.nextDouble());
     state.nextExpect(')');
     return shape.getBuffered(distance, ctx);
-  }
-
-  /**
-   * Called to normalize a value that isn't X or Y. X & Y or normalized via
-   * {@link com.spatial4j.core.context.SpatialContext#normX(double)} & normY.
-   */
-  protected double normDist(double v) {// TODO should this be added to ctx?
-    return v;
   }
 
   /**
@@ -209,15 +204,16 @@ public class WKTReader implements ShapeReader {
    *   '(' coordinate ')'
    * </pre>
    *
-   * @see #point(WKTReader.State)
+   * @see #point(State, ShapeFactory.PointsBuilder)
    */
   protected Shape parsePointShape(State state) throws ParseException {
     if (state.nextIfEmptyAndSkipZM())
-      return ctx.makePoint(Double.NaN, Double.NaN);
+      return shapeFactory.pointXY(Double.NaN, Double.NaN);
     state.nextExpect('(');
-    Point coordinate = point(state);
+    OnePointsBuilder onePointsBuilder = new OnePointsBuilder(shapeFactory);
+    point(state, onePointsBuilder);
     state.nextExpect(')');
-    return coordinate;
+    return onePointsBuilder.getPoint();
   }
 
   /**
@@ -229,22 +225,21 @@ public class WKTReader implements ShapeReader {
    * 
    * Furthermore, coordinate can optionally be wrapped in parenthesis.
    *
-   * @see #point(WKTReader.State)
+   * @see #point(State, ShapeFactory.PointsBuilder)
    */
   protected Shape parseMultiPointShape(State state) throws ParseException {
+    ShapeFactory.MultiPointBuilder builder = shapeFactory.multiPoint();
     if (state.nextIfEmptyAndSkipZM())
-      return ctx.makeCollection(Collections.EMPTY_LIST);
-    List<Point> shapes = new ArrayList<Point>();
+      return builder.build();
     state.nextExpect('(');
     do {
       boolean openParen = state.nextIf('(');
-      Point coordinate = point(state);
+      point(state, builder);
       if (openParen)
         state.nextExpect(')');
-      shapes.add(coordinate);
     } while (state.nextIf(','));
     state.nextExpect(')');
-    return ctx.makeCollection(shapes);
+    return builder.build();
   }
 
   /**
@@ -268,7 +263,8 @@ public class WKTReader implements ShapeReader {
     state.nextExpect(',');
     double y1 = state.nextDouble();
     state.nextExpect(')');
-    return ctx.makeRectangle(ctx.normX(x1), ctx.normX(x2), ctx.normY(y1), ctx.normY(y2));
+    return shapeFactory.rect(shapeFactory.normX(x1), shapeFactory.normX(x2),
+            shapeFactory.normY(y1), shapeFactory.normY(y2));
   }
 
   /**
@@ -278,13 +274,13 @@ public class WKTReader implements ShapeReader {
    * coordinateSequence
    * </pre>
    *
-   * @see #pointList(WKTReader.State)
+   * @see #pointList(State, ShapeFactory.LineStringBuilder)
    */
   protected Shape parseLineStringShape(State state) throws ParseException {
+    ShapeFactory.LineStringBuilder lineStringBuilder = shapeFactory.lineString();
     if (state.nextIfEmptyAndSkipZM())
-      return ctx.makeLineString(Collections.<Point>emptyList());
-    List<Point> points = pointList(state);
-    return ctx.makeLineString(points);
+      return lineStringBuilder.build();
+    return pointList(state, lineStringBuilder).build();
   }
 
   /**
@@ -297,15 +293,50 @@ public class WKTReader implements ShapeReader {
    * @see #parseLineStringShape(com.spatial4j.core.io.WKTReader.State)
    */
   protected Shape parseMultiLineStringShape(State state) throws ParseException {
-    if (state.nextIfEmptyAndSkipZM())
-      return ctx.makeCollection(Collections.EMPTY_LIST);
-    List<Shape> shapes = new ArrayList<Shape>();
-    state.nextExpect('(');
-    do {
-      shapes.add(parseLineStringShape(state));
-    } while (state.nextIf(','));
-    state.nextExpect(')');
-    return ctx.makeCollection(shapes);
+    ShapeFactory.MultiLineStringBuilder multiLineStringBuilder = shapeFactory.multiLineString();
+    if (!state.nextIfEmptyAndSkipZM()) {
+      state.nextExpect('(');
+      do {
+        multiLineStringBuilder.add(pointList(state, multiLineStringBuilder.lineString()));
+      } while (state.nextIf(','));
+      state.nextExpect(')');
+    }
+    return multiLineStringBuilder.build();
+  }
+
+  /**
+   * Parses a POLYGON shape from the raw string. It might return a
+   * {@link com.spatial4j.core.shape.Rectangle} if the polygon is one.
+   *
+   * <pre>
+   * coordinateSequenceList
+   * </pre>
+   */
+  protected Shape parsePolygonShape(WKTReader.State state) throws ParseException {
+    ShapeFactory.PolygonBuilder polygonBuilder = shapeFactory.polygon();
+    if (!state.nextIfEmptyAndSkipZM()) {
+      polygonBuilder = polygon(state, polygonBuilder);
+    }
+    return polygonBuilder.buildOrRect();
+  }
+
+  /**
+   * Parses a MULTIPOLYGON shape from the raw string.
+   *
+   * <pre>
+   *   '(' polygon (',' polygon )* ')'
+   * </pre>
+   */
+  protected Shape parseMulitPolygonShape(WKTReader.State state) throws ParseException {
+    ShapeFactory.MultiPolygonBuilder multiPolygonBuilder = shapeFactory.multiPolygon();
+    if (!state.nextIfEmptyAndSkipZM()) {
+      state.nextExpect('(');
+      do {
+        multiPolygonBuilder.add(polygon(state, multiPolygonBuilder.polygon()));
+      } while (state.nextIf(','));
+      state.nextExpect(')');
+    }
+    return multiPolygonBuilder.build();
   }
 
   /**
@@ -316,15 +347,15 @@ public class WKTReader implements ShapeReader {
    * </pre>
    */
   protected Shape parseGeometryCollectionShape(State state) throws ParseException {
+    ShapeFactory.MultiShapeBuilder<Shape> multiShapeBuilder = shapeFactory.multiShape(Shape.class);
     if (state.nextIfEmptyAndSkipZM())
-      return ctx.makeCollection(Collections.EMPTY_LIST);
-    List<Shape> shapes = new ArrayList<Shape>();
+      return multiShapeBuilder.build();
     state.nextExpect('(');
     do {
-      shapes.add(shape(state));
+      multiShapeBuilder.add(shape(state));
     } while (state.nextIf(','));
     state.nextExpect(')');
-    return ctx.makeCollection(shapes);
+    return multiShapeBuilder.build();
   }
 
   /**
@@ -347,16 +378,15 @@ public class WKTReader implements ShapeReader {
    *   '(' coordinate (',' coordinate )* ')'
    * </pre>
    *
-   * @see #point(WKTReader.State)
+   * @see #point(State, ShapeFactory.PointsBuilder)
    */
-  protected List<Point> pointList(State state) throws ParseException {
-    List<Point> sequence = new ArrayList<Point>();
+  protected <B extends ShapeFactory.PointsBuilder> B pointList(State state, B pointsBuilder) throws ParseException {
     state.nextExpect('(');
     do {
-      sequence.add(point(state));
+      point(state, pointsBuilder);
     } while (state.nextIf(','));
     state.nextExpect(')');
-    return sequence;
+    return pointsBuilder;
   }
 
   /**
@@ -367,11 +397,27 @@ public class WKTReader implements ShapeReader {
    *   number number number*
    * </pre>
    */
-  protected Point point(State state) throws ParseException {
+  protected ShapeFactory.PointsBuilder point(State state, ShapeFactory.PointsBuilder pointsBuilder) throws ParseException {
     double x = state.nextDouble();
     double y = state.nextDouble();
-    state.skipNextDoubles();
-    return ctx.makePoint(ctx.normX(x), ctx.normY(y));
+    state.skipNextDoubles();//TODO capture to call pointXYZ
+    pointsBuilder.pointXY(shapeFactory.normX(x), shapeFactory.normY(y));
+    return pointsBuilder;
+  }
+
+  /**
+   * Reads a polygon
+   */
+  protected ShapeFactory.PolygonBuilder polygon(WKTReader.State state, ShapeFactory.PolygonBuilder polygonBuilder) throws ParseException {
+    state.nextExpect('(');
+    pointList(state, polygonBuilder); // outer ring
+    while (state.nextIf(',')) {
+      ShapeFactory.PolygonBuilder.HoleBuilder holeBuilder = polygonBuilder.hole();
+      pointList(state, holeBuilder);
+      holeBuilder.endHole();
+    }
+    state.nextExpect(')');
+    return polygonBuilder;
   }
 
   /** The parse state. */

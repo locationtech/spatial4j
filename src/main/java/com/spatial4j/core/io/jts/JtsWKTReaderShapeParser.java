@@ -14,6 +14,7 @@ import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsPoint;
+import com.spatial4j.core.shape.jts.JtsShapeFactory;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
 import com.vividsolutions.jts.geom.Geometry;
@@ -22,7 +23,7 @@ import com.vividsolutions.jts.io.WKTReader;
 import java.text.ParseException;
 
 /**
- * This is an extension of {@link JtsWKTReader} that processes the entire
+ * This is an extension of Spatial4j's {@link com.spatial4j.core.io.WKTReader} that processes the entire
  * string with JTS's {@link com.vividsolutions.jts.io.WKTReader}.  Some differences:
  * <ul>
  *   <li>No support for ENVELOPE and BUFFER</li>
@@ -32,7 +33,8 @@ import java.text.ParseException;
  * </ul>
  *
  */
-public class JtsWKTReaderShapeParser extends JtsWKTReader {
+@Deprecated
+public class JtsWKTReaderShapeParser extends com.spatial4j.core.io.WKTReader {
 
   //Note: Historically, the code here originated from the defunct JtsShapeReadWriter.
 
@@ -42,7 +44,11 @@ public class JtsWKTReaderShapeParser extends JtsWKTReader {
 
   @Override
   public Shape parseIfSupported(String wktString) throws ParseException {
-    return parseIfSupported(wktString, new WKTReader(ctx.getGeometryFactory()));
+    return parseIfSupported(wktString, new WKTReader(getShapeFactory().getGeometryFactory()));
+  }
+
+  private JtsShapeFactory getShapeFactory() {
+    return ((JtsShapeFactory)shapeFactory);
   }
 
   /**
@@ -60,14 +66,14 @@ public class JtsWKTReaderShapeParser extends JtsWKTReader {
 
       if (geom instanceof com.vividsolutions.jts.geom.Point) {
         com.vividsolutions.jts.geom.Point ptGeom = (com.vividsolutions.jts.geom.Point) geom;
-        if (ctx.useJtsPoint())
-          return new JtsPoint(ptGeom, ctx);
+        if (getShapeFactory().useJtsPoint())
+          return new JtsPoint(ptGeom, (JtsSpatialContext) ctx);
         else
-          return ctx.makePoint(ptGeom.getX(), ptGeom.getY());
+          return getShapeFactory().pointXY(ptGeom.getX(), ptGeom.getY());
       } else if (geom.isRectangle()) {
-        return super.ctx.makeRectFromRectangularPoly(geom);
+        return getShapeFactory().makeRectFromRectangularPoly(geom);
       } else {
-        return super.ctx.makeShapeFromGeometry(geom);
+        return getShapeFactory().makeShapeFromGeometry(geom);
       }
     } catch (InvalidShapeException e) {
       throw e;

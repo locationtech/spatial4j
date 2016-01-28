@@ -1,9 +1,20 @@
-## VERSION ?
+## VERSION 0.6
+
+### Features:
+
+* \#130: New ShapeFactory interface for shape creation. Related methods on SpatialContext are now deprecated; get the
+  ShapeFactory from the SpatialContext.  ShapeFactory has builders for Polygon, LineString, MultiShape, MultiPoint,
+  MultiLineString, and MultiPolygon.  The ShapeReader formats now use these and thus no longer have hard dependencies
+  on JTS just to create a polygon, although should you need to create a polygon, you still need JTS on the classpath at
+  this time.  A new JtsSpatialContextFactory.useJtsMulti option (defaults to true) toggles whether JTS's Multi* 
+  implementations are to be used in preference to Spatial4j's native ShapeCollection.
+  (David Smiley, Justin Deoliveira)
 
 ### Bugs:
 
- * \#127: JtsGeometry.relate(Circle) was incorrect. (David Smiley)
+ * If tried to use an "empty" JTS geometry when geo=false, it would throw an exception. (David Smiley)
 
+ * \#127: JtsGeometry.relate(Circle) was incorrect. (David Smiley)
 
 ---------------------------------------
 

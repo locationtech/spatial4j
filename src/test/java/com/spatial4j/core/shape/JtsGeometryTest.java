@@ -204,7 +204,12 @@ public class JtsGeometryTest extends AbstractTestShapes {
 
     JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
     factory.normWrapLongitude = true;
-
+    // either we need to not use JTS's MultiPolygon, or we need to set allowMultiOverlap=true
+    if (randomBoolean()) {
+      factory.allowMultiOverlap = true;
+    } else {
+      factory.useJtsMulti = false;
+    }
     JtsSpatialContext ctx = factory.newSpatialContext();
 
     Shape shape = wkt(ctx, wktStr);

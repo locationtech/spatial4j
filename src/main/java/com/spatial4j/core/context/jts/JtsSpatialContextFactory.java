@@ -9,9 +9,13 @@
 package com.spatial4j.core.context.jts;
 
 import com.spatial4j.core.context.SpatialContextFactory;
+import com.spatial4j.core.io.GeoJSONReader;
 import com.spatial4j.core.io.LegacyShapeReader;
 import com.spatial4j.core.io.LegacyShapeWriter;
+import com.spatial4j.core.io.PolyshapeReader;
+import com.spatial4j.core.io.WKTReader;
 import com.spatial4j.core.io.jts.*;
+import com.spatial4j.core.shape.jts.JtsShapeFactory;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -32,7 +36,7 @@ import java.util.Map;
  * <DD>error(default)|none|repairConvexHull|repairBuffer0
  *  -- see {@link ValidationRule}</DD>
  * <DT>autoIndex</DT>
- * <DD>true|false(default) -- see {@link JtsWKTReader#isAutoIndex()}</DD>
+ * <DD>true|false(default) -- see {@link JtsShapeFactory#isAutoIndex()}</DD>
  * <DT>allowMultiOverlap</DT>
  * <DD>true|false(default) -- see {@link JtsSpatialContext#isAllowMultiOverlap()}</DD>
  * <DT>precisionModel</DT>
@@ -40,6 +44,8 @@ import java.util.Map;
  *  -- see {@link com.vividsolutions.jts.geom.PrecisionModel}.
  * If {@code fixed} then you must also provide {@code precisionScale}
  *  -- see {@link com.vividsolutions.jts.geom.PrecisionModel#getScale()}</DD>
+ * <DT>useJtsPoint, useJtsLineString, useJtsMulti</DT>
+ * <DD>All default to true. See corresponding methods on {@link JtsShapeFactory}.</DD>
  * </DL>
  */
 public class JtsSpatialContextFactory extends SpatialContextFactory {
@@ -61,17 +67,19 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
   //kinda advanced options:
   public boolean useJtsPoint = true;
   public boolean useJtsLineString = true;
+  public boolean useJtsMulti = true;
 
   public JtsSpatialContextFactory() {
+    super.shapeFactoryClass = JtsShapeFactory.class;
     super.binaryCodecClass = JtsBinaryCodec.class;
   }
 
   @Override
   protected void checkDefaultFormats() {
     if (readers.isEmpty() ) {
-      addReaderIfNoggitExists(JtsGeoJSONReader.class);
-      readers.add(JtsWKTReader.class);
-      readers.add(JtsPolyshapeReader.class);
+      addReaderIfNoggitExists(GeoJSONReader.class);
+      readers.add(WKTReader.class);
+      readers.add(PolyshapeReader.class);
       readers.add(LegacyShapeReader.class);
     }
     if (writers.isEmpty()) {
@@ -92,6 +100,7 @@ public class JtsSpatialContextFactory extends SpatialContextFactory {
     initField("allowMultiOverlap");
     initField("useJtsPoint");
     initField("useJtsLineString");
+    initField("useJtsMulti");
 
     String scaleStr = args.get("precisionScale");
     String modelStr = args.get("precisionModel");

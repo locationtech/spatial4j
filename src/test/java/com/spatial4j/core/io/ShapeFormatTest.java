@@ -11,7 +11,6 @@ package com.spatial4j.core.io;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.io.jts.JtsWKTReader;
 import com.spatial4j.core.shape.Shape;
 import org.junit.Test;
 
@@ -107,8 +106,7 @@ public class ShapeFormatTest {
     testJTS(JtsSpatialContext.GEO, format);
   }
   
-  public void testParseVsInvalidExceptions(ShapeReader reader) throws Exception
-  {
+  public void testParseVsInvalidExceptions(ShapeReader reader, boolean supportsPolygon) throws Exception {
     String txt = null;
     try {
       txt = "garbage";
@@ -126,7 +124,7 @@ public class ShapeFormatTest {
       //expected
     }
     
-    if(reader instanceof JtsWKTReader) {
+    if(supportsPolygon) {
       try {
         txt = readFirstLineFromRsrc("/fiji.wkt.txt");
         reader.read(txt);
@@ -138,10 +136,9 @@ public class ShapeFormatTest {
   }
 
   @Test
-  public void testParseVsInvalidExceptions() throws Exception
-  {
-    testParseVsInvalidExceptions(SpatialContext.GEO.getFormats().getWktReader());
-    testParseVsInvalidExceptions(JtsSpatialContext.GEO.getFormats().getWktReader());
+  public void testParseVsInvalidExceptions() throws Exception {
+    testParseVsInvalidExceptions(SpatialContext.GEO.getFormats().getWktReader(), false);
+    testParseVsInvalidExceptions(JtsSpatialContext.GEO.getFormats().getWktReader(), true);
   }
   
 

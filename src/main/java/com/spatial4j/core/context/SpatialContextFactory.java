@@ -13,6 +13,8 @@ import com.spatial4j.core.distance.DistanceCalculator;
 import com.spatial4j.core.distance.GeodesicSphereDistCalc;
 import com.spatial4j.core.io.*;
 import com.spatial4j.core.shape.Rectangle;
+import com.spatial4j.core.shape.ShapeFactory;
+import com.spatial4j.core.shape.impl.ShapeFactoryImpl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -33,6 +35,8 @@ import java.util.*;
  * com.spatial4j.core.context.jts.JtsSpatialContext</DD>
  * <DT>geo</DT>
  * <DD>true (default)| false -- see {@link SpatialContext#isGeo()} </DD>
+ * <DT>shapeFactoryClass</DT>
+ * <DD>Java class of the {@link ShapeFactory}.</DD>
  * <DT>distCalculator</DT>
  * <DD>haversine | lawOfCosines | vincentySphere | cartesian | cartesian^2
  * -- see {@link DistanceCalculator}</DD>
@@ -63,6 +67,7 @@ public class SpatialContextFactory {
 
   public boolean normWrapLongitude = false;
 
+  public Class<? extends ShapeFactory> shapeFactoryClass = ShapeFactoryImpl.class;
   public Class<? extends BinaryCodec> binaryCodecClass = BinaryCodec.class;
   public final List<Class<? extends ShapeReader>> readers = new ArrayList<Class<? extends ShapeReader>>();
   public final List<Class<? extends ShapeWriter>> writers = new ArrayList<Class<? extends ShapeWriter>>();
@@ -109,6 +114,8 @@ public class SpatialContextFactory {
     this.classLoader = classLoader;
 
     initField("geo");
+
+    initField("shapeFactoryClass");
 
     initCalculator();
 
@@ -280,10 +287,13 @@ public class SpatialContextFactory {
     return new SpatialContext(this);
   }
 
+  public ShapeFactory makeShapeFactory(SpatialContext ctx) {
+    return makeClassInstance(shapeFactoryClass, ctx, this);
+  }
+
   public BinaryCodec makeBinaryCodec(SpatialContext ctx) {
     return makeClassInstance(binaryCodecClass, ctx, this);
   }
-
 
   @SuppressWarnings("unchecked")
   private <T> T makeClassInstance(Class<? extends T> clazz, Object... ctorArgs) {

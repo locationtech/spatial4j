@@ -28,8 +28,9 @@ import java.util.List;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.ShapeFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 
 
 /**
@@ -37,9 +38,11 @@ import com.spatial4j.core.shape.Shape;
  */
 public class PolyshapeReader implements ShapeReader {
   final SpatialContext ctx;
+  final ShapeFactory shpFactory;
 
   public PolyshapeReader(SpatialContext ctx, SpatialContextFactory factory) {
     this.ctx = ctx;
+    this.shpFactory = ctx.getShapeFactory();
   }
 
   @Override
@@ -47,13 +50,6 @@ public class PolyshapeReader implements ShapeReader {
     return ShapeIO.POLY;
   }
 
-  /**
-   * Subclass may try to make multiple points into a MultiPoint
-   */
-  protected Shape makeCollection(List<? extends Shape> shapes) {
-    return ctx.makeCollection(shapes);
-  }
-  
   @Override
   public Shape read(Object value) throws IOException, ParseException, InvalidShapeException {
     return read(new StringReader(value.toString().trim()));
@@ -80,7 +76,7 @@ public class PolyshapeReader implements ShapeReader {
   @Override
   public final Shape read(Reader r) throws ParseException, IOException
   {
-    XReader reader = new XReader(r);
+    XReader reader = new XReader(r, shpFactory);
     Double arg = null;
     
     Shape lastShape = null;
@@ -115,34 +111,36 @@ public class PolyshapeReader implements ShapeReader {
       
       switch(event) {
         case PolyshapeWriter.KEY_POINT: {
-          lastShape = ctx.makePoint(reader.readLat(), reader.readLng());
+          lastShape = shpFactory.pointXY(shpFactory.normX(reader.readLat()), shpFactory.normY(reader.readLng()));
           break;
         }
         case PolyshapeWriter.KEY_LINE: {
+          ShapeFactory.LineStringBuilder lineBuilder = shpFactory.lineString();
+          reader.readPoints(lineBuilder);
+          
           if(arg!=null) {
-            lastShape = ctx.makeBufferedLineString(reader.readPoints(ctx), arg.doubleValue());
+            lineBuilder.buffer(shpFactory.normDist(arg));
           }
-          else {
-            lastShape = ctx.makeLineString(reader.readPoints(ctx));
-          }
+          lastShape = lineBuilder.build();
           break;
         }
         case PolyshapeWriter.KEY_BOX: {
-          Point lowerLeft = ctx.makePoint(reader.readLat(), reader.readLng());
-          Point upperRight = ctx.makePoint(reader.readLat(), reader.readLng());
-          lastShape = ctx.makeRectangle(lowerLeft, upperRight);
+          double lat1 = shpFactory.normX(reader.readLat());
+          double lon1 = shpFactory.normY(reader.readLng());
+          lastShape = shpFactory.rect(lat1, shpFactory.normX(reader.readLat()), 
+                  lon1, shpFactory.normY(reader.readLng()));
           break;
         }
         case PolyshapeWriter.KEY_MULTIPOINT : {
-          List<Point> points = reader.readPoints(ctx);
-          lastShape = makeCollection(points);
+          lastShape = reader.readPoints(shpFactory.multiPoint()).build();
           break;
         }
         case PolyshapeWriter.KEY_CIRCLE : {
           if(arg==null) {
             throw new IllegalArgumentException("the input should have a radius argument");
           }
-          lastShape = ctx.makeCircle(reader.readLat(), reader.readLng(), arg.doubleValue());
+          lastShape = shpFactory.circle(shpFactory.normX(reader.readLat()), shpFactory.normY(reader.readLng()), 
+                shpFactory.normDist(arg.doubleValue()));
           break;
         }
         case PolyshapeWriter.KEY_POLYGON: {
@@ -159,13 +157,31 @@ public class PolyshapeReader implements ShapeReader {
       if(lastShape!=null) {
         shapes.add(lastShape);
       }
-      return makeCollection(shapes);
+
+      ShapeFactory.MultiShapeBuilder<Shape> multiBuilder = shpFactory.multiShape(Shape.class); 
+      for (Shape shp : shapes) {
+        multiBuilder.add(shp);
+      }
+
+      return multiBuilder.build();
     }
     return lastShape;
   }
   
   protected Shape readPolygon(XReader reader) throws IOException {
-    throw new IllegalArgumentException("This reader does not support polygons");
+    ShapeFactory.PolygonBuilder polyBuilder = shpFactory.polygon();
+    
+    reader.readPoints(polyBuilder);
+
+    if(!reader.isDone() && reader.peek()==PolyshapeWriter.KEY_ARG_START) {
+      List<LinearRing> list = new ArrayList<LinearRing>();
+      while(reader.isEvent() && reader.peek()==PolyshapeWriter.KEY_ARG_START) {
+        reader.readKey(); // eat the event;
+        reader.readPoints(polyBuilder.hole()).endHole();
+      }
+    }
+
+    return polyBuilder.build();
   }
 
   /**
@@ -178,28 +194,21 @@ public class PolyshapeReader implements ShapeReader {
     
     int head = -1;
     final Reader input;
-    
-    public XReader(final Reader input) throws IOException {
+    final ShapeFactory shpFactory;
+
+    public XReader(final Reader input, ShapeFactory shpFactory) throws IOException {
       this.input = input;
+      this.shpFactory = shpFactory;
       head = input.read();
     }
     
-    public List<Point> readPoints(SpatialContext ctx) throws IOException {
-      List<Point> points = new ArrayList<Point>();
+    public <T extends ShapeFactory.PointsBuilder> T readPoints(T builder) throws IOException {
       while(isData()) {
-        points.add(ctx.makePoint(readLat(), readLng()));
+        builder.pointXY(shpFactory.normX(readLat()), shpFactory.normY(readLng()));
       }
-      return points;
+      return builder;
     }
-    
-    public List<double[]> readPoints() throws IOException {
-      List<double[]> points = new ArrayList<double[]>();
-      while(isData()) {
-        points.add(new double[]{readLat(), readLng()});
-      }
-      return points;
-    }
-    
+
     public double readLat() throws IOException {
       lat += readInt();
       return lat * 1e-5;

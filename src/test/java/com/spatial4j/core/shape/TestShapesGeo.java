@@ -225,4 +225,11 @@ public class TestShapesGeo extends AbstractTestShapes {
     testCircleIntersect();
   }
 
+
+  @Test
+  public void testEmptyLineString() {
+    Shape shape = ctx.getShapeFactory().lineString().buffer(randomInt(3)).build();
+    testEmptiness(shape);
+  }
+
 }

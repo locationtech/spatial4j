@@ -13,15 +13,10 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.SpatialContextFactory;
 import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
 import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.impl.BufferedLine;
-import com.spatial4j.core.shape.impl.BufferedLineString;
-import com.spatial4j.core.shape.impl.CircleImpl;
-import com.spatial4j.core.shape.impl.PointImpl;
-import com.spatial4j.core.shape.impl.RectangleImpl;
+import com.spatial4j.core.shape.impl.*;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
@@ -142,10 +137,10 @@ public class TestShapes2D extends AbstractTestShapes {
   }
 
   @Test
-  public void testBufferedLineString() {
+  public void testLineString() {
     //see BufferedLineStringTest & BufferedLineTest for more
-
-    testEmptiness(ctx.makeBufferedLineString(Collections.<Point>emptyList(), randomInt(3)));
+    Shape shape = ctx.getShapeFactory().lineString().buffer(randomInt(3)).build();
+    testEmptiness(shape);
   }
 
   /** We have this test here but we'll add geo shapes as needed. */
