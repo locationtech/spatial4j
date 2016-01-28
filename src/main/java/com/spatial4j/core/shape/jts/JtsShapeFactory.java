@@ -401,6 +401,39 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
     }
   }
 
+  @Override
+  public <T extends Shape> MultiShapeBuilder<T> multiShape(Class<T> shapeClass) {
+    // TODO: once we have typed shapes for Polygons & LineStrings, this logic could move to the superclass 
+    // (not JTS specific) and the multi* builders could take a Shape
+    if (!useJtsMulti()) {
+      return super.multiShape(shapeClass);
+    }
+    return new JtsMultiShapeBuilder<>();
+  }
+
+  private class JtsMultiShapeBuilder<T extends Shape> extends GeneralShapeMultiShapeBuilder<T> {
+    @Override
+    public Shape build() {
+      Class<?> last = null;
+      List<Geometry> geoms = new ArrayList<>(shapes.size());
+      for(Shape s : shapes) {
+        if (last != null && last != s.getClass()) {
+          return super.build();
+        }
+        if (s instanceof JtsGeometry) {
+          geoms.add(((JtsGeometry)s).getGeom());
+        } else if (s instanceof JtsPoint) {
+          geoms.add(((JtsPoint)s).getGeom());
+        } else {
+          return super.build();
+        }
+        last = s.getClass();
+      }
+
+      return makeShapeFromGeometry(geometryFactory.buildGeometry(geoms));
+    }
+  }
+
   /**
    * INTERNAL Usually creates a JtsGeometry, potentially validating, repairing, and indexing ("preparing"). This method
    * is intended for use by {@link ShapeReader} instances.
