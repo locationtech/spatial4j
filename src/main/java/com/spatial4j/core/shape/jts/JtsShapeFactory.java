@@ -410,14 +410,14 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
 
   @Override
   public <T extends Shape> MultiShapeBuilder<T> multiShape(Class<T> shapeClass) {
-    // TODO: once we have typed shapes for Polygons & LineStrings, this logic could move to the superclass 
-    // (not JTS specific) and the multi* builders could take a Shape
     if (!useJtsMulti()) {
       return super.multiShape(shapeClass);
     }
     return new JtsMultiShapeBuilder<>();
   }
 
+  // TODO: once we have typed shapes for Polygons & LineStrings, this logic could move to the superclass
+  // (not JTS specific) and the multi* builders could take a Shape
   private class JtsMultiShapeBuilder<T extends Shape> extends GeneralShapeMultiShapeBuilder<T> {
     @Override
     public Shape build() {
@@ -456,7 +456,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
    * If given a {@link LineString} and if {@link JtsSpatialContext#useJtsLineString()} is true then
    * then the geometry's parts are exposed to call {@link SpatialContext#makeLineString(List)}.
    */
-  // TODO nocommit NEED TO DECIDE ON makeShapeFromGeometry being called always (consistent but sometimes not needed?)
+  // TODO should this be called always (consistent but sometimes not needed?)
   //   v.s. only from a ShapeReader (pre-ShapeFactory behavior)
   public Shape makeShapeFromGeometry(Geometry geom) {
     if (geom instanceof GeometryCollection) {

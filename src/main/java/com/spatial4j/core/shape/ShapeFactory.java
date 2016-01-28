@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * A factory for {@link Shape}s.
- * Stateless and Threadsafe, except for any returned builders.
+ * Stateless and thread-safe, except for any returned builders.
  */
 public interface ShapeFactory {
 
@@ -24,7 +24,7 @@ public interface ShapeFactory {
    * geodetic boundary into it. Example: 181 will become -179. */
   boolean isNormWrapLongitude();
 
-  // nocommit annoying that a ShapeReader must remember to call norm* methods.  Perhaps
+  // TODO annoying that a ShapeReader must remember to call norm* methods.  Perhaps
   //  there should be another shapeFactory impl for shape reading?  :-/  Or not.
 
   /** Normalize the 'x' dimension. Might reduce precision or wrap it to be within the bounds. This
@@ -39,9 +39,9 @@ public interface ShapeFactory {
   double normZ(double z);
 
   /**
-   * Called to normalize a value that isn't X or Y. X & Y or normalized via
-   * {@link com.spatial4j.core.context.SpatialContext#normX(double)} & normY. This
-   * is called by a {@link com.spatial4j.core.io.WKTReader} before creating a shape.
+   * Called to normalize a value that isn't X or Y or Z. X & Y & Z are normalized via
+   * {@link com.spatial4j.core.context.SpatialContext#normX(double)} & normY & normZ. This
+   * is called by a {@link com.spatial4j.core.io.ShapeReader} before creating a shape.
    */
   double normDist(double d);
 
@@ -67,7 +67,8 @@ public interface ShapeFactory {
   Rectangle rect(Point lowerLeft, Point upperRight);
 
   /**
-   * Construct a rectangle. If just one longitude is on the dateline (+/- 180)
+   * Construct a rectangle. If just one longitude is on the dateline (+/- 180) and if
+   * {@link SpatialContext#isGeo()}
    * then potentially adjust its sign to ensure the rectangle does not cross the
    * dateline.
    */
@@ -82,10 +83,11 @@ public interface ShapeFactory {
   /** Constructs a line string with a possible buffer. It's an ordered sequence of connected vertexes,
    * with a buffer distance along the line in all directions. There
    * is no official shape/interface for it so we just return Shape. */
-  @Deprecated
+  @Deprecated // use a builder
   Shape lineString(List<Point> points, double buf);
 
   /** Construct a ShapeCollection, analogous to an OGC GeometryCollection. */
+  @Deprecated // use a builder
   <S extends Shape> ShapeCollection<S> multiShape(List<S> coll);
 
   // BUILDERS:
@@ -104,10 +106,13 @@ public interface ShapeFactory {
    */
   <T extends Shape> MultiShapeBuilder<T> multiShape(Class<T> shapeClass);
 
+  /** (Builder) Constructs a MultiPoint. */
   MultiPointBuilder multiPoint();
 
+  /** (Builder) Constructs a MultiLineString, or possibly the result of that buffered. */
   MultiLineStringBuilder multiLineString();
 
+  /** (Builder) Constructs a MultiPolygon. */
   MultiPolygonBuilder multiPolygon();
 
   // misc:
@@ -118,11 +123,15 @@ public interface ShapeFactory {
   // TODO need BufferedLineString shape
   // TODO need ShapeCollection to be typed
 
+  /** Builds a point and returns the generic specified type (usually whatever "this" is). */
   interface PointsBuilder<T> {
+    /** @see ShapeFactory#pointXY(double, double) */
     T pointXY(double x, double y);
+    /** @see ShapeFactory#pointXYZ(double, double, double) */
     T pointXYZ(double x, double y, double z);
   }
 
+  /** @see #lineString() */
   interface LineStringBuilder extends PointsBuilder<LineStringBuilder> {
     // TODO add dimensionality hint method?
 
@@ -131,6 +140,7 @@ public interface ShapeFactory {
     Shape build();
   }
 
+  /** @see #polygon() */
   interface PolygonBuilder extends PointsBuilder<PolygonBuilder> {
     // TODO add dimensionality hint method?
 
@@ -138,8 +148,7 @@ public interface ShapeFactory {
      * And don't forget to call {@link HoleBuilder#endHole()}! */
     HoleBuilder hole();
 
-    /** Builds the polygon and renders this builder instance invalid.
-     */
+    /** Builds the polygon and renders this builder instance invalid. */
     Shape build();// never a Rect
 
     Shape buildOrRect();
@@ -152,6 +161,7 @@ public interface ShapeFactory {
 
   // TODO add dimensionality hint method to the multi* builders?
 
+  /** @see #multiShape(Class) */
   interface MultiShapeBuilder<T extends Shape> {
     // TODO add dimensionality hint method?
 
@@ -161,11 +171,13 @@ public interface ShapeFactory {
     Shape build();
   }
 
+  /** @see #multiPoint() */
   interface MultiPointBuilder extends PointsBuilder<MultiPointBuilder> {
 
     Shape build();  // TODO MultiShape<Point>
   }
 
+  /** @see #multiLineString() */
   interface MultiLineStringBuilder {
 
     LineStringBuilder lineString();
@@ -175,6 +187,7 @@ public interface ShapeFactory {
     Shape build(); // TODO MultiShape<LineString>
   }
 
+  /** @see #multiPolygon() */
   interface MultiPolygonBuilder {
 
     PolygonBuilder polygon();
@@ -183,28 +196,4 @@ public interface ShapeFactory {
 
     Shape build(); // TODO MultiShape<Polygon>
   }
-
-  /*
-    // TODO should normWrapLongitude, normX, normY, verifyX, verifyY be here too?
-  // TODO use make* style?
-
-  Point pointXY(double x, double y);
-  Point pointXYZ(double x, double y, double z);
-
-  Rectangle rect(Point lowerLeft, Point upperRight);
-  Rectangle rect(double minX, double maxX, double minY, double maxY);
-
-  Circle circle(double x, double y, double distance);
-  Circle circle(Point point, double distance);
-
-  LineStringBuilder lineString();
-  LineStringBuilder bufferedLineString(double distance);
-
-  PolygonBuilder polygon();
-
-  <T extends Shape> MultiShapeBuilder<T> multiShape(Class<T> shapeClass);
-
-
-
-   */
 }

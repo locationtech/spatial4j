@@ -18,14 +18,13 @@ import com.spatial4j.core.io.SupportedFormats;
 import com.spatial4j.core.io.WKTReader;
 import com.spatial4j.core.shape.*;
 import com.spatial4j.core.shape.impl.RectangleImpl;
-import com.spatial4j.core.shape.impl.ShapeFactoryImpl;
 
 import java.text.ParseException;
 import java.util.List;
 
 /**
  * This is a facade to most of Spatial4j, holding things like {@link DistanceCalculator},
- * {@link ShapeFactoryImpl},
+ * {@link ShapeFactory},
  * {@link com.spatial4j.core.io.ShapeIO}.
  * <p/>
  * If you want a typical geodetic context, just reference {@link #GEO}.  Otherwise,
@@ -149,6 +148,7 @@ public class SpatialContext {
 
   /** If true then {@link #normX(double)} will wrap longitudes outside of the standard
    * geodetic boundary into it. Example: 181 will become -179. */
+  @Deprecated
   public boolean isNormWrapLongitude() {
     return shapeFactory.isNormWrapLongitude();
   }
@@ -162,32 +162,38 @@ public class SpatialContext {
 
   /** Normalize the 'x' dimension. Might reduce precision or wrap it to be within the bounds. This
    * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
+  @Deprecated
   public double normX(double x) {
     return shapeFactory.normX(x);
   }
 
   /** Normalize the 'y' dimension. Might reduce precision or wrap it to be within the bounds. This
    * is called by {@link com.spatial4j.core.io.WKTReader} before creating a shape. */
+  @Deprecated
   public double normY(double y) { return shapeFactory.normY(y); }
 
   /** Ensure fits in {@link #getWorldBounds()}. It's called by any shape factory method that
    * gets an 'x' dimension. */
+  @Deprecated
   public void verifyX(double x) {
     shapeFactory.verifyX(x);
   }
 
   /** Ensure fits in {@link #getWorldBounds()}. It's called by any shape factory method that
    * gets a 'y' dimension. */
+  @Deprecated
   public void verifyY(double y) {
     shapeFactory.verifyY(y);
   }
 
   /** Construct a point. */
+  @Deprecated
   public Point makePoint(double x, double y) {
     return shapeFactory.pointXY(x, y);
   }
 
   /** Construct a rectangle. */
+  @Deprecated
   public Rectangle makeRectangle(Point lowerLeft, Point upperRight) {
     return shapeFactory.rect(lowerLeft, upperRight);
   }
@@ -197,22 +203,26 @@ public class SpatialContext {
    * then potentially adjust its sign to ensure the rectangle does not cross the
    * dateline.
    */
+  @Deprecated
   public Rectangle makeRectangle(double minX, double maxX, double minY, double maxY) {
     return shapeFactory.rect(minX, maxX, minY, maxY);
   }
 
   /** Construct a circle. The units of "distance" should be the same as x & y. */
+  @Deprecated
   public Circle makeCircle(double x, double y, double distance) {
     return shapeFactory.circle(x, y, distance);
   }
 
   /** Construct a circle. The units of "distance" should be the same as x & y. */
+  @Deprecated
   public Circle makeCircle(Point point, double distance) {
     return shapeFactory.circle(point, distance);
   }
 
   /** Constructs a line string. It's an ordered sequence of connected vertexes. There
    * is no official shape/interface for it yet so we just return Shape. */
+  @Deprecated
   public Shape makeLineString(List<Point> points) {
     return shapeFactory.lineString(points, 0);
   }
@@ -220,11 +230,13 @@ public class SpatialContext {
   /** Constructs a buffered line string. It's an ordered sequence of connected vertexes,
    * with a buffer distance along the line in all directions. There
    * is no official shape/interface for it so we just return Shape. */
+  @Deprecated
   public Shape makeBufferedLineString(List<Point> points, double buf) {
     return shapeFactory.lineString(points, buf);
   }
 
   /** Construct a ShapeCollection, analogous to an OGC GeometryCollection. */
+  @Deprecated
   public <S extends Shape> ShapeCollection<S> makeCollection(List<S> coll) {
     return shapeFactory.multiShape(coll);
   }
