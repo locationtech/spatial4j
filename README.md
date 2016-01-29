@@ -11,6 +11,8 @@ If you are working with spatial grid-square indexing schemes, be it [Geohash](ht
 
 Spatial4j is well tested; it's monitored via [Travis-CI](https://travis-ci.org/locationtech/spatial4j) continuous integration and we use [Codecov](https://codecov.io/github/locationtech/spatial4j/) for code coverage.
 
+If you are interested in contributing to Spatial4j please review the [contribution guidelines](CONTRIBUTING.md).
+
 ## Shapes and Other Features
 
 The main part of Spatial4j is its collection of shapes.  Shapes in Spatial4j have these features:
