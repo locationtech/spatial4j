@@ -1,5 +1,10 @@
 ## VERSION 0.6
 
+### Notes:
+
+* Package change from com.spatial4j.core to org.locationtech.spatial4j. Also, maven coordinates change from groupId
+  com.spatial4j to org.locationtech.spatial4j.  (David Smiley)
+
 ### Features:
 
 * \#130: New ShapeFactory interface for shape creation. Related methods on SpatialContext are now deprecated; get the
