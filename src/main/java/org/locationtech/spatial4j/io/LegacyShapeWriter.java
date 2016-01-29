@@ -6,19 +6,19 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.io;
+package org.locationtech.spatial4j.io;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
+import org.locationtech.spatial4j.shape.Circle;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Rectangle;
+import org.locationtech.spatial4j.shape.Shape;
 
 /**
  * Writes a shape in the old format.
@@ -47,7 +47,7 @@ public class LegacyShapeWriter implements ShapeWriter {
 
   /**
    * Writes a shape to a String, in a format that can be read by
-   * {@link #readShapeOrNull(String, com.spatial4j.core.context.SpatialContext)}.
+   * {@link #readShapeOrNull(String, org.locationtech.spatial4j.context.SpatialContext)}.
    * @param shape Not null.
    * @return Not null.
    */

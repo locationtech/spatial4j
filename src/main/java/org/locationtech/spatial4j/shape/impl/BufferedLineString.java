@@ -6,15 +6,15 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.shape.impl;
+package org.locationtech.spatial4j.shape.impl;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.BaseShape;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.ShapeCollection;
-import com.spatial4j.core.shape.SpatialRelation;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.shape.BaseShape;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Rectangle;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.ShapeCollection;
+import org.locationtech.spatial4j.shape.SpatialRelation;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A BufferedLineString is a collection of {@link com.spatial4j.core.shape.impl.BufferedLine} shapes,
+ * A BufferedLineString is a collection of {@link org.locationtech.spatial4j.shape.impl.BufferedLine} shapes,
  * resulting in what some call a "Track" or "Polyline" (ESRI terminology).
  * The buffer can be 0.  Note that BufferedLine isn't yet aware of geodesics (e.g. the dateline).
  */
@@ -46,8 +46,8 @@ public class BufferedLineString extends BaseShape<SpatialContext> {
    * @param points ordered control points. If empty then this shape is empty.
    * @param buf Buffer >= 0
    * @param expandBufForLongitudeSkew See {@link BufferedLine
-   * #expandBufForLongitudeSkew(com.spatial4j.core.shape.Point,
-   * com.spatial4j.core.shape.Point, double)}.
+   * #expandBufForLongitudeSkew(org.locationtech.spatial4j.shape.Point,
+   * org.locationtech.spatial4j.shape.Point, double)}.
    *                                  If true then the buffer for each segment
    *                                  is computed.
    * @param ctx

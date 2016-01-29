@@ -6,13 +6,13 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.io.jts;
+package org.locationtech.spatial4j.io.jts;
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.io.BinaryCodec;
-import com.spatial4j.core.shape.Shape;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.exception.InvalidShapeException;
+import org.locationtech.spatial4j.io.BinaryCodec;
+import org.locationtech.spatial4j.shape.Shape;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.InStream;

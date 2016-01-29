@@ -6,9 +6,9 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.distance;
+package org.locationtech.spatial4j.distance;
 
-import com.spatial4j.core.shape.Point;
+import org.locationtech.spatial4j.shape.Point;
 
 /**
  */

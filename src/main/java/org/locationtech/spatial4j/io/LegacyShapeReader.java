@@ -6,18 +6,18 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.io;
+package org.locationtech.spatial4j.io;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.text.ParseException;
 import java.util.StringTokenizer;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Shape;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
+import org.locationtech.spatial4j.exception.InvalidShapeException;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Shape;
 
 /**
  * Reads a shape from the old format.
@@ -49,7 +49,7 @@ public class LegacyShapeReader implements ShapeReader {
    * a letter but it doesn't complete out "Circle" or "CIRCLE" then this method returns null,
    * offering the caller the opportunity to potentially try additional parsing.
    * If the first character is not a letter then it's assumed to be a point or rectangle. If that
-   * doesn't work out then an {@link com.spatial4j.core.exception.InvalidShapeException} is thrown.
+   * doesn't work out then an {@link org.locationtech.spatial4j.exception.InvalidShapeException} is thrown.
    */
   public static Shape readShapeOrNull(String str, SpatialContext ctx) throws InvalidShapeException {
     if (str == null || str.length() == 0) {

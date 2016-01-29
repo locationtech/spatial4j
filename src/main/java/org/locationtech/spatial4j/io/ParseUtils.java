@@ -17,9 +17,9 @@
 
 // NOTE: we keep the header as it came from ASF; it did not originate in Spatial4j
 
-package com.spatial4j.core.io;
+package org.locationtech.spatial4j.io;
 
-import com.spatial4j.core.exception.InvalidShapeException;
+import org.locationtech.spatial4j.exception.InvalidShapeException;
 
 /**
  * Utility methods related to parsing a series of numbers.
@@ -43,7 +43,7 @@ public class ParseUtils {
    * @param externalVal The value to parse
    * @param dimension   The expected number of values for the point
    * @return An array of the values that make up the point (aka vector)
-   * @throws com.spatial4j.core.exception.InvalidShapeException if the dimension specified does not match the number of values in the externalValue.
+   * @throws org.locationtech.spatial4j.exception.InvalidShapeException if the dimension specified does not match the number of values in the externalValue.
    */
   public static String[] parsePoint(String[] out, String externalVal, int dimension) throws InvalidShapeException {
     //TODO: Should we support sparse vectors?
@@ -87,7 +87,7 @@ public class ParseUtils {
    * @param externalVal The value to parse
    * @param dimension   The expected number of values for the point
    * @return An array of the values that make up the point (aka vector)
-   * @throws com.spatial4j.core.exception.InvalidShapeException if the dimension specified does not match the number of values in the externalValue.
+   * @throws org.locationtech.spatial4j.exception.InvalidShapeException if the dimension specified does not match the number of values in the externalValue.
    */
   public static double[] parsePointDouble(double[] out, String externalVal, int dimension) throws InvalidShapeException{
     if (out == null || out.length != dimension) out = new double[dimension];
@@ -133,7 +133,7 @@ public class ParseUtils {
    * @param latLonStr The string to parse.  Latitude is the first value, longitude is the second.
    * @return The lat long
    *
-   * @throws com.spatial4j.core.exception.InvalidShapeException if there was an error parsing
+   * @throws org.locationtech.spatial4j.exception.InvalidShapeException if there was an error parsing
    */
   public static final double[] parseLatitudeLongitude(String latLonStr) throws InvalidShapeException {
     return parseLatitudeLongitude(null, latLonStr);

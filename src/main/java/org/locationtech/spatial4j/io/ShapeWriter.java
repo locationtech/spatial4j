@@ -6,11 +6,11 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.io;
+package org.locationtech.spatial4j.io;
 
 import java.io.IOException;
 import java.io.Writer;
-import com.spatial4j.core.shape.Shape;
+import org.locationtech.spatial4j.shape.Shape;
 
 /**
  * Implementations are expected to be thread safe

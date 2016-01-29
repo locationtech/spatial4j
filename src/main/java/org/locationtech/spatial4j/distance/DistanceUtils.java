@@ -17,17 +17,17 @@
 
 // NOTE: we keep the header as it came from ASF; it did not originate in Spatial4j
 
-package com.spatial4j.core.distance;
+package org.locationtech.spatial4j.distance;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Rectangle;
 
 
 /**
  * Various distance calculations and constants. To the extent possible, a {@link
- * com.spatial4j.core.distance.DistanceCalculator}, retrieved from {@link
- * com.spatial4j.core.context.SpatialContext#getDistCalc()} should be used in preference to calling
+ * org.locationtech.spatial4j.distance.DistanceCalculator}, retrieved from {@link
+ * org.locationtech.spatial4j.context.SpatialContext#getDistCalc()} should be used in preference to calling
  * these methods directly.
  * <p/>
  * This code came from <a href="https://issues.apache.org/jira/browse/LUCENE-1387">Apache

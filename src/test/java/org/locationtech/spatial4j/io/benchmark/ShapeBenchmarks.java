@@ -1,11 +1,11 @@
-package com.spatial4j.core.io.benchmark;
+package org.locationtech.spatial4j.io.benchmark;
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import com.spatial4j.core.io.LegacyShapeWriter;
-import com.spatial4j.core.io.ShapeIO;
-import com.spatial4j.core.io.ShapeWriter;
-import com.spatial4j.core.shape.Shape;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.io.LegacyShapeWriter;
+import org.locationtech.spatial4j.io.ShapeIO;
+import org.locationtech.spatial4j.io.ShapeWriter;
+import org.locationtech.spatial4j.shape.Shape;
 
 import java.io.*;
 import java.text.NumberFormat;

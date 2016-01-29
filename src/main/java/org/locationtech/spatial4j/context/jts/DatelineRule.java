@@ -6,7 +6,7 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.context.jts;
+package org.locationtech.spatial4j.context.jts;
 
 /**
  * Indicates the algorithm used to process JTS Polygons and JTS LineStrings for detecting dateline

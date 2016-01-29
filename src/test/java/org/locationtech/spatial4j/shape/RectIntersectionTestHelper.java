@@ -6,15 +6,15 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.shape;
+package org.locationtech.spatial4j.shape;
 
-import com.spatial4j.core.TestLog;
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.impl.InfBufLine;
-import com.spatial4j.core.shape.impl.PointImpl;
+import org.locationtech.spatial4j.TestLog;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.shape.impl.InfBufLine;
+import org.locationtech.spatial4j.shape.impl.PointImpl;
 
-import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
-import static com.spatial4j.core.shape.SpatialRelation.DISJOINT;
+import static org.locationtech.spatial4j.shape.SpatialRelation.CONTAINS;
+import static org.locationtech.spatial4j.shape.SpatialRelation.DISJOINT;
 
 public abstract class RectIntersectionTestHelper<S extends Shape> extends RandomizedShapeTest {
 

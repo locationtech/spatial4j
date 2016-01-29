@@ -9,14 +9,14 @@
 // A derivative of commit 14bc4dee08355048d6a94e33834b919a3999a06e
 //  at https://github.com/chrismale/elasticsearch
 
-package com.spatial4j.core.io;
+package org.locationtech.spatial4j.io;
 
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.ShapeFactory;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
+import org.locationtech.spatial4j.exception.InvalidShapeException;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.ShapeFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -63,7 +63,7 @@ public class WKTReader implements ShapeReader {
 
   /**
    * This constructor is required by
-   * {@link com.spatial4j.core.context.SpatialContextFactory#makeWktShapeParser(com.spatial4j.core.context.SpatialContext)}
+   * {@link org.locationtech.spatial4j.context.SpatialContextFactory#makeWktShapeParser(org.locationtech.spatial4j.context.SpatialContext)}
    * .
    */
   public WKTReader(SpatialContext ctx, SpatialContextFactory factory) {
@@ -144,7 +144,7 @@ public class WKTReader implements ShapeReader {
    * <p />
    * When writing a parse method that reacts to a specific shape type, remember to handle the
    * dimension and EMPTY token via
-   * {@link com.spatial4j.core.io.WKTReader.State#nextIfEmptyAndSkipZM()}.
+   * {@link org.locationtech.spatial4j.io.WKTReader.State#nextIfEmptyAndSkipZM()}.
    *
    * @param state
    * @param shapeType Non-Null string; could have mixed case. The first character is a letter.
@@ -290,7 +290,7 @@ public class WKTReader implements ShapeReader {
    *   '(' coordinateSequence (',' coordinateSequence )* ')'
    * </pre>
    *
-   * @see #parseLineStringShape(com.spatial4j.core.io.WKTReader.State)
+   * @see #parseLineStringShape(org.locationtech.spatial4j.io.WKTReader.State)
    */
   protected Shape parseMultiLineStringShape(State state) throws ParseException {
     ShapeFactory.MultiLineStringBuilder multiLineStringBuilder = shapeFactory.multiLineString();
@@ -306,7 +306,7 @@ public class WKTReader implements ShapeReader {
 
   /**
    * Parses a POLYGON shape from the raw string. It might return a
-   * {@link com.spatial4j.core.shape.Rectangle} if the polygon is one.
+   * {@link org.locationtech.spatial4j.shape.Rectangle} if the polygon is one.
    *
    * <pre>
    * coordinateSequenceList
@@ -360,7 +360,7 @@ public class WKTReader implements ShapeReader {
 
   /**
    * Reads a shape from the current position, starting with the name of the shape. It calls
-   * {@link #parseShapeByType(com.spatial4j.core.io.WKTReader.State, String)} and throws an
+   * {@link #parseShapeByType(org.locationtech.spatial4j.io.WKTReader.State, String)} and throws an
    * exception if the shape wasn't supported.
    */
   protected Shape shape(State state) throws ParseException {

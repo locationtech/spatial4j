@@ -6,11 +6,11 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.shape;
+package org.locationtech.spatial4j.shape;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.distance.AbstractDistanceCalculator;
-import com.spatial4j.core.distance.DistanceCalculator;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.distance.AbstractDistanceCalculator;
+import org.locationtech.spatial4j.distance.DistanceCalculator;
 
 /** Ameliorates some random tests cases in which shapes barely tough or barely not
  * touch. */

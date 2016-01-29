@@ -6,15 +6,15 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.io.jts;
+package org.locationtech.spatial4j.io.jts;
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.jts.JtsPoint;
-import com.spatial4j.core.shape.jts.JtsShapeFactory;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.distance.DistanceUtils;
+import org.locationtech.spatial4j.exception.InvalidShapeException;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.jts.JtsPoint;
+import org.locationtech.spatial4j.shape.jts.JtsShapeFactory;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
 import com.vividsolutions.jts.geom.Geometry;
@@ -23,18 +23,18 @@ import com.vividsolutions.jts.io.WKTReader;
 import java.text.ParseException;
 
 /**
- * This is an extension of Spatial4j's {@link com.spatial4j.core.io.WKTReader} that processes the entire
+ * This is an extension of Spatial4j's {@link org.locationtech.spatial4j.io.WKTReader} that processes the entire
  * string with JTS's {@link com.vividsolutions.jts.io.WKTReader}.  Some differences:
  * <ul>
  *   <li>No support for ENVELOPE and BUFFER</li>
  *   <li>MULTI* shapes use JTS's {@link com.vividsolutions.jts.geom.GeometryCollection} subclasses,
- *   not {@link com.spatial4j.core.shape.ShapeCollection}</li>
+ *   not {@link org.locationtech.spatial4j.shape.ShapeCollection}</li>
  *   <li>'Z' coordinates are saved into the geometry</li>
  * </ul>
  *
  */
 @Deprecated
-public class JtsWKTReaderShapeParser extends com.spatial4j.core.io.WKTReader {
+public class JtsWKTReaderShapeParser extends org.locationtech.spatial4j.io.WKTReader {
 
   //Note: Historically, the code here originated from the defunct JtsShapeReadWriter.
 

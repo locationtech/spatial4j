@@ -9,5 +9,5 @@
 /**
  * Ways to calculate distance.
  */
-package com.spatial4j.core.distance;
+package org.locationtech.spatial4j.distance;
 

@@ -6,15 +6,15 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.shape;
+package org.locationtech.spatial4j.shape;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.impl.BBoxCalculator;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.shape.impl.BBoxCalculator;
 
 import java.util.*;
 
-import static com.spatial4j.core.shape.SpatialRelation.CONTAINS;
-import static com.spatial4j.core.shape.SpatialRelation.INTERSECTS;
+import static org.locationtech.spatial4j.shape.SpatialRelation.CONTAINS;
+import static org.locationtech.spatial4j.shape.SpatialRelation.INTERSECTS;
 
 /**
  * A collection of Shape objects, analogous to an OGC GeometryCollection. The

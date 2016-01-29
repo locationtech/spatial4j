@@ -6,9 +6,9 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.context.jts;
+package org.locationtech.spatial4j.context.jts;
 
-import com.spatial4j.core.io.ShapeReader;
+import org.locationtech.spatial4j.io.ShapeReader;
 
 /**
  * Indicates how JTS geometries (notably polygons but applies to other geometries too) are
@@ -27,7 +27,7 @@ public enum ValidationRule {
 
   /**
    * Geometries will be explicitly validated on creation, possibly resulting in an exception:
-   * {@link com.spatial4j.core.exception.InvalidShapeException}.
+   * {@link org.locationtech.spatial4j.exception.InvalidShapeException}.
    */
   error,
 

@@ -6,7 +6,7 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core;
+package org.locationtech.spatial4j;
 
 import com.carrotsearch.randomizedtesting.rules.TestRuleAdapter;
 import org.slf4j.helpers.MessageFormatter;

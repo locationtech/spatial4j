@@ -9,5 +9,5 @@
 /**
  * This is the base package for Spatial4j from which the rest of it is organized.
  */
-package com.spatial4j.core;
+package org.locationtech.spatial4j;
 

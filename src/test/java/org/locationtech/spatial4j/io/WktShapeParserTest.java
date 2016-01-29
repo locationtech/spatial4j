@@ -9,14 +9,14 @@
 // A derivative of commit 14bc4dee08355048d6a94e33834b919a3999a06e
 //  at https://github.com/chrismale/elasticsearch
 
-package com.spatial4j.core.io;
+package org.locationtech.spatial4j.io;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.ShapeFactory;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Rectangle;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.ShapeFactory;
 import org.junit.Test;
 
 import java.text.ParseException;

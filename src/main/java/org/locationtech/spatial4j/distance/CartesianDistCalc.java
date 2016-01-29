@@ -6,12 +6,12 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.distance;
+package org.locationtech.spatial4j.distance;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.shape.Circle;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Rectangle;
 
 /**
  * Calculates based on Euclidean / Cartesian 2d plane.
@@ -28,7 +28,7 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   }
 
   /**
-   * @param squared Set to true to have {@link #distance(com.spatial4j.core.shape.Point, com.spatial4j.core.shape.Point)}
+   * @param squared Set to true to have {@link #distance(org.locationtech.spatial4j.shape.Point, org.locationtech.spatial4j.shape.Point)}
    *                return the square of the correct answer. This is a
    *                performance optimization used when sorting in which the
    *                actual distance doesn't matter so long as the sort order is

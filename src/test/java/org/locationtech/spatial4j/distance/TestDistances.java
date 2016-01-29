@@ -6,20 +6,20 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.distance;
+package org.locationtech.spatial4j.distance;
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.SpatialRelation;
-import com.spatial4j.core.shape.impl.PointImpl;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.shape.Circle;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Rectangle;
+import org.locationtech.spatial4j.shape.SpatialRelation;
+import org.locationtech.spatial4j.shape.impl.PointImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.spatial4j.core.distance.DistanceUtils.DEG_TO_KM;
-import static com.spatial4j.core.distance.DistanceUtils.KM_TO_DEG;
+import static org.locationtech.spatial4j.distance.DistanceUtils.DEG_TO_KM;
+import static org.locationtech.spatial4j.distance.DistanceUtils.KM_TO_DEG;
 
 public class TestDistances extends RandomizedTest {
 

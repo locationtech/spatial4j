@@ -6,16 +6,16 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.context.jts;
+package org.locationtech.spatial4j.context.jts;
 
-import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.io.GeoJSONReader;
-import com.spatial4j.core.io.LegacyShapeReader;
-import com.spatial4j.core.io.LegacyShapeWriter;
-import com.spatial4j.core.io.PolyshapeReader;
-import com.spatial4j.core.io.WKTReader;
-import com.spatial4j.core.io.jts.*;
-import com.spatial4j.core.shape.jts.JtsShapeFactory;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
+import org.locationtech.spatial4j.io.GeoJSONReader;
+import org.locationtech.spatial4j.io.LegacyShapeReader;
+import org.locationtech.spatial4j.io.LegacyShapeWriter;
+import org.locationtech.spatial4j.io.PolyshapeReader;
+import org.locationtech.spatial4j.io.WKTReader;
+import org.locationtech.spatial4j.io.jts.*;
+import org.locationtech.spatial4j.shape.jts.JtsShapeFactory;
 import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;

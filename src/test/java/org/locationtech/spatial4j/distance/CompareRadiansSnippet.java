@@ -6,10 +6,10 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.distance;
+package org.locationtech.spatial4j.distance;
 
 
-//import static com.spatial4j.core.distance.DistanceUtils.toRadians;
+//import static org.locationtech.spatial4j.distance.DistanceUtils.toRadians;
 import static java.lang.Math.toRadians;
 
 /**

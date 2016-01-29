@@ -6,18 +6,18 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.shape.jts;
+package org.locationtech.spatial4j.shape.jts;
 
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.shape.BaseShape;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.SpatialRelation;
-import com.spatial4j.core.shape.impl.PointImpl;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
+import org.locationtech.spatial4j.shape.BaseShape;
+import org.locationtech.spatial4j.shape.Circle;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Rectangle;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.SpatialRelation;
+import org.locationtech.spatial4j.shape.impl.PointImpl;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 
 /** Wraps a {@link com.vividsolutions.jts.geom.Point}. */
@@ -43,7 +43,7 @@ public class JtsPoint extends BaseShape<JtsSpatialContext> implements Point {
   }
 
   @Override
-  public com.spatial4j.core.shape.Point getCenter() {
+  public org.locationtech.spatial4j.shape.Point getCenter() {
     return this;
   }
 
@@ -72,7 +72,7 @@ public class JtsPoint extends BaseShape<JtsSpatialContext> implements Point {
     // ** NOTE ** the overall order of logic is kept consistent here with simple.PointImpl.
     if (isEmpty() || other.isEmpty())
       return SpatialRelation.DISJOINT;
-    if (other instanceof com.spatial4j.core.shape.Point)
+    if (other instanceof org.locationtech.spatial4j.shape.Point)
       return this.equals(other) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
     return other.relate(this).transpose();
   }

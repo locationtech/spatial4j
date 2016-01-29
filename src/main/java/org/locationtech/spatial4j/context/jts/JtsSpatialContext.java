@@ -6,15 +6,15 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.context.jts;
+package org.locationtech.spatial4j.context.jts;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.io.ShapeReader;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.spatial4j.core.shape.jts.JtsPoint;
-import com.spatial4j.core.shape.jts.JtsShapeFactory;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.io.ShapeReader;
+import org.locationtech.spatial4j.shape.Rectangle;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.jts.JtsGeometry;
+import org.locationtech.spatial4j.shape.jts.JtsPoint;
+import org.locationtech.spatial4j.shape.jts.JtsShapeFactory;
 import com.vividsolutions.jts.geom.*;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public class JtsSpatialContext extends SpatialContext {
   }
 
   /**
-   * Called by {@link com.spatial4j.core.context.jts.JtsSpatialContextFactory#newSpatialContext()}.
+   * Called by {@link org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory#newSpatialContext()}.
    */
   public JtsSpatialContext(JtsSpatialContextFactory factory) {
     super(factory);
@@ -52,7 +52,7 @@ public class JtsSpatialContext extends SpatialContext {
    * component geometries overlap? Strict OGC says this is invalid but we
    * can accept it by computing the union. Note: Our ShapeCollection mostly
    * doesn't care but it has a method related to this
-   * {@link com.spatial4j.core.shape.ShapeCollection#relateContainsShortCircuits()}.
+   * {@link org.locationtech.spatial4j.shape.ShapeCollection#relateContainsShortCircuits()}.
    */
   @Deprecated
   public boolean isAllowMultiOverlap() {
@@ -79,7 +79,7 @@ public class JtsSpatialContext extends SpatialContext {
   /**
    * If JtsGeometry shapes should be automatically "prepared" (i.e. optimized) when read via from a {@link ShapeReader}.
    *
-   * @see com.spatial4j.core.shape.jts.JtsGeometry#index()
+   * @see org.locationtech.spatial4j.shape.jts.JtsGeometry#index()
    */
   @Deprecated
   public boolean isAutoIndex() {

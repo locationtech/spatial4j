@@ -6,7 +6,7 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.exception;
+package org.locationtech.spatial4j.exception;
 
 /**
  * A shape was constructed but failed because, based on the given parts, it's invalid. For example

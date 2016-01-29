@@ -7,4 +7,4 @@
  ******************************************************************************/
 
 /** Reading & writing shapes in various forms. */
-package com.spatial4j.core.io;
+package org.locationtech.spatial4j.io;

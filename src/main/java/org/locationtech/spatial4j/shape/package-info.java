@@ -10,4 +10,4 @@
  * exposed in this package should be considered public.  Remember not to
  * instantiate them directly, use the SpatialContext which acts as a
  * factory for shapes. */
-package com.spatial4j.core.shape;
+package org.locationtech.spatial4j.shape;

@@ -16,7 +16,7 @@
  */
 
 
-package com.spatial4j.core.io;
+package org.locationtech.spatial4j.io;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -25,11 +25,11 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.ShapeFactory;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
+import org.locationtech.spatial4j.exception.InvalidShapeException;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.ShapeFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 
 

@@ -227,7 +227,7 @@
         <version>2.5.3</version>
         <configuration>
           <instructions>
-            <Export-Package>com.spatial4j.core*;version=${project.version}</Export-Package>
+            <Export-Package>org.locationtech.spatial4j*;version=${project.version}</Export-Package>
           </instructions>
         </configuration>
         <extensions>true</extensions>

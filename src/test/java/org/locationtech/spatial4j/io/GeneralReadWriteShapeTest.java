@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.io;
+package org.locationtech.spatial4j.io;
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.shape.Rectangle;
+import org.locationtech.spatial4j.shape.Shape;
 import io.jeo.geom.GeomBuilder;
 import org.junit.Assert;
 import org.junit.Before;
@@ -122,7 +122,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
     return strip("{'type': 'Point','coordinates':[100.1,0.1]}");
   }
 
-  com.spatial4j.core.shape.Point point() {
+  org.locationtech.spatial4j.shape.Point point() {
     return ctx.makePoint(100.1, 0.1);
   }
 

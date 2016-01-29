@@ -6,9 +6,9 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.shape;
+package org.locationtech.spatial4j.shape;
 
-import com.spatial4j.core.context.SpatialContext;
+import org.locationtech.spatial4j.context.SpatialContext;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ public interface ShapeFactory {
   //  there should be another shapeFactory impl for shape reading?  :-/  Or not.
 
   /** Normalize the 'x' dimension. Might reduce precision or wrap it to be within the bounds. This
-   * is called by {@link com.spatial4j.core.io.ShapeReader}s before creating a shape. */
+   * is called by {@link org.locationtech.spatial4j.io.ShapeReader}s before creating a shape. */
   double normX(double x);
 
   /** @see #normX(double)  */
@@ -40,8 +40,8 @@ public interface ShapeFactory {
 
   /**
    * Called to normalize a value that isn't X or Y or Z. X & Y & Z are normalized via
-   * {@link com.spatial4j.core.context.SpatialContext#normX(double)} & normY & normZ. This
-   * is called by a {@link com.spatial4j.core.io.ShapeReader} before creating a shape.
+   * {@link org.locationtech.spatial4j.context.SpatialContext#normX(double)} & normY & normZ. This
+   * is called by a {@link org.locationtech.spatial4j.io.ShapeReader} before creating a shape.
    */
   double normDist(double d);
 

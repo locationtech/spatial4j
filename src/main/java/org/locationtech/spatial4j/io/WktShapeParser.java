@@ -9,15 +9,15 @@
 // A derivative of commit 14bc4dee08355048d6a94e33834b919a3999a06e
 //  at https://github.com/chrismale/elasticsearch
 
-package com.spatial4j.core.io;
+package org.locationtech.spatial4j.io;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
 
 @Deprecated
 public class WktShapeParser extends WKTReader {
 
-  /** This constructor is required by {@link com.spatial4j.core.context.SpatialContextFactory#makeWktShapeParser(com.spatial4j.core.context.SpatialContext)}. */
+  /** This constructor is required by {@link org.locationtech.spatial4j.context.SpatialContextFactory#makeWktShapeParser(org.locationtech.spatial4j.context.SpatialContext)}. */
   public WktShapeParser(SpatialContext ctx, SpatialContextFactory factory) {
     super(ctx,factory);
   }

@@ -7,4 +7,4 @@
  ******************************************************************************/
 
 /** SpatialContext implementations are the facade to the Spatial4j API. */
-package com.spatial4j.core.context;
+package org.locationtech.spatial4j.context;

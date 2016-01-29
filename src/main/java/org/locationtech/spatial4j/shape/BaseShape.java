@@ -6,9 +6,9 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.shape;
+package org.locationtech.spatial4j.shape;
 
-import com.spatial4j.core.context.SpatialContext;
+import org.locationtech.spatial4j.context.SpatialContext;
 
 public abstract class BaseShape<T extends SpatialContext> implements Shape {
 

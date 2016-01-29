@@ -6,20 +6,20 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.shape.jts;
+package org.locationtech.spatial4j.shape.jts;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.jts.DatelineRule;
-import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import com.spatial4j.core.context.jts.ValidationRule;
-import com.spatial4j.core.exception.InvalidShapeException;
-import com.spatial4j.core.io.ShapeReader;
-import com.spatial4j.core.shape.Circle;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.impl.ShapeFactoryImpl;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.jts.DatelineRule;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.context.jts.ValidationRule;
+import org.locationtech.spatial4j.exception.InvalidShapeException;
+import org.locationtech.spatial4j.io.ShapeReader;
+import org.locationtech.spatial4j.shape.Circle;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Rectangle;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.impl.ShapeFactoryImpl;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
@@ -49,7 +49,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
   protected final boolean autoIndex;
 
   /**
-   * Called by {@link com.spatial4j.core.context.jts.JtsSpatialContextFactory#newSpatialContext()}.
+   * Called by {@link org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory#newSpatialContext()}.
    */
   public JtsShapeFactory(JtsSpatialContext ctx, JtsSpatialContextFactory factory) {
     super(ctx, factory);
@@ -69,7 +69,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
    * component geometries overlap? Strict OGC says this is invalid but we
    * can accept it by computing the union. Note: Our ShapeCollection mostly
    * doesn't care but it has a method related to this
-   * {@link com.spatial4j.core.shape.ShapeCollection#relateContainsShortCircuits()}.
+   * {@link org.locationtech.spatial4j.shape.ShapeCollection#relateContainsShortCircuits()}.
    */
   public boolean isAllowMultiOverlap() {
     return allowMultiOverlap;
@@ -93,7 +93,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
   /**
    * If JtsGeometry shapes should be automatically "prepared" (i.e. optimized) when read via from a {@link ShapeReader}.
    *
-   * @see com.spatial4j.core.shape.jts.JtsGeometry#index()
+   * @see org.locationtech.spatial4j.shape.jts.JtsGeometry#index()
    */
   public boolean isAutoIndex() {
     return autoIndex;

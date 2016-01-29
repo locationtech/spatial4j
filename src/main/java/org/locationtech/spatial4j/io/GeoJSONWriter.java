@@ -6,15 +6,15 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.io;
+package org.locationtech.spatial4j.io;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.*;
-import com.spatial4j.core.shape.impl.BufferedLine;
-import com.spatial4j.core.shape.impl.BufferedLineString;
-import com.spatial4j.core.shape.impl.GeoCircle;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
+import org.locationtech.spatial4j.distance.DistanceUtils;
+import org.locationtech.spatial4j.shape.*;
+import org.locationtech.spatial4j.shape.impl.BufferedLine;
+import org.locationtech.spatial4j.shape.impl.BufferedLineString;
+import org.locationtech.spatial4j.shape.impl.GeoCircle;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -22,8 +22,8 @@ import java.io.Writer;
 import java.text.NumberFormat;
 import java.util.Iterator;
 
-import static com.spatial4j.core.io.GeoJSONReader.BUFFER;
-import static com.spatial4j.core.io.GeoJSONReader.BUFFER_UNITS;
+import static org.locationtech.spatial4j.io.GeoJSONReader.BUFFER;
+import static org.locationtech.spatial4j.io.GeoJSONReader.BUFFER_UNITS;
 
 public class GeoJSONWriter implements ShapeWriter {
 

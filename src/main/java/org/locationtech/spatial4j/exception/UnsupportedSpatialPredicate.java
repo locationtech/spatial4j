@@ -17,9 +17,9 @@
 
 // NOTE: we keep the header as it came from ASF; it did not originate in Spatial4j
 
-package com.spatial4j.core.exception;
+package org.locationtech.spatial4j.exception;
 
-import com.spatial4j.core.SpatialPredicate;
+import org.locationtech.spatial4j.SpatialPredicate;
 
 /**
  * Exception thrown when the {@link org.apache.lucene.spatial.SpatialStrategy} cannot implement the requested operation.

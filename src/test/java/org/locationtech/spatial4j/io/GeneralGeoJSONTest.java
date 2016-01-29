@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.spatial4j.core.io;
+package org.locationtech.spatial4j.io;
 
-import com.spatial4j.core.shape.Shape;
+import org.locationtech.spatial4j.shape.Shape;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

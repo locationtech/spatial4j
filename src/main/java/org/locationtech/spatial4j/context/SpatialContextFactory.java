@@ -6,15 +6,15 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.context;
+package org.locationtech.spatial4j.context;
 
-import com.spatial4j.core.distance.CartesianDistCalc;
-import com.spatial4j.core.distance.DistanceCalculator;
-import com.spatial4j.core.distance.GeodesicSphereDistCalc;
-import com.spatial4j.core.io.*;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.ShapeFactory;
-import com.spatial4j.core.shape.impl.ShapeFactoryImpl;
+import org.locationtech.spatial4j.distance.CartesianDistCalc;
+import org.locationtech.spatial4j.distance.DistanceCalculator;
+import org.locationtech.spatial4j.distance.GeodesicSphereDistCalc;
+import org.locationtech.spatial4j.io.*;
+import org.locationtech.spatial4j.shape.Rectangle;
+import org.locationtech.spatial4j.shape.ShapeFactory;
+import org.locationtech.spatial4j.shape.impl.ShapeFactoryImpl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -31,8 +31,8 @@ import java.util.*;
  * The following keys are looked up in the args map:
  * <DL>
  * <DT>spatialContextFactory</DT>
- * <DD>com.spatial4j.core.context.SpatialContext or
- * com.spatial4j.core.context.jts.JtsSpatialContext</DD>
+ * <DD>org.locationtech.spatial4j.context.SpatialContext or
+ * org.locationtech.spatial4j.context.jts.JtsSpatialContext</DD>
  * <DT>geo</DT>
  * <DD>true (default)| false -- see {@link SpatialContext#isGeo()} </DD>
  * <DT>shapeFactoryClass</DT>
@@ -45,11 +45,11 @@ import java.util.*;
  * <DT>normWrapLongitude</DT>
  * <DD>true | false (default) -- see {@link SpatialContext#isNormWrapLongitude()}</DD>
  * <DT>readers</DT>
- * <DD>Comma separated list of {@link com.spatial4j.core.io.ShapeReader} class names</DD>
+ * <DD>Comma separated list of {@link org.locationtech.spatial4j.io.ShapeReader} class names</DD>
  * <DT>writers</DT>
- * <DD>Comma separated list of {@link com.spatial4j.core.io.ShapeWriter} class names</DD>
+ * <DD>Comma separated list of {@link org.locationtech.spatial4j.io.ShapeWriter} class names</DD>
  * <DT>binaryCodecClass</DT>
- * <DD>Java class of the {@link com.spatial4j.core.io.BinaryCodec}</DD>
+ * <DD>Java class of the {@link org.locationtech.spatial4j.io.BinaryCodec}</DD>
  * </DL>
  */
 public class SpatialContextFactory {

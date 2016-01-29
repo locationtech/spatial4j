@@ -6,17 +6,17 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.context;
+package org.locationtech.spatial4j.context;
 
-import com.spatial4j.core.context.jts.DatelineRule;
-import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import com.spatial4j.core.context.jts.ValidationRule;
-import com.spatial4j.core.distance.CartesianDistCalc;
-import com.spatial4j.core.distance.GeodesicSphereDistCalc;
-import com.spatial4j.core.io.ShapeIO;
-import com.spatial4j.core.io.WKTReader;
-import com.spatial4j.core.shape.impl.RectangleImpl;
+import org.locationtech.spatial4j.context.jts.DatelineRule;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.context.jts.ValidationRule;
+import org.locationtech.spatial4j.distance.CartesianDistCalc;
+import org.locationtech.spatial4j.distance.GeodesicSphereDistCalc;
+import org.locationtech.spatial4j.io.ShapeIO;
+import org.locationtech.spatial4j.io.WKTReader;
+import org.locationtech.spatial4j.shape.impl.RectangleImpl;
 import org.junit.After;
 import org.junit.Test;
 

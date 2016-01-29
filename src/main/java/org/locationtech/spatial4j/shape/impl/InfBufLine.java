@@ -6,13 +6,13 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.shape.impl;
+package org.locationtech.spatial4j.shape.impl;
 
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
-import com.spatial4j.core.shape.SpatialRelation;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Rectangle;
+import org.locationtech.spatial4j.shape.SpatialRelation;
 
-import static com.spatial4j.core.shape.SpatialRelation.*;
+import static org.locationtech.spatial4j.shape.SpatialRelation.*;
 
 /**
  * INERNAL: A buffered line of infinite length.

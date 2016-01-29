@@ -6,7 +6,7 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.shape;
+package org.locationtech.spatial4j.shape;
 
 /**
  * A circle, also known as a point-radius since that is what it is comprised of.

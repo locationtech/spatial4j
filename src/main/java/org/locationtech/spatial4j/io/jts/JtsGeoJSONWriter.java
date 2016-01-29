@@ -6,17 +6,17 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-package com.spatial4j.core.io.jts;
+package org.locationtech.spatial4j.io.jts;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.text.NumberFormat;
-import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.io.GeoJSONWriter;
-import com.spatial4j.core.io.LegacyShapeWriter;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.jts.JtsGeometry;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
+import org.locationtech.spatial4j.io.GeoJSONWriter;
+import org.locationtech.spatial4j.io.LegacyShapeWriter;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
