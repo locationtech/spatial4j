@@ -41,17 +41,20 @@ It is never a bad idea to email the mailing list with thoughts about a change yo
 before you make it. This allows the committers to weigh in with thoughts and suggestions that will 
 help you make the change and ultimately ensure your successful contribution to the project. 
 
-### Sign off on commits
+### Sign off on commits, and filing a CLA
 
 Non-committers submitting patches to Spatial4j must use the "-s" (sign-off) flag when making 
 commits with git. This flag indicates that the author verifies the change is (too the best knowledge 
-of the author) in good standing and consistent with the open source license of the project. The 
-following is an example of a commit with the sign-off flag.
+of the author) in good standing and consistent with the open source license of the project, and that
+if he/she has permission from their employer to contribute the code (if applicable).
+The following is an example of a commit with the sign-off flag.
 
      git commit -s -m "the commit message"
 
-Once a developer has been elevated to project committer status and set up a contributor agreement 
-the sign-off flag is no longer required.
+Once a developer has been elevated to project committer status the sign-off flag is no longer required.
+
+Additionally, a one-time event is to [submit a a CLA](https://projects.eclipse.org/user/sign/cla)
+"Contributor License Agreement".  It's simple and fast to do.
 
 ### One patch per one bug/feature
 
@@ -65,10 +68,10 @@ to the patch. This adds unnecessary "noise" that makes the job of the reviewer m
 also makes the history of a change harder to analyze after the fact. If a patch contains unnecessary
 whitespace or other formatting changes a reviewer will ask for them to be removed.
 
-### Import entire project history
+### Viewing the entire project history
 
-This is not so much a guideline as a recommendation but it is recommended that developers import the 
-pre LocationTech history of the project into a local clone. This can be achieved with the following
+(Optional) We recommended that developers do this step to be able to view the 
+pre-LocationTech history of the project. This can be achieved with the following
 command after the repository has been cloned:
 
     git fetch origin refs/replace/*:refs/replace/*
