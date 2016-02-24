@@ -82,7 +82,6 @@
   <properties>
     <!-- this magic system property is honored by many plugins: http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <cbi-plugins.version>1.1.3</cbi-plugins.version>
   </properties>
 
   <!-- To check for new plugins and dependencies:
@@ -361,14 +360,9 @@
     </plugins>
   </reporting>
 
-  <pluginRepositories>
-    <pluginRepository>
-      <id>cbi-releases</id>
-      <url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
-    </pluginRepository>
-  </pluginRepositories>
 
   <profiles>
+    <!-- For doing releases. Note this plugin only works from Eclipse infrastructure (e.g. Hudson) -->
     <profile>
       <id>eclipse-sign</id>
       <build>
@@ -376,7 +370,7 @@
           <plugin>
             <groupId>org.eclipse.cbi.maven.plugins</groupId>
             <artifactId>eclipse-jarsigner-plugin</artifactId>
-            <version>${cbi-plugins.version}</version>
+            <version>1.1.3</version>
             <configuration>
               <signerUrl>http://locationtech.org:31338/sign</signerUrl>
             </configuration>
@@ -392,6 +386,12 @@
           </plugin>
         </plugins>
       </build>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>cbi-releases</id>
+          <url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
+        </pluginRepository>
+      </pluginRepositories>
     </profile>
   </profiles>
 </project>
