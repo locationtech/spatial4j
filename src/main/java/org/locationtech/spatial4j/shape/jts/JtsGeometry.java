@@ -303,7 +303,7 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
       SpatialRelation relateEnclosedRing(LinearRing ring) {
         SpatialRelation rel = relateLineString(ring);
         if (rel == SpatialRelation.DISJOINT
-                && ctx.getGeometryFactory().createPolygon(ring).contains(ctrGeom)) {
+                && ctx.getGeometryFactory().createPolygon(ring, null).contains(ctrGeom)) {
           // If it contains the circle center point, then the result is CONTAINS
           rel = SpatialRelation.CONTAINS;
         }

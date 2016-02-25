@@ -104,9 +104,9 @@
     <!-- JTS is essentially only used for polygons. -->
     <dependency>
       <groupId>com.vividsolutions</groupId>
-      <artifactId>jts</artifactId>
-      <!-- last I checked, it still works with 1.12 -->
-      <version>1.13</version>
+      <artifactId>jts-core</artifactId>
+      <!-- It still works with com.vividsolutions:jts:1.12  -->
+      <version>1.14.0</version>
       <optional>true</optional>
       <exclusions>
         <exclusion>
@@ -126,7 +126,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>1.7.12</version>
+      <version>1.7.16</version>
       <scope>test</scope>
     </dependency>
         
