@@ -22,6 +22,10 @@ import org.junit.Test;
 import java.text.ParseException;
 import java.util.Collections;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 public class WktShapeParserTest extends RandomizedTest {
 
   final SpatialContext ctx;

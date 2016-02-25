@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 public class BufferedLineTest extends RandomizedTest {
 
   private final SpatialContext ctx = new SpatialContextFactory()

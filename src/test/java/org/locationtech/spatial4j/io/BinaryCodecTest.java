@@ -16,6 +16,8 @@ import org.junit.Test;
 import java.io.*;
 import java.util.Arrays;
 
+import static org.junit.Assert.assertEquals;
+
 public class BinaryCodecTest extends BaseRoundTripTest<SpatialContext> {
 
   @Override

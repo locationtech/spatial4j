@@ -18,6 +18,8 @@ import org.locationtech.spatial4j.shape.impl.PointImpl;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.locationtech.spatial4j.distance.DistanceUtils.DEG_TO_KM;
 import static org.locationtech.spatial4j.distance.DistanceUtils.KM_TO_DEG;
 

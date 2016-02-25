@@ -23,6 +23,10 @@ import org.junit.Test;
 import java.text.ParseException;
 import java.util.Arrays;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 public class JtsWktShapeParserTest extends WktShapeParserTest {
 
   //By extending WktShapeParserTest we inherit its test too

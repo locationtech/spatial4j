@@ -16,6 +16,8 @@ import org.junit.Test;
 
 import java.text.ParseException;
 
+import static org.junit.Assert.assertEquals;
+
 public class WktCustomShapeParserTest extends WktShapeParserTest {
 
   static class CustomShape extends PointImpl {

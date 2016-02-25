@@ -13,6 +13,8 @@ import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.impl.InfBufLine;
 import org.locationtech.spatial4j.shape.impl.PointImpl;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.locationtech.spatial4j.shape.SpatialRelation.CONTAINS;
 import static org.locationtech.spatial4j.shape.SpatialRelation.DISJOINT;
 

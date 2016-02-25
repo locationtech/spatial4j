@@ -17,6 +17,8 @@ import org.locationtech.spatial4j.shape.impl.RectangleImpl;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.locationtech.spatial4j.shape.SpatialRelation.CONTAINS;
 import static org.locationtech.spatial4j.shape.SpatialRelation.DISJOINT;
 
