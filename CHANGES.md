@@ -1,5 +1,7 @@
 ## VERSION 0.6
 
+DATE: 26 February 2016
+
 ### Notes:
 
 * Package change from com.spatial4j.core to org.locationtech.spatial4j. Also, maven coordinates change from groupId
