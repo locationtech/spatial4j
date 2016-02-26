@@ -8,13 +8,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
-    <relativePath />
-  </parent>
-  
   <groupId>org.locationtech.spatial4j</groupId>
   <artifactId>spatial4j</artifactId>
   <version>0.6-SNAPSHOT</version>
@@ -48,10 +41,15 @@
   </issueManagement>
 
   <ciManagement>
+    <system>Hudson</system>
+    <url>https://hudson.locationtech.org/spatial4j/job/Spatial4j/</url>
+  </ciManagement>
+  <!-- also:
+  <ciManagement>
     <system>Travis-CI</system>
     <url>https://travis-ci.org/locationtech/spatial4j</url>
   </ciManagement>
-  <!-- also: https://hudson.locationtech.org/spatial4j/job/Spatial4j/ -->
+   -->
 
   <mailingLists>
     <mailingList>
@@ -89,7 +87,7 @@
   mvn org.codehaus.mojo:versions-maven-plugin:2.2:display-dependency-updates
   -->
   <prerequisites>
-    <maven>2.2.1</maven>
+    <maven>3.0</maven>
   </prerequisites>
 
   <dependencies>
@@ -164,31 +162,6 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.6</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>attach-test-sources</id>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-            <configuration>
-              <includes>
-                <include>com/spatial4j/core/**/*</include>
-              </includes>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.18.1</version>
       </plugin>
@@ -233,18 +206,6 @@
         <extensions>true</extensions>
       </plugin>
 
-      <!--
-      https://www.eclipse.org/cbi/maven-plugins/documentation/latest/eclipse-jarsigner-plugin/sign-mojo.html
-      -->
-      <plugin>
-        <groupId>org.eclipse.cbi.maven.plugins</groupId>
-        <artifactId>eclipse-jarsigner-plugin</artifactId>
-        <version>1.1.3</version>
-        <configuration>
-          <signerUrl>http://locationtech.org:31338/sign</signerUrl>
-        </configuration>
-      </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
@@ -265,14 +226,14 @@
         </executions>
       </plugin>
 
-      <!-- http://blog.progs.be/517/publishing-javadoc-to-github-using-maven -->
+      <!-- Instructions: http://blog.progs.be/517/publishing-javadoc-to-github-using-maven
+       Alternative plugin: https://github.github.com/maven-plugins/site-plugin/index.html -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-scm-publish-plugin</artifactId>
-        <version>1.0-beta-2</version>
+        <version>1.1</version>
         <configuration>
-          <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
-          <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>
+          <checkinComment>Publishing maven generated site for ${project.artifactId}:${project.version}</checkinComment>
           <content>${project.reporting.outputDirectory}</content>
           <skipDeletedFiles>true</skipDeletedFiles>
           <pubScmUrl>scm:git:https://github.com/locationtech/spatial4j.git</pubScmUrl>
@@ -304,16 +265,16 @@
         </configuration>
       </plugin>
 
-      <!-- TODO why isn't this in the site report? -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>2.5.5</version>
+        <version>3.0.3</version>
         <configuration>
           <xmlOutput>true</xmlOutput>
         </configuration>
       </plugin>
 
+      <!-- It would be nice if there was a JXR substitute that linked to GitHub hosted source. No big deal. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
@@ -360,13 +321,57 @@
     </plugins>
   </reporting>
 
-
   <profiles>
-    <!-- For doing releases. Note this plugin only works from Eclipse infrastructure (e.g. Hudson) -->
+
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>2.6</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>attach-test-sources</id>
+                <goals>
+                  <goal>test-jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- For signing artifacts to eventually be used in a release.  Should be used in conjunction with the
+    "release" profile.
+    Note this plugin only works from Eclipse infrastructure (e.g. Hudson) -->
     <profile>
       <id>eclipse-sign</id>
       <build>
         <plugins>
+          <!--
+          https://www.eclipse.org/cbi/maven-plugins/documentation/latest/eclipse-jarsigner-plugin/sign-mojo.html
+          -->
           <plugin>
             <groupId>org.eclipse.cbi.maven.plugins</groupId>
             <artifactId>eclipse-jarsigner-plugin</artifactId>
@@ -393,5 +398,7 @@
         </pluginRepository>
       </pluginRepositories>
     </profile>
+
   </profiles>
+
 </project>
