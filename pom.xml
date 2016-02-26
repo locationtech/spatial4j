@@ -65,11 +65,22 @@
     </mailingList>
   </mailingLists>
 
-  <!--
-  <contributors>
-    See for yourself: https://github.com/locationtech/spatial4j/graphs/contributors
-  </contributors>
-  -->
+  <developers>
+    <developer>
+      <name>David Smiley</name>
+    </developer>
+    <developer>
+      <name>Ryan McKinley</name>
+      <organization>Voyager GIS</organization>
+    </developer>
+    <developer>
+      <name>Justin Deoliveira</name>
+      <organization>Voyager GIS</organization>
+    </developer>
+  </developers>
+  <!-- Contributors: See for yourself: https://github.com/locationtech/spatial4j/graphs/contributors -->
+  <!-- The official intellectual property log (IP Log); people & dependencies/code.
+  https://www.eclipse.org/projects/ip_log.php?projectid=locationtech.technology.spatial4j -->
 
   <scm>
     <connection>scm:git:git@github.com:locationtech/spatial4j.git</connection>
