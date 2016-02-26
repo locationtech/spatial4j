@@ -27,7 +27,7 @@ import java.util.*;
  * {@link #makeSpatialContext(java.util.Map, ClassLoader)} to construct one via String name-value
  * pairs. To construct one via code then create a factory instance, set the fields, then call
  * {@link #newSpatialContext()}.
- * <p/>
+ * <p>
  * The following keys are looked up in the args map:
  * <DL>
  * <DT>spatialContextFactory</DT>

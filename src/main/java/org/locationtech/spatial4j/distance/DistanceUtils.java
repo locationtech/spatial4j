@@ -29,7 +29,7 @@ import org.locationtech.spatial4j.shape.Rectangle;
  * org.locationtech.spatial4j.distance.DistanceCalculator}, retrieved from {@link
  * org.locationtech.spatial4j.context.SpatialContext#getDistCalc()} should be used in preference to calling
  * these methods directly.
- * <p/>
+ * <p>
  * This code came from <a href="https://issues.apache.org/jira/browse/LUCENE-1387">Apache
  * Lucene, LUCENE-1387</a>, which in turn came from "LocalLucene".
  */
@@ -73,7 +73,7 @@ public class DistanceUtils {
 
   /**
    * Calculate the p-norm (i.e. length) between two vectors.
-   * <p/>
+   * <p>
    * See <a href="http://en.wikipedia.org/wiki/Lp_space">Lp space</a>
    *
    * @param vec1  The first vector
@@ -215,7 +215,7 @@ public class DistanceUtils {
   }
 
   /**
-   * Puts in range -180 <= lon_deg <= +180.
+   * Puts in range -180 &lt;= lon_deg &lt;= +180.
    */
   public static double normLonDEG(double lon_deg) {
     if (lon_deg >= -180 && lon_deg <= 180)
@@ -230,7 +230,7 @@ public class DistanceUtils {
   }
 
   /**
-   * Puts in range -90 <= lat_deg <= 90.
+   * Puts in range -90 &lt;= lat_deg &lt;= 90.
    */
   public static double normLatDEG(double lat_deg) {
     if (lat_deg >= -90 && lat_deg <= 90)
@@ -335,7 +335,7 @@ public class DistanceUtils {
   /**
    * Calculates the degrees longitude distance at latitude {@code lat} to cover
    * a distance {@code dist}.
-   * <p/>
+   * <p>
    * Used to calculate a new expanded buffer distance to account for skewing
    * effects for shapes that use the lat-lon space as a 2D plane instead of a
    * sphere.  The expanded buffer will be sure to cover the intended area, but
@@ -344,15 +344,15 @@ public class DistanceUtils {
    * result is twice the buffer, meaning that a shape at 60 degrees is twice as
    * high as it is wide when projected onto a lat-lon plane even if in the real
    * world it's equal all around.
-   * <p/>
-   * If the result added to abs({@code lat}) is >= 90 degrees, then skewing is
+   * <p>
+   * If the result added to abs({@code lat}) is &gt;= 90 degrees, then skewing is
    * so severe that the caller should consider tossing the shape and
    * substituting a spherical cap instead.
    *
    * @param lat  latitude in degrees
    * @param dist distance in degrees
-   * @return longitudinal degrees (x delta) at input latitude that is >= dist
-   *         distance. Will be >= dist and <= 90.
+   * @return longitudinal degrees (x delta) at input latitude that is &gt;= dist
+   *         distance. Will be &gt;= dist and &lt;= 90.
    */
   public static double calcLonDegreesAtLat(double lat, double dist) {
     //This code was pulled out of DistanceUtils.pointOnBearingRAD() and
@@ -418,10 +418,10 @@ public class DistanceUtils {
    * errors, it is not as accurate as the Haversine formula for small distances.  But with
    * double precision, it isn't that bad -- <a href="http://www.movable-type.co.uk/scripts/latlong.html">
    *   allegedly 1 meter</a>.
-   * <p/>
+   * <p>
    * See <a href="http://gis.stackexchange.com/questions/4906/why-is-law-of-cosines-more-preferable-than-haversine-when-calculating-distance-b">
    *  Why is law of cosines more preferable than haversine when calculating distance between two latitude-longitude points?</a>
-   * <p/>
+   * <p>
    * The arguments and return value are in radians.
    */
   public static double distLawOfCosinesRAD(double lat1, double lon1, double lat2, double lon2) {
@@ -449,7 +449,7 @@ public class DistanceUtils {
    * Calculates the great circle distance using the Vincenty Formula, simplified for a spherical model. This formula
    * is accurate for any pair of points. The equation
    * was taken from <a href="http://en.wikipedia.org/wiki/Great-circle_distance">Wikipedia</a>.
-   * <p/>
+   * <p>
    * The arguments are in radians, and the result is in radians.
    */
   public static double distVincentyRAD(double lat1, double lon1, double lat2, double lon2) {

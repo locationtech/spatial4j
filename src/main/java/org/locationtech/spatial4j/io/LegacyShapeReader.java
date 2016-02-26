@@ -23,12 +23,12 @@ import org.locationtech.spatial4j.shape.Shape;
  * Reads a shape from the old format.
  * <ul>
  *   <li>Point: X Y
- *   <br /> 1.23 4.56
+ *   <br> 1.23 4.56
  *   </li>
  *   <li>Rect: XMin YMin XMax YMax
- *   <br /> 1.23 4.56 7.87 4.56
+ *   <br> 1.23 4.56 7.87 4.56
  *   </li>
- *   <li>{CIRCLE} '(' {POINT} {DISTANCE} ')' <br/>
+ *   <li>{CIRCLE} '(' {POINT} {DISTANCE} ')' <br>
  *   CIRCLE is "CIRCLE" or "Circle" (no other case), and POINT is "X Y" order pair of doubles, or
  *   "Y,X" (lat,lon) pair of doubles, and DISTANCE is "d=RADIUS" or "distance=RADIUS" where RADIUS
  *   is a double that is the distance radius in degrees.

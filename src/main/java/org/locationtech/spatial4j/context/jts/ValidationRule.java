@@ -21,7 +21,7 @@ public enum ValidationRule {
    * not ultimately get an error at some point; results are undefined. However, note that
    * coordinates will still be validated for falling within the world boundaries.
    *
-   * @see com.vividsolutions.jts.geom.Geometry#isValid().
+   * @see com.vividsolutions.jts.geom.Geometry#isValid()
    */
   none,
 

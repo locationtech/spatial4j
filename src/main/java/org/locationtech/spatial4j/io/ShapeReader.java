@@ -28,7 +28,6 @@ public interface ShapeReader extends ShapeIO {
 
   /**
    * @param value -- the input value, could be a String or other object
-   * @param error -- flag if we should throw an error or not (true will throw an error)
    * @return a shape or null, if the input was un readable.
    * 
    *         This will throw {@link InvalidShapeException} when we could read a shape, but it was

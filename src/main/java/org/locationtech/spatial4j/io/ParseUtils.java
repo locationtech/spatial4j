@@ -23,7 +23,7 @@ import org.locationtech.spatial4j.exception.InvalidShapeException;
 
 /**
  * Utility methods related to parsing a series of numbers.
- * <p/>
+ * <p>
  * This code came from DistanceUtils, which came from
  * <a href="https://issues.apache.org/jira/browse/LUCENE-773">Apache
  * Lucene, LUCENE-773</a>, which in turn came from "LocalLucene".
@@ -125,9 +125,9 @@ public class ParseUtils {
 
   /**
    * Extract (by calling {@link #parsePoint(String[], String, int)} and validate the latitude and
-   * longitude contained in the String by making sure the latitude is between 90 & -90 and longitude
+   * longitude contained in the String by making sure the latitude is between 90 &amp; -90 and longitude
    * is between -180 and 180.
-   * <p/>
+   * <p>
    * The latitude is assumed to be the first part of the string and the longitude the second part.
    *
    * @param latLonStr The string to parse.  Latitude is the first value, longitude is the second.

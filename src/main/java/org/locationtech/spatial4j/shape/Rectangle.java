@@ -10,7 +10,7 @@ package org.locationtech.spatial4j.shape;
 
 /**
  * A rectangle aligned with the axis (i.e. it is not at an angle).
- * <p/>
+ * <p>
  * In geospatial contexts, it may cross the international date line (-180
  * longitude) if {@link #getCrossesDateLine()} however it cannot pass the poles
  * although it may span the globe.  It spans the globe if the X coordinate
@@ -29,13 +29,13 @@ public interface Rectangle extends Shape {
 
   /**
    * The width. In geospatial contexts, this is generally in degrees longitude
-   * and is aware of the international dateline.  It will always be >= 0.
+   * and is aware of the international dateline.  It will always be &gt;= 0.
    */
   public double getWidth();
 
   /**
    * The height. In geospatial contexts, this is in degrees latitude. It will
-   * always be >= 0.
+   * always be &gt;= 0.
    */
   public double getHeight();
 

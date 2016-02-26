@@ -17,7 +17,6 @@ import org.locationtech.spatial4j.context.SpatialContextFactory;
 @Deprecated
 public class WktShapeParser extends WKTReader {
 
-  /** This constructor is required by {@link org.locationtech.spatial4j.context.SpatialContextFactory#makeWktShapeParser(org.locationtech.spatial4j.context.SpatialContext)}. */
   public WktShapeParser(SpatialContext ctx, SpatialContextFactory factory) {
     super(ctx,factory);
   }

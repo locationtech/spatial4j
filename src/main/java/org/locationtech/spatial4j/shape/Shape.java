@@ -15,7 +15,7 @@ import org.locationtech.spatial4j.context.SpatialContext;
  * instantiated via one of the create* methods on a {@link SpatialContext} or
  * by reading WKT which calls those methods; they should <em>not</em> be
  * created directly.
- * <p/>
+ * <p>
  * Shapes are generally immutable and thread-safe. If a particular shape has a
  * <code>reset(...)</code> method then its use means the shape is actually
  * mutable. Mutating shape state is considered expert and should be done with care.
@@ -34,7 +34,7 @@ public interface Shape {
    * true answer is WITHIN or CONTAINS for performance reasons. If a shape does
    * this then it <i>must</i> document when it does.  Ideally the shape will not
    * do this approximation in all circumstances, just sometimes.
-   * <p />
+   * <p>
    * If the shapes are equal then the result is CONTAINS (preferred) or WITHIN.
    */
   SpatialRelation relate(Shape other);
@@ -42,7 +42,7 @@ public interface Shape {
   /**
    * Get the bounding box for this Shape. This means the shape is within the
    * bounding box and that it touches each side of the rectangle.
-   * <p />
+   * <p>
    * Postcondition: <code>this.getBoundingBox().relate(this) == CONTAINS</code>
    */
   Rectangle getBoundingBox();
@@ -65,7 +65,7 @@ public interface Shape {
   /**
    * Returns the center point of this shape. This is usually the same as
    * <code>getBoundingBox().getCenter()</code> but it doesn't have to be.
-   * <p />
+   * <p>
    * Postcondition: <code>this.relate(this.getCenter()) == CONTAINS</code>
    */
   Point getCenter();
@@ -91,7 +91,7 @@ public interface Shape {
    * same contract for {@link Object#equals(Object)} and {@link Object#hashCode()}
    * amongst the same sub-interface type.  This means, for example, that multiple
    * Point implementations of different classes are equal if they share the same x
-   * & y. */
+   * &amp; y. */
   @Override
   public boolean equals(Object other);
   

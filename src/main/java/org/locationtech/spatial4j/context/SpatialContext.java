@@ -26,14 +26,14 @@ import java.util.List;
  * This is a facade to most of Spatial4j, holding things like {@link DistanceCalculator},
  * {@link ShapeFactory},
  * {@link org.locationtech.spatial4j.io.ShapeIO}.
- * <p/>
+ * <p>
  * If you want a typical geodetic context, just reference {@link #GEO}.  Otherwise,
  * You should either create and configure a {@link SpatialContextFactory} and then call
  * {@link SpatialContextFactory#newSpatialContext()}, OR, call
  * {@link org.locationtech.spatial4j.context.SpatialContextFactory#makeSpatialContext(java.util.Map, ClassLoader)}
  * to do this via configuration data.
- * <p/>
- * Thread-safe & immutable.
+ * <p>
+ * Thread-safe &amp; immutable.
  */
 public class SpatialContext {
 
@@ -139,7 +139,7 @@ public class SpatialContext {
   }
 
   /**
-   * The extent of x & y coordinates should fit within the return'ed rectangle.
+   * The extent of x &amp; y coordinates should fit within the return'ed rectangle.
    * Do *NOT* invoke reset() on this return type.
    */
   public Rectangle getWorldBounds() {
@@ -208,13 +208,13 @@ public class SpatialContext {
     return shapeFactory.rect(minX, maxX, minY, maxY);
   }
 
-  /** Construct a circle. The units of "distance" should be the same as x & y. */
+  /** Construct a circle. The units of "distance" should be the same as x &amp; y. */
   @Deprecated
   public Circle makeCircle(double x, double y, double distance) {
     return shapeFactory.circle(x, y, distance);
   }
 
-  /** Construct a circle. The units of "distance" should be the same as x & y. */
+  /** Construct a circle. The units of "distance" should be the same as x &amp; y. */
   @Deprecated
   public Circle makeCircle(Point point, double distance) {
     return shapeFactory.circle(point, distance);

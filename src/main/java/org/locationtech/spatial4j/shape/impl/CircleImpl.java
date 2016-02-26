@@ -86,7 +86,7 @@ public class CircleImpl extends BaseShape<SpatialContext> implements Circle {
   }
 
   /**
-   * Note that the bounding box might contain a minX that is > maxX, due to WGS84 dateline.
+   * Note that the bounding box might contain a minX that is &gt; maxX, due to WGS84 dateline.
    */
   @Override
   public Rectangle getBoundingBox() {

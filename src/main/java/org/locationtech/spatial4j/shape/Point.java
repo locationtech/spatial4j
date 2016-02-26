@@ -9,7 +9,7 @@
 package org.locationtech.spatial4j.shape;
 
 /**
- * A Point with X & Y coordinates.
+ * A Point with X &amp; Y coordinates.
  */
 public interface Point extends Shape {
 

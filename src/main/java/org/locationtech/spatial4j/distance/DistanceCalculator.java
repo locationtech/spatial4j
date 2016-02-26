@@ -26,7 +26,7 @@ public interface DistanceCalculator {
   /** The distance between <code>from</code> and <code>Point(toX,toY)</code>. */
   public double distance(Point from, double toX, double toY);
 
-  /** Returns true if the distance between from and to is <= distance. */
+  /** Returns true if the distance between from and to is &lt;= distance. */
   public boolean within(Point from, double toX, double toY, double distance);
 
   /**

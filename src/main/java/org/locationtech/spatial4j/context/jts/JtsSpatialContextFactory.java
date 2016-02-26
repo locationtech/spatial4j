@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  * See {@link SpatialContextFactory#makeSpatialContext(java.util.Map, ClassLoader)}.
- * <p/>
+ * <p>
  * The following keys are looked up in the args map, in addition to those in the
  * superclass:
  * <DL>

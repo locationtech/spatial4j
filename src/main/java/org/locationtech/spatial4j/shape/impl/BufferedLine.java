@@ -44,7 +44,7 @@ public class BufferedLine extends BaseShape<SpatialContext> {
   /**
    * Creates a buffered line from pA to pB. The buffer extends on both sides of
    * the line, making the width 2x the buffer. The buffer extends out from
-   * pA & pB, making the line in effect 2x the buffer longer than pA to pB.
+   * pA &amp; pB, making the line in effect 2x the buffer longer than pA to pB.
    *
    * @param pA  start point
    * @param pB  end point

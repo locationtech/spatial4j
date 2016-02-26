@@ -27,12 +27,12 @@ import java.util.Arrays;
 
 /**
  * Utilities for encoding and decoding <a href="http://en.wikipedia.org/wiki/Geohash">geohashes</a>.
- * <p/>
+ * <p>
  * This class isn't used by any other part of Spatial4j; it's included largely for convenience of
  * software using Spatial4j. There are other open-source libraries that have more comprehensive
  * geohash utilities but providing this one avoids an additional dependency for what's a small
  * amount of code.  <em>If you're using Spatial4j just for this class, consider alternatives.</em>
- * <p/>
+ * <p>
  * This code originally came from <a href="https://issues.apache.org/jira/browse/LUCENE-1512">
  * Apache Lucene, LUCENE-1512</a>.
  */
@@ -174,7 +174,7 @@ public class GeohashUtils {
   }
 
   /**
-   * Return the shortest geohash length that will have a width & height >= specified arguments.
+   * Return the shortest geohash length that will have a width &amp; height &gt;= specified arguments.
    */
   public static int lookupHashLenForWidthHeight(double lonErr, double latErr) {
     //loop through hash length arrays from beginning till we find one.

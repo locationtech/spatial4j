@@ -11,11 +11,11 @@ package org.locationtech.spatial4j.shape;
 /**
  * The set of spatial relationships.  Naming is somewhat consistent with OGC spec
  * conventions as seen in SQL/MM and others.
- * <p/>
+ * <p>
  * There is no equality case.  If two Shape instances are equal then the result
  * might be CONTAINS (preferred) or WITHIN.  Client logic may have to be aware
  * of this edge condition; Spatial4j testing certainly does.
- * <p />
+ * <p>
  * The "CONTAINS" and "WITHIN" wording here is inconsistent with OGC; these here map to OGC
  * "COVERS" and "COVERED BY", respectively. The distinction is in the boundaries; in Spatial4j
  * there is no boundary distinction -- boundaries are part of the shape as if it was an "interior",
@@ -68,7 +68,7 @@ public enum SpatialRelation {
 
   /**
    * If you were to call aShape.relate(bShape) and aShape.relate(cShape), you
-   * could call this to merge the intersect results as if bShape & cShape were
+   * could call this to merge the intersect results as if bShape &amp; cShape were
    * combined into {@link ShapeCollection}.  If {@code other} is null then the
    * result is "this".
    */
@@ -99,7 +99,7 @@ public enum SpatialRelation {
    * is <code> inverse(aShape).relate(bShape)</code> whereas
    * <code>inverse(shape)</code> is theoretically the opposite area covered by a
    * shape, i.e. everywhere but where the shape is.
-   * <p/>
+   * <p>
    * Note that it's not commutative!  <code>WITHIN.inverse().inverse() !=
    * WITHIN</code>.
    */

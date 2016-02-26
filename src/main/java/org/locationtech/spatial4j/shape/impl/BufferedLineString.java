@@ -44,7 +44,7 @@ public class BufferedLineString extends BaseShape<SpatialContext> {
 
   /**
    * @param points ordered control points. If empty then this shape is empty.
-   * @param buf Buffer >= 0
+   * @param buf Buffer &gt;= 0
    * @param expandBufForLongitudeSkew See {@link BufferedLine
    * #expandBufForLongitudeSkew(org.locationtech.spatial4j.shape.Point,
    * org.locationtech.spatial4j.shape.Point, double)}.

@@ -39,8 +39,8 @@ public interface ShapeFactory {
   double normZ(double z);
 
   /**
-   * Called to normalize a value that isn't X or Y or Z. X & Y & Z are normalized via
-   * {@link org.locationtech.spatial4j.context.SpatialContext#normX(double)} & normY & normZ. This
+   * Called to normalize a value that isn't X or Y or Z. X &amp; Y &amp; Z are normalized via
+   * {@link org.locationtech.spatial4j.context.SpatialContext#normX(double)} &amp; normY &amp; normZ. This
    * is called by a {@link org.locationtech.spatial4j.io.ShapeReader} before creating a shape.
    */
   double normDist(double d);
@@ -74,10 +74,10 @@ public interface ShapeFactory {
    */
   Rectangle rect(double minX, double maxX, double minY, double maxY);
 
-  /** Construct a circle. The units of "distance" should be the same as x & y. */
+  /** Construct a circle. The units of "distance" should be the same as x &amp; y. */
   Circle circle(double x, double y, double distance);
 
-  /** Construct a circle. The units of "distance" should be the same as x & y. */
+  /** Construct a circle. The units of "distance" should be the same as x &amp; y. */
   Circle circle(Point point, double distance);
 
   /** Constructs a line string with a possible buffer. It's an ordered sequence of connected vertexes,

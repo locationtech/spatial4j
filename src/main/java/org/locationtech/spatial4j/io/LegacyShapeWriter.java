@@ -24,12 +24,12 @@ import org.locationtech.spatial4j.shape.Shape;
  * Writes a shape in the old format.
  * <ul>
  *   <li>Point: X Y
- *   <br /> 1.23 4.56
+ *   <br> 1.23 4.56
  *   </li>
  *   <li>Rect: XMin YMin XMax YMax
- *   <br /> 1.23 4.56 7.87 4.56
+ *   <br> 1.23 4.56 7.87 4.56
  *   </li>
- *   <li>{CIRCLE} '(' {POINT} {DISTANCE} ')' <br/>
+ *   <li>{CIRCLE} '(' {POINT} {DISTANCE} ')' <br>
  *   CIRCLE is "CIRCLE" or "Circle" (no other case), and POINT is "X Y" order pair of doubles, or
  *   "Y,X" (lat,lon) pair of doubles, and DISTANCE is "d=RADIUS" or "distance=RADIUS" where RADIUS
  *   is a double that is the distance radius in degrees.
@@ -47,7 +47,7 @@ public class LegacyShapeWriter implements ShapeWriter {
 
   /**
    * Writes a shape to a String, in a format that can be read by
-   * {@link #readShapeOrNull(String, org.locationtech.spatial4j.context.SpatialContext)}.
+   * {@link LegacyShapeReader#readShapeOrNull(String, SpatialContext)}
    * @param shape Not null.
    * @return Not null.
    */

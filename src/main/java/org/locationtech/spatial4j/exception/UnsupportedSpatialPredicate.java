@@ -22,7 +22,7 @@ package org.locationtech.spatial4j.exception;
 import org.locationtech.spatial4j.SpatialPredicate;
 
 /**
- * Exception thrown when the {@link org.apache.lucene.spatial.SpatialStrategy} cannot implement the requested operation.
+ * Exception thrown when something cannot implement the {@link SpatialPredicate}.
  */
 public class UnsupportedSpatialPredicate extends UnsupportedOperationException {
 

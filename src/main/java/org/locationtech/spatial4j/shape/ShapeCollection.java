@@ -21,7 +21,7 @@ import static org.locationtech.spatial4j.shape.SpatialRelation.INTERSECTS;
  * implementation demands a List (with random access) so that the order can be
  * retained if an application requires it, although logically it's treated as an
  * unordered Set, mostly.
- * <p/>
+ * <p>
  * Ideally, {@link #relate(Shape)} should return the same result no matter what
  * the shape order is, although the default implementation can be order
  * dependent when the shapes overlap; see {@link #relateContainsShortCircuits()}.
@@ -30,7 +30,7 @@ import static org.locationtech.spatial4j.shape.SpatialRelation.INTERSECTS;
  * short-circuit'ing sooner.  As the Shape contract states; it may return
  * intersects when the best answer is actually contains or within. If any shape
  * intersects the provided shape then that is the answer.
- * <p/>
+ * <p>
  * This implementation is not optimized for a large number of shapes; relate is
  * O(N).  A more sophisticated implementation might do an R-Tree based on
  * bbox'es, for example.
@@ -157,7 +157,7 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
    * Computes whether the shapes are mutually disjoint. This is a utility method
    * offered for use by a subclass implementing {@link #relateContainsShortCircuits()}.
    * <b>Beware: this is an O(N^2) algorithm.</b>.  Consequently, consider safely
-   * assuming non-disjoint if shapes.size() > 10 or something.  And if all shapes
+   * assuming non-disjoint if shapes.size() &gt; 10 or something.  And if all shapes
    * are a Point then the result of this method doesn't ultimately matter.
    */
   protected static boolean computeMutualDisjoint(List<? extends Shape> shapes) {

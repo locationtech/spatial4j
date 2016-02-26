@@ -25,8 +25,8 @@ import java.util.ArrayList;
 /**
  * A binary shape format. It is <em>not</em> designed to be a published standard, unlike Well Known
  * Binary (WKB). The initial release is simple but it could get more optimized to use fewer bytes or
- * to write & read pre-computed index structures.
- * <p/>
+ * to write &amp; read pre-computed index structures.
+ * <p>
  * Immutable and thread-safe.
  */
 public class BinaryCodec {

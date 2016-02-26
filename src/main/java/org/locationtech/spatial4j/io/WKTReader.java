@@ -28,31 +28,31 @@ import java.text.ParseException;
  * <ul>
  * <li>POINT</li>
  * <li>MULTIPOINT</li>
- * <li>ENVELOPE</li> (strictly isn't WKT but is defined by OGC's <a
+ * <li>ENVELOPE (strictly isn't WKT but is defined by OGC's <a
  * href="http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html">Common Query
- * Language (CQL)</a>)
+ * Language (CQL)</a>)</li>
  * <li>LINESTRING</li>
  * <li>MULTILINESTRING</li>
  * <LI>POLYGON</LI>
  * <LI>MULTIPOLYGON</LI>
  * <li>GEOMETRYCOLLECTION</li>
- * <li>BUFFER</li> (non-standard Spatial4j operation)
+ * <li>BUFFER (non-standard Spatial4j operation)</li>
  * </ul>
  * 'EMPTY' is supported. Specifying 'Z', 'M', or any other dimensionality in the WKT is effectively
  * ignored. Thus, you can specify any number of numbers in the coordinate points but only the first
  * two take effect. The javadocs for the <code>parse___Shape</code> methods further describe these
  * shapes, or you
  *
- * <p />
+ * <p>
  * Most users of this class will call just one method: {@link #parse(String)}, or
  * {@link #parseIfSupported(String)} to not fail if it isn't parse-able.
  *
- * <p />
+ * <p>
  * To support more shapes, extend this class and override
  * {@link #parseShapeByType(WKTReader.State, String)}. It's also possible to delegate to a WKTParser
  * by also delegating {@link #newState(String)}.
  *
- * <p />
+ * <p>
  * Note, instances of this base class are threadsafe.
  */
 public class WKTReader implements ShapeReader {
@@ -63,8 +63,7 @@ public class WKTReader implements ShapeReader {
 
   /**
    * This constructor is required by
-   * {@link org.locationtech.spatial4j.context.SpatialContextFactory#makeWktShapeParser(org.locationtech.spatial4j.context.SpatialContext)}
-   * .
+   * {@link org.locationtech.spatial4j.context.SpatialContextFactory#makeFormats(SpatialContext)}.
    */
   public WKTReader(SpatialContext ctx, SpatialContextFactory factory) {
     this.ctx = ctx;
@@ -141,7 +140,7 @@ public class WKTReader implements ShapeReader {
    * EOF in general). The default implementation checks the name against some predefined names and
    * calls corresponding parse methods to handle the rest. Overriding this method is an excellent
    * extension point for additional shape types. Or, use this class by delegation to this method.
-   * <p />
+   * <p>
    * When writing a parse method that reacts to a specific shape type, remember to handle the
    * dimension and EMPTY token via
    * {@link org.locationtech.spatial4j.io.WKTReader.State#nextIfEmptyAndSkipZM()}.
@@ -244,9 +243,9 @@ public class WKTReader implements ShapeReader {
 
   /**
    * Parses an ENVELOPE (aka Rectangle) shape from the raw string. The values are normalized.
-   * <p />
+   * <p>
    * Source: OGC "Catalogue Services Specification", the "CQL" (Common Query Language) sub-spec.
-   * <em>Note the inconsistent order of the min & max values between x & y!</em>
+   * <em>Note the inconsistent order of the min &amp; max values between x &amp; y!</em>
    * 
    * <pre>
    *   '(' x1 ',' x2 ',' y2 ',' y1 ')'
@@ -274,7 +273,7 @@ public class WKTReader implements ShapeReader {
    * coordinateSequence
    * </pre>
    *
-   * @see #pointList(State, ShapeFactory.LineStringBuilder)
+   * @see #pointList(State, ShapeFactory.PointsBuilder)
    */
   protected Shape parseLineStringShape(State state) throws ParseException {
     ShapeFactory.LineStringBuilder lineStringBuilder = shapeFactory.lineString();
@@ -597,7 +596,7 @@ public class WKTReader implements ShapeReader {
      * parenthesis too. It's designed to be of use to subclasses that wish to get the entire
      * subshape at the current position as a string so that it might be passed to other software
      * that will parse it.
-     * <p/>
+     * <p>
      * Example:
      * 
      * <pre>

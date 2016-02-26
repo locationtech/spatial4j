@@ -6,5 +6,5 @@
  *    http://www.apache.org/licenses/LICENSE-2.0.txt
  ******************************************************************************/
 
-/** Reading & writing shapes in various forms. */
+/** Reading &amp; writing shapes in various forms. */
 package org.locationtech.spatial4j.io;
