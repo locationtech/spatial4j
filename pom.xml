@@ -10,7 +10,7 @@
   
   <groupId>org.locationtech.spatial4j</groupId>
   <artifactId>spatial4j</artifactId>
-  <version>0.6</version>
+  <version>0.7-SNAPSHOT</version>
   <packaging>bundle</packaging><!-- an OSGi thing; basically same as 'jar' -->
 
   <name>Spatial4J</name>
@@ -86,7 +86,6 @@
     <connection>scm:git:git@github.com:locationtech/spatial4j.git</connection>
     <developerConnection>scm:git:git@github.com:locationtech/spatial4j.git</developerConnection>
     <url>https://github.com/locationtech/spatial4j</url>
-    <tag>spatial4j-0.6</tag>
   </scm>
 
   <properties>
