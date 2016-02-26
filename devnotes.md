@@ -2,11 +2,26 @@ This file has notes for committers.
 
 # Making a snapshot release
 
-Note: depends on having access to the sonatype repo described further below
+*TODO broken; consider using an Eclipse or [LocationTech](https://locationtech.org/wiki/The_Nexus) repo
+ or fix for Sonatype?*
+
+Note: depends on having access to the Sonatype repo described further below
 
     mvn -DperformRelease=true deploy
 
 # Making a new release
+
+First, understand that LocationTech projects undergo releases using an official process described here:
+https://www.eclipse.org/projects/handbook/locationtech.html#release
+
+Note: 
+ * the IP Log: https://www.eclipse.org/projects/ip_log.php?projectid=locationtech.technology.spatial4j
+ * the Release Request Form: https://www.locationtech.org/projects/technology.spatial4j/
+ 
+*TODO distill the process here.*
+
+Those steps can be concurrent with following some of the earlier technical steps below.  Deploying/releasing any
+jars must wait until the release date assuming the release review is successful.
 
 ## Review files...
  
@@ -22,31 +37,57 @@ Note: depends on having access to the sonatype repo described further below
 
  1. Optional: create a release branch if there will be release-specific changes.  Probably not.
 
- 2. Use maven release plugin: 
- 
-See http://central.sonatype.org/pages/ossrh-guide.html
-And specifically follow the link to deploy using Maven:
-https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide
-It includes having an account on Sonatype for their repo, plus installing & configuring GPG.  I'll assume
-those steps have been followed.
+ 2. Use Maven's `release` plugin, but ONLY for the "prepare" step, *not* perform:
+  
+    mvn release:prepare
 
-TODO: move away from the oss-parent parent POM; Sonatype says it's deprecated & unmaintained.
+This will create a tag in git named spatial4j-0.6 (or whatever the version is) with the pom updated. 
+If something goes wrong, you'll have to do release:rollback and then possibly remove the tag (pushing to GitHub)
+so that next time it can succeed.
 
-Simple:
- 
-    mvn release:clean release:prepare
-    mvn release:perform
+Remove the "release.properties" file and "pom.xml.releaseBackup".  Since we won't do release:perform, we can remove
+these artifacts now.
+
+    release:clean
+
+ 3. Have LocationTech sign the artifacts (via Hudson)
+
+Go to https://hudson.locationtech.org/spatial4j/job/Spatial4j-Jarsign2/ and modify the configuration
+to reference the release tag in the git configuration area.  Then execute a build; it should succeed.
+Download a zip of the build artifacts (pom.xml plus jar files).  Do that by seeing the link
+"Artifact(s) of the Last Successful Build", clicking it, then clicking the link "(all files in zip)".
+Expand it somewhere.  Note that the jar files will contain META-INF/ECLIPSE_* entries with binary signing info. Also,
+ensure these file names have the right version name and not a -SNAPSHOT.
+
+ 4. Use GPG to sign the artifacts then deploy to Sonatype 
+   
+You should open a command prompt to the expanded directory of downloaded artifacts from Hudson.  There will be a pom.xml
+and some jars.
+
+For reference on what we're about to do, see:
+http://central.sonatype.org/pages/manual-staging-bundle-creation-and-deployment.html
+This requires having an account on Sonatype for their repo, plus installing & configuring GPG.  I'll assume
+those steps have been followed.  We're going to follow the "bundle creation" method as it's pretty easy and doesn't
+require special SonaType plugins / configuration; likewise for GPG.
+
+
+    #First, rename the pom.xml to include the artifact & version:
+    mv pom.xml target/spatial4j-0.6.pom
+    cd target/
+
+    #Generate a signature for each file. gpg has no way to do this at once, so you'll enter your password each time.
+    find . -type f -exec gpg --detach-sign --armor \{} \;
     
-That was easy!
+    #Create a bundle jar
+    jar -cvf ../bundle.jar *
+    
+Now log into Sonatype and upload the bundle JAR according to the illustrated instructions at the link above. 
  
- 3. Now vote on the artifacts deployed to Sonatype's staging repo.  See next step for how to access them.  Ideally this
- step isn't a rubber stamp; try and use it.
- 
-## Release to Maven Central
+## Release deployed artifacts to Maven Central
 
 http://central.sonatype.org/pages/releasing-the-deployment.html
 
-## Publish Javadoc HTML
+## Publish the Maven site (includes Javadoc)
 
 We publish the Maven "site" HTML on GitHub, and we link to it from the readme and others might too.  The site
 includes the javadoc API.
@@ -66,6 +107,3 @@ When site completes, open the target/site/index.html to view it to see if it's r
 step.  The publish step will require your username & password for GitHub.  Observe the final published content online:
 
 https://locationtech.github.io/spatial4j/
-
-note: Java 8 probably has nicer javadocs, but it's more strict about symbols that need to use HTML entities and
-currently results in an error.
