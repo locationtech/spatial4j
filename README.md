@@ -4,12 +4,14 @@
 [![Coverage](https://img.shields.io/codecov/c/github/locationtech/spatial4j.svg)](https://codecov.io/github/locationtech/spatial4j/)
 [![Maven](https://img.shields.io/maven-central/v/com.spatial4j/spatial4j.svg)](https://maven-badges.herokuapp.com/maven-central/com.spatial4j/spatial4j/)
 
+_(note: Spatial4j's official home page is at LocationTech: https://www.locationtech.org/projects/technology.spatial4j 
+but this README has richer information)_ 
 
-Spatial4j is a general purpose spatial / geospatial [ASL](http://www.apache.org/licenses/LICENSE-2.0.html) licensed open-source Java library. It's core capabilities are 3-fold: to provide common shapes that can work in Euclidean and geodesic (surface of sphere) world models, to provide distance calculations and other math, and to read & write shapes from formats like [WKT](http://en.wikipedia.org/wiki/Well-known_text) and [GeoJSON](http://geojson.org/geojson-spec.html#geometry-objects).  Spatial4j is a project of the [LocationTech](http://www.locationtech.org) Industry Working Group of the Eclipse Foundation. _(Current status: Incubation)_.
+Spatial4j is a general purpose spatial / geospatial [ASL](http://www.apache.org/licenses/LICENSE-2.0.html) licensed open-source Java library. It's core capabilities are 3-fold: to provide common shapes that can work in Euclidean and geodesic (surface of sphere) world models, to provide distance calculations and other math, and to read & write shapes from formats like [WKT](http://en.wikipedia.org/wiki/Well-known_text) and [GeoJSON](http://geojson.org/geojson-spec.html#geometry-objects).  Spatial4j is a project of the [LocationTech](http://www.locationtech.org) Industry Working Group of the Eclipse Foundation.
 
-If you are working with spatial grid-square indexing schemes, be it [Geohash](http://en.wikipedia.org/wiki/Geohash) or something custom, then you are likely to find especially high utility from Spatial4j -- doubly-so for Apache Software Foundation projects due to restrictions on use of LGPL software there.
+If you are working with spatial grid-square indexing schemes, be it [Geohash](http://en.wikipedia.org/wiki/Geohash) or something custom, then you are likely to find especially high utility from Spatial4j -- doubly-so for Apache Software Foundation projects due to restrictions on use of LGPL software there (Spatial4j is ASL but JTS is still LGPL).
 
-Spatial4j is well tested; it's monitored via [Travis-CI](https://travis-ci.org/locationtech/spatial4j) continuous integration and we use [Codecov](https://codecov.io/github/locationtech/spatial4j/) for code coverage.
+Spatial4j is well tested; it's monitored via [Travis-CI](https://travis-ci.org/locationtech/spatial4j) continuous integration (plus another Hudson build) and we use [Codecov](https://codecov.io/github/locationtech/spatial4j/) for code coverage.
 
 If you are interested in contributing to Spatial4j please review the [contribution guidelines](CONTRIBUTING.md).
 
@@ -87,5 +89,9 @@ Spatial4j has been ported to .NET (C#) where it is appropriately named [Spatial4
 
 ### History
 
-Before Spatial4j, there was [Lucene Spatial Playground](http://code.google.com/p/lucene-spatial-playground/) (LSP) and from this work a generic core spatial library emerged, independent of Lucene: Spatial4j. The other parts of LSP were either merged into Lucene / Solr itself or were migrated to
-[Spatial Solr Sandbox](https://github.com/ryantxu/spatial-solr-sandbox).
+Before Spatial4j, there was [Lucene Spatial Playground](http://code.google.com/p/lucene-spatial-playground/) (LSP) and 
+from this work a generic core spatial library emerged, independent of Lucene: Spatial4j. 
+The other parts of LSP were either merged into Lucene / Solr itself or were migrated to
+[Spatial Solr Sandbox](https://github.com/ryantxu/spatial-solr-sandbox).  
+On February 26th 2016, with release 0.6, Spatial4j became a LocationTech project (a part of Eclipse) following a long
+incubation period.
