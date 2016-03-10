@@ -28,10 +28,10 @@ import static org.junit.Assert.assertTrue;
 
 public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
 
-  ShapeReader reader;
-  ShapeWriter writer;
+  protected ShapeReader reader;
+  protected ShapeWriter writer;
 
-  ShapeWriter writerForTests;
+  protected ShapeWriter writerForTests;
 
   @Before
   @Override

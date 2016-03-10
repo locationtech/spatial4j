@@ -109,6 +109,14 @@
       <version>0.7</version>
       <optional>true</optional>
     </dependency>
+    
+    <!-- Used for optional Jackson support -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.7.2</version>
+      <optional>true</optional>
+    </dependency>
 
     <!-- JTS is essentially only used for polygons. -->
     <dependency>
@@ -261,6 +269,47 @@
           <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
         </configuration>
       </plugin>
+
+
+
+      <plugin>
+        <!-- Generate PackageVersion.java for Jackson-->
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <version>1.5.3</version>
+        <executions>
+          <execution>
+            <id>process-packageVersion</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>                    
+          </execution>
+        </executions>
+        <configuration>
+                <file>${basedir}/src/main/java/org/locationtech/spatial4j/io/jackson/PackageVersion.java.in</file>
+          <outputFile>${basedir}/src/main/java/org/locationtech/spatial4j/io/jackson/PackageVersion.java</outputFile>
+          <replacements>
+            <replacement>
+              <token>@package@</token>
+              <value>${packageVersion.package}</value>
+            </replacement>
+            <replacement>
+              <token>@projectversion@</token>
+              <value>${project.version}</value>
+            </replacement>
+            <replacement>
+              <token>@projectgroupid@</token>
+              <value>${project.groupId}</value>
+            </replacement>
+            <replacement>
+              <token>@projectartifactid@</token>
+              <value>${project.artifactId}</value>
+            </replacement>
+          </replacements>
+        </configuration>
+      </plugin>
+
     </plugins>
 
   </build>
