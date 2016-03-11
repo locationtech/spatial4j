@@ -62,7 +62,7 @@ public class GeoJSONWriter implements ShapeWriter {
     }
     if (shape instanceof Rectangle) {
       Rectangle v = (Rectangle) shape;
-      output.append("{\"type\":\"Polygon\",\"coordinates\": [[");
+      output.append("{\"type\":\"Polygon\",\"coordinates\":[[");
       write(output, nf, v.getMinX(), v.getMinY());
       output.append(',');
       write(output, nf, v.getMinX(), v.getMaxY());
@@ -77,7 +77,7 @@ public class GeoJSONWriter implements ShapeWriter {
     }
     if (shape instanceof BufferedLine) {
       BufferedLine v = (BufferedLine) shape;
-      output.append("{\"type\":\"LineString\",\"coordinates\": [");
+      output.append("{\"type\":\"LineString\",\"coordinates\":[");
       write(output, nf, v.getA().getX(), v.getA().getY());
       output.append(',');
       write(output, nf, v.getB().getX(), v.getB().getY());
@@ -93,7 +93,7 @@ public class GeoJSONWriter implements ShapeWriter {
     }
     if (shape instanceof BufferedLineString) {
       BufferedLineString v = (BufferedLineString) shape;
-      output.append("{\"type\":\"LineString\",\"coordinates\": [");
+      output.append("{\"type\":\"LineString\",\"coordinates\":[");
       BufferedLine last = null;
       Iterator<BufferedLine> iter = v.getSegments().iterator();
       while (iter.hasNext()) {
@@ -127,7 +127,7 @@ public class GeoJSONWriter implements ShapeWriter {
     }
     if (shape instanceof ShapeCollection) {
       ShapeCollection v = (ShapeCollection) shape;
-      output.append("{\"type\":\"GeometryCollection\",\"geometries\": [");
+      output.append("{\"type\":\"GeometryCollection\",\"geometries\":[");
       for (int i = 0; i < v.size(); i++) {
         if (i > 0) {
           output.append(',');
