@@ -10,29 +10,42 @@ package org.locationtech.spatial4j.io.jackson;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonParseException;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.shape.Shape;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 
 public class GeometryDeserializer extends JsonDeserializer<Geometry>
 {
+  // Create a context that will allow any JTS shape
+  static final JtsSpatialContext JTS;
+  static {
+    JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
+    factory.geo = false;
+    factory.useJtsLineString = true;
+    factory.useJtsMulti = true;
+    factory.useJtsPoint = true;
+    JTS = new JtsSpatialContext(factory);
+  }
+  
+  final ShapeDeserializer dser;
+  
+  public GeometryDeserializer() {
+    dser = new ShapeDeserializer(JTS);
+  }
+  
   @Override
   public Geometry deserialize(JsonParser jp, DeserializationContext ctxt)
       throws IOException, JsonProcessingException {
-    
-    JsonNode node = jp.getCodec().readTree(jp);
-    String txt = node.asText(null);
-    if(txt==null) {
-      return null;
+    Shape shape = dser.deserialize(jp, ctxt);
+    if(shape!=null) {
+      return JTS.getShapeFactory().getGeometryFrom(shape);
     }
-    try {
-      return new WKTReader().read(txt);
-    } catch (ParseException e) {
-      throw new JsonParseException(jp, "error reading geometry", e);
-    }
+    return null;
   }
 }

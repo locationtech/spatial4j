@@ -60,7 +60,11 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
 
     // GeoJSON has limited numeric precision so the off by .0000001 does not affect its equals
     ShapeWriter writer = getShapeWriterForTests();
-    Assert.assertEquals(writer.toString(shape), writer.toString(out));
+    
+    String expect = writer.toString(shape);
+    String actual = writer.toString(out);
+    
+    Assert.assertEquals(expect, actual);
 
     if(andEquals) {
       Assert.assertEquals(shape, out);

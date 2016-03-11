@@ -32,13 +32,15 @@ public class SimpleJacksonTest extends RandomizedShapeTest {
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
     mapper.registerModule(new ShapesAsGeoJSONModule());
+//    mapper.registerModule(new ShapesAsWKTModule());
     
     String json = mapper.writeValueAsString(obj);
     
     System.out.println( json );
     
-//    ObjectWithGeometry out = mapper.readValue(json, ObjectWithGeometry.class);
+    ObjectWithGeometry out = mapper.readValue(json, ObjectWithGeometry.class);
 
-//    System.out.println( out );
+    System.out.println( ">> AFTER <<" );
+    System.out.println( mapper.writeValueAsString(out) );
   }
 }

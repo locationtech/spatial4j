@@ -29,8 +29,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 public class ShapeAsGeoJSONSerializer extends JsonSerializer<Shape>
 {
-  protected static final String BUFFER = "buffer";
-  protected static final String BUFFER_UNITS = "buffer_units";
+  static final String BUFFER = "buffer";
+  static final String BUFFER_UNITS = "buffer_units";
   
   final GeometryAsGeoJSONSerializer forJTS = new GeometryAsGeoJSONSerializer();
   
@@ -123,8 +123,7 @@ public class ShapeAsGeoJSONSerializer extends JsonSerializer<Shape>
       write(gen, v.getB().getX(), v.getB().getY());
       gen.writeEndArray();
       if (v.getBuf() > 0) {
-        gen.writeFieldName(BUFFER);
-        gen.writeNumber(v.getBuf());
+        writeDistance(gen, v.getBuf(), shape.getContext().isGeo(), BUFFER, BUFFER_UNITS);
       }
       gen.writeEndObject();
       return;
