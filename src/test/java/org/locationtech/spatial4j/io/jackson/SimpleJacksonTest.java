@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import io.jeo.geom.GeomBuilder;
+
 public class SimpleJacksonTest extends RandomizedShapeTest {
 
   public SimpleJacksonTest() {
@@ -20,10 +22,12 @@ public class SimpleJacksonTest extends RandomizedShapeTest {
   @Test
   public void testReadWrite() throws IOException {
     
+    GeomBuilder builder = new GeomBuilder();
+    
     ObjectWithGeometry obj = new ObjectWithGeometry();
     obj.name = "Hello";
     obj.shape = randomPointIn(ctx.getWorldBounds());
-  //  obj.geo = GeometryH
+    obj.geo = null; //
     
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -33,8 +37,8 @@ public class SimpleJacksonTest extends RandomizedShapeTest {
     
     System.out.println( json );
     
-    ObjectWithGeometry out = mapper.readValue(json, ObjectWithGeometry.class);
+//    ObjectWithGeometry out = mapper.readValue(json, ObjectWithGeometry.class);
 
-    System.out.println( out );
+//    System.out.println( out );
   }
 }
