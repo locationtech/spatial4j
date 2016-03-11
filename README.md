@@ -2,7 +2,7 @@
 
 [![Build](https://travis-ci.org/locationtech/spatial4j.svg)](https://travis-ci.org/locationtech/spatial4j)
 [![Coverage](https://img.shields.io/codecov/c/github/locationtech/spatial4j.svg)](https://codecov.io/github/locationtech/spatial4j/)
-[![Maven](https://img.shields.io/maven-central/v/com.spatial4j/spatial4j.svg)](https://maven-badges.herokuapp.com/maven-central/com.spatial4j/spatial4j/)
+[![Maven](https://img.shields.io/maven-central/v/org.locationtech.spatial4j/spatial4j.svg)](https://maven-badges.herokuapp.com/maven-central/org.locationtech.spatial4j/spatial4j/)
 
 _(note: Spatial4j's official home page is at LocationTech: https://www.locationtech.org/projects/technology.spatial4j 
 but this README has richer information)_ 
