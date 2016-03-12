@@ -242,7 +242,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
     return ctx.makeShapeFromGeometry(gb.point(100.1, 0.1).point().points(101.1, 0.1, 102.1, 1.1).lineString().toCollection());
   }
 
-  String bufferedLineText() {
+  protected String bufferedLineText() {
     return strip(
         "{'type': 'LineString', " +
             "'coordinates': [[100.1,0.1],[101.1,1.1]], " +
@@ -250,7 +250,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
             "'properties': {'buffer_units': 'km'}}");
   }
 
-  Shape bufferedLine() {
+  protected Shape bufferedLine() {
     return ctx.makeBufferedLineString(Arrays.asList(ctx.makePoint(100.1, 0.1),
         ctx.makePoint(101.1, 1.1)), 10);
   }
@@ -259,7 +259,7 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
     return ctx.makeCircle(1, 2, 10);
   }
 
-  String strip(String json) {
+  protected String strip(String json) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < json.length(); i++) {
       char c = json.charAt(i);

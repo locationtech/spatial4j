@@ -215,7 +215,10 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
       }
     }
     JtsGeometry shape = makeShape(geometryFactory.createLineString(coords));
-    return bufferDistance != 0 ? shape.getBuffered(0, ctx) : shape;
+    if(bufferDistance!=0) {
+      return shape.getBuffered(bufferDistance, ctx);
+    }
+    return shape;
   }
 
   @Override

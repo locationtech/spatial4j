@@ -4,13 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
 import org.locationtech.spatial4j.io.GeneralGeoJSONTest;
 import org.locationtech.spatial4j.io.ShapeIO;
 import org.locationtech.spatial4j.io.jackson.ShapesAsGeoJSONModule;
-
+import org.locationtech.spatial4j.shape.Shape;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -36,9 +35,15 @@ public class JacksonGeoJSONReaderTest extends GeneralGeoJSONTest {
     Assert.assertNotNull(writerForTests);
   }
   
-  @Ignore
+  @Override
   @Test
   public void testEncodeBufferedLineString() throws Exception {
     // the JTS buffered LineString becomes a polygon!
+    Shape out = reader.read( bufferedLineText() );
+    
+    assertEquals(out.getClass(), bufferedLine().getClass());
   }
+  
+  
+
 }

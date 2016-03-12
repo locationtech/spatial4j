@@ -2,15 +2,12 @@ package org.locationtech.spatial4j.io.jackson;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
 import java.text.ParseException;
 
 import org.locationtech.spatial4j.exception.InvalidShapeException;
 import org.locationtech.spatial4j.io.ShapeReader;
-import org.locationtech.spatial4j.io.ShapeWriter;
 import org.locationtech.spatial4j.shape.Shape;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
