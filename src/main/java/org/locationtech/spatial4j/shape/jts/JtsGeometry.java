@@ -130,6 +130,13 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
   }
 
   /**
+   * Determines if the shape has been indexed.
+   */
+  boolean isIndexed() {
+    return preparedGeometry != null;
+  }
+
+  /**
    * Adds an index to this class internally to compute spatial relations faster. In JTS this
    * is called a {@link com.vividsolutions.jts.geom.prep.PreparedGeometry}.  This
    * isn't done by default because it takes some time to do the optimization, and it uses more
