@@ -503,8 +503,6 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
         throw e;
       }
     }
-    if (isAutoIndex())
-      jtsGeom.index();
     return jtsGeom;
   }
 
@@ -520,7 +518,11 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
    * @param allowMultiOverlap See {@link #isAllowMultiOverlap()}.
    */
   public JtsGeometry makeShape(Geometry geom, boolean dateline180Check, boolean allowMultiOverlap) {
-    return new JtsGeometry(geom, (JtsSpatialContext) ctx, dateline180Check, allowMultiOverlap);
+    JtsGeometry jtsGeom = new JtsGeometry(geom, (JtsSpatialContext) ctx, dateline180Check, allowMultiOverlap);
+    if (isAutoIndex()) {
+      jtsGeom.index();
+    }
+    return jtsGeom;
   }
 
   /**
