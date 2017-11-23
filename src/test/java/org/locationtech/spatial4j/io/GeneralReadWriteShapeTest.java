@@ -21,10 +21,10 @@ import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
 import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
 import org.locationtech.spatial4j.shape.Rectangle;
 import org.locationtech.spatial4j.shape.Shape;
-import io.jeo.geom.GeomBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.locationtech.spatial4j.util.GeomBuilder;
 
 import java.util.Arrays;
 

@@ -18,8 +18,8 @@ import org.locationtech.spatial4j.shape.impl.PointImpl;
 import org.locationtech.spatial4j.shape.impl.RectangleImpl;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.*;
-import io.jeo.geom.Geom;
 import org.junit.Test;
+import org.locationtech.spatial4j.util.Geom;
 
 import java.io.BufferedReader;
 import java.io.IOException;
