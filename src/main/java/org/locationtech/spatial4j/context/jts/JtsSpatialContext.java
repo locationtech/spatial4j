@@ -15,7 +15,7 @@ import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import org.locationtech.spatial4j.shape.jts.JtsPoint;
 import org.locationtech.spatial4j.shape.jts.JtsShapeFactory;
-import com.vividsolutions.jts.geom.*;
+import org.locationtech.jts.geom.*;
 
 import java.util.List;
 
@@ -117,7 +117,7 @@ public class JtsSpatialContext extends SpatialContext {
    * recursively converted and then the resulting list will be passed to
    * {@link SpatialContext#makeCollection(List)} and returned.
    *
-   * If given a {@link com.vividsolutions.jts.geom.Point} then {@link SpatialContext#makePoint(double, double)}
+   * If given a {@link org.locationtech.jts.geom.Point} then {@link SpatialContext#makePoint(double, double)}
    * is called, which will return a {@link JtsPoint} if {@link JtsSpatialContext#useJtsPoint()}; otherwise
    * a standard Spatial4j Point is returned.
    *
@@ -131,7 +131,7 @@ public class JtsSpatialContext extends SpatialContext {
 
   /**
    * INTERNAL
-   * @see #makeShape(com.vividsolutions.jts.geom.Geometry)
+   * @see #makeShape(org.locationtech.jts.geom.Geometry)
    *
    * @param geom Non-null
    * @param dateline180Check if both this is true and {@link #isGeo()}, then JtsGeometry will check

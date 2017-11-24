@@ -20,9 +20,9 @@ import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Rectangle;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.impl.ShapeFactoryImpl;
-import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.util.GeometricShapeFactory;
+import org.locationtech.jts.algorithm.CGAlgorithms;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.util.GeometricShapeFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -449,7 +449,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
    * recursively converted and then the resulting list will be passed to
    * {@link SpatialContext#makeCollection(List)} and returned.
    *
-   * If given a {@link com.vividsolutions.jts.geom.Point} then {@link SpatialContext#makePoint(double, double)}
+   * If given a {@link org.locationtech.jts.geom.Point} then {@link SpatialContext#makePoint(double, double)}
    * is called, which will return a {@link JtsPoint} if {@link JtsSpatialContext#useJtsPoint()}; otherwise
    * a standard Spatial4j Point is returned.
    *
@@ -470,8 +470,8 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
         }
         return multiShape(shapes);
       }
-    } else if (geom instanceof com.vividsolutions.jts.geom.Point) {
-      com.vividsolutions.jts.geom.Point pt = (com.vividsolutions.jts.geom.Point) geom;
+    } else if (geom instanceof org.locationtech.jts.geom.Point) {
+      org.locationtech.jts.geom.Point pt = (org.locationtech.jts.geom.Point) geom;
       return pointXY(pt.getX(), pt.getY());
     } else if (geom instanceof LineString) {
       if (!useJtsLineString()) {
@@ -508,7 +508,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
 
   /**
    * INTERNAL
-   * @see #makeShape(com.vividsolutions.jts.geom.Geometry)
+   * @see #makeShape(org.locationtech.jts.geom.Geometry)
    *
    * @param geom Non-null
    * @param dateline180Check if both this is true and {@link SpatialContext#isGeo()}, then JtsGeometry will check

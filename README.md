@@ -9,7 +9,7 @@ but this README has richer information)_
 
 Spatial4j is a general purpose spatial / geospatial [ASL](http://www.apache.org/licenses/LICENSE-2.0.html) licensed open-source Java library. It's core capabilities are 3-fold: to provide common shapes that can work in Euclidean and geodesic (surface of sphere) world models, to provide distance calculations and other math, and to read & write shapes from formats like [WKT](http://en.wikipedia.org/wiki/Well-known_text) and [GeoJSON](http://geojson.org/geojson-spec.html#geometry-objects).  Spatial4j is a project of the [LocationTech](http://www.locationtech.org) Industry Working Group of the Eclipse Foundation.
 
-If you are working with spatial grid-square indexing schemes, be it [Geohash](http://en.wikipedia.org/wiki/Geohash) or something custom, then you are likely to find especially high utility from Spatial4j -- doubly-so for Apache Software Foundation projects due to restrictions on use of LGPL software there (Spatial4j is ASL but JTS is still LGPL).
+If you are working with spatial grid-square indexing schemes, be it [Geohash](http://en.wikipedia.org/wiki/Geohash) or something custom, then you are likely to find especially high utility from Spatial4j.
 
 Spatial4j is well tested; it's monitored via [Travis-CI](https://travis-ci.org/locationtech/spatial4j) continuous integration (plus another Hudson build) and we use [Codecov](https://codecov.io/github/locationtech/spatial4j/) for code coverage.
 
@@ -58,7 +58,10 @@ Spatial4j runs on Java -- version 1.7 or better.  Otherwise, all dependencies li
 
 Spatial4j was born out of an unmet need from other open-source Java software.
 
-[JTS](https://sourceforge.net/projects/jts-topo-suite/) is the most popular spatial library in Java. JTS is powerful but it only supports Euclidean geometry (no geodesics), it has no Circle shape, and it is LGPL licensed (which is planned to change soon).  Spatial4j has a geodesic circle implementation, and it wraps JTS geometries to add dateline-wrap support (no pole wrap yet).
+[JTS](https://sourceforge.net/projects/jts-topo-suite/) is the most popular spatial library in Java. 
+JTS is powerful but it only supports Euclidean geometry (no geodesics) and it has no Circle shape.
+Spatial4j has a geodesic circle implementation, and it wraps JTS geometries to add dateline-wrap support (no pole wrap yet).
+JTS recently broadened it's licensing but originally this was a major factor contributing to the founding of Spatial4j. 
 
 A geodesic circle implementation (i.e. point-radius on surface of a sphere), has been non-trivial; see for yourself and look at the extensive testing.  Presumably many applications will use a polygon substitute for a circle, however note that not only is it an approximation, but common algorithms *inscribe* instead of *circumscribe* the circle. The result is a polygon that doesn't quite completely cover the intended shape, potentially resulting in not finding desired data when applied to the information-retrieval domain (e.g. indexing/search in Apache Lucene) where it is usually better to find a false match versus not find a positive match when making approximations.  Also, Spatial4j's implementation goes to some lengths to be efficient by only calculating the great-circle-distance a minimum number of times in order to find the intersection relationship with a rectangle.  Even computing the bounding-box of this shape was non-obvious, as the initial algorithm lifted from the web at a popular site turned out to be false.
 

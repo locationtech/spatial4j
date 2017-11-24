@@ -16,10 +16,10 @@ import org.locationtech.spatial4j.io.PolyshapeReader;
 import org.locationtech.spatial4j.io.WKTReader;
 import org.locationtech.spatial4j.io.jts.*;
 import org.locationtech.spatial4j.shape.jts.JtsShapeFactory;
-import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.PrecisionModel;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
+import org.locationtech.jts.geom.CoordinateSequenceFactory;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory;
 
 import java.util.Map;
 
@@ -41,9 +41,9 @@ import java.util.Map;
  * <DD>true|false(default) -- see {@link JtsSpatialContext#isAllowMultiOverlap()}</DD>
  * <DT>precisionModel</DT>
  * <DD>floating(default) | floating_single | fixed
- *  -- see {@link com.vividsolutions.jts.geom.PrecisionModel}.
+ *  -- see {@link org.locationtech.jts.geom.PrecisionModel}.
  * If {@code fixed} then you must also provide {@code precisionScale}
- *  -- see {@link com.vividsolutions.jts.geom.PrecisionModel#getScale()}</DD>
+ *  -- see {@link org.locationtech.jts.geom.PrecisionModel#getScale()}</DD>
  * <DT>useJtsPoint, useJtsLineString, useJtsMulti</DT>
  * <DD>All default to true. See corresponding methods on {@link JtsShapeFactory}.</DD>
  * </DL>
