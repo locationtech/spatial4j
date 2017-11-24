@@ -20,6 +20,7 @@ import org.locationtech.spatial4j.shape.impl.RectangleImpl;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
+import com.vividsolutions.jts.geom.prep.PreparedLineString;
 import com.vividsolutions.jts.operation.union.UnaryUnionOp;
 import com.vividsolutions.jts.operation.valid.IsValidOp;
 
@@ -241,8 +242,16 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
     SpatialRelation bboxR = bbox.relate(rectangle);
     if (bboxR == SpatialRelation.WITHIN || bboxR == SpatialRelation.DISJOINT)
       return bboxR;
-    // FYI, the right answer could still be DISJOINT or WITHIN, but we don't know yet.
-    return relate(ctx.getGeometryFrom(rectangle));
+
+    // FYI, the right answer could still be DISJOINT, but cannot be WITHIN.
+
+    Geometry rectangleGeom = ctx.getGeometryFrom(rectangle);
+    if (!rectangle.isEmpty() && preparedGeometry instanceof PreparedLineString) {
+      // We know linestring cannot contain a rectangle so we just need to check for intersects.
+      return preparedGeometry.intersects(rectangleGeom) ? SpatialRelation.INTERSECTS : SpatialRelation.DISJOINT;
+    }
+
+    return relate(rectangleGeom);
   }
 
   public SpatialRelation relate(final Circle circle) {
