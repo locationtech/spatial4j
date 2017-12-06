@@ -1,16 +1,21 @@
+/*******************************************************************************
+ * Copyright (c) 2017 Voyager Search
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Apache License, Version 2.0 which
+ * accompanies this distribution and is available at
+ *    http://www.apache.org/licenses/LICENSE-2.0.txt
+ ******************************************************************************/
+
 package org.locationtech.spatial4j.io.jackson;
-
-import java.io.IOException;
-
-import org.junit.Test;
-import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
-import org.locationtech.spatial4j.io.jackson.ShapesAsGeoJSONModule;
-import org.locationtech.spatial4j.shape.RandomizedShapeTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.junit.Test;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
+import org.locationtech.spatial4j.shape.RandomizedShapeTest;
+import org.locationtech.spatial4j.util.GeomBuilder;
 
-import io.jeo.geom.GeomBuilder;
+import java.io.IOException;
 
 public class SimpleJacksonTest extends RandomizedShapeTest {
 
@@ -20,7 +25,7 @@ public class SimpleJacksonTest extends RandomizedShapeTest {
   
   @Test
   public void testReadWrite() throws IOException {
-    
+
     GeomBuilder builder = new GeomBuilder();
     
     ObjectWithGeometry obj = new ObjectWithGeometry();

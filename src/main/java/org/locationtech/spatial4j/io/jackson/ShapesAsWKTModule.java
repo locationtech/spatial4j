@@ -11,7 +11,7 @@ package org.locationtech.spatial4j.io.jackson;
 import org.locationtech.spatial4j.shape.Shape;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 
 public class ShapesAsWKTModule extends SimpleModule
 {
