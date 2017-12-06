@@ -21,7 +21,7 @@ public enum ValidationRule {
    * not ultimately get an error at some point; results are undefined. However, note that
    * coordinates will still be validated for falling within the world boundaries.
    *
-   * @see com.vividsolutions.jts.geom.Geometry#isValid()
+   * @see org.locationtech.jts.geom.Geometry#isValid()
    */
   none,
 
@@ -34,13 +34,13 @@ public enum ValidationRule {
   /**
    * Invalid Geometries are repaired by taking the convex hull. The result will very likely be a
    * larger shape that matches false-positives, but no false-negatives. See
-   * {@link com.vividsolutions.jts.geom.Geometry#convexHull()}.
+   * {@link org.locationtech.jts.geom.Geometry#convexHull()}.
    */
   repairConvexHull,
 
   /**
    * Invalid polygons are repaired using the {@code buffer(0)} technique. From the <a
-   * href="http://tsusiatsoftware.net/jts/jts-faq/jts-faq.html">JTS FAQ</a>:
+   * href="https://locationtech.github.io/jts/jts-faq.html">JTS FAQ</a>:
    * <p>
    * The buffer operation is fairly insensitive to topological invalidity, and the act of
    * computing the buffer can often resolve minor issues such as self-intersecting rings. However,
