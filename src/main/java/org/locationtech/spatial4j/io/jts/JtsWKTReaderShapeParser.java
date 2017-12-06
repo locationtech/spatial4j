@@ -15,19 +15,19 @@ import org.locationtech.spatial4j.exception.InvalidShapeException;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.jts.JtsPoint;
 import org.locationtech.spatial4j.shape.jts.JtsShapeFactory;
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.CoordinateSequenceFilter;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKTReader;
+import org.locationtech.jts.geom.CoordinateSequence;
+import org.locationtech.jts.geom.CoordinateSequenceFilter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.WKTReader;
 
 import java.text.ParseException;
 
 /**
  * This is an extension of Spatial4j's {@link org.locationtech.spatial4j.io.WKTReader} that processes the entire
- * string with JTS's {@link com.vividsolutions.jts.io.WKTReader}.  Some differences:
+ * string with JTS's {@link org.locationtech.jts.io.WKTReader}.  Some differences:
  * <ul>
  *   <li>No support for ENVELOPE and BUFFER</li>
- *   <li>MULTI* shapes use JTS's {@link com.vividsolutions.jts.geom.GeometryCollection} subclasses,
+ *   <li>MULTI* shapes use JTS's {@link org.locationtech.jts.geom.GeometryCollection} subclasses,
  *   not {@link org.locationtech.spatial4j.shape.ShapeCollection}</li>
  *   <li>'Z' coordinates are saved into the geometry</li>
  * </ul>
@@ -52,7 +52,7 @@ public class JtsWKTReaderShapeParser extends org.locationtech.spatial4j.io.WKTRe
   }
 
   /**
-   * Reads WKT from the {@code str} via JTS's {@link com.vividsolutions.jts.io.WKTReader}.
+   * Reads WKT from the {@code str} via JTS's {@link org.locationtech.jts.io.WKTReader}.
    * @param str
    * @param reader <pre>new WKTReader(ctx.getGeometryFactory()))</pre>
    * @return Non-Null
@@ -64,8 +64,8 @@ public class JtsWKTReaderShapeParser extends org.locationtech.spatial4j.io.WKTRe
       //Normalizes & verifies coordinates
       checkCoordinates(geom);
 
-      if (geom instanceof com.vividsolutions.jts.geom.Point) {
-        com.vividsolutions.jts.geom.Point ptGeom = (com.vividsolutions.jts.geom.Point) geom;
+      if (geom instanceof org.locationtech.jts.geom.Point) {
+        org.locationtech.jts.geom.Point ptGeom = (org.locationtech.jts.geom.Point) geom;
         if (getShapeFactory().useJtsPoint())
           return new JtsPoint(ptGeom, (JtsSpatialContext) ctx);
         else

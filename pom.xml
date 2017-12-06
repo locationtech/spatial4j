@@ -71,11 +71,11 @@
     </developer>
     <developer>
       <name>Ryan McKinley</name>
-      <organization>Voyager GIS</organization>
+      <organization>Voyager Search</organization>
     </developer>
     <developer>
       <name>Justin Deoliveira</name>
-      <organization>Voyager GIS</organization>
+      <organization>Voyager Search</organization>
     </developer>
   </developers>
   <!-- Contributors: See for yourself: https://github.com/locationtech/spatial4j/graphs/contributors -->
@@ -120,10 +120,9 @@
 
     <!-- JTS is essentially only used for polygons. -->
     <dependency>
-      <groupId>com.vividsolutions</groupId>
+      <groupId>org.locationtech.jts</groupId>
       <artifactId>jts-core</artifactId>
-      <!-- It still works with com.vividsolutions:jts:1.12  -->
-      <version>1.14.0</version>
+      <version>1.15.0</version>
       <optional>true</optional>
       <exclusions>
         <exclusion>
@@ -151,13 +150,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>1.7.16</version>
-      <scope>test</scope>
-    </dependency>
-        
-    <dependency>
-      <groupId>io.jeo</groupId>
-      <artifactId>jeo</artifactId>
-      <version>0.6</version>
       <scope>test</scope>
     </dependency>
 
@@ -380,9 +372,8 @@
           <header>Spatial4j, ${project.version}</header>
           <footer>Spatial4j, ${project.version}</footer>
           <doctitle>Spatial4j, ${project.version}</doctitle>
-          <!-- TODO hopefully JTS will post an updated API -->
           <links>
-            <link>http://tsusiatsoftware.net/jts/javadoc/</link>
+            <link>http://locationtech.github.io/jts/javadoc/</link>
           </links>
         </configuration>
         <!-- we exclude tests: -->

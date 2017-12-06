@@ -9,10 +9,10 @@
 package org.locationtech.spatial4j.context.jts;
 
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.Polygon;
-import io.jeo.geom.Geom;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.Polygon;
 import org.junit.Test;
+import org.locationtech.spatial4j.util.Geom;
 
 import static org.junit.Assert.assertTrue;
 

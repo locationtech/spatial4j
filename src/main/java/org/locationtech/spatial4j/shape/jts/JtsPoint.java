@@ -18,22 +18,22 @@ import org.locationtech.spatial4j.shape.Rectangle;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.SpatialRelation;
 import org.locationtech.spatial4j.shape.impl.PointImpl;
-import com.vividsolutions.jts.geom.CoordinateSequence;
+import org.locationtech.jts.geom.CoordinateSequence;
 
-/** Wraps a {@link com.vividsolutions.jts.geom.Point}. */
+/** Wraps a {@link org.locationtech.jts.geom.Point}. */
 public class JtsPoint extends BaseShape<JtsSpatialContext> implements Point {
 
-  private com.vividsolutions.jts.geom.Point pointGeom;
+  private org.locationtech.jts.geom.Point pointGeom;
   private final boolean empty;//cached
 
   /** A simple constructor without normalization / validation. */
-  public JtsPoint(com.vividsolutions.jts.geom.Point pointGeom, JtsSpatialContext ctx) {
+  public JtsPoint(org.locationtech.jts.geom.Point pointGeom, JtsSpatialContext ctx) {
     super(ctx);
     this.pointGeom = pointGeom;
     this.empty = pointGeom.isEmpty();
   }
 
-  public com.vividsolutions.jts.geom.Point getGeom() {
+  public org.locationtech.jts.geom.Point getGeom() {
     return pointGeom;
   }
 

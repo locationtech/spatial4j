@@ -17,9 +17,9 @@ import org.locationtech.spatial4j.io.WKTReader;
 import org.locationtech.spatial4j.shape.impl.PointImpl;
 import org.locationtech.spatial4j.shape.impl.RectangleImpl;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
-import com.vividsolutions.jts.geom.*;
-import io.jeo.geom.Geom;
+import org.locationtech.jts.geom.*;
 import org.junit.Test;
+import org.locationtech.spatial4j.util.Geom;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -319,9 +319,9 @@ public class JtsGeometryTest extends AbstractTestShapes {
   }
 
   @Test
-  public void testMultiLineStringRelatesToCircle() throws com.vividsolutions.jts.io.ParseException {
+  public void testMultiLineStringRelatesToCircle() throws org.locationtech.jts.io.ParseException {
     // use JTS WKTReader to ensure we get one Geometry in the end
-    com.vividsolutions.jts.io.WKTReader wktReader = new com.vividsolutions.jts.io.WKTReader();
+    org.locationtech.jts.io.WKTReader wktReader = new org.locationtech.jts.io.WKTReader();
     Shape poly = ctxNotGeo.makeShape(wktReader.read("MULTILINESTRING ((5 20, 5 5, 20 5), (20 25, 30 15))"));
     assertEquals(JtsGeometry.class, poly.getClass());
 

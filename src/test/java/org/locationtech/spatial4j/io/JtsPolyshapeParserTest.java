@@ -5,10 +5,10 @@ import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.ShapeCollection;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPoint;
-import io.jeo.geom.Geom;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPoint;
 import org.junit.Test;
+import org.locationtech.spatial4j.util.Geom;
 
 import java.io.IOException;
 import java.text.ParseException;

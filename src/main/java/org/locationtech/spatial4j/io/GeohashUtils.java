@@ -115,10 +115,7 @@ public class GeohashUtils {
   }
 
   /**
-   * Decodes the given geohash into a latitude and longitude
-   *
-   * @param geohash Geohash to deocde
-   * @return Array with the latitude at index 0, and longitude at index 1
+   * Decodes the given geohash into a longitude (X) and latitude (Y)
    */
   public static Point decode(String geohash, SpatialContext ctx) {
     Rectangle rect = decodeBoundary(geohash,ctx);
@@ -127,7 +124,7 @@ public class GeohashUtils {
     return ctx.makePoint(longitude,latitude);
 	}
 
-  /** Returns min-max lat, min-max lon. */
+  /** Returns min-max lon (X), min-max lat (Y). */
   public static Rectangle decodeBoundary(String geohash, SpatialContext ctx) {
     double minY = -90, maxY = 90, minX = -180, maxX = 180;
     boolean isEven = true;

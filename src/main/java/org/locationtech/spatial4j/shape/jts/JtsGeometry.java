@@ -17,11 +17,11 @@ import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.impl.BBoxCalculator;
 import org.locationtech.spatial4j.shape.impl.BufferedLineString;
 import org.locationtech.spatial4j.shape.impl.RectangleImpl;
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.prep.PreparedGeometry;
-import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
-import com.vividsolutions.jts.operation.union.UnaryUnionOp;
-import com.vividsolutions.jts.operation.valid.IsValidOp;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
+import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
+import org.locationtech.jts.operation.union.UnaryUnionOp;
+import org.locationtech.jts.operation.valid.IsValidOp;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -130,8 +130,15 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
   }
 
   /**
+   * Determines if the shape has been indexed.
+   */
+  boolean isIndexed() {
+    return preparedGeometry != null;
+  }
+
+  /**
    * Adds an index to this class internally to compute spatial relations faster. In JTS this
-   * is called a {@link com.vividsolutions.jts.geom.prep.PreparedGeometry}.  This
+   * is called a {@link org.locationtech.jts.geom.prep.PreparedGeometry}.  This
    * isn't done by default because it takes some time to do the optimization, and it uses more
    * memory.  Calling this method isn't thread-safe so be careful when this is done. If it was
    * already indexed then nothing happens.
@@ -289,8 +296,8 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
           LineString lineString = (LineString) geom;
           SpatialRelation rel = relateLineString(lineString);
           result[0] = rel.combine(result[0]);
-        } else if (geom instanceof com.vividsolutions.jts.geom.Point) {
-          com.vividsolutions.jts.geom.Point point = (com.vividsolutions.jts.geom.Point) geom;
+        } else if (geom instanceof org.locationtech.jts.geom.Point) {
+          org.locationtech.jts.geom.Point point = (org.locationtech.jts.geom.Point) geom;
           SpatialRelation rel =
                   calcSqd.distance(circle.getCenter(), point.getX(), point.getY()) > radiusSquared
                           ? SpatialRelation.DISJOINT : SpatialRelation.WITHIN;
@@ -358,7 +365,7 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
 
   protected SpatialRelation relate(Geometry oGeom) {
     //see http://docs.geotools.org/latest/userguide/library/jts/dim9.html#preparedgeometry
-    if (oGeom instanceof com.vividsolutions.jts.geom.Point) {
+    if (oGeom instanceof org.locationtech.jts.geom.Point) {
       if (preparedGeometry != null)
         return preparedGeometry.disjoint(oGeom) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
       return geom.disjoint(oGeom) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
@@ -413,11 +420,12 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
    * If <code>geom</code> spans the dateline, then this modifies it to be a
    * valid JTS geometry that extends to the right of the standard -180 to +180
    * width such that some points are greater than +180 but some remain less.
-   * Takes care to invoke {@link com.vividsolutions.jts.geom.Geometry#geometryChanged()}
+   * Takes care to invoke {@link org.locationtech.jts.geom.Geometry#geometryChanged()}
    * if needed.
    *
    * @return The number of times the geometry spans the dateline.  >= 0
    */
+  //TODO https://github.com/locationtech/spatial4j/issues/150 conditional clone
   private static int unwrapDateline(Geometry geom) {
     if (geom.getEnvelopeInternal().getWidth() < 180)
       return 0;//can't possibly cross the dateline
