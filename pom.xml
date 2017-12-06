@@ -94,8 +94,8 @@
   </properties>
 
   <!-- To check for new plugins and dependencies:
-  mvn org.codehaus.mojo:versions-maven-plugin:2.2:display-plugin-updates
-  mvn org.codehaus.mojo:versions-maven-plugin:2.2:display-dependency-updates
+  mvn org.codehaus.mojo:versions-maven-plugin:2.5:display-plugin-updates
+  mvn org.codehaus.mojo:versions-maven-plugin:2.5:display-dependency-updates
   -->
   <prerequisites>
     <maven>3.0</maven>
