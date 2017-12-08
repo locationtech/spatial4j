@@ -12,11 +12,15 @@ Note: depends on having access to the Sonatype repo described further below
 # Making a new release
 
 First, understand that LocationTech projects undergo releases using an official process described here:
-https://www.eclipse.org/projects/handbook/locationtech.html#release
+https://www.locationtech.org/documentation/handbook with complete and thorough details here:
+https://wiki.eclipse.org/Development_Resources/HOWTO/Release_Reviews
 
 Note: 
  * the IP Log: https://www.eclipse.org/projects/ip_log.php?projectid=locationtech.technology.spatial4j
  * the Release Request Form: https://www.locationtech.org/projects/technology.spatial4j/
+ * References to the "PMC" (Project Management Committee) in Spatial4j's case is the 
+ <a href="https://locationtech.org/mailman/listinfo/technology-pmc">LocationTech Technology PMC</a>.  There aren't
+ project-specific PMCs.
  
 *TODO distill the process here.*
 
@@ -107,3 +111,15 @@ When site completes, open the target/site/index.html to view it to see if it's r
 step.  The publish step will require your username & password for GitHub.  Observe the final published content online:
 
 https://locationtech.github.io/spatial4j/
+
+## Update download.locationtech.org and the CMS
+
+Upload the download artifacts to:
+sftp://download.locationtech.org:/home/httpd/downloads/spatial4j/
+
+Look at the existing file structure and files to see what should be put where.
+
+Then update the LocationTech CMS to have an updated download link.  Follow this link:
+https://www.locationtech.org/projects/technology.spatial4j/edit
+And edit the download URL to be like this (with an appropriate version)
+http://download.locationtech.org/spatial4j/0_6/?d

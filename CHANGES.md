@@ -1,3 +1,30 @@
+## VERSION 0.7
+
+DATE: 22 December 2017
+
+* \#153: Upgraded to JTS 0.15.  This JTS release has an API breakage in that the package root was changed
+  from com.vividsolutions to org.locationtech but should otherwise be compatible.
+  JTS is now dual-licensed as EPL 1.0 and EDL 1.0 (a BSD style license).
+  This JTS release also included various improvements, including faster LineString intersection.
+  (David Smiley)
+
+* \#138: Feature: Added integration for the Jackson-databind ("ObjectMapper") serialization library.
+  It's a popular library to serialize/deserialize JSON, XML, and other formats to/from Java objects.
+  Jackson is an optional dependency for Spatial4j that is only required for this feature.
+  (Ryan McKinley)
+
+* \#151: Moved application of JtsContext.autoIndex from JtsShapeFactory.makeShapeFromGeometry() to
+  JtsSpatialContext.makeShape is which is more central.
+  (Justin Deoliveira)
+
+* \#155: Ensure that JTS Geometry objects passed to Spatial4j are never modified.  If Spatial4j wants to
+  do so in order to dateline wrap it, then it'll now be cloned first (at some new cost, which we try to avoid).
+  (David Smiley)
+
+* \#152: Removed test dependency on jeo library; some classes were copied in.
+  (Justin Deoliveira)
+
+
 ## VERSION 0.6
 
 DATE: 26 February 2016
