@@ -427,7 +427,7 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
     if (geom.getEnvelopeInternal().getWidth() < 180)
       return geom;//can't possibly cross the dateline
 
-    // if a multi-geom:
+    // if a multi-geom:  (this is purely an optimization to avoid cloning more than we need to)
     if (geom instanceof GeometryCollection) {
       if (geom instanceof MultiPoint) {
         return geom; // always safe since no point crosses the dateline (on it is okay)
@@ -437,16 +437,16 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
       boolean didUnwrap = false;
       for (int n = 0; n < gc.getNumGeometries(); n++) {
         Geometry geometryN = gc.getGeometryN(n);
-        Geometry geometryUnwrapped = unwrapDateline(geometryN);
+        Geometry geometryUnwrapped = unwrapDateline(geometryN); // recursion
         list.add(geometryUnwrapped);
         didUnwrap |= (geometryUnwrapped != geometryN);
       }
       return !didUnwrap ? geom : geom.getFactory().buildGeometry(list);
     }
 
-    // a geom (not multi).
+    // a geom (not multi):
 
-    Geometry newGeom = geom.copy();
+    Geometry newGeom = geom.copy(); // clone
 
     final int[] crossings = {0};//an array so that an inner class can modify it.
     newGeom.apply(new GeometryFilter() {
