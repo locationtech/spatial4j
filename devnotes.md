@@ -2,12 +2,9 @@ This file has notes for committers.
 
 # Making a snapshot release
 
-*TODO broken; consider using an Eclipse or [LocationTech](https://locationtech.org/wiki/The_Nexus) repo
- or fix for Sonatype?*
-
 Note: depends on having access to the Sonatype repo described further below
 
-    mvn -DperformRelease=true deploy
+    mvn deploy -Prelease
 
 # Making a new release
 
@@ -15,10 +12,11 @@ First, understand that LocationTech projects undergo releases using an official 
 https://www.locationtech.org/documentation/handbook with complete and thorough details here:
 https://wiki.eclipse.org/Development_Resources/HOWTO/Release_Reviews
 
-Note: 
- * the IP Log: https://www.eclipse.org/projects/ip_log.php?projectid=locationtech.technology.spatial4j
- * the Release Request Form: https://www.locationtech.org/projects/technology.spatial4j/
- * References to the "PMC" (Project Management Committee) in Spatial4j's case is the 
+Note:
+ * See https://projects.eclipse.org/projects/locationtech.spatial4j and "Committer Tools" panel at right, including
+  * "Create a new release"
+  * "Generate IP Log"
+ * References to the "PMC" (Project Management Committee) in Spatial4j's case is the
  <a href="https://locationtech.org/mailman/listinfo/technology-pmc">LocationTech Technology PMC</a>.  There aren't
  project-specific PMCs.
  
@@ -56,7 +54,7 @@ these artifacts now.
 
  3. Have LocationTech sign the artifacts (via Hudson)
 
-Go to https://hudson.locationtech.org/spatial4j/job/Spatial4j-Jarsign2/ and modify the configuration
+Go to https://ci.locationtech.org/spatial4j/job/Spatial4j-Jarsign2/ and modify the configuration
 to reference the release tag in the git configuration area.  Then execute a build; it should succeed.
 Download a zip of the build artifacts (pom.xml plus jar files).  Do that by seeing the link
 "Artifact(s) of the Last Successful Build", clicking it, then clicking the link "(all files in zip)".
