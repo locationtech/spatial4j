@@ -1,8 +1,8 @@
 ## VERSION 0.7
 
-DATE: 22 December 2017
+DATE: 27 December 2017
 
-* \#153: Upgraded to JTS 0.15.  This JTS release has an API breakage in that the package root was changed
+* \#153: Upgraded to JTS 1.15.  This JTS release has an API breakage in that the package root was changed
   from com.vividsolutions to org.locationtech but should otherwise be compatible.
   JTS is now dual-licensed as EPL 1.0 and EDL 1.0 (a BSD style license).
   This JTS release also included various improvements, including faster LineString intersection.
@@ -20,6 +20,10 @@ DATE: 22 December 2017
 * \#155: Ensure that JTS Geometry objects passed to Spatial4j are never modified.  If Spatial4j wants to
   do so in order to dateline wrap it, then it'll now be cloned first (at some new cost, which we try to avoid).
   (David Smiley)
+
+* 408c14a7: Bug: JtsShapeFactory.lineString: if useJtsLineString (true by default) and we have a non-0 buffer
+  then a buffer of 0 was applied instead of the intended buffer.
+  (Ryan McKinley)
 
 * \#152: Removed test dependency on jeo library; some classes were copied in.
   (Justin Deoliveira)
