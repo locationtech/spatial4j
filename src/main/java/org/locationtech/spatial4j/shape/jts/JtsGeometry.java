@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Wraps a JTS {@link Geometry} (i.e. may be a polygon or basically anything).
  * JTS does a great deal of the hard work, but there is work here in handling
- * dateline wrap.
+ * dateline (aka anti-meridian) wrap.
  */
 public class JtsGeometry extends BaseShape<JtsSpatialContext> {
   /** System property boolean that can disable auto validation in an assert. */

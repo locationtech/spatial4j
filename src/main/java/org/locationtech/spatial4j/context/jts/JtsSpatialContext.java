@@ -60,7 +60,7 @@ public class JtsSpatialContext extends SpatialContext {
   }
 
   /**
-   * Returns the rule used to handle geometry objects that have dateline crossing considerations.
+   * Returns the rule used to handle geometry objects that have dateline (aka anti-meridian) crossing considerations.
    */
   @Deprecated
   public DatelineRule getDatelineRule() {

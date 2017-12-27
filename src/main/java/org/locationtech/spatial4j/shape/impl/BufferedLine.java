@@ -24,7 +24,7 @@ import static org.locationtech.spatial4j.shape.SpatialRelation.WITHIN;
 /**
  * INTERNAL: A line between two points with a buffer distance extending in every direction. By
  * contrast, an un-buffered line covers no area and as such is extremely unlikely to intersect with
- * a point. BufferedLine isn't yet aware of geodesics (e.g. the dateline); it operates in Euclidean
+ * a point. BufferedLine isn't yet aware of geodesics (e.g. the anti-meridian); it operates in Euclidean
  * space.
  */
 public class BufferedLine extends BaseShape<SpatialContext> {

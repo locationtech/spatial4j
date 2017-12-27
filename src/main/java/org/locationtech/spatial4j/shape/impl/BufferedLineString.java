@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * A BufferedLineString is a collection of {@link org.locationtech.spatial4j.shape.impl.BufferedLine} shapes,
  * resulting in what some call a "Track" or "Polyline" (ESRI terminology).
- * The buffer can be 0.  Note that BufferedLine isn't yet aware of geodesics (e.g. the dateline).
+ * The buffer can be 0.  Note that BufferedLine isn't yet aware of geodesics (e.g. the anti-meridian).
  */
 public class BufferedLineString extends BaseShape<SpatialContext> {
 

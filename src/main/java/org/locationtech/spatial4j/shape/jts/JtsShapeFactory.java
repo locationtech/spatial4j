@@ -76,7 +76,7 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
   }
 
   /**
-   * Returns the rule used to handle geometry objects that have dateline crossing considerations.
+   * Returns the rule used to handle geometry objects that have dateline (aka anti-meridian) crossing considerations.
    */
   public DatelineRule getDatelineRule() {
     return datelineRule;

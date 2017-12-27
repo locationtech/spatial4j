@@ -70,7 +70,7 @@ public interface ShapeFactory {
    * Construct a rectangle. If just one longitude is on the dateline (+/- 180) and if
    * {@link SpatialContext#isGeo()}
    * then potentially adjust its sign to ensure the rectangle does not cross the
-   * dateline.
+   * dateline (aka anti-meridian).
    */
   Rectangle rect(double minX, double maxX, double minY, double maxY);
 

@@ -10,7 +10,7 @@ package org.locationtech.spatial4j.context.jts;
 
 /**
  * Indicates the algorithm used to process JTS Polygons and JTS LineStrings for detecting dateline
- * crossings. It only applies when geo=true.
+ * (aka anti-meridian) crossings. It only applies when geo=true.
  */
 public enum DatelineRule {
   /** No polygon will cross the dateline. */

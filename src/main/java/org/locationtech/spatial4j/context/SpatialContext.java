@@ -199,7 +199,7 @@ public class SpatialContext {
   }
 
   /**
-   * Construct a rectangle. If just one longitude is on the dateline (+/- 180)
+   * Construct a rectangle. If just one longitude is on the dateline (+/- 180) (aka anti-meridian)
    * then potentially adjust its sign to ensure the rectangle does not cross the
    * dateline.
    */

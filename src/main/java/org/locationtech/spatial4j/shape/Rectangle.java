@@ -29,7 +29,7 @@ public interface Rectangle extends Shape {
 
   /**
    * The width. In geospatial contexts, this is generally in degrees longitude
-   * and is aware of the international dateline.  It will always be &gt;= 0.
+   * and is aware of the dateline (aka anti-meridian).  It will always be &gt;= 0.
    */
   public double getWidth();
 
