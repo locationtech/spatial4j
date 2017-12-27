@@ -4,7 +4,7 @@
 [![Coverage](https://img.shields.io/codecov/c/github/locationtech/spatial4j.svg)](https://codecov.io/github/locationtech/spatial4j/)
 [![Maven](https://img.shields.io/maven-central/v/org.locationtech.spatial4j/spatial4j.svg)](https://maven-badges.herokuapp.com/maven-central/org.locationtech.spatial4j/spatial4j/)
 
-_(note: Spatial4j's official home page is at LocationTech: https://www.locationtech.org/projects/technology.spatial4j 
+_(note: Spatial4j's official home page is at LocationTech: https://projects.eclipse.org/projects/locationtech.spatial4j
 but this README has richer information)_ 
 
 Spatial4j is a general purpose spatial / geospatial [ASL](http://www.apache.org/licenses/LICENSE-2.0.html) licensed open-source Java library. It's core capabilities are 3-fold: to provide common shapes that can work in Euclidean and geodesic (surface of sphere) world models, to provide distance calculations and other math, and to read & write shapes from formats like [WKT](http://en.wikipedia.org/wiki/Well-known_text) and [GeoJSON](http://geojson.org/geojson-spec.html#geometry-objects).  Spatial4j is a project of the [LocationTech](http://www.locationtech.org) Industry Working Group of the Eclipse Foundation.
@@ -43,7 +43,8 @@ Spatial4j has a variety of shapes that operate in Euclidean-space -- i.e. a flat
 
 * Read and write Shapes as [WKT](http://en.wikipedia.org/wiki/Well-known_text).  Include the ENVELOPE extension from CQL, plus a Spatial4j custom BUFFER operation. Buffering a point gets you a Circle.
 * Read and write Shapes as [GeoJSON](http://geojson.org/geojson-spec.html#geometry-objects). 
-* Read and write Shapes as [Polyshape](FORMATS.md#polyshape). 
+* Read and write Shapes as [Polyshape](FORMATS.md#polyshape).
+* Read and write Shapes using the [Jackson-databdind](https://github.com/FasterXML/jackson-databind) serialization framework.
 * 3 great-circle distance calculators: Law of Cosines, Haversine, Vincenty
 
 For more information on the formats supported, see [FORMATS.md](FORMATS.md).
@@ -51,8 +52,9 @@ For more information on the formats supported, see [FORMATS.md](FORMATS.md).
 ## Dependencies
 
 Spatial4j runs on Java -- version 1.7 or better.  Otherwise, all dependencies listed in the maven [pom.xml](pom.xml) are either marked optional or for testing. The optional dependencies are:
-* [JTS](https://sourceforge.net/projects/jts-topo-suite/):  You need JTS if you use polygons, or obviously if you use any of the classes prefixed with "Jts".
+* [JTS](https://github.com/locationtech/jts):  You need JTS if you use polygons, or obviously if you use any of the classes prefixed with "Jts".
 * [Noggit](https://github.com/yonik/noggit): The Noggit JSON parsing library is only needed for GeoJSON parsing (not required for writing).
+* [Jackson-databind](https://github.com/FasterXML/jackson-databind): If you wish to use Spatial4j's Jackson-databind feature to read/write shapes.
 
 ## Why not use JTS? Why should you use Spatial4j?
 
@@ -69,9 +71,13 @@ A geodesic circle implementation (i.e. point-radius on surface of a sphere), has
 
 **[Javadoc API](https://locationtech.github.io/spatial4j/apidocs/)**
 
-The facade to all of Spatial4j is the [`SpatialContext`](https://locationtech.github.io/spatial4j/apidocs/com/spatial4j/core/context/SpatialContext.html). It acts as a factory for shapes and it holds references to most other classes you might use and/or it has convenience methods for them.  For example you can get a [`DistanceCalculator`](https://locationtech.github.io/spatial4j/apidocs/com/spatial4j/core/distance/DistanceCalculator.html) but if you just want to calculate the distance then the context has a method for that.
+The facade to all of Spatial4j is the [`SpatialContext`](https://locationtech.github.io/spatial4j/apidocs/org/locationtech/spatial4j/context/SpatialContext.html).
+It acts as a factory for shapes and it holds references to most other classes you might use and/or it has convenience methods for them.
+For example you can get a [`DistanceCalculator`](https://locationtech.github.io/spatial4j/apidocs/org/locationtech/spatial4j/distance/DistanceCalculator.html) but if you just want to calculate the distance then the context has a method for that.
 
-To get a SpatialContext (or just "context" for short), you could use a global singleton `SpatialContext.GEO` or `JtsSpatialContext.GEO` which both use geodesic surface-of-sphere calculations (when available); the JTS one principally adds Polygon support. If you want a non-geodesic implementation or you want to customize one of many options, then instantiate a [`SpatialContextFactory`](https://locationtech.github.io/spatial4j/apidocs/com/spatial4j/core/context/SpatialContextFactory.html) (or `JtsSpatialContextFactory`), set the options, then invoke `newSpatialContext()`. If you have a set of name-value string pairs, perhaps from a java properties file, then instead use the static `makeSpatialContext(map, classLoader)` method which adds a lot of flexibility to the configuration initialization versus hard-coding it.
+To get a SpatialContext (or just "context" for short), you could use a global singleton `SpatialContext.GEO` or `JtsSpatialContext.GEO` which both use geodesic surface-of-sphere calculations (when available); the JTS one principally adds Polygon support.
+If you want a non-geodesic implementation or you want to customize one of many options, then instantiate a [`SpatialContextFactory`](https://locationtech.github.io/spatial4j/apidocs/org/locationtech/spatial4j/context/SpatialContextFactory.html) (or `JtsSpatialContextFactory`), set the options, then invoke `newSpatialContext()`.
+If you have a set of name-value string pairs, perhaps from a java properties file, then instead use the static `makeSpatialContext(map, classLoader)` method which adds a lot of flexibility to the configuration initialization versus hard-coding it.
 
 *You should generally avoid calling constructors for anything in Spatial4j except for the `SpatialContextFactory`.* Constructors aren't strictly forbidden but the factories are there to provide an extension point / abstraction, so don't side-step them unless there's a deliberate reason.
 

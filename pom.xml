@@ -20,7 +20,7 @@
     calculations and other math, and to read shape formats like WKT and GeoJSON.
   </description>
 
-  <url>https://www.locationtech.org/projects/technology.spatial4j</url>
+  <url>https://projects.eclipse.org/projects/locationtech.spatial4j</url>
 
   <organization>
     <name>LocationTech</name>
@@ -42,7 +42,7 @@
 
   <ciManagement>
     <system>Hudson</system>
-    <url>https://hudson.locationtech.org/spatial4j/job/Spatial4j/</url>
+    <url>https://ci.locationtech.org/spatial4j/job/Spatial4j/</url>
   </ciManagement>
   <!-- also:
   <ciManagement>
@@ -56,9 +56,8 @@
       <name>spatial4j-dev</name>
       <archive>http://locationtech.org/mhonarc/lists/spatial4j-dev</archive>
       <otherArchives>
-        <!-- These two are for the pre-LocationTech traffic -->
+        <!-- pre-LocationTech traffic -->
         <otherArchive>http://spatial4j.16575.x6.nabble.com</otherArchive>
-        <otherArchive>http://lists.spatial4j.com/pipermail/dev-spatial4j.com/</otherArchive>
       </otherArchives>
       <post>spatial4j-dev@locationtech.org</post>
       <subscribe>https://locationtech.org/mailman/listinfo/spatial4j-dev</subscribe>
