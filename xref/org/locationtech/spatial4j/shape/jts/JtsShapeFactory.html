@@ -28,9 +28,9 @@
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> org.locationtech.spatial4j.shape.Rectangle;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> org.locationtech.spatial4j.shape.Shape;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> org.locationtech.spatial4j.shape.impl.ShapeFactoryImpl;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.algorithm.CGAlgorithms;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.*;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.util.GeometricShapeFactory;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> org.locationtech.jts.algorithm.CGAlgorithms;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> org.locationtech.jts.geom.*;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> org.locationtech.jts.util.GeometricShapeFactory;
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
@@ -84,7 +84,7 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>    }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>    <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">   * Returns the rule used to handle geometry objects that have dateline crossing considerations.</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">   * Returns the rule used to handle geometry objects that have dateline (aka anti-meridian) crossing considerations.</em>
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/context/jts/DatelineRule.html">DatelineRule</a> getDatelineRule() {
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">return</strong> datelineRule;
@@ -223,360 +223,365 @@
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>       }
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>     }
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>     <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> shape = makeShape(geometryFactory.createLineString(coords));
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>     <strong class="jxr_keyword">return</strong> bufferDistance != 0 ? shape.getBuffered(0, ctx) : shape;
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>   }
-<a class="jxr_linenumber" name="L220" href="#L220">220</a> 
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>   @Override
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">LineStringBuilder</a> lineString() {
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>     <strong class="jxr_keyword">if</strong> (!useJtsLineString())
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.lineString();
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsLineStringBuilder</a>();
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>   }
-<a class="jxr_linenumber" name="L227" href="#L227">227</a> 
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsLineStringBuilder</a> <strong class="jxr_keyword">extends</strong> CoordinatesAccumulator&lt;JtsLineStringBuilder&gt;
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>           <strong class="jxr_keyword">implements</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">LineStringBuilder</a> {
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> bufDistance;
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> 
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsLineStringBuilder</a>() {
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     }
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>     <strong class="jxr_keyword">if</strong>(bufferDistance!=0) {
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>       <strong class="jxr_keyword">return</strong> shape.getBuffered(bufferDistance, ctx);
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>     }
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <strong class="jxr_keyword">return</strong> shape;
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>   }
+<a class="jxr_linenumber" name="L223" href="#L223">223</a> 
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>   @Override
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">LineStringBuilder</a> lineString() {
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>     <strong class="jxr_keyword">if</strong> (!useJtsLineString())
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.lineString();
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsLineStringBuilder</a>();
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>   }
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> 
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsLineStringBuilder</a> <strong class="jxr_keyword">extends</strong> CoordinatesAccumulator&lt;JtsLineStringBuilder&gt;
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>           <strong class="jxr_keyword">implements</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">LineStringBuilder</a> {
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">double</strong> bufDistance;
 <a class="jxr_linenumber" name="L234" href="#L234">234</a> 
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>     @Override
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">LineStringBuilder</a> buffer(<strong class="jxr_keyword">double</strong> distance) {
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>       <strong class="jxr_keyword">this</strong>.bufDistance = distance;
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     }
-<a class="jxr_linenumber" name="L240" href="#L240">240</a> 
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>     @Override
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> build() {
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>       Geometry geom = buildLineStringGeom();
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>       <strong class="jxr_keyword">if</strong> (bufDistance != 0.0) {
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>         geom = geom.buffer(bufDistance);
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>       }
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>       <strong class="jxr_keyword">return</strong> makeShape(geom);
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>     }
-<a class="jxr_linenumber" name="L249" href="#L249">249</a> 
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>     LineString buildLineStringGeom() {
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>       <strong class="jxr_keyword">return</strong> geometryFactory.createLineString(getCoordsArray());
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     }
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>   }
-<a class="jxr_linenumber" name="L254" href="#L254">254</a> 
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>   @Override
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">PolygonBuilder</a> polygon() {
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsPolygonBuilder</a>();
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>   }
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsPolygonBuilder</a> <strong class="jxr_keyword">extends</strong> CoordinatesAccumulator&lt;JtsPolygonBuilder&gt;
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>           <strong class="jxr_keyword">implements</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">PolygonBuilder</a> {
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsLineStringBuilder</a>() {
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     }
+<a class="jxr_linenumber" name="L237" href="#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>     @Override
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">LineStringBuilder</a> buffer(<strong class="jxr_keyword">double</strong> distance) {
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>       <strong class="jxr_keyword">this</strong>.bufDistance = distance;
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>     }
+<a class="jxr_linenumber" name="L243" href="#L243">243</a> 
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>     @Override
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> build() {
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>       Geometry geom = buildLineStringGeom();
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>       <strong class="jxr_keyword">if</strong> (bufDistance != 0.0) {
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         geom = geom.buffer(bufDistance);
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>       }
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>       <strong class="jxr_keyword">return</strong> makeShape(geom);
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>     }
+<a class="jxr_linenumber" name="L252" href="#L252">252</a> 
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     LineString buildLineStringGeom() {
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>       <strong class="jxr_keyword">return</strong> geometryFactory.createLineString(getCoordsArray());
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     }
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>   }
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>   @Override
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">PolygonBuilder</a> polygon() {
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsPolygonBuilder</a>();
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>   }
 <a class="jxr_linenumber" name="L262" href="#L262">262</a> 
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>     List&lt;LinearRing&gt; holes;<em class="jxr_comment">// lazy instantiated</em>
-<a class="jxr_linenumber" name="L264" href="#L264">264</a> 
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>     @Override
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsHoleBuilder</a> hole() {
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsHoleBuilder</a>();
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>     }
-<a class="jxr_linenumber" name="L269" href="#L269">269</a> 
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsHoleBuilder</a> <strong class="jxr_keyword">extends</strong> CoordinatesAccumulator&lt;JtsHoleBuilder&gt;
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>             <strong class="jxr_keyword">implements</strong> PolygonBuilder.HoleBuilder {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsPolygonBuilder</a> <strong class="jxr_keyword">extends</strong> CoordinatesAccumulator&lt;JtsPolygonBuilder&gt;
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>           <strong class="jxr_keyword">implements</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">PolygonBuilder</a> {
+<a class="jxr_linenumber" name="L265" href="#L265">265</a> 
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>     List&lt;LinearRing&gt; holes;<em class="jxr_comment">// lazy instantiated</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a> 
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>     @Override
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsHoleBuilder</a> hole() {
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsHoleBuilder</a>();
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>     }
 <a class="jxr_linenumber" name="L272" href="#L272">272</a> 
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>       @Override
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>       <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsPolygonBuilder</a> endHole() {
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         LinearRing linearRing = geometryFactory.createLinearRing(getCoordsArray());
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">if</strong> (JtsPolygonBuilder.<strong class="jxr_keyword">this</strong>.holes == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>           JtsPolygonBuilder.<strong class="jxr_keyword">this</strong>.holes = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(4);<em class="jxr_comment">//short</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         }
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         JtsPolygonBuilder.<strong class="jxr_keyword">this</strong>.holes.add(linearRing);
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">return</strong> JtsPolygonBuilder.<strong class="jxr_keyword">this</strong>;
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>       }
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>     }
-<a class="jxr_linenumber" name="L283" href="#L283">283</a> 
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     @Override
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> build() {
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>       <strong class="jxr_keyword">return</strong> makeShapeFromGeometry(buildPolygonGeom());
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>     }
-<a class="jxr_linenumber" name="L288" href="#L288">288</a> 
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>     @Override
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> buildOrRect() {
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>       Polygon geom = buildPolygonGeom();
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>       <strong class="jxr_keyword">if</strong> (geom.isRectangle()) {
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <strong class="jxr_keyword">return</strong> makeRectFromRectangularPoly(geom);
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>       }
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>       <strong class="jxr_keyword">return</strong> makeShapeFromGeometry(geom);
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     }
-<a class="jxr_linenumber" name="L297" href="#L297">297</a> 
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>     Polygon buildPolygonGeom() {
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>       LinearRing outerRing = geometryFactory.createLinearRing(getCoordsArray());
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>       LinearRing[] holeRings = holes == <strong class="jxr_keyword">null</strong> ? EMPTY_HOLES : holes.toArray(<strong class="jxr_keyword">new</strong> LinearRing[<strong class="jxr_keyword">this</strong>.holes.size()]);
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>       <strong class="jxr_keyword">return</strong> geometryFactory.createPolygon(outerRing, holeRings);
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>     }
-<a class="jxr_linenumber" name="L303" href="#L303">303</a> 
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>   } <em class="jxr_comment">// class JtsPolygonBuilder</em>
-<a class="jxr_linenumber" name="L305" href="#L305">305</a> 
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> CoordinatesAccumulator&lt;T <strong class="jxr_keyword">extends</strong> CoordinatesAccumulator&gt; {
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>     <strong class="jxr_keyword">protected</strong> List&lt;Coordinate&gt; coordinates = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsHoleBuilder</a> <strong class="jxr_keyword">extends</strong> CoordinatesAccumulator&lt;JtsHoleBuilder&gt;
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>             <strong class="jxr_keyword">implements</strong> PolygonBuilder.HoleBuilder {
+<a class="jxr_linenumber" name="L275" href="#L275">275</a> 
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>       @Override
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>       <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsPolygonBuilder</a> endHole() {
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         LinearRing linearRing = geometryFactory.createLinearRing(getCoordsArray());
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         <strong class="jxr_keyword">if</strong> (JtsPolygonBuilder.<strong class="jxr_keyword">this</strong>.holes == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>           JtsPolygonBuilder.<strong class="jxr_keyword">this</strong>.holes = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(4);<em class="jxr_comment">//short</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         }
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         JtsPolygonBuilder.<strong class="jxr_keyword">this</strong>.holes.add(linearRing);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         <strong class="jxr_keyword">return</strong> JtsPolygonBuilder.<strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>       }
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     }
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>     @Override
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> build() {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>       <strong class="jxr_keyword">return</strong> makeShapeFromGeometry(buildPolygonGeom());
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>     }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     @Override
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> buildOrRect() {
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>       Polygon geom = buildPolygonGeom();
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>       <strong class="jxr_keyword">if</strong> (geom.isRectangle()) {
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <strong class="jxr_keyword">return</strong> makeRectFromRectangularPoly(geom);
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>       }
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>       <strong class="jxr_keyword">return</strong> makeShapeFromGeometry(geom);
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>     }
+<a class="jxr_linenumber" name="L300" href="#L300">300</a> 
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>     Polygon buildPolygonGeom() {
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>       LinearRing outerRing = geometryFactory.createLinearRing(getCoordsArray());
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>       LinearRing[] holeRings = holes == <strong class="jxr_keyword">null</strong> ? EMPTY_HOLES : holes.toArray(<strong class="jxr_keyword">new</strong> LinearRing[<strong class="jxr_keyword">this</strong>.holes.size()]);
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>       <strong class="jxr_keyword">return</strong> geometryFactory.createPolygon(outerRing, holeRings);
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>     }
+<a class="jxr_linenumber" name="L306" href="#L306">306</a> 
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>   } <em class="jxr_comment">// class JtsPolygonBuilder</em>
 <a class="jxr_linenumber" name="L308" href="#L308">308</a> 
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>     <strong class="jxr_keyword">public</strong> T pointXY(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> y) {
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>       <strong class="jxr_keyword">return</strong> pointXYZ(x, y, Coordinate.NULL_ORDINATE);
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>     }
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> 
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <strong class="jxr_keyword">public</strong> T pointXYZ(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> y, <strong class="jxr_keyword">double</strong> z) {
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>       verifyX(x);
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>       verifyY(y);
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>       coordinates.add(<strong class="jxr_keyword">new</strong> Coordinate(x, y, z));
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>       <strong class="jxr_keyword">return</strong> getThis();
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>     }
-<a class="jxr_linenumber" name="L319" href="#L319">319</a> 
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>     <em class="jxr_comment">// TODO would be be useful to add other ways of providing points?  e.g. point(Coordinate)?</em>
-<a class="jxr_linenumber" name="L321" href="#L321">321</a> 
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>     <em class="jxr_comment">// TODO consider wrapping the List&lt;Coordinate&gt; in a custom CoordinateSequence and then (conditionally) use</em>
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>     <em class="jxr_comment">//  geometryFactory's coordinateSequenceFactory to create a new CS if configured to do so.</em>
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>     <em class="jxr_comment">//  Also consider instead natively storing the double[] and then auto-expanding on pointXY* as needed.</em>
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>     <strong class="jxr_keyword">protected</strong> Coordinate[] getCoordsArray() {
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>       <strong class="jxr_keyword">return</strong> coordinates.toArray(<strong class="jxr_keyword">new</strong> Coordinate[coordinates.size()]);
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>     }
-<a class="jxr_linenumber" name="L328" href="#L328">328</a> 
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>     @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>     <strong class="jxr_keyword">protected</strong> T getThis() { <strong class="jxr_keyword">return</strong> (T) <strong class="jxr_keyword">this</strong>; }
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>   }
-<a class="jxr_linenumber" name="L332" href="#L332">332</a> 
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>   <em class="jxr_javadoccomment">/** Whether {@link #multiPoint()}, {@link #multiLineString()}, and {@link #multiPolygon()} should all use JTS's</em>
-<a class="jxr_linenumber" name="L334" href="#L334">334</a> <em class="jxr_javadoccomment">   * subclasses of {@link GeometryCollection} instead of Spatial4j's basic impl.  The general {@link #multiShape(Class)}</em>
-<a class="jxr_linenumber" name="L335" href="#L335">335</a> <em class="jxr_javadoccomment">   * will never use {@link GeometryCollection} because that class doesn't support relations. */</em>
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> useJtsMulti() {
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>     <strong class="jxr_keyword">return</strong> useJtsMulti;
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>   }
-<a class="jxr_linenumber" name="L339" href="#L339">339</a> 
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>   @Override
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiPointBuilder</a> multiPoint() {
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>     <strong class="jxr_keyword">if</strong> (!useJtsMulti) {
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.multiPoint();
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>     }
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsMultiPointBuilder</a>();
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>   }
-<a class="jxr_linenumber" name="L347" href="#L347">347</a> 
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsMultiPointBuilder</a> <strong class="jxr_keyword">extends</strong> CoordinatesAccumulator&lt;JtsMultiPointBuilder&gt; <strong class="jxr_keyword">implements</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiPointBuilder</a> {
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>     @Override
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> build() {
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>       <strong class="jxr_keyword">return</strong> makeShape(geometryFactory.createMultiPoint(getCoordsArray()));
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>     }
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>   }
-<a class="jxr_linenumber" name="L354" href="#L354">354</a> 
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>   @Override
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiLineStringBuilder</a> multiLineString() {
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>     <strong class="jxr_keyword">if</strong> (!useJtsMulti) {
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.multiLineString();
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>     }
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsMultiLineStringBuilder</a>();
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>   }
-<a class="jxr_linenumber" name="L362" href="#L362">362</a> 
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsMultiLineStringBuilder</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiLineStringBuilder</a> {
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>     List&lt;LineString&gt; geoms = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> CoordinatesAccumulator&lt;T <strong class="jxr_keyword">extends</strong> CoordinatesAccumulator&gt; {
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>     <strong class="jxr_keyword">protected</strong> List&lt;Coordinate&gt; coordinates = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L311" href="#L311">311</a> 
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>     <strong class="jxr_keyword">public</strong> T pointXY(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> y) {
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>       <strong class="jxr_keyword">return</strong> pointXYZ(x, y, Coordinate.NULL_ORDINATE);
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     }
+<a class="jxr_linenumber" name="L315" href="#L315">315</a> 
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>     <strong class="jxr_keyword">public</strong> T pointXYZ(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> y, <strong class="jxr_keyword">double</strong> z) {
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>       verifyX(x);
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>       verifyY(y);
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>       coordinates.add(<strong class="jxr_keyword">new</strong> Coordinate(x, y, z));
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>       <strong class="jxr_keyword">return</strong> getThis();
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>     }
+<a class="jxr_linenumber" name="L322" href="#L322">322</a> 
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>     <em class="jxr_comment">// TODO would be be useful to add other ways of providing points?  e.g. point(Coordinate)?</em>
+<a class="jxr_linenumber" name="L324" href="#L324">324</a> 
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>     <em class="jxr_comment">// TODO consider wrapping the List&lt;Coordinate&gt; in a custom CoordinateSequence and then (conditionally) use</em>
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>     <em class="jxr_comment">//  geometryFactory's coordinateSequenceFactory to create a new CS if configured to do so.</em>
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>     <em class="jxr_comment">//  Also consider instead natively storing the double[] and then auto-expanding on pointXY* as needed.</em>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>     <strong class="jxr_keyword">protected</strong> Coordinate[] getCoordsArray() {
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>       <strong class="jxr_keyword">return</strong> coordinates.toArray(<strong class="jxr_keyword">new</strong> Coordinate[coordinates.size()]);
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>     }
+<a class="jxr_linenumber" name="L331" href="#L331">331</a> 
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>     @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>     <strong class="jxr_keyword">protected</strong> T getThis() { <strong class="jxr_keyword">return</strong> (T) <strong class="jxr_keyword">this</strong>; }
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>   }
+<a class="jxr_linenumber" name="L335" href="#L335">335</a> 
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>   <em class="jxr_javadoccomment">/** Whether {@link #multiPoint()}, {@link #multiLineString()}, and {@link #multiPolygon()} should all use JTS's</em>
+<a class="jxr_linenumber" name="L337" href="#L337">337</a> <em class="jxr_javadoccomment">   * subclasses of {@link GeometryCollection} instead of Spatial4j's basic impl.  The general {@link #multiShape(Class)}</em>
+<a class="jxr_linenumber" name="L338" href="#L338">338</a> <em class="jxr_javadoccomment">   * will never use {@link GeometryCollection} because that class doesn't support relations. */</em>
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> useJtsMulti() {
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>     <strong class="jxr_keyword">return</strong> useJtsMulti;
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>   }
+<a class="jxr_linenumber" name="L342" href="#L342">342</a> 
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>   @Override
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiPointBuilder</a> multiPoint() {
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>     <strong class="jxr_keyword">if</strong> (!useJtsMulti) {
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.multiPoint();
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>     }
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsMultiPointBuilder</a>();
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>   }
+<a class="jxr_linenumber" name="L350" href="#L350">350</a> 
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsMultiPointBuilder</a> <strong class="jxr_keyword">extends</strong> CoordinatesAccumulator&lt;JtsMultiPointBuilder&gt; <strong class="jxr_keyword">implements</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiPointBuilder</a> {
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>     @Override
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> build() {
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>       <strong class="jxr_keyword">return</strong> makeShape(geometryFactory.createMultiPoint(getCoordsArray()));
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>     }
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>   }
+<a class="jxr_linenumber" name="L357" href="#L357">357</a> 
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>   @Override
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiLineStringBuilder</a> multiLineString() {
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>     <strong class="jxr_keyword">if</strong> (!useJtsMulti) {
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.multiLineString();
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>     }
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsMultiLineStringBuilder</a>();
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>   }
 <a class="jxr_linenumber" name="L365" href="#L365">365</a> 
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>     @Override
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">LineStringBuilder</a> lineString() {
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsLineStringBuilder</a>();
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>     }
-<a class="jxr_linenumber" name="L370" href="#L370">370</a> 
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>     @Override
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiLineStringBuilder</a> add(<a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">LineStringBuilder</a> lineStringBuilder) {
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>       geoms.add(((JtsLineStringBuilder)lineStringBuilder).buildLineStringGeom());
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>     }
-<a class="jxr_linenumber" name="L376" href="#L376">376</a> 
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>     @Override
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> build() {
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>       <strong class="jxr_keyword">return</strong> makeShape(geometryFactory.createMultiLineString(geoms.toArray(<strong class="jxr_keyword">new</strong> LineString[geoms.size()])));
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>     }
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>   }
-<a class="jxr_linenumber" name="L382" href="#L382">382</a> 
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>   @Override
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiPolygonBuilder</a> multiPolygon() {
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>     <strong class="jxr_keyword">if</strong> (!useJtsMulti) {
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.multiPolygon();
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>     }
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsMultiPolygonBuilder</a>();
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>   }
-<a class="jxr_linenumber" name="L390" href="#L390">390</a> 
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsMultiPolygonBuilder</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiPolygonBuilder</a> {
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>     List&lt;Polygon&gt; geoms = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsMultiLineStringBuilder</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiLineStringBuilder</a> {
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>     List&lt;LineString&gt; geoms = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L368" href="#L368">368</a> 
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>     @Override
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">LineStringBuilder</a> lineString() {
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsLineStringBuilder</a>();
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>     }
+<a class="jxr_linenumber" name="L373" href="#L373">373</a> 
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>     @Override
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiLineStringBuilder</a> add(<a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">LineStringBuilder</a> lineStringBuilder) {
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>       geoms.add(((JtsLineStringBuilder)lineStringBuilder).buildLineStringGeom());
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>     }
+<a class="jxr_linenumber" name="L379" href="#L379">379</a> 
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>     @Override
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> build() {
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>       <strong class="jxr_keyword">return</strong> makeShape(geometryFactory.createMultiLineString(geoms.toArray(<strong class="jxr_keyword">new</strong> LineString[geoms.size()])));
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>     }
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>   }
+<a class="jxr_linenumber" name="L385" href="#L385">385</a> 
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>   @Override
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiPolygonBuilder</a> multiPolygon() {
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>     <strong class="jxr_keyword">if</strong> (!useJtsMulti) {
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.multiPolygon();
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>     }
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsMultiPolygonBuilder</a>();
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>   }
 <a class="jxr_linenumber" name="L393" href="#L393">393</a> 
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>     @Override
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">PolygonBuilder</a> polygon() {
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsPolygonBuilder</a>();
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>     }
-<a class="jxr_linenumber" name="L398" href="#L398">398</a> 
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>     @Override
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiPolygonBuilder</a> add(<a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">PolygonBuilder</a> polygonBuilder) {
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>       geoms.add(((JtsPolygonBuilder)polygonBuilder).buildPolygonGeom());
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>     }
-<a class="jxr_linenumber" name="L404" href="#L404">404</a> 
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>     @Override
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> build() {
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>       <strong class="jxr_keyword">return</strong> makeShape(geometryFactory.createMultiPolygon(geoms.toArray(<strong class="jxr_keyword">new</strong> Polygon[geoms.size()])));
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>     }
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>   }
-<a class="jxr_linenumber" name="L410" href="#L410">410</a> 
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>   @Override
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>   <strong class="jxr_keyword">public</strong> &lt;T <strong class="jxr_keyword">extends</strong> Shape&gt; MultiShapeBuilder&lt;T&gt; multiShape(Class&lt;T&gt; shapeClass) {
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>     <strong class="jxr_keyword">if</strong> (!useJtsMulti()) {
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.multiShape(shapeClass);
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>     }
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> JtsMultiShapeBuilder&lt;&gt;();
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>   }
-<a class="jxr_linenumber" name="L418" href="#L418">418</a> 
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>   <em class="jxr_comment">// TODO: once we have typed shapes for Polygons &amp; LineStrings, this logic could move to the superclass</em>
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>   <em class="jxr_comment">// (not JTS specific) and the multi* builders could take a Shape</em>
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> JtsMultiShapeBuilder&lt;T <strong class="jxr_keyword">extends</strong> Shape&gt; <strong class="jxr_keyword">extends</strong> GeneralShapeMultiShapeBuilder&lt;T&gt; {
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>     @Override
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> build() {
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>       Class&lt;?&gt; last = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>       List&lt;Geometry&gt; geoms = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(shapes.size());
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>       <strong class="jxr_keyword">for</strong>(<a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> s : shapes) {
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>         <strong class="jxr_keyword">if</strong> (last != <strong class="jxr_keyword">null</strong> &amp;&amp; last != s.getClass()) {
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.build();
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>         }
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>         <strong class="jxr_keyword">if</strong> (s instanceof JtsGeometry) {
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>           geoms.add(((JtsGeometry)s).getGeom());
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s instanceof JtsPoint) {
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>           geoms.add(((JtsPoint)s).getGeom());
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.build();
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>         }
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>         last = s.getClass();
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>       }
-<a class="jxr_linenumber" name="L439" href="#L439">439</a> 
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>       <strong class="jxr_keyword">return</strong> makeShapeFromGeometry(geometryFactory.buildGeometry(geoms));
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>     }
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>   }
-<a class="jxr_linenumber" name="L443" href="#L443">443</a> 
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L445" href="#L445">445</a> <em class="jxr_javadoccomment">   * INTERNAL Usually creates a JtsGeometry, potentially validating, repairing, and indexing ("preparing"). This method</em>
-<a class="jxr_linenumber" name="L446" href="#L446">446</a> <em class="jxr_javadoccomment">   * is intended for use by {@link ShapeReader} instances.</em>
-<a class="jxr_linenumber" name="L447" href="#L447">447</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L448" href="#L448">448</a> <em class="jxr_javadoccomment">   * If given a direct instance of {@link GeometryCollection} then it's contents will be</em>
-<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_javadoccomment">   * recursively converted and then the resulting list will be passed to</em>
-<a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_javadoccomment">   * {@link SpatialContext#makeCollection(List)} and returned.</em>
-<a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L452" href="#L452">452</a> <em class="jxr_javadoccomment">   * If given a {@link com.vividsolutions.jts.geom.Point} then {@link SpatialContext#makePoint(double, double)}</em>
-<a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_javadoccomment">   * is called, which will return a {@link JtsPoint} if {@link JtsSpatialContext#useJtsPoint()}; otherwise</em>
-<a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">   * a standard Spatial4j Point is returned.</em>
-<a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L456" href="#L456">456</a> <em class="jxr_javadoccomment">   * If given a {@link LineString} and if {@link JtsSpatialContext#useJtsLineString()} is true then</em>
-<a class="jxr_linenumber" name="L457" href="#L457">457</a> <em class="jxr_javadoccomment">   * then the geometry's parts are exposed to call {@link SpatialContext#makeLineString(List)}.</em>
-<a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>   <em class="jxr_comment">// TODO should this be called always (consistent but sometimes not needed?)</em>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>   <em class="jxr_comment">//   v.s. only from a ShapeReader (pre-ShapeFactory behavior)</em>
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> makeShapeFromGeometry(Geometry geom) {
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>     <strong class="jxr_keyword">if</strong> (geom instanceof GeometryCollection) {
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>       <em class="jxr_comment">// Direct instances of GeometryCollection can't be wrapped in JtsGeometry but can be expanded into</em>
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>       <em class="jxr_comment">//  a ShapeCollection.</em>
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>       <strong class="jxr_keyword">if</strong> (!useJtsMulti || geom.getClass() == GeometryCollection.<strong class="jxr_keyword">class</strong>) {
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>         List&lt;Shape&gt; shapes = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(geom.getNumGeometries());
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; geom.getNumGeometries(); i++) {
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>           Geometry geomN = geom.getGeometryN(i);
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>           shapes.add(makeShapeFromGeometry(geomN));<em class="jxr_comment">//recursion</em>
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>         }
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>         <strong class="jxr_keyword">return</strong> multiShape(shapes);
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>       }
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (geom instanceof com.vividsolutions.jts.geom.Point) {
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>       com.vividsolutions.jts.geom.Point pt = (com.vividsolutions.jts.geom.Point) geom;
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>       <strong class="jxr_keyword">return</strong> pointXY(pt.getX(), pt.getY());
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (geom instanceof LineString) {
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>       <strong class="jxr_keyword">if</strong> (!useJtsLineString()) {
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>         LineString lineString = (LineString) geom;
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>         List&lt;Point&gt; points = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(lineString.getNumPoints());
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; lineString.getNumPoints(); i++) {
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>           Coordinate coord = lineString.getCoordinateN(i);
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>           points.add(pointXY(coord.x, coord.y));
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>         }
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>         <strong class="jxr_keyword">return</strong> lineString(points, 0);
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>       }
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>     }
-<a class="jxr_linenumber" name="L487" href="#L487">487</a> 
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>     <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> jtsGeom;
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>       jtsGeom = makeShape(geom);
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>       <strong class="jxr_keyword">if</strong> (getValidationRule() != ValidationRule.none)
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>         jtsGeom.validate();
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>       <em class="jxr_comment">// repair:</em>
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>       <strong class="jxr_keyword">if</strong> (getValidationRule() == ValidationRule.repairConvexHull) {
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>         jtsGeom = makeShape(geom.convexHull());
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (getValidationRule() == ValidationRule.repairBuffer0) {
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>         jtsGeom = makeShape(geom.buffer(0));
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>       } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>         <em class="jxr_comment">// TODO there are other smarter things we could do like repairing inner holes and</em>
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>         <em class="jxr_comment">// subtracting</em>
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>         <em class="jxr_comment">// from outer repaired shell; but we needn't try too hard.</em>
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>         <strong class="jxr_keyword">throw</strong> e;
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>       }
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>     }
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>     <strong class="jxr_keyword">if</strong> (isAutoIndex())
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>       jtsGeom.index();
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>     <strong class="jxr_keyword">return</strong> jtsGeom;
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>   }
-<a class="jxr_linenumber" name="L510" href="#L510">510</a> 
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L512" href="#L512">512</a> <em class="jxr_javadoccomment">   * INTERNAL</em>
-<a class="jxr_linenumber" name="L513" href="#L513">513</a> <em class="jxr_javadoccomment">   * @see #makeShape(com.vividsolutions.jts.geom.Geometry)</em>
-<a class="jxr_linenumber" name="L514" href="#L514">514</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L515" href="#L515">515</a> <em class="jxr_javadoccomment">   * @param geom Non-null</em>
-<a class="jxr_linenumber" name="L516" href="#L516">516</a> <em class="jxr_javadoccomment">   * @param dateline180Check if both this is true and {@link SpatialContext#isGeo()}, then JtsGeometry will check</em>
-<a class="jxr_linenumber" name="L517" href="#L517">517</a> <em class="jxr_javadoccomment">   *                         for adjacent coordinates greater than 180 degrees longitude apart, and</em>
-<a class="jxr_linenumber" name="L518" href="#L518">518</a> <em class="jxr_javadoccomment">   *                         it will do tricks to make that line segment (and the shape as a whole)</em>
-<a class="jxr_linenumber" name="L519" href="#L519">519</a> <em class="jxr_javadoccomment">   *                         cross the dateline even though JTS doesn't have geodetic support.</em>
-<a class="jxr_linenumber" name="L520" href="#L520">520</a> <em class="jxr_javadoccomment">   * @param allowMultiOverlap See {@link #isAllowMultiOverlap()}.</em>
-<a class="jxr_linenumber" name="L521" href="#L521">521</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> makeShape(Geometry geom, <strong class="jxr_keyword">boolean</strong> dateline180Check, <strong class="jxr_keyword">boolean</strong> allowMultiOverlap) {
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a>(geom, (JtsSpatialContext) ctx, dateline180Check, allowMultiOverlap);
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>   }
-<a class="jxr_linenumber" name="L525" href="#L525">525</a> 
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L527" href="#L527">527</a> <em class="jxr_javadoccomment">   * INTERNAL: Creates a {@link Shape} from a JTS {@link Geometry}. Generally, this shouldn't be</em>
-<a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">   * called when one of the other factory methods are available, such as for points. The caller</em>
-<a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">   * needs to have done some verification/normalization of the coordinates by now, if any.  Also,</em>
-<a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">   * note that direct instances of {@link GeometryCollection} isn't supported.</em>
-<a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L532" href="#L532">532</a> <em class="jxr_javadoccomment">   * Instead of calling this method, consider {@link #makeShapeFromGeometry(Geometry)}</em>
-<a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">   * which</em>
-<a class="jxr_linenumber" name="L534" href="#L534">534</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> makeShape(Geometry geom) {
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>     <strong class="jxr_keyword">return</strong> makeShape(geom, datelineRule != DatelineRule.none, allowMultiOverlap);
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>   }
-<a class="jxr_linenumber" name="L538" href="#L538">538</a> 
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>   <strong class="jxr_keyword">public</strong> GeometryFactory getGeometryFactory() {
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>     <strong class="jxr_keyword">return</strong> geometryFactory;
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>   }
-<a class="jxr_linenumber" name="L542" href="#L542">542</a> 
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L544" href="#L544">544</a> <em class="jxr_javadoccomment">   * INTERNAL: Returns a Rectangle of the JTS {@link Envelope} (bounding box) of the given {@code geom}.  This asserts</em>
-<a class="jxr_linenumber" name="L545" href="#L545">545</a> <em class="jxr_javadoccomment">   * that {@link Geometry#isRectangle()} is true.  This method reacts to the {@link DatelineRule} setting.</em>
-<a class="jxr_linenumber" name="L546" href="#L546">546</a> <em class="jxr_javadoccomment">   * @param geom non-null</em>
-<a class="jxr_linenumber" name="L547" href="#L547">547</a> <em class="jxr_javadoccomment">   * @return the equivalent Rectangle.</em>
-<a class="jxr_linenumber" name="L548" href="#L548">548</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Rectangle.html">Rectangle</a> makeRectFromRectangularPoly(Geometry geom) {
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>     <em class="jxr_comment">// TODO although, might want to never convert if there's a semantic difference (e.g.</em>
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>     <em class="jxr_comment">//  geodetically)? Should have a setting for that.</em>
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>     assert geom.isRectangle();
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>     Envelope env = geom.getEnvelopeInternal();
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>     <strong class="jxr_keyword">boolean</strong> crossesDateline = false;
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>     <strong class="jxr_keyword">if</strong> (ctx.isGeo() &amp;&amp; getDatelineRule() != DatelineRule.none) {
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>       <strong class="jxr_keyword">if</strong> (getDatelineRule() == DatelineRule.ccwRect) {
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>         <em class="jxr_comment">// If JTS says it is clockwise, then it's actually a dateline crossing rectangle.</em>
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>         crossesDateline = !CGAlgorithms.isCCW(geom.getCoordinates());
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>       } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>         crossesDateline = env.getWidth() &gt; 180;
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>       }
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>     }
-<a class="jxr_linenumber" name="L563" href="#L563">563</a>     <strong class="jxr_keyword">if</strong> (crossesDateline)
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>       <strong class="jxr_keyword">return</strong> rect(env.getMaxX(), env.getMinX(), env.getMinY(), env.getMaxY());
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>     <strong class="jxr_keyword">else</strong>
-<a class="jxr_linenumber" name="L566" href="#L566">566</a>       <strong class="jxr_keyword">return</strong> rect(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>   }
-<a class="jxr_linenumber" name="L568" href="#L568">568</a> 
-<a class="jxr_linenumber" name="L569" href="#L569">569</a> }
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsMultiPolygonBuilder</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiPolygonBuilder</a> {
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>     List&lt;Polygon&gt; geoms = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L396" href="#L396">396</a> 
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>     @Override
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">PolygonBuilder</a> polygon() {
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsShapeFactory.html">JtsPolygonBuilder</a>();
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>     }
+<a class="jxr_linenumber" name="L401" href="#L401">401</a> 
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>     @Override
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">MultiPolygonBuilder</a> add(<a href="../../../../../org/locationtech/spatial4j/shape/ShapeFactory.html">PolygonBuilder</a> polygonBuilder) {
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>       geoms.add(((JtsPolygonBuilder)polygonBuilder).buildPolygonGeom());
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>     }
+<a class="jxr_linenumber" name="L407" href="#L407">407</a> 
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>     @Override
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> build() {
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>       <strong class="jxr_keyword">return</strong> makeShape(geometryFactory.createMultiPolygon(geoms.toArray(<strong class="jxr_keyword">new</strong> Polygon[geoms.size()])));
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>     }
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>   }
+<a class="jxr_linenumber" name="L413" href="#L413">413</a> 
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>   @Override
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>   <strong class="jxr_keyword">public</strong> &lt;T <strong class="jxr_keyword">extends</strong> Shape&gt; MultiShapeBuilder&lt;T&gt; multiShape(Class&lt;T&gt; shapeClass) {
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>     <strong class="jxr_keyword">if</strong> (!useJtsMulti()) {
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.multiShape(shapeClass);
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>     }
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> JtsMultiShapeBuilder&lt;&gt;();
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>   }
+<a class="jxr_linenumber" name="L421" href="#L421">421</a> 
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>   <em class="jxr_comment">// TODO: once we have typed shapes for Polygons &amp; LineStrings, this logic could move to the superclass</em>
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>   <em class="jxr_comment">// (not JTS specific) and the multi* builders could take a Shape</em>
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> JtsMultiShapeBuilder&lt;T <strong class="jxr_keyword">extends</strong> Shape&gt; <strong class="jxr_keyword">extends</strong> GeneralShapeMultiShapeBuilder&lt;T&gt; {
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>     @Override
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> build() {
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>       Class&lt;?&gt; last = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>       List&lt;Geometry&gt; geoms = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(shapes.size());
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>       <strong class="jxr_keyword">for</strong>(<a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> s : shapes) {
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>         <strong class="jxr_keyword">if</strong> (last != <strong class="jxr_keyword">null</strong> &amp;&amp; last != s.getClass()) {
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.build();
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>         }
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <strong class="jxr_keyword">if</strong> (s instanceof JtsGeometry) {
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>           geoms.add(((JtsGeometry)s).getGeom());
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s instanceof JtsPoint) {
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>           geoms.add(((JtsPoint)s).getGeom());
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.build();
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         }
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>         last = s.getClass();
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>       }
+<a class="jxr_linenumber" name="L442" href="#L442">442</a> 
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>       <strong class="jxr_keyword">return</strong> makeShapeFromGeometry(geometryFactory.buildGeometry(geoms));
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>     }
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>   }
+<a class="jxr_linenumber" name="L446" href="#L446">446</a> 
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> <em class="jxr_javadoccomment">   * INTERNAL Usually creates a JtsGeometry, potentially validating, repairing, and indexing ("preparing"). This method</em>
+<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_javadoccomment">   * is intended for use by {@link ShapeReader} instances.</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">   * If given a direct instance of {@link GeometryCollection} then it's contents will be</em>
+<a class="jxr_linenumber" name="L452" href="#L452">452</a> <em class="jxr_javadoccomment">   * recursively converted and then the resulting list will be passed to</em>
+<a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_javadoccomment">   * {@link SpatialContext#makeCollection(List)} and returned.</em>
+<a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">   * If given a {@link org.locationtech.jts.geom.Point} then {@link SpatialContext#makePoint(double, double)}</em>
+<a class="jxr_linenumber" name="L456" href="#L456">456</a> <em class="jxr_javadoccomment">   * is called, which will return a {@link JtsPoint} if {@link JtsSpatialContext#useJtsPoint()}; otherwise</em>
+<a class="jxr_linenumber" name="L457" href="#L457">457</a> <em class="jxr_javadoccomment">   * a standard Spatial4j Point is returned.</em>
+<a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_javadoccomment">   * If given a {@link LineString} and if {@link JtsSpatialContext#useJtsLineString()} is true then</em>
+<a class="jxr_linenumber" name="L460" href="#L460">460</a> <em class="jxr_javadoccomment">   * then the geometry's parts are exposed to call {@link SpatialContext#makeLineString(List)}.</em>
+<a class="jxr_linenumber" name="L461" href="#L461">461</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>   <em class="jxr_comment">// TODO should this be called always (consistent but sometimes not needed?)</em>
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>   <em class="jxr_comment">//   v.s. only from a ShapeReader (pre-ShapeFactory behavior)</em>
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> makeShapeFromGeometry(Geometry geom) {
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>     <strong class="jxr_keyword">if</strong> (geom instanceof GeometryCollection) {
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>       <em class="jxr_comment">// Direct instances of GeometryCollection can't be wrapped in JtsGeometry but can be expanded into</em>
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>       <em class="jxr_comment">//  a ShapeCollection.</em>
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>       <strong class="jxr_keyword">if</strong> (!useJtsMulti || geom.getClass() == GeometryCollection.<strong class="jxr_keyword">class</strong>) {
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>         List&lt;Shape&gt; shapes = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(geom.getNumGeometries());
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; geom.getNumGeometries(); i++) {
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>           Geometry geomN = geom.getGeometryN(i);
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>           shapes.add(makeShapeFromGeometry(geomN));<em class="jxr_comment">//recursion</em>
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>         }
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>         <strong class="jxr_keyword">return</strong> multiShape(shapes);
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>       }
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (geom instanceof org.locationtech.jts.geom.Point) {
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>       org.locationtech.jts.geom.Point pt = (org.locationtech.jts.geom.Point) geom;
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>       <strong class="jxr_keyword">return</strong> pointXY(pt.getX(), pt.getY());
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (geom instanceof LineString) {
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>       <strong class="jxr_keyword">if</strong> (!useJtsLineString()) {
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>         LineString lineString = (LineString) geom;
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>         List&lt;Point&gt; points = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(lineString.getNumPoints());
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; lineString.getNumPoints(); i++) {
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>           Coordinate coord = lineString.getCoordinateN(i);
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>           points.add(pointXY(coord.x, coord.y));
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>         }
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         <strong class="jxr_keyword">return</strong> lineString(points, 0);
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>       }
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>     }
+<a class="jxr_linenumber" name="L490" href="#L490">490</a> 
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>     <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> jtsGeom;
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>       jtsGeom = makeShape(geom);
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>       <strong class="jxr_keyword">if</strong> (getValidationRule() != ValidationRule.none)
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>         jtsGeom.validate();
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>       <em class="jxr_comment">// repair:</em>
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>       <strong class="jxr_keyword">if</strong> (getValidationRule() == ValidationRule.repairConvexHull) {
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>         jtsGeom = makeShape(geom.convexHull());
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (getValidationRule() == ValidationRule.repairBuffer0) {
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>         jtsGeom = makeShape(geom.buffer(0));
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>         <em class="jxr_comment">// TODO there are other smarter things we could do like repairing inner holes and</em>
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>         <em class="jxr_comment">// subtracting</em>
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>         <em class="jxr_comment">// from outer repaired shell; but we needn't try too hard.</em>
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>         <strong class="jxr_keyword">throw</strong> e;
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>       }
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>     }
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>     <strong class="jxr_keyword">return</strong> jtsGeom;
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>   }
+<a class="jxr_linenumber" name="L511" href="#L511">511</a> 
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L513" href="#L513">513</a> <em class="jxr_javadoccomment">   * INTERNAL</em>
+<a class="jxr_linenumber" name="L514" href="#L514">514</a> <em class="jxr_javadoccomment">   * @see #makeShape(org.locationtech.jts.geom.Geometry)</em>
+<a class="jxr_linenumber" name="L515" href="#L515">515</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L516" href="#L516">516</a> <em class="jxr_javadoccomment">   * @param geom Non-null</em>
+<a class="jxr_linenumber" name="L517" href="#L517">517</a> <em class="jxr_javadoccomment">   * @param dateline180Check if both this is true and {@link SpatialContext#isGeo()}, then JtsGeometry will check</em>
+<a class="jxr_linenumber" name="L518" href="#L518">518</a> <em class="jxr_javadoccomment">   *                         for adjacent coordinates greater than 180 degrees longitude apart, and</em>
+<a class="jxr_linenumber" name="L519" href="#L519">519</a> <em class="jxr_javadoccomment">   *                         it will do tricks to make that line segment (and the shape as a whole)</em>
+<a class="jxr_linenumber" name="L520" href="#L520">520</a> <em class="jxr_javadoccomment">   *                         cross the dateline even though JTS doesn't have geodetic support.</em>
+<a class="jxr_linenumber" name="L521" href="#L521">521</a> <em class="jxr_javadoccomment">   * @param allowMultiOverlap See {@link #isAllowMultiOverlap()}.</em>
+<a class="jxr_linenumber" name="L522" href="#L522">522</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> makeShape(Geometry geom, <strong class="jxr_keyword">boolean</strong> dateline180Check, <strong class="jxr_keyword">boolean</strong> allowMultiOverlap) {
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>     <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> jtsGeom = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a>(geom, (JtsSpatialContext) ctx, dateline180Check, allowMultiOverlap);
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>     <strong class="jxr_keyword">if</strong> (isAutoIndex()) {
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>       jtsGeom.index();
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>     }
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>     <strong class="jxr_keyword">return</strong> jtsGeom;
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>   }
+<a class="jxr_linenumber" name="L530" href="#L530">530</a> 
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L532" href="#L532">532</a> <em class="jxr_javadoccomment">   * INTERNAL: Creates a {@link Shape} from a JTS {@link Geometry}. Generally, this shouldn't be</em>
+<a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">   * called when one of the other factory methods are available, such as for points. The caller</em>
+<a class="jxr_linenumber" name="L534" href="#L534">534</a> <em class="jxr_javadoccomment">   * needs to have done some verification/normalization of the coordinates by now, if any.  Also,</em>
+<a class="jxr_linenumber" name="L535" href="#L535">535</a> <em class="jxr_javadoccomment">   * note that direct instances of {@link GeometryCollection} isn't supported.</em>
+<a class="jxr_linenumber" name="L536" href="#L536">536</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L537" href="#L537">537</a> <em class="jxr_javadoccomment">   * Instead of calling this method, consider {@link #makeShapeFromGeometry(Geometry)}</em>
+<a class="jxr_linenumber" name="L538" href="#L538">538</a> <em class="jxr_javadoccomment">   * which</em>
+<a class="jxr_linenumber" name="L539" href="#L539">539</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> makeShape(Geometry geom) {
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>     <strong class="jxr_keyword">return</strong> makeShape(geom, datelineRule != DatelineRule.none, allowMultiOverlap);
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>   }
+<a class="jxr_linenumber" name="L543" href="#L543">543</a> 
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>   <strong class="jxr_keyword">public</strong> GeometryFactory getGeometryFactory() {
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>     <strong class="jxr_keyword">return</strong> geometryFactory;
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>   }
+<a class="jxr_linenumber" name="L547" href="#L547">547</a> 
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L549" href="#L549">549</a> <em class="jxr_javadoccomment">   * INTERNAL: Returns a Rectangle of the JTS {@link Envelope} (bounding box) of the given {@code geom}.  This asserts</em>
+<a class="jxr_linenumber" name="L550" href="#L550">550</a> <em class="jxr_javadoccomment">   * that {@link Geometry#isRectangle()} is true.  This method reacts to the {@link DatelineRule} setting.</em>
+<a class="jxr_linenumber" name="L551" href="#L551">551</a> <em class="jxr_javadoccomment">   * @param geom non-null</em>
+<a class="jxr_linenumber" name="L552" href="#L552">552</a> <em class="jxr_javadoccomment">   * @return the equivalent Rectangle.</em>
+<a class="jxr_linenumber" name="L553" href="#L553">553</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Rectangle.html">Rectangle</a> makeRectFromRectangularPoly(Geometry geom) {
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>     <em class="jxr_comment">// TODO although, might want to never convert if there's a semantic difference (e.g.</em>
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>     <em class="jxr_comment">//  geodetically)? Should have a setting for that.</em>
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>     assert geom.isRectangle();
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>     Envelope env = geom.getEnvelopeInternal();
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>     <strong class="jxr_keyword">boolean</strong> crossesDateline = false;
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>     <strong class="jxr_keyword">if</strong> (ctx.isGeo() &amp;&amp; getDatelineRule() != DatelineRule.none) {
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>       <strong class="jxr_keyword">if</strong> (getDatelineRule() == DatelineRule.ccwRect) {
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>         <em class="jxr_comment">// If JTS says it is clockwise, then it's actually a dateline crossing rectangle.</em>
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>         crossesDateline = !CGAlgorithms.isCCW(geom.getCoordinates());
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>         crossesDateline = env.getWidth() &gt; 180;
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>       }
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>     }
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>     <strong class="jxr_keyword">if</strong> (crossesDateline)
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>       <strong class="jxr_keyword">return</strong> rect(env.getMaxX(), env.getMinX(), env.getMinY(), env.getMaxY());
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>     <strong class="jxr_keyword">else</strong>
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>       <strong class="jxr_keyword">return</strong> rect(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY());
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>   }
+<a class="jxr_linenumber" name="L573" href="#L573">573</a> 
+<a class="jxr_linenumber" name="L574" href="#L574">574</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2017 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
 </body>
 </html>

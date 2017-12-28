@@ -70,7 +70,7 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">if</strong> (shape instanceof Rectangle) {
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>        <a href="../../../../org/locationtech/spatial4j/shape/Rectangle.html">Rectangle</a> v = (Rectangle) shape;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>        output.append(<span class="jxr_string">"{\&quot;type\&quot;:\&quot;Polygon\&quot;,\&quot;coordinates\&quot;: [["</span>);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>        output.append(<span class="jxr_string">"{\&quot;type\&quot;:\&quot;Polygon\&quot;,\&quot;coordinates\&quot;:[["</span>);
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>        write(output, nf, v.getMinX(), v.getMinY());
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>        output.append(',');
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>        write(output, nf, v.getMinX(), v.getMaxY());
@@ -85,7 +85,7 @@
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">if</strong> (shape instanceof BufferedLine) {
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>        <a href="../../../../org/locationtech/spatial4j/shape/impl/BufferedLine.html">BufferedLine</a> v = (BufferedLine) shape;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>        output.append(<span class="jxr_string">"{\&quot;type\&quot;:\&quot;LineString\&quot;,\&quot;coordinates\&quot;: ["</span>);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>        output.append(<span class="jxr_string">"{\&quot;type\&quot;:\&quot;LineString\&quot;,\&quot;coordinates\&quot;:["</span>);
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>        write(output, nf, v.getA().getX(), v.getA().getY());
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>        output.append(',');
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>        write(output, nf, v.getB().getX(), v.getB().getY());
@@ -101,7 +101,7 @@
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>      }
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">if</strong> (shape instanceof BufferedLineString) {
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>        <a href="../../../../org/locationtech/spatial4j/shape/impl/BufferedLineString.html">BufferedLineString</a> v = (BufferedLineString) shape;
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>        output.append(<span class="jxr_string">"{\&quot;type\&quot;:\&quot;LineString\&quot;,\&quot;coordinates\&quot;: ["</span>);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>        output.append(<span class="jxr_string">"{\&quot;type\&quot;:\&quot;LineString\&quot;,\&quot;coordinates\&quot;:["</span>);
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>        <a href="../../../../org/locationtech/spatial4j/shape/impl/BufferedLine.html">BufferedLine</a> last = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>        Iterator&lt;BufferedLine&gt; iter = v.getSegments().iterator();
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>        <strong class="jxr_keyword">while</strong> (iter.hasNext()) {
@@ -135,7 +135,7 @@
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>     }
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">if</strong> (shape instanceof ShapeCollection) {
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>       <a href="../../../../org/locationtech/spatial4j/shape/ShapeCollection.html">ShapeCollection</a> v = (ShapeCollection) shape;
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>       output.append(<span class="jxr_string">"{\&quot;type\&quot;:\&quot;GeometryCollection\&quot;,\&quot;geometries\&quot;: ["</span>);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>       output.append(<span class="jxr_string">"{\&quot;type\&quot;:\&quot;GeometryCollection\&quot;,\&quot;geometries\&quot;:["</span>);
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; v.size(); i++) {
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">if</strong> (i &gt; 0) {
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>           output.append(',');
@@ -192,6 +192,6 @@
 <a class="jxr_linenumber" name="L184" href="#L184">184</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2017 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
 </body>
 </html>

@@ -4,6 +4,7 @@ org.locationtech.spatial4j.context.jts
 org.locationtech.spatial4j.distance
 org.locationtech.spatial4j.exception
 org.locationtech.spatial4j.io
+org.locationtech.spatial4j.io.jackson
 org.locationtech.spatial4j.io.jts
 org.locationtech.spatial4j.shape
 org.locationtech.spatial4j.shape.impl

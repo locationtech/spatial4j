@@ -25,11 +25,11 @@
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> org.locationtech.spatial4j.shape.impl.BBoxCalculator;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> org.locationtech.spatial4j.shape.impl.BufferedLineString;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> org.locationtech.spatial4j.shape.impl.RectangleImpl;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.*;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.prep.PreparedGeometry;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.operation.union.UnaryUnionOp;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.operation.valid.IsValidOp;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> org.locationtech.jts.geom.*;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> org.locationtech.jts.geom.prep.PreparedGeometry;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> org.locationtech.jts.geom.prep.PreparedGeometryFactory;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> org.locationtech.jts.operation.union.UnaryUnionOp;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> org.locationtech.jts.operation.valid.IsValidOp;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
@@ -38,7 +38,7 @@
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * Wraps a JTS {@link Geometry} (i.e. may be a polygon or basically anything).</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * JTS does a great deal of the hard work, but there is work here in handling</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * dateline wrap.</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * dateline (aka anti-meridian) wrap.</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> <strong class="jxr_keyword">extends</strong> BaseShape&lt;JtsSpatialContext&gt; {
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>    <em class="jxr_javadoccomment">/** System property boolean that can disable auto validation in an assert. */</em>
@@ -66,7 +66,7 @@
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ctx.isGeo()) {
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>        <em class="jxr_comment">//Unwraps the geometry across the dateline so it exceeds the standard geo bounds (-180 to +180).</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>        <strong class="jxr_keyword">if</strong> (dateline180Check)
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          unwrapDateline(geom);<em class="jxr_comment">//potentially modifies geom</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          geom = unwrapDateline(geom);<em class="jxr_comment">//returns same or new geom</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>        <em class="jxr_comment">//If given multiple overlapping polygons, fix it by union</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>        <strong class="jxr_keyword">if</strong> (allowMultiOverlap)
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          geom = unionGeometryCollection(geom);<em class="jxr_comment">//returns same or new geom</em>
@@ -138,454 +138,487 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>   }
 <a class="jxr_linenumber" name="L131" href="#L131">131</a> 
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">   * Adds an index to this class internally to compute spatial relations faster. In JTS this</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">   * is called a {@link com.vividsolutions.jts.geom.prep.PreparedGeometry}.  This</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">   * isn't done by default because it takes some time to do the optimization, and it uses more</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">   * memory.  Calling this method isn't thread-safe so be careful when this is done. If it was</em>
-<a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">   * already indexed then nothing happens.</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> index() {
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">if</strong> (preparedGeometry == <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>       preparedGeometry = PreparedGeometryFactory.prepare(geom);
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>   }
-<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>   @Override
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isEmpty() {
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <strong class="jxr_keyword">return</strong> bbox.isEmpty(); <em class="jxr_comment">// fast</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>   }
-<a class="jxr_linenumber" name="L148" href="#L148">148</a> 
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>   <em class="jxr_javadoccomment">/** Given {@code geoms} which has already been checked for being in world</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">   * bounds, return the minimal longitude range of the bounding box.</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Rectangle.html">Rectangle</a> computeGeoBBox(Geometry geoms) {
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">final</strong> Envelope env = geoms.getEnvelopeInternal();<em class="jxr_comment">//for minY &amp; maxY (simple)</em>
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <strong class="jxr_keyword">if</strong> (ctx.isGeo() &amp;&amp; env.getWidth() &gt; 180 &amp;&amp; geoms.getNumGeometries() &gt; 1)  {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>       <em class="jxr_comment">// This is ShapeCollection's bbox algorithm</em>
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>       <a href="../../../../../org/locationtech/spatial4j/shape/impl/BBoxCalculator.html">BBoxCalculator</a> bboxCalc = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/impl/BBoxCalculator.html">BBoxCalculator</a>(ctx);
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; geoms.getNumGeometries(); i++ ) {
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         Envelope envI = geoms.getGeometryN(i).getEnvelopeInternal();
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         bboxCalc.expandXRange(envI.getMinX(), envI.getMaxX());
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">if</strong> (bboxCalc.doesXWorldWrap())
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>           <strong class="jxr_keyword">break</strong>; <em class="jxr_comment">// can't grow any bigger</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>       }
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/impl/RectangleImpl.html">RectangleImpl</a>(bboxCalc.getMinX(), bboxCalc.getMaxX(), env.getMinY(), env.getMaxY(), ctx);
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/impl/RectangleImpl.html">RectangleImpl</a>(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY(), ctx);
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     }
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>   }
-<a class="jxr_linenumber" name="L168" href="#L168">168</a> 
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>   @Override
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> getBuffered(<strong class="jxr_keyword">double</strong> distance, <a href="../../../../../org/locationtech/spatial4j/context/SpatialContext.html">SpatialContext</a> ctx) {
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <em class="jxr_comment">//TODO doesn't work correctly across the dateline. The buffering needs to happen</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <em class="jxr_comment">// when it's transiently unrolled, prior to being sliced.</em>
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.ctx.makeShape(geom.buffer(distance), <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">   * Determines if the shape has been indexed.</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>   <strong class="jxr_keyword">boolean</strong> isIndexed() {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">return</strong> preparedGeometry != <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>   }
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">   * Adds an index to this class internally to compute spatial relations faster. In JTS this</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">   * is called a {@link org.locationtech.jts.geom.prep.PreparedGeometry}.  This</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">   * isn't done by default because it takes some time to do the optimization, and it uses more</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">   * memory.  Calling this method isn't thread-safe so be careful when this is done. If it was</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">   * already indexed then nothing happens.</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> index() {
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">if</strong> (preparedGeometry == <strong class="jxr_keyword">null</strong>)
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>       preparedGeometry = PreparedGeometryFactory.prepare(geom);
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>   }
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>   @Override
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isEmpty() {
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">return</strong> bbox.isEmpty(); <em class="jxr_comment">// fast</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>   }
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>   <em class="jxr_javadoccomment">/** Given {@code geoms} which has already been checked for being in world</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">   * bounds, return the minimal longitude range of the bounding box.</em>
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Rectangle.html">Rectangle</a> computeGeoBBox(Geometry geoms) {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <strong class="jxr_keyword">final</strong> Envelope env = geoms.getEnvelopeInternal();<em class="jxr_comment">//for minY &amp; maxY (simple)</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">if</strong> (ctx.isGeo() &amp;&amp; env.getWidth() &gt; 180 &amp;&amp; geoms.getNumGeometries() &gt; 1)  {
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>       <em class="jxr_comment">// This is ShapeCollection's bbox algorithm</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>       <a href="../../../../../org/locationtech/spatial4j/shape/impl/BBoxCalculator.html">BBoxCalculator</a> bboxCalc = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/impl/BBoxCalculator.html">BBoxCalculator</a>(ctx);
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; geoms.getNumGeometries(); i++ ) {
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         Envelope envI = geoms.getGeometryN(i).getEnvelopeInternal();
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         bboxCalc.expandXRange(envI.getMinX(), envI.getMaxX());
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">if</strong> (bboxCalc.doesXWorldWrap())
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>           <strong class="jxr_keyword">break</strong>; <em class="jxr_comment">// can't grow any bigger</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>       }
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/impl/RectangleImpl.html">RectangleImpl</a>(bboxCalc.getMinX(), bboxCalc.getMaxX(), env.getMinY(), env.getMaxY(), ctx);
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/impl/RectangleImpl.html">RectangleImpl</a>(env.getMinX(), env.getMaxX(), env.getMinY(), env.getMaxY(), ctx);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>     }
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>   }
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> 
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>   @Override
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> hasArea() {
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">return</strong> hasArea;
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>   }
-<a class="jxr_linenumber" name="L180" href="#L180">180</a> 
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>   @Override
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getArea(<a href="../../../../../org/locationtech/spatial4j/context/SpatialContext.html">SpatialContext</a> ctx) {
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">double</strong> geomArea = geom.getArea();
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">if</strong> (ctx == <strong class="jxr_keyword">null</strong> || geomArea == 0)
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>       <strong class="jxr_keyword">return</strong> geomArea;
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>     <em class="jxr_comment">//Use the area proportional to how filled the bbox is.</em>
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">double</strong> bboxArea = getBoundingBox().getArea(<strong class="jxr_keyword">null</strong>);<em class="jxr_comment">//plain 2d area</em>
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>     assert bboxArea &gt;= geomArea;
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>     <strong class="jxr_keyword">double</strong> filledRatio = geomArea / bboxArea;
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <strong class="jxr_keyword">return</strong> getBoundingBox().getArea(ctx) * filledRatio;
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>     <em class="jxr_comment">// (Future: if we know we use an equal-area projection then we don't need to</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <em class="jxr_comment">//  estimate)</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>   }
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> 
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>   @Override
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Rectangle.html">Rectangle</a> getBoundingBox() {
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <strong class="jxr_keyword">return</strong> bbox;
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>   }
-<a class="jxr_linenumber" name="L199" href="#L199">199</a> 
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>   @Override
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsPoint.html">JtsPoint</a> getCenter() {
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">if</strong> (isEmpty()) <em class="jxr_comment">//geom.getCentroid == null</em>
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsPoint.html">JtsPoint</a>(ctx.getGeometryFactory().createPoint((Coordinate)<strong class="jxr_keyword">null</strong>), ctx);
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsPoint.html">JtsPoint</a>(geom.getCentroid(), ctx);
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> getBuffered(<strong class="jxr_keyword">double</strong> distance, <a href="../../../../../org/locationtech/spatial4j/context/SpatialContext.html">SpatialContext</a> ctx) {
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <em class="jxr_comment">//TODO doesn't work correctly across the dateline. The buffering needs to happen</em>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <em class="jxr_comment">// when it's transiently unrolled, prior to being sliced.</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.ctx.makeShape(geom.buffer(distance), <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>   }
+<a class="jxr_linenumber" name="L182" href="#L182">182</a> 
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>   @Override
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> hasArea() {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>     <strong class="jxr_keyword">return</strong> hasArea;
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>   }
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> 
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>   @Override
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getArea(<a href="../../../../../org/locationtech/spatial4j/context/SpatialContext.html">SpatialContext</a> ctx) {
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <strong class="jxr_keyword">double</strong> geomArea = geom.getArea();
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     <strong class="jxr_keyword">if</strong> (ctx == <strong class="jxr_keyword">null</strong> || geomArea == 0)
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>       <strong class="jxr_keyword">return</strong> geomArea;
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>     <em class="jxr_comment">//Use the area proportional to how filled the bbox is.</em>
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <strong class="jxr_keyword">double</strong> bboxArea = getBoundingBox().getArea(<strong class="jxr_keyword">null</strong>);<em class="jxr_comment">//plain 2d area</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>     assert bboxArea &gt;= geomArea;
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>     <strong class="jxr_keyword">double</strong> filledRatio = geomArea / bboxArea;
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <strong class="jxr_keyword">return</strong> getBoundingBox().getArea(ctx) * filledRatio;
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <em class="jxr_comment">// (Future: if we know we use an equal-area projection then we don't need to</em>
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <em class="jxr_comment">//  estimate)</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>   }
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>   @Override
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Rectangle.html">Rectangle</a> getBoundingBox() {
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>     <strong class="jxr_keyword">return</strong> bbox;
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>   }
 <a class="jxr_linenumber" name="L206" href="#L206">206</a> 
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>   @Override
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relate(<a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> other) {
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">if</strong> (other instanceof Point)
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>       <strong class="jxr_keyword">return</strong> relate((Point)other);
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (other instanceof Rectangle)
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>       <strong class="jxr_keyword">return</strong> relate((Rectangle) other);
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (other instanceof Circle)
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>       <strong class="jxr_keyword">return</strong> relate((Circle) other);
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (other instanceof JtsGeometry)
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>       <strong class="jxr_keyword">return</strong> relate((JtsGeometry) other);
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (other instanceof BufferedLineString)
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UnsupportedOperationException(<span class="jxr_string">"Can't use BufferedLineString with JtsGeometry"</span>);
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>     <strong class="jxr_keyword">return</strong> other.relate(<strong class="jxr_keyword">this</strong>).transpose();
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>   }
-<a class="jxr_linenumber" name="L221" href="#L221">221</a> 
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relate(<a href="../../../../../org/locationtech/spatial4j/shape/Point.html">Point</a> pt) {
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>     <strong class="jxr_keyword">if</strong> (!getBoundingBox().relate(pt).intersects())
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.DISJOINT;
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     Geometry ptGeom;
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>     <strong class="jxr_keyword">if</strong> (pt instanceof JtsPoint)
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>       ptGeom = ((JtsPoint)pt).getGeom();
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <strong class="jxr_keyword">else</strong>
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>       ptGeom = ctx.getGeometryFactory().createPoint(<strong class="jxr_keyword">new</strong> Coordinate(pt.getX(), pt.getY()));
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <strong class="jxr_keyword">return</strong> relate(ptGeom);<em class="jxr_comment">//is point-optimized</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>   }
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> 
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relate(<a href="../../../../../org/locationtech/spatial4j/shape/Rectangle.html">Rectangle</a> rectangle) {
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>     <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> bboxR = bbox.relate(rectangle);
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <strong class="jxr_keyword">if</strong> (bboxR == SpatialRelation.WITHIN || bboxR == SpatialRelation.DISJOINT)
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>       <strong class="jxr_keyword">return</strong> bboxR;
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <em class="jxr_comment">// FYI, the right answer could still be DISJOINT or WITHIN, but we don't know yet.</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>     <strong class="jxr_keyword">return</strong> relate(ctx.getGeometryFrom(rectangle));
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>   }
-<a class="jxr_linenumber" name="L240" href="#L240">240</a> 
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relate(<strong class="jxr_keyword">final</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Circle.html">Circle</a> circle) {
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> bboxR = bbox.relate(circle);
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>     <strong class="jxr_keyword">if</strong> (bboxR == SpatialRelation.WITHIN || bboxR == SpatialRelation.DISJOINT)
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>       <strong class="jxr_keyword">return</strong> bboxR;
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <em class="jxr_comment">// The result could be anything still.</em>
-<a class="jxr_linenumber" name="L246" href="#L246">246</a> 
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a>[] result = {<strong class="jxr_keyword">null</strong>};
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>     <em class="jxr_comment">// Visit each geometry (this geom might contain others).</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>     geom.apply(<strong class="jxr_keyword">new</strong> GeometryFilter() {
-<a class="jxr_linenumber" name="L250" href="#L250">250</a> 
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>       <em class="jxr_comment">// We use cartesian math.  It's a limitation/assumption when working with JTS.  When geo=true (i.e. we're using</em>
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>       <em class="jxr_comment">//   WGS84 instead of a projected coordinate system), the errors here will be pretty terrible east-west.  At</em>
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>       <em class="jxr_comment">//   60 degrees latitude, the circle will work as if it has half the width it should.</em>
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>       <em class="jxr_comment">//   Instead, consider converting the circle to a polygon first (not great but better), or projecting both first.</em>
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>       <em class="jxr_comment">//   Ideally, use Geo3D.</em>
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>       <strong class="jxr_keyword">final</strong> <a href="../../../../../org/locationtech/spatial4j/distance/CartesianDistCalc.html">CartesianDistCalc</a> calcSqd = CartesianDistCalc.INSTANCE_SQUARED;
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>       <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> radiusSquared = circle.getRadius() * circle.getRadius();
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>       <strong class="jxr_keyword">final</strong> Geometry ctrGeom = ctx.getGeometryFrom(circle.getCenter());
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>       @Override
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> filter(Geometry geom) {
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">if</strong> (result[0] == SpatialRelation.INTERSECTS || result[0] == SpatialRelation.CONTAINS) {
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>           <em class="jxr_comment">// a previous filter(geom) call had a result that won't be changed no matter how this geom relates</em>
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>           <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>         }
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsPoint.html">JtsPoint</a> getCenter() {
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">if</strong> (isEmpty()) <em class="jxr_comment">//geom.getCentroid == null</em>
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsPoint.html">JtsPoint</a>(ctx.getGeometryFactory().createPoint((Coordinate)<strong class="jxr_keyword">null</strong>), ctx);
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsPoint.html">JtsPoint</a>(geom.getCentroid(), ctx);
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>   }
+<a class="jxr_linenumber" name="L213" href="#L213">213</a> 
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>   @Override
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relate(<a href="../../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> other) {
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>     <strong class="jxr_keyword">if</strong> (other instanceof Point)
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>       <strong class="jxr_keyword">return</strong> relate((Point)other);
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (other instanceof Rectangle)
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>       <strong class="jxr_keyword">return</strong> relate((Rectangle) other);
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (other instanceof Circle)
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>       <strong class="jxr_keyword">return</strong> relate((Circle) other);
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (other instanceof JtsGeometry)
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>       <strong class="jxr_keyword">return</strong> relate((JtsGeometry) other);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (other instanceof BufferedLineString)
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UnsupportedOperationException(<span class="jxr_string">"Can't use BufferedLineString with JtsGeometry"</span>);
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>     <strong class="jxr_keyword">return</strong> other.relate(<strong class="jxr_keyword">this</strong>).transpose();
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>   }
+<a class="jxr_linenumber" name="L228" href="#L228">228</a> 
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relate(<a href="../../../../../org/locationtech/spatial4j/shape/Point.html">Point</a> pt) {
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <strong class="jxr_keyword">if</strong> (!getBoundingBox().relate(pt).intersects())
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.DISJOINT;
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     Geometry ptGeom;
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <strong class="jxr_keyword">if</strong> (pt instanceof JtsPoint)
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>       ptGeom = ((JtsPoint)pt).getGeom();
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <strong class="jxr_keyword">else</strong>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>       ptGeom = ctx.getGeometryFactory().createPoint(<strong class="jxr_keyword">new</strong> Coordinate(pt.getX(), pt.getY()));
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <strong class="jxr_keyword">return</strong> relate(ptGeom);<em class="jxr_comment">//is point-optimized</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>   }
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> 
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relate(<a href="../../../../../org/locationtech/spatial4j/shape/Rectangle.html">Rectangle</a> rectangle) {
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> bboxR = bbox.relate(rectangle);
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <strong class="jxr_keyword">if</strong> (bboxR == SpatialRelation.WITHIN || bboxR == SpatialRelation.DISJOINT)
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>       <strong class="jxr_keyword">return</strong> bboxR;
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <em class="jxr_comment">// FYI, the right answer could still be DISJOINT or WITHIN, but we don't know yet.</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <strong class="jxr_keyword">return</strong> relate(ctx.getGeometryFrom(rectangle));
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>   }
+<a class="jxr_linenumber" name="L247" href="#L247">247</a> 
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relate(<strong class="jxr_keyword">final</strong> <a href="../../../../../org/locationtech/spatial4j/shape/Circle.html">Circle</a> circle) {
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>     <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> bboxR = bbox.relate(circle);
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>     <strong class="jxr_keyword">if</strong> (bboxR == SpatialRelation.WITHIN || bboxR == SpatialRelation.DISJOINT)
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>       <strong class="jxr_keyword">return</strong> bboxR;
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <em class="jxr_comment">// The result could be anything still.</em>
+<a class="jxr_linenumber" name="L253" href="#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a>[] result = {<strong class="jxr_keyword">null</strong>};
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <em class="jxr_comment">// Visit each geometry (this geom might contain others).</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     geom.apply(<strong class="jxr_keyword">new</strong> GeometryFilter() {
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>       <em class="jxr_comment">// We use cartesian math.  It's a limitation/assumption when working with JTS.  When geo=true (i.e. we're using</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>       <em class="jxr_comment">//   WGS84 instead of a projected coordinate system), the errors here will be pretty terrible east-west.  At</em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>       <em class="jxr_comment">//   60 degrees latitude, the circle will work as if it has half the width it should.</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>       <em class="jxr_comment">//   Instead, consider converting the circle to a polygon first (not great but better), or projecting both first.</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>       <em class="jxr_comment">//   Ideally, use Geo3D.</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>       <strong class="jxr_keyword">final</strong> <a href="../../../../../org/locationtech/spatial4j/distance/CartesianDistCalc.html">CartesianDistCalc</a> calcSqd = CartesianDistCalc.INSTANCE_SQUARED;
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>       <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> radiusSquared = circle.getRadius() * circle.getRadius();
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>       <strong class="jxr_keyword">final</strong> Geometry ctrGeom = ctx.getGeometryFrom(circle.getCenter());
 <a class="jxr_linenumber" name="L266" href="#L266">266</a> 
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <strong class="jxr_keyword">if</strong> (geom instanceof Polygon) {
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>           Polygon polygon = (Polygon) geom;
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>           <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> rel = relateEnclosedRing((LinearRing) polygon.getExteriorRing());
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>           <em class="jxr_comment">// if rel == INTERSECTS or WITHIN or DISJOINT; done.  But CONTAINS...</em>
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>           <strong class="jxr_keyword">if</strong> (rel == SpatialRelation.CONTAINS) {
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>             <em class="jxr_comment">// if the poly outer ring contains the circle, check the holes. Could become DISJOINT or INTERSECTS.</em>
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>             HOLE_LOOP: <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; polygon.getNumInteriorRing(); i++){
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>               <em class="jxr_comment">// TODO short-circuit based on the hole's bbox if it's disjoint or within the circle.</em>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>               <strong class="jxr_keyword">switch</strong> (relateEnclosedRing((LinearRing) polygon.getInteriorRingN(i))) {
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 <strong class="jxr_keyword">case</strong> WITHIN:<em class="jxr_comment">// fall through</em>
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>                 <strong class="jxr_keyword">case</strong> INTERSECTS:
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>                   rel = SpatialRelation.INTERSECTS;
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>                   <strong class="jxr_keyword">break</strong> HOLE_LOOP;
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 <strong class="jxr_keyword">case</strong> CONTAINS:
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>                   rel = SpatialRelation.DISJOINT;
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>                   <strong class="jxr_keyword">break</strong> HOLE_LOOP;
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>                 <em class="jxr_comment">//case DISJOINT: break; // continue hole loop</em>
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>               }
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>             }
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>           }
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>           result[0] = rel.combine(result[0]);
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (geom instanceof LineString) {
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>           LineString lineString = (LineString) geom;
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>           <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> rel = relateLineString(lineString);
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>           result[0] = rel.combine(result[0]);
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (geom instanceof com.vividsolutions.jts.geom.Point) {
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>           com.vividsolutions.jts.geom.Point point = (com.vividsolutions.jts.geom.Point) geom;
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>           <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> rel =
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>                   calcSqd.distance(circle.getCenter(), point.getX(), point.getY()) &gt; radiusSquared
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>                           ? SpatialRelation.DISJOINT : SpatialRelation.WITHIN;
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>           result[0] = rel.combine(result[0]);
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         }
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         <em class="jxr_comment">// else it's going to be some GeometryCollection and we'll visit the contents.</em>
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>       }
-<a class="jxr_linenumber" name="L301" href="#L301">301</a> 
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>       <em class="jxr_javadoccomment">/** As if the ring is the outer ring of a polygon */</em>
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>       <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relateEnclosedRing(LinearRing ring) {
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>         <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> rel = relateLineString(ring);
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">if</strong> (rel == SpatialRelation.DISJOINT
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>                 &amp;&amp; ctx.getGeometryFactory().createPolygon(ring, <strong class="jxr_keyword">null</strong>).contains(ctrGeom)) {
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>           <em class="jxr_comment">// If it contains the circle center point, then the result is CONTAINS</em>
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>           rel = SpatialRelation.CONTAINS;
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         }
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <strong class="jxr_keyword">return</strong> rel;
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>       }
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> 
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>       <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relateLineString(LineString lineString) {
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>         <strong class="jxr_keyword">final</strong> CoordinateSequence seq = lineString.getCoordinateSequence();
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isRing = lineString instanceof LinearRing;
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <strong class="jxr_keyword">int</strong> numOutside = 0;
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <em class="jxr_comment">// Compare the coordinates:</em>
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0, numComparisons = 0; i &lt; seq.size(); i++) {
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>           <strong class="jxr_keyword">if</strong> (i == 0 &amp;&amp; isRing) {
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>             <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>           }
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>           numComparisons++;
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>           <strong class="jxr_keyword">boolean</strong> outside = calcSqd.distance(circle.getCenter(), seq.getX(i), seq.getY(i)) &gt; radiusSquared;
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>           <strong class="jxr_keyword">if</strong> (outside) {
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>             numOutside++;
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>           }
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>           <em class="jxr_comment">// If the comparisons have a mix of outside/inside, then we can short-circuit INTERSECTS.</em>
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>           <strong class="jxr_keyword">if</strong> (numComparisons != numOutside &amp;&amp; numOutside != 0) {
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>             assert numComparisons &gt; 1;
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>             <strong class="jxr_keyword">return</strong> SpatialRelation.INTERSECTS;
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>           }
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>         }
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>         <em class="jxr_comment">// Either all vertices are outside or inside, by this stage.</em>
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>         <strong class="jxr_keyword">if</strong> (numOutside == 0) { <em class="jxr_comment">// all inside</em>
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>           <strong class="jxr_keyword">return</strong> SpatialRelation.WITHIN.combine(result[0]);
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>         }
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>         <em class="jxr_comment">// They are all outside.</em>
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>         <em class="jxr_comment">// Check the edges (line segments) to see if any are inside.</em>
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; seq.size(); i++) {
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>           <strong class="jxr_keyword">boolean</strong> outside = calcSqd.distanceToLineSegment(
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>                   circle.getCenter(), seq.getX(i-1), seq.getY(i-1), seq.getX(i), seq.getY(i))
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>                   &gt; radiusSquared;
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>           <strong class="jxr_keyword">if</strong> (!outside) {
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>             <strong class="jxr_keyword">return</strong> SpatialRelation.INTERSECTS;
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>           }
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>         }
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>         <strong class="jxr_keyword">return</strong> SpatialRelation.DISJOINT;
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>       }
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>     });
-<a class="jxr_linenumber" name="L350" href="#L350">350</a> 
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>     <strong class="jxr_keyword">return</strong> result[0] == <strong class="jxr_keyword">null</strong> ? SpatialRelation.DISJOINT : result[0];
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>   }
-<a class="jxr_linenumber" name="L353" href="#L353">353</a> 
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relate(<a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> jtsGeometry) {
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>     <em class="jxr_comment">//don't bother checking bbox since geom.relate() does this already</em>
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>     <strong class="jxr_keyword">return</strong> relate(jtsGeometry.geom);
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>   }
-<a class="jxr_linenumber" name="L358" href="#L358">358</a> 
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relate(Geometry oGeom) {
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>     <em class="jxr_comment">//see http://docs.geotools.org/latest/userguide/library/jts/dim9.html#preparedgeometry</em>
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>     <strong class="jxr_keyword">if</strong> (oGeom instanceof com.vividsolutions.jts.geom.Point) {
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>       <strong class="jxr_keyword">if</strong> (preparedGeometry != <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>         <strong class="jxr_keyword">return</strong> preparedGeometry.disjoint(oGeom) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>       <strong class="jxr_keyword">return</strong> geom.disjoint(oGeom) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>     }
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>     <strong class="jxr_keyword">if</strong> (preparedGeometry == <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>       <strong class="jxr_keyword">return</strong> intersectionMatrixToSpatialRelation(geom.relate(oGeom));
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (preparedGeometry.covers(oGeom))
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.CONTAINS;
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (preparedGeometry.coveredBy(oGeom))
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.WITHIN;
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (preparedGeometry.intersects(oGeom))
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.INTERSECTS;
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>     <strong class="jxr_keyword">return</strong> SpatialRelation.DISJOINT;
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>   }
-<a class="jxr_linenumber" name="L376" href="#L376">376</a> 
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> intersectionMatrixToSpatialRelation(IntersectionMatrix matrix) {
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <em class="jxr_comment">//As indicated in SpatialRelation javadocs, Spatial4j CONTAINS &amp; WITHIN are</em>
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>     <em class="jxr_comment">// OGC's COVERS &amp; COVEREDBY</em>
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>     <strong class="jxr_keyword">if</strong> (matrix.isCovers())
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.CONTAINS;
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (matrix.isCoveredBy())
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.WITHIN;
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (matrix.isDisjoint())
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.DISJOINT;
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>     <strong class="jxr_keyword">return</strong> SpatialRelation.INTERSECTS;
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>   }
-<a class="jxr_linenumber" name="L388" href="#L388">388</a> 
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>   @Override
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>   <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>     <strong class="jxr_keyword">return</strong> geom.toString();
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>   }
-<a class="jxr_linenumber" name="L393" href="#L393">393</a> 
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>   @Override
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object o) {
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == o) <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>     <strong class="jxr_keyword">if</strong> (o == <strong class="jxr_keyword">null</strong> || getClass() != o.getClass()) <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>     <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> that = (JtsGeometry) o;
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>     <strong class="jxr_keyword">return</strong> geom.equalsExact(that.geom);<em class="jxr_comment">//fast equality for normalized geometries</em>
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>   }
-<a class="jxr_linenumber" name="L401" href="#L401">401</a> 
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>   @Override
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> hashCode() {
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>     <em class="jxr_comment">//FYI if geometry.equalsExact(that.geometry), then their envelopes are the same.</em>
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>     <strong class="jxr_keyword">return</strong> geom.getEnvelopeInternal().hashCode();
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>   }
-<a class="jxr_linenumber" name="L407" href="#L407">407</a> 
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>   <strong class="jxr_keyword">public</strong> Geometry getGeom() {
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>     <strong class="jxr_keyword">return</strong> geom;
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>   }
-<a class="jxr_linenumber" name="L411" href="#L411">411</a> 
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L413" href="#L413">413</a> <em class="jxr_javadoccomment">   * If &lt;code&gt;geom&lt;/code&gt; spans the dateline, then this modifies it to be a</em>
-<a class="jxr_linenumber" name="L414" href="#L414">414</a> <em class="jxr_javadoccomment">   * valid JTS geometry that extends to the right of the standard -180 to +180</em>
-<a class="jxr_linenumber" name="L415" href="#L415">415</a> <em class="jxr_javadoccomment">   * width such that some points are greater than +180 but some remain less.</em>
-<a class="jxr_linenumber" name="L416" href="#L416">416</a> <em class="jxr_javadoccomment">   * Takes care to invoke {@link com.vividsolutions.jts.geom.Geometry#geometryChanged()}</em>
-<a class="jxr_linenumber" name="L417" href="#L417">417</a> <em class="jxr_javadoccomment">   * if needed.</em>
-<a class="jxr_linenumber" name="L418" href="#L418">418</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L419" href="#L419">419</a> <em class="jxr_javadoccomment">   * @return The number of times the geometry spans the dateline.  &gt;= 0</em>
-<a class="jxr_linenumber" name="L420" href="#L420">420</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> unwrapDateline(Geometry geom) {
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>     <strong class="jxr_keyword">if</strong> (geom.getEnvelopeInternal().getWidth() &lt; 180)
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>       <strong class="jxr_keyword">return</strong> 0;<em class="jxr_comment">//can't possibly cross the dateline</em>
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] crossings = {0};<em class="jxr_comment">//an array so that an inner class can modify it.</em>
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>     geom.apply(<strong class="jxr_keyword">new</strong> GeometryFilter() {
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>       @Override
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> filter(Geometry geom) {
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>         <strong class="jxr_keyword">int</strong> cross = 0;
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>         <strong class="jxr_keyword">if</strong> (geom instanceof LineString) {<em class="jxr_comment">//note: LinearRing extends LineString</em>
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>           <strong class="jxr_keyword">if</strong> (geom.getEnvelopeInternal().getWidth() &lt; 180)
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>             <strong class="jxr_keyword">return</strong>;<em class="jxr_comment">//can't possibly cross the dateline</em>
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>           cross = unwrapDateline((LineString) geom);
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (geom instanceof Polygon) {
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>           <strong class="jxr_keyword">if</strong> (geom.getEnvelopeInternal().getWidth() &lt; 180)
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>             <strong class="jxr_keyword">return</strong>;<em class="jxr_comment">//can't possibly cross the dateline</em>
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>           cross = unwrapDateline((Polygon) geom);
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>         } <strong class="jxr_keyword">else</strong>
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>           <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>         crossings[0] = Math.max(crossings[0], cross);
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>       }
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>     });<em class="jxr_comment">//geom.apply()</em>
-<a class="jxr_linenumber" name="L442" href="#L442">442</a> 
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>     <strong class="jxr_keyword">if</strong> (crossings[0] &gt; 0)
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>       geom.geometryChanged();<em class="jxr_comment">//applies to call component Geometries</em>
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>     <strong class="jxr_keyword">return</strong> crossings[0];
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>   }
-<a class="jxr_linenumber" name="L447" href="#L447">447</a> 
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>   <em class="jxr_javadoccomment">/** See {@link #unwrapDateline(Geometry)}. */</em>
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> unwrapDateline(Polygon poly) {
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>     LineString exteriorRing = poly.getExteriorRing();
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>     <strong class="jxr_keyword">int</strong> cross = unwrapDateline(exteriorRing);
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>     <strong class="jxr_keyword">if</strong> (cross &gt; 0) {
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>       <em class="jxr_comment">//TODO TEST THIS! Maybe bug if doesn't cross but is in another page?</em>
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>       <strong class="jxr_keyword">for</strong>(<strong class="jxr_keyword">int</strong> i = 0; i &lt; poly.getNumInteriorRing(); i++) {
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>         LineString innerLineString = poly.getInteriorRingN(i);
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         unwrapDateline(innerLineString);
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>         <strong class="jxr_keyword">for</strong>(<strong class="jxr_keyword">int</strong> shiftCount = 0; ! exteriorRing.contains(innerLineString); shiftCount++) {
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>           <strong class="jxr_keyword">if</strong> (shiftCount &gt; cross)
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"The inner ring doesn't appear to be within the exterior: "</span>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>                 +exteriorRing+<span class="jxr_string">" inner: "</span>+innerLineString);
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>           shiftGeomByX(innerLineString, 360);
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>         }
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>       }
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>     }
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>     <strong class="jxr_keyword">return</strong> cross;
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>   }
-<a class="jxr_linenumber" name="L467" href="#L467">467</a> 
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>   <em class="jxr_javadoccomment">/** See {@link #unwrapDateline(Geometry)}. */</em>
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> unwrapDateline(LineString lineString) {
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>     CoordinateSequence cseq = lineString.getCoordinateSequence();
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>     <strong class="jxr_keyword">int</strong> size = cseq.size();
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>     <strong class="jxr_keyword">if</strong> (size &lt;= 1)
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>       <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L474" href="#L474">474</a> 
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>     <strong class="jxr_keyword">int</strong> shiftX = 0;<em class="jxr_comment">//invariant: == shiftXPage*360</em>
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>     <strong class="jxr_keyword">int</strong> shiftXPage = 0;
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>     <strong class="jxr_keyword">int</strong> shiftXPageMin = 0<em class="jxr_comment">/* &lt;= 0 */</em>, shiftXPageMax = 0; <em class="jxr_comment">/* &gt;= 0 */</em>
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>     <strong class="jxr_keyword">double</strong> prevX = cseq.getX(0);
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>     <strong class="jxr_keyword">for</strong>(<strong class="jxr_keyword">int</strong> i = 1; i &lt; size; i++) {
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>       <strong class="jxr_keyword">double</strong> thisX_orig = cseq.getX(i);
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>       assert thisX_orig &gt;= -180 &amp;&amp; thisX_orig &lt;= 180 : <span class="jxr_string">"X not in geo bounds"</span>;
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>       <strong class="jxr_keyword">double</strong> thisX = thisX_orig + shiftX;
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>       <strong class="jxr_keyword">if</strong> (prevX - thisX &gt; 180) {<em class="jxr_comment">//cross dateline from left to right</em>
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>         thisX += 360;
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>         shiftX += 360;
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>         shiftXPage += 1;
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>         shiftXPageMax = Math.max(shiftXPageMax,shiftXPage);
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (thisX - prevX &gt; 180) {<em class="jxr_comment">//cross dateline from right to left</em>
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>         thisX -= 360;
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>         shiftX -= 360;
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>         shiftXPage -= 1;
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>         shiftXPageMin = Math.min(shiftXPageMin,shiftXPage);
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>       }
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>       <strong class="jxr_keyword">if</strong> (shiftXPage != 0)
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>         cseq.setOrdinate(i, CoordinateSequence.X, thisX);
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>       prevX = thisX;
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>       @Override
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> filter(Geometry geom) {
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <strong class="jxr_keyword">if</strong> (result[0] == SpatialRelation.INTERSECTS || result[0] == SpatialRelation.CONTAINS) {
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>           <em class="jxr_comment">// a previous filter(geom) call had a result that won't be changed no matter how this geom relates</em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>           <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         }
+<a class="jxr_linenumber" name="L273" href="#L273">273</a> 
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">if</strong> (geom instanceof Polygon) {
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>           Polygon polygon = (Polygon) geom;
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>           <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> rel = relateEnclosedRing((LinearRing) polygon.getExteriorRing());
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>           <em class="jxr_comment">// if rel == INTERSECTS or WITHIN or DISJOINT; done.  But CONTAINS...</em>
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>           <strong class="jxr_keyword">if</strong> (rel == SpatialRelation.CONTAINS) {
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>             <em class="jxr_comment">// if the poly outer ring contains the circle, check the holes. Could become DISJOINT or INTERSECTS.</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>             HOLE_LOOP: <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; polygon.getNumInteriorRing(); i++){
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>               <em class="jxr_comment">// TODO short-circuit based on the hole's bbox if it's disjoint or within the circle.</em>
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>               <strong class="jxr_keyword">switch</strong> (relateEnclosedRing((LinearRing) polygon.getInteriorRingN(i))) {
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>                 <strong class="jxr_keyword">case</strong> WITHIN:<em class="jxr_comment">// fall through</em>
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 <strong class="jxr_keyword">case</strong> INTERSECTS:
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>                   rel = SpatialRelation.INTERSECTS;
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>                   <strong class="jxr_keyword">break</strong> HOLE_LOOP;
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>                 <strong class="jxr_keyword">case</strong> CONTAINS:
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>                   rel = SpatialRelation.DISJOINT;
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>                   <strong class="jxr_keyword">break</strong> HOLE_LOOP;
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>                 <em class="jxr_comment">//case DISJOINT: break; // continue hole loop</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>               }
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>             }
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>           }
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>           result[0] = rel.combine(result[0]);
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (geom instanceof LineString) {
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>           LineString lineString = (LineString) geom;
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>           <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> rel = relateLineString(lineString);
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>           result[0] = rel.combine(result[0]);
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (geom instanceof org.locationtech.jts.geom.Point) {
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>           org.locationtech.jts.geom.Point point = (org.locationtech.jts.geom.Point) geom;
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>           <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> rel =
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>                   calcSqd.distance(circle.getCenter(), point.getX(), point.getY()) &gt; radiusSquared
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>                           ? SpatialRelation.DISJOINT : SpatialRelation.WITHIN;
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>           result[0] = rel.combine(result[0]);
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         }
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <em class="jxr_comment">// else it's going to be some GeometryCollection and we'll visit the contents.</em>
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>       }
+<a class="jxr_linenumber" name="L308" href="#L308">308</a> 
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>       <em class="jxr_javadoccomment">/** As if the ring is the outer ring of a polygon */</em>
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>       <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relateEnclosedRing(LinearRing ring) {
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> rel = relateLineString(ring);
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         <strong class="jxr_keyword">if</strong> (rel == SpatialRelation.DISJOINT
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>                 &amp;&amp; ctx.getGeometryFactory().createPolygon(ring, <strong class="jxr_keyword">null</strong>).contains(ctrGeom)) {
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>           <em class="jxr_comment">// If it contains the circle center point, then the result is CONTAINS</em>
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>           rel = SpatialRelation.CONTAINS;
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         }
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <strong class="jxr_keyword">return</strong> rel;
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>       }
+<a class="jxr_linenumber" name="L319" href="#L319">319</a> 
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>       <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relateLineString(LineString lineString) {
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <strong class="jxr_keyword">final</strong> CoordinateSequence seq = lineString.getCoordinateSequence();
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isRing = lineString instanceof LinearRing;
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">int</strong> numOutside = 0;
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <em class="jxr_comment">// Compare the coordinates:</em>
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0, numComparisons = 0; i &lt; seq.size(); i++) {
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>           <strong class="jxr_keyword">if</strong> (i == 0 &amp;&amp; isRing) {
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>             <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>           }
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>           numComparisons++;
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>           <strong class="jxr_keyword">boolean</strong> outside = calcSqd.distance(circle.getCenter(), seq.getX(i), seq.getY(i)) &gt; radiusSquared;
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>           <strong class="jxr_keyword">if</strong> (outside) {
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>             numOutside++;
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>           }
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>           <em class="jxr_comment">// If the comparisons have a mix of outside/inside, then we can short-circuit INTERSECTS.</em>
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>           <strong class="jxr_keyword">if</strong> (numComparisons != numOutside &amp;&amp; numOutside != 0) {
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>             assert numComparisons &gt; 1;
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>             <strong class="jxr_keyword">return</strong> SpatialRelation.INTERSECTS;
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>           }
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         }
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <em class="jxr_comment">// Either all vertices are outside or inside, by this stage.</em>
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>         <strong class="jxr_keyword">if</strong> (numOutside == 0) { <em class="jxr_comment">// all inside</em>
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>           <strong class="jxr_keyword">return</strong> SpatialRelation.WITHIN.combine(result[0]);
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         }
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>         <em class="jxr_comment">// They are all outside.</em>
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <em class="jxr_comment">// Check the edges (line segments) to see if any are inside.</em>
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt; seq.size(); i++) {
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>           <strong class="jxr_keyword">boolean</strong> outside = calcSqd.distanceToLineSegment(
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>                   circle.getCenter(), seq.getX(i-1), seq.getY(i-1), seq.getX(i), seq.getY(i))
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>                   &gt; radiusSquared;
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>           <strong class="jxr_keyword">if</strong> (!outside) {
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>             <strong class="jxr_keyword">return</strong> SpatialRelation.INTERSECTS;
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>           }
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         }
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>         <strong class="jxr_keyword">return</strong> SpatialRelation.DISJOINT;
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>       }
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>     });
+<a class="jxr_linenumber" name="L357" href="#L357">357</a> 
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>     <strong class="jxr_keyword">return</strong> result[0] == <strong class="jxr_keyword">null</strong> ? SpatialRelation.DISJOINT : result[0];
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>   }
+<a class="jxr_linenumber" name="L360" href="#L360">360</a> 
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relate(<a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> jtsGeometry) {
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>     <em class="jxr_comment">//don't bother checking bbox since geom.relate() does this already</em>
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>     <strong class="jxr_keyword">return</strong> relate(jtsGeometry.geom);
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>   }
+<a class="jxr_linenumber" name="L365" href="#L365">365</a> 
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>   <strong class="jxr_keyword">protected</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> relate(Geometry oGeom) {
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>     <em class="jxr_comment">//see http://docs.geotools.org/latest/userguide/library/jts/dim9.html#preparedgeometry</em>
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>     <strong class="jxr_keyword">if</strong> (oGeom instanceof org.locationtech.jts.geom.Point) {
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>       <strong class="jxr_keyword">if</strong> (preparedGeometry != <strong class="jxr_keyword">null</strong>)
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">return</strong> preparedGeometry.disjoint(oGeom) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>       <strong class="jxr_keyword">return</strong> geom.disjoint(oGeom) ? SpatialRelation.DISJOINT : SpatialRelation.CONTAINS;
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>     }
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>     <strong class="jxr_keyword">if</strong> (preparedGeometry == <strong class="jxr_keyword">null</strong>)
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>       <strong class="jxr_keyword">return</strong> intersectionMatrixToSpatialRelation(geom.relate(oGeom));
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (preparedGeometry.covers(oGeom))
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.CONTAINS;
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (preparedGeometry.coveredBy(oGeom))
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.WITHIN;
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (preparedGeometry.intersects(oGeom))
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.INTERSECTS;
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>     <strong class="jxr_keyword">return</strong> SpatialRelation.DISJOINT;
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>   }
+<a class="jxr_linenumber" name="L383" href="#L383">383</a> 
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../org/locationtech/spatial4j/shape/SpatialRelation.html">SpatialRelation</a> intersectionMatrixToSpatialRelation(IntersectionMatrix matrix) {
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>     <em class="jxr_comment">//As indicated in SpatialRelation javadocs, Spatial4j CONTAINS &amp; WITHIN are</em>
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>     <em class="jxr_comment">// OGC's COVERS &amp; COVEREDBY</em>
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>     <strong class="jxr_keyword">if</strong> (matrix.isCovers())
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.CONTAINS;
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (matrix.isCoveredBy())
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.WITHIN;
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>     <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (matrix.isDisjoint())
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>       <strong class="jxr_keyword">return</strong> SpatialRelation.DISJOINT;
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>     <strong class="jxr_keyword">return</strong> SpatialRelation.INTERSECTS;
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>   }
+<a class="jxr_linenumber" name="L395" href="#L395">395</a> 
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>   @Override
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>   <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>     <strong class="jxr_keyword">return</strong> geom.toString();
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>   }
+<a class="jxr_linenumber" name="L400" href="#L400">400</a> 
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>   @Override
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object o) {
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == o) <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>     <strong class="jxr_keyword">if</strong> (o == <strong class="jxr_keyword">null</strong> || getClass() != o.getClass()) <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>     <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsGeometry.html">JtsGeometry</a> that = (JtsGeometry) o;
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>     <strong class="jxr_keyword">return</strong> geom.equalsExact(that.geom);<em class="jxr_comment">//fast equality for normalized geometries</em>
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>   }
+<a class="jxr_linenumber" name="L408" href="#L408">408</a> 
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>   @Override
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> hashCode() {
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>     <em class="jxr_comment">//FYI if geometry.equalsExact(that.geometry), then their envelopes are the same.</em>
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>     <strong class="jxr_keyword">return</strong> geom.getEnvelopeInternal().hashCode();
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>   }
+<a class="jxr_linenumber" name="L414" href="#L414">414</a> 
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>   <strong class="jxr_keyword">public</strong> Geometry getGeom() {
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>     <strong class="jxr_keyword">return</strong> geom;
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>   }
+<a class="jxr_linenumber" name="L418" href="#L418">418</a> 
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L420" href="#L420">420</a> <em class="jxr_javadoccomment">   * If &lt;code&gt;geom&lt;/code&gt; spans the dateline (aka anti-meridian), then this modifies it to be a</em>
+<a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_javadoccomment">   * valid JTS geometry that extends to the right of the standard -180 to +180</em>
+<a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">   * width such that some points are greater than +180 but some remain less.</em>
+<a class="jxr_linenumber" name="L423" href="#L423">423</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_javadoccomment">   * @return The same geometry or a new one if it was unwrapped</em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Geometry unwrapDateline(Geometry geom) {
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>     <strong class="jxr_keyword">if</strong> (geom.getEnvelopeInternal().getWidth() &lt; 180)
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>       <strong class="jxr_keyword">return</strong> geom;<em class="jxr_comment">//can't possibly cross the dateline</em>
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> 
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>     <em class="jxr_comment">// if a multi-geom:  (this is purely an optimization to avoid cloning more than we need to)</em>
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>     <strong class="jxr_keyword">if</strong> (geom instanceof GeometryCollection) {
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>       <strong class="jxr_keyword">if</strong> (geom instanceof MultiPoint) {
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <strong class="jxr_keyword">return</strong> geom; <em class="jxr_comment">// always safe since no point crosses the dateline (on it is okay)</em>
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>       }
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>       GeometryCollection gc = (GeometryCollection) geom;
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>       List&lt;Geometry&gt; list = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(gc.getNumGeometries());
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>       <strong class="jxr_keyword">boolean</strong> didUnwrap = false;
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> n = 0; n &lt; gc.getNumGeometries(); n++) {
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         Geometry geometryN = gc.getGeometryN(n);
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>         Geometry geometryUnwrapped = unwrapDateline(geometryN); <em class="jxr_comment">// recursion</em>
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>         list.add(geometryUnwrapped);
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>         didUnwrap |= (geometryUnwrapped != geometryN);
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>       }
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>       <strong class="jxr_keyword">return</strong> !didUnwrap ? geom : geom.getFactory().buildGeometry(list);
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>     }
+<a class="jxr_linenumber" name="L446" href="#L446">446</a> 
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     <em class="jxr_comment">// a geom (not multi):</em>
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> 
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>     Geometry newGeom = geom.copy(); <em class="jxr_comment">// clone</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a> 
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] crossings = {0};<em class="jxr_comment">//an array so that an inner class can modify it.</em>
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>     newGeom.apply(<strong class="jxr_keyword">new</strong> GeometryFilter() {
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>       @Override
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> filter(Geometry geom) {
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>         <strong class="jxr_keyword">int</strong> cross;
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>         <strong class="jxr_keyword">if</strong> (geom instanceof LineString) {<em class="jxr_comment">//note: LinearRing extends LineString</em>
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>           <strong class="jxr_keyword">if</strong> (geom.getEnvelopeInternal().getWidth() &lt; 180)
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>             <strong class="jxr_keyword">return</strong>;<em class="jxr_comment">//can't possibly cross the dateline</em>
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>           cross = unwrapDateline((LineString) geom);
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (geom instanceof Polygon) {
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>           <strong class="jxr_keyword">if</strong> (geom.getEnvelopeInternal().getWidth() &lt; 180)
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>             <strong class="jxr_keyword">return</strong>;<em class="jxr_comment">//can't possibly cross the dateline</em>
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>           cross = unwrapDateline((Polygon) geom);
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>           <em class="jxr_comment">// The only other JTS subclass of Geometry is a Point, which can't cross anything.</em>
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>           <em class="jxr_comment">//  If the geom is something custom, we don't know what else to do but return.</em>
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>           <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>         }
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>         crossings[0] = Math.max(crossings[0], cross);
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>       }
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>     });<em class="jxr_comment">//geom.apply()</em>
+<a class="jxr_linenumber" name="L472" href="#L472">472</a> 
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>     <strong class="jxr_keyword">if</strong> (crossings[0] &gt; 0) {
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>       newGeom.geometryChanged();
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>       <strong class="jxr_keyword">return</strong> newGeom;
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>       <strong class="jxr_keyword">return</strong> geom; <em class="jxr_comment">// original</em>
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>     }
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>   }
+<a class="jxr_linenumber" name="L480" href="#L480">480</a> 
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>   <em class="jxr_javadoccomment">/** See {@link #unwrapDateline(Geometry)}. */</em>
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> unwrapDateline(Polygon poly) {
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>     LineString exteriorRing = poly.getExteriorRing();
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>     <strong class="jxr_keyword">int</strong> cross = unwrapDateline(exteriorRing);
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>     <strong class="jxr_keyword">if</strong> (cross &gt; 0) {
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>       <em class="jxr_comment">//TODO TEST THIS! Maybe bug if doesn't cross but is in another page?</em>
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>       <strong class="jxr_keyword">for</strong>(<strong class="jxr_keyword">int</strong> i = 0; i &lt; poly.getNumInteriorRing(); i++) {
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>         LineString innerLineString = poly.getInteriorRingN(i);
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>         unwrapDateline(innerLineString);
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>         <strong class="jxr_keyword">for</strong>(<strong class="jxr_keyword">int</strong> shiftCount = 0; ! exteriorRing.contains(innerLineString); shiftCount++) {
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>           <strong class="jxr_keyword">if</strong> (shiftCount &gt; cross)
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"The inner ring doesn't appear to be within the exterior: "</span>
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>                 +exteriorRing+<span class="jxr_string">" inner: "</span>+innerLineString);
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>           shiftGeomByX(innerLineString, 360);
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>         }
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>       }
 <a class="jxr_linenumber" name="L497" href="#L497">497</a>     }
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>     <strong class="jxr_keyword">if</strong> (lineString instanceof LinearRing) {
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>       assert cseq.getCoordinate(0).equals(cseq.getCoordinate(size-1));
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>       assert shiftXPage == 0;<em class="jxr_comment">//starts and ends at 0</em>
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>     }
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>     assert shiftXPageMax &gt;= 0 &amp;&amp; shiftXPageMin &lt;= 0;
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>     <em class="jxr_comment">//Unfortunately we are shifting again; it'd be nice to be smarter and shift once</em>
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>     shiftGeomByX(lineString, shiftXPageMin * -360);
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>     <strong class="jxr_keyword">int</strong> crossings = shiftXPageMax - shiftXPageMin;
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>     <strong class="jxr_keyword">return</strong> crossings;
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>   }
-<a class="jxr_linenumber" name="L508" href="#L508">508</a> 
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> shiftGeomByX(Geometry geom, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> xShift) {
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>     <strong class="jxr_keyword">if</strong> (xShift == 0)
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>       <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>     geom.apply(<strong class="jxr_keyword">new</strong> CoordinateSequenceFilter() {
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>       @Override
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> filter(CoordinateSequence seq, <strong class="jxr_keyword">int</strong> i) {
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>         seq.setOrdinate(i, CoordinateSequence.X, seq.getX(i) + xShift );
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>       }
-<a class="jxr_linenumber" name="L517" href="#L517">517</a> 
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>       @Override <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isDone() { <strong class="jxr_keyword">return</strong> false; }
-<a class="jxr_linenumber" name="L519" href="#L519">519</a> 
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>       @Override <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isGeometryChanged() { <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>; }
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>     });
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>   }
-<a class="jxr_linenumber" name="L523" href="#L523">523</a> 
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Geometry unionGeometryCollection(Geometry geom) {
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>     <strong class="jxr_keyword">if</strong> (geom instanceof GeometryCollection) {
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>       <strong class="jxr_keyword">return</strong> geom.union();
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>     }
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>     <strong class="jxr_keyword">return</strong> geom;
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>   }
-<a class="jxr_linenumber" name="L530" href="#L530">530</a> 
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L532" href="#L532">532</a> <em class="jxr_javadoccomment">   * This "pages" through standard geo boundaries offset by multiples of 360</em>
-<a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">   * longitudinally that intersect geom, and the intersecting results of a page</em>
-<a class="jxr_linenumber" name="L534" href="#L534">534</a> <em class="jxr_javadoccomment">   * and the geom are shifted into the standard -180 to +180 and added to a new</em>
-<a class="jxr_linenumber" name="L535" href="#L535">535</a> <em class="jxr_javadoccomment">   * geometry that is returned.</em>
-<a class="jxr_linenumber" name="L536" href="#L536">536</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Geometry cutUnwrappedGeomInto360(Geometry geom) {
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>     Envelope geomEnv = geom.getEnvelopeInternal();
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>     <strong class="jxr_keyword">if</strong> (geomEnv.getMinX() &gt;= -180 &amp;&amp; geomEnv.getMaxX() &lt;= 180)
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>       <strong class="jxr_keyword">return</strong> geom;
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>     assert geom.isValid() : <span class="jxr_string">"geom"</span>;
-<a class="jxr_linenumber" name="L542" href="#L542">542</a> 
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>     <em class="jxr_comment">//TODO opt: support geom's that start at negative pages --</em>
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>     <em class="jxr_comment">// ... will avoid need to previously shift in unwrapDateline(geom).</em>
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>     List&lt;Geometry&gt; geomList = <strong class="jxr_keyword">new</strong> ArrayList&lt;Geometry&gt;();
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>     <em class="jxr_comment">//page 0 is the standard -180 to 180 range</em>
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> page = 0; <strong class="jxr_keyword">true</strong>; page++) {
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>       <strong class="jxr_keyword">double</strong> minX = -180 + page * 360;
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>       <strong class="jxr_keyword">if</strong> (geomEnv.getMaxX() &lt;= minX)
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>         <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>       Geometry rect = geom.getFactory().toGeometry(<strong class="jxr_keyword">new</strong> Envelope(minX, minX + 360, -90, 90));
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>       assert rect.isValid() : <span class="jxr_string">"rect"</span>;
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>       Geometry pageGeom = rect.intersection(geom);<em class="jxr_comment">//JTS is doing some hard work</em>
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>       assert pageGeom.isValid() : <span class="jxr_string">"pageGeom"</span>;
-<a class="jxr_linenumber" name="L555" href="#L555">555</a> 
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>       shiftGeomByX(pageGeom, page * -360);
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>       geomList.add(pageGeom);
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>     }
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>     <strong class="jxr_keyword">return</strong> UnaryUnionOp.union(geomList);
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>   }
-<a class="jxr_linenumber" name="L561" href="#L561">561</a> 
-<a class="jxr_linenumber" name="L562" href="#L562">562</a> <em class="jxr_comment">//  private static Geometry removePolyHoles(Geometry geom) {</em>
-<a class="jxr_linenumber" name="L563" href="#L563">563</a> <em class="jxr_comment">//    //TODO this does a deep copy of geom even if no changes needed; be smarter</em>
-<a class="jxr_linenumber" name="L564" href="#L564">564</a> <em class="jxr_comment">//    GeometryTransformer gTrans = new GeometryTransformer() {</em>
-<a class="jxr_linenumber" name="L565" href="#L565">565</a> <em class="jxr_comment">//      @Override</em>
-<a class="jxr_linenumber" name="L566" href="#L566">566</a> <em class="jxr_comment">//      protected Geometry transformPolygon(Polygon geom, Geometry parent) {</em>
-<a class="jxr_linenumber" name="L567" href="#L567">567</a> <em class="jxr_comment">//        if (geom.getNumInteriorRing() == 0)</em>
-<a class="jxr_linenumber" name="L568" href="#L568">568</a> <em class="jxr_comment">//          return geom;</em>
-<a class="jxr_linenumber" name="L569" href="#L569">569</a> <em class="jxr_comment">//        return factory.createPolygon((LinearRing) geom.getExteriorRing(),null);</em>
-<a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_comment">//      }</em>
-<a class="jxr_linenumber" name="L571" href="#L571">571</a> <em class="jxr_comment">//    };</em>
-<a class="jxr_linenumber" name="L572" href="#L572">572</a> <em class="jxr_comment">//    return gTrans.transform(geom);</em>
-<a class="jxr_linenumber" name="L573" href="#L573">573</a> <em class="jxr_comment">//  }</em>
-<a class="jxr_linenumber" name="L574" href="#L574">574</a> <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L575" href="#L575">575</a> <em class="jxr_comment">//  private static Geometry snapAndClean(Geometry geom) {</em>
-<a class="jxr_linenumber" name="L576" href="#L576">576</a> <em class="jxr_comment">//    return new GeometrySnapper(geom).snapToSelf(GeometrySnapper.computeOverlaySnapTolerance(geom), true);</em>
-<a class="jxr_linenumber" name="L577" href="#L577">577</a> <em class="jxr_comment">//  }</em>
-<a class="jxr_linenumber" name="L578" href="#L578">578</a> }
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>     <strong class="jxr_keyword">return</strong> cross;
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>   }
+<a class="jxr_linenumber" name="L500" href="#L500">500</a> 
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>   <em class="jxr_javadoccomment">/** See {@link #unwrapDateline(Geometry)}. */</em>
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> unwrapDateline(LineString lineString) {
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>     CoordinateSequence cseq = lineString.getCoordinateSequence();
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>     <strong class="jxr_keyword">int</strong> size = cseq.size();
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>     <strong class="jxr_keyword">if</strong> (size &lt;= 1)
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>       <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L507" href="#L507">507</a> 
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>     <strong class="jxr_keyword">int</strong> shiftX = 0;<em class="jxr_comment">//invariant: == shiftXPage*360</em>
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>     <strong class="jxr_keyword">int</strong> shiftXPage = 0;
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>     <strong class="jxr_keyword">int</strong> shiftXPageMin = 0<em class="jxr_comment">/* &lt;= 0 */</em>, shiftXPageMax = 0; <em class="jxr_comment">/* &gt;= 0 */</em>
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>     <strong class="jxr_keyword">double</strong> prevX = cseq.getX(0);
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>     <strong class="jxr_keyword">for</strong>(<strong class="jxr_keyword">int</strong> i = 1; i &lt; size; i++) {
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>       <strong class="jxr_keyword">double</strong> thisX_orig = cseq.getX(i);
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>       assert thisX_orig &gt;= -180 &amp;&amp; thisX_orig &lt;= 180 : <span class="jxr_string">"X not in geo bounds"</span>;
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>       <strong class="jxr_keyword">double</strong> thisX = thisX_orig + shiftX;
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>       <strong class="jxr_keyword">if</strong> (prevX - thisX &gt; 180) {<em class="jxr_comment">//cross dateline from left to right</em>
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>         thisX += 360;
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>         shiftX += 360;
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>         shiftXPage += 1;
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>         shiftXPageMax = Math.max(shiftXPageMax,shiftXPage);
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (thisX - prevX &gt; 180) {<em class="jxr_comment">//cross dateline from right to left</em>
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>         thisX -= 360;
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>         shiftX -= 360;
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>         shiftXPage -= 1;
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>         shiftXPageMin = Math.min(shiftXPageMin,shiftXPage);
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>       }
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>       <strong class="jxr_keyword">if</strong> (shiftXPage != 0)
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>         cseq.setOrdinate(i, CoordinateSequence.X, thisX);
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>       prevX = thisX;
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>     }
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>     <strong class="jxr_keyword">if</strong> (lineString instanceof LinearRing) {
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>       assert cseq.getCoordinate(0).equals(cseq.getCoordinate(size-1));
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>       assert shiftXPage == 0;<em class="jxr_comment">//starts and ends at 0</em>
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>     }
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>     assert shiftXPageMax &gt;= 0 &amp;&amp; shiftXPageMin &lt;= 0;
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>     <em class="jxr_comment">//Unfortunately we are shifting again; it'd be nice to be smarter and shift once</em>
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>     shiftGeomByX(lineString, shiftXPageMin * -360);
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>     <strong class="jxr_keyword">int</strong> crossings = shiftXPageMax - shiftXPageMin;
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>     <strong class="jxr_keyword">return</strong> crossings;
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>   }
+<a class="jxr_linenumber" name="L541" href="#L541">541</a> 
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> shiftGeomByX(Geometry geom, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> xShift) {
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>     <strong class="jxr_keyword">if</strong> (xShift == 0)
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>       <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>     geom.apply(<strong class="jxr_keyword">new</strong> CoordinateSequenceFilter() {
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>       @Override
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> filter(CoordinateSequence seq, <strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>         seq.setOrdinate(i, CoordinateSequence.X, seq.getX(i) + xShift );
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>       }
+<a class="jxr_linenumber" name="L550" href="#L550">550</a> 
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>       @Override <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isDone() { <strong class="jxr_keyword">return</strong> false; }
+<a class="jxr_linenumber" name="L552" href="#L552">552</a> 
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>       @Override <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isGeometryChanged() { <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>; }
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>     });
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>   }
+<a class="jxr_linenumber" name="L556" href="#L556">556</a> 
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Geometry unionGeometryCollection(Geometry geom) {
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>     <strong class="jxr_keyword">if</strong> (geom instanceof GeometryCollection) {
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>       <strong class="jxr_keyword">return</strong> geom.union();
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>     }
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>     <strong class="jxr_keyword">return</strong> geom;
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>   }
+<a class="jxr_linenumber" name="L563" href="#L563">563</a> 
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L565" href="#L565">565</a> <em class="jxr_javadoccomment">   * This "pages" through standard geo boundaries offset by multiples of 360</em>
+<a class="jxr_linenumber" name="L566" href="#L566">566</a> <em class="jxr_javadoccomment">   * longitudinally that intersect geom, and the intersecting results of a page</em>
+<a class="jxr_linenumber" name="L567" href="#L567">567</a> <em class="jxr_javadoccomment">   * and the geom are shifted into the standard -180 to +180 and added to a new</em>
+<a class="jxr_linenumber" name="L568" href="#L568">568</a> <em class="jxr_javadoccomment">   * geometry that is returned.</em>
+<a class="jxr_linenumber" name="L569" href="#L569">569</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Geometry cutUnwrappedGeomInto360(Geometry geom) {
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>     Envelope geomEnv = geom.getEnvelopeInternal();
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>     <strong class="jxr_keyword">if</strong> (geomEnv.getMinX() &gt;= -180 &amp;&amp; geomEnv.getMaxX() &lt;= 180)
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>       <strong class="jxr_keyword">return</strong> geom;
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>     assert geom.isValid() : <span class="jxr_string">"geom"</span>;
+<a class="jxr_linenumber" name="L575" href="#L575">575</a> 
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>     <em class="jxr_comment">//TODO opt: support geom's that start at negative pages --</em>
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>     <em class="jxr_comment">// ... will avoid need to previously shift in unwrapDateline(geom).</em>
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>     List&lt;Geometry&gt; geomList = <strong class="jxr_keyword">new</strong> ArrayList&lt;Geometry&gt;();
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>     <em class="jxr_comment">//page 0 is the standard -180 to 180 range</em>
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> page = 0; <strong class="jxr_keyword">true</strong>; page++) {
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>       <strong class="jxr_keyword">double</strong> minX = -180 + page * 360;
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>       <strong class="jxr_keyword">if</strong> (geomEnv.getMaxX() &lt;= minX)
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>       Geometry rect = geom.getFactory().toGeometry(<strong class="jxr_keyword">new</strong> Envelope(minX, minX + 360, -90, 90));
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>       assert rect.isValid() : <span class="jxr_string">"rect"</span>;
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>       Geometry pageGeom = rect.intersection(geom);<em class="jxr_comment">//JTS is doing some hard work</em>
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>       assert pageGeom.isValid() : <span class="jxr_string">"pageGeom"</span>;
+<a class="jxr_linenumber" name="L588" href="#L588">588</a> 
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>       shiftGeomByX(pageGeom, page * -360);
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>       geomList.add(pageGeom);
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>     }
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>     <strong class="jxr_keyword">return</strong> UnaryUnionOp.union(geomList);
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>   }
+<a class="jxr_linenumber" name="L594" href="#L594">594</a> 
+<a class="jxr_linenumber" name="L595" href="#L595">595</a> <em class="jxr_comment">//  private static Geometry removePolyHoles(Geometry geom) {</em>
+<a class="jxr_linenumber" name="L596" href="#L596">596</a> <em class="jxr_comment">//    //TODO this does a deep copy of geom even if no changes needed; be smarter</em>
+<a class="jxr_linenumber" name="L597" href="#L597">597</a> <em class="jxr_comment">//    GeometryTransformer gTrans = new GeometryTransformer() {</em>
+<a class="jxr_linenumber" name="L598" href="#L598">598</a> <em class="jxr_comment">//      @Override</em>
+<a class="jxr_linenumber" name="L599" href="#L599">599</a> <em class="jxr_comment">//      protected Geometry transformPolygon(Polygon geom, Geometry parent) {</em>
+<a class="jxr_linenumber" name="L600" href="#L600">600</a> <em class="jxr_comment">//        if (geom.getNumInteriorRing() == 0)</em>
+<a class="jxr_linenumber" name="L601" href="#L601">601</a> <em class="jxr_comment">//          return geom;</em>
+<a class="jxr_linenumber" name="L602" href="#L602">602</a> <em class="jxr_comment">//        return factory.createPolygon((LinearRing) geom.getExteriorRing(),null);</em>
+<a class="jxr_linenumber" name="L603" href="#L603">603</a> <em class="jxr_comment">//      }</em>
+<a class="jxr_linenumber" name="L604" href="#L604">604</a> <em class="jxr_comment">//    };</em>
+<a class="jxr_linenumber" name="L605" href="#L605">605</a> <em class="jxr_comment">//    return gTrans.transform(geom);</em>
+<a class="jxr_linenumber" name="L606" href="#L606">606</a> <em class="jxr_comment">//  }</em>
+<a class="jxr_linenumber" name="L607" href="#L607">607</a> <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L608" href="#L608">608</a> <em class="jxr_comment">//  private static Geometry snapAndClean(Geometry geom) {</em>
+<a class="jxr_linenumber" name="L609" href="#L609">609</a> <em class="jxr_comment">//    return new GeometrySnapper(geom).snapToSelf(GeometrySnapper.computeOverlaySnapTolerance(geom), true);</em>
+<a class="jxr_linenumber" name="L610" href="#L610">610</a> <em class="jxr_comment">//  }</em>
+<a class="jxr_linenumber" name="L611" href="#L611">611</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2017 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
 </body>
 </html>

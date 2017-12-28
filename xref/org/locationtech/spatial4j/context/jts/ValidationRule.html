@@ -29,7 +29,7 @@
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">   * not ultimately get an error at some point; results are undefined. However, note that</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">   * coordinates will still be validated for falling within the world boundaries.</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">   * @see com.vividsolutions.jts.geom.Geometry#isValid()</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">   * @see org.locationtech.jts.geom.Geometry#isValid()</em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>    none,
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  
@@ -42,13 +42,13 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">   * Invalid Geometries are repaired by taking the convex hull. The result will very likely be a</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">   * larger shape that matches false-positives, but no false-negatives. See</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">   * {@link com.vividsolutions.jts.geom.Geometry#convexHull()}.</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">   * {@link org.locationtech.jts.geom.Geometry#convexHull()}.</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>    repairConvexHull,
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">   * Invalid polygons are repaired using the {@code buffer(0)} technique. From the &lt;a</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">   * href="<a href="http://tsusiatsoftware.net/jts/jts-faq/jts-faq.html" target="alexandria_uri">http://tsusiatsoftware.net/jts/jts-faq/jts-faq.html</a>"&gt;JTS FAQ&lt;/a&gt;:</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">   * href="https://locationtech.github.io/jts/jts-faq.html"&gt;JTS FAQ&lt;/a&gt;:</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">   * The buffer operation is fairly insensitive to topological invalidity, and the act of</em>
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">   * computing the buffer can often resolve minor issues such as self-intersecting rings. However,</em>
@@ -63,6 +63,6 @@
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2017 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
 </body>
 </html>

@@ -23,19 +23,19 @@
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> org.locationtech.spatial4j.shape.Shape;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> org.locationtech.spatial4j.shape.jts.JtsPoint;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> org.locationtech.spatial4j.shape.jts.JtsShapeFactory;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.CoordinateSequence;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.CoordinateSequenceFilter;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.geom.Geometry;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> com.vividsolutions.jts.io.WKTReader;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> org.locationtech.jts.geom.CoordinateSequence;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> org.locationtech.jts.geom.CoordinateSequenceFilter;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> org.locationtech.jts.geom.Geometry;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> org.locationtech.jts.io.WKTReader;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.text.ParseException;
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> * This is an extension of Spatial4j's {@link org.locationtech.spatial4j.io.WKTReader} that processes the entire</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment"> * string with JTS's {@link com.vividsolutions.jts.io.WKTReader}.  Some differences:</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment"> * string with JTS's {@link org.locationtech.jts.io.WKTReader}.  Some differences:</em>
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;No support for ENVELOPE and BUFFER&lt;/li&gt;</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;MULTI* shapes use JTS's {@link com.vividsolutions.jts.geom.GeometryCollection} subclasses,</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;MULTI* shapes use JTS's {@link org.locationtech.jts.geom.GeometryCollection} subclasses,</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> *   not {@link org.locationtech.spatial4j.shape.ShapeCollection}&lt;/li&gt;</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> *   &lt;li&gt;'Z' coordinates are saved into the geometry&lt;/li&gt;</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt;</em>
@@ -60,7 +60,7 @@
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>    }
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>    <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">   * Reads WKT from the {@code str} via JTS's {@link com.vividsolutions.jts.io.WKTReader}.</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">   * Reads WKT from the {@code str} via JTS's {@link org.locationtech.jts.io.WKTReader}.</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">   * @param str</em>
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">   * @param reader &lt;pre&gt;new WKTReader(ctx.getGeometryFactory()))&lt;/pre&gt;</em>
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">   * @return Non-Null</em>
@@ -72,8 +72,8 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>        <em class="jxr_comment">//Normalizes &amp; verifies coordinates</em>
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>        checkCoordinates(geom);
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>        <strong class="jxr_keyword">if</strong> (geom instanceof com.vividsolutions.jts.geom.Point) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          com.vividsolutions.jts.geom.Point ptGeom = (com.vividsolutions.jts.geom.Point) geom;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>        <strong class="jxr_keyword">if</strong> (geom instanceof org.locationtech.jts.geom.Point) {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          org.locationtech.jts.geom.Point ptGeom = (org.locationtech.jts.geom.Point) geom;
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">if</strong> (getShapeFactory().useJtsPoint())
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>            <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/locationtech/spatial4j/shape/jts/JtsPoint.html">JtsPoint</a>(ptGeom, (JtsSpatialContext) ctx);
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">else</strong>
@@ -129,6 +129,6 @@
 <a class="jxr_linenumber" name="L121" href="#L121">121</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2016 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2017 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
 </body>
 </html>
