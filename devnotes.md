@@ -41,8 +41,9 @@ jars must wait until the release date assuming the release review is successful.
 
  2. Use Maven's `release` plugin, but ONLY for the "prepare" step, *not* perform:
   
-    mvn release:prepare
-
+```
+mvn release:prepare
+```
 This will create a tag in git named spatial4j-0.6 (or whatever the version is) with the pom updated. 
 If something goes wrong, you'll have to do release:rollback and then possibly remove the tag (pushing to GitHub)
 so that next time it can succeed.
@@ -50,7 +51,12 @@ so that next time it can succeed.
 Remove the "release.properties" file and "pom.xml.releaseBackup".  Since we won't do release:perform, we can remove
 these artifacts now.
 
-    release:clean
+Note that org.locationtech.spatial4j.io.jackson.PackageVersion includes a hard-coded version.
+It's overwritten in the build process.  You should manually update it to the next snapshot release and commit.
+It's okay that the Maven release plugin, when setting the final version, did so only in the POM but not this
+souce code file because the jars that get created include the modified file (both compiled and source).
+
+    mvn release:clean
 
  3. Have LocationTech sign the artifacts (via Hudson)
 
