@@ -27,4 +27,10 @@ public interface Point extends Shape {
   /** The Y coordinate, or Latitude in geospatial contexts. */
   public double getY();
 
+  /** Convenience method that usually maps on {@link org.locationtech.spatial4j.shape.Point#getY()} */
+  public double getLat();
+
+  /** Convenience method that usually maps on {@link org.locationtech.spatial4j.shape.Point#getX()} */
+  public double getLon();
+
 }

@@ -51,6 +51,16 @@ public class PointImpl extends BaseShape<SpatialContext> implements Point {
   }
 
   @Override
+  public double getLat() {
+    return getY();
+  }
+
+  @Override
+  public double getLon() {
+    return getX();
+  }
+
+  @Override
   public Rectangle getBoundingBox() {
     return ctx.makeRectangle(this, this);
   }

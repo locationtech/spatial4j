@@ -88,6 +88,16 @@ public class JtsPoint extends BaseShape<JtsSpatialContext> implements Point {
   }
 
   @Override
+  public double getLat() {
+    return getY();
+  }
+
+  @Override
+  public double getLon() {
+    return getX();
+  }
+
+  @Override
   public void reset(double x, double y) {
     assert ! isEmpty();
     CoordinateSequence cSeq = pointGeom.getCoordinateSequence();

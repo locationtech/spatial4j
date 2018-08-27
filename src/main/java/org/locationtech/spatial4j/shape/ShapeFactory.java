@@ -59,6 +59,9 @@ public interface ShapeFactory {
   /** Construct a point. */
   Point pointXY(double x, double y);
 
+  /** Construct a point of latitude, longitude coordinates */
+  Point pointLatLon(double latitude, double longitude);
+
   /** Construct a point of 3 dimensions.  The implementation might ignore unsupported
    * dimensions like 'z' or throw an error. */
   Point pointXYZ(double x, double y, double z);
@@ -129,6 +132,8 @@ public interface ShapeFactory {
     T pointXY(double x, double y);
     /** @see ShapeFactory#pointXYZ(double, double, double) */
     T pointXYZ(double x, double y, double z);
+    /** @see ShapeFactory#pointLatLon(double, double)  */
+    T pointLatLon(double latitude, double longitude);
   }
 
   /** @see #lineString() */
