@@ -83,6 +83,13 @@ public class ShapeFactoryImpl implements ShapeFactory {
   }
 
   @Override
+  public Point pointLatLon(double latitude, double longitude) {
+    verifyX(longitude);
+    verifyY(latitude);
+    return new PointImpl(longitude, latitude, ctx);
+  }
+
+  @Override
   public Point pointXYZ(double x, double y, double z) {
     return pointXY(x, y); // or throw?
   }
@@ -174,6 +181,12 @@ public class ShapeFactoryImpl implements ShapeFactory {
       }
 
       @Override
+      public LineStringBuilder pointLatLon(double latitude, double longitude) {
+        points.add(ShapeFactoryImpl.this.pointLatLon(latitude, longitude));
+        return this;
+      }
+
+      @Override
       public Shape build() {
         return new BufferedLineString(points, bufferDistance, false, ctx);
       }
@@ -229,6 +242,12 @@ public class ShapeFactoryImpl implements ShapeFactory {
     @Override
     public MultiPointBuilder pointXYZ(double x, double y, double z) {
       shapes.add(ShapeFactoryImpl.this.pointXYZ(x, y, z));
+      return this;
+    }
+
+    @Override
+    public MultiPointBuilder pointLatLon(double latitude, double longitude) {
+      shapes.add(ShapeFactoryImpl.this.pointLatLon(latitude, longitude));
       return this;
     }
 

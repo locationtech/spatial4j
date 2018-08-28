@@ -322,7 +322,7 @@ public class TestDistances extends RandomizedTest {
   }
 
   private Point pLL(double lat, double lon) {
-    return ctx.makePoint(lon,lat);
+    return ctx.getShapeFactory().pointLatLon(lat, lon);
   }
 
   @Test

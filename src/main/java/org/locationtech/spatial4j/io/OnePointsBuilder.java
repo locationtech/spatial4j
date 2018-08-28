@@ -34,6 +34,13 @@ public class OnePointsBuilder implements ShapeFactory.PointsBuilder<OnePointsBui
     return this;
   }
 
+  @Override
+  public OnePointsBuilder pointLatLon(double latitude, double longitude) {
+    assert point == null;
+    point = shapeFactory.pointLatLon(latitude, longitude);
+    return this;
+  }
+
   public Point getPoint() {
     return point;
   }
