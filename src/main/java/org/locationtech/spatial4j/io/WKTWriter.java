@@ -33,10 +33,14 @@ public class WKTWriter implements ShapeWriter {
   protected StringBuilder append(StringBuilder buffer, Point p, NumberFormat nf) {
     return buffer.append(nf.format(p.getX())).append(' ').append( nf.format(p.getY()));
   }
-  
+
+  protected NumberFormat getNumberFormat() {
+    return LegacyShapeWriter.makeNumberFormat(6);
+  }
+
   @Override
   public String toString(Shape shape) {
-    NumberFormat nf = LegacyShapeWriter.makeNumberFormat(6);
+    NumberFormat nf = getNumberFormat();
     if (shape instanceof Point) {
       StringBuilder buffer = new StringBuilder();
       return append(buffer.append("POINT ("),(Point)shape,nf).append(")").toString();
