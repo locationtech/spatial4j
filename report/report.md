@@ -6,22 +6,45 @@ has to be delivered in a standard, cross-platform format.
 
 ## Project
 
-Name:
+Name: Spatial4j
 
-URL:
+URL: https://github.com/locationtech/spatial4j
 
-One or two sentences describing it
+Spatial4j is a general purpose spatial / geospatial ASL licensed open-source Java library. It's core capabilities are 3-fold: to provide common shapes that can work in Euclidean and geodesic (surface of sphere) world models, to provide distance calculations and other math, and to read & write shapes from formats like WKT and GeoJSON. 
 
 ## Onboarding experience
 
 Did it build as documented?
     
-(See the assignment for details; if everything works out of the box,
-there is no need to write much here.)
+No issues with the onboarding. Just cloning the repo and importing the project into and IDE like intelliJ did the trick
+for most of the members of the group.
 
 
 ## Complexity
 
+| Function                                           | CCN (lizard) | CCN Manual |
+|----------------------------------------------------|:------------:|-----------:|
+| PolyshapeWriter::write                             |      13      |            |
+| Geometry::unwrapDateline                           |      11      |            |
+| GeoCircle::relateRectangleCircleWrapsPol           |      13      |            |
+| GeoJSONReader::readDistance                        |      11      |            |
+| JtsGeoJSONWriter::write                            |      14      |            |
+| CartesianDistCalc::distanceToLineSegment           |       4      |            |
+| DistanceUtils::calcBoxByDistFromPt_latHorizAxisDEG |       7      |            |
+| Range::LongitudeRange::expandTo                    |       7      |            |
+| ShapeCollection<S::computeMutualDisjoint           |       4      |            |
+| GeodesicSphereDistCalc::pointOnBearing             |       3      |            |
+
+
+### PolyshapeWriter::write 
+
+### Geometry::unwrapDateline  
+
+### GeoCircle::relateRectangleCircleWrapsPol
+
+### GeoJSONReader::readDistance   
+
+### JtsGeoJSONWriter::write  
 1. What are your results for the ten most complex functions? (If ranking
 is not easily possible: ten complex functions)?
    * Did all tools/methods get the same result?
