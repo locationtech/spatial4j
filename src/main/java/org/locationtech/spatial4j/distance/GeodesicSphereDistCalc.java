@@ -8,6 +8,9 @@
 
 package org.locationtech.spatial4j.distance;
 
+import org.locationtech.spatial4j.*;
+
+
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Circle;
 import org.locationtech.spatial4j.shape.Point;
@@ -16,6 +19,7 @@ import org.locationtech.spatial4j.shape.Rectangle;
 import static org.locationtech.spatial4j.distance.DistanceUtils.toDegrees;
 import static org.locationtech.spatial4j.distance.DistanceUtils.toRadians;
 
+
 /**
  * A base class for a Distance Calculator that assumes a spherical earth model.
  */
@@ -23,21 +27,35 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
   private static final double radiusDEG = DistanceUtils.toDegrees(1);//in degrees
 
+
+
+    public static boolean[] flags = new boolean[3];
+
   @Override
   public Point pointOnBearing(Point from, double distDEG, double bearingDEG, SpatialContext ctx, Point reuse) {
+      return from;
+/*
     if (distDEG == 0) {
-      if (reuse == null)
+
+      flags[0] = true;
+
+      if (reuse == null) {
+        flags[1] = true;
         return from;
+      }
       reuse.reset(from.getX(), from.getY());
       return reuse;
     }
+    flags[2] = true;
     Point result = DistanceUtils.pointOnBearingRAD(
         toRadians(from.getY()), toRadians(from.getX()),
         toRadians(distDEG),
         toRadians(bearingDEG), ctx, reuse);//output result is in radians
     result.reset(toDegrees(result.getX()), toDegrees(result.getY()));
     return result;
+*/
   }
+
 
   @Override
   public Rectangle calcBoxByDistFromPt(Point from, double distDEG, SpatialContext ctx, Rectangle reuse) {

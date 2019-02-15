@@ -8,6 +8,8 @@
 
 package org.locationtech.spatial4j.distance;
 
+import org.locationtech.spatial4j.distance.GeodesicSphereDistCalc;
+
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Circle;
@@ -219,6 +221,8 @@ public class TestDistances extends RandomizedTest {
     }
   }
 
+
+
   @Test
   public void testDistCalcPointOnBearing_geo() {
     //The haversine formula has a higher error if the points are near antipodal. We adjust EPS tolerance for this case.
@@ -240,6 +244,12 @@ public class TestDistances extends RandomizedTest {
       EPS = (distKm < maxDistKm*0.75 ? 10e-6 : 10e-3);
       testDistCalcPointOnBearing(distKm);
     }
+
+    boolean[] temp = GeodesicSphereDistCalc.flags;
+    for(int i = 0; i < 3; i++){
+      System.err.println(temp[i]);
+    }
+
   }
 
   private void testDistCalcPointOnBearing(double distKm) {
@@ -250,12 +260,14 @@ public class TestDistances extends RandomizedTest {
 
       //0 distance means same point
       Point p2 = dc().pointOnBearing(c, 0, angDEG, ctx, null);
+
       assertEquals(c,p2);
 
       p2 = dc().pointOnBearing(c, distKm * KM_TO_DEG, angDEG, ctx, null);
       double calcDistKm = dc().distance(c, p2) * DEG_TO_KM;
       assertEqualsRatio(distKm, calcDistKm);
     }
+
   }
 
   private void assertEqualsRatio(double expected, double actual) {

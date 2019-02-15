@@ -32,7 +32,7 @@ for most of the members of the group.
 | CartesianDistCalc::distanceToLineSegment           |       4      |            |
 | DistanceUtils::calcBoxByDistFromPt_latHorizAxisDEG |       7      |            |
 | Range::LongitudeRange::expandTo                    |       7      |            |
-| ShapeCollection<S::computeMutualDisjoint           |       4      |            |
+| ShapeCollection<S::computeMutualDisjoint           |       4      |            | Anropas inte
 | GeodesicSphereDistCalc::pointOnBearing             |       3      |            |
 
 
