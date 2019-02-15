@@ -1,0 +1,3 @@
+relateRectangleCircleWrapsPole 
+true true true true true true false true true true true true true 
+Coverage: 0.9230769230769231
