@@ -16,6 +16,9 @@ import org.locationtech.spatial4j.shape.Circle;
 import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Rectangle;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import static org.locationtech.spatial4j.distance.DistanceUtils.toDegrees;
 import static org.locationtech.spatial4j.distance.DistanceUtils.toRadians;
 
@@ -30,30 +33,54 @@ public abstract class GeodesicSphereDistCalc extends AbstractDistanceCalculator 
 
 
     public static boolean[] flags = new boolean[3];
+    private static void writeToFile(){
+        try
+        {
+            String filename= "pointOnBearing.txt";
+            FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+            fw.write("pointOnBearing \n");
+            int count = 0;
+            for (boolean b :flags) {
+                if (b) count ++;
+                fw.write(b + " ");
+            }
+            fw.write("\nCoverage: " + (Double.toString((double) count/flags.length)) );
+            fw.close();
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("IOException: " + ioe.getMessage());
+        }
+    }
 
   @Override
   public Point pointOnBearing(Point from, double distDEG, double bearingDEG, SpatialContext ctx, Point reuse) {
-      return from;
-/*
+      //setup
+      //teardown
+
     if (distDEG == 0) {
 
-      flags[0] = true;
-
       if (reuse == null) {
-        flags[1] = true;
+        flags[0] = true;
+          writeToFile();
         return from;
       }
+      flags[1] = true;
+
       reuse.reset(from.getX(), from.getY());
+        writeToFile();
       return reuse;
     }
-    flags[2] = true;
+
     Point result = DistanceUtils.pointOnBearingRAD(
         toRadians(from.getY()), toRadians(from.getX()),
         toRadians(distDEG),
         toRadians(bearingDEG), ctx, reuse);//output result is in radians
     result.reset(toDegrees(result.getX()), toDegrees(result.getY()));
+      flags[2] = true;
+      writeToFile();
     return result;
-*/
+
   }
 
 

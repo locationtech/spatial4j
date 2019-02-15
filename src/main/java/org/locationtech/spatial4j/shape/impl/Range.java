@@ -11,6 +11,9 @@ package org.locationtech.spatial4j.shape.impl;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Rectangle;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 /**
  * INTERNAL: A numeric range between a pair of numbers.
  * Perhaps this class could become 1st class citizen extending Shape but not now.
@@ -151,27 +154,65 @@ public class Range {
       }
     }
 
+
+    public static boolean[] flags = new boolean[7];
+      private static void writeToFile(){
+          try
+          {
+              String filename= "expandTo.txt";
+              FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+              fw.write("expandTo \n");
+              int count = 0;
+              for (boolean b :flags) {
+                  if (b) count ++;
+                  fw.write(b + " ");
+              }
+              fw.write("\nCoverage: " + (Double.toString((double) count/flags.length)) );
+              fw.close();
+          }
+          catch(IOException ioe)
+          {
+              System.err.println("IOException: " + ioe.getMessage());
+          }
+      }
+
     @Override
     public Range expandTo(Range other) {
+      flags[0] = true;
+        writeToFile();
       return expandTo((LongitudeRange) other);
     }
 
     public LongitudeRange expandTo(LongitudeRange other) {
+
       LongitudeRange a, b;// a.ctr <= b.ctr
       if (this.compareTo(other) <= 0) {
+        flags[1] = true;
         a = this;
         b = other;
       } else {
+        flags[2] = true;
         a = other;
         b = this;
       }
       LongitudeRange newMin = b.contains(a.min) ? b : a;//usually 'a'
       LongitudeRange newMax = a.contains(b.max) ? a : b;//usually 'b'
-      if (newMin == newMax)
+      if (newMin == newMax) {
+        flags[3] = true;
+          writeToFile();
         return newMin;
-      if (newMin == b && newMax == a)
+      } else{
+        flags[4] = true;
+      }
+      if (newMin == b && newMax == a){
+        flags[5] = true;
+          writeToFile();
         return WORLD_180E180W;
+      }
+      flags[6] = true;
+        writeToFile();
       return new LongitudeRange(newMin.min, newMax.max);
+
     }
   }
 }

@@ -244,11 +244,12 @@ public class TestDistances extends RandomizedTest {
       EPS = (distKm < maxDistKm*0.75 ? 10e-6 : 10e-3);
       testDistCalcPointOnBearing(distKm);
     }
-
+    /*
+    System.err.println("Testing done in TestDisstances on function GeodesicSphereDistCalc");
     boolean[] temp = GeodesicSphereDistCalc.flags;
     for(int i = 0; i < 3; i++){
       System.err.println(temp[i]);
-    }
+    }*/
 
   }
 
