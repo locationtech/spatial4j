@@ -41,6 +41,8 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
   protected final List<S> shapes;
   protected final Rectangle bbox;
 
+  public static boolean[] flags = new boolean[4]; //
+
   /**
    * WARNING: {@code shapes} is copied by reference.
    * @param shapes Copied by reference! (make a defensive copy if caller modifies)
@@ -164,13 +166,18 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
     //WARNING: this is an O(n^2) algorithm.
     //loop through each shape and see if it intersects any shape before it
     for (int i = 1; i < shapes.size(); i++) {
+      flags[0] = true;
       Shape shapeI = shapes.get(i);
       for (int j = 0; j < i; j++) {
+        flags[1] = true;
         Shape shapeJ = shapes.get(j);
-        if (shapeJ.relate(shapeI).intersects())
+        if (shapeJ.relate(shapeI).intersects()){
+          flags[2] = true;
           return false;
+        }
       }
     }
+    flags[3] = true;
     return true;
   }
 
