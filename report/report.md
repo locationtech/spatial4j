@@ -78,7 +78,18 @@ its output?
 
 ### Evaluation
 
-Report of old coverage: [link]
+Report of old coverage: 
+
+* JSON::write: 64.3%
+* unwrapDateline: 66.7%
+*  relateRectangleCircleWrapsPol:  92.3%
+* polyShapeWrite: 76.9%
+* readDistance: TODO 
+* pointOnBearing: 66.7%
+* DistanceToLineSegment: 80.0%
+* calcBoxByDistFromPt_latHorizAxisDEG: 57.1%
+* expandTo: 0%
+* computeMutualDisjoint: 0%
 
 Report of new coverage: [link]
 
