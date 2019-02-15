@@ -23,6 +23,8 @@ import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Rectangle;
 
+import java.util.Arrays;
+
 
 /**
  * Various distance calculations and constants. To the extent possible, a {@link
@@ -68,6 +70,8 @@ public class DistanceUtils {
 
   public static final double EARTH_MEAN_RADIUS_MI = EARTH_MEAN_RADIUS_KM * KM_TO_MILES;
   public static final double EARTH_EQUATORIAL_RADIUS_MI = EARTH_EQUATORIAL_RADIUS_KM * KM_TO_MILES;
+
+  public static boolean[] flags = new boolean[7]; //Branch coverage array
 
   private DistanceUtils() {}
 
@@ -310,25 +314,40 @@ public class DistanceUtils {
    */
   public static double calcBoxByDistFromPt_latHorizAxisDEG(double lat, double lon, double distDEG) {
     //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
-    if (distDEG == 0)
+    if (distDEG == 0) {
+      flags[0] = true;
       return lat;
+    }
+
     // if we don't do this when == 90 or -90, computed result can be (+/-)89.9999 when at pole.
     //     No biggie but more accurate.
-    else if (lat + distDEG >= 90)
+    else if (lat + distDEG >= 90){
+      flags[1] = true;
       return 90;
-    else if (lat - distDEG <= -90)
+    }
+
+    else if (lat - distDEG <= -90){
+      flags[2] = true;
       return -90;
+    }
 
     double lat_rad = toRadians(lat);
     double dist_rad = toRadians(distDEG);
     double result_rad = Math.asin( Math.sin(lat_rad) / Math.cos(dist_rad));
-    if (!Double.isNaN(result_rad))
+    if (!Double.isNaN(result_rad)){
+      flags[4] = true;
       return toDegrees(result_rad);
+    }
     //handle NaN (shouldn't happen due to checks earlier)
-    if (lat > 0)
+    if (lat > 0){
+      flags[5] = true;
       return 90;
-    if (lat < 0)
+    }
+    if (lat < 0){
+      flags[6] = true;
       return -90;
+    }
+    flags[3] = true;
     return lat;//0
   }
 
