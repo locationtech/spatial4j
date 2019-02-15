@@ -16,13 +16,13 @@ Spatial4j is a general purpose spatial / geospatial ASL licensed open-source Jav
 
 Did it build as documented?
     
-No issues with the onboarding. Just cloning the repo and importing the project into and IDE like intelliJ did the trick
-for most of the members of the group.
+No issues with the onboarding at all. Just cloning the repo and then importing the project into and IDE like intelliJ did the trick
+for most of the members of the group. Just be sure to use JDK 1.8, otherwise some tests will fail.
 
 
 ## Complexity
 
-| Function                                           | CCN (lizard) | CCN Manual |
+| Function                                           | CCN (lizard) | CCN (Manual) |
 |----------------------------------------------------|:------------:|-----------:|
 | PolyshapeWriter::write                             |      13      |            |
 | Geometry::unwrapDateline                           |      11      |            |
@@ -60,8 +60,10 @@ is not easily possible: ten complex functions)?
 
 Document your experience in using a "new"/different coverage tool.
 
-How well was the tool documented? Was it possible/easy/difficult to
-integrate it with your build environment?
+As a different coverage tool we used the built in tool within IntelliJ IDEA. With this 
+we could easily identify functions that did not branch fully. We could not directly 
+identify lack of branch coverage, but instead general coverage. Such as methods not being called, 
+classes not being tested and overall line coverage. From that we could easily find functions which lacked branch coverage.
 
 ### DYI
 
