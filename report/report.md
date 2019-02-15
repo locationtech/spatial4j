@@ -84,7 +84,7 @@ Report of old coverage:
 * unwrapDateline: 66.7%
 *  relateRectangleCircleWrapsPol:  92.3%
 * polyShapeWrite: 76.9%
-* readDistance: TODO 
+* readDistance: 100%
 * pointOnBearing: 66.7%
 * DistanceToLineSegment: 80.0%
 * calcBoxByDistFromPt_latHorizAxisDEG: 57.1%
