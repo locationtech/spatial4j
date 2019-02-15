@@ -128,7 +128,6 @@ public class TestDistances extends RandomizedTest {
 
     assertEquals("0 dist, horiz line",
         -45,dc().calcBoxByDistFromPt_yHorizAxisDEG(ctx.makePoint(-180, -45), 0, ctx),0);
-    System.err.println(Arrays.toString(DistanceUtils.flags));
     double MAXDIST = (double) 180 * DEG_TO_KM;
     checkBBox(ctx.makePoint(0,0), MAXDIST);
     checkBBox(ctx.makePoint(0,0), MAXDIST *0.999999);
@@ -158,10 +157,8 @@ public class TestDistances extends RandomizedTest {
 
     Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx, null);
     double horizAxisLat = dc().calcBoxByDistFromPt_yHorizAxisDEG(ctr, dist, ctx);
-    if (!Double.isNaN(horizAxisLat)) {
+    if (!Double.isNaN(horizAxisLat))
       assertTrue(r.relateYRange(horizAxisLat, horizAxisLat).intersects());
-      System.err.println(Arrays.toString(DistanceUtils.flags));
-    }
     //horizontal
     if (r.getWidth() >= 180) {
       double deg = dc().distance(ctr, r.getMinX(), r.getMaxY() == 90 ? 90 : -90);

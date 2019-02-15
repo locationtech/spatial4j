@@ -23,6 +23,8 @@ import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Rectangle;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 
 
@@ -288,6 +290,26 @@ public class DistanceUtils {
     }
   }
 
+  private static void writeToFile(){
+    try
+    {
+      String filename= "calcBoxByDistFromPt_deltaLonDEG.txt";
+      FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+      fw.write("calcBoxByDistFromPt_deltaLonDEG \n");
+      int count = 0;
+      for (boolean b :flags) {
+        if (b) count ++;
+        fw.write(b + " ");
+      }
+      fw.write("\nCoverage: " + (Double.toString((double) count/flags.length)) );
+      fw.close();
+    }
+    catch(IOException ioe)
+    {
+      System.err.println("IOException: " + ioe.getMessage());
+    }
+  }
+
   /**
    * The delta longitude of a point-distance. In other words, half the width of
    * the bounding box of a circle.
@@ -316,6 +338,7 @@ public class DistanceUtils {
     //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
     if (distDEG == 0) {
       flags[0] = true;
+      writeToFile();
       return lat;
     }
 
@@ -323,11 +346,13 @@ public class DistanceUtils {
     //     No biggie but more accurate.
     else if (lat + distDEG >= 90){
       flags[1] = true;
+      writeToFile();
       return 90;
     }
 
     else if (lat - distDEG <= -90){
       flags[2] = true;
+      writeToFile();
       return -90;
     }
 
@@ -336,18 +361,22 @@ public class DistanceUtils {
     double result_rad = Math.asin( Math.sin(lat_rad) / Math.cos(dist_rad));
     if (!Double.isNaN(result_rad)){
       flags[4] = true;
+      writeToFile();
       return toDegrees(result_rad);
     }
     //handle NaN (shouldn't happen due to checks earlier)
     if (lat > 0){
       flags[5] = true;
+      writeToFile();
       return 90;
     }
     if (lat < 0){
       flags[6] = true;
+      writeToFile();
       return -90;
     }
     flags[3] = true;
+    writeToFile();
     return lat;//0
   }
 
