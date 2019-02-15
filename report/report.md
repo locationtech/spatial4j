@@ -33,7 +33,7 @@ for most of the members of the group.
 | DistanceUtils::calcBoxByDistFromPt_latHorizAxisDEG |       7      |            |
 | Range::LongitudeRange::expandTo                    |       7      |            |
 | ShapeCollection<S::computeMutualDisjoint           |       4      |            | Anropas inte
-| GeodesicSphereDistCalc::pointOnBearing             |       3      |            |
+| GeodesicSphereDistCalc::pointOnBearing             |       3      |            | 100% branch coverage
 
 
 ### PolyshapeWriter::write 
