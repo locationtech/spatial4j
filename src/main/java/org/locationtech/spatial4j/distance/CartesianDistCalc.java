@@ -171,15 +171,53 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
     return circle.getArea(null);
   }
 
+  private static boolean[] flags2 = new boolean[4];
+  private void writeToFile2(){
+    try
+    {
+      String filename= "equals.txt";
+      FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+      fw.write("equals \n");
+      int count = 0;
+      for (boolean b :flags2) {
+        if (b) count ++;
+        fw.write(b + " ");
+      }
+      fw.write("\nCoverage: " + (Double.toString((double) count/flags2.length)) );
+      fw.close();
+    }
+    catch(IOException ioe)
+    {
+      System.err.println("IOException: " + ioe.getMessage());
+    }
+  }
+
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    int a = 0;
+    if(a == 0){
+      //return false;
+    }
+    if (this == o){
+      flags2[0] = true;
+      writeToFile2();
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()){
+      flags2[1] = true;
+      writeToFile2();
+      return false;
+    }
 
     CartesianDistCalc that = (CartesianDistCalc) o;
 
-    if (squared != that.squared) return false;
-
+    if (squared != that.squared){
+      flags2[2] = true;
+      writeToFile2();
+      return false;
+    }
+    flags2[3] = true;
+    writeToFile2();
     return true;
   }
 

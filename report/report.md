@@ -93,7 +93,12 @@ Report of old coverage:
 * expandTo: 0%
 * computeMutualDisjoint: 0%
 
+* DistanceUtils::calcBoxByDistFromPtDEG: 100%
+* CartesianDistCalc::equals: 25%
+
+
 Report of new coverage: [link]
+* CartesianDistCalc::equals: 75%
 
 Test cases added:
 

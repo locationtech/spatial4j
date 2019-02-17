@@ -1,0 +1,3 @@
+equals 
+true true false true 
+Coverage: 0.75

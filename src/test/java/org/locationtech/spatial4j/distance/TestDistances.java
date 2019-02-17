@@ -8,7 +8,7 @@
 
 package org.locationtech.spatial4j.distance;
 
-import org.locationtech.spatial4j.distance.GeodesicSphereDistCalc;
+
 
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import org.locationtech.spatial4j.context.SpatialContext;
@@ -220,6 +220,21 @@ public class TestDistances extends RandomizedTest {
     for(int i = 0; i < 1000; i++) {
       testDistCalcPointOnBearing(randomInt(100));
     }
+  }
+
+  @Test
+  public void testEquals(){
+
+    //creating object that contains the function that will be tested. Both to be able to call the method,
+    // but also so that we can test the first if statement; if the object is the same
+    CartesianDistCalc klafs = new CartesianDistCalc();
+
+    //object should be the same as itself. Should return true
+    assertEquals(klafs.equals(klafs), true);
+
+    //null is not the same as CartesianDistCalc object. Should return false
+    assertEquals(klafs.equals(null), false);
+
   }
 
 
