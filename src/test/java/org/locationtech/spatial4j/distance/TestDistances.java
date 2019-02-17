@@ -242,6 +242,16 @@ public class TestDistances extends RandomizedTest {
     }
   }
 
+  @Test
+  public void testDistCalcPointOnBearing_reuse() {
+    Point from = ctx.makePoint(randomIntBetween(-90, 90), randomIntBetween(-90, 90));
+    Point reuse = ctx.makePoint(randomIntBetween(-90, 90), randomIntBetween(-90, 90));
+
+    Point res = dc().pointOnBearing(from, 0.0, 0.0, ctx, reuse);
+    assertEquals(from, res);
+  }
+
+
   private void testDistCalcPointOnBearing(double distKm) {
     for(int angDEG = 0; angDEG < 360; angDEG += randomIntBetween(1,20)) {
       Point c = ctx.makePoint(
@@ -257,6 +267,7 @@ public class TestDistances extends RandomizedTest {
       assertEqualsRatio(distKm, calcDistKm);
     }
   }
+
 
   private void assertEqualsRatio(double expected, double actual) {
     double delta = Math.abs(actual - expected);
