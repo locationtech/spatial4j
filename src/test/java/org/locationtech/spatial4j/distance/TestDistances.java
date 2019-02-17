@@ -364,4 +364,16 @@ public class TestDistances extends RandomizedTest {
     assertTrue(areaRatio > 1 && areaRatio < 1.1);
   }
 
+  @Test
+  public void testdistanceToLineSegment() {
+    // DD2480: Checks distance to a line that has 0 length.
+    Point p = pLL(0, 100);
+    CartesianDistCalc cdc = new CartesianDistCalc();
+    double got = cdc.distanceToLineSegment(p, 0.0, 0.0, 0.0, 0.0);
+    assertEquals(100.0, got, 0.1);
+    p = pLL(10, 10);
+    got = cdc.distanceToLineSegment(p, 10.0, 1.0, 10.0, 1.0);
+    assertEquals(9.0, got, 0.1);
+  }
+
 }
