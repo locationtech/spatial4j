@@ -18,6 +18,7 @@
 
 package org.locationtech.spatial4j.io;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -66,49 +67,83 @@ public class PolyshapeWriter implements ShapeWriter {
     write(new Encoder(output), shape);
   }
 
+  public static boolean[] flags = new boolean[13];
+  private static void writeToFile(){
+    try
+    {
+      String filename= "polyshapewrite.txt";
+      FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+      fw.write("polyshapewrite \n");
+      int count = 0;
+      for (boolean b :flags) {
+        if (b) count ++;
+        fw.write(b + " ");
+      }
+      fw.write("\nCoverage: " + (Double.toString((double) count/flags.length)) );
+      fw.close();
+    }
+    catch(IOException ioe)
+    {
+      System.err.println("IOException: " + ioe.getMessage());
+    }
+  }
+
   public void write(Encoder enc, Shape shape) throws IOException {
     if (shape instanceof Point) {
+      flags[0] = true;
       Point v = (Point) shape;
       enc.write(KEY_POINT);
       enc.write(v.getX(), v.getY());
+      writeToFile();
       return;
     }
     if (shape instanceof Rectangle) {
+      flags[1] = true;
       Rectangle v = (Rectangle) shape;
       enc.write(KEY_BOX);
       enc.write(v.getMinX(), v.getMinY());
       enc.write(v.getMaxX(), v.getMaxY());
+      writeToFile();
       return;
     }
     if (shape instanceof BufferedLine) {
+      flags[2] = true;
       BufferedLine v = (BufferedLine) shape;
       enc.write(KEY_LINE);
       if(v.getBuf()>0) {
+        flags[3] = true;
         enc.writeArg(v.getBuf());
       }
       enc.write(v.getA().getX(), v.getA().getY());
       enc.write(v.getB().getX(), v.getB().getY());
+      writeToFile();
       return;
     }
     if (shape instanceof BufferedLineString) {
+      flags[4] = true;
       BufferedLineString v = (BufferedLineString) shape;
       enc.write(KEY_LINE);
       if(v.getBuf()>0) {
+        flags[5] = true;
         enc.writeArg(v.getBuf());
       }
       BufferedLine last = null;
       Iterator<BufferedLine> iter = v.getSegments().iterator();
       while (iter.hasNext()) {
+        flags[6] = true;
         BufferedLine seg = iter.next();
         enc.write(seg.getA().getX(), seg.getA().getY());
         last = seg;
       }
       if (last != null) {
+        flags[7] = true;
         enc.write(last.getB().getX(), last.getB().getY());
       }
+      writeToFile();
       return;
     }
     if (shape instanceof Circle) {
+      flags[8] = true;
       // See: https://github.com/geojson/geojson-spec/wiki/Proposal---Circles-and-Ellipses-Geoms
       Circle v = (Circle) shape;
       Point center = v.getCenter();
@@ -116,19 +151,26 @@ public class PolyshapeWriter implements ShapeWriter {
       enc.write(KEY_CIRCLE);
       enc.writeArg(radius);
       enc.write(center.getX(), center.getY());
+      writeToFile();
       return;
     }
     if (shape instanceof ShapeCollection) {
+      flags[9] = true;
       ShapeCollection v = (ShapeCollection) shape;
       Iterator<Shape> iter = v.iterator();
       while(iter.hasNext()) {
+        flags[10] = true;
         write(enc, iter.next());
         if(iter.hasNext()) {
+          flags[11] = true;
           enc.seperator();
         }
       }
+      writeToFile();
       return;
     }
+    flags[12] = true;
+    writeToFile();
     enc.writer.write("{unkwnwon " + LegacyShapeWriter.writeShape(shape) +"}");
   }
 

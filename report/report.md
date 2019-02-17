@@ -32,8 +32,8 @@ for most of the members of the group. Just be sure to use JDK 1.8, otherwise som
 | CartesianDistCalc::distanceToLineSegment           |       4      |            |
 | DistanceUtils::calcBoxByDistFromPt_latHorizAxisDEG |       7      |            |
 | Range::LongitudeRange::expandTo                    |       7      |            |
-| ShapeCollection<S::computeMutualDisjoint           |       4      |            |
-| GeodesicSphereDistCalc::pointOnBearing             |       3      |            |
+| ShapeCollection<S::computeMutualDisjoint           |       4      |            | Anropas inte
+| GeodesicSphereDistCalc::pointOnBearing             |       3      |            | 100% branch coverage
 
 
 ### PolyshapeWriter::write 
@@ -80,7 +80,18 @@ its output?
 
 ### Evaluation
 
-Report of old coverage: [link]
+Report of old coverage: 
+
+* JSON::write: 64.3%
+* unwrapDateline: 66.7%
+*  relateRectangleCircleWrapsPol:  92.3%
+* polyShapeWrite: 76.9%
+* readDistance: 100%
+* pointOnBearing: 66.7%
+* DistanceToLineSegment: 80.0%
+* calcBoxByDistFromPt_latHorizAxisDEG: 57.1%
+* expandTo: 0%
+* computeMutualDisjoint: 0%
 
 Report of new coverage: [link]
 

@@ -1,0 +1,3 @@
+calcBoxByDistFromPt_deltaLonDEG 
+true true true false true false false 
+Coverage: 0.5714285714285714

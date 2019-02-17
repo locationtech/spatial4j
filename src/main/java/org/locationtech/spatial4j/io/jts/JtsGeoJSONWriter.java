@@ -8,6 +8,7 @@
 
 package org.locationtech.spatial4j.io.jts;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.NumberFormat;
@@ -94,62 +95,102 @@ public class JtsGeoJSONWriter extends GeoJSONWriter {
     output.write(']');
   }
 
+  public static boolean[] flags = new boolean[14];
+
+  private void writeToFile(){
+    try
+    {
+      String filename= "write.txt";
+      FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+      fw.write("write \n");
+      int count = 0;
+      for (boolean b :flags) {
+        if (b) count ++;
+        fw.write(b + " ");
+      }
+      fw.write("\nCoverage: " + (Double.toString((double) count/flags.length)) );
+      fw.close();
+    }
+    catch(IOException ioe)
+    {
+      System.err.println("IOException: " + ioe.getMessage());
+    }
+  }
+
   public void write(Writer output, Geometry geom) throws IOException {
     NumberFormat nf = LegacyShapeWriter.makeNumberFormat(6);
     if (geom instanceof Point) {
+      flags[0] = true;
       Point v = (Point) geom;
       output.append("{\"type\":\"Point\",\"coordinates\":");
       write(output, nf, v.getCoordinate());
       output.append("}");
+      writeToFile();
       return;
     } else if (geom instanceof Polygon) {
+      flags[1] = true;
       output.append("{\"type\":\"Polygon\",\"coordinates\":");
       write(output, nf, (Polygon) geom);
       output.append("}");
+      writeToFile();
       return;
     } else if (geom instanceof LineString) {
+      flags[2] = true;
       LineString v = (LineString) geom;
       output.append("{\"type\":\"LineString\",\"coordinates\":");
       write(output, nf, v.getCoordinateSequence());
       output.append("}");
+      writeToFile();
       return;
     } else if (geom instanceof MultiPoint) {
       MultiPoint v = (MultiPoint) geom;
       output.append("{\"type\":\"MultiPoint\",\"coordinates\":");
       write(output, nf, v.getCoordinates());
       output.append("}");
+      flags[3] = true;
+      writeToFile();
       return;
     } else if (geom instanceof MultiLineString) {
       MultiLineString v = (MultiLineString) geom;
+      flags[4] = true;
       output.append("{\"type\":\"MultiLineString\",\"coordinates\":[");
       for (int i = 0; i < v.getNumGeometries(); i++) {
+        flags[5] = true;
         if (i > 0) {
+          flags[6] = true;
           output.append(',');
         }
         write(output, nf, v.getGeometryN(i).getCoordinates());
       }
       output.append("]}");
     } else if (geom instanceof MultiPolygon) {
+      flags[7] = true;
       MultiPolygon v = (MultiPolygon) geom;
       output.append("{\"type\":\"MultiPolygon\",\"coordinates\":[");
       for (int i = 0; i < v.getNumGeometries(); i++) {
+        flags[8] = true;
         if (i > 0) {
+          flags[9] = true;
           output.append(',');
         }
         write(output, nf, (Polygon) v.getGeometryN(i));
       }
       output.append("]}");
     } else if (geom instanceof GeometryCollection) {
+      flags[10] = true;
       GeometryCollection v = (GeometryCollection) geom;
       output.append("{\"type\":\"GeometryCollection\",\"geometries\":[");
       for (int i = 0; i < v.getNumGeometries(); i++) {
+        flags[11] = true;
         if (i > 0) {
+          flags[12] = true;
           output.append(',');
         }
         write(output, v.getGeometryN(i));
       }
       output.append("]}");
     } else {
+      flags[13] = true;
       throw new UnsupportedOperationException("unknown: " + geom);
     }
   }

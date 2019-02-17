@@ -18,6 +18,7 @@ import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.ShapeFactory;
 import org.noggit.JSONParser;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -179,6 +180,27 @@ public class GeoJSONReader implements ShapeReader {
     return shapeFactory.circle(point, readDistance("radius", "radius_units", parser));
   }
 
+  public static boolean[] flags = new boolean[9];
+  private static void writeToFile(){
+    try
+    {
+      String filename= "readDistance.txt";
+      FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+      fw.write("readDistance \n");
+      int count = 0;
+      for (boolean b :flags) {
+        if (b) count ++;
+        fw.write(b + " ");
+      }
+      fw.write("\nCoverage: " + (Double.toString((double) count/flags.length)) );
+      fw.close();
+    }
+    catch(IOException ioe)
+    {
+      System.err.println("IOException: " + ioe.getMessage());
+    }
+  }
+
   /**
    * Helper method to read a up until a distance value (radius, buffer) and it's corresponding unit are found.
    * <p>
@@ -195,23 +217,31 @@ public class GeoJSONReader implements ShapeReader {
     int event = JSONParser.OBJECT_END;
     int evt = parser.lastEvent();
     while (true) {
+      flags[7] = true;
       if (evt == event || evt == JSONParser.EOF) {
+        flags[0] = true;
         break;
       }
       evt = parser.nextEvent();
       if(parser.wasKey()) {
+        flags[1] = true;
         key = parser.getString();
       }
       else if(evt==JSONParser.NUMBER || evt==JSONParser.LONG) {
+        flags[2] = true;
         if(distProperty.equals(key)) {
+          flags[3] = true;
           dist = parser.getDouble();
         }
       }
       else if(evt==JSONParser.STRING) {
+        flags[4] = true;
         if(distUnitsProperty.equals(key)) {
+          flags[5] = true;
           String units = parser.getString();
           //TODO: support for more units?
           if("km".equals(units)) {
+            flags[6] = true;
             // Convert KM to degrees
             dist =
                 DistanceUtils.dist2Degrees(dist, DistanceUtils.EARTH_MEAN_RADIUS_KM);
@@ -219,7 +249,8 @@ public class GeoJSONReader implements ShapeReader {
         }
       }
     }
-
+    flags[8] = true;
+    writeToFile();
     return shapeFactory.normDist(dist);
   }
 
