@@ -63,7 +63,7 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
     double d = distanceSquared(vX, vY, wX, wY);
     double toX;
     double toY;
-    if (d <= 0) { // DD2480: Current tests never go down this branch.
+    if (d <= 0) { // DD2480: Previous tests never went down this branch.
       toX = vX;
       toY = vY;
     } else {
