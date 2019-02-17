@@ -95,15 +95,15 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
     if (distDEG == 0) {
       if (reuse == null)
         return from;
-      reuse.reset(from.getX(), from.getY());
-      return reuse;
+      reuse.reset(from.getX(), from.getY()); // DD2480: Previous tests never visited this line.
+      return reuse; // DD2480: Previous tests never visited this line.
     }
     double bearingRAD = DistanceUtils.toRadians(bearingDEG);
     double x = from.getX() + Math.sin(bearingRAD) * distDEG;
     double y = from.getY() + Math.cos(bearingRAD) * distDEG;
     if (reuse == null) {
       return ctx.makePoint(x, y);
-    } else {
+    } else {  // DD2480: Previous tests never visited this branch.
       reuse.reset(x, y);
       return reuse;
     }
