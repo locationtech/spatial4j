@@ -22,37 +22,43 @@ for most of the members of the group. Just be sure to use JDK 1.8, otherwise som
 
 ## Complexity
 
-| Function                                           | CCN (lizard) | CCN (Manual) |
-|----------------------------------------------------|:------------:|-----------:|
-| PolyshapeWriter::write                             |      13      |            |
-| Geometry::unwrapDateline                           |      11      |            |
-| GeoCircle::relateRectangleCircleWrapsPol           |      13      |            |
-| GeoJSONReader::readDistance                        |      11      |            |
-| JtsGeoJSONWriter::write                            |      14      |            |
-| CartesianDistCalc::distanceToLineSegment           |       4      |            |
-| DistanceUtils::calcBoxByDistFromPt_latHorizAxisDEG |       7      |            |
-| Range::LongitudeRange::expandTo                    |       7      |            |
-| ShapeCollection<S::computeMutualDisjoint           |       4      |            | Anropas inte
-| GeodesicSphereDistCalc::pointOnBearing             |       3      |            | 100% branch coverage
+| Function                                           | CCN (lizard) | CCN (Manual) | Lines of Code |
+|----------------------------------------------------|:------------:|-----------:|--------------|
+| PolyshapeWriter::write                             |      13      |     13     |      30      |
+| JtsGeometry::unwrapDateline                        |      11      |     11     |      45      |
+| GeoCircle::relateRectangleCircleWrapsPol           |      13      |     12     |      38      |
+| GeoJSONReader::readDistance                        |      11      |      9     |      30      |
+| JtsGeoJSONWriter::write                            |      14      |     16     |      59      |
+| CartesianDistCalc::distanceToLineSegment           |       4      |            |      22      |
+| DistanceUtils::calcBoxByDistFromPt_latHorizAxisDEG |       7      |            |      18      |
+| Range::LongitudeRange::expandTo                    |       7      |            |      17      |
+| ShapeCollection<S::computeMutualDisjoint           |       4      |            |      11      |
+| GeodesicSphereDistCalc::pointOnBearing             |       3      |            |      14      |
 
+### Functions
+The documentation for individual functions in spatial4j is highly limited and varied. Some functions have descriptions of both the function and the return type/effect but others are entirely lacking documentation. Few functions give detailed description of all possible outcomes.
 
-### PolyshapeWriter::write 
+#### PolyshapeWriter::write
+The `write` function takes a encoder object and a shape object. It encodes a shape as an ASCII string using the Polyshape format.
 
-### Geometry::unwrapDateline  
+#### Geometry::unwrapDateline
+The `unwrapDateline` function takes a geometry object and if it spans the meridian it will unwrap it so that it no longer does so. This is needed because of geographic representation implementations.
 
-### GeoCircle::relateRectangleCircleWrapsPol
+#### GeoCircle::relateRectangleCircleWrapsPol
+The `relateRectangleCircleWrapsPol` function takes a rectangle object and will return a spatial relation describing it's relation with a pole. That is if the pole is f.i. contained within the shape or other relations.
 
-### GeoJSONReader::readDistance   
+#### GeoJSONReader::readDistance   
+The `readDistance` takes a JSON parser and reads data from it until a certain distance has been found.
 
-### JtsGeoJSONWriter::write  
-1. What are your results for the ten most complex functions? (If ranking
-is not easily possible: ten complex functions)?
-   * Did all tools/methods get the same result?
-   * Are the results clear?
-2. Are the functions just complex, or also long?
-3. What is the purpose of the functions?
-4. Are exceptions taken into account in the given measurements?
-5. Is the documentation clear w.r.t. all the possible outcomes?
+#### JtsGeoJSONWriter::write  
+The `write` function takes a writer object and a geometry object. It will will append a textual representation of the geometry object to the writer which describes the objects type e.g. _MultiPolygon_ and a list of coordinate points e.g. _[[1.0,1.0],[1.0,2.0]]_. GeoJSON is a specific type of format for describing geographic objects using JSON.
+
+### Analysis
+The complexity measurement tool used for the analysis is Lizard. The manual calculations of cyclomatic complexity is based on the manually constructed condensation graphs (see report/condensation_graphs/).
+
+The result of the manual calculations were coherent within the group but occasionally deviated from the result given by lizard. The results are similar but deviate by up to 2. This seems to indicate that the methods of calculations are similar but that lizard considers some combinations of language features differently than we do. We use a language independent approach whilst lizard has specific features for Java. There wasn't many instances of exceptions in the chosen functions so we have no indication on the handling of them by the tool.
+
+The length of the chosen functions are included in the table above. There seems to be no simple relation between length and complexity. Whilst the longer functions are in general more complex than the shorter functions there is exceptions like the functions `relateRectangleCircleWrapsPol` and `unwrapDateline`.
 
 ## Coverage
 
@@ -79,30 +85,71 @@ What kinds of constructs does your tool support, and how accurate is
 its output?
 
 ### Evaluation
+Some functions from the initial list have been removed due to having dead code and such.
+##### Report of old coverage: 
 
-Report of old coverage: 
-
-* JSON::write: 64.3%
-* unwrapDateline: 66.7%
-*  relateRectangleCircleWrapsPol:  92.3%
-* polyShapeWrite: 76.9%
-* readDistance: 100%
-* pointOnBearing: 66.7%
-* DistanceToLineSegment: 80.0%
-* calcBoxByDistFromPt_latHorizAxisDEG: 57.1%
-* expandTo: 0%
-* computeMutualDisjoint: 0%
-
-* DistanceUtils::calcBoxByDistFromPtDEG: 100%
-* CartesianDistCalc::equals: 25%
+* JSON::write: (9/14) 64.3%
+* unwrapDateline: (8/12) 66.7%
+* relateRectangleCircleWrapsPol: (10/13) 92.3%
+* polyShapeWrite: (10/13) 76.9%
+* pointOnBearing: (2/3) 66.7%
+* DistanceToLineSegment: (4/5) 80.0%
+* expandTo: (0/7) 0%
+* computeMutualDisjoint: (0/4) 0%
+* DistanceUtils::vectorDistance: (0/5) 0%
+* CartesianDistCalc::pointOnBearing: (4/6) 66.7%
+* distLawOfCosinesRAD (4/5) 80.0%
+* CartesianDistCalc::equals: (1/4) 25%
+* CircleImpl::relate: (8/9) 88.9%
 
 
-Report of new coverage: [link]
-* CartesianDistCalc::equals: 75%
+##### Report of new coverage: 
 
-Test cases added:
+* JSON::write: (9/14) 64.3%
+* unwrapDateline: (8/12) 66.7%
+* relateRectangleCircleWrapsPol: (10/13) 92.3%
+* polyShapeWrite: (10/13) 76.9%
+* pointOnBearing: (<span style="color:red">**3**</span>/3) 100%
+* DistanceToLineSegment: (<span style="color:red">**5**</span>/5) 100.0%
+* expandTo: (0/7) 0%
+* computeMutualDisjoint: (<span style="color:red">**4**</span>/4) 100%
+* DistanceUtils::vectorDistance: (<span style="color:red">**5**</span>/5) 100%
+* CartesianDistCalc::pointOnBearing: (<span style="color:red">**6**</span>/6) 100%
+* distLawOfCosinesRAD (<span style="color:red">**5**</span>/5) 80.0%
+* CartesianDistCalc::equals: (3/4) 75%
+* CircleImpl::relate: (9/9) 100%
 
-git diff ...
+New branches: 14
+
+#### Test cases added:
+
+##### Jenny:
+
+`testdistanceToLineSegment()`
+
+`testDistCalcPointOnBearing_cartesian_reuse()`
+
+##### Jakob: 
+
+`testComputeMutualDisjointEmpty()`
+
+`testComputeMutualDisjointRectangles()`
+
+##### Philip:
+
+`testVectorDistance()`
+
+`testDistCalcPointOnBearing_reuse()`
+
+##### Shiva:
+
+` test_distLawOfCosinesRAD()`
+
+##### Fredrik:
+
+`testEquals()`
+
+`testRelated()`
 
 ## Refactoring
 
