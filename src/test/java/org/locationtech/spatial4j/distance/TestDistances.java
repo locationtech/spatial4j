@@ -292,6 +292,22 @@ public class TestDistances extends RandomizedTest {
   }
 
   @Test
+  public void testDistCalcPointOnBearing_cartesian_reuse() {
+    // Test that the reuse node is used correctly and describes the same
+    // point as would be returned if the reuse node was not used.
+    ctx = new SpatialContext(false);
+    EPS = 10e-6;//tighter epsilon (aka delta)
+    Point from = ctx.makePoint(1.0, 1.0);
+    Point reuse = ctx.makePoint(0.0, 0.0);
+    Point p1 = dc().pointOnBearing(from, 0.0, 0.0, ctx, reuse);
+    assertEquals(reuse, p1);
+    assertEquals(p1, dc().pointOnBearing(from, 0.0, 0.0, ctx, null));
+    Point p2 = dc().pointOnBearing(from, 1.0, 2.0, ctx, reuse);
+    assertEquals(reuse, p2);
+    assertEquals(p1, dc().pointOnBearing(from, 1.0, 2.0, ctx, null));
+  }
+
+  @Test
   public void testDistCalcPointOnBearing_geo() {
     // The haversine formula has a higher error if the points are near antipodal. We
     // adjust EPS tolerance for this case.
