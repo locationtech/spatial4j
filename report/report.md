@@ -115,9 +115,10 @@ Some functions from the initial list have been removed due to having dead code a
 * computeMutualDisjoint: (<span style="color:red">**4**</span>/4) 100%
 * DistanceUtils::vectorDistance: (<span style="color:red">**5**</span>/5) 100%
 * CartesianDistCalc::pointOnBearing: (<span style="color:red">**6**</span>/6) 100%
-* distLawOfCosinesRAD (<span style="color:red">**5**</span>/5) 80.0%
-* CartesianDistCalc::equals: (3/4) 75%
-* CircleImpl::relate: (9/9) 100%
+* distLawOfCosinesRAD (<span style="color:red">**5**</span>/5) 100%
+* CartesianDistCalc::equals: (<span style="color:red">**3**</span>/4) 75%
+* CircleImpl::relate: (<span style="color:red">**9**</span>/9) 100%
+
 
 New branches: 14
 
@@ -155,9 +156,12 @@ New branches: 14
 
 Plan for refactoring complex code:
 
-Carried out refactoring (optional)
+In functions such as DistanceUtils::calcBoxByDistFromPt_latHorizAxisDEG , there is dead code that is never reached 
+without which the branch coverage would be quite higher otherwise. This dead code includes branches that are never entered 
+and thus reduce branch coverage. Therefore removing unreachable branches would both improve complexity as well as branch coverage. 
 
-git diff ...
+As well as avoiding dead branches, avoiding branche clashes such as if-statements whose conditions are captured by other if-statements 
+in the same function could be anopther way to reduce complexity. 
 
 ## Effort spent
 
