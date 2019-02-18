@@ -112,7 +112,7 @@ Some functions from the initial list have been removed due to having dead code a
 * computeMutualDisjoint: (<span style="color:red">**4**</span>/4) 100%
 * DistanceUtils::vectorDistance: (<span style="color:red">**5**</span>/5) 100%
 * CartesianDistCalc::pointOnBearing: (<span style="color:red">**6**</span>/6) 100%
-* distLawOfCosinesRAD (<span style="color:red">**5**</span>/5) 80.0%
+* distLawOfCosinesRAD (<span style="color:red">**5**</span>/5) 100%
 
 New branches: 14
 
