@@ -256,6 +256,28 @@ public class DistanceUtils {
     return (off <= 180 ? off : 360 - off) - 90;
   }
 
+
+  public static boolean[] flags2 = new boolean[10]; //Branch coverage array
+  private static void writeToFile2(){
+    try
+    {
+      String filename= "calcBoxByDistFromPtDEG.txt";
+      FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+      fw.write("calcBoxByDistFromPtDEG \n");
+      int count = 0;
+      for (boolean b :flags2) {
+        if (b) count ++;
+        fw.write(b + " ");
+      }
+      fw.write("\nCoverage: " + (Double.toString((double) count/flags2.length)) );
+      fw.close();
+    }
+    catch(IOException ioe)
+    {
+      System.err.println("IOException: " + ioe.getMessage());
+    }
+  }
+
   /**
    * Calculates the bounding box of a circle, as specified by its center point and
    * distance. <code>reuse</code> is an optional argument to store the results to
@@ -270,35 +292,37 @@ public class DistanceUtils {
     double minY;
     double maxY;
     if (distDEG == 0) {
-      minX = lon;
-      maxX = lon;
-      minY = lat;
-      maxY = lat;
-    } else if (distDEG >= 180) {// distance is >= opposite side of the globe
-      minX = -180;
-      maxX = 180;
-      minY = -90;
-      maxY = 90;
+      flags2[0] = true;
+      minX = lon; maxX = lon; minY = lat; maxY = lat;
+    } else if (distDEG >= 180) {//distance is >= opposite side of the globe
+      flags2[1] = true;
+      minX = -180; maxX = 180; minY = -90; maxY = 90;
     } else {
-
-      // --calc latitude bounds
+      flags2[2] = true;
+      //--calc latitude bounds
       maxY = lat + distDEG;
       minY = lat - distDEG;
 
-      if (maxY >= 90 || minY <= -90) {// touches either pole
-        // we have special logic for longitude
-        minX = -180;
-        maxX = 180;// world wrap: 360 deg
-        if (maxY <= 90 && minY >= -90) {// doesn't pass either pole: 180 deg
+      if (maxY >= 90 || minY <= -90) {//touches either pole
+        flags2[3] = true;
+        //we have special logic for longitude
+        minX = -180; maxX = 180;//world wrap: 360 deg
+        if (maxY <= 90 && minY >= -90) {//doesn't pass either pole: 180 deg
+          flags2[4] = true;
           minX = normLonDEG(lon - 90);
           maxX = normLonDEG(lon + 90);
         }
-        if (maxY > 90)
+        if (maxY > 90) {
+          flags2[5] = true;
           maxY = 90;
-        if (minY < -90)
+        }
+        if (minY < -90) {
+          flags2[6] = true;
           minY = -90;
+        }
       } else {
-        // --calc longitude bounds
+        flags2[7] = true;
+        //--calc longitude bounds
         double lon_delta_deg = calcBoxByDistFromPt_deltaLonDEG(lat, lon, distDEG);
 
         minX = normLonDEG(lon - lon_delta_deg);
@@ -306,8 +330,12 @@ public class DistanceUtils {
       }
     }
     if (reuse == null) {
+      flags2[8] = true;
+      writeToFile2();
       return ctx.makeRectangle(minX, maxX, minY, maxY);
     } else {
+      flags2[9] = true;
+      writeToFile2();
       reuse.reset(minX, maxX, minY, maxY);
       return reuse;
     }
@@ -491,25 +519,25 @@ public class DistanceUtils {
     return 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
   }
 
-  private static void writeToFile2() {
+  private static void writeToFile3() {
     try {
       String filename = "distLawOfCosinesRAD.txt";
       FileWriter fw = new FileWriter(filename, false); // the true will append the new data
       fw.write("distLawOfCosinesRAD \n");
       int count = 0;
-      for (boolean b : flags2) {
+      for (boolean b : flags3) {
         if (b)
           count++;
         fw.write(b + " ");
       }
-      fw.write("\nCoverage: " + (Double.toString((double) count / flags2.length)));
+      fw.write("\nCoverage: " + (Double.toString((double) count / flags3.length)));
       fw.close();
     } catch (IOException ioe) {
       System.err.println("IOException: " + ioe.getMessage());
     }
   }
 
-  private static boolean[] flags2 = new boolean[5];
+  private static boolean[] flags3 = new boolean[5];
 
   /**
    * Calculates the distance between two lat-lon's using the Law of Cosines. Due
@@ -529,11 +557,11 @@ public class DistanceUtils {
 
     // Check for same position
     if (lat1 == lat2 && lon1 == lon2) {
-      flags2[0] = true;
-      writeToFile2();
+      flags3[0] = true;
+      writeToFile3();
       return 0.0;
     }
-    flags2[1] = true;
+    flags3[1] = true;
 
     // Get the longitude difference. Don't need to worry about
     // crossing dateline since cos(x) = cos(-x)
@@ -543,20 +571,20 @@ public class DistanceUtils {
 
     // Find angle subtended (with some bounds checking) in radians
     if (cosB < -1.0) {
-      flags2[2] = true;
-      writeToFile2();
+      flags3[2] = true;
+      writeToFile3();
       return Math.PI;
     }
 
     else if (cosB >= 1.0) {
-      flags2[3] = true;
-      writeToFile2();
+      flags3[3] = true;
+      writeToFile3();
       return 0;
     }
 
     else {
-      flags2[4] = true;
-      writeToFile2();
+      flags3[4] = true;
+      writeToFile3();
       return Math.acos(cosB);
     }
 

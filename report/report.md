@@ -24,16 +24,16 @@ for most of the members of the group. Just be sure to use JDK 1.8, otherwise som
 
 | Function                                           | CCN (lizard) | CCN (Manual) | Lines of Code |
 |----------------------------------------------------|:------------:|-----------:|--------------|
-| PolyshapeWriter::write                             |      13      |     13     |     30     |
-| JtsGeometry::unwrapDateline                           |      11      |     11     |     45     |
-| GeoCircle::relateRectangleCircleWrapsPol           |      13      |     12     |     38     |
-| GeoJSONReader::readDistance                        |      11      |      9     |     30     |
-| JtsGeoJSONWriter::write                            |      14      |     16     |     59     |
-| CartesianDistCalc::distanceToLineSegment           |       4      |            |     22     |
-| DistanceUtils::calcBoxByDistFromPt_latHorizAxisDEG |       7      |            |     18     |
-| Range::LongitudeRange::expandTo                    |       7      |            |     17     |
-| ShapeCollection<S::computeMutualDisjoint           |       4      |            |     11     |
-| GeodesicSphereDistCalc::pointOnBearing             |       3      |            |     14     |
+| PolyshapeWriter::write                             |      13      |     13     |      30      |
+| JtsGeometry::unwrapDateline                        |      11      |     11     |      45      |
+| GeoCircle::relateRectangleCircleWrapsPol           |      13      |     12     |      38      |
+| GeoJSONReader::readDistance                        |      11      |      9     |      30      |
+| JtsGeoJSONWriter::write                            |      14      |     16     |      59      |
+| CartesianDistCalc::distanceToLineSegment           |       4      |            |      22      |
+| DistanceUtils::calcBoxByDistFromPt_latHorizAxisDEG |       7      |            |      18      |
+| Range::LongitudeRange::expandTo                    |       7      |            |      17      |
+| ShapeCollection<S::computeMutualDisjoint           |       4      |            |      11      |
+| GeodesicSphereDistCalc::pointOnBearing             |       3      |            |      14      |
 
 ### Functions
 The documentation for individual functions in spatial4j is highly limited and varied. Some functions have descriptions of both the function and the return type/effect but others are entirely lacking documentation. Few functions give detailed description of all possible outcomes.
@@ -99,6 +99,9 @@ Some functions from the initial list have been removed due to having dead code a
 * DistanceUtils::vectorDistance: (0/5) 0%
 * CartesianDistCalc::pointOnBearing: (4/6) 66.7%
 * distLawOfCosinesRAD (4/5) 80.0%
+* CartesianDistCalc::equals: (1/4) 25%
+* CircleImpl::relate: (8/9) 88.9%
+
 
 ##### Report of new coverage: 
 
@@ -113,6 +116,9 @@ Some functions from the initial list have been removed due to having dead code a
 * DistanceUtils::vectorDistance: (<span style="color:red">**5**</span>/5) 100%
 * CartesianDistCalc::pointOnBearing: (<span style="color:red">**6**</span>/6) 100%
 * distLawOfCosinesRAD (<span style="color:red">**5**</span>/5) 100%
+* CartesianDistCalc::equals: (<span style="color:red">**3**</span>/4) 75%
+* CircleImpl::relate: (<span style="color:red">**9**</span>/9) 100%
+
 
 New branches: 14
 
@@ -142,8 +148,9 @@ New branches: 14
 
 ##### Fredrik:
 
+`testEquals()`
 
-git diff ...
+`testRelated()`
 
 ## Refactoring
 
