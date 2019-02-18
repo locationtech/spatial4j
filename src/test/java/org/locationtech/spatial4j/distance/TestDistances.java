@@ -8,6 +8,8 @@
 
 package org.locationtech.spatial4j.distance;
 
+import org.locationtech.spatial4j.distance.GeodesicSphereDistCalc;
+
 import com.carrotsearch.randomizedtesting.RandomizedTest;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Circle;
@@ -22,6 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.locationtech.spatial4j.distance.DistanceUtils.DEG_TO_KM;
 import static org.locationtech.spatial4j.distance.DistanceUtils.KM_TO_DEG;
+import org.locationtech.spatial4j.distance.DistanceUtils;
+
+import java.util.Arrays;
 
 public class TestDistances extends RandomizedTest {
 
@@ -123,7 +128,6 @@ public class TestDistances extends RandomizedTest {
 
     assertEquals("0 dist, horiz line",
         -45,dc().calcBoxByDistFromPt_yHorizAxisDEG(ctx.makePoint(-180, -45), 0, ctx),0);
-
     double MAXDIST = (double) 180 * DEG_TO_KM;
     checkBBox(ctx.makePoint(0,0), MAXDIST);
     checkBBox(ctx.makePoint(0,0), MAXDIST *0.999999);
@@ -155,7 +159,6 @@ public class TestDistances extends RandomizedTest {
     double horizAxisLat = dc().calcBoxByDistFromPt_yHorizAxisDEG(ctr, dist, ctx);
     if (!Double.isNaN(horizAxisLat))
       assertTrue(r.relateYRange(horizAxisLat, horizAxisLat).intersects());
-
     //horizontal
     if (r.getWidth() >= 180) {
       double deg = dc().distance(ctr, r.getMinX(), r.getMaxY() == 90 ? 90 : -90);
@@ -219,6 +222,8 @@ public class TestDistances extends RandomizedTest {
     }
   }
 
+
+
   @Test
   public void testDistCalcPointOnBearing_geo() {
     //The haversine formula has a higher error if the points are near antipodal. We adjust EPS tolerance for this case.
@@ -240,6 +245,13 @@ public class TestDistances extends RandomizedTest {
       EPS = (distKm < maxDistKm*0.75 ? 10e-6 : 10e-3);
       testDistCalcPointOnBearing(distKm);
     }
+    /*
+    System.err.println("Testing done in TestDisstances on function GeodesicSphereDistCalc");
+    boolean[] temp = GeodesicSphereDistCalc.flags;
+    for(int i = 0; i < 3; i++){
+      System.err.println(temp[i]);
+    }*/
+
   }
 
   //  GeodesicSphereDistCalc::pointOnBearing now has 100% coverage
@@ -261,12 +273,14 @@ public class TestDistances extends RandomizedTest {
 
       //0 distance means same point
       Point p2 = dc().pointOnBearing(c, 0, angDEG, ctx, null);
+
       assertEquals(c,p2);
 
       p2 = dc().pointOnBearing(c, distKm * KM_TO_DEG, angDEG, ctx, null);
       double calcDistKm = dc().distance(c, p2) * DEG_TO_KM;
       assertEqualsRatio(distKm, calcDistKm);
     }
+
   }
 
   private void assertEqualsRatio(double expected, double actual) {
