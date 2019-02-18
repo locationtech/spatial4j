@@ -55,6 +55,39 @@ public class TestDistances extends RandomizedTest {
     assertEquals(314.40338, dc().distance(pLL(1, 2), pLL(3, 4)) * DEG_TO_KM, EPS);
   }
 
+  //  Test of deprecated function
+  @Test
+  public void testVectorDistance(){
+
+    //  Test power == 0
+    double[] vec1 = {1.0, 2.0};
+    double[] vec2 = {1.0, 0.0};
+    double power = 0.0;
+    double oneOverPower = 0.0;
+    double res = DistanceUtils.vectorDistance( vec1, vec2, power, oneOverPower);
+    assertEquals(1.0, res, 0);
+
+    //  Test power == 1.0
+    power = 1.0;
+    res = DistanceUtils.vectorDistance( vec1, vec2, power, oneOverPower);
+    assertEquals(2.0, res, 0);
+
+    //  Test power == 2.0
+    power = 2.0;
+    res = DistanceUtils.vectorDistance( vec1, vec2, power, oneOverPower);
+    assertEquals(2.0, res, 0);
+
+    //  Test power == Integer.MAX_VALUE
+    power = Integer.MAX_VALUE;
+    res = DistanceUtils.vectorDistance( vec1, vec2, power, oneOverPower);
+    assertEquals(2.0, res, 0);
+
+    //  Test last case
+    power = 5.0;
+    res = DistanceUtils.vectorDistance( vec1, vec2, power, oneOverPower);
+    assertEquals(1.0, res, 0);
+  }
+
   @Test
   public void testDistancesAgainstVincenty() {
     DistanceCalculator vincenty = new GeodesicSphereDistCalc.Vincenty();
