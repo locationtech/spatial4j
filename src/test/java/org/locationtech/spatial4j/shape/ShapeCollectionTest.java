@@ -127,4 +127,31 @@ public class ShapeCollectionTest extends RandomizedShapeTest {
       return randomPointIn(r);
     }
   }
+
+
+  @Test
+  public void testComputeMutualDisjointEmpty(){
+    List<? extends Shape> shapes = new ArrayList<>();
+    // An empty list of shapes are mutually disjoint
+    assertEquals(true, ShapeCollection.computeMutualDisjoint(shapes));
+  }
+
+  @Test
+  public void testComputeMutualDisjointTwoDisJointRectangles(){
+    ctx = SpatialContext.GEO;
+    //These two rectangles are NOT disjoint, thus should return false
+    Rectangle r1 = ctx.makeRectangle(2, 6, 1, 4);
+    Rectangle r2 = ctx.makeRectangle(-1, 4, -2, 2);
+    List<Rectangle> shapes = new ArrayList<Rectangle>();
+    shapes.add(r1);
+    shapes.add(r2);
+    assertEquals(false, ShapeCollection.computeMutualDisjoint(shapes));
+    //These two rectangles are disjoint, thus should return true
+    Rectangle r3 = ctx.makeRectangle(2, 6, 1, 4);
+    Rectangle r4 = ctx.makeRectangle(8, 15, 1, 4);
+    shapes.clear();
+    shapes.add(r3);
+    shapes.add(r4);
+    assertEquals(true, ShapeCollection.computeMutualDisjoint(shapes));
+  }
 }

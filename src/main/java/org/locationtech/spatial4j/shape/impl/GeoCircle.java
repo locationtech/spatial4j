@@ -14,6 +14,8 @@ import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Rectangle;
 import org.locationtech.spatial4j.shape.SpatialRelation;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Formatter;
 import java.util.Locale;
 
@@ -140,28 +142,61 @@ public class GeoCircle extends CircleImpl {
     return SpatialRelation.DISJOINT;
   }
 
+  public static boolean[] flags = new boolean[13];
+  private static void writeToFile(){
+    try
+    {
+      String filename= "relateRectangleCircleWrapsPole.txt";
+      FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+      fw.write("relateRectangleCircleWrapsPole \n");
+      int count = 0;
+      for (boolean b :flags) {
+        if (b) count ++;
+        fw.write(b + " ");
+      }
+      fw.write("\nCoverage: " + (Double.toString((double) count/flags.length)) );
+      fw.close();
+    }
+    catch(IOException ioe)
+    {
+      System.err.println("IOException: " + ioe.getMessage());
+    }
+  }
+
   private SpatialRelation relateRectangleCircleWrapsPole(Rectangle r, SpatialContext ctx) {
     //This method handles the case where the circle wraps ONE pole, but not both.  For both,
     // there is the inverseCircle case handled before now.  The only exception is for the case where
     // the circle covers the entire globe, and we'll check that first.
-    if (radiusDEG == 180)//whole globe
+    if (radiusDEG == 180) {//whole globe
+      flags[0] = true;
+      writeToFile();
       return SpatialRelation.CONTAINS;
+    }
 
     //Check if r is within the pole wrap region:
     double yTop = getCenter().getY() + radiusDEG;
     if (yTop > 90) {
+      flags[1] = true;
       double yTopOverlap = yTop - 90;
       assert yTopOverlap <= 90;
-      if (r.getMinY() >= 90 - yTopOverlap)
+      if (r.getMinY() >= 90 - yTopOverlap) {
+        flags[2] = true;
+        writeToFile();
         return SpatialRelation.CONTAINS;
+      }
     } else {
+      flags[3] = true;
       double yBot = point.getY() - radiusDEG;
       if (yBot < -90) {
+        flags[4] = true;
         double yBotOverlap = -90 - yBot;
         assert yBotOverlap <= 90;
-        if (r.getMaxY() <= -90 + yBotOverlap)
+        if (r.getMaxY() <= -90 + yBotOverlap) {
+          flags[5] = true;
           return SpatialRelation.CONTAINS;
+        }
       } else {
+        flags[6] = true;
         //This point is probably not reachable ??
         assert yTop == 90 || yBot == -90;//we simply touch a pole
         //continue
@@ -169,8 +204,11 @@ public class GeoCircle extends CircleImpl {
     }
 
     //If there are no corners to check intersection because r wraps completely...
-    if (r.getWidth() == 360)
+    if (r.getWidth() == 360) {
+      flags[7] = true;
+      writeToFile();
       return SpatialRelation.INTERSECTS;
+    }
 
     //Check corners:
     int cornersIntersect = numCornersIntersect(r);
@@ -179,17 +217,32 @@ public class GeoCircle extends CircleImpl {
     double frontX = getCenter().getX();
     if (cornersIntersect == 4) {//all
       double backX = frontX <= 0 ? frontX + 180 : frontX - 180;
-      if (r.relateXRange(backX, backX).intersects())
+      if (r.relateXRange(backX, backX).intersects()) {
+        flags[8] = true;
+        writeToFile();
         return SpatialRelation.INTERSECTS;
-      else
+      }
+      else {
+        flags[9] = true;
+        writeToFile();
         return SpatialRelation.CONTAINS;
+      }
     } else if (cornersIntersect == 0) {//none
-      if (r.relateXRange(frontX, frontX).intersects())
+      if (r.relateXRange(frontX, frontX).intersects()) {
+        flags[10] = true;
+        writeToFile();
         return SpatialRelation.INTERSECTS;
-      else
+      }
+      else {
+        flags[11] = true;
+        writeToFile();
         return SpatialRelation.DISJOINT;
-    } else//partial
+      }
+    } else {//partial
+      flags[12] = true;
+      writeToFile();
       return SpatialRelation.INTERSECTS;
+    }
   }
 
   /** Returns either 0 for none, 1 for some, or 4 for all. */
