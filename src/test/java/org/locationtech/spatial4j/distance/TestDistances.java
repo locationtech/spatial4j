@@ -242,6 +242,7 @@ public class TestDistances extends RandomizedTest {
     }
   }
 
+  //  GeodesicSphereDistCalc::pointOnBearing now has 100% coverage
   @Test
   public void testDistCalcPointOnBearing_reuse() {
     Point from = ctx.makePoint(randomIntBetween(-90, 90), randomIntBetween(-90, 90));
@@ -267,7 +268,6 @@ public class TestDistances extends RandomizedTest {
       assertEqualsRatio(distKm, calcDistKm);
     }
   }
-
 
   private void assertEqualsRatio(double expected, double actual) {
     double delta = Math.abs(actual - expected);
