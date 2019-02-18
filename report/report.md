@@ -149,9 +149,12 @@ git diff ...
 
 Plan for refactoring complex code:
 
-Carried out refactoring (optional)
+In functions such as DistanceUtils::calcBoxByDistFromPt_latHorizAxisDEG , there is dead code that is never reached 
+without which the branch coverage would be quite higher otherwise. This dead code includes branches that are never entered 
+and thus reduce branch coverage. Therefore removing unreachable branches would both improve complexity as well as branch coverage. 
 
-git diff ...
+As well as avoiding dead branches, avoiding branche clashes such as if-statements whose conditions are captured by other if-statements 
+in the same function could be anopther way to reduce complexity. 
 
 ## Effort spent
 
