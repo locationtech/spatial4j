@@ -23,6 +23,8 @@ import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.operation.union.UnaryUnionOp;
 import org.locationtech.jts.operation.valid.IsValidOp;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -416,6 +418,28 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
     return geom;
   }
 
+  public static boolean[] flags = new boolean[12];
+
+  private static void writeToFile(){
+    try
+    {
+      String filename= "unwrapDateline.txt";
+      FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+      fw.write("unwrapDateline \n");
+      int count = 0;
+      for (boolean b :flags) {
+        if (b) count ++;
+        fw.write(b + " ");
+      }
+      fw.write("\nCoverage: " + (Double.toString((double) count/flags.length)) );
+      fw.close();
+    }
+    catch(IOException ioe)
+    {
+      System.err.println("IOException: " + ioe.getMessage());
+    }
+  }
+
   /**
    * If <code>geom</code> spans the dateline (aka anti-meridian), then this modifies it to be a
    * valid JTS geometry that extends to the right of the standard -180 to +180
@@ -424,23 +448,31 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
    * @return The same geometry or a new one if it was unwrapped
    */
   private static Geometry unwrapDateline(Geometry geom) {
-    if (geom.getEnvelopeInternal().getWidth() < 180)
+    if (geom.getEnvelopeInternal().getWidth() < 180) {
+      writeToFile();
+      flags[0] = true;
       return geom;//can't possibly cross the dateline
+    }
 
     // if a multi-geom:  (this is purely an optimization to avoid cloning more than we need to)
     if (geom instanceof GeometryCollection) {
+      flags[1] = true;
       if (geom instanceof MultiPoint) {
+        flags[2] = true;
+        writeToFile();
         return geom; // always safe since no point crosses the dateline (on it is okay)
       }
       GeometryCollection gc = (GeometryCollection) geom;
       List<Geometry> list = new ArrayList<>(gc.getNumGeometries());
       boolean didUnwrap = false;
       for (int n = 0; n < gc.getNumGeometries(); n++) {
+        flags[3] = true;
         Geometry geometryN = gc.getGeometryN(n);
         Geometry geometryUnwrapped = unwrapDateline(geometryN); // recursion
         list.add(geometryUnwrapped);
         didUnwrap |= (geometryUnwrapped != geometryN);
       }
+      writeToFile();
       return !didUnwrap ? geom : geom.getFactory().buildGeometry(list);
     }
 
@@ -452,16 +484,27 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
     newGeom.apply(new GeometryFilter() {
       @Override
       public void filter(Geometry geom) {
+        flags[4] = true;
         int cross;
         if (geom instanceof LineString) {//note: LinearRing extends LineString
-          if (geom.getEnvelopeInternal().getWidth() < 180)
+          flags[5] = true;
+          if (geom.getEnvelopeInternal().getWidth() < 180) {
+            flags[6] = true;
+            writeToFile();
             return;//can't possibly cross the dateline
+          }
           cross = unwrapDateline((LineString) geom);
         } else if (geom instanceof Polygon) {
-          if (geom.getEnvelopeInternal().getWidth() < 180)
+          flags[7] = true;
+          if (geom.getEnvelopeInternal().getWidth() < 180) {
+            flags[8] = true;
+            writeToFile();
             return;//can't possibly cross the dateline
+          }
           cross = unwrapDateline((Polygon) geom);
         } else {
+          flags[9] = true;
+          writeToFile();
           // The only other JTS subclass of Geometry is a Point, which can't cross anything.
           //  If the geom is something custom, we don't know what else to do but return.
           return;
@@ -471,9 +514,13 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
     });//geom.apply()
 
     if (crossings[0] > 0) {
+      flags[10] = true;
+      writeToFile();
       newGeom.geometryChanged();
       return newGeom;
     } else {
+      flags[11] = true;
+      writeToFile();
       return geom; // original
     }
   }

@@ -11,6 +11,8 @@ package org.locationtech.spatial4j.shape;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.impl.BBoxCalculator;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 import static org.locationtech.spatial4j.shape.SpatialRelation.CONTAINS;
@@ -40,6 +42,8 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
   protected final SpatialContext ctx;
   protected final List<S> shapes;
   protected final Rectangle bbox;
+
+  public static boolean[] flags = new boolean[4]; //
 
   /**
    * WARNING: {@code shapes} is copied by reference.
@@ -164,15 +168,44 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
     //WARNING: this is an O(n^2) algorithm.
     //loop through each shape and see if it intersects any shape before it
     for (int i = 1; i < shapes.size(); i++) {
+      flags[0] = true;
       Shape shapeI = shapes.get(i);
       for (int j = 0; j < i; j++) {
+        flags[1] = true;
         Shape shapeJ = shapes.get(j);
-        if (shapeJ.relate(shapeI).intersects())
+        if (shapeJ.relate(shapeI).intersects()){
+          flags[2] = true;
+          writeToFile();
           return false;
+        }
       }
     }
+    flags[3] = true;
+    writeToFile();
     return true;
   }
+
+
+  private static void writeToFile(){
+    try
+    {
+      String filename= "computeMutualDisjoint.txt";
+      FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+      fw.write("computeMutualDisjoint \n");
+      int count = 0;
+      for (boolean b :flags) {
+        if (b) count ++;
+        fw.write(b + " ");
+      }
+      fw.write("\nCoverage: " + (Double.toString((double) count/flags.length)) );
+      fw.close();
+    }
+    catch(IOException ioe)
+    {
+      System.err.println("IOException: " + ioe.getMessage());
+    }
+  }
+
 
   @Override
   public double getArea(SpatialContext ctx) {
