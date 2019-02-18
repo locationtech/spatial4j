@@ -23,7 +23,7 @@ for most of the members of the group. Just be sure to use JDK 1.8, otherwise som
 ## Complexity
 
 | Function                                           | CCN (lizard) | CCN (Manual) | Lines of Code |
-|----------------------------------------------------|:------------:|-----------:|
+|----------------------------------------------------|:------------:|-----------:|--------------|
 | PolyshapeWriter::write                             |      13      |     13     |     30     |
 | JtsGeometry::unwrapDateline                           |      11      |     11     |     45     |
 | GeoCircle::relateRectangleCircleWrapsPol           |      13      |     12     |     38     |
@@ -85,23 +85,63 @@ What kinds of constructs does your tool support, and how accurate is
 its output?
 
 ### Evaluation
+Some functions from the initial list have been removed due to having dead code and such.
+##### Report of old coverage: 
 
-Report of old coverage: 
+* JSON::write: (9/14) 64.3%
+* unwrapDateline: (8/12) 66.7%
+* relateRectangleCircleWrapsPol: (10/13) 92.3%
+* polyShapeWrite: (10/13) 76.9%
+* pointOnBearing: (2/3) 66.7%
+* DistanceToLineSegment: (4/5) 80.0%
+* expandTo: (0/7) 0%
+* computeMutualDisjoint: (0/4) 0%
+* DistanceUtils::vectorDistance: (0/5) 0%
+* CartesianDistCalc::pointOnBearing: (4/6) 66.7%
+* distLawOfCosinesRAD (4/5) 80.0%
 
-* JSON::write: 64.3%
-* unwrapDateline: 66.7%
-*  relateRectangleCircleWrapsPol:  92.3%
-* polyShapeWrite: 76.9%
-* readDistance: 100%
-* pointOnBearing: 66.7%
-* DistanceToLineSegment: 80.0%
-* calcBoxByDistFromPt_latHorizAxisDEG: 57.1%
-* expandTo: 0%
-* computeMutualDisjoint: 0%
+##### Report of new coverage: 
 
-Report of new coverage: [link]
+* JSON::write: (9/14) 64.3%
+* unwrapDateline: (8/12) 66.7%
+* relateRectangleCircleWrapsPol: (10/13) 92.3%
+* polyShapeWrite: (10/13) 76.9%
+* pointOnBearing: (<span style="color:red">**3**</span>/3) 100%
+* DistanceToLineSegment: (<span style="color:red">**5**</span>/5) 100.0%
+* expandTo: (0/7) 0%
+* computeMutualDisjoint: (<span style="color:red">**4**</span>/4) 100%
+* DistanceUtils::vectorDistance: (<span style="color:red">**5**</span>/5) 100%
+* CartesianDistCalc::pointOnBearing: (<span style="color:red">**6**</span>/6) 100%
+* distLawOfCosinesRAD (<span style="color:red">**5**</span>/5) 80.0%
 
-Test cases added:
+New branches: 14
+
+#### Test cases added:
+
+##### Jenny:
+
+`testdistanceToLineSegment()`
+
+`testDistCalcPointOnBearing_cartesian_reuse()`
+
+##### Jakob: 
+
+`testComputeMutualDisjointEmpty()`
+
+`testComputeMutualDisjointRectangles()`
+
+##### Philip:
+
+`testVectorDistance()`
+
+`testDistCalcPointOnBearing_reuse()`
+
+##### Shiva:
+
+` test_distLawOfCosinesRAD()`
+
+##### Fredrik:
+
 
 git diff ...
 

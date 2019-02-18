@@ -137,7 +137,7 @@ public class ShapeCollectionTest extends RandomizedShapeTest {
   }
 
   @Test
-  public void testComputeMutualDisjointTwoDisJointRectangles(){
+  public void testComputeMutualDisjointRectangles(){
     ctx = SpatialContext.GEO;
     //These two rectangles are NOT disjoint, thus should return false
     Rectangle r1 = ctx.makeRectangle(2, 6, 1, 4);
