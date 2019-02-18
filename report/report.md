@@ -22,37 +22,43 @@ for most of the members of the group. Just be sure to use JDK 1.8, otherwise som
 
 ## Complexity
 
-| Function                                           | CCN (lizard) | CCN (Manual) |
+| Function                                           | CCN (lizard) | CCN (Manual) | Lines of Code |
 |----------------------------------------------------|:------------:|-----------:|
-| PolyshapeWriter::write                             |      13      |            |
-| Geometry::unwrapDateline                           |      11      |            |
-| GeoCircle::relateRectangleCircleWrapsPol           |      13      |            |
-| GeoJSONReader::readDistance                        |      11      |            |
-| JtsGeoJSONWriter::write                            |      14      |            |
-| CartesianDistCalc::distanceToLineSegment           |       4      |            |
-| DistanceUtils::calcBoxByDistFromPt_latHorizAxisDEG |       7      |            |
-| Range::LongitudeRange::expandTo                    |       7      |            |
-| ShapeCollection<S::computeMutualDisjoint           |       4      |            | Anropas inte
-| GeodesicSphereDistCalc::pointOnBearing             |       3      |            | 100% branch coverage
+| PolyshapeWriter::write                             |      13      |     13     |     30     |
+| JtsGeometry::unwrapDateline                           |      11      |     11     |     45     |
+| GeoCircle::relateRectangleCircleWrapsPol           |      13      |     12     |     38     |
+| GeoJSONReader::readDistance                        |      11      |      9     |     30     |
+| JtsGeoJSONWriter::write                            |      14      |     16     |     59     |
+| CartesianDistCalc::distanceToLineSegment           |       4      |            |     22     |
+| DistanceUtils::calcBoxByDistFromPt_latHorizAxisDEG |       7      |            |     18     |
+| Range::LongitudeRange::expandTo                    |       7      |            |     17     |
+| ShapeCollection<S::computeMutualDisjoint           |       4      |            |     11     |
+| GeodesicSphereDistCalc::pointOnBearing             |       3      |            |     14     |
 
+### Functions
+The documentation for individual functions in spatial4j is highly limited and varied. Some functions have descriptions of both the function and the return type/effect but others are entirely lacking documentation. Few functions give detailed description of all possible outcomes.
 
-### PolyshapeWriter::write 
+#### PolyshapeWriter::write
+The `write` function takes a encoder object and a shape object. It encodes a shape as an ASCII string using the Polyshape format.
 
-### Geometry::unwrapDateline  
+#### Geometry::unwrapDateline
+The `unwrapDateline` function takes a geometry object and if it spans the meridian it will unwrap it so that it no longer does so. This is needed because of geographic representation implementations.
 
-### GeoCircle::relateRectangleCircleWrapsPol
+#### GeoCircle::relateRectangleCircleWrapsPol
+The `relateRectangleCircleWrapsPol` function takes a rectangle object and will return a spatial relation describing it's relation with a pole. That is if the pole is f.i. contained within the shape or other relations.
 
-### GeoJSONReader::readDistance   
+#### GeoJSONReader::readDistance   
+The `readDistance` takes a JSON parser and reads data from it until a certain distance has been found.
 
-### JtsGeoJSONWriter::write  
-1. What are your results for the ten most complex functions? (If ranking
-is not easily possible: ten complex functions)?
-   * Did all tools/methods get the same result?
-   * Are the results clear?
-2. Are the functions just complex, or also long?
-3. What is the purpose of the functions?
-4. Are exceptions taken into account in the given measurements?
-5. Is the documentation clear w.r.t. all the possible outcomes?
+#### JtsGeoJSONWriter::write  
+The `write` function takes a writer object and a geometry object. It will will append a textual representation of the geometry object to the writer which describes the objects type e.g. _MultiPolygon_ and a list of coordinate points e.g. _[[1.0,1.0],[1.0,2.0]]_. GeoJSON is a specific type of format for describing geographic objects using JSON.
+
+### Analysis
+The complexity measurement tool used for the analysis is Lizard. The manual calculations of cyclomatic complexity is based on the manually constructed condensation graphs (see report/condensation_graphs/).
+
+The result of the manual calculations were coherent within the group but occasionally deviated from the result given by lizard. The results are similar but deviate by up to 2. This seems to indicate that the methods of calculations are similar but that lizard considers some combinations of language features differently than we do. We use a language independent approach whilst lizard has specific features for Java. There wasn't many instances of exceptions in the chosen functions so we have no indication on the handling of them by the tool.
+
+The length of the chosen functions are included in the table above. There seems to be no simple relation between length and complexity. Whilst the longer functions are in general more complex than the shorter functions there is exceptions like the functions `relateRectangleCircleWrapsPol` and `unwrapDateline`.
 
 ## Coverage
 
