@@ -24,20 +24,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.locationtech.spatial4j.distance.DistanceUtils.DEG_TO_KM;
 import static org.locationtech.spatial4j.distance.DistanceUtils.KM_TO_DEG;
+
 import org.locationtech.spatial4j.distance.DistanceUtils;
 
 import java.util.Arrays;
 
 public class TestDistances extends RandomizedTest {
 
-  //NOTE!  These are sometimes modified by tests.
+  // NOTE! These are sometimes modified by tests.
   private SpatialContext ctx;
   private double EPS;
 
   @Before
   public void beforeTest() {
     ctx = SpatialContext.GEO;
-    EPS = 10e-4;//delta when doing double assertions. Geo eps is not that small.
+    EPS = 10e-4;// delta when doing double assertions. Geo eps is not that small.
   }
 
   private DistanceCalculator dc() {
@@ -46,8 +47,8 @@ public class TestDistances extends RandomizedTest {
 
   @Test
   public void testSomeDistances() {
-    //See to verify: from http://www.movable-type.co.uk/scripts/latlong.html
-    Point ctr = pLL(0,100);
+    // See to verify: from http://www.movable-type.co.uk/scripts/latlong.html
+    Point ctr = pLL(0, 100);
     assertEquals(11100, dc().distance(ctr, pLL(10, 0)) * DEG_TO_KM, 3);
     double deg = dc().distance(ctr, pLL(10, -160));
     assertEquals(11100, deg * DEG_TO_KM, 3);
@@ -56,115 +57,148 @@ public class TestDistances extends RandomizedTest {
   }
 
   @Test
+  // test the function distLawofCosineRad in DistanceUtils
+  public void test_distLawOfCosinesRAD() {
+    // if tjhe points have the same coordinate, the distance is 0
+    double lat1 = 5;
+    double lat2 = 5;
+    double lon1 = 4;
+    double lon2 = 4;
+    double d1 = DistanceUtils.distLawOfCosinesRAD(lat1, lon1, lat2, lon2);
+    double d2 = 0.0;
+    assertEquals(d1 == d2, true);
+
+    // if points do not have the same coordinates, the distance should not be 0
+    lat1 = 3 * Math.PI / 2;
+    lon1 = Math.PI / 2;
+    lat2 = 2 * Math.PI;
+    lon2 = Math.PI;
+    double d4 = DistanceUtils.distLawOfCosinesRAD(lat1, lon1, lat2, lon2);
+    double d3 = 0.0;
+    assertEquals(d3 != d4, true);
+
+    // if (math.sin(lat1) * math.sin(lat2)) + math.cos(lat1) * math.cos(lat2) *
+    // math.cos(lon2 - lon1) is between -1 and 1, return acos of it
+    lat1 = 3 * Math.PI / 2;
+    lon1 = Math.PI / 2;
+    lat2 = 2 * Math.PI;
+    lon2 = Math.PI;
+    double d5 = DistanceUtils.distLawOfCosinesRAD(lat1, lon1, lat2, lon2);
+    double d6 = 1.5707963267948963;
+    assertEquals(d5 == d6, true);
+
+  }
+
+  @Test
   public void testDistancesAgainstVincenty() {
     DistanceCalculator vincenty = new GeodesicSphereDistCalc.Vincenty();
     DistanceCalculator haversine = new GeodesicSphereDistCalc.Haversine();
     DistanceCalculator lawOfCos = new GeodesicSphereDistCalc.LawOfCosines();
 
-    final int TRIES = 100000 * (int)multiplier();
+    final int TRIES = 100000 * (int) multiplier();
     for (int i = 0; i < TRIES; i++) {
       Point p1 = randomGeoPoint();
       Point p2 = randomGeoPointFrom(p1);
       double distV = vincenty.distance(p1, p2);
 
-      //Haversine: accurate to a centimeter if on same side of globe,
+      // Haversine: accurate to a centimeter if on same side of globe,
       // otherwise possibly 1m apart (antipodal)
       double havV = haversine.distance(p1, p2);
       assertEquals(distV, havV, (distV <= 90) ? DistanceUtils.KM_TO_DEG * 0.00001 : DistanceUtils.KM_TO_DEG * 0.001);
-      //  Fractionally compared to truth, also favorably accurate.
+      // Fractionally compared to truth, also favorably accurate.
       if (distV != 0 && distV > 0.0000001)
-        assertEquals(1.0, havV/distV, 0.001);//0.1%
+        assertEquals(1.0, havV / distV, 0.001);// 0.1%
 
-      //LawOfCosines: accurate to within 1 meter (or better?)
+      // LawOfCosines: accurate to within 1 meter (or better?)
       double locV = lawOfCos.distance(p1, p2);
       assertEquals(distV, locV, DistanceUtils.KM_TO_DEG * 0.001);
     }
   }
 
   private Point randomGeoPoint() {
-    //not uniformly distributed but that's ok
-    return ctx.makePoint(randomDouble()*360 + -180, randomDouble()*180 + -90);
+    // not uniformly distributed but that's ok
+    return ctx.makePoint(randomDouble() * 360 + -180, randomDouble() * 180 + -90);
   }
 
   private Point randomGeoPointFrom(Point p1) {
-    int which = randomInt(10);//inclusive
+    int which = randomInt(10);// inclusive
     double distDEG;
     if (which <= 2) {
       distDEG = 180 - randomDouble() * 0.001 / Math.pow(10, which);
     } else if (which >= 8) {
-      distDEG = randomDouble() * 0.001 / Math.pow(10, 10-which);
+      distDEG = randomDouble() * 0.001 / Math.pow(10, 10 - which);
     } else {
-      distDEG = randomDouble()*180;
+      distDEG = randomDouble() * 180;
     }
     double bearingDEG = randomDouble() * 360;
-    Point p2RAD = DistanceUtils.pointOnBearingRAD(DistanceUtils.toRadians(p1.getY()), DistanceUtils.toRadians(p1.getX()),
-            DistanceUtils.toRadians(distDEG), DistanceUtils.toRadians(bearingDEG), ctx, null);
+    Point p2RAD = DistanceUtils.pointOnBearingRAD(DistanceUtils.toRadians(p1.getY()),
+        DistanceUtils.toRadians(p1.getX()), DistanceUtils.toRadians(distDEG), DistanceUtils.toRadians(bearingDEG), ctx,
+        null);
     p2RAD.reset(DistanceUtils.toDegrees(p2RAD.getX()), DistanceUtils.toDegrees(p2RAD.getY()));
-    return p2RAD;//now it's in degrees
+    return p2RAD;// now it's in degrees
   }
 
-
-  @Test /** See #81 */
+  @Test
+  /** See #81 */
   public void testHaversineNaN() {
-    assertEquals(180, new GeodesicSphereDistCalc.Haversine().distance(
-                    ctx.makePoint(-81.05206968336057, 71.82629271026536),
-                    98.9479297952497, -71.82629264390964),
-            0.00001);
+    assertEquals(180, new GeodesicSphereDistCalc.Haversine()
+        .distance(ctx.makePoint(-81.05206968336057, 71.82629271026536), 98.9479297952497, -71.82629264390964), 0.00001);
   }
 
   @Test
   public void testCalcBoxByDistFromPt() {
-    //first test regression
+    // first test regression
     {
       double d = 6894.1 * KM_TO_DEG;
       Point pCtr = pLL(-20, 84);
       Point pTgt = pLL(-42, 15);
       assertTrue(dc().distance(pCtr, pTgt) < d);
-      //since the pairwise distance is less than d, a bounding box from ctr with d should contain pTgt.
+      // since the pairwise distance is less than d, a bounding box from ctr with d
+      // should contain pTgt.
       Rectangle r = dc().calcBoxByDistFromPt(pCtr, d, ctx, null);
-      assertEquals(SpatialRelation.CONTAINS,r.relate(pTgt));
-      checkBBox(pCtr,d);
+      assertEquals(SpatialRelation.CONTAINS, r.relate(pTgt));
+      checkBBox(pCtr, d);
     }
 
-    assertEquals("0 dist, horiz line",
-        -45,dc().calcBoxByDistFromPt_yHorizAxisDEG(ctx.makePoint(-180, -45), 0, ctx),0);
+    assertEquals("0 dist, horiz line", -45, dc().calcBoxByDistFromPt_yHorizAxisDEG(ctx.makePoint(-180, -45), 0, ctx),
+        0);
     double MAXDIST = (double) 180 * DEG_TO_KM;
-    checkBBox(ctx.makePoint(0,0), MAXDIST);
-    checkBBox(ctx.makePoint(0,0), MAXDIST *0.999999);
-    checkBBox(ctx.makePoint(0,0),0);
-    checkBBox(ctx.makePoint(0,0),0.000001);
-    checkBBox(ctx.makePoint(0,90),0.000001);
-    checkBBox(ctx.makePoint(-32.7,-5.42),9829);
-    checkBBox(ctx.makePoint(0,90-20), (double) 20 * DEG_TO_KM);
+    checkBBox(ctx.makePoint(0, 0), MAXDIST);
+    checkBBox(ctx.makePoint(0, 0), MAXDIST * 0.999999);
+    checkBBox(ctx.makePoint(0, 0), 0);
+    checkBBox(ctx.makePoint(0, 0), 0.000001);
+    checkBBox(ctx.makePoint(0, 90), 0.000001);
+    checkBBox(ctx.makePoint(-32.7, -5.42), 9829);
+    checkBBox(ctx.makePoint(0, 90 - 20), (double) 20 * DEG_TO_KM);
     {
-      double d = 0.010;//10m
-      checkBBox(ctx.makePoint(0,90- (d + 0.001) * KM_TO_DEG),d);
+      double d = 0.010;// 10m
+      checkBBox(ctx.makePoint(0, 90 - (d + 0.001) * KM_TO_DEG), d);
     }
 
     for (int T = 0; T < 100; T++) {
-      double lat = -90 + randomDouble()*180;
-      double lon = -180 + randomDouble()*360;
+      double lat = -90 + randomDouble() * 180;
+      double lon = -180 + randomDouble() * 360;
       Point ctr = ctx.makePoint(lon, lat);
-      double dist = MAXDIST*randomDouble();
+      double dist = MAXDIST * randomDouble();
       checkBBox(ctr, dist);
     }
 
   }
 
   private void checkBBox(Point ctr, double distKm) {
-    String msg = "ctr: "+ctr+" distKm: "+distKm;
+    String msg = "ctr: " + ctr + " distKm: " + distKm;
     double dist = distKm * KM_TO_DEG;
 
     Rectangle r = dc().calcBoxByDistFromPt(ctr, dist, ctx, null);
     double horizAxisLat = dc().calcBoxByDistFromPt_yHorizAxisDEG(ctr, dist, ctx);
     if (!Double.isNaN(horizAxisLat))
       assertTrue(r.relateYRange(horizAxisLat, horizAxisLat).intersects());
-    //horizontal
+    // horizontal
     if (r.getWidth() >= 180) {
       double deg = dc().distance(ctr, r.getMinX(), r.getMaxY() == 90 ? 90 : -90);
       double calcDistKm = deg * DEG_TO_KM;
       assertTrue(msg, calcDistKm <= distKm + EPS);
-      //horizAxisLat is meaningless in this context
+      // horizAxisLat is meaningless in this context
     } else {
       Point tPt = findClosestPointOnVertToPoint(r.getMinX(), r.getMinY(), r.getMaxY(), ctr);
       double calcDistKm = dc().distance(ctr, tPt) * DEG_TO_KM;
@@ -172,7 +206,7 @@ public class TestDistances extends RandomizedTest {
       assertEquals(msg, tPt.getY(), horizAxisLat, EPS);
     }
 
-    //vertical
+    // vertical
     double topDistKm = dc().distance(ctr, ctr.getX(), r.getMaxY()) * DEG_TO_KM;
     if (r.getMaxY() == 90)
       assertTrue(msg, topDistKm <= distKm + EPS);
@@ -186,14 +220,15 @@ public class TestDistances extends RandomizedTest {
   }
 
   private Point findClosestPointOnVertToPoint(double lon, double lowLat, double highLat, Point ctr) {
-    //A binary search algorithm to find the point along the vertical lon between lowLat & highLat that is closest
+    // A binary search algorithm to find the point along the vertical lon between
+    // lowLat & highLat that is closest
     // to ctr, and returns the distance.
-    double midLat = (highLat - lowLat)/2 + lowLat;
-    double midLatDist = ctx.getDistCalc().distance(ctr,lon,midLat);
-    for(int L = 0; L < 100 && (highLat - lowLat > 0.001|| L < 20); L++) {
+    double midLat = (highLat - lowLat) / 2 + lowLat;
+    double midLatDist = ctx.getDistCalc().distance(ctr, lon, midLat);
+    for (int L = 0; L < 100 && (highLat - lowLat > 0.001 || L < 20); L++) {
       boolean bottom = (midLat - lowLat > highLat - midLat);
-      double newMid = bottom ? (midLat - lowLat)/2 + lowLat : (highLat - midLat)/2 + midLat;
-      double newMidDist = ctx.getDistCalc().distance(ctr,lon,newMid);
+      double newMid = bottom ? (midLat - lowLat) / 2 + lowLat : (highLat - midLat) / 2 + midLat;
+      double newMidDist = ctx.getDistCalc().distance(ctr, lon, newMid);
       if (newMidDist < midLatDist) {
         if (bottom) {
           highLat = midLat;
@@ -210,60 +245,69 @@ public class TestDistances extends RandomizedTest {
         }
       }
     }
-    return ctx.makePoint(lon,midLat);
+    return ctx.makePoint(lon, midLat);
   }
 
   @Test
   public void testDistCalcPointOnBearing_cartesian() {
     ctx = new SpatialContext(false);
-    EPS = 10e-6;//tighter epsilon (aka delta)
-    for(int i = 0; i < 1000; i++) {
+    EPS = 10e-6;// tighter epsilon (aka delta)
+    for (int i = 0; i < 1000; i++) {
       testDistCalcPointOnBearing(randomInt(100));
     }
   }
 
-
-
   @Test
   public void testDistCalcPointOnBearing_geo() {
-    //The haversine formula has a higher error if the points are near antipodal. We adjust EPS tolerance for this case.
-    //TODO Eventually we should add the Vincenty formula for improved accuracy, or try some other cleverness.
+    // The haversine formula has a higher error if the points are near antipodal. We
+    // adjust EPS tolerance for this case.
+    // TODO Eventually we should add the Vincenty formula for improved accuracy, or
+    // try some other cleverness.
 
-    //test known high delta
-//    {
-//      Point c = ctx.makePoint(-103,-79);
-//      double angRAD = Math.toRadians(236);
-//      double dist = 20025;
-//      Point p2 = dc().pointOnBearingRAD(c, dist, angRAD, ctx);
-//      //Pt(x=76.61200011750923,y=79.04946929870962)
-//      double calcDist = dc().distance(c, p2);
-//      assertEqualsRatio(dist, calcDist);
-//    }
+    // test known high delta
+    // {
+    // Point c = ctx.makePoint(-103,-79);
+    // double angRAD = Math.toRadians(236);
+    // double dist = 20025;
+    // Point p2 = dc().pointOnBearingRAD(c, dist, angRAD, ctx);
+    // //Pt(x=76.61200011750923,y=79.04946929870962)
+    // double calcDist = dc().distance(c, p2);
+    // assertEqualsRatio(dist, calcDist);
+    // }
     double maxDistKm = (double) 180 * DEG_TO_KM;
-    for(int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 1000; i++) {
       int distKm = randomInt((int) maxDistKm);
-      EPS = (distKm < maxDistKm*0.75 ? 10e-6 : 10e-3);
+      EPS = (distKm < maxDistKm * 0.75 ? 10e-6 : 10e-3);
       testDistCalcPointOnBearing(distKm);
     }
     /*
-    System.err.println("Testing done in TestDisstances on function GeodesicSphereDistCalc");
-    boolean[] temp = GeodesicSphereDistCalc.flags;
-    for(int i = 0; i < 3; i++){
-      System.err.println(temp[i]);
-    }*/
+     * System.err.
+     * println("Testing done in TestDisstances on function GeodesicSphereDistCalc");
+     * boolean[] temp = GeodesicSphereDistCalc.flags; for(int i = 0; i < 3; i++){
+     * System.err.println(temp[i]); }
+     */
 
   }
 
-  private void testDistCalcPointOnBearing(double distKm) {
-    for(int angDEG = 0; angDEG < 360; angDEG += randomIntBetween(1,20)) {
-      Point c = ctx.makePoint(
-              DistanceUtils.normLonDEG(randomInt(359)),
-              randomIntBetween(-90,90));
+  //  GeodesicSphereDistCalc::pointOnBearing now has 100% coverage
+  @Test
+  public void testDistCalcPointOnBearing_reuse() {
+    Point from = ctx.makePoint(randomIntBetween(-90, 90), randomIntBetween(-90, 90));
+    Point reuse = ctx.makePoint(randomIntBetween(-90, 90), randomIntBetween(-90, 90));
 
-      //0 distance means same point
+    Point res = dc().pointOnBearing(from, 0.0, 0.0, ctx, reuse);
+    assertEquals(from, res);
+  }
+
+
+  private void testDistCalcPointOnBearing(double distKm) {
+    for (int angDEG = 0; angDEG < 360; angDEG += randomIntBetween(1, 20)) {
+      Point c = ctx.makePoint(DistanceUtils.normLonDEG(randomInt(359)), randomIntBetween(-90, 90));
+
+      // 0 distance means same point
       Point p2 = dc().pointOnBearing(c, 0, angDEG, ctx, null);
 
-      assertEquals(c,p2);
+      assertEquals(c, p2);
 
       p2 = dc().pointOnBearing(c, distKm * KM_TO_DEG, angDEG, ctx, null);
       double calcDistKm = dc().distance(c, p2) * DEG_TO_KM;
@@ -275,22 +319,21 @@ public class TestDistances extends RandomizedTest {
   private void assertEqualsRatio(double expected, double actual) {
     double delta = Math.abs(actual - expected);
     double base = Math.min(actual, expected);
-    double deltaRatio = base==0 ? delta : Math.min(delta,delta / base);
-    assertEquals(0,deltaRatio, EPS);
+    double deltaRatio = base == 0 ? delta : Math.min(delta, delta / base);
+    assertEquals(0, deltaRatio, EPS);
   }
 
   @Test
   public void testNormLat() {
-    double[][] lats = new double[][] {
-        {1.23,1.23},//1.23 might become 1.2299999 after some math and we want to ensure that doesn't happen
-        {-90,-90},{90,90},{0,0}, {-100,-80},
-        {-90-180,90},{-90-360,-90},{90+180,-90},{90+360,90},
-        {-12+180,12}};
+    double[][] lats = new double[][] { { 1.23, 1.23 }, // 1.23 might become 1.2299999 after some math and we want to
+                                                       // ensure that doesn't happen
+        { -90, -90 }, { 90, 90 }, { 0, 0 }, { -100, -80 }, { -90 - 180, 90 }, { -90 - 360, -90 }, { 90 + 180, -90 },
+        { 90 + 360, 90 }, { -12 + 180, 12 } };
     for (double[] pair : lats) {
-      assertEquals("input "+pair[0], pair[1], DistanceUtils.normLatDEG(pair[0]), 0);
+      assertEquals("input " + pair[0], pair[1], DistanceUtils.normLatDEG(pair[0]), 0);
     }
 
-    for(int i = -1000; i < 1000; i += randomInt(9)*10) {
+    for (int i = -1000; i < 1000; i += randomInt(9) * 10) {
       double d = DistanceUtils.normLatDEG(i);
       assertTrue(i + " " + d, d >= -90 && d <= 90);
     }
@@ -298,16 +341,15 @@ public class TestDistances extends RandomizedTest {
 
   @Test
   public void testNormLon() {
-    double[][] lons = new double[][] {
-        {1.23,1.23},//1.23 might become 1.2299999 after some math and we want to ensure that doesn't happen
-        {-180,-180},{180,+180},{0,0}, {-190,170},{181,-179},
-        {-180-360,-180},{-180-720,-180},
-        {180+360,+180},{180+720,+180}};
+    double[][] lons = new double[][] { { 1.23, 1.23 }, // 1.23 might become 1.2299999 after some math and we want to
+                                                       // ensure that doesn't happen
+        { -180, -180 }, { 180, +180 }, { 0, 0 }, { -190, 170 }, { 181, -179 }, { -180 - 360, -180 },
+        { -180 - 720, -180 }, { 180 + 360, +180 }, { 180 + 720, +180 } };
     for (double[] pair : lons) {
       assertEquals("input " + pair[0], pair[1], DistanceUtils.normLonDEG(pair[0]), 0);
     }
 
-    for(int i = -1000; i < 1000; i += randomInt(9)*10) {
+    for (int i = -1000; i < 1000; i += randomInt(9) * 10) {
       double d = DistanceUtils.normLonDEG(i);
       assertTrue(i + " " + d, d >= -180 && d <= 180);
     }
@@ -322,17 +364,16 @@ public class TestDistances extends RandomizedTest {
 
   private void assertDistanceConversion(double dist) {
     double radius = DistanceUtils.EARTH_MEAN_RADIUS_KM;
-    //test back & forth conversion for both
+    // test back & forth conversion for both
     double distRAD = DistanceUtils.dist2Radians(dist, radius);
     assertEquals(dist, DistanceUtils.radians2Dist(distRAD, radius), EPS);
     double distDEG = DistanceUtils.dist2Degrees(dist, radius);
     assertEquals(dist, DistanceUtils.degrees2Dist(distDEG, radius), EPS);
-    //test across rad & deg
-    assertEquals(distDEG,DistanceUtils.toDegrees(distRAD),EPS);
-    //test point on bearing
-    assertEquals(
-        DistanceUtils.pointOnBearingRAD(0, 0, DistanceUtils.dist2Radians(dist, radius), DistanceUtils.DEG_90_AS_RADS, ctx, new PointImpl(0, 0, ctx)).getX(),
-        distRAD, 10e-5);
+    // test across rad & deg
+    assertEquals(distDEG, DistanceUtils.toDegrees(distRAD), EPS);
+    // test point on bearing
+    assertEquals(DistanceUtils.pointOnBearingRAD(0, 0, DistanceUtils.dist2Radians(dist, radius),
+        DistanceUtils.DEG_90_AS_RADS, ctx, new PointImpl(0, 0, ctx)).getX(), distRAD, 10e-5);
   }
 
   private Point pLL(double lat, double lon) {
@@ -342,19 +383,19 @@ public class TestDistances extends RandomizedTest {
   @Test
   public void testArea() {
     double radius = DistanceUtils.EARTH_MEAN_RADIUS_KM * KM_TO_DEG;
-    //surface of a sphere is 4 * pi * r^2
+    // surface of a sphere is 4 * pi * r^2
     final double earthArea = 4 * Math.PI * radius * radius;
 
-    Circle c = ctx.makeCircle(randomIntBetween(-180,180), randomIntBetween(-90,90),
-            180);//180 means whole earth
+    Circle c = ctx.makeCircle(randomIntBetween(-180, 180), randomIntBetween(-90, 90), 180);// 180 means whole earth
     assertEquals(earthArea, c.getArea(ctx), 1.0);
     assertEquals(earthArea, ctx.getWorldBounds().getArea(ctx), 1.0);
 
-    //now check half earth
+    // now check half earth
     Circle cHalf = ctx.makeCircle(c.getCenter(), 90);
-    assertEquals(earthArea/2, cHalf.getArea(ctx), 1.0);
+    assertEquals(earthArea / 2, cHalf.getArea(ctx), 1.0);
 
-    //circle with same radius at +20 lat with one at -20 lat should have same area as well as bbox with same area
+    // circle with same radius at +20 lat with one at -20 lat should have same area
+    // as well as bbox with same area
     Circle c2 = ctx.makeCircle(c.getCenter(), 30);
     Circle c3 = ctx.makeCircle(c.getCenter().getX(), 20, 30);
     assertEquals(c2.getArea(ctx), c3.getArea(ctx), 0.01);
@@ -362,18 +403,19 @@ public class TestDistances extends RandomizedTest {
     assertEquals(c3.getArea(ctx), c3Opposite.getArea(ctx), 0.01);
     assertEquals(c3.getBoundingBox().getArea(ctx), c3Opposite.getBoundingBox().getArea(ctx), 0.01);
 
-    //small shapes near the equator should have similar areas to euclidean rectangle
+    // small shapes near the equator should have similar areas to euclidean
+    // rectangle
     Rectangle smallRect = ctx.makeRectangle(0, 1, 0, 1);
     assertEquals(1.0, smallRect.getArea(null), 0.0);
     double smallDelta = smallRect.getArea(null) - smallRect.getArea(ctx);
     assertTrue(smallDelta > 0 && smallDelta < 0.0001);
 
-    Circle smallCircle = ctx.makeCircle(0,0,1);
+    Circle smallCircle = ctx.makeCircle(0, 0, 1);
     smallDelta = smallCircle.getArea(null) - smallCircle.getArea(ctx);
     assertTrue(smallDelta > 0 && smallDelta < 0.0001);
 
-    //bigger, but still fairly similar
-    //c2 = ctx.makeCircle(c.getCenter(), 30);
+    // bigger, but still fairly similar
+    // c2 = ctx.makeCircle(c.getCenter(), 30);
     double areaRatio = c2.getArea(null) / c2.getArea(ctx);
     assertTrue(areaRatio > 1 && areaRatio < 1.1);
   }

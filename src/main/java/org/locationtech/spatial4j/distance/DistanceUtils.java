@@ -27,19 +27,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
-
 /**
- * Various distance calculations and constants. To the extent possible, a {@link
- * org.locationtech.spatial4j.distance.DistanceCalculator}, retrieved from {@link
- * org.locationtech.spatial4j.context.SpatialContext#getDistCalc()} should be used in preference to calling
- * these methods directly.
+ * Various distance calculations and constants. To the extent possible, a
+ * {@link org.locationtech.spatial4j.distance.DistanceCalculator}, retrieved
+ * from {@link org.locationtech.spatial4j.context.SpatialContext#getDistCalc()}
+ * should be used in preference to calling these methods directly.
  * <p>
- * This code came from <a href="https://issues.apache.org/jira/browse/LUCENE-1387">Apache
- * Lucene, LUCENE-1387</a>, which in turn came from "LocalLucene".
+ * This code came from
+ * <a href="https://issues.apache.org/jira/browse/LUCENE-1387">Apache Lucene,
+ * LUCENE-1387</a>, which in turn came from "LocalLucene".
  */
 public class DistanceUtils {
 
-  //pre-compute some angles that are commonly used
+  // pre-compute some angles that are commonly used
   @Deprecated
   public static final double DEG_45_AS_RADS = Math.PI / 4;
   @Deprecated
@@ -52,14 +52,15 @@ public class DistanceUtils {
   @Deprecated
   public static final double DEG_270_AS_RADS = 3 * DEG_90_AS_RADS;
 
-  public static final double DEGREES_TO_RADIANS =  Math.PI / 180;
-  public static final double RADIANS_TO_DEGREES =  1 / DEGREES_TO_RADIANS;
+  public static final double DEGREES_TO_RADIANS = Math.PI / 180;
+  public static final double RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS;
 
   public static final double KM_TO_MILES = 0.621371192;
-  public static final double MILES_TO_KM = 1 / KM_TO_MILES;//1.609
+  public static final double MILES_TO_KM = 1 / KM_TO_MILES;// 1.609
 
   /**
-   * The International Union of Geodesy and Geophysics says the Earth's mean radius in KM is:
+   * The International Union of Geodesy and Geophysics says the Earth's mean
+   * radius in KM is:
    *
    * [1] http://en.wikipedia.org/wiki/Earth_radius
    */
@@ -73,9 +74,10 @@ public class DistanceUtils {
   public static final double EARTH_MEAN_RADIUS_MI = EARTH_MEAN_RADIUS_KM * KM_TO_MILES;
   public static final double EARTH_EQUATORIAL_RADIUS_MI = EARTH_EQUATORIAL_RADIUS_KM * KM_TO_MILES;
 
-  public static boolean[] flags = new boolean[7]; //Branch coverage array
+  public static boolean[] flags = new boolean[7]; // Branch coverage array
 
-  private DistanceUtils() {}
+  private DistanceUtils() {
+  }
 
   /**
    * Calculate the p-norm (i.e. length) between two vectors.
@@ -92,7 +94,7 @@ public class DistanceUtils {
    */
   @Deprecated
   public static double vectorDistance(double[] vec1, double[] vec2, double power) {
-    //only calc oneOverPower if it's needed
+    // only calc oneOverPower if it's needed
     double oneOverPower = (power == 0 || power == 1.0 || power == 2.0) ? Double.NaN : 1.0 / power;
     return vectorDistance(vec1, vec2, power, oneOverPower);
   }
@@ -102,9 +104,11 @@ public class DistanceUtils {
    *
    * @param vec1         The first vector
    * @param vec2         The second vector
-   * @param power        The power (2 for cartesian distance, 1 for manhattan, etc.)
-   * @param oneOverPower If you've pre-calculated oneOverPower and cached it, use this method to save
-   *                     one division operation over {@link #vectorDistance(double[], double[], double)}.
+   * @param power        The power (2 for cartesian distance, 1 for manhattan,
+   *                     etc.)
+   * @param oneOverPower If you've pre-calculated oneOverPower and cached it, use
+   *                     this method to save one division operation over
+   *                     {@link #vectorDistance(double[], double[], double)}.
    * @return The length.
    */
   @Deprecated
@@ -121,7 +125,7 @@ public class DistanceUtils {
       }
     } else if (power == 2.0) { // Cartesian
       result = Math.sqrt(distSquaredCartesian(vec1, vec2));
-    } else if (power == Integer.MAX_VALUE || Double.isInfinite(power)) {//infinite norm?
+    } else if (power == Integer.MAX_VALUE || Double.isInfinite(power)) {// infinite norm?
       for (int i = 0; i < vec1.length; i++) {
         result = Math.max(result, Math.max(vec1[i], vec2[i]));
       }
@@ -135,13 +139,16 @@ public class DistanceUtils {
   }
 
   /**
-   * Return the coordinates of a vector that is the corner of a box (upper right or lower left), assuming a Rectangular
-   * coordinate system.  Note, this does not apply for points on a sphere or ellipse (although it could be used as an approximation).
+   * Return the coordinates of a vector that is the corner of a box (upper right
+   * or lower left), assuming a Rectangular coordinate system. Note, this does not
+   * apply for points on a sphere or ellipse (although it could be used as an
+   * approximation).
    *
    * @param center     The center point
-   * @param result Holds the result, potentially resizing if needed.
+   * @param result     Holds the result, potentially resizing if needed.
    * @param distance   The d from the center to the corner
-   * @param upperRight If true, return the coords for the upper right corner, else return the lower left.
+   * @param upperRight If true, return the coords for the upper right corner, else
+   *                   return the lower left.
    * @return The point, either the upperLeft or the lower right
    */
   @Deprecated
@@ -152,10 +159,12 @@ public class DistanceUtils {
     if (upperRight == false) {
       distance = -distance;
     }
-    //We don't care about the power here,
-    // b/c we are always in a rectangular coordinate system, so any norm can be used by
-    //using the definition of sine
-    distance = SIN_45_AS_RADS * distance; // sin(Pi/4) == (2^0.5)/2 == opp/hyp == opp/distance, solve for opp, similarly for cosine
+    // We don't care about the power here,
+    // b/c we are always in a rectangular coordinate system, so any norm can be used
+    // by
+    // using the definition of sine
+    distance = SIN_45_AS_RADS * distance; // sin(Pi/4) == (2^0.5)/2 == opp/hyp == opp/distance, solve for opp, similarly
+                                          // for cosine
     for (int i = 0; i < center.length; i++) {
       result[i] = center[i] + distance;
     }
@@ -163,31 +172,33 @@ public class DistanceUtils {
   }
 
   /**
-   * Given a start point (startLat, startLon), distance, and a bearing on a sphere, return the destination point.
+   * Given a start point (startLat, startLon), distance, and a bearing on a
+   * sphere, return the destination point.
    *
-   * @param startLat The starting point latitude, in radians
-   * @param startLon The starting point longitude, in radians
+   * @param startLat    The starting point latitude, in radians
+   * @param startLon    The starting point longitude, in radians
    * @param distanceRAD The distance to travel along the bearing in radians.
-   * @param bearingRAD The bearing, in radians.  North is a 0, moving clockwise till radians(360).
+   * @param bearingRAD  The bearing, in radians. North is a 0, moving clockwise
+   *                    till radians(360).
    * @param ctx
-   * @param reuse A preallocated object to hold the results.
+   * @param reuse       A preallocated object to hold the results.
    * @return The destination point, IN RADIANS.
    */
-  public static Point pointOnBearingRAD(double startLat, double startLon, double distanceRAD, double bearingRAD, SpatialContext ctx, Point reuse) {
+  public static Point pointOnBearingRAD(double startLat, double startLon, double distanceRAD, double bearingRAD,
+      SpatialContext ctx, Point reuse) {
     /*
- 	  lat2 = asin(sin(lat1)*cos(d/R) + cos(lat1)*sin(d/R)*cos(θ))
-  	lon2 = lon1 + atan2(sin(θ)*sin(d/R)*cos(lat1), cos(d/R)−sin(lat1)*sin(lat2))
+     * lat2 = asin(sin(lat1)*cos(d/R) + cos(lat1)*sin(d/R)*cos(θ)) lon2 = lon1 +
+     * atan2(sin(θ)*sin(d/R)*cos(lat1), cos(d/R)−sin(lat1)*sin(lat2))
      */
     double cosAngDist = Math.cos(distanceRAD);
     double cosStartLat = Math.cos(startLat);
     double sinAngDist = Math.sin(distanceRAD);
     double sinStartLat = Math.sin(startLat);
-    double sinLat2 = sinStartLat * cosAngDist +
-        cosStartLat * sinAngDist * Math.cos(bearingRAD);
+    double sinLat2 = sinStartLat * cosAngDist + cosStartLat * sinAngDist * Math.cos(bearingRAD);
     double lat2 = Math.asin(sinLat2);
-    double lon2 = startLon + Math.atan2(Math.sin(bearingRAD) * sinAngDist * cosStartLat,
-            cosAngDist - sinStartLat * sinLat2);
-    
+    double lon2 = startLon
+        + Math.atan2(Math.sin(bearingRAD) * sinAngDist * cosStartLat, cosAngDist - sinStartLat * sinLat2);
+
     // normalize lon first
     if (lon2 > DEG_180_AS_RADS) {
       lon2 = -1.0 * (DEG_180_AS_RADS - (lon2 - DEG_180_AS_RADS));
@@ -215,7 +226,7 @@ public class DistanceUtils {
     if (reuse == null) {
       return ctx.makePoint(lon2, lat2);
     } else {
-      reuse.reset(lon2, lat2);//x y
+      reuse.reset(lon2, lat2);// x y
       return reuse;
     }
   }
@@ -225,7 +236,7 @@ public class DistanceUtils {
    */
   public static double normLonDEG(double lon_deg) {
     if (lon_deg >= -180 && lon_deg <= 180)
-      return lon_deg;//common case, and avoids slight double precision shifting
+      return lon_deg;// common case, and avoids slight double precision shifting
     double off = (lon_deg + 180) % 360;
     if (off < 0)
       return 180 + off;
@@ -240,33 +251,45 @@ public class DistanceUtils {
    */
   public static double normLatDEG(double lat_deg) {
     if (lat_deg >= -90 && lat_deg <= 90)
-      return lat_deg;//common case, and avoids slight double precision shifting
+      return lat_deg;// common case, and avoids slight double precision shifting
     double off = Math.abs((lat_deg + 90) % 360);
-    return (off <= 180 ? off : 360-off) - 90;
+    return (off <= 180 ? off : 360 - off) - 90;
   }
 
   /**
-   * Calculates the bounding box of a circle, as specified by its center point
-   * and distance.  <code>reuse</code> is an optional argument to store the
-   * results to avoid object creation.
+   * Calculates the bounding box of a circle, as specified by its center point and
+   * distance. <code>reuse</code> is an optional argument to store the results to
+   * avoid object creation.
    */
-  public static Rectangle calcBoxByDistFromPtDEG(double lat, double lon, double distDEG, SpatialContext ctx, Rectangle reuse) {
-    //See http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates Section 3.1, 3.2 and 3.3
-    double minX; double maxX; double minY; double maxY;
+  public static Rectangle calcBoxByDistFromPtDEG(double lat, double lon, double distDEG, SpatialContext ctx,
+      Rectangle reuse) {
+    // See http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates Section 3.1,
+    // 3.2 and 3.3
+    double minX;
+    double maxX;
+    double minY;
+    double maxY;
     if (distDEG == 0) {
-      minX = lon; maxX = lon; minY = lat; maxY = lat;
-    } else if (distDEG >= 180) {//distance is >= opposite side of the globe
-      minX = -180; maxX = 180; minY = -90; maxY = 90;
+      minX = lon;
+      maxX = lon;
+      minY = lat;
+      maxY = lat;
+    } else if (distDEG >= 180) {// distance is >= opposite side of the globe
+      minX = -180;
+      maxX = 180;
+      minY = -90;
+      maxY = 90;
     } else {
 
-      //--calc latitude bounds
+      // --calc latitude bounds
       maxY = lat + distDEG;
       minY = lat - distDEG;
 
-      if (maxY >= 90 || minY <= -90) {//touches either pole
-        //we have special logic for longitude
-        minX = -180; maxX = 180;//world wrap: 360 deg
-        if (maxY <= 90 && minY >= -90) {//doesn't pass either pole: 180 deg
+      if (maxY >= 90 || minY <= -90) {// touches either pole
+        // we have special logic for longitude
+        minX = -180;
+        maxX = 180;// world wrap: 360 deg
+        if (maxY <= 90 && minY >= -90) {// doesn't pass either pole: 180 deg
           minX = normLonDEG(lon - 90);
           maxX = normLonDEG(lon + 90);
         }
@@ -275,7 +298,7 @@ public class DistanceUtils {
         if (minY < -90)
           minY = -90;
       } else {
-        //--calc longitude bounds
+        // --calc longitude bounds
         double lon_delta_deg = calcBoxByDistFromPt_deltaLonDEG(lat, lon, distDEG);
 
         minX = normLonDEG(lon - lon_delta_deg);
@@ -290,22 +313,20 @@ public class DistanceUtils {
     }
   }
 
-  private static void writeToFile(){
-    try
-    {
-      String filename= "calcBoxByDistFromPt_deltaLonDEG.txt";
-      FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+  private static void writeToFile() {
+    try {
+      String filename = "calcBoxByDistFromPt_deltaLonDEG.txt";
+      FileWriter fw = new FileWriter(filename, false); // the true will append the new data
       fw.write("calcBoxByDistFromPt_deltaLonDEG \n");
       int count = 0;
-      for (boolean b :flags) {
-        if (b) count ++;
+      for (boolean b : flags) {
+        if (b)
+          count++;
         fw.write(b + " ");
       }
-      fw.write("\nCoverage: " + (Double.toString((double) count/flags.length)) );
+      fw.write("\nCoverage: " + (Double.toString((double) count / flags.length)));
       fw.close();
-    }
-    catch(IOException ioe)
-    {
+    } catch (IOException ioe) {
       System.err.println("IOException: " + ioe.getMessage());
     }
   }
@@ -315,7 +336,7 @@ public class DistanceUtils {
    * the bounding box of a circle.
    */
   public static double calcBoxByDistFromPt_deltaLonDEG(double lat, double lon, double distDEG) {
-    //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
+    // http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
     if (distDEG == 0)
       return 0;
     double lat_rad = toRadians(lat);
@@ -328,29 +349,30 @@ public class DistanceUtils {
   }
 
   /**
-   * The latitude of the horizontal axis (e.g. left-right line)
-   * of a circle.  The horizontal axis of a circle passes through its furthest
-   * left-most and right-most edges. On a 2D plane, this result is always
+   * The latitude of the horizontal axis (e.g. left-right line) of a circle. The
+   * horizontal axis of a circle passes through its furthest left-most and
+   * right-most edges. On a 2D plane, this result is always
    * <code>from.getY()</code> but, perhaps surprisingly, on a sphere it is going
    * to be slightly different.
    */
   public static double calcBoxByDistFromPt_latHorizAxisDEG(double lat, double lon, double distDEG) {
-    //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
+    // http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
     if (distDEG == 0) {
       flags[0] = true;
       writeToFile();
       return lat;
     }
 
-    // if we don't do this when == 90 or -90, computed result can be (+/-)89.9999 when at pole.
-    //     No biggie but more accurate.
-    else if (lat + distDEG >= 90){
+    // if we don't do this when == 90 or -90, computed result can be (+/-)89.9999
+    // when at pole.
+    // No biggie but more accurate.
+    else if (lat + distDEG >= 90) {
       flags[1] = true;
       writeToFile();
       return 90;
     }
 
-    else if (lat - distDEG <= -90){
+    else if (lat - distDEG <= -90) {
       flags[2] = true;
       writeToFile();
       return -90;
@@ -358,44 +380,44 @@ public class DistanceUtils {
 
     double lat_rad = toRadians(lat);
     double dist_rad = toRadians(distDEG);
-    double result_rad = Math.asin( Math.sin(lat_rad) / Math.cos(dist_rad));
-    if (!Double.isNaN(result_rad)){
+    double result_rad = Math.asin(Math.sin(lat_rad) / Math.cos(dist_rad));
+    if (!Double.isNaN(result_rad)) {
       flags[4] = true;
       writeToFile();
       return toDegrees(result_rad);
     }
-    //handle NaN (shouldn't happen due to checks earlier)
-    if (lat > 0){
+    // handle NaN (shouldn't happen due to checks earlier)
+    if (lat > 0) {
       flags[5] = true;
       writeToFile();
       return 90;
     }
-    if (lat < 0){
+    if (lat < 0) {
       flags[6] = true;
       writeToFile();
       return -90;
     }
     flags[3] = true;
     writeToFile();
-    return lat;//0
+    return lat;// 0
   }
 
   /**
-   * Calculates the degrees longitude distance at latitude {@code lat} to cover
-   * a distance {@code dist}.
+   * Calculates the degrees longitude distance at latitude {@code lat} to cover a
+   * distance {@code dist}.
    * <p>
    * Used to calculate a new expanded buffer distance to account for skewing
    * effects for shapes that use the lat-lon space as a 2D plane instead of a
-   * sphere.  The expanded buffer will be sure to cover the intended area, but
-   * the shape is still skewed and so it will cover a larger area.  For latitude
-   * 0 (the equator) the result is the same buffer.  At 60 (or -60) degrees, the
-   * result is twice the buffer, meaning that a shape at 60 degrees is twice as
-   * high as it is wide when projected onto a lat-lon plane even if in the real
-   * world it's equal all around.
+   * sphere. The expanded buffer will be sure to cover the intended area, but the
+   * shape is still skewed and so it will cover a larger area. For latitude 0 (the
+   * equator) the result is the same buffer. At 60 (or -60) degrees, the result is
+   * twice the buffer, meaning that a shape at 60 degrees is twice as high as it
+   * is wide when projected onto a lat-lon plane even if in the real world it's
+   * equal all around.
    * <p>
    * If the result added to abs({@code lat}) is &gt;= 90 degrees, then skewing is
-   * so severe that the caller should consider tossing the shape and
-   * substituting a spherical cap instead.
+   * so severe that the caller should consider tossing the shape and substituting
+   * a spherical cap instead.
    *
    * @param lat  latitude in degrees
    * @param dist distance in degrees
@@ -403,7 +425,7 @@ public class DistanceUtils {
    *         distance. Will be &gt;= dist and &lt;= 90.
    */
   public static double calcLonDegreesAtLat(double lat, double dist) {
-    //This code was pulled out of DistanceUtils.pointOnBearingRAD() and
+    // This code was pulled out of DistanceUtils.pointOnBearingRAD() and
     // optimized
     // for bearing = 90 degrees, and so we can get an intermediate calculation.
     double distanceRAD = DistanceUtils.toRadians(dist);
@@ -414,15 +436,14 @@ public class DistanceUtils {
     double sinAngDist = Math.sin(distanceRAD);
     double sinStartLat = Math.sin(startLat);
 
-    double lonDelta = Math.atan2(sinAngDist * cosStartLat,
-        cosAngDist * (1 - sinStartLat * sinStartLat));
+    double lonDelta = Math.atan2(sinAngDist * cosStartLat, cosAngDist * (1 - sinStartLat * sinStartLat));
 
     return DistanceUtils.toDegrees(lonDelta);
   }
 
   /**
-   * The square of the cartesian Distance.  Not really a distance, but useful if all that matters is
-   * comparing the result to another one.
+   * The square of the cartesian Distance. Not really a distance, but useful if
+   * all that matters is comparing the result to another one.
    *
    * @param vec1 The first point
    * @param vec2 The second point
@@ -440,63 +461,112 @@ public class DistanceUtils {
 
   /**
    *
-   * @param lat1     The y coordinate of the first point, in radians
-   * @param lon1     The x coordinate of the first point, in radians
-   * @param lat2     The y coordinate of the second point, in radians
-   * @param lon2     The x coordinate of the second point, in radians
-   * @return The distance between the two points, as determined by the Haversine formula, in radians.
+   * @param lat1 The y coordinate of the first point, in radians
+   * @param lon1 The x coordinate of the first point, in radians
+   * @param lat2 The y coordinate of the second point, in radians
+   * @param lon2 The x coordinate of the second point, in radians
+   * @return The distance between the two points, as determined by the Haversine
+   *         formula, in radians.
    */
   public static double distHaversineRAD(double lat1, double lon1, double lat2, double lon2) {
-    //TODO investigate slightly different formula using asin() and min() http://www.movable-type.co.uk/scripts/gis-faq-5.1.html
+
+    // TODO investigate slightly different formula using asin() and min()
+    // http://www.movable-type.co.uk/scripts/gis-faq-5.1.html
 
     // Check for same position
-    if (lat1 == lat2 && lon1 == lon2)
+    if (lat1 == lat2 && lon1 == lon2) {
+
       return 0.0;
+    }
+
     double hsinX = Math.sin((lon1 - lon2) * 0.5);
     double hsinY = Math.sin((lat1 - lat2) * 0.5);
-    double h = hsinY * hsinY +
-            (Math.cos(lat1) * Math.cos(lat2) * hsinX * hsinX);
-    if (h > 1)//numeric robustness issue. If we didn't check, the answer would be NaN!
+    double h = hsinY * hsinY + (Math.cos(lat1) * Math.cos(lat2) * hsinX * hsinX);
+    if (h > 1) {
+
+      // numeric robustness issue. If we didn't check, the answer would be NaN!
       h = 1;
+    }
+
     return 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
   }
 
+  private static void writeToFile2() {
+    try {
+      String filename = "distLawOfCosinesRAD.txt";
+      FileWriter fw = new FileWriter(filename, false); // the true will append the new data
+      fw.write("distLawOfCosinesRAD \n");
+      int count = 0;
+      for (boolean b : flags2) {
+        if (b)
+          count++;
+        fw.write(b + " ");
+      }
+      fw.write("\nCoverage: " + (Double.toString((double) count / flags2.length)));
+      fw.close();
+    } catch (IOException ioe) {
+      System.err.println("IOException: " + ioe.getMessage());
+    }
+  }
+
+  private static boolean[] flags2 = new boolean[5];
+
   /**
-   * Calculates the distance between two lat-lon's using the Law of Cosines. Due to numeric conditioning
-   * errors, it is not as accurate as the Haversine formula for small distances.  But with
-   * double precision, it isn't that bad -- <a href="http://www.movable-type.co.uk/scripts/latlong.html">
-   *   allegedly 1 meter</a>.
+   * Calculates the distance between two lat-lon's using the Law of Cosines. Due
+   * to numeric conditioning errors, it is not as accurate as the Haversine
+   * formula for small distances. But with double precision, it isn't that bad --
+   * <a href="http://www.movable-type.co.uk/scripts/latlong.html"> allegedly 1
+   * meter</a>.
    * <p>
-   * See <a href="http://gis.stackexchange.com/questions/4906/why-is-law-of-cosines-more-preferable-than-haversine-when-calculating-distance-b">
-   *  Why is law of cosines more preferable than haversine when calculating distance between two latitude-longitude points?</a>
+   * See <a href=
+   * "http://gis.stackexchange.com/questions/4906/why-is-law-of-cosines-more-preferable-than-haversine-when-calculating-distance-b">
+   * Why is law of cosines more preferable than haversine when calculating
+   * distance between two latitude-longitude points?</a>
    * <p>
    * The arguments and return value are in radians.
    */
   public static double distLawOfCosinesRAD(double lat1, double lon1, double lat2, double lon2) {
+
     // Check for same position
-    if (lat1 == lat2 && lon1 == lon2)
+    if (lat1 == lat2 && lon1 == lon2) {
+      flags2[0] = true;
+      writeToFile2();
       return 0.0;
+    }
+    flags2[1] = true;
 
     // Get the longitude difference. Don't need to worry about
     // crossing dateline since cos(x) = cos(-x)
     double dLon = lon2 - lon1;
 
-    double cosB = (Math.sin(lat1) * Math.sin(lat2))
-            + (Math.cos(lat1) * Math.cos(lat2) * Math.cos(dLon));
+    double cosB = (Math.sin(lat1) * Math.sin(lat2)) + (Math.cos(lat1) * Math.cos(lat2) * Math.cos(dLon));
 
     // Find angle subtended (with some bounds checking) in radians
-    if (cosB < -1.0)
+    if (cosB < -1.0) {
+      flags2[2] = true;
+      writeToFile2();
       return Math.PI;
-    else if (cosB >= 1.0)
+    }
+
+    else if (cosB >= 1.0) {
+      flags2[3] = true;
+      writeToFile2();
       return 0;
-    else
+    }
+
+    else {
+      flags2[4] = true;
+      writeToFile2();
       return Math.acos(cosB);
+    }
+
   }
 
   /**
-   * Calculates the great circle distance using the Vincenty Formula, simplified for a spherical model. This formula
-   * is accurate for any pair of points. The equation
-   * was taken from <a href="http://en.wikipedia.org/wiki/Great-circle_distance">Wikipedia</a>.
+   * Calculates the great circle distance using the Vincenty Formula, simplified
+   * for a spherical model. This formula is accurate for any pair of points. The
+   * equation was taken from
+   * <a href="http://en.wikipedia.org/wiki/Great-circle_distance">Wikipedia</a>.
    * <p>
    * The arguments are in radians, and the result is in radians.
    */
@@ -514,15 +584,15 @@ public class DistanceUtils {
     double sinDLon = Math.sin(dLon);
 
     double a = cosLat2 * sinDLon;
-    double b = cosLat1*sinLat2 - sinLat1*cosLat2*cosDLon;
-    double c = sinLat1*sinLat2 + cosLat1*cosLat2*cosDLon;
-    
-    return Math.atan2(Math.sqrt(a*a+b*b),c);
+    double b = cosLat1 * sinLat2 - sinLat1 * cosLat2 * cosDLon;
+    double c = sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosDLon;
+
+    return Math.atan2(Math.sqrt(a * a + b * b), c);
   }
 
   /**
-   * Converts a distance in the units of the radius to degrees (360 degrees are
-   * in a circle). A spherical earth model is assumed.
+   * Converts a distance in the units of the radius to degrees (360 degrees are in
+   * a circle). A spherical earth model is assumed.
    */
   public static double dist2Degrees(double dist, double radius) {
     return toDegrees(dist2Radians(dist, radius));
@@ -530,16 +600,16 @@ public class DistanceUtils {
 
   /**
    * Converts <code>degrees</code> (1/360th of circumference of a circle) into a
-   * distance as measured by the units of the radius.  A spherical earth model
-   * is assumed.
+   * distance as measured by the units of the radius. A spherical earth model is
+   * assumed.
    */
   public static double degrees2Dist(double degrees, double radius) {
     return radians2Dist(toRadians(degrees), radius);
   }
 
   /**
-   * Converts a distance in the units of <code>radius</code> (e.g. kilometers)
-   * to radians (multiples of the radius). A spherical earth model is assumed.
+   * Converts a distance in the units of <code>radius</code> (e.g. kilometers) to
+   * radians (multiples of the radius). A spherical earth model is assumed.
    */
   public static double dist2Radians(double dist, double radius) {
     return dist / radius;
