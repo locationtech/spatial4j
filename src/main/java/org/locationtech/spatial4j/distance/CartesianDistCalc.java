@@ -13,6 +13,10 @@ import org.locationtech.spatial4j.shape.Circle;
 import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Rectangle;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+
 /**
  * Calculates based on Euclidean / Cartesian 2d plane.
  */
@@ -22,6 +26,8 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   public static final CartesianDistCalc INSTANCE_SQUARED = new CartesianDistCalc(true);
 
   private final boolean squared;
+
+  public static boolean[] flags = new boolean[5];
 
   public CartesianDistCalc() {
     this.squared = false;
@@ -60,27 +66,54 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
   // TODO add to generic DistanceCalculator and develop geo versions.
   public double distanceToLineSegment(Point point, double vX, double vY, double wX, double wY) {
     // Translated from: http://bl.ocks.org/mbostock/4218871
+
     double d = distanceSquared(vX, vY, wX, wY);
     double toX;
     double toY;
-    if (d <= 0) { // DD2480: Current tests never go down this branch.
+    if (d <= 0) { // DD2480: Previous tests never went down this branch.
+      flags[0] = true;
       toX = vX;
       toY = vY;
     } else {
+      flags[1] = true;
       // t = ((point[0] - v[0]) * (w[0] - v[0]) + (point[1] - v[1]) * (w[1] - v[1])) / d
       double t = ((point.getX() - vX) * (wX - vX) + (point.getY() - vY) * (wY - vY)) / d;
       if (t < 0) {
+        flags[2] = true;
         toX = vX;
         toY = vY;
       } else if (t > 1) {
+        flags[3] = true;
         toX = wX;
         toY = wY;
       } else {
+        flags[4] = true;
         toX = vX + t * (wX - vX);
         toY = vY + t * (wY - vY);
       }
     }
+    writeToFile(); //branch coverage print function.
     return distance(point, toX, toY);
+  }
+
+  private void writeToFile(){
+    try
+    {
+      String filename= "DistanceToLineSegment.txt";
+      FileWriter fw = new FileWriter(filename,false); //the true will append the new data
+      fw.write("DistanceToLineSegment \n");
+      int count = 0;
+      for (boolean b :flags) {
+        if (b) count ++;
+        fw.write(b + " ");
+      }
+      fw.write("\nCoverage: " + (Double.toString((double) count/flags.length)) );
+      fw.close();
+    }
+    catch(IOException ioe)
+    {
+      System.err.println("IOException: " + ioe.getMessage());
+    }
   }
 
   @Override
@@ -96,7 +129,7 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
       if (reuse == null)
         return from;
       reuse.reset(from.getX(), from.getY()); // DD2480: Previous tests never visited this line.
-      return reuse; // DD2480: Previous tests never visited this line.
+      return reuse;
     }
     double bearingRAD = DistanceUtils.toRadians(bearingDEG);
     double x = from.getX() + Math.sin(bearingRAD) * distDEG;
