@@ -190,3 +190,9 @@ Shiva: Contributed to early identification of complex functions as well as the r
 What are your main take-aways from this project? What did you learn?
 
 Is there something special you want to mention here?
+
+Takeaways: 
+- Usage of the tool lizard for the purrpose of complexity analysis and branch covergae. 
+- Methods to improve branch coverage as well as complexity 
+- The concepts of branch coverage and path coverage
+- Writing test cases and test suits for open-source projects specially if there are not our own 
