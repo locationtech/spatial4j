@@ -167,6 +167,8 @@ in the same function could be anopther way to reduce complexity.
 
 For each team member, how much time was spent in
 
+Shiva: Contributed to early identification of complex functions as well as the required complexity analysis and evaluations. Added test cases to improved branch coverage of a specific function DistanceUtils:: DistLawsOfCosineRAD from 80% to 100%. Contributed to the report written in terms of responding to reflection questions and analysis. Added functionality to several functions in order to measure their branch coverage for the purpose of analyzing whether the branch coverhge can be improved. 
+
 1. plenary discussions/meetings;
 
 2. discussions within parts of the group;
