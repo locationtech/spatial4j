@@ -7,7 +7,10 @@ script: mvn -Drandomized.multiplier=10 clean verify jacoco:report
 jdk:
   - openjdk7
   - oraclejdk8
+  - openjdk8
 #TODO  - oraclejdk9
+
+dist: trusty # Travis Xenial doesn't have oraclejdk8
 
 notifications:
   email:
