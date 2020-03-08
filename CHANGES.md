@@ -1,13 +1,14 @@
 ## VERSION 0.8
 
-DATE: March 8 2020
+DATE: unreleased
 
 * \#177: Improve conversion of a Circle to Shape. JtsShapeFactory allows converting from a Shape
   object to a JTS Geometry object. Geodetic circles now translate to a polygon that has points
   equidistant from the center. Before the change, there was potentially a large inaccuracy.
   (Hrishi Bakshi)
-
----------------------------------------
+  
+* \#163: EMPTY points in JTS are now convertible to a Spatial4j Shape instead of throwing an exception.
+  (David Smiley)
 
 ## VERSION 0.7
 

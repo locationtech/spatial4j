@@ -18,9 +18,10 @@
 package org.locationtech.spatial4j.shape.jts;
 
 import org.junit.Assert;
+import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
-import org.junit.Test;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
@@ -28,6 +29,7 @@ import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
 import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.locationtech.spatial4j.distance.GeodesicSphereDistCalc;
 import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.impl.GeoCircle;
 import org.locationtech.spatial4j.shape.impl.PointImpl;
 
@@ -50,6 +52,16 @@ public class JtsShapeFactoryTest {
 
     JtsGeometry jtsGeom2 = ctx.getShapeFactory().makeShape(g);
     assertTrue(jtsGeom2.isIndexed());
+  }
+
+  @Test
+  public void testEmptyPoint() {
+    JtsSpatialContextFactory jtsCtxFactory = new JtsSpatialContextFactory();
+    JtsSpatialContext jtsCtx = jtsCtxFactory.newSpatialContext();
+    GeometryFactory geometryFactory = jtsCtxFactory.getGeometryFactory();
+    final org.locationtech.jts.geom.Point  point = geometryFactory.createPoint();//empty
+    final Shape shape = jtsCtx.getShapeFactory().makeShapeFromGeometry(point); // don't throw
+    assertTrue(shape.isEmpty());
   }
 
   @Test
