@@ -1,3 +1,10 @@
+## VERSION 0.8
+
+DATE: unreleased
+
+* \#163: EMPTY points in JTS are now convertible to a Spatial4j Shape instead of throwing an exception.
+  (David Smiley)
+
 ## VERSION 0.7
 
 DATE: 27 December 2017

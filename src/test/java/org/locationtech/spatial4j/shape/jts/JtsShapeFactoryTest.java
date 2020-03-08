@@ -20,8 +20,11 @@ package org.locationtech.spatial4j.shape.jts;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.junit.Test;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
 import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.shape.Shape;
 
 import static org.junit.Assert.assertTrue;
 
@@ -42,5 +45,15 @@ public class JtsShapeFactoryTest {
 
     JtsGeometry jtsGeom2 = ctx.getShapeFactory().makeShape(g);
     assertTrue(jtsGeom2.isIndexed());
+  }
+
+  @Test
+  public void testEmptyPoint() {
+    JtsSpatialContextFactory jtsCtxFactory = new JtsSpatialContextFactory();
+    JtsSpatialContext jtsCtx = jtsCtxFactory.newSpatialContext();
+    GeometryFactory geometryFactory = jtsCtxFactory.getGeometryFactory();
+    final Point point = geometryFactory.createPoint();//empty
+    final Shape shape = jtsCtx.getShapeFactory().makeShapeFromGeometry(point); // don't throw
+    assertTrue(shape.isEmpty());
   }
 }

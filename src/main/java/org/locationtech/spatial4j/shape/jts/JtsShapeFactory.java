@@ -478,7 +478,11 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
       }
     } else if (geom instanceof org.locationtech.jts.geom.Point) {
       org.locationtech.jts.geom.Point pt = (org.locationtech.jts.geom.Point) geom;
-      return pointXY(pt.getX(), pt.getY());
+      if (pt.isEmpty()) {
+        return pointXY(Double.NaN, Double.NaN);
+      } else {
+        return pointXY(pt.getX(), pt.getY());
+      }
     } else if (geom instanceof LineString) {
       if (!useJtsLineString()) {
         LineString lineString = (LineString) geom;
