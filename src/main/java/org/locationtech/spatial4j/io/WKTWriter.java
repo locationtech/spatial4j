@@ -8,6 +8,11 @@
 
 package org.locationtech.spatial4j.io;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+import java.util.Iterator;
 import org.locationtech.spatial4j.shape.Circle;
 import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Rectangle;
@@ -15,12 +20,6 @@ import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.ShapeCollection;
 import org.locationtech.spatial4j.shape.impl.BufferedLine;
 import org.locationtech.spatial4j.shape.impl.BufferedLineString;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.math.RoundingMode;
-import java.text.NumberFormat;
-import java.util.Iterator;
 
 public class WKTWriter implements ShapeWriter {
 
@@ -42,8 +41,13 @@ public class WKTWriter implements ShapeWriter {
   public String toString(Shape shape) {
     NumberFormat nf = getNumberFormat();
     if (shape instanceof Point) {
+      Point point = (Point)shape;
+      if (point.isEmpty()) {
+        return "POINT EMPTY";
+      }
+
       StringBuilder buffer = new StringBuilder();
-      return append(buffer.append("POINT ("),(Point)shape,nf).append(")").toString();
+      return append(buffer.append("POINT ("), point, nf).append(")").toString();
     }
     if (shape instanceof Rectangle) {
       NumberFormat nfMIN = nf;
@@ -103,10 +107,17 @@ public class WKTWriter implements ShapeWriter {
       return str.toString();
     }
     if(shape instanceof ShapeCollection) {
+      @SuppressWarnings("unchecked")
+      ShapeCollection<? extends Shape> collection = (ShapeCollection<? extends Shape>) shape;
+
+      if (collection.isEmpty()) {
+        return "GEOMETRYCOLLECTION EMPTY";
+      }
+
       StringBuilder buffer = new StringBuilder();
       buffer.append("GEOMETRYCOLLECTION (");
       boolean first = true;
-      for(Shape sub : ((ShapeCollection<? extends Shape>)shape).getShapes()) {
+      for (Shape sub : collection.getShapes()) {
         if(!first) {
           buffer.append(",");
         }
