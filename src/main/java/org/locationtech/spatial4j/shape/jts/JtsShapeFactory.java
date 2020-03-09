@@ -160,7 +160,8 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
       if (circle.getBoundingBox().getCrossesDateLine())
         throw new IllegalArgumentException("Doesn't support dateline cross yet: "+circle);//TODO
       GeometricShapeFactory gsf = new GeometricShapeFactory(geometryFactory);
-      gsf.setSize(circle.getBoundingBox().getWidth());
+      gsf.setWidth(circle.getBoundingBox().getWidth());
+      gsf.setHeight(circle.getBoundingBox().getHeight());
       gsf.setNumPoints(4*25);//multiple of 4 is best
       gsf.setCentre(new Coordinate(circle.getCenter().getX(), circle.getCenter().getY()));
       return gsf.createCircle();
