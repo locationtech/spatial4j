@@ -39,6 +39,9 @@ public class GeoJSONWriter implements ShapeWriter {
   protected void write(Writer output, NumberFormat nf, double... coords) throws IOException {
     output.write('[');
     for (int i = 0; i < coords.length; i++) {
+      if (Double.isNaN(coords[i])) {
+        break; // empty point or no more coordinates
+      }
       if (i > 0) {
         output.append(',');
       }

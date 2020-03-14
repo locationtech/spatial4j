@@ -37,8 +37,11 @@ public class ShapeAsGeoJSONSerializer extends JsonSerializer<Shape>
 
   protected void write(JsonGenerator gen, double... coords) throws IOException {
     gen.writeStartArray();
-    for (int i = 0; i < coords.length; i++) {
-      gen.writeNumber(coords[i]);
+    for (double coord : coords) {
+      if (Double.isNaN(coord)) {
+        break; // empty
+      }
+      gen.writeNumber(coord);
     }
     gen.writeEndArray();
   }

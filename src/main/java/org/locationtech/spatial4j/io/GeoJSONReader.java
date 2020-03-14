@@ -262,10 +262,6 @@ public class GeoJSONReader implements ShapeReader {
               }
               sub = parser.nextEvent();
             }
-            if (shapes.isEmpty()) {
-              throw new ParseException("Shape Collection with no geometries!",
-                  (int) parser.getPosition());
-            }
             return ctx.makeCollection(shapes);
           }
           else {

@@ -13,11 +13,7 @@ import java.io.Writer;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Iterator;
-import org.locationtech.spatial4j.shape.Circle;
-import org.locationtech.spatial4j.shape.Point;
-import org.locationtech.spatial4j.shape.Rectangle;
-import org.locationtech.spatial4j.shape.Shape;
-import org.locationtech.spatial4j.shape.ShapeCollection;
+import org.locationtech.spatial4j.shape.*;
 import org.locationtech.spatial4j.shape.impl.BufferedLine;
 import org.locationtech.spatial4j.shape.impl.BufferedLineString;
 

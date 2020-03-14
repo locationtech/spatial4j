@@ -19,6 +19,7 @@ package org.locationtech.spatial4j.io;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 
 public class GeneralPolyshapeTest extends GeneralReadWriteShapeTest {
 
@@ -61,4 +62,9 @@ public class GeneralPolyshapeTest extends GeneralReadWriteShapeTest {
     return false; // the polyline values will be off by a small fraction -- everything is rounded to: Math.round(value * 1e5)
   }
 
+  @Override
+  @Ignore
+  public void testEmptyGeometryCollection() throws Exception {
+    assumeTrue(false); // not supported
+  }
 }

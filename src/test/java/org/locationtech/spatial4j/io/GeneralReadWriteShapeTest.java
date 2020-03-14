@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.locationtech.spatial4j.util.GeomBuilder;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpatialContext> {
 
@@ -70,7 +71,17 @@ public abstract class GeneralReadWriteShapeTest extends BaseRoundTripTest<JtsSpa
       Assert.assertEquals(shape, out);
     }
   }
-  
+
+  @Test
+  public void testEmptyPoint() throws Exception {
+    assertRoundTrip(ctx.getShapeFactory().pointXY(Double.NaN, Double.NaN));
+  }
+
+  @Test
+  public void testEmptyGeometryCollection() throws Exception {
+    assertRoundTrip(ctx.getShapeFactory().multiShape(Collections.<Shape>emptyList()));
+  }
+
   @Test
   public void testWriteThenReadPoint() throws Exception {
     assertRoundTrip(point());

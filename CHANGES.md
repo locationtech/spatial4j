@@ -7,11 +7,11 @@ DATE: unreleased
   equidistant from the center. Before the change, there was potentially a large inaccuracy.
   (Hrishi Bakshi)
   
-* \#163: EMPTY points in JTS are now convertible to a Spatial4j Shape instead of throwing an exception.
+* \#163: "Empty" points in JTS are now convertible to a Spatial4j Shape instead of throwing an exception.
   (David Smiley)
 
-* \#162: Fixed WKT serialization of empty point/geometrycollection.
-  (Jeen Broekstra)
+* \#162: Fixed WKT & GeoJSON \[de\]serialization of "empty" points and geometrycollections.
+  (Jeen Broekstra, David Smiley)
 
 ## VERSION 0.7
 
