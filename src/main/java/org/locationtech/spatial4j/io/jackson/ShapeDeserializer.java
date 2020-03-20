@@ -38,6 +38,9 @@ public class ShapeDeserializer extends JsonDeserializer<Shape>
   }
   
   public Point readPoint(ArrayNode arr, ShapeFactory factory) {
+    if(arr.size()==0) {
+      return factory.pointXY(Double.NaN, Double.NaN);
+    }
     double x = arr.get(0).asDouble();
     double y = arr.get(1).asDouble();
     if(arr.size()==3) {
