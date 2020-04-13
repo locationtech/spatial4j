@@ -1,6 +1,6 @@
 ## VERSION 0.8
 
-DATE: unreleased
+DATE: _unreleased_
 
 * \#177: Improve conversion of a Circle to Shape. JtsShapeFactory allows converting from a Shape
   object to a JTS Geometry object. Geodetic circles now translate to a polygon that has points
@@ -13,6 +13,17 @@ DATE: unreleased
 * \#162: Fixed WKT & GeoJSON \[de\]serialization of "empty" points and geometrycollections.
   (Jeen Broekstra, David Smiley)
 
+* \#165: Added ShapeFactory.pointLatLon convenience method.
+ (MoeweX)
+
+* \#167: WKTWriter now has a means to customize the NumberFromat.
+ (MoeweX)
+ 
+* \#175: ShapesAsWKTModule, a Jackson databind module,
+ didn't deserialize WKT inside JSON to a Spatial4j Shape at all.
+ Now it does.  It continues to serialize correctly.
+ (David Smiley)
+  
 ## VERSION 0.7
 
 DATE: 27 December 2017
