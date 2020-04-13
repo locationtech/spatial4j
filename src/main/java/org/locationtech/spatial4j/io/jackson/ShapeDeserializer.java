@@ -217,7 +217,7 @@ public class ShapeDeserializer extends JsonDeserializer<Shape>
       return read( jp, ctx.getShapeFactory() );
     }
     if (t.isScalarValue()) {
-      String txt = t.asString();
+      String txt = jp.getValueAsString();
       if(txt!=null && txt.length()>0) {
         try {
           return ctx.getFormats().read(txt);
