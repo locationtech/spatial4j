@@ -30,7 +30,7 @@ public class JtsSpatialContextTest {
         JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
         factory.datelineRule = DatelineRule.width180;
         JtsSpatialContext ctx = factory.newSpatialContext();
-        final Polygon polygonCloned = polygon.copy();
+        final Polygon polygonCloned = (Polygon) polygon.copy();
         JtsGeometry shp = ctx.makeShape(polygonCloned);
         assertEquals("shouldn't be modified after calling makeShape", polygon, polygonCloned);
         assertTrue(shp.getGeom() instanceof GeometryCollection);
