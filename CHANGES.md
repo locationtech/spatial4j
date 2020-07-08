@@ -2,6 +2,9 @@
 
 DATE: _unreleased_
 
+* \#188: Upgraded to JTS 1.17.0.  This JTS release has a small [API change](https://github.com/locationtech/jts/blob/master/doc/JTS_Version_History.md#api-changes).  
+  (Jim Hughes)
+
 * \#177: Improve conversion of a Circle to Shape. JtsShapeFactory allows converting from a Shape
   object to a JTS Geometry object. Geodetic circles now translate to a polygon that has points
   equidistant from the center. Before the change, there was potentially a large inaccuracy.
