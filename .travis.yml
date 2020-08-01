@@ -5,9 +5,9 @@ sudo: false
 script: mvn -Drandomized.multiplier=10 clean verify jacoco:report
 
 jdk:
-  - openjdk7
   - oraclejdk8
   - openjdk8
+  - openjdk11
 #TODO  - oraclejdk9
 
 dist: trusty # Travis Xenial doesn't have oraclejdk8

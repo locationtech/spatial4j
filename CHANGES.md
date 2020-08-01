@@ -2,7 +2,8 @@
 
 DATE: _unreleased_
 
-* \#188: Upgraded to JTS 1.17.0.  This JTS release has a small [API change](https://github.com/locationtech/jts/blob/master/doc/JTS_Version_History.md#api-changes).  
+* \#188: Upgraded to JTS 1.17.0.  This JTS release has a small [API change](https://github.com/locationtech/jts/blob/master/doc/JTS_Version_History.md#api-changes) and it requires Java 1.8.
+  Spatial4J should work fine with older versions still.
   (Jim Hughes)
 
 * \#177: Improve conversion of a Circle to Shape. JtsShapeFactory allows converting from a Shape

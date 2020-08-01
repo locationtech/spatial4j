@@ -96,9 +96,6 @@
   mvn org.codehaus.mojo:versions-maven-plugin:2.5:display-plugin-updates
   mvn org.codehaus.mojo:versions-maven-plugin:2.5:display-dependency-updates
   -->
-  <prerequisites>
-    <maven>3.0.1</maven>
-  </prerequisites>
 
   <dependencies>
     <!-- Used for GeoJSON parsing -->
