@@ -28,11 +28,13 @@ import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
 import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
 import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.locationtech.spatial4j.distance.GeodesicSphereDistCalc;
+import org.locationtech.spatial4j.shape.Circle;
 import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.impl.GeoCircle;
 import org.locationtech.spatial4j.shape.impl.PointImpl;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class JtsShapeFactoryTest {
@@ -94,7 +96,35 @@ public class JtsShapeFactoryTest {
       Point point = new PointImpl(coordinate.x, coordinate.y, SpatialContext.GEO);
       double distance = distCalc.distance(point, circleCenter);
       double distanceKm = DistanceUtils.degrees2Dist(distance, DistanceUtils.EARTH_MEAN_RADIUS_KM);
-      Assert.assertEquals(String.format("Distance from point to center: %.2f km. Expected: %.2f km", distanceKm,
+      assertEquals(String.format("Distance from point to center: %.2f km. Expected: %.2f km", distanceKm,
+              radiusKm), radiusKm, distanceKm, maxDeltaKm);
+    }
+  }
+
+  @Test
+  public void testCircleDateLineWrapping() {
+    // left wrapping (-180)
+    circleGeometryConversionDateLineTest(-179.99, 51.22, 5);
+    // right wrapping (+180)
+    circleGeometryConversionDateLineTest(179.99, -35.6, 10);
+  }
+
+  private void circleGeometryConversionDateLineTest(double lon, double lat, double radiusKm) {
+    JtsShapeFactory shapeFactory = JtsSpatialContext.GEO.getShapeFactory();
+    Circle circle = shapeFactory.circle(lon, lat, DistanceUtils.dist2Degrees(radiusKm, DistanceUtils.EARTH_MEAN_RADIUS_KM));
+    Geometry geom = shapeFactory.getGeometryFrom(circle);
+
+    assertTrue(circle.getBoundingBox().getCrossesDateLine());
+    assertEquals("MultiPolygon", geom.getGeometryType());
+
+    GeodesicSphereDistCalc distCalc = new GeodesicSphereDistCalc.Haversine();
+    double maxDeltaKm = radiusKm / 100; // allow 1% inaccuracy
+    for (Coordinate c : geom.getCoordinates()) {
+      // Check distance from center of each point
+      Point point = new PointImpl(c.x, c.y, SpatialContext.GEO);
+      double distance = distCalc.distance(point, lon, lat);
+      double distanceKm = DistanceUtils.degrees2Dist(distance, DistanceUtils.EARTH_MEAN_RADIUS_KM);
+      assertEquals(String.format("Distance from point to center: %.2f km. Expected: %.2f km", distanceKm,
               radiusKm), radiusKm, distanceKm, maxDeltaKm);
     }
   }

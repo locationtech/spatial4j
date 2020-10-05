@@ -157,14 +157,16 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
       //  http://docs.codehaus.org/display/GEOTDOC/01+How+to+Create+a+Geometry#01HowtoCreateaGeometry-CreatingaCircle
       //TODO This should ideally have a geodetic version
       Circle circle = (Circle)shape;
-      if (circle.getBoundingBox().getCrossesDateLine())
-        throw new IllegalArgumentException("Doesn't support dateline cross yet: "+circle);//TODO
       GeometricShapeFactory gsf = new GeometricShapeFactory(geometryFactory);
       gsf.setWidth(circle.getBoundingBox().getWidth());
       gsf.setHeight(circle.getBoundingBox().getHeight());
       gsf.setNumPoints(4*25);//multiple of 4 is best
       gsf.setCentre(new Coordinate(circle.getCenter().getX(), circle.getCenter().getY()));
-      return gsf.createCircle();
+      Geometry geom = gsf.createCircle();
+      if (circle.getBoundingBox().getCrossesDateLine())
+        // wrap the geometry in a JtsGeometry to handle date line wrapping
+        geom = new JtsGeometry(geom, (JtsSpatialContext) getSpatialContext(),false, false).getGeom();
+      return geom;
     }
     //TODO add BufferedLineString
     throw new InvalidShapeException("can't make Geometry from: " + shape);
