@@ -13,6 +13,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.junit.Test;
 import org.locationtech.spatial4j.shape.jts.JtsShapeFactory;
 import org.locationtech.spatial4j.util.Geom;
@@ -61,5 +62,21 @@ public class JtsSpatialContextTest {
                 "((179 90, 180 90, 180 -90, 179 -90, 179 90)), " +
                 "((0 0, 1 1, 1 0, 0 0))" +
                 ")", jtsGeometry.toString());
+    }
+
+    @Test
+    public void testMultiDatelineWrap() {
+        // polygon crosses the dateline twice
+        Polygon polygon = Geom.build().points(-179, 45, 179, 44, 1, 35, -179, 25, 179, 24, 179, 19, -179, 20, 1, 30, 179, 39, -179, 40).toPolygon();
+
+        JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
+        factory.datelineRule = DatelineRule.width180;
+        JtsSpatialContext ctx = factory.newSpatialContext();
+        JtsShapeFactory shapeFactory = ctx.getShapeFactory();
+        JtsGeometry jtsGeometry = shapeFactory.makeShape(polygon);
+        Geometry geometry = jtsGeometry.getGeom();
+
+        assertTrue(geometry.isValid());
+        assertTrue(geometry instanceof MultiPolygon);
     }
 }
