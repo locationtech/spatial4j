@@ -582,10 +582,13 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
         break;
       Geometry rect = geom.getFactory().toGeometry(new Envelope(minX, minX + 360, -90, 90));
       assert rect.isValid() : "rect";
-      Geometry pageGeom = rect.intersection(geom).copy();//JTS is doing some hard work
+      Geometry pageGeom = rect.intersection(geom);//JTS is doing some hard work
       assert pageGeom.isValid() : "pageGeom";
 
-      shiftGeomByX(pageGeom, page * -360);
+      if (page != 0) {
+        pageGeom = pageGeom.copy(); // because shiftGeomByX modifies the underlying coordinates shared by geom.
+        shiftGeomByX(pageGeom, page * -360);
+      }
       geomList.add(pageGeom);
     }
     return UnaryUnionOp.union(geomList);
