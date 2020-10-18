@@ -2,6 +2,12 @@
 
 DATE: _unreleased_
 
+* \#194: Circles that cross a dateline can now be converted to a JTS Geometry. Previous attempts would throw an exception. 
+ (Stijn Caerts)
+
+* \#194: JtsGeometry now supports input an Geometry that crosses the dateline multiple times (wraps the globe multiple times). Previous attempts would yield erroneous behavior.
+ (Stijn Caerts)
+
 * \#188: Upgraded to JTS 1.17.0.  This JTS release has a small [API change](https://github.com/locationtech/jts/blob/master/doc/JTS_Version_History.md#api-changes) and it requires Java 1.8.
   Spatial4J should work fine with older versions still.
   (Jim Hughes)
