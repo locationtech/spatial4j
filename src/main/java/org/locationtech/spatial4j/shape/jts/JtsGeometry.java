@@ -573,11 +573,10 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
       return geom;
     assert geom.isValid() : "geom";
 
-    //TODO opt: support geom's that start at negative pages --
-    // ... will avoid need to previously shift in unwrapDateline(geom).
     List<Geometry> geomList = new ArrayList<Geometry>();
     //page 0 is the standard -180 to 180 range
-    for (int page = 0; true; page++) {
+    int startPage = (int) Math.floor((geomEnv.getMinX() + 180) / 360);
+    for (int page = startPage; true; page++) {
       double minX = -180 + page * 360;
       if (geomEnv.getMaxX() <= minX)
         break;
@@ -586,7 +585,10 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
       Geometry pageGeom = rect.intersection(geom);//JTS is doing some hard work
       assert pageGeom.isValid() : "pageGeom";
 
-      shiftGeomByX(pageGeom, page * -360);
+      if (page != 0) {
+        pageGeom = pageGeom.copy(); // because shiftGeomByX modifies the underlying coordinates shared by geom.
+        shiftGeomByX(pageGeom, page * -360);
+      }
       geomList.add(pageGeom);
     }
     return UnaryUnionOp.union(geomList);
