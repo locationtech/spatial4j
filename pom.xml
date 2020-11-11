@@ -41,8 +41,8 @@
   </issueManagement>
 
   <ciManagement>
-    <system>Hudson</system>
-    <url>https://ci.locationtech.org/spatial4j/job/Spatial4j/</url>
+    <system>Jenkins</system>
+    <url>https://ci.eclipse.org/spatial4j/job/Spatial4j/</url>
   </ciManagement>
   <!-- also:
   <ciManagement>
@@ -54,13 +54,13 @@
   <mailingLists>
     <mailingList>
       <name>spatial4j-dev</name>
-      <archive>http://locationtech.org/mhonarc/lists/spatial4j-dev</archive>
+      <archive>http://www.eclipse.org/lists/spatial4j-dev</archive>
       <otherArchives>
         <!-- pre-LocationTech traffic -->
         <otherArchive>http://spatial4j.16575.x6.nabble.com</otherArchive>
       </otherArchives>
-      <post>spatial4j-dev@locationtech.org</post>
-      <subscribe>https://locationtech.org/mailman/listinfo/spatial4j-dev</subscribe>
+      <post>spatial4j-dev@eclipse.org</post>
+      <subscribe>https://accounts.eclipse.org/mailing-list/spatial4j-dev</subscribe>
     </mailingList>
   </mailingLists>
 
@@ -93,8 +93,8 @@
   </properties>
 
   <!-- To check for new plugins and dependencies:
-  mvn org.codehaus.mojo:versions-maven-plugin:2.5:display-plugin-updates
-  mvn org.codehaus.mojo:versions-maven-plugin:2.5:display-dependency-updates
+  mvn org.codehaus.mojo:versions-maven-plugin:2.7:display-plugin-updates
+  mvn org.codehaus.mojo:versions-maven-plugin:2.7:display-dependency-updates
   -->
 
   <dependencies>
@@ -147,12 +147,46 @@
   
   <build>
 
-    <pluginManagement>
+    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
+        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.5.3</version>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.22.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.5.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+        <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.7.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>3.0.0</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -162,7 +196,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.3</version>
         <configuration>
           <source>1.7</source>
           <target>1.7</target>
@@ -174,13 +207,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.18.1</version>
       </plugin>
 
       <plugin>
         <groupId>de.thetaphi</groupId>
         <artifactId>forbiddenapis</artifactId>
-        <version>1.8</version>
+        <version>3.0.1</version>
         <executions>
           <execution>
             <goals>
@@ -208,7 +240,7 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>2.5.3</version>
+        <version>2.5.4</version>
         <configuration>
           <instructions>
             <Export-Package>org.locationtech.spatial4j*;version=${project.version}</Export-Package>
@@ -220,7 +252,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.4</version>
       </plugin>
 
       <plugin>
