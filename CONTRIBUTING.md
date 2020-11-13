@@ -41,20 +41,23 @@ It is never a bad idea to email the mailing list with thoughts about a change yo
 before you make it. This allows the committers to weigh in with thoughts and suggestions that will 
 help you make the change and ultimately ensure your successful contribution to the project. 
 
-### Sign off on commits, and filing a CLA
+### Sign off on commits, and filing an ECA
 
-Non-committers submitting patches to Spatial4j must use the "-s" (sign-off) flag when making 
-commits with git. This flag indicates that the author verifies the change is (too the best knowledge 
-of the author) in good standing and consistent with the open source license of the project, and that
-if he/she has permission from their employer to contribute the code (if applicable).
+Commits that are provided by non-committers must have a Signed-off-by field in
+the footer indicating that the author is aware of the terms by which the
+contribution has been provided to the project.
+This can be added manually, or by using the "-s" (sign-off) flag with git.
 The following is an example of a commit with the sign-off flag.
 
      git commit -s -m "the commit message"
 
-Once a developer has been elevated to project committer status the sign-off flag is no longer required.
+Furthermore, contributors must electronically sign the Eclipse Contributor Agreement (ECA).
+This is a one-time event, and is quick & easy.
 
-Additionally, a one-time event is to [submit a a CLA](https://projects.eclipse.org/user/sign/cla)
-"Contributor License Agreement".  It's simple and fast to do.
+* http://www.eclipse.org/legal/ECA.php
+
+For more information, please see the Eclipse Committer Handbook:
+https://www.eclipse.org/projects/handbook/#resources-commit
 
 ### One patch per one bug/feature
 
