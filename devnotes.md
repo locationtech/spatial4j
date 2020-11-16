@@ -9,7 +9,7 @@ Note: depends on having access to the Sonatype repo described further below
 # Making a new release
 
 First, understand that LocationTech projects undergo releases using an official process described here:
-https://www.locationtech.org/documentation/handbook with complete and thorough details here:
+https://www.eclipse.org/projects/handbook/#release with complete and thorough details here:
 https://wiki.eclipse.org/Development_Resources/HOWTO/Release_Reviews
 
 Note:
@@ -17,7 +17,7 @@ Note:
   * "Create a new release"
   * "Generate IP Log"
  * References to the "PMC" (Project Management Committee) in Spatial4j's case is the
- <a href="https://locationtech.org/mailman/listinfo/technology-pmc">LocationTech Technology PMC</a>.  There aren't
+ <a href="https://accounts.eclipse.org/mailing-list/technology-pmc">LocationTech Technology PMC</a>.  There aren't
  project-specific PMCs.
  
 *TODO distill the process here.*
