@@ -37,7 +37,7 @@ public class BinaryCodecTest extends BaseRoundTripTest<SpatialContext> {
 
   @Test
   public void testCollection() throws Exception {
-    ShapeCollection s = ctx.makeCollection(
+    ShapeCollection<Shape> s = ctx.makeCollection(
         Arrays.asList(
             randomShape(),
             randomShape(),

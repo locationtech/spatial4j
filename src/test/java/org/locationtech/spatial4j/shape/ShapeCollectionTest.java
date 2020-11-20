@@ -96,7 +96,7 @@ public class ShapeCollectionTest extends RandomizedShapeTest {
         //1st 2 are near nearP, the others are anywhere
         shapes.add(randomRectangle( i < 2 ? nearP : null));
       }
-      ShapeCollection shapeCollection = new ShapeCollection<>(shapes, ctx);
+      ShapeCollection<Rectangle> shapeCollection = new ShapeCollection<>(shapes, ctx);
 
       //test shapeCollection.getBoundingBox();
       Rectangle msBbox = shapeCollection.getBoundingBox();

@@ -303,6 +303,7 @@ public class Geom {
     /**
      * Returns the geometries of a geometry collection as an array.
      */
+    @SuppressWarnings("unchecked")
     public static <T extends Geometry> T[] array(GeometryCollection gc, T[] array) {
         for (int i =0 ; i < gc.getNumGeometries(); i++) {
             array[i] = (T) gc.getGeometryN(i);
@@ -320,10 +321,10 @@ public class Geom {
      *
      * @see {@link GeometryFactory#buildGeometry(Collection)}
      */
-    public static <T extends Geometry> T narrow(GeometryCollection gc) {
+    public static Geometry narrow(GeometryCollection gc) {
 
         if (gc.getNumGeometries() == 0) {
-            return (T) gc;
+            return gc;
         }
 
         List<Geometry> objects = new ArrayList<>(gc.getNumGeometries());
@@ -331,23 +332,22 @@ public class Geom {
             objects.add(g);
         }
 
-        return (T) gc.getFactory().buildGeometry(objects);
+        return gc.getFactory().buildGeometry(objects);
     }
 
     /**
      * Recursively flattens a geometry collection into it's constituent geometry objects.
      */
-    public static <T extends Geometry> List<T> flatten(GeometryCollection gc) {
-        return flatten(Collections.singletonList((Geometry)gc));
+    public static List<Geometry> flatten(GeometryCollection gc) {
+        return flatten(Collections.singletonList(gc));
     }
 
     /**
      * Recursively flattens a list of geometries into it's constituent geometry objects.
      */
-    public static <T extends Geometry> List<T> flatten(List<Geometry> gl) {
-        List<T> flat = new ArrayList<>();
-        LinkedList<Geometry> q = new LinkedList<>();
-        q.addAll(gl);
+    public static List<Geometry> flatten(List<Geometry> gl) {
+        List<Geometry> flat = new ArrayList<>();
+        LinkedList<Geometry> q = new LinkedList<>(gl);
 
         while (!q.isEmpty()) {
             Geometry g = q.removeFirst();
@@ -357,7 +357,7 @@ public class Geom {
                 }
             }
             else {
-                flat.add((T) g);
+                flat.add(g);
             }
         }
 
