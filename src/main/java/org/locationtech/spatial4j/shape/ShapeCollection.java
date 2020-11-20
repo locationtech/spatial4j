@@ -44,7 +44,6 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
   /**
    * WARNING: {@code shapes} is copied by reference.
    * @param shapes Copied by reference! (make a defensive copy if caller modifies)
-   * @param ctx
    */
   public ShapeCollection(List<S> shapes, SpatialContext ctx) {
     if (!(shapes instanceof RandomAccess))

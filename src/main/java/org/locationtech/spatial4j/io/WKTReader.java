@@ -145,7 +145,6 @@ public class WKTReader implements ShapeReader {
    * dimension and EMPTY token via
    * {@link org.locationtech.spatial4j.io.WKTReader.State#nextIfEmptyAndSkipZM()}.
    *
-   * @param state
    * @param shapeType Non-Null string; could have mixed case. The first character is a letter.
    * @return The shape or null if not supported / unknown.
    */

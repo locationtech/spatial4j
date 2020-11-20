@@ -263,9 +263,7 @@ public class SpatialContext {
   /**
    * Try to read a shape from any supported formats
    * 
-   * @param value
    * @return shape or null if unable to parse any shape
-   * @throws InvalidShapeException
    */
   @Deprecated
   public Shape readShape(String value) throws InvalidShapeException {
