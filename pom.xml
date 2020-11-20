@@ -379,7 +379,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.3</version>
+        <version>3.2.0</version>
         <configuration>
           <header>Spatial4j, ${project.version}</header>
           <footer>Spatial4j, ${project.version}</footer>
@@ -387,6 +387,7 @@
           <links>
             <link>http://locationtech.github.io/jts/javadoc/</link>
           </links>
+          <doclint>all,-missing</doclint>
         </configuration>
         <!-- we exclude tests: -->
         <reportSets>

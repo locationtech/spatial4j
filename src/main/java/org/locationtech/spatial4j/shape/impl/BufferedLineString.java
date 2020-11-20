@@ -50,7 +50,6 @@ public class BufferedLineString extends BaseShape<SpatialContext> {
    * org.locationtech.spatial4j.shape.Point, double)}.
    *                                  If true then the buffer for each segment
    *                                  is computed.
-   * @param ctx
    */
   public BufferedLineString(List<Point> points, double buf, boolean expandBufForLongitudeSkew,
                             SpatialContext ctx) {

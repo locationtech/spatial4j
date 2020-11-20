@@ -40,9 +40,6 @@ public interface ShapeReader extends ShapeIO {
    * 
    * @param reader -- the input. Note, it will not be closed by this function
    * @return a valid Shape (never null)
-   * @throws IOException
-   * @throws ParseException
-   * @throws InvalidShapeException
    */
   public Shape read(Reader reader) throws IOException, ParseException, InvalidShapeException;
 }

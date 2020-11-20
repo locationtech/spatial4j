@@ -49,7 +49,6 @@ public class BufferedLine extends BaseShape<SpatialContext> {
    * @param pA  start point
    * @param pB  end point
    * @param buf the buffer distance in degrees
-   * @param ctx
    */
   public BufferedLine(Point pA, Point pB, double buf, SpatialContext ctx) {
     super(ctx);

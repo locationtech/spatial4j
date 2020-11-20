@@ -53,7 +53,7 @@ public class JtsWKTReaderShapeParser extends org.locationtech.spatial4j.io.WKTRe
 
   /**
    * Reads WKT from the {@code str} via JTS's {@link org.locationtech.jts.io.WKTReader}.
-   * @param str
+   *
    * @param reader <pre>new WKTReader(ctx.getGeometryFactory()))</pre>
    * @return Non-Null
    */

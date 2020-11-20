@@ -163,7 +163,6 @@ public class DistanceUtils {
    * @param startLon The starting point longitude, in radians
    * @param distanceRAD The distance to travel along the bearing in radians.
    * @param bearingRAD The bearing, in radians.  North is a 0, moving clockwise till radians(360).
-   * @param ctx
    * @param reuse A preallocated object to hold the results.
    * @return The destination point, IN RADIANS.
    */
