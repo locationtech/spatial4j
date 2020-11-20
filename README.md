@@ -51,7 +51,7 @@ For more information on the formats supported, see [FORMATS.md](FORMATS.md).
 
 ## Dependencies
 
-Spatial4j runs on Java -- version 1.7 or better, though is only really tested on 1.8.  Otherwise, all dependencies listed in the maven [pom.xml](pom.xml) are either marked optional or are for testing. The optional dependencies are:
+Spatial4j runs on Java 8 (v1.8) or better.  Otherwise, all dependencies listed in the maven [pom.xml](pom.xml) are either marked optional or are for testing. The optional dependencies are:
 * [JTS](https://github.com/locationtech/jts):  You need JTS if you use polygons, or obviously if you use any of the classes prefixed with "Jts".
 * [Noggit](https://github.com/yonik/noggit): The Noggit JSON parsing library is only needed for GeoJSON parsing (not required for writing).
 * [Jackson-databind](https://github.com/FasterXML/jackson-databind): If you wish to use Spatial4j's Jackson-databind feature to read/write shapes.

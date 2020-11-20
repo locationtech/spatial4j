@@ -90,6 +90,8 @@
   <properties>
     <!-- this magic system property is honored by many plugins: http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
 
   <!-- To check for new plugins and dependencies:
@@ -197,8 +199,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
           <optimize>true</optimize>
           <showDeprecation>true</showDeprecation>
         </configuration>
@@ -233,7 +233,6 @@
             The checker simply passes by default and only prints a warning.
            -->
           <failOnUnsupportedJava>false</failOnUnsupportedJava>
-          <targetVersion>1.7</targetVersion>
         </configuration>
       </plugin>
 
@@ -344,7 +343,6 @@
         <configuration>
           <linkXRef>true</linkXRef>
           <minimumTokens>100</minimumTokens>
-          <targetJdk>1.7</targetJdk>
         </configuration>
       </plugin>
 
