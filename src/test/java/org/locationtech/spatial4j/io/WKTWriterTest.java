@@ -30,7 +30,7 @@ public class WKTWriterTest {
   @Test
   public void testToStringOnEmptyShapeCollection() throws Exception {
     ShapeWriter writer = ctx.getFormats().getWktWriter();
-    ShapeCollection<Point> emptyCollection = ctx.makeCollection(new ArrayList<Point>());
+    ShapeCollection<Point> emptyCollection = ctx.makeCollection(new ArrayList<>());
 
     assertEquals("GEOMETRYCOLLECTION EMPTY", writer.toString(emptyCollection));
   }

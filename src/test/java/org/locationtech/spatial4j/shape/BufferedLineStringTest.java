@@ -33,7 +33,7 @@ public class BufferedLineStringTest extends RandomizedTest {
         Rectangle nearR = randomRectangle(nearP);
         int numPoints = 2 + randomInt(3);//2-5 points
 
-        ArrayList<Point> points = new ArrayList<Point>(numPoints);
+        ArrayList<Point> points = new ArrayList<>(numPoints);
         while (points.size() < numPoints) {
           points.add(randomPointIn(nearR));
         }

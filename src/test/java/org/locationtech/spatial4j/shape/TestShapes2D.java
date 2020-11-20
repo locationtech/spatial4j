@@ -33,7 +33,7 @@ public class TestShapes2D extends AbstractTestShapes {
   public static Iterable<Object[]> parameters() {
     final Rectangle WB = new RectangleImpl(-2000, 2000, -300, 300, null);//whatever
 
-    List<Object[]> ctxs = new ArrayList<Object[]>();
+    List<Object[]> ctxs = new ArrayList<>();
     ctxs.add($(new SpatialContextFactory() {{geo = false; worldBounds = WB;}}.newSpatialContext()));
     ctxs.add($(new JtsSpatialContextFactory() {{geo = false; worldBounds = WB;}}.newSpatialContext()));
     return ctxs;

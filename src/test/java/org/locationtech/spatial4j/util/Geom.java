@@ -226,28 +226,28 @@ public class Geom {
      * Returns an iterable over the points of a multipoint.
      */
     public static Iterable<Point> iterate(MultiPoint mp) {
-        return new GeometryIterable<Point>(mp);
+        return new GeometryIterable<>(mp);
     }
 
     /**
      * Returns an iterable over the lines of a multilinestring.
      */
     public static Iterable<LineString> iterate(MultiLineString ml) {
-        return new GeometryIterable<LineString>(ml);
+        return new GeometryIterable<>(ml);
     }
 
     /**
      * Returns an iterable over the polygons of a multipolygon.
      */
     public static Iterable<Polygon> iterate(MultiPolygon mp) {
-        return new GeometryIterable<Polygon>(mp);
+        return new GeometryIterable<>(mp);
     }
     
     /**
      * Returns an iterable over the geometries of a geometry collection.. 
      */
     public static Iterable<Geometry> iterate(GeometryCollection gc) {
-        return new GeometryIterable<Geometry>(gc);
+        return new GeometryIterable<>(gc);
     }
 
     /**
@@ -387,7 +387,7 @@ public class Geom {
 
         @Override
         public Iterator<T> iterator() {
-            return new GeometryIterator<T>(gc);
+            return new GeometryIterator<>(gc);
         }
     }
 

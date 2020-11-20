@@ -573,7 +573,7 @@ public class JtsGeometry extends BaseShape<JtsSpatialContext> {
       return geom;
     assert geom.isValid() : "geom";
 
-    List<Geometry> geomList = new ArrayList<Geometry>();
+    List<Geometry> geomList = new ArrayList<>();
     //page 0 is the standard -180 to 180 range
     int startPage = (int) Math.floor((geomEnv.getMinX() + 180) / 360);
     for (int page = startPage; true; page++) {

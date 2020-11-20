@@ -92,7 +92,7 @@ public class PolyshapeReader implements ShapeReader {
 
       if(lastShape!=null) {
         if(shapes==null) {
-          shapes = new ArrayList<Shape>();
+          shapes = new ArrayList<>();
         }
         shapes.add(lastShape);
       }
@@ -174,7 +174,6 @@ public class PolyshapeReader implements ShapeReader {
     reader.readPoints(polyBuilder);
 
     if(!reader.isDone() && reader.peek()==PolyshapeWriter.KEY_ARG_START) {
-      List<LinearRing> list = new ArrayList<LinearRing>();
       while(reader.isEvent() && reader.peek()==PolyshapeWriter.KEY_ARG_START) {
         reader.readKey(); // eat the event;
         reader.readPoints(polyBuilder.hole()).endHole();

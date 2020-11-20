@@ -99,7 +99,7 @@ public class ShapeCollection<S extends Shape> extends AbstractList<S> implements
 
   @Override
   public ShapeCollection getBuffered(double distance, SpatialContext ctx) {
-    List<Shape> bufColl = new ArrayList<Shape>(size());
+    List<Shape> bufColl = new ArrayList<>(size());
     for (Shape shape : shapes) {
       bufColl.add(shape.getBuffered(distance, ctx));
     }

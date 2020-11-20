@@ -62,8 +62,8 @@ import org.locationtech.jts.geom.PrecisionModel;
 public class GeomBuilder {
 
     GeometryFactory factory;
-    Deque<Coordinate> cstack = new ArrayDeque<Coordinate>();
-    Deque<Geometry> gstack = new ArrayDeque<Geometry>();
+    Deque<Coordinate> cstack = new ArrayDeque<>();
+    Deque<Geometry> gstack = new ArrayDeque<>();
 
     /**
      * Constructs a builder with the default geometry factory.
