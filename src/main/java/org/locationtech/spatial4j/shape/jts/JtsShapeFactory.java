@@ -323,9 +323,6 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
       return getThis();
     }
 
-    public T pointLatLon(double latitude, double longitude) {
-      return pointXYZ(longitude, latitude, Coordinate.NULL_ORDINATE);
-    }
     // TODO would be be useful to add other ways of providing points?  e.g. point(Coordinate)?
 
     // TODO consider wrapping the List<Coordinate> in a custom CoordinateSequence and then (conditionally) use

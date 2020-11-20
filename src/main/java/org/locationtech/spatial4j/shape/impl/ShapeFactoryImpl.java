@@ -83,13 +83,6 @@ public class ShapeFactoryImpl implements ShapeFactory {
   }
 
   @Override
-  public Point pointLatLon(double latitude, double longitude) {
-    verifyX(longitude);
-    verifyY(latitude);
-    return new PointImpl(longitude, latitude, ctx);
-  }
-
-  @Override
   public Point pointXYZ(double x, double y, double z) {
     return pointXY(x, y); // or throw?
   }
