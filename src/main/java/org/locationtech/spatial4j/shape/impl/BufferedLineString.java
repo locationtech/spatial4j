@@ -59,7 +59,7 @@ public class BufferedLineString extends BaseShape<SpatialContext> {
     if (points.isEmpty()) {
       this.segments = ctx.makeCollection(Collections.<BufferedLine>emptyList());
     } else {
-      List<BufferedLine> segments = new ArrayList<BufferedLine>(points.size() - 1);
+      List<BufferedLine> segments = new ArrayList<>(points.size() - 1);
 
       Point prevPoint = null;
       for (Point point : points) {

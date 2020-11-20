@@ -69,8 +69,8 @@ public class SpatialContextFactory {
 
   public Class<? extends ShapeFactory> shapeFactoryClass = ShapeFactoryImpl.class;
   public Class<? extends BinaryCodec> binaryCodecClass = BinaryCodec.class;
-  public final List<Class<? extends ShapeReader>> readers = new ArrayList<Class<? extends ShapeReader>>();
-  public final List<Class<? extends ShapeWriter>> writers = new ArrayList<Class<? extends ShapeWriter>>();
+  public final List<Class<? extends ShapeReader>> readers = new ArrayList<>();
+  public final List<Class<? extends ShapeWriter>> writers = new ArrayList<>();
   public boolean hasFormatConfig = false;
 
   public SpatialContextFactory() {
@@ -218,7 +218,7 @@ public class SpatialContextFactory {
   public SupportedFormats makeFormats(SpatialContext ctx) {
     checkDefaultFormats();  // easy to override
     
-    List<ShapeReader> read = new ArrayList<ShapeReader>(readers.size());
+    List<ShapeReader> read = new ArrayList<>(readers.size());
     for (Class<? extends ShapeReader> clazz : readers) {
       try {
         read.add(makeClassInstance(clazz, ctx, this));
@@ -227,7 +227,7 @@ public class SpatialContextFactory {
       }
     }
     
-    List<ShapeWriter> write = new ArrayList<ShapeWriter>(writers.size());
+    List<ShapeWriter> write = new ArrayList<>(writers.size());
     for (Class<? extends ShapeWriter> clazz : writers) {
       try {
         write.add(makeClassInstance(clazz, ctx, this));

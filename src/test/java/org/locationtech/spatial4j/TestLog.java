@@ -22,7 +22,7 @@ import java.util.List;
 public class TestLog extends TestRuleAdapter {
 
   //TODO does this need to be threadsafe (such as via thread-local state)?
-  private static ArrayList<LogEntry> logStack = new ArrayList<LogEntry>();
+  private static ArrayList<LogEntry> logStack = new ArrayList<>();
   private static final int MAX_LOGS = 1000;
 
   public static final TestLog instance = new TestLog();

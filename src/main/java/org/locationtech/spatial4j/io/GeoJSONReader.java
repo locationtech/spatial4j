@@ -249,7 +249,7 @@ public class GeoJSONReader implements ShapeReader {
             readUntilEvent(parser, JSONParser.OBJECT_END);
             return shape;
           } else if ("geometries".equals(key)) {
-            List<Shape> shapes = new ArrayList<Shape>();
+            List<Shape> shapes = new ArrayList<>();
             int sub = parser.nextEvent();
             while (sub != JSONParser.EOF) {
               if (sub == JSONParser.OBJECT_START) {

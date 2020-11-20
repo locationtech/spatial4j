@@ -36,7 +36,7 @@ public class SpatialContextFactoryTest {
   }
   
   private SpatialContext call(String... argsStr) {
-    Map<String,String> args = new HashMap<String,String>();
+    Map<String,String> args = new HashMap<>();
     for (int i = 0; i < argsStr.length; i+=2) {
       String key = argsStr[i];
       String val = argsStr[i+1];

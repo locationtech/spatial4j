@@ -48,7 +48,7 @@ public class ShapeCollectionTest extends RandomizedShapeTest {
     Rectangle r1 = ctx.makeRectangle(-92, 90, -10, 10);
     Rectangle r2 = ctx.makeRectangle(130, 172, -10, 10);
     Rectangle r3 = ctx.makeRectangle(172, -60, -10, 10);
-    ShapeCollection<Rectangle> s = new ShapeCollection<Rectangle>(Arrays.asList(r1,r2,r3), ctx);
+    ShapeCollection<Rectangle> s = new ShapeCollection<>(Arrays.asList(r1, r2, r3), ctx);
     assertEquals("130.0 90.0", getLonRangeString(s.getBoundingBox()));
     // note: BBoxCalculatorTest thoroughly tests the longitude range
   }
@@ -59,11 +59,11 @@ public class ShapeCollectionTest extends RandomizedShapeTest {
     Rectangle r1 = ctx.makeRectangle(r1MinX, r1MaxX, -10, 10);
     Rectangle r2 = ctx.makeRectangle(r2MinX, r2MaxX, -10, 10);
 
-    ShapeCollection<Rectangle> s = new ShapeCollection<Rectangle>(Arrays.asList(r1,r2), ctx);
+    ShapeCollection<Rectangle> s = new ShapeCollection<>(Arrays.asList(r1, r2), ctx);
     assertEquals(WORLD180, getLonRangeString(s.getBoundingBox()));
 
     //flip r1, r2 order
-    s = new ShapeCollection<Rectangle>(Arrays.asList(r2,r1), ctx);
+    s = new ShapeCollection<>(Arrays.asList(r2, r1), ctx);
     assertEquals(WORLD180, getLonRangeString(s.getBoundingBox()));
   }
 
@@ -90,13 +90,13 @@ public class ShapeCollectionTest extends RandomizedShapeTest {
     @Override
     protected ShapeCollection generateRandomShape(Point nearP) {
       testLog.log("Break on nearP.toString(): {}", nearP);
-      List<Rectangle> shapes = new ArrayList<Rectangle>();
+      List<Rectangle> shapes = new ArrayList<>();
       int count = randomIntBetween(1,4);
       for(int i = 0; i < count; i++) {
         //1st 2 are near nearP, the others are anywhere
         shapes.add(randomRectangle( i < 2 ? nearP : null));
       }
-      ShapeCollection shapeCollection = new ShapeCollection<Rectangle>(shapes, ctx);
+      ShapeCollection shapeCollection = new ShapeCollection<>(shapes, ctx);
 
       //test shapeCollection.getBoundingBox();
       Rectangle msBbox = shapeCollection.getBoundingBox();

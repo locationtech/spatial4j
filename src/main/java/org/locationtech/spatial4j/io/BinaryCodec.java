@@ -145,7 +145,7 @@ public class BinaryCodec {
   public ShapeCollection readCollection(DataInput dataInput) throws IOException {
     byte type = dataInput.readByte();
     int size = dataInput.readInt();
-    ArrayList<Shape> shapes = new ArrayList<Shape>(size);
+    ArrayList<Shape> shapes = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
       if (type == 0) {
         shapes.add(readShape(dataInput));

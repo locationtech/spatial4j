@@ -102,7 +102,7 @@ public class BufferedLineTest extends RandomizedTest {
     //compute closest corner brute force
     ArrayList<Point> corners = quadrantCorners(rect);
     // a collection instead of 1 value due to ties
-    Collection<Integer> farthestDistanceQuads = new LinkedList<Integer>();
+    Collection<Integer> farthestDistanceQuads = new LinkedList<>();
     double farthestDistance = -1;
     int quad = 1;
     for (Point corner : corners) {
@@ -129,7 +129,7 @@ public class BufferedLineTest extends RandomizedTest {
   }
 
   private ArrayList<Point> quadrantCorners(Rectangle rect) {
-    ArrayList<Point> corners = new ArrayList<Point>(4);
+    ArrayList<Point> corners = new ArrayList<>(4);
     corners.add(ctx.makePoint(rect.getMaxX(), rect.getMaxY()));
     corners.add(ctx.makePoint(rect.getMinX(), rect.getMaxY()));
     corners.add(ctx.makePoint(rect.getMinX(), rect.getMinY()));
