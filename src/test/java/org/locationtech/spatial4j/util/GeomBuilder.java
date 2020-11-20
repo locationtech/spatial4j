@@ -391,9 +391,9 @@ public class GeomBuilder {
                 + "but found %d", n, gstack.size()));
         }
 
-        T[] l = (T[]) Array.newInstance(clazz, n);
+        @SuppressWarnings("unchecked") T[] l = (T[]) Array.newInstance(clazz, n);
         for (int i = 0; i < n; i++) {
-            Object g = gstack.pop();
+            Geometry g = gstack.pop();
             if (!clazz.isInstance(g)) {
                 throw new IllegalStateException(String.format(Locale.ROOT,"Expected %s on geometry stack, but "
                     + "found %s", clazz.getSimpleName(), g.getClass().getSimpleName()));

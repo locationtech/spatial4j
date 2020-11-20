@@ -99,7 +99,7 @@ public class SpatialContextFactory {
       instance = new SpatialContextFactory();
     else {
       try {
-        Class c = classLoader.loadClass(cname);
+        Class<?> c = classLoader.loadClass(cname);
         instance = (SpatialContextFactory) c.newInstance();
       } catch (Exception e) {
         throw new RuntimeException(e);
@@ -129,6 +129,7 @@ public class SpatialContextFactory {
   }
 
   /** Gets {@code name} from args and populates a field by the same name with the value. */
+  @SuppressWarnings("unchecked")
   protected void initField(String name) {
     //  note: java.beans API is more verbose to use correctly (?) but would arguably be better
     Field field;
@@ -295,14 +296,13 @@ public class SpatialContextFactory {
     return makeClassInstance(binaryCodecClass, ctx, this);
   }
 
-  @SuppressWarnings("unchecked")
   private <T> T makeClassInstance(Class<? extends T> clazz, Object... ctorArgs) {
     try {
       Constructor<?> empty = null;
 
       //can't simply lookup constructor by arg type because might be subclass type
       ctorLoop: for (Constructor<?> ctor : clazz.getConstructors()) {
-        Class[] parameterTypes = ctor.getParameterTypes();
+        Class<?>[] parameterTypes = ctor.getParameterTypes();
         if (parameterTypes.length == 0) {
           empty = ctor; // the empty constructor;
         }

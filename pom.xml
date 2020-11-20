@@ -200,7 +200,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <optimize>true</optimize>
-          <showDeprecation>true</showDeprecation>
+          <showDeprecation>false</showDeprecation><!-- for time being -->
+          <compilerArgument>-Xlint:unchecked</compilerArgument>
         </configuration>
       </plugin>
 

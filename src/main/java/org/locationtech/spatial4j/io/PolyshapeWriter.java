@@ -119,7 +119,7 @@ public class PolyshapeWriter implements ShapeWriter {
       return;
     }
     if (shape instanceof ShapeCollection) {
-      ShapeCollection v = (ShapeCollection) shape;
+      @SuppressWarnings("unchecked") ShapeCollection<Shape> v = (ShapeCollection<Shape>) shape;
       Iterator<Shape> iter = v.iterator();
       while(iter.hasNext()) {
         write(enc, iter.next());
