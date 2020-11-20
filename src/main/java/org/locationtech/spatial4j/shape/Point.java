@@ -28,9 +28,13 @@ public interface Point extends Shape {
   public double getY();
 
   /** Convenience method that usually maps on {@link org.locationtech.spatial4j.shape.Point#getY()} */
-  public double getLat();
+  public default double getLat() {
+    return getY();
+  }
 
   /** Convenience method that usually maps on {@link org.locationtech.spatial4j.shape.Point#getX()} */
-  public double getLon();
+  public default double getLon() {
+    return getX();
+  }
 
 }
