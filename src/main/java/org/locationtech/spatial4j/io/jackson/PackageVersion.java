@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.util.VersionUtil;
  */
 public final class PackageVersion implements Versioned {
   public final static Version VERSION = VersionUtil.parseVersion(
-      "0.8-SNAPSHOT", "org.locationtech.spatial4j", "spatial4j");
+      "0.9-SNAPSHOT", "org.locationtech.spatial4j", "spatial4j");
 
   @Override
   public Version version() {
