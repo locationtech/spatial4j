@@ -271,42 +271,40 @@
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">   * Try to read a shape from any supported formats</em>
 <a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">   * @param value</em>
-<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">   * @return shape or null if unable to parse any shape</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">   * @throws InvalidShapeException</em>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>   @Deprecated
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> readShape(String value) <strong class="jxr_keyword">throws</strong> InvalidShapeException {
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>     <strong class="jxr_keyword">return</strong> formats.read(value);
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>   }
-<a class="jxr_linenumber" name="L274" href="#L274">274</a> 
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>   <em class="jxr_javadoccomment">/** Writes the shape to a String using the old/deprecated</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">   * {@link org.locationtech.spatial4j.io.LegacyShapeWriter}. The JTS based subclass will write it</em>
-<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">   * to WKT if the legacy format doesn't support that shape.</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">   * &lt;b&gt;Spatial4j in the near future won't support writing shapes to strings.&lt;/b&gt;</em>
-<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">   * @param shape non-null</em>
-<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">   * @return non-null</em>
-<a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>   @Deprecated
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>   <strong class="jxr_keyword">public</strong> String toString(<a href="../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> shape) {
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     <strong class="jxr_keyword">return</strong> LegacyShapeWriter.writeShape(shape);
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>   }
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>   
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>   @Override
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>   <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.equals(GEO)) {
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>       <strong class="jxr_keyword">return</strong> GEO.getClass().getSimpleName()+<span class="jxr_string">".GEO"</span>;
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>       <strong class="jxr_keyword">return</strong> getClass().getSimpleName()+<span class="jxr_string">"{"</span> +
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>           <span class="jxr_string">"geo="</span> + geo +
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>           <span class="jxr_string">", calculator="</span> + calculator +
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>           <span class="jxr_string">", worldBounds="</span> + worldBounds +
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>           '}';
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>     }
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>   }
-<a class="jxr_linenumber" name="L299" href="#L299">299</a> }
+<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">   * @return shape or null if unable to parse any shape</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>   @Deprecated
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> readShape(String value) <strong class="jxr_keyword">throws</strong> InvalidShapeException {
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <strong class="jxr_keyword">return</strong> formats.read(value);
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>   }
+<a class="jxr_linenumber" name="L272" href="#L272">272</a> 
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>   <em class="jxr_javadoccomment">/** Writes the shape to a String using the old/deprecated</em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">   * {@link org.locationtech.spatial4j.io.LegacyShapeWriter}. The JTS based subclass will write it</em>
+<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">   * to WKT if the legacy format doesn't support that shape.</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">   * &lt;b&gt;Spatial4j in the near future won't support writing shapes to strings.&lt;/b&gt;</em>
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">   * @param shape non-null</em>
+<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">   * @return non-null</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>   @Deprecated
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>   <strong class="jxr_keyword">public</strong> String toString(<a href="../../../../org/locationtech/spatial4j/shape/Shape.html">Shape</a> shape) {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>     <strong class="jxr_keyword">return</strong> LegacyShapeWriter.writeShape(shape);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>   }
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>   
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>   @Override
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>   <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.equals(GEO)) {
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>       <strong class="jxr_keyword">return</strong> GEO.getClass().getSimpleName()+<span class="jxr_string">".GEO"</span>;
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>       <strong class="jxr_keyword">return</strong> getClass().getSimpleName()+<span class="jxr_string">"{"</span> +
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>           <span class="jxr_string">"geo="</span> + geo +
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>           <span class="jxr_string">", calculator="</span> + calculator +
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>           <span class="jxr_string">", worldBounds="</span> + worldBounds +
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>           '}';
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>     }
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>   }
+<a class="jxr_linenumber" name="L297" href="#L297">297</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2017 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2020 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
 </body>
 </html>

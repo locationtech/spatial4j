@@ -153,7 +153,7 @@
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../org/locationtech/spatial4j/shape/ShapeCollection.html">ShapeCollection</a> readCollection(DataInput dataInput) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>     byte type = dataInput.readByte();
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">int</strong> size = dataInput.readInt();
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>     ArrayList&lt;Shape&gt; shapes = <strong class="jxr_keyword">new</strong> ArrayList&lt;Shape&gt;(size);
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     ArrayList&lt;Shape&gt; shapes = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(size);
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; size; i++) {
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>       <strong class="jxr_keyword">if</strong> (type == 0) {
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>         shapes.add(readShape(dataInput));
@@ -186,6 +186,6 @@
 <a class="jxr_linenumber" name="L178" href="#L178">178</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2017 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2020 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
 </body>
 </html>

@@ -42,12 +42,19 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>    }
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../org/locationtech/spatial4j/shape/Point.html">Point</a> getPoint() {
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">return</strong> point;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>    }
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  }
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>    @Override
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../org/locationtech/spatial4j/io/OnePointsBuilder.html">OnePointsBuilder</a> pointLatLon(<strong class="jxr_keyword">double</strong> latitude, <strong class="jxr_keyword">double</strong> longitude) {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      assert point == <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      point = shapeFactory.pointLatLon(latitude, longitude);
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>    }
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../org/locationtech/spatial4j/shape/Point.html">Point</a> getPoint() {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">return</strong> point;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>    }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2017 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2020 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
 </body>
 </html>

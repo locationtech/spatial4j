@@ -581,44 +581,46 @@
 <a class="jxr_linenumber" name="L573" href="#L573">573</a>       <strong class="jxr_keyword">return</strong> geom;
 <a class="jxr_linenumber" name="L574" href="#L574">574</a>     assert geom.isValid() : <span class="jxr_string">"geom"</span>;
 <a class="jxr_linenumber" name="L575" href="#L575">575</a> 
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>     <em class="jxr_comment">//TODO opt: support geom's that start at negative pages --</em>
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>     <em class="jxr_comment">// ... will avoid need to previously shift in unwrapDateline(geom).</em>
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>     List&lt;Geometry&gt; geomList = <strong class="jxr_keyword">new</strong> ArrayList&lt;Geometry&gt;();
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>     <em class="jxr_comment">//page 0 is the standard -180 to 180 range</em>
-<a class="jxr_linenumber" name="L580" href="#L580">580</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> page = 0; <strong class="jxr_keyword">true</strong>; page++) {
-<a class="jxr_linenumber" name="L581" href="#L581">581</a>       <strong class="jxr_keyword">double</strong> minX = -180 + page * 360;
-<a class="jxr_linenumber" name="L582" href="#L582">582</a>       <strong class="jxr_keyword">if</strong> (geomEnv.getMaxX() &lt;= minX)
-<a class="jxr_linenumber" name="L583" href="#L583">583</a>         <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>       Geometry rect = geom.getFactory().toGeometry(<strong class="jxr_keyword">new</strong> Envelope(minX, minX + 360, -90, 90));
-<a class="jxr_linenumber" name="L585" href="#L585">585</a>       assert rect.isValid() : <span class="jxr_string">"rect"</span>;
-<a class="jxr_linenumber" name="L586" href="#L586">586</a>       Geometry pageGeom = rect.intersection(geom);<em class="jxr_comment">//JTS is doing some hard work</em>
-<a class="jxr_linenumber" name="L587" href="#L587">587</a>       assert pageGeom.isValid() : <span class="jxr_string">"pageGeom"</span>;
-<a class="jxr_linenumber" name="L588" href="#L588">588</a> 
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>       shiftGeomByX(pageGeom, page * -360);
-<a class="jxr_linenumber" name="L590" href="#L590">590</a>       geomList.add(pageGeom);
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>     }
-<a class="jxr_linenumber" name="L592" href="#L592">592</a>     <strong class="jxr_keyword">return</strong> UnaryUnionOp.union(geomList);
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>   }
-<a class="jxr_linenumber" name="L594" href="#L594">594</a> 
-<a class="jxr_linenumber" name="L595" href="#L595">595</a> <em class="jxr_comment">//  private static Geometry removePolyHoles(Geometry geom) {</em>
-<a class="jxr_linenumber" name="L596" href="#L596">596</a> <em class="jxr_comment">//    //TODO this does a deep copy of geom even if no changes needed; be smarter</em>
-<a class="jxr_linenumber" name="L597" href="#L597">597</a> <em class="jxr_comment">//    GeometryTransformer gTrans = new GeometryTransformer() {</em>
-<a class="jxr_linenumber" name="L598" href="#L598">598</a> <em class="jxr_comment">//      @Override</em>
-<a class="jxr_linenumber" name="L599" href="#L599">599</a> <em class="jxr_comment">//      protected Geometry transformPolygon(Polygon geom, Geometry parent) {</em>
-<a class="jxr_linenumber" name="L600" href="#L600">600</a> <em class="jxr_comment">//        if (geom.getNumInteriorRing() == 0)</em>
-<a class="jxr_linenumber" name="L601" href="#L601">601</a> <em class="jxr_comment">//          return geom;</em>
-<a class="jxr_linenumber" name="L602" href="#L602">602</a> <em class="jxr_comment">//        return factory.createPolygon((LinearRing) geom.getExteriorRing(),null);</em>
-<a class="jxr_linenumber" name="L603" href="#L603">603</a> <em class="jxr_comment">//      }</em>
-<a class="jxr_linenumber" name="L604" href="#L604">604</a> <em class="jxr_comment">//    };</em>
-<a class="jxr_linenumber" name="L605" href="#L605">605</a> <em class="jxr_comment">//    return gTrans.transform(geom);</em>
-<a class="jxr_linenumber" name="L606" href="#L606">606</a> <em class="jxr_comment">//  }</em>
-<a class="jxr_linenumber" name="L607" href="#L607">607</a> <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L608" href="#L608">608</a> <em class="jxr_comment">//  private static Geometry snapAndClean(Geometry geom) {</em>
-<a class="jxr_linenumber" name="L609" href="#L609">609</a> <em class="jxr_comment">//    return new GeometrySnapper(geom).snapToSelf(GeometrySnapper.computeOverlaySnapTolerance(geom), true);</em>
-<a class="jxr_linenumber" name="L610" href="#L610">610</a> <em class="jxr_comment">//  }</em>
-<a class="jxr_linenumber" name="L611" href="#L611">611</a> }
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>     List&lt;Geometry&gt; geomList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>     <em class="jxr_comment">//page 0 is the standard -180 to 180 range</em>
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>     <strong class="jxr_keyword">int</strong> startPage = (<strong class="jxr_keyword">int</strong>) Math.floor((geomEnv.getMinX() + 180) / 360);
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> page = startPage; <strong class="jxr_keyword">true</strong>; page++) {
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>       <strong class="jxr_keyword">double</strong> minX = -180 + page * 360;
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>       <strong class="jxr_keyword">if</strong> (geomEnv.getMaxX() &lt;= minX)
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>       Geometry rect = geom.getFactory().toGeometry(<strong class="jxr_keyword">new</strong> Envelope(minX, minX + 360, -90, 90));
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>       assert rect.isValid() : <span class="jxr_string">"rect"</span>;
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>       Geometry pageGeom = rect.intersection(geom);<em class="jxr_comment">//JTS is doing some hard work</em>
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>       assert pageGeom.isValid() : <span class="jxr_string">"pageGeom"</span>;
+<a class="jxr_linenumber" name="L587" href="#L587">587</a> 
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>       <strong class="jxr_keyword">if</strong> (page != 0) {
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>         pageGeom = pageGeom.copy(); <em class="jxr_comment">// because shiftGeomByX modifies the underlying coordinates shared by geom.</em>
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>         shiftGeomByX(pageGeom, page * -360);
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>       }
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>       geomList.add(pageGeom);
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>     }
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>     <strong class="jxr_keyword">return</strong> UnaryUnionOp.union(geomList);
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>   }
+<a class="jxr_linenumber" name="L596" href="#L596">596</a> 
+<a class="jxr_linenumber" name="L597" href="#L597">597</a> <em class="jxr_comment">//  private static Geometry removePolyHoles(Geometry geom) {</em>
+<a class="jxr_linenumber" name="L598" href="#L598">598</a> <em class="jxr_comment">//    //TODO this does a deep copy of geom even if no changes needed; be smarter</em>
+<a class="jxr_linenumber" name="L599" href="#L599">599</a> <em class="jxr_comment">//    GeometryTransformer gTrans = new GeometryTransformer() {</em>
+<a class="jxr_linenumber" name="L600" href="#L600">600</a> <em class="jxr_comment">//      @Override</em>
+<a class="jxr_linenumber" name="L601" href="#L601">601</a> <em class="jxr_comment">//      protected Geometry transformPolygon(Polygon geom, Geometry parent) {</em>
+<a class="jxr_linenumber" name="L602" href="#L602">602</a> <em class="jxr_comment">//        if (geom.getNumInteriorRing() == 0)</em>
+<a class="jxr_linenumber" name="L603" href="#L603">603</a> <em class="jxr_comment">//          return geom;</em>
+<a class="jxr_linenumber" name="L604" href="#L604">604</a> <em class="jxr_comment">//        return factory.createPolygon((LinearRing) geom.getExteriorRing(),null);</em>
+<a class="jxr_linenumber" name="L605" href="#L605">605</a> <em class="jxr_comment">//      }</em>
+<a class="jxr_linenumber" name="L606" href="#L606">606</a> <em class="jxr_comment">//    };</em>
+<a class="jxr_linenumber" name="L607" href="#L607">607</a> <em class="jxr_comment">//    return gTrans.transform(geom);</em>
+<a class="jxr_linenumber" name="L608" href="#L608">608</a> <em class="jxr_comment">//  }</em>
+<a class="jxr_linenumber" name="L609" href="#L609">609</a> <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L610" href="#L610">610</a> <em class="jxr_comment">//  private static Geometry snapAndClean(Geometry geom) {</em>
+<a class="jxr_linenumber" name="L611" href="#L611">611</a> <em class="jxr_comment">//    return new GeometrySnapper(geom).snapToSelf(GeometrySnapper.computeOverlaySnapTolerance(geom), true);</em>
+<a class="jxr_linenumber" name="L612" href="#L612">612</a> <em class="jxr_comment">//  }</em>
+<a class="jxr_linenumber" name="L613" href="#L613">613</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2017 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2020 <a href="http://www.locationtech.org/">LocationTech</a>. All rights reserved.</div>
 </body>
 </html>
