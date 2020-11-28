@@ -1,6 +1,12 @@
+## VERSION X.X
+
+(TBD)
+
 ## VERSION 0.8
 
-DATE: _unreleased_
+DATE: 26 November 2020
+
+* \#197: Require Java 8, AKA v1.8. (David Smiley)
 
 * \#194: Circles that cross a dateline can now be converted to a JTS Geometry. Previous attempts would throw an exception. 
  (Stijn Caerts)
