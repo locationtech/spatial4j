@@ -62,8 +62,7 @@ public class GeoJSONReader implements ShapeReader {
     }
     try {
       return read(new StringReader(v));
-    } catch (IOException ex) {
-    } catch (ParseException e) {
+    } catch (IOException | ParseException ex) {
     }
     return null;
   }

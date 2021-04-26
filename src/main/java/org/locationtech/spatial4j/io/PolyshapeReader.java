@@ -61,8 +61,7 @@ public class PolyshapeReader implements ShapeReader {
     if(first >= '0' && first <= '9') {
       try {
         return read(new StringReader(v));
-      } catch (ParseException e) {
-      } catch (IOException e) {
+      } catch (ParseException | IOException e) {
       }
     }
     return null;
