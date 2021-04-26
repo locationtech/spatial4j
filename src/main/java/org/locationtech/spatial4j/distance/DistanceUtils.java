@@ -143,7 +143,7 @@ public class DistanceUtils {
     if (result == null || result.length != center.length) {
       result = new double[center.length];
     }
-    if (upperRight == false) {
+    if (!upperRight) {
       distance = -distance;
     }
     //We don't care about the power here,
