@@ -30,7 +30,6 @@ import org.locationtech.spatial4j.context.SpatialContextFactory;
 import org.locationtech.spatial4j.exception.InvalidShapeException;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.ShapeFactory;
-import org.locationtech.jts.geom.LinearRing;
 
 
 /**
