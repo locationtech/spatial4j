@@ -128,6 +128,7 @@ public class Range {
       return min > max;
     }
 
+    @Override
     public double getCenter() {
       double ctr = super.getCenter();
       if (ctr > 180)
