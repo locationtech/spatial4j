@@ -81,7 +81,7 @@ public class GeohashUtils {
     int ch = 0;
 
     while (geohash.length() < precision) {
-      double mid = 0.0;
+      double mid;
       if (isEven) {
         mid = (lngInterval[0] + lngInterval[1]) / 2D;
         if (longitude > mid) {

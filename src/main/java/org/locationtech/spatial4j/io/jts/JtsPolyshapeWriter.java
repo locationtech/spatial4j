@@ -47,7 +47,7 @@ public class JtsPolyshapeWriter extends PolyshapeWriter {
   // --------------------------------------------------------------
 
   protected void write(Encoder output, CoordinateSequence coordseq) throws IOException {
-    int dim = coordseq.getDimension();
+//    int dim = coordseq.getDimension();
 //    if(dim>2) {
 //      throw new IllegalArgumentException("only supports 2d geometry now ("+dim+")");
 //    }
