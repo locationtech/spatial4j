@@ -41,17 +41,9 @@ It is never a bad idea to email the mailing list with thoughts about a change yo
 before you make it. This allows the committers to weigh in with thoughts and suggestions that will 
 help you make the change and ultimately ensure your successful contribution to the project. 
 
-### Sign off on commits, and filing an ECA
+### Filing an ECA
 
-Commits that are provided by non-committers must have a Signed-off-by field in
-the footer indicating that the author is aware of the terms by which the
-contribution has been provided to the project.
-This can be added manually, or by using the "-s" (sign-off) flag with git.
-The following is an example of a commit with the sign-off flag.
-
-     git commit -s -m "the commit message"
-
-Furthermore, contributors must electronically sign the Eclipse Contributor Agreement (ECA).
+Contributors must electronically sign the Eclipse Contributor Agreement (ECA).
 This is a one-time event, and is quick & easy.
 
 * http://www.eclipse.org/legal/ECA.php
