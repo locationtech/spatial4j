@@ -47,7 +47,7 @@ public class JtsPolyshapeWriter extends PolyshapeWriter {
   // --------------------------------------------------------------
 
   protected void write(Encoder output, CoordinateSequence coordseq) throws IOException {
-    int dim = coordseq.getDimension();
+//    int dim = coordseq.getDimension();
 //    if(dim>2) {
 //      throw new IllegalArgumentException("only supports 2d geometry now ("+dim+")");
 //    }
@@ -77,20 +77,16 @@ public class JtsPolyshapeWriter extends PolyshapeWriter {
       Point v = (Point) geom;
       output.write(PolyshapeWriter.KEY_POINT);
       write(output, v.getCoordinateSequence());
-      return;
     } else if (geom instanceof Polygon) {
       write(output, (Polygon) geom);
-      return;
     } else if (geom instanceof LineString) {
       LineString v = (LineString) geom;
       output.write(PolyshapeWriter.KEY_LINE);
       write(output, v.getCoordinateSequence());
-      return;
     } else if (geom instanceof MultiPoint) {
       MultiPoint v = (MultiPoint) geom;
       output.write(PolyshapeWriter.KEY_MULTIPOINT);
       write(output, v.getCoordinates());
-      return;
     } else if (geom instanceof GeometryCollection) {
       GeometryCollection v = (GeometryCollection) geom;
       for (int i = 0; i < v.getNumGeometries(); i++) {

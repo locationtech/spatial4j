@@ -62,8 +62,7 @@ public class GeoJSONReader implements ShapeReader {
     }
     try {
       return read(new StringReader(v));
-    } catch (IOException ex) {
-    } catch (ParseException e) {
+    } catch (IOException | ParseException ex) {
     }
     return null;
   }
@@ -114,7 +113,6 @@ public class GeoJSONReader implements ShapeReader {
       }
       evt = parser.nextEvent();
     }
-    return;
   }
 
   protected void readCoordListXYZ(JSONParser parser, ShapeFactory.PointsBuilder pointsBuilder) throws IOException, ParseException {

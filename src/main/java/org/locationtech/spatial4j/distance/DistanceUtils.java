@@ -143,7 +143,7 @@ public class DistanceUtils {
     if (result == null || result.length != center.length) {
       result = new double[center.length];
     }
-    if (upperRight == false) {
+    if (!upperRight) {
       distance = -distance;
     }
     //We don't care about the power here,
@@ -269,7 +269,7 @@ public class DistanceUtils {
           minY = -90;
       } else {
         //--calc longitude bounds
-        double lon_delta_deg = calcBoxByDistFromPt_deltaLonDEG(lat, lon, distDEG);
+        double lon_delta_deg = calcBoxByDistFromPt_deltaLonDEG(lat, distDEG);
 
         minX = normLonDEG(lon - lon_delta_deg);
         maxX = normLonDEG(lon + lon_delta_deg);
@@ -287,7 +287,7 @@ public class DistanceUtils {
    * The delta longitude of a point-distance. In other words, half the width of
    * the bounding box of a circle.
    */
-  public static double calcBoxByDistFromPt_deltaLonDEG(double lat, double lon, double distDEG) {
+  public static double calcBoxByDistFromPt_deltaLonDEG(double lat, double distDEG) {
     //http://gis.stackexchange.com/questions/19221/find-tangent-point-on-circle-furthest-east-or-west
     if (distDEG == 0)
       return 0;

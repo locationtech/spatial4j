@@ -74,7 +74,7 @@ public class RectangleImpl extends BaseShape<SpatialContext> implements Rectangl
         double latDistance = distance;
         double closestToPoleY = Math.abs(maxY) > Math.abs(minY) ? maxY : minY;
         double lonDistance = DistanceUtils.calcBoxByDistFromPt_deltaLonDEG(
-            closestToPoleY, minX, distance);//lat,lon order
+            closestToPoleY, distance);//lat,lon order
         //could still wrap the world though...
         if (lonDistance * 2 + getWidth() >= 360)
           return ctx.makeRectangle(-180, 180, minY - latDistance, maxY + latDistance);

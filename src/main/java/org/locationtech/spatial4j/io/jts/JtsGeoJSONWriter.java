@@ -101,24 +101,20 @@ public class JtsGeoJSONWriter extends GeoJSONWriter {
       output.append("{\"type\":\"Point\",\"coordinates\":");
       write(output, nf, v.getCoordinate());
       output.append("}");
-      return;
     } else if (geom instanceof Polygon) {
       output.append("{\"type\":\"Polygon\",\"coordinates\":");
       write(output, nf, (Polygon) geom);
       output.append("}");
-      return;
     } else if (geom instanceof LineString) {
       LineString v = (LineString) geom;
       output.append("{\"type\":\"LineString\",\"coordinates\":");
       write(output, nf, v.getCoordinateSequence());
       output.append("}");
-      return;
     } else if (geom instanceof MultiPoint) {
       MultiPoint v = (MultiPoint) geom;
       output.append("{\"type\":\"MultiPoint\",\"coordinates\":");
       write(output, nf, v.getCoordinates());
       output.append("}");
-      return;
     } else if (geom instanceof MultiLineString) {
       MultiLineString v = (MultiLineString) geom;
       output.append("{\"type\":\"MultiLineString\",\"coordinates\":[");
