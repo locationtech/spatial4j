@@ -6,7 +6,7 @@ Spatial4j supports reading and writing Shapes to and from strings in the followi
  * GeoJSON
  * Polyshape
 
-## Reader/Writer Api
+## Reader/Writer API
 
 The classes `ShapeReader` and `ShapeWriter` are the interfaces for encoding 
 and decoding shapes respectively. They can be obtained from a `SpatialContext` instance.
@@ -192,5 +192,5 @@ the largest encoding.
 | 100% (131) | 40% (53) |  %31 (40) |   15% (20) | `GEOMETRYCOLLECTION(POINT(100.1 0.1),POINT(101.1 1.1))` |
 
 With this limited dataset it looks like the Polyshape format is on average ~25% as big as GeoJSON, 
-~50% as big as WKT, and ~40% as big as the binary encoding. THe data used for this benchmark 
+~50% as big as WKT, and ~40% as big as the binary encoding. The data used for this benchmark 
 contains data with low precision numbers (100.1 vs 100.123456) so that may be a low estimate.
