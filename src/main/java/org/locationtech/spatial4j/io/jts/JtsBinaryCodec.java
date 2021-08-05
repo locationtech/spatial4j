@@ -85,15 +85,17 @@ public class JtsBinaryCodec extends BinaryCodec {
       InStream inStream = new InStream() {//a strange JTS abstraction
         boolean first = true;
         @Override
-        public void read(byte[] buf) throws IOException {
+        public int read(byte[] buf) throws IOException {
           if (first) {//we don't write JTS's leading BOM so synthesize reading it
             if (buf.length != 1)
               throw new IllegalStateException("Expected initial read of one byte, not: " + buf.length);
             buf[0] = WKBConstants.wkbXDR;//0
             first = false;
+            return 1;
           } else {
             //TODO for performance, specialize for common array lengths: 1, 4, 8
             dataInput.readFully(buf);
+            return buf.length;
           }
         }
       };

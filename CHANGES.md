@@ -1,6 +1,8 @@
 ## VERSION X.X
 
-(TBD)
+* \#206: Upgraded to JTS 1.18.1.  This JTS release had an incompatible [API change](https://github.com/locationtech/jts/blob/master/doc/JTS_Version_History.md#api-changes) and it requires Java 1.8.
+  Only Spatial4j's `JtsBinaryCodec` was impacted, and thus only use of this will require a JTS upgrade.
+(Christian Marsch)
 
 ## VERSION 0.8
 

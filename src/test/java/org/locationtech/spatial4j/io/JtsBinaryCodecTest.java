@@ -8,19 +8,16 @@
 
 package org.locationtech.spatial4j.io;
 
-import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
-import org.locationtech.spatial4j.context.SpatialContext;
-import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
-import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
-import org.locationtech.spatial4j.shape.Shape;
+import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.util.GeometricShapeFactory;
-
-import org.junit.Test;
-
-import java.util.Arrays;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 
 public class JtsBinaryCodecTest extends BinaryCodecTest {
 
@@ -32,9 +29,10 @@ public class JtsBinaryCodecTest extends BinaryCodecTest {
   }
 
   @Test
-  public void testPoly() {
+  public void testPoly() throws Exception {
     JtsSpatialContext ctx = (JtsSpatialContext)super.ctx;
-    ctx.makeShape(randomGeometry(randomIntBetween(3, 20)), false, false);
+    final JtsGeometry shape = ctx.makeShape(randomGeometry(randomIntBetween(3, 20)), false, false);
+    assertRoundTrip(shape);
   }
 
   @Override
