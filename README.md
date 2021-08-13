@@ -98,7 +98,7 @@ Spatial4j has been ported to .NET (C#) where it is appropriately named [Spatial4
 
 ### History
 
-Before Spatial4j, there was [Lucene Spatial Playground](http://code.google.com/p/lucene-spatial-playground/) (LSP) and 
+Before Spatial4j, there was [Lucene Spatial Playground](https://code.google.com/archive/p/lucene-spatial-playground/) (LSP) and 
 from this work a generic core spatial library emerged, independent of Lucene: Spatial4j. 
 The other parts of LSP were either merged into Lucene / Solr itself or were migrated to
 [Spatial Solr Sandbox](https://github.com/ryantxu/spatial-solr-sandbox).  
