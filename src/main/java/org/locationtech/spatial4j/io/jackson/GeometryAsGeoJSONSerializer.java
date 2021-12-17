@@ -95,7 +95,6 @@ public class GeometryAsGeoJSONSerializer extends JsonSerializer<Geometry>
       MultiPoint v = (MultiPoint) geom;
       gen.writeFieldName("coordinates");
       write(gen, v.getCoordinates());
-      return;
     } else if (geom instanceof MultiLineString) {
       MultiLineString v = (MultiLineString) geom;
       gen.writeFieldName("coordinates");
