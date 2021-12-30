@@ -1,6 +1,6 @@
 # Spatial4j
 
-[![Build](https://travis-ci.org/locationtech/spatial4j.svg)](https://travis-ci.org/locationtech/spatial4j)
+[![Build](https://github.com/locationtech/spatial4j/actions/workflows/build.yml/badge.svg)](ttps://github.com/locationtech/spatial4j/actions)
 [![Coverage](https://img.shields.io/codecov/c/github/locationtech/spatial4j.svg)](https://codecov.io/github/locationtech/spatial4j/)
 [![Maven](https://img.shields.io/maven-central/v/org.locationtech.spatial4j/spatial4j.svg)](https://maven-badges.herokuapp.com/maven-central/org.locationtech.spatial4j/spatial4j/)
 
