@@ -44,7 +44,7 @@ public class ShapeDeserializer extends JsonDeserializer<Shape>
     double x = arr.get(0).asDouble();
     double y = arr.get(1).asDouble();
     if(arr.size()==3) {
-      double z = arr.get(3).asDouble();
+      double z = arr.get(2).asDouble();
       return factory.pointXYZ(x, y, z);
     }
     return factory.pointXY(x, y);
@@ -57,7 +57,7 @@ public class ShapeDeserializer extends JsonDeserializer<Shape>
       double x = arr.get(0).asDouble();
       double y = arr.get(1).asDouble();
       if(arr.size()==3) {
-        double z = arr.get(3).asDouble();
+        double z = arr.get(2).asDouble();
         b.pointXYZ(x, y, z);
       }
       else {
