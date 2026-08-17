@@ -102,5 +102,5 @@ Before Spatial4j, there was [Lucene Spatial Playground](http://code.google.com/p
 from this work a generic core spatial library emerged, independent of Lucene: Spatial4j. 
 The other parts of LSP were either merged into Lucene / Solr itself or were migrated to
 [Spatial Solr Sandbox](https://github.com/ryantxu/spatial-solr-sandbox).  
-On February 26th 2016, with release 0.6, Spatial4j became a LocationTech project (a part of Eclipse) following a long
+On February 26th, 2016, with release 0.6, Spatial4j became a LocationTech project (a part of Eclipse) following a long
 incubation period.
