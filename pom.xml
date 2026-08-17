@@ -13,11 +13,11 @@
   <version>0.9-SNAPSHOT</version>
   <packaging>bundle</packaging><!-- an OSGi thing; basically same as 'jar' -->
 
-  <name>Spatial4J</name>
+  <name>LocationTech Spatial4j</name>
   <description>
-    Spatial4j is a general purpose spatial / geospatial ASL licensed open-source Java library. It's
+    Spatial4j is a general purpose spatial / geospatial ASL licensed open-source Java library. Its
     core capabilities are 3-fold: to provide common geospatially-aware shapes, to provide distance
-    calculations and other math, and to read shape formats like WKT and GeoJSON.
+    calculations and other math, and to read and write shape formats like WKT and GeoJSON.
   </description>
 
   <url>https://projects.eclipse.org/projects/locationtech.spatial4j</url>
@@ -44,12 +44,6 @@
     <system>Jenkins</system>
     <url>https://ci.eclipse.org/spatial4j/job/Spatial4j/</url>
   </ciManagement>
-  <!-- also:
-  <ciManagement>
-    <system>Travis-CI</system>
-    <url>https://travis-ci.org/locationtech/spatial4j</url>
-  </ciManagement>
-   -->
 
   <mailingLists>
     <mailingList>

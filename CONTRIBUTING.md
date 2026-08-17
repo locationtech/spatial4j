@@ -23,7 +23,7 @@ filed [here](https://github.com/locationtech/spatial4j/issues).
 
 Often communication can be carried out through comments on an issue or pull request directly but 
 for larger discussions that are more general in nature it is recommended that the project 
-[mailing list](https://locationtech.org/mailman/listinfo/spatial4j-dev) be used. 
+[mailing list](https://accounts.eclipse.org/mailing-list/spatial4j-dev) be used. 
 
 ## <a name="patches">Submitting Patches</a>
 
