@@ -443,7 +443,16 @@ public class JtsShapeFactory extends ShapeFactoryImpl {
         last = s.getClass();
       }
 
-      return makeShapeFromGeometry(geometryFactory.buildGeometry(geoms));
+      if (shapes.size() == 1) {
+        return shapes.get(0);
+      }
+
+      Geometry combined = geometryFactory.buildGeometry(geoms);
+      // Homogeneous collections become Multi* types; match multi* builders (no re-validate).
+      if (combined.getClass().equals(GeometryCollection.class)) {
+        return makeShapeFromGeometry(combined);
+      }
+      return makeShape(combined);
     }
   }
 

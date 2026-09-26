@@ -139,6 +139,17 @@ public class JtsWktShapeParserTest extends WktShapeParserTest {
   }
 
   @Test
+  public void selfIntersectingMultiPolygonSameInGeometryCollection() throws ParseException {
+    WKTReader geoReader = (WKTReader) JtsSpatialContext.GEO.getFormats().getWktReader();
+    String multi =
+        "MULTIPOLYGON (((5 5, 10 5, 10 10, 5 5)), ((6 6, 10 5, 10 10, 6 6)))";
+    String collection =
+        "GEOMETRYCOLLECTION ( MULTIPOLYGON (((5 5, 10 5, 10 10, 5 5)), ((6 6, 10 5, 10 10, 6 6))) )";
+    geoReader.parse(multi);
+    geoReader.parse(collection);
+  }
+
+  @Test
   public void testWrapTopologyException() throws Exception {
     //test that we can catch ParseException without having to detect TopologyException too
     assert ctx.getValidationRule() != ValidationRule.none;
