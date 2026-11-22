@@ -17,6 +17,8 @@ import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.ShapeFactory;
 import org.noggit.JSONParser;
+import org.noggit.JSONUtil;
+import org.noggit.ObjectBuilder;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -223,6 +225,7 @@ public class GeoJSONReader implements ShapeReader {
 
   protected Shape readShape(JSONParser parser) throws IOException, ParseException {
     String type = null;
+    Object pendingCoordinates = null;
 
     String key = null;
     int evt = parser.nextEvent();
@@ -234,6 +237,11 @@ public class GeoJSONReader implements ShapeReader {
           } else {
             if ("type".equals(key)) {
               type = parser.getString();
+              if (pendingCoordinates != null) {
+                Shape shape = readShapeFromCoordinateValue(type, pendingCoordinates);
+                readUntilEvent(parser, JSONParser.OBJECT_END);
+                return shape;
+              }
             } else {
               throw new ParseException("Unexpected String Value for key: " + key,
                       (int) parser.getPosition());
@@ -243,6 +251,12 @@ public class GeoJSONReader implements ShapeReader {
 
         case JSONParser.ARRAY_START:
           if ("coordinates".equals(key)) {
+            if (type == null) {
+              // RFC 7946: object member order is irrelevant, so "coordinates"
+              // may appear before "type". Buffer the array until type is known.
+              pendingCoordinates = ObjectBuilder.getVal(parser);
+              break;
+            }
             Shape shape = readShapeFromCoordinates(type, parser);
             readUntilEvent(parser, JSONParser.OBJECT_END);
             return shape;
@@ -291,7 +305,21 @@ public class GeoJSONReader implements ShapeReader {
       }
       evt = parser.nextEvent();
     }
+    if (type != null && pendingCoordinates != null) {
+      return readShapeFromCoordinateValue(type, pendingCoordinates);
+    }
     throw new RuntimeException("unable to parse shape");
+  }
+
+  protected Shape readShapeFromCoordinateValue(String type, Object coordinates)
+      throws IOException, ParseException {
+    JSONParser coordParser = new JSONParser(JSONUtil.toJSON(coordinates));
+    int evt = coordParser.nextEvent();
+    if (evt != JSONParser.ARRAY_START) {
+      throw new ParseException("Unexpected " + JSONParser.getEventString(evt),
+          (int) coordParser.getPosition());
+    }
+    return readShapeFromCoordinates(type, coordParser);
   }
 
   protected Shape readShapeFromCoordinates(String type, JSONParser parser) throws IOException, ParseException {
