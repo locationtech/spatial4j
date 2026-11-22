@@ -106,6 +106,17 @@ public class GeneralGeoJSONTest extends GeneralReadWriteShapeTest {
   }
 
   @Test
+  public void testParsePolygonCoordinatesBeforeType() throws Exception {
+    // Issue #227: "coordinates" before "type" (RFC 7946 member order is irrelevant).
+    String typeFirst = strip(
+        "{'type':'Polygon','coordinates':[[[1,0.01],[1,-0.01],[2,-0.02],[3,-0.01],[3,0.01],[1,0.01]]]}");
+    String coordinatesFirst =
+        "{\"coordinates\":[[[1,0.01],[1,-0.01],[2,-0.02],[3,-0.01],[3,0.01],[1,0.01]]],\"type\":\"Polygon\"}";
+    Shape expected = reader.read(typeFirst);
+    assertEquals(expected, reader.read(coordinatesFirst));
+  }
+
+  @Test
   public void testEncodePolygon() throws Exception {
     assertEquals(polygonText1(), writer.toString(polygon1()));
     assertEquals(polygonText2(), writer.toString(polygon2()));
